@@ -207,105 +207,105 @@ Untuk pertanyaan, saran, atau dukungan teknis, silakan hubungi:
 
 ---
 
-# React Development with Hot Reload
+# Pengembangan React dengan Hot Reload
 
-## Quick Start
+## Mulai Cepat
 
-Your React views are now configured for automatic refresh during development! Here's how to use it:
+Tampilan React Anda sekarang dikonfigurasi untuk penyegaran otomatis selama pengembangan! Berikut cara menggunakannya:
 
-### Method 1: Individual Servers (Recommended for Development)
+### Metode 1: Server Terpisah (Direkomendasikan untuk Pengembangan)
 
-1. **Start Vite Dev Server (for React Hot Reload):**
+1. **Jalankan Vite Dev Server (untuk React Hot Reload):**
    ```bash
    npm run dev
    ```
-   This runs on `http://localhost:5173`
+   Ini berjalan di `http://localhost:5173`
 
-2. **Start Laravel Server (in another terminal):**
+2. **Jalankan Laravel Server (di terminal lain):**
    ```bash
    php artisan serve
    ```
-   This runs on `http://localhost:8000`
+   Ini berjalan di `http://localhost:8000`
 
-3. **Access your React app:**
-   Visit `http://localhost:8000/react` in your browser
+3. **Akses aplikasi React Anda:**
+   Kunjungi `http://localhost:8000/react` di browser Anda
 
-### Method 2: Combined Script
+### Metode 2: Script Gabungan
 
-Run both servers together:
+Jalankan kedua server bersama-sama:
 ```bash
 npm run react:dev
 ```
 
-Or use the shell script:
+Atau gunakan shell script:
 ```bash
 ./dev-react.sh
 ```
 
-## How Hot Reload Works
+## Cara Kerja Hot Reload
 
-### ✅ What Gets Auto-Refreshed:
-- **React Components** - Changes reflect instantly without losing state
-- **CSS/Tailwind** - Styles update immediately
-- **JavaScript modules** - Functions and logic update seamlessly
+### ✅ Yang Disegarkan Otomatis:
+- **Komponen React** - Perubahan tercermin secara instan tanpa kehilangan state
+- **CSS/Tailwind** - Gaya diperbarui segera
+- **Modul JavaScript** - Fungsi dan logika diperbarui dengan mulus
 
-### 🔄 What Triggers Page Reload:
-- **Blade templates** - Laravel views refresh the entire page
-- **PHP files** - Backend changes reload the page
-- **Route changes** - Routing modifications trigger reload
+### 🔄 Yang Memicu Reload Halaman:
+- **Template Blade** - Tampilan Laravel me-refresh seluruh halaman
+- **File PHP** - Perubahan backend me-reload halaman
+- **Perubahan Route** - Modifikasi routing memicu reload
 
-## Development Workflow
+## Alur Kerja Pengembangan
 
-### 1. **React Component Changes:**
+### 1. **Perubahan Komponen React:**
 ```jsx
-// Edit any component in resources/js/react/
-// Changes appear instantly without losing component state
+// Edit komponen apa pun di resources/js/react/
+// Perubahan muncul seketika tanpa kehilangan state komponen
 ```
 
-### 2. **Testing Hot Reload:**
-- Visit your React app at `http://localhost:8000/react`
-- Try the test component counter
+### 2. **Menguji Hot Reload:**
+- Kunjungi aplikasi React Anda di `http://localhost:8000/react`
+- Coba fitur counter pada komponen pengujian
 - Edit `resources/js/react/components/TestComponent.jsx`
-- Watch changes appear instantly!
+- Lihat perubahan muncul seketika!
 
-### 3. **CSS Changes:**
+### 3. **Perubahan CSS:**
 ```css
 /* Edit resources/css/app.css */
-/* Styles update immediately */
+/* Gaya diperbarui segera */
 ```
 
-## Available Scripts
+## Script yang Tersedia
 
 ```json
 {
-  "dev": "vite",                    // Start Vite dev server
-  "dev:host": "vite --host",        // Expose to network
-  "react:dev": "concurrently...",   // Run Laravel + Vite together
-  "build": "vite build",            // Build for production
-  "preview": "vite preview",        // Preview production build
-  "watch": "vite build --watch"     // Watch build for changes
+  "dev": "vite",                    // Mulai server dev Vite
+  "dev:host": "vite --host",        // Ekspos ke jaringan
+  "react:dev": "concurrently...",   // Jalankan Laravel + Vite bersama
+  "build": "vite build",            // Build untuk produksi
+  "preview": "vite preview",        // Preview build produksi
+  "watch": "vite build --watch"     // Pantau build untuk perubahan
 }
 ```
 
-## Configuration Details
+## Detail Konfigurasi
 
-### Vite Config (`vite.config.js`):
-- **Fast Refresh**: Enabled for React components
-- **HMR**: Hot Module Replacement configured
-- **File Watching**: Monitors React, Blade, and PHP files
-- **Tailwind**: Integrated with hot reload
+### Konfigurasi Vite (`vite.config.js`):
+- **Fast Refresh**: Diaktifkan untuk komponen React
+- **HMR**: Hot Module Replacement dikonfigurasi
+- **File Watching**: Memantau file React, Blade, dan PHP
+- **Tailwind**: Terintegrasi dengan hot reload
 
-### Enhanced Features:
-- **State Preservation**: Component state maintained during updates
-- **Error Overlay**: Development errors shown in browser
-- **Fast Builds**: Optimized for quick rebuilds
-- **Network Access**: Use `npm run dev:host` to test on devices
+### Fitur Tambahan:
+- **State Preservation**: State komponen dipertahankan selama pembaruan
+- **Error Overlay**: Error pengembangan ditampilkan di browser
+- **Fast Builds**: Dioptimalkan untuk build cepat
+- **Akses Jaringan**: Gunakan `npm run dev:host` untuk menguji di perangkat
 
-## Troubleshooting
+## Pemecahan Masalah
 
-### If Hot Reload Isn't Working:
+### Jika Hot Reload Tidak Berfungsi:
 
-1. **Check both servers are running:**
+1. **Periksa apakah kedua server berjalan:**
    ```bash
    # Terminal 1
    npm run dev
@@ -314,330 +314,330 @@ Or use the shell script:
    php artisan serve
    ```
 
-2. **Hard refresh browser:** `Cmd+Shift+R` (Mac) or `Ctrl+Shift+R` (Windows)
+2. **Hard refresh browser:** `Cmd+Shift+R` (Mac) atau `Ctrl+Shift+R` (Windows)
 
-3. **Restart dev server:** Stop and restart `npm run dev`
+3. **Restart dev server:** Hentikan dan mulai ulang `npm run dev`
 
-4. **Check browser console** for any JavaScript errors
+4. **Periksa konsol browser** untuk error JavaScript
 
-### Common Issues:
+### Masalah Umum:
 
-- **Port conflicts**: Laravel (8000) and Vite (5173) must both be free
-- **Cache issues**: Clear browser cache if changes don't appear
-- **File permissions**: Ensure all files are readable
+- **Konflik port**: Laravel (8000) dan Vite (5173) keduanya harus bebas
+- **Masalah cache**: Bersihkan cache browser jika perubahan tidak muncul
+- **Izin file**: Pastikan semua file dapat dibaca
 
-### CSP (Content Security Policy) Issues:
+### Masalah CSP (Content Security Policy):
 
-If you see errors like "Refused to load script blob:" in the console:
+Jika Anda melihat error seperti "Refused to load script blob:" di konsol:
 
-- ✅ **Fixed**: The project includes development CSP headers that allow hot reload
-- The `ContentSecurityPolicy` middleware automatically allows blob/websocket URLs in local environment
-- In production, CSP is more restrictive for security
+- ✅ **Teratasi**: Proyek ini menyertakan header CSP pengembangan yang memungkinkan hot reload
+- Middleware `ContentSecurityPolicy` secara otomatis mengizinkan URL blob/websocket di lingkungan lokal
+- Di produksi, CSP lebih ketat untuk keamanan
 
-### Browser Console Errors:
+### Error Konsol Browser:
 
-- **blob: script errors**: Should be resolved with the CSP configuration
-- **WebSocket connection failed**: Check if Vite dev server is running on port 5173
-- **React DevTools**: Install React Developer Tools browser extension for better debugging
+- **Error script blob:**: Seharusnya teratasi dengan konfigurasi CSP
+- **WebSocket connection failed**: Periksa apakah server dev Vite berjalan di port 5173
+- **React DevTools**: Pasang ekstensi browser React Developer Tools untuk debugging yang lebih baik
 
-## Production Build
+## Build Produksi
 
-When ready for production:
+Ketika siap untuk produksi:
 ```bash
 npm run build
 ```
 
-This creates optimized assets in `public/build/` that Laravel will serve.
+Ini membuat aset yang dioptimalkan di `public/build/` yang akan disajikan oleh Laravel.
 
 ---
 
-## Next Steps
+## Langkah Selanjutnya
 
-1. **Remove Test Component**: After confirming hot reload works, remove the TestComponent from App.jsx
-2. **Build Your Components**: Create React components in `resources/js/react/components/`
-3. **Add Routes**: Update React Router routes in `App.jsx`
-4. **Integrate APIs**: Connect to your Laravel API endpoints
+1. **Hapus Komponen Test**: Setelah mengkonfirmasi hot reload berfungsi, hapus TestComponent dari App.jsx
+2. **Bangun Komponen Anda**: Buat komponen React di `resources/js/react/components/`
+3. **Tambahkan Routes**: Perbarui rute React Router di `App.jsx`
+4. **Integrasikan API**: Hubungkan ke endpoint API Laravel Anda
 
-Happy coding! 🚀
+Selamat coding! 🚀
 
 ---
 
-# Laravel Development Scripts
+# Script Pengembangan Laravel
 
-This directory contains helpful bash scripts for Laravel development workflow.
+Direktori ini berisi script bash yang membantu untuk alur kerja pengembangan Laravel.
 
-## 🎯 **RECOMMENDED: All-in-One Scripts**
+## 🎯 **REKOMENDASI: Script All-in-One**
 
-### 🚀 `run.sh` - Complete Development Runner ⭐
-**The ultimate script that does everything to get your web application running!**
+### 🚀 `run.sh` - Runner Pengembangan Lengkap ⭐
+**Script terbaik yang melakukan semua hal untuk menjalankan aplikasi web Anda!**
 
-**What it does:**
-- ✅ Checks all prerequisites (PHP, Composer)
-- ✅ Verifies Laravel project structure
-- ✅ Installs dependencies if missing
-- ✅ Sets up .env file if missing
-- ✅ Generates application key if needed
-- ✅ Creates SQLite database if needed
-- ✅ Runs migrations
-- ✅ Clears all caches completely
-- ✅ Optimizes autoloader
-- ✅ Handles port conflicts intelligently
-- ✅ Starts development server
-- ✅ Beautiful colored output with progress indicators
-- ✅ **WORKS FROM FRESH CLONE TO RUNNING WEB APP**
+**Apa yang dilakukan:**
+- ✅ Memeriksa semua prasyarat (PHP, Composer)
+- ✅ Memverifikasi struktur proyek Laravel
+- ✅ Menginstal dependensi jika tidak ada
+- ✅ Menyiapkan file .env jika tidak ada
+- ✅ Menghasilkan kunci aplikasi jika diperlukan
+- ✅ Membuat database SQLite jika diperlukan
+- ✅ Menjalankan migrasi
+- ✅ Membersihkan semua cache sepenuhnya
+- ✅ Mengoptimalkan autoloader
+- ✅ Menangani konflik port secara cerdas
+- ✅ Memulai server pengembangan
+- ✅ Output berwarna indah dengan indikator kemajuan
+- ✅ **BERFUNGSI DARI CLONE SEGAR HINGGA APLIKASI WEB BERJALAN**
 
-**Usage:**
+**Penggunaan:**
 ```bash
 ./run.sh
 ```
 
-**Perfect for:**
-- 🆕 Fresh project setup
-- 🔄 Initial development setup
-- 🛠️ Complete application setup
+**Sempurna untuk:**
+- 🆕 Setup proyek baru
+- 🔄 Setup pengembangan awal
+- 🛠️ Setup aplikasi lengkap
 
 ### 🔄 `refresh-and-run.sh` - Refresh & Run ⭐
-**Efficient script for refreshing caches and starting the server in one command!**
+**Script efisien untuk menyegarkan cache dan memulai server dalam satu perintah!**
 
-**What it does:**
-- ✅ Verifies Laravel project structure
-- ✅ Clears all caches completely (config, view, route, optimization)
-- ✅ Clears compiled class files
-- ✅ Refreshes composer autoload
-- ✅ Handles port conflicts intelligently
-- ✅ Starts development server
-- ✅ Beautiful colored output with progress indicators
+**Apa yang dilakukan:**
+- ✅ Memverifikasi struktur proyek Laravel
+- ✅ Membersihkan semua cache sepenuhnya (config, view, route, optimization)
+- ✅ Membersihkan file class yang dikompilasi
+- ✅ Menyegarkan autoload composer
+- ✅ Menangani konflik port secara cerdas
+- ✅ Memulai server pengembangan
+- ✅ Output berwarna indah dengan indikator kemajuan
 
-**Usage:**
+**Penggunaan:**
 ```bash
 ./refresh-and-run.sh
 ```
 
-**Perfect for:**
-- 🔄 Daily development workflow
-- 🧹 Quick cache refresh and restart
-- 🚀 Fast server startup
+**Sempurna untuk:**
+- 🔄 Alur kerja pengembangan harian
+- 🧹 Penyegaran cache dan restart cepat
+- 🚀 Startup server cepat
 
 ---
 
-## 📋 Additional Scripts
+## 📋 Script Tambahan
 
 ### 🛠️ `dev.sh`
-Interactive development helper with multiple options.
+Pembantu pengembangan interaktif dengan berbagai opsi.
 
-**Features:**
-- Refresh all caches and views
-- Start development server (port 8000 or 8080)
-- Run migrations
-- Seed database
-- Fresh migration with seeding
-- Run tests
-- Install/Update dependencies
-- Build assets (Vite)
-- Watch assets (Vite dev)
-- Clear all logs
-- Show routes
+**Fitur:**
+- Menyegarkan semua cache dan view
+- Memulai server pengembangan (port 8000 atau 8080)
+- Menjalankan migrasi
+- Mengisi database
+- Migrasi segar dengan pengisian
+- Menjalankan test
+- Menginstal/Memperbarui dependensi
+- Membangun aset (Vite)
+- Memantau aset (Vite dev)
+- Membersihkan semua log
+- Menampilkan rute
 - Laravel Tinker (REPL)
 
-**Usage:**
+**Penggunaan:**
 ```bash
 ./dev.sh
 ```
 
-## Quick Commands
+## Perintah Cepat
 
-### 🎯 **FASTEST WAY TO START**
+### 🎯 **CARA TERCEPAT UNTUK MEMULAI**
 ```bash
-# Complete setup and run (first time setup) ⭐
+# Setup lengkap dan jalankan (setup pertama kali) ⭐
 ./run.sh
 
-# Quick cache refresh and run (daily development) ⭐
+# Penyegaran cache cepat dan jalankan (pengembangan harian) ⭐
 ./refresh-and-run.sh
 ```
 
-### Development Workflow
+### Alur Kerja Pengembangan
 ```bash
-# Full development setup
+# Setup pengembangan penuh
 ./run.sh
 
-# Refresh caches and run server
+# Menyegarkan cache dan menjalankan server
 ./refresh-and-run.sh
 
-# Interactive development menu
+# Menu pengembangan interaktif
 ./dev.sh
 ```
 
-### Manual Commands
+### Perintah Manual
 ```bash
-# Start server on specific port
+# Memulai server pada port tertentu
 php artisan serve --port=8080
 
-# Clear specific cache
+# Membersihkan cache tertentu
 php artisan cache:clear
 php artisan view:clear
 php artisan route:clear
 
-# Run migrations
+# Menjalankan migrasi
 php artisan migrate
 
-# Seed database
+# Mengisi database
 php artisan db:seed
 ```
 
-## 🔧 What Each Script Does
+## 🔧 Apa yang Dilakukan Setiap Script
 
-| Script | Purpose | Best For |
+| Script | Tujuan | Terbaik Untuk |
 |--------|---------|----------|
-| `run.sh` ⭐ | Complete setup + run | Fresh setup, initial development |
-| `refresh-and-run.sh` ⭐ | Refresh caches + run server | Daily development, quick restart |
-| `dev.sh` | Interactive menu | Advanced options, power users |
+| `run.sh` ⭐ | Setup lengkap + jalankan | Setup segar, pengembangan awal |
+| `refresh-and-run.sh` ⭐ | Menyegarkan cache + jalankan server | Pengembangan harian, restart cepat |
+| `dev.sh` | Menu interaktif | Opsi lanjutan, pengguna mahir |
 
-## Notes
+## Catatan
 
-- ✅ All scripts work on **macOS/Linux/zsh**
-- ✅ **No manual setup required** - scripts handle everything
-- ✅ **Port conflict handling** - automatically resolves issues
-- ✅ **Beautiful colored output** with progress indicators
-- ✅ **Error handling** - fails gracefully with clear messages
+- ✅ Semua script berfungsi pada **macOS/Linux/zsh**
+- ✅ **Tidak diperlukan setup manual** - script menangani semuanya
+- ✅ **Penanganan konflik port** - secara otomatis menyelesaikan masalah
+- ✅ **Output berwarna indah** dengan indikator kemajuan
+- ✅ **Penanganan error** - gagal dengan baik dengan pesan yang jelas
 
-## 🎉 Success Indicators
+## 🎉 Indikator Keberhasilan
 
-When `run.sh` completes successfully, you'll see:
+Ketika `run.sh` selesai dengan sukses, Anda akan melihat:
 ```
 ================================================
-           🎉 SETUP COMPLETED! 🎉             
+           🎉 SETUP SELESAI! 🎉             
 ================================================
 
-✅ All systems ready!
-ℹ️ Application URL: http://127.0.0.1:8080
+✅ Semua sistem siap!
+ℹ️ URL Aplikasi: http://127.0.0.1:8080
 ```
 
-When `refresh-and-run.sh` completes, you'll see:
+Ketika `refresh-and-run.sh` selesai, Anda akan melihat:
 ```
 ================================================
-       🎉 REFRESH COMPLETED! STARTING SERVER 🎉   
+       🎉 PENYEGARAN SELESAI! MEMULAI SERVER 🎉   
 ================================================
 
-✅ All caches refreshed!
-ℹ️ Application URL: http://127.0.0.1:8080
+✅ Semua cache disegarkan!
+ℹ️ URL Aplikasi: http://127.0.0.1:8080
 ```
 
-## Troubleshooting
+## Pemecahan Masalah
 
-### Permission Issues
+### Masalah Izin
 ```bash
 chmod +x *.sh
 ```
 
-### Dependencies Missing
-The `run.sh` script will automatically install missing dependencies!
+### Dependensi Tidak Ada
+Script `run.sh` akan secara otomatis menginstal dependensi yang tidak ada!
 
-### Port Conflicts
-The script will detect and offer solutions for port conflicts automatically.
+### Konflik Port
+Script akan mendeteksi dan menawarkan solusi untuk konflik port secara otomatis.
 
 ---
 
-# IndoQuran Bookmark & Favorite Features - Implementation Summary
+# Fitur Bookmark & Favorit IndoQuran - Ringkasan Implementasi
 
-## Overview
-Successfully implemented comprehensive bookmark and favorite functionality for the IndoQuran Laravel application, allowing logged-in users to save and organize their favorite ayahs.
+## Ikhtisar
+Berhasil mengimplementasikan fungsionalitas bookmark dan favorit yang komprehensif untuk aplikasi IndoQuran Laravel, memungkinkan pengguna yang sudah login untuk menyimpan dan mengatur ayat-ayat favorit mereka.
 
-## Features Implemented
+## Fitur yang Diimplementasikan
 
-### 🗄️ Database Layer
-- **New Table**: `user_ayah_bookmarks`
-  - Fields: `user_id`, `ayah_id`, `is_favorite`, `notes`, `created_at`, `updated_at`
-  - Proper foreign key constraints and indexes
-  - Composite unique constraint on user_id + ayah_id
+### 🗄️ Lapisan Database
+- **Tabel Baru**: `user_ayah_bookmarks`
+  - Field: `user_id`, `ayah_id`, `is_favorite`, `notes`, `created_at`, `updated_at`
+  - Constraint foreign key dan indeks yang tepat
+  - Constraint unique komposit pada user_id + ayah_id
 
-### 🔗 Backend Models & Relationships
-- **UserAyahBookmark Model**: Main model for bookmark functionality
-- **User Model**: Added relationships for `ayahBookmarks`, `favoriteAyahs`, `bookmarkedAyahs`
-- **Ayah Model**: Added relationships for `bookmarks`, `bookmarkedByUsers`
+### 🔗 Model Backend & Relasi
+- **Model UserAyahBookmark**: Model utama untuk fungsionalitas bookmark
+- **Model User**: Ditambahkan relasi untuk `ayahBookmarks`, `favoriteAyahs`, `bookmarkedAyahs`
+- **Model Ayah**: Ditambahkan relasi untuk `bookmarks`, `bookmarkedByUsers`
 
-### 🔌 API Endpoints
-- `GET /api/bookmarks` - Get user's bookmarks and favorites
-- `GET /api/bookmarks/status` - Get bookmark status for multiple ayahs
-- `POST /api/bookmarks/ayah/{id}/toggle` - Toggle bookmark status
-- `POST /api/bookmarks/ayah/{id}/favorite` - Toggle favorite status
-- `PUT /api/bookmarks/ayah/{id}/notes` - Update bookmark notes
+### 🔌 Endpoint API
+- `GET /api/bookmarks` - Mendapatkan bookmark dan favorit pengguna
+- `GET /api/bookmarks/status` - Mendapatkan status bookmark untuk beberapa ayat
+- `POST /api/bookmarks/ayah/{id}/toggle` - Toggle status bookmark
+- `POST /api/bookmarks/ayah/{id}/favorite` - Toggle status favorit
+- `PUT /api/bookmarks/ayah/{id}/notes` - Memperbarui catatan bookmark
 
-### 🎯 Frontend Services
-- **BookmarkService.js**: Complete service layer for bookmark operations
-  - `toggleBookmark()` - Toggle bookmark status
-  - `toggleFavorite()` - Toggle favorite status
-  - `getBookmarkStatus()` - Get status for multiple ayahs
-  - `getUserBookmarks()` - Fetch user's bookmarks
-  - `updateBookmarkNotes()` - Update notes for bookmarks
+### 🎯 Layanan Frontend
+- **BookmarkService.js**: Lapisan layanan lengkap untuk operasi bookmark
+  - `toggleBookmark()` - Toggle status bookmark
+  - `toggleFavorite()` - Toggle status favorit
+  - `getBookmarkStatus()` - Mendapatkan status untuk beberapa ayat
+  - `getUserBookmarks()` - Mengambil bookmark pengguna
+  - `updateBookmarkNotes()` - Memperbarui catatan untuk bookmark
 
-### 📱 React Components
+### 📱 Komponen React
 
-#### SurahPage Enhancements
-- **Bookmark Buttons**: Added bookmark and favorite buttons for each ayah
-- **Real-time Status**: Shows current bookmark/favorite status with loading states
-- **Visual Indicators**: Verse selector grid shows bookmark/favorite indicators
-- **Toast Notifications**: User feedback for bookmark operations
-- **Authentication Check**: Prompts for login when not authenticated
+#### Peningkatan SurahPage
+- **Tombol Bookmark**: Menambahkan tombol bookmark dan favorit untuk setiap ayat
+- **Status Real-time**: Menampilkan status bookmark/favorit saat ini dengan loading state
+- **Indikator Visual**: Grid pemilih ayat menampilkan indikator bookmark/favorit
+- **Notifikasi Toast**: Umpan balik pengguna untuk operasi bookmark
+- **Pemeriksaan Autentikasi**: Meminta login saat tidak terautentikasi
 
 #### BookmarksPage
-- **Dedicated Page**: `/bookmarks` route for managing saved ayahs
-- **Tab Interface**: Separate tabs for bookmarks and favorites
-- **Search Functionality**: Search through saved ayahs by text or surah
-- **Notes Management**: Add, edit, and save notes for bookmarked ayahs
-- **Responsive Design**: Works on mobile and desktop
-- **Empty States**: Helpful messages when no bookmarks exist
+- **Halaman Khusus**: Rute `/bookmarks` untuk mengelola ayat yang disimpan
+- **Antarmuka Tab**: Tab terpisah untuk bookmark dan favorit
+- **Fungsionalitas Pencarian**: Cari melalui ayat yang disimpan berdasarkan teks atau surah
+- **Manajemen Catatan**: Tambah, edit, dan simpan catatan untuk ayat yang di-bookmark
+- **Desain Responsif**: Berfungsi di perangkat mobile dan desktop
+- **Status Kosong**: Pesan berguna saat tidak ada bookmark yang ada
 
-#### Navigation Updates
-- **Navbar Link**: Added bookmark page link for logged-in users
-- **User Authentication**: Proper user state management across components
+#### Pembaruan Navigasi
+- **Link Navbar**: Menambahkan link halaman bookmark untuk pengguna yang sudah login
+- **Autentikasi Pengguna**: Manajemen status pengguna yang tepat di seluruh komponen
 
-#### Toast Component
-- **Notification System**: Centralized toast notifications
-- **Multiple Types**: Success, error, warning, info messages
-- **Auto-dismiss**: Configurable duration with smooth animations
+#### Komponen Toast
+- **Sistem Notifikasi**: Notifikasi toast terpusat
+- **Beberapa Tipe**: Pesan sukses, error, peringatan, info
+- **Auto-dismiss**: Durasi yang dapat dikonfigurasi dengan animasi yang halus
 
-## User Experience Features
+## Fitur Pengalaman Pengguna
 
-### ✨ Visual Feedback
-- **Loading States**: Button spinners during bookmark operations
-- **Status Indicators**: Clear visual distinction between bookmarked/favorite states
-- **Hover Effects**: Interactive feedback on all clickable elements
-- **Color Coding**: Blue for bookmarks, red for favorites
+### ✨ Umpan Balik Visual
+- **Loading States**: Spinner tombol selama operasi bookmark
+- **Indikator Status**: Perbedaan visual yang jelas antara status bookmark/favorit
+- **Efek Hover**: Umpan balik interaktif pada semua elemen yang dapat diklik
+- **Kode Warna**: Biru untuk bookmark, merah untuk favorit
 
-### 🔍 Search & Organization
-- **Text Search**: Search through Indonesian translation and ayah text
-- **Surah Search**: Search by surah name or number
-- **Ayah Search**: Search by ayah number
-- **Tab Organization**: Separate views for bookmarks vs favorites
+### 🔍 Pencarian & Organisasi
+- **Pencarian Teks**: Cari melalui terjemahan Indonesia dan teks ayat
+- **Pencarian Surah**: Cari berdasarkan nama surah atau nomor
+- **Pencarian Ayat**: Cari berdasarkan nomor ayat
+- **Organisasi Tab**: Tampilan terpisah untuk bookmark vs favorit
 
-### 📝 Notes System
-- **Rich Notes**: Add personal notes to any bookmarked ayah
-- **Inline Editing**: Edit notes directly in the bookmarks page
-- **Persistent Storage**: Notes saved in database and synced across sessions
+### 📝 Sistem Catatan
+- **Catatan Kaya**: Tambahkan catatan pribadi ke ayat yang di-bookmark
+- **Pengeditan Inline**: Edit catatan langsung di halaman bookmark
+- **Penyimpanan Persisten**: Catatan disimpan dalam database dan disinkronkan antar sesi
 
-### 🔐 Authentication Integration
-- **Login Prompts**: Friendly messages for unauthenticated users
-- **Session Management**: Proper handling of user authentication state
-- **Protected Routes**: Bookmark functionality only for logged-in users
+### 🔐 Integrasi Autentikasi
+- **Prompt Login**: Pesan ramah untuk pengguna yang belum terautentikasi
+- **Manajemen Sesi**: Penanganan yang tepat untuk status autentikasi pengguna
+- **Rute Terproteksi**: Fungsionalitas bookmark hanya untuk pengguna yang sudah login
 
-## Technical Implementation
+## Implementasi Teknis
 
-### 🛡️ Security
-- **CSRF Protection**: All API requests include CSRF tokens
-- **Authentication Middleware**: Protected routes require authentication
-- **Input Validation**: Server-side validation for all bookmark operations
+### 🛡️ Keamanan
+- **Proteksi CSRF**: Semua permintaan API menyertakan token CSRF
+- **Middleware Autentikasi**: Rute terproteksi memerlukan autentikasi
+- **Validasi Input**: Validasi sisi server untuk semua operasi bookmark
 
-### 🚀 Performance
-- **Efficient Queries**: Optimized database queries with proper relationships
-- **Batch Loading**: Load bookmark statuses for all ayahs at once
-- **Caching**: Proper state management to avoid unnecessary API calls
+### 🚀 Performa
+- **Query Efisien**: Query database yang dioptimalkan dengan relasi yang tepat
+- **Batch Loading**: Memuat status bookmark untuk semua ayat sekaligus
+- **Caching**: Manajemen state yang tepat untuk menghindari panggilan API yang tidak perlu
 
-### 🔧 Error Handling
-- **Network Errors**: Graceful handling of network failures
-- **User Feedback**: Clear error messages via toast notifications
-- **Fallback States**: Proper fallback UI when operations fail
+### 🔧 Penanganan Error
+- **Error Jaringan**: Penanganan yang baik untuk kegagalan jaringan
+- **Umpan Balik Pengguna**: Pesan error yang jelas melalui notifikasi toast
+- **Status Fallback**: UI fallback yang tepat ketika operasi gagal
 
-## File Structure
+## Struktur File
 
 ```
 📁 Database
@@ -646,66 +646,66 @@ Successfully implemented comprehensive bookmark and favorite functionality for t
 📁 Backend
 ├── app/Models/UserAyahBookmark.php
 ├── app/Http/Controllers/BookmarkController.php
-└── routes/api.php (bookmark routes)
+└── routes/api.php (rute bookmark)
 
 📁 Frontend
 ├── resources/js/react/services/BookmarkService.js
 ├── resources/js/react/pages/BookmarksPage.jsx
 ├── resources/js/react/components/Toast.jsx
-└── resources/js/react/pages/SurahPage.jsx (enhanced)
+└── resources/js/react/pages/SurahPage.jsx (ditingkatkan)
 ```
 
-## Usage Instructions
+## Petunjuk Penggunaan
 
-1. **Login**: User must be authenticated to use bookmark features
-2. **Reading Ayahs**: Navigate to any surah page (e.g., `/surah/1`)
-3. **Bookmarking**: Click the bookmark icon next to any ayah
-4. **Favoriting**: Click the heart icon to mark as favorite
-5. **Managing**: Visit `/bookmarks` to view and manage saved ayahs
-6. **Notes**: Add personal notes to any bookmarked ayah
-7. **Search**: Use search functionality to find specific saved ayahs
+1. **Login**: Pengguna harus terautentikasi untuk menggunakan fitur bookmark
+2. **Membaca Ayat**: Navigasi ke halaman surah apa pun (misalnya, `/surah/1`)
+3. **Bookmark**: Klik ikon bookmark di samping ayat mana pun
+4. **Favorit**: Klik ikon hati untuk menandai sebagai favorit
+5. **Mengelola**: Kunjungi `/bookmarks` untuk melihat dan mengelola ayat yang disimpan
+6. **Catatan**: Tambahkan catatan pribadi ke ayat yang di-bookmark
+7. **Pencarian**: Gunakan fungsionalitas pencarian untuk menemukan ayat tertentu yang disimpan
 
-## Testing Completed
+## Pengujian Selesai
 
-✅ Database migrations and relationships
-✅ API endpoint functionality
-✅ Frontend service layer
-✅ React component integration
-✅ User authentication flow
-✅ Toast notification system
-✅ Responsive design
-✅ Error handling
-✅ Search functionality
-✅ Notes management
+✅ Migrasi database dan relasi
+✅ Fungsionalitas endpoint API
+✅ Lapisan layanan frontend
+✅ Integrasi komponen React
+✅ Alur autentikasi pengguna
+✅ Sistem notifikasi toast
+✅ Desain responsif
+✅ Penanganan error
+✅ Fungsionalitas pencarian
+✅ Manajemen catatan
 
-## Future Enhancements
+## Peningkatan di Masa Depan
 
-- Export bookmarks to PDF
-- Share bookmarks with other users
-- Bookmark collections/categories
-- Bookmark statistics and insights
-- Mobile app integration
-- Offline bookmark access
+- Export bookmark ke PDF
+- Berbagi bookmark dengan pengguna lain
+- Koleksi/kategori bookmark
+- Statistik dan wawasan bookmark
+- Integrasi aplikasi mobile
+- Akses bookmark offline
 
 ---
 
-# Search Pagination Implementation
+# Implementasi Paginasi Pencarian
 
-## Overview
-Successfully implemented comprehensive pagination functionality for the IndoQuran search feature, allowing users to navigate through search results efficiently.
+## Ikhtisar
+Berhasil mengimplementasikan fungsionalitas paginasi yang komprehensif untuk fitur pencarian IndoQuran, memungkinkan pengguna untuk menavigasi hasil pencarian dengan efisien.
 
-## Backend Implementation
+## Implementasi Backend
 
-### 1. QuranController Updates
+### 1. Pembaruan QuranController
 - **File**: `app/Http/Controllers/QuranController.php`
-- **Method**: `searchAyahs()`
-- **Changes**:
-  - Added support for `page` and `per_page` parameters
-  - Implemented proper pagination using Laravel's `paginate()` method
-  - Added support for both Indonesian and English search languages
-  - Returns comprehensive pagination metadata
+- **Metode**: `searchAyahs()`
+- **Perubahan**:
+  - Menambahkan dukungan untuk parameter `page` dan `per_page`
+  - Mengimplementasikan paginasi yang tepat menggunakan metode `paginate()` Laravel
+  - Menambahkan dukungan untuk bahasa pencarian Indonesia dan Inggris
+  - Mengembalikan metadata paginasi yang komprehensif
 
-### 2. API Response Structure
+### 2. Struktur Respons API
 ```json
 {
   "status": "success",
@@ -724,101 +724,101 @@ Successfully implemented comprehensive pagination functionality for the IndoQura
 }
 ```
 
-## Frontend Implementation
+## Implementasi Frontend
 
-### 1. SearchPage Component Updates
+### 1. Pembaruan Komponen SearchPage
 - **File**: `resources/js/react/pages/SearchPage.jsx`
-- **Key Features**:
-  - URL-based pagination with page parameter
-  - Smart pagination controls with ellipsis for many pages
-  - Loading states for smooth user experience
-  - Automatic scroll to top when changing pages
-  - Comprehensive result count display
+- **Fitur Utama**:
+  - Paginasi berbasis URL dengan parameter halaman
+  - Kontrol paginasi cerdas dengan elipsis untuk banyak halaman
+  - Loading state untuk pengalaman pengguna yang lancar
+  - Scroll otomatis ke atas saat mengganti halaman
+  - Tampilan hitungan hasil yang komprehensif
 
-### 2. Pagination Features
+### 2. Fitur Paginasi
 
-#### Smart Page Number Display
-- Shows maximum 5 page numbers at a time
-- Displays ellipsis (...) for gaps in page numbers
-- Always shows first and last page when needed
-- Current page is highlighted
+#### Tampilan Nomor Halaman Cerdas
+- Menampilkan maksimal 5 nomor halaman dalam satu waktu
+- Menampilkan elipsis (...) untuk celah dalam nomor halaman
+- Selalu menampilkan halaman pertama dan terakhir saat diperlukan
+- Halaman saat ini disorot
 
-#### User Experience Improvements
-- **Loading States**: Visual indicators during page navigation
-- **Disabled States**: Buttons are disabled during loading
-- **Smooth Scrolling**: Auto-scroll to top when changing pages
-- **URL Persistence**: Page state persists in browser URL
+#### Peningkatan Pengalaman Pengguna
+- **Loading States**: Indikator visual selama navigasi halaman
+- **Disabled States**: Tombol dinonaktifkan selama loading
+- **Smooth Scrolling**: Auto-scroll ke atas saat mengganti halaman
+- **Persistensi URL**: Status halaman bertahan di URL browser
 
-#### Responsive Design
-- Mobile-friendly pagination controls
-- Accessible button states and hover effects
-- Consistent styling with the rest of the application
+#### Desain Responsif
+- Kontrol paginasi yang ramah perangkat mobile
+- Status tombol yang dapat diakses dan efek hover
+- Gaya yang konsisten dengan seluruh aplikasi
 
-### 3. Result Display
-- Shows "Displaying X-Y of Z results" format
-- Indicates current page and total pages
-- Language-specific result counts
-- Empty state handling
+### 3. Tampilan Hasil
+- Menampilkan format "Menampilkan X-Y dari Z hasil"
+- Menunjukkan halaman saat ini dan total halaman
+- Hitungan hasil khusus bahasa
+- Penanganan status kosong
 
-## Configuration
+## Konfigurasi
 
-### Pagination Settings
-- **Default Results Per Page**: 10 ayahs
-- **Maximum Visible Page Numbers**: 5
-- **API Endpoint**: `/api/search`
-- **Supported Parameters**:
-  - `q`: Search query
-  - `lang`: Language (indonesian/english)
-  - `page`: Page number (default: 1)
-  - `per_page`: Results per page (default: 10)
+### Pengaturan Paginasi
+- **Default Hasil Per Halaman**: 10 ayat
+- **Maksimum Nomor Halaman Terlihat**: 5
+- **Endpoint API**: `/api/search`
+- **Parameter yang Didukung**:
+  - `q`: Query pencarian
+  - `lang`: Bahasa (indonesian/english)
+  - `page`: Nomor halaman (default: 1)
+  - `per_page`: Hasil per halaman (default: 10)
 
-## Performance Considerations
+## Pertimbangan Performa
 
-### Backend Optimizations
-- Uses Laravel's efficient pagination
-- Includes proper eager loading for surah relationships
-- Maintains existing caching where applicable
+### Optimasi Backend
+- Menggunakan paginasi Laravel yang efisien
+- Menyertakan eager loading yang tepat untuk relasi surah
+- Mempertahankan caching yang ada jika berlaku
 
-### Frontend Optimizations
-- Minimal re-renders during pagination
-- Efficient state management
-- Smooth transitions and loading states
+### Optimasi Frontend
+- Render ulang minimal selama paginasi
+- Manajemen state yang efisien
+- Transisi dan loading state yang lancar
 
-## Testing
+## Pengujian
 
-### API Testing
+### Pengujian API
 ```bash
-# Test Indonesian search with pagination
+# Uji pencarian Indonesia dengan paginasi
 curl "http://127.0.0.1:8000/api/search?q=allah&lang=indonesian&per_page=5&page=2"
 
-# Test English search with pagination
+# Uji pencarian Inggris dengan paginasi
 curl "http://127.0.0.1:8000/api/search?q=god&lang=english&per_page=3&page=1"
 ```
 
-### Browser Testing
-- Search results pagination: ✅
-- URL parameter handling: ✅
-- Page navigation: ✅
-- Loading states: ✅
-- Mobile responsiveness: ✅
+### Pengujian Browser
+- Paginasi hasil pencarian: ✅
+- Penanganan parameter URL: ✅
+- Navigasi halaman: ✅
+- Loading state: ✅
+- Responsivitas mobile: ✅
 
-## Future Enhancements
+## Peningkatan di Masa Depan
 
-1. **Jump to Page**: Add input field for direct page navigation
-2. **Results Per Page**: Allow users to choose results per page
-3. **Infinite Scroll**: Optional infinite scroll mode
-4. **Search History**: Remember user's search and page history
-5. **Keyboard Navigation**: Arrow key support for pagination
+1. **Lompat ke Halaman**: Tambahkan field input untuk navigasi halaman langsung
+2. **Hasil Per Halaman**: Izinkan pengguna memilih hasil per halaman
+3. **Infinite Scroll**: Mode infinite scroll opsional
+4. **Riwayat Pencarian**: Ingat riwayat pencarian dan halaman pengguna
+5. **Navigasi Keyboard**: Dukungan tombol panah untuk paginasi
 
-## Browser Compatibility
-- Modern browsers (Chrome, Firefox, Safari, Edge)
-- Mobile browsers (iOS Safari, Chrome Mobile)
-- Responsive design for tablets and phones
+## Kompatibilitas Browser
+- Browser modern (Chrome, Firefox, Safari, Edge)
+- Browser mobile (iOS Safari, Chrome Mobile)
+- Desain responsif untuk tablet dan ponsel
 
-## Code Quality
-- TypeScript-ready (React with JSX)
-- Consistent error handling
-- Accessible markup with proper ARIA labels
-- Clean separation of concerns
+## Kualitas Kode
+- TypeScript-ready (React dengan JSX)
+- Penanganan error yang konsisten
+- Markup yang dapat diakses dengan label ARIA yang tepat
+- Pemisahan kepentingan yang bersih
 
-This implementation provides a robust, user-friendly pagination system that enhances the search experience while maintaining good performance and accessibility standards.
+Implementasi ini menyediakan sistem paginasi yang kuat, ramah pengguna yang meningkatkan pengalaman pencarian sambil mempertahankan standar performa dan aksesibilitas yang baik.
