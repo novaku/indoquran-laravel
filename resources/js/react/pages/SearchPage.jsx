@@ -289,35 +289,39 @@ function SearchPage() {
             )}
             
             {totalPages > 1 && (
-                <div className="mt-8 space-y-4">
+                <div className="mt-12 space-y-6">
                     {/* Page Info */}
-                    <div className="text-center text-sm text-gray-600">
-                        Halaman {currentPage} dari {totalPages}
+                    <div className="text-center">
+                        <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary-50 to-primary-100 rounded-full border border-primary-200">
+                            <span className="text-sm font-medium text-primary-700">
+                                Halaman <span className="font-bold text-primary-800">{currentPage}</span> dari <span className="font-bold text-primary-800">{totalPages}</span>
+                            </span>
+                        </div>
                     </div>
                     
                     {/* Pagination Controls */}
                     <div className="flex justify-center">
-                        <nav className="inline-flex rounded-md shadow-islamic">
+                        <nav className="flex items-center space-x-1 bg-white rounded-lg shadow-lg border border-gray-200 p-1"
+                             aria-label="Pagination">
                         {/* Previous button */}
                         <button
                             onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                             disabled={currentPage === 1 || pageLoading}
-                            className={`px-4 py-2 rounded-l-md border transition-all duration-300 ${
+                            className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                                 currentPage === 1 || pageLoading
-                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                : 'bg-white text-primary-600 hover:bg-primary-50 shadow-islamic hover:shadow-islamic-md'
+                                ? 'bg-gray-50 text-gray-400 cursor-not-allowed border border-gray-200'
+                                : 'bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md'
                             }`}
                         >
-                            <span className="flex items-center">
-                                {pageLoading ? (
-                                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-current mr-1"></div>
-                                ) : (
-                                    <svg className="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                                    </svg>
-                                )}
-                                Sebelumnya
-                            </span>
+                            {pageLoading ? (
+                                <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent mr-2"></div>
+                            ) : (
+                                <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                            )}
+                            <span className="hidden sm:inline">Sebelumnya</span>
+                            <span className="sm:hidden">Prev</span>
                         </button>
                         
                         {/* Page numbers */}
@@ -342,44 +346,19 @@ function SearchPage() {
                                 }
                             }
                             
-                            // Show first page and ellipsis if needed
-                            if (startPage > 1) {
-                                pages.push(
-                                    <button
-                                        key={1}
-                                        onClick={() => handlePageChange(1)}
-                                        disabled={pageLoading}
-                                        className={`px-4 py-2 border-t border-b transition-all duration-300 ${
-                                            pageLoading 
-                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                            : 'bg-white text-primary-600 hover:bg-primary-50 shadow-islamic hover:shadow-islamic-md'
-                                        }`}
-                                    >
-                                        1
-                                    </button>
-                                );
-                                if (startPage > 2) {
-                                    pages.push(
-                                        <span key="ellipsis1" className="px-4 py-2 border-t border-b bg-gray-50 text-gray-500">
-                                            ...
-                                        </span>
-                                    );
-                                }
-                            }
-                            
-                            // Show page numbers in range
+                            // Always show page numbers in the calculated range
                             for (let i = startPage; i <= endPage; i++) {
                                 pages.push(
                                     <button
                                         key={i}
                                         onClick={() => handlePageChange(i)}
                                         disabled={pageLoading}
-                                        className={`px-4 py-2 border-t border-b transition-all duration-300 ${
+                                        className={`px-3 py-2 min-w-[40px] text-sm font-medium rounded-md transition-all duration-200 border ${
                                             currentPage === i
-                                            ? 'bg-primary-600 text-white shadow-islamic'
+                                            ? 'bg-blue-600 text-white border-blue-600 shadow-lg ring-2 ring-blue-200 font-bold'
                                             : pageLoading
-                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                            : 'bg-white text-primary-600 hover:bg-primary-50 shadow-islamic hover:shadow-islamic-md'
+                                            ? 'bg-gray-50 text-gray-400 cursor-not-allowed border-gray-200'
+                                            : 'bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md hover:scale-105'
                                         }`}
                                     >
                                         {i}
@@ -391,7 +370,7 @@ function SearchPage() {
                             if (endPage < totalPages) {
                                 if (endPage < totalPages - 1) {
                                     pages.push(
-                                        <span key="ellipsis2" className="px-4 py-2 border-t border-b bg-gray-50 text-gray-500">
+                                        <span key="ellipsis" className="px-3 py-2 text-gray-500 bg-gray-50 border border-gray-200">
                                             ...
                                         </span>
                                     );
@@ -401,10 +380,12 @@ function SearchPage() {
                                         key={totalPages}
                                         onClick={() => handlePageChange(totalPages)}
                                         disabled={pageLoading}
-                                        className={`px-4 py-2 border-t border-b transition-all duration-300 ${
-                                            pageLoading 
-                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                            : 'bg-white text-primary-600 hover:bg-primary-50 shadow-islamic hover:shadow-islamic-md'
+                                        className={`px-3 py-2 min-w-[40px] text-sm font-medium rounded-md border transition-all duration-200 ${
+                                            currentPage === totalPages
+                                            ? 'bg-blue-600 text-white border-blue-600 shadow-lg ring-2 ring-blue-200 font-bold'
+                                            : pageLoading
+                                            ? 'bg-gray-50 text-gray-400 cursor-not-allowed border-gray-200'
+                                            : 'bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md hover:scale-105'
                                         }`}
                                     >
                                         {totalPages}
@@ -419,22 +400,21 @@ function SearchPage() {
                         <button
                             onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                             disabled={currentPage === totalPages || pageLoading}
-                            className={`px-4 py-2 rounded-r-md border transition-all duration-300 ${
+                            className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                                 currentPage === totalPages || pageLoading
-                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                : 'bg-white text-primary-600 hover:bg-primary-50 shadow-islamic hover:shadow-islamic-md'
+                                ? 'bg-gray-50 text-gray-400 cursor-not-allowed border border-gray-200'
+                                : 'bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md'
                             }`}
                         >
-                            <span className="flex items-center">
-                                Selanjutnya
-                                {pageLoading ? (
-                                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-current ml-1"></div>
-                                ) : (
-                                    <svg className="h-5 w-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                                    </svg>
-                                )}
-                            </span>
+                            <span className="hidden sm:inline">Selanjutnya</span>
+                            <span className="sm:hidden">Next</span>
+                            {pageLoading ? (
+                                <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent ml-2"></div>
+                            ) : (
+                                <svg className="h-4 w-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            )}
                         </button>
                     </nav>
                     </div>

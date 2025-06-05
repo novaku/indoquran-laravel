@@ -1,22 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import QuranHeader from '../components/QuranHeader';
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
 
 function HomePage() {
     const [surahs, setSurahs] = useState([]);
-    const [filteredSurahs, setFilteredSurahs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
     const [selectedSurah, setSelectedSurah] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [suggestions, setSuggestions] = useState([]);
-    const [showSuggestions, setShowSuggestions] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [highlightedIndex, setHighlightedIndex] = useState(-1);
-    const searchRef = useRef(null);
-    const suggestionsRef = useRef(null);
     
     useEffect(() => {
         fetch('/api/surahs')
@@ -27,7 +19,6 @@ function HomePage() {
             .then(response => {
                 if (response.status === 'success') {
                     setSurahs(response.data);
-                    setFilteredSurahs(response.data);
                 } else {
                     setError("Gagal memuat data surah");
                 }
@@ -39,21 +30,6 @@ function HomePage() {
             });
     }, []);
 
-    // Search functionality
-    useEffect(() => {
-        if (!searchTerm) {
-            setFilteredSurahs(surahs);
-        } else {
-            const filtered = surahs.filter(surah => 
-                surah.name_latin.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                surah.name_indonesian.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                surah.name_arabic.includes(searchTerm) ||
-                surah.number.toString().includes(searchTerm)
-            );
-            setFilteredSurahs(filtered);
-        }
-    }, [searchTerm, surahs]);
-
     // Modal handlers
     const handleSurahClick = (surah, event) => {
         event.preventDefault();
@@ -64,201 +40,6 @@ function HomePage() {
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setSelectedSurah(null);
-    };
-    
-    // Handle keyboard navigation for autocomplete suggestions
-    const handleKeyDown = (e) => {
-        // Only handle keyboard navigation when suggestions are shown
-        if (!showSuggestions || suggestions.length === 0) {
-            return;
-        }
-
-        // Arrow down
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            setHighlightedIndex(prevIndex => 
-                prevIndex < suggestions.length - 1 ? prevIndex + 1 : 0
-            );
-        } 
-        // Arrow up
-        else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            setHighlightedIndex(prevIndex => 
-                prevIndex > 0 ? prevIndex - 1 : suggestions.length - 1
-            );
-        } 
-        // Enter key
-        else if (e.key === 'Enter' && highlightedIndex >= 0) {
-            e.preventDefault();
-            const suggestion = suggestions[highlightedIndex];
-            
-            // Only ayah suggestions remain, but still validate
-            if (suggestion.type === 'ayah' && suggestion.ayah) {
-                handleSuggestionClick(suggestion);
-            }
-        }
-        // Escape key
-        else if (e.key === 'Escape') {
-            setShowSuggestions(false);
-            setHighlightedIndex(-1);
-        }
-    };
-
-    // Scroll highlighted suggestion into view
-    useEffect(() => {
-        if (highlightedIndex >= 0 && suggestionsRef.current) {
-            const highlightedElement = suggestionsRef.current.querySelector(`li:nth-child(${highlightedIndex + 1})`);
-            if (highlightedElement) {
-                highlightedElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
-        }
-    }, [highlightedIndex]);
-
-    // Reset highlighted index when suggestions change
-    useEffect(() => {
-        setHighlightedIndex(-1);
-    }, [suggestions]);
-
-    // Handle clicks outside of the search component
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (searchRef.current && !searchRef.current.contains(event.target)) {
-                setShowSuggestions(false);
-            }
-        };
-        
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [searchRef]);
-
-    // Fetch autocomplete suggestions
-    const fetchSuggestions = async (query) => {
-        if (!query || query.length < 2) {
-            setSuggestions([]);
-            return;
-        }
-        
-        setIsLoading(true);
-        try {
-            const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=5`);
-            if (!response.ok) throw new Error('Failed to fetch suggestions');
-            
-            const data = await response.json();
-            if (data.status === 'success') {
-                // Get unique surah suggestions
-                const ayahResults = Array.isArray(data.data) ? data.data : [];
-                
-                // Validate the API response
-                if (!Array.isArray(ayahResults)) {
-                    console.error('Unexpected API response format:', data);
-                    setSuggestions([]);
-                    return;
-                }
-                
-                // We're removing surah suggestions as requested
-                // Only add ayah text matches
-                const textSuggestions = ayahResults.map(ayah => {
-                    // Make sure the ayah object has the required properties
-                    if (!ayah || typeof ayah !== 'object') {
-                        console.error('Invalid ayah data:', ayah);
-                        return null;
-                    }
-                    
-                    // Ensure we have all required properties, using consistent naming
-                    const ayahData = {
-                        ...ayah,
-                        surah_number: ayah.surah_number || null,
-                        number: ayah.number || ayah.ayah_number || null,
-                        text_indonesian: ayah.text_indonesian || ''
-                    };
-                    
-                    // Skip invalid ayahs
-                    if (!ayahData.surah_number || !ayahData.number) {
-                        return null;
-                    }
-                    
-                    // Highlight the matching text if possible
-                    let highlightedText = ayahData.text_indonesian;
-                    const lowerText = ayahData.text_indonesian.toLowerCase();
-                    const lowerQuery = query.toLowerCase();
-                    
-                    if (lowerText.includes(lowerQuery)) {
-                        const startIndex = lowerText.indexOf(lowerQuery);
-                        highlightedText = {
-                            before: ayahData.text_indonesian.substring(0, startIndex),
-                            match: ayahData.text_indonesian.substring(startIndex, startIndex + query.length),
-                            after: ayahData.text_indonesian.substring(startIndex + query.length)
-                        };
-                    }
-                    
-                    return {
-                        type: 'ayah',
-                        ayah: ayahData,
-                        surahName: surahs.find(s => s.number === ayahData.surah_number)?.name_latin || `Surah ${ayahData.surah_number}`,
-                        text: ayahData.text_indonesian,
-                        highlightedText: highlightedText
-                    };
-                })
-                .filter(Boolean) // Remove any null entries
-                .slice(0, 5); // Allow for more text suggestions since we removed surah suggestions
-                
-                // Only include text suggestions (ayah matches)
-                setSuggestions(textSuggestions);
-            }
-        } catch (error) {
-            console.error('Error fetching suggestions:', error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-    
-    // Debounce search input
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (searchTerm) {
-                fetchSuggestions(searchTerm);
-            } else {
-                setSuggestions([]);
-            }
-        }, 300);
-        
-        return () => clearTimeout(timer);
-    }, [searchTerm]);
-    
-    const handleSearchFocus = () => {
-        if (searchTerm && searchTerm.length >= 2) {
-            setShowSuggestions(true);
-        }
-    };
-    
-    const navigate = useNavigate(); // Add React Router's navigate hook
-    
-    const handleSuggestionClick = (suggestion) => {
-        // We only have ayah suggestions now
-        if (suggestion.type === 'ayah' && suggestion.ayah) {
-            // Extract the ayah data with proper checks
-            const surah_number = suggestion.ayah.surah_number;
-            const ayah_number = suggestion.ayah.number || suggestion.ayah.ayah_number;
-            
-            // Validate that we have all the necessary data before navigating
-            if (surah_number && ayah_number) {
-                navigate(`/ayah/${surah_number}/${ayah_number}`);
-            } else {
-                console.error('Invalid ayah data for navigation:', suggestion.ayah);
-            }
-        } else {
-            console.error('Invalid suggestion data:', suggestion);
-        }
-        setShowSuggestions(false);
-    };
-    
-    // Function to handle "View All Results" button click
-    const handleViewAllResults = () => {
-        // Navigate to the search page with the current search term
-        navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
-        setShowSuggestions(false);
     };
 
     // Helper function to truncate description
@@ -300,125 +81,13 @@ function HomePage() {
             <QuranHeader className="mb-10" />
             <div className="w-64 h-1 bg-gradient-to-r from-transparent via-islamic-green/40 to-transparent mx-auto mb-8"></div>
             
-            {/* Prayer Times Widget and Search */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
-                <div className="lg:col-span-1">
-                    <PrayerTimesWidget />
-                </div>
-                <div className="lg:col-span-3">
-                    <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100 h-full">
-                        <h2 className="text-lg font-semibold text-islamic-green mb-4">Cari Ayat Al-Quran</h2>
-                        <div className="relative" ref={searchRef}>
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 absolute left-3 top-3 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                            </svg>
-                            <input 
-                                type="text" 
-                                placeholder="Cari berdasarkan isi ayat..." 
-                                value={searchTerm}
-                                onChange={(e) => {
-                                    setSearchTerm(e.target.value);
-                                    if (e.target.value.length >= 2) {
-                                        setShowSuggestions(true);
-                                    } else {
-                                        setShowSuggestions(false);
-                                    }
-                                }}
-                                onFocus={handleSearchFocus}
-                                onKeyDown={handleKeyDown}
-                                className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-islamic-green focus:border-transparent"
-                            />
-                            
-                            {/* Autocomplete Suggestions */}
-                            {showSuggestions && searchTerm.length >= 2 && (
-                                <div 
-                                    className="absolute z-10 mt-1 w-full bg-white rounded-md shadow-lg max-h-80 overflow-y-auto border border-gray-200"
-                                    ref={suggestionsRef}
-                                >
-                                    {isLoading ? (
-                                        <div className="p-3 text-center text-gray-500">
-                                            <div className="inline-block animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-islamic-green mr-2"></div>
-                                            Mencari...
-                                        </div>
-                                    ) : suggestions.length > 0 ? (
-                                        <ul className="py-1">
-                                            {suggestions.map((suggestion, index) => (
-                                                <li 
-                                                    key={`${suggestion.type}-${index}`}
-                                                    onClick={() => handleSuggestionClick(suggestion)}
-                                                    className={`px-3 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0 ${
-                                                        highlightedIndex === index ? 'bg-gray-100' : ''
-                                                    } hover:bg-islamic-green/5`}
-                                                    onMouseEnter={() => setHighlightedIndex(index)}
-                                                >
-                                                    {suggestion.ayah ? (
-                                                        <div>
-                                                            <div className="flex items-center text-islamic-brown text-sm mb-1">
-                                                                <span className="font-medium">{suggestion.surahName}</span>
-                                                                <span className="mx-1">•</span>
-                                                                <span>Ayat {suggestion.ayah.number || suggestion.ayah.ayah_number}</span>
-                                                                <span className="ml-auto text-xs text-islamic-green">Lihat ayat →</span>
-                                                            </div>
-                                                            <p className="text-gray-700 text-sm overflow-hidden text-ellipsis" 
-                                                               style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
-                                                                <span className="text-islamic-green font-medium">Terjemahan: </span>
-                                                                {typeof suggestion.highlightedText === 'object' ? (
-                                                                    <span>
-                                                                        "{suggestion.highlightedText.before}
-                                                                        <span className="bg-yellow-100 font-medium">{suggestion.highlightedText.match}</span>
-                                                                        {suggestion.highlightedText.after}"
-                                                                    </span>
-                                                                ) : (
-                                                                    `"${suggestion.text}"`
-                                                                )}
-                                                            </p>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="p-2 text-sm text-gray-500">
-                                                            Data ayat tidak lengkap
-                                                        </div>
-                                                    )}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    ) : (
-                                        <div className="p-4 text-center">
-                                            <div className="text-gray-500 mb-2">Tidak ada hasil yang cocok</div>
-                                            <p className="text-sm text-gray-400">
-                                                Coba gunakan kata kunci lain atau cari berdasarkan isi ayat
-                                            </p>
-                                        </div>
-                                    )}
-                                    
-                                    {/* View All Results Button - shown when there are results */}
-                                    {!isLoading && suggestions.length > 0 && (
-                                        <div className="p-3 border-t border-gray-100">
-                                            <button
-                                                onClick={handleViewAllResults}
-                                                className="w-full py-2 px-3 bg-islamic-green/10 hover:bg-islamic-green/20 text-islamic-green font-medium rounded-md transition-colors flex items-center justify-center"
-                                            >
-                                                <span>Lihat Semua Hasil</span>
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                        
-                        <div className="mt-4">
-                            <p className="text-sm text-gray-600">
-                                Total: {filteredSurahs.length} surah {searchTerm && `(hasil pencarian untuk "${searchTerm}")`}
-                            </p>
-                        </div>
-                    </div>
-                </div>
+            {/* Prayer Times Widget */}
+            <div className="mb-8">
+                <PrayerTimesWidget />
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredSurahs.map(surah => (
+                {surahs.map(surah => (
                     <div 
                         key={surah.number}
                         onClick={(e) => handleSurahClick(surah, e)}
@@ -536,10 +205,7 @@ function HomePage() {
                 </div>
             )}
 
-            {/* Prayer Times Widget */}
-            <div className="mt-10">
-                <PrayerTimesWidget />
-            </div>
+            {/* Remove duplicate Prayer Times Widget from here */}
         </div>
     );
 }

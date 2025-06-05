@@ -1,0 +1,27 @@
+{
+  "resources/css/app.css": {
+    "file": "assets/app-DvalD1rq.css",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/fonts/ScheherazadeNew-Bold.ttf": {
+    "file": "assets/ScheherazadeNew-Bold-I7TqssY5.ttf",
+    "src": "resources/fonts/ScheherazadeNew-Bold.ttf"
+  },
+  "resources/fonts/ScheherazadeNew-Regular.ttf": {
+    "file": "assets/ScheherazadeNew-Regular-CAaRBnc2.ttf",
+    "src": "resources/fonts/ScheherazadeNew-Regular.ttf"
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-BQzU03ej.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true
+  },
+  "resources/js/react/index.jsx": {
+    "file": "assets/index-BrYY5SUK.js",
+    "name": "index",
+    "src": "resources/js/react/index.jsx",
+    "isEntry": true
+  }
+}
