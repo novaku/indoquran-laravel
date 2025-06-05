@@ -1,61 +1,206 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# IndoQuran 📖
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <strong>Al-Quran Digital - Platform Modern untuk Membaca dan Mempelajari Al-Quran</strong>
 </p>
 
-## About Laravel
+<p align="center">
+  <img src="https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel">
+  <img src="https://img.shields.io/badge/React-19.x-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React">
+  <img src="https://img.shields.io/badge/TailwindCSS-4.x-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="TailwindCSS">
+  <img src="https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP">
+</p>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Tentang IndoQuran
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+IndoQuran adalah platform digital modern yang memudahkan akses terhadap Al-Quran dan terjemahannya dalam bahasa Indonesia. Dibangun dengan teknologi terkini, aplikasi ini menyediakan pengalaman membaca Al-Quran yang intuitif, interaktif, dan komprehensif.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## ✨ Fitur Utama
 
-## Learning Laravel
+### 📚 Al-Quran Lengkap
+- **114 Surah**: Akses lengkap ke seluruh surah dalam Al-Quran
+- **Teks Arab Original**: Menggunakan font Uthmani yang autentik
+- **Transliterasi Latin**: Membantu dalam pembacaan teks Arab
+- **Terjemahan Indonesia**: Terjemahan resmi Kementerian Agama RI
+- **Tafsir**: Penjelasan dan konteks untuk setiap ayat
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 🎵 Audio Berkualitas Tinggi
+- **5 Qari Pilihan**: Husary, Sudais, Alafasy, Minshawi, Abdul Basit
+- **Kontrol Audio**: Play, pause, dan navigasi yang mudah
+- **Audio Per Ayat**: Dengarkan ayat individu atau surah lengkap
+- **Kualitas Premium**: Audio berkualitas tinggi dari sumber terpercaya
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 🔍 Pencarian Canggih
+- **Pencarian Teks**: Cari berdasarkan terjemahan bahasa Indonesia
+- **Pencarian Ayat**: Temukan ayat berdasarkan nomor surah dan ayat
+- **Hasil Berhalaman**: Navigasi hasil pencarian yang efisien
+- **Highlighting**: Highlight kata kunci dalam hasil pencarian
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 📝 Sistem Bookmark & Favorit
+- **Bookmark Ayat**: Simpan ayat favorit untuk dibaca kemudian
+- **Catatan Pribadi**: Tambahkan catatan personal untuk setiap bookmark
+- **Organisasi**: Kelompokkan bookmark dan favorit secara terpisah
+- **Sinkronisasi**: Data tersimpan dan tersinkron antar sesi
 
-## Laravel Sponsors
+### 🎨 Antarmuka Modern
+- **Desain Responsif**: Optimal di desktop, tablet, dan mobile
+- **Tipografi Arab**: Font khusus untuk teks Arab yang indah
+- **Tema Islami**: Warna dan desain yang menenangkan
+- **Navigasi Intuitif**: Antarmuka yang mudah dipahami
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 🛠 Teknologi yang Digunakan
 
-### Premium Partners
+### Backend
+- **Laravel 12.x**: Framework PHP modern dengan fitur terlengkap
+- **PHP 8.2+**: Performa tinggi dan fitur bahasa terbaru
+- **SQLite Database**: Database ringan dan cepat
+- **Laravel Sanctum**: Autentikasi API yang aman
+- **Caching System**: Optimasi performa dengan cache pintar
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Frontend
+- **React 19.x**: Library JavaScript modern untuk UI
+- **React Router**: Single Page Application (SPA) routing
+- **Tailwind CSS 4.x**: Framework CSS utility-first
+- **React Icons**: Koleksi ikon yang lengkap
+- **Vite**: Build tool yang cepat dan modern
 
-## Contributing
+### Development Tools
+- **Composer**: Dependency management untuk PHP
+- **NPM**: Package manager untuk JavaScript
+- **Laravel Vite Plugin**: Integrasi seamless Laravel dan Vite
+- **Concurrently**: Menjalankan multiple server secara bersamaan
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 🚀 Instalasi & Setup
 
-## Code of Conduct
+### Prasyarat
+- PHP 8.2 atau lebih tinggi
+- Composer
+- Node.js & NPM
+- Git
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Langkah Instalasi
 
-## Security Vulnerabilities
+1. **Clone Repository**
+   ```bash
+   git clone https://github.com/username/indoquran-laravel.git
+   cd indoquran-laravel
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+2. **Install Dependencies Backend**
+   ```bash
+   composer install
+   ```
 
-## License
+3. **Install Dependencies Frontend**
+   ```bash
+   npm install
+   ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+4. **Setup Environment**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+5. **Setup Database**
+   ```bash
+   touch database/database.sqlite
+   php artisan migrate
+   php artisan db:seed
+   ```
+
+6. **Build Assets**
+   ```bash
+   npm run build
+   ```
+
+7. **Jalankan Aplikasi**
+   ```bash
+   # Development dengan auto-reload
+   npm run react:dev
+   
+   # Atau jalankan secara terpisah
+   php artisan serve
+   npm run dev
+   ```
+
+## 📡 API Endpoints
+
+### Surah & Ayat
+- `GET /api/surahs` - Daftar semua surah
+- `GET /api/surahs/{number}` - Detail surah dengan ayat-ayatnya
+- `GET /api/ayahs/{surahNumber}/{ayahNumber}` - Ayat spesifik
+
+### Pencarian
+- `GET /api/search?q={query}&page={page}&per_page={limit}` - Pencarian ayat
+
+### Bookmark (Autentikasi Required)
+- `GET /api/bookmarks` - Daftar bookmark pengguna
+- `POST /api/bookmarks/ayah/{id}/toggle` - Toggle bookmark
+- `POST /api/bookmarks/ayah/{id}/favorite` - Toggle favorit
+- `PUT /api/bookmarks/ayah/{id}/notes` - Update catatan
+
+## 📁 Struktur Project
+
+```
+indoquran-laravel/
+├── app/
+│   ├── Http/Controllers/     # API Controllers
+│   ├── Models/              # Eloquent Models
+│   └── Services/            # Business Logic Services
+├── database/
+│   ├── migrations/          # Database Schema
+│   └── seeders/            # Data Seeders
+├── resources/
+│   ├── js/react/           # React Components
+│   ├── css/                # Stylesheets
+│   └── views/              # Blade Templates
+├── routes/
+│   ├── api.php             # API Routes
+│   └── web.php             # Web Routes
+└── public/                 # Public Assets
+```
+
+## 🎯 Fitur Mendatang
+
+- [ ] Mode Gelap (Dark Mode)
+- [ ] Export bookmark ke PDF
+- [ ] Sharing ayat ke media sosial
+- [ ] Notifikasi pengingat membaca
+- [ ] Aplikasi mobile (React Native)
+- [ ] Offline reading mode
+- [ ] Multiple language support
+
+## 🤝 Kontribusi
+
+Kami menyambut kontribusi dari komunitas! Untuk berkontribusi:
+
+1. Fork repository ini
+2. Buat branch fitur (`git checkout -b feature/fitur-baru`)
+3. Commit perubahan (`git commit -am 'Menambah fitur baru'`)
+4. Push ke branch (`git push origin feature/fitur-baru`)
+5. Buat Pull Request
+
+## 📄 Lisensi
+
+Project ini dilisensikan di bawah [MIT License](https://opensource.org/licenses/MIT).
+
+## 🙏 Ucapan Terima Kasih
+
+- **Kementerian Agama RI** untuk terjemahan Al-Quran
+- **Quran.com API** untuk data Al-Quran
+- **EveryAyah.com** untuk audio berkualitas tinggi
+- **Laravel & React Community** untuk framework yang luar biasa
+
+## 📞 Kontak
+
+Untuk pertanyaan, saran, atau dukungan teknis, silakan hubungi:
+- Email: info@indoquran.com
+- Website: https://indoquran.com
+
+---
+
+<p align="center">
+  <strong>IndoQuran - Membawa Al-Quran lebih dekat dengan teknologi modern</strong><br>
+  <em>"Dan sesungguhnya telah Kami mudahkan Al-Quran untuk pelajaran, maka adakah orang yang mengambil pelajaran?" - QS. Al-Qamar: 17</em>
+</p>
