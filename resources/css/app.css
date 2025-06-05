@@ -1,0 +1,219 @@
+/* filepath: /Users/novaherdi/Documents/GitHub/indoquran-laravel/resources/css/app.css */
+@import "tailwindcss";
+
+/* Import Arabic font */
+@font-face {
+    font-family: 'Scheherazade New';
+    src: url('../fonts/ScheherazadeNew-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Scheherazade New';
+    src: url('../fonts/ScheherazadeNew-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Scheherazade';
+    src: url('../fonts/ScheherazadeNew-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Scheherazade';
+    src: url('../fonts/ScheherazadeNew-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+/* Custom styling for Arabic Quran texts */
+.font-arabic {
+    font-family: 'Scheherazade New', 'Amiri', 'Scheherazade', 'Noto Naskh Arabic', 'Traditional Arabic', serif;
+    font-weight: normal;
+    line-height: 1.2;
+    word-spacing: 0.3em;
+    text-align: right;
+    direction: rtl;
+}
+
+/* Typography */
+.page-title {
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: var(--islamic-brown);
+    font-family: 'Playfair Display', serif;
+    text-shadow: 0 2px 4px rgba(109, 92, 63, 0.1);
+}
+
+/* Cards */
+.surah-card {
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--islamic-cream) 100%);
+    border: 1px solid var(--border-light);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.5s ease;
+    box-shadow: 0 8px 32px var(--shadow-light);
+    overflow: hidden;
+    position: relative;
+}
+
+.surah-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: var(--parchment-texture);
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.surah-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 12px 48px var(--shadow-medium);
+    border-color: var(--accent-color);
+}
+
+.ayah-card {
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--islamic-beige) 100%);
+    border: 1px solid var(--border-light);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Styles for HTML content in translations */
+.translation-content {
+    line-height: 1.6;
+}
+
+.translation-html {
+    font-family: 'Inter', sans-serif;
+}
+
+.translation-html p {
+    margin-bottom: 0.75rem;
+}
+
+.translation-html strong, 
+.translation-html b {
+    font-weight: 600;
+    color: var(--primary-dark, #1a3d1f);
+}
+
+.translation-html em,
+.translation-html i {
+    font-style: italic;
+}
+
+.translation-html ul,
+.translation-html ol {
+    margin-left: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.translation-html ul li {
+    list-style-type: disc;
+    margin-bottom: 0.25rem;
+}
+
+.translation-html ol li {
+    list-style-type: decimal;
+    margin-bottom: 0.25rem;
+}
+
+.translation-html a {
+    color: var(--islamic-green, #2c5530);
+    text-decoration: underline;
+}
+
+.translation-html a:hover {
+    color: var(--primary-light, #56bb7a);
+}
+
+/* Styles for footnotes */
+.translation-html sup {
+    font-size: 0.7em;
+    vertical-align: super;
+    line-height: 0;
+    color: var(--islamic-gold, #daa520);
+    cursor: pointer;
+    position: relative;
+    margin-left: 1px;
+    font-weight: 600;
+}
+
+.translation-html sup[foot_note] {
+    background-color: rgba(218, 165, 32, 0.12);
+    border-radius: 3px;
+    padding: 1px 3px;
+    border: 1px solid rgba(218, 165, 32, 0.3);
+    transition: all 0.2s ease;
+}
+
+.translation-html sup[foot_note]:hover {
+    background-color: rgba(218, 165, 32, 0.2);
+}
+
+/* Footnote tooltip styling */
+.footnote-tooltip {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: white;
+    border: 1px solid var(--islamic-cream, #f8f5e6);
+    border-radius: 4px;
+    padding: 8px 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    width: max-content;
+    max-width: 300px;
+    z-index: 100;
+    font-size: 0.9rem;
+    color: var(--primary-dark, #1a3d1f);
+    text-align: left;
+    margin-bottom: 5px;
+}
+
+.translation-html sup:hover .footnote-tooltip {
+    display: block;
+}
+
+/* Enhanced color scheme inspired by beautiful Quran pages */
+:root {
+    /* Custom variables for the Islamic theme */
+    --primary-color: #4a4236;
+    --primary-light: #a79878;
+    --primary-dark: #3a3429;
+    --secondary-color: #846b52;
+    --accent-color: #b67b30;
+    --islamic-green: #4a4236;
+    --islamic-gold: #b67b30;
+    --islamic-cream: #f8f7f2;
+    --islamic-beige: #f0ede3;
+    --islamic-parchment: #faf8f2;
+    --islamic-brown: #6d5c3f;
+    --islamic-green: #116937;
+    --text-primary: #4a4236;
+    --text-secondary: #6d5c3f;
+    --bg-primary: #f9f7f3;
+    --bg-card: #fefefc;
+    --border-light: #e8e4d4;
+    --shadow-light: rgba(109, 92, 63, 0.08);
+    --shadow-medium: rgba(109, 92, 63, 0.15);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .surah-card, .ayah-card {
+        padding: 1.5rem;
+    }
+}

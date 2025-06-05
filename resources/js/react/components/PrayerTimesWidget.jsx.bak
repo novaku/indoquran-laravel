@@ -1,0 +1,484 @@
+import React, { useState, useEffect } from 'react';
+import { IoLocationOutline, IoTimeOutline, IoRefreshOutline, IoCalendarOutline, IoAlarmOutline } from 'react-icons/io5';
+
+const PrayerTimesWidget = () => {
+    const [location, setLocation] = useState(null);
+    const [prayerTimes, setPrayerTimes] = useState(null);
+    const [currentTime, setCurrentTime] = useState(new Date());
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [nextPrayer, setNextPrayer] = useState(null);
+    const [locationName, setLocationName] = useState('');
+    const [date, setDate] = useState(new Date());
+    const [timeRemaining, setTimeRemaining] = useState('');
+
+    // Get current location
+    useEffect(() => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const coords = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    };
+                    setLocation(coords);
+                    fetchLocationName(coords.latitude, coords.longitude);
+                    setError(null);
+                },
+                (error) => {
+                    console.error('Error getting location:', error);
+                    // Fallback to a default location (Jakarta Pusat)
+                    const defaultCoords = {
+                        latitude: -6.1751,
+                        longitude: 106.8650
+                    };
+                    setLocation(defaultCoords);
+                    setLocationName('Jakarta Pusat, Indonesia (default)');
+                    setError('Menggunakan lokasi default. Untuk akurasi lebih baik, izinkan akses lokasi pada browser Anda.');
+                    setLoading(false);
+                },
+                { timeout: 10000 } // 10 seconds timeout
+            );
+        } else {
+            // Fallback to a default location (Jakarta Pusat) if geolocation is not supported
+            const defaultCoords = {
+                latitude: -6.1751,
+                longitude: 106.8650
+            };
+            setLocation(defaultCoords);
+            setLocationName('Jakarta Pusat, Indonesia (default)');
+            setError('Geolokasi tidak didukung oleh browser Anda. Menggunakan lokasi default.');
+            setLoading(false);
+        }
+    }, []);
+
+    // Get location name from coordinates
+    const fetchLocationName = async (latitude, longitude) => {
+        try {
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`
+            );
+            
+            if (!response.ok) {
+                throw new Error('Gagal mendapatkan nama lokasi');
+            }
+            
+            const data = await response.json();
+            
+            if (data && data.address) {
+                // Create a readable location name from the address components
+                const city = data.address.city || data.address.town || data.address.village || data.address.hamlet;
+                const state = data.address.state || data.address.county;
+                const country = data.address.country;
+                
+                let locationStr = '';
+                if (city) locationStr += city;
+                if (state && state !== city) locationStr += locationStr ? `, ${state}` : state;
+                if (country) locationStr += locationStr ? `, ${country}` : country;
+                
+                setLocationName(locationStr || 'Lokasi saat ini');
+            } else {
+                setLocationName('Lokasi saat ini');
+            }
+        } catch (error) {
+            console.error('Error fetching location name:', error);
+            setLocationName('Lokasi saat ini');
+        }
+    };
+
+    // Update current time every minute and calculate time remaining to next prayer
+    useEffect(() => {
+        const timerID = setInterval(() => {
+            const now = new Date();
+            setCurrentTime(now);
+            
+            if (nextPrayer) {
+                calculateTimeRemaining(now, nextPrayer.time);
+            }
+        }, 1000);
+
+        return () => {
+            clearInterval(timerID);
+        };
+    }, [nextPrayer]);
+    
+    // Calculate time remaining until next prayer
+    const calculateTimeRemaining = (now, prayerTimeStr) => {
+        if (!prayerTimeStr) return;
+        
+        const [prayerHours, prayerMinutes] = prayerTimeStr.split(':').map(Number);
+        
+        // Create prayer time Date object
+        const prayerTime = new Date(now);
+        prayerTime.setHours(prayerHours, prayerMinutes, 0, 0);
+        
+        // If prayer time is earlier today, it must be for tomorrow
+        if (prayerTime < now) {
+            prayerTime.setDate(prayerTime.getDate() + 1);
+        }
+        
+        // Calculate difference in milliseconds
+        const diffMs = prayerTime - now;
+        
+        // Convert to hours, minutes, seconds
+        const hours = Math.floor(diffMs / (1000 * 60 * 60));
+        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+        
+        // Format as "HH:MM:SS"
+        const formattedHours = hours.toString().padStart(2, '0');
+        const formattedMinutes = minutes.toString().padStart(2, '0');
+        const formattedSeconds = seconds.toString().padStart(2, '0');
+        
+        setTimeRemaining(`${formattedHours}:${formattedMinutes}:${formattedSeconds}`);
+    };
+
+    // Fetch prayer times when location is obtained
+    useEffect(() => {
+        if (location) {
+            fetchPrayerTimes();
+        }
+    }, [location]);
+
+    // Calculate next prayer time
+    useEffect(() => {
+        if (prayerTimes) {
+            calculateNextPrayer();
+        }
+    }, [prayerTimes, currentTime]);
+
+    const fetchPrayerTimes = async (retryCount = 0) => {
+        try {
+            setLoading(true);
+            const { latitude, longitude } = location;
+            
+            // Use Aladhan API to get prayer times
+            const today = new Date();
+            const formattedDate = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
+            setDate(today);
+            
+            const API_URL = `https://api.aladhan.com/v1/timings/${formattedDate}?latitude=${latitude}&longitude=${longitude}&method=11`;
+            
+            console.log(`Fetching prayer times from: ${API_URL}`);
+            
+            const response = await fetch(API_URL, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                timeout: 10000 // 10 seconds timeout
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('API error response:', errorText);
+                throw new Error(`Gagal mengambil jadwal shalat: ${response.status} ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.code === 200 && data.status === 'OK') {
+                setPrayerTimes(data.data.timings);
+                setError(null);
+                console.log('Prayer times fetched successfully:', data.data.timings);
+            } else {
+                console.error('API returned non-success status:', data);
+                throw new Error(`Data jadwal shalat tidak tersedia: ${data.code} - ${data.status}`);
+            }
+        } catch (error) {
+            console.error('Error fetching prayer times:', error);
+            
+            // If network error and we haven't reached max retries, try again
+            if ((error.message.includes('network') || error.message.includes('timeout')) && retryCount < 2) {
+                console.log(`Retrying (${retryCount + 1}/2)...`);
+                setError(`Mencoba menghubungi server lagi... (${retryCount + 1}/2)`);
+                
+                // Wait for 2 seconds before retrying
+                setTimeout(() => {
+                    fetchPrayerTimes(retryCount + 1);
+                }, 2000);
+                return;
+            }
+            
+            // Check if it's a CORS issue
+            if (error.message.includes('CORS') || error.message.includes('blocked')) {
+                setError('Akses ke server jadwal shalat diblokir oleh browser. Coba gunakan browser berbeda.');
+            } else {
+                // Try alternative API if main one failed and we've reached max retries
+                if (retryCount >= 2) {
+                    console.log('Trying alternative API source...');
+                    setError('Mencoba sumber data alternatif...');
+                    
+                    // Try the alternative API
+                    const alternativeSuccess = await fetchPrayerTimesAlternative();
+                    
+            // If alternative also failed, show the final error
+                    if (!alternativeSuccess) {
+                        console.log('Using offline fallback data...');
+                        // Use offline fallback as last resort
+                        const offlineTimes = getOfflineFallbackPrayerTimes();
+                        setPrayerTimes(offlineTimes);
+                        setError('Tidak dapat terhubung ke server. Menggunakan data perkiraan offline (kurang akurat).');
+                    }
+                    return;
+                }
+                
+                // Use a more detailed error message
+                setError(`Gagal memuat jadwal shalat. ${error.message || 'Silakan coba lagi nanti.'}`);
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Try alternative API if the main one fails
+    const fetchPrayerTimesAlternative = async () => {
+        try {
+            setLoading(true);
+            const { latitude, longitude } = location;
+            
+            // Using alternative API (islamicfinder.org)
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = (today.getMonth() + 1).toString().padStart(2, '0');
+            const day = today.getDate().toString().padStart(2, '0');
+            
+            // Note: This API may need to be replaced with a real working alternative
+            // This is just a demonstration of implementing a fallback
+            const API_URL = `https://api.islamicfinder.org/v1/prayerTimes?latitude=${latitude}&longitude=${longitude}&method=2&date_or_timestamp=${year}-${month}-${day}`;
+            
+            console.log(`Fetching from alternative API: ${API_URL}`);
+            
+            const response = await fetch(API_URL, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                },
+                timeout: 10000
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Alternative API failed: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            // Format the response to match our expected structure
+            // Note: Actual response format may differ, adjust accordingly
+            if (data && data.results) {
+                const timings = {
+                    Fajr: data.results.Fajr || "05:00",
+                    Dhuhr: data.results.Dhuhr || "12:00",
+                    Asr: data.results.Asr || "15:00",
+                    Maghrib: data.results.Maghrib || "18:00",
+                    Isha: data.results.Isha || "19:30"
+                };
+                
+                setPrayerTimes(timings);
+                setError("Menggunakan data perkiraan. Mungkin kurang akurat.");
+                console.log('Prayer times fetched from alternative source:', timings);
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('Alternative API also failed:', error);
+            
+            // Use offline fallback data as last resort
+            console.log('Using offline fallback data...');
+            const offlineTimes = getOfflineFallbackPrayerTimes();
+            setPrayerTimes(offlineTimes);
+            setError('Tidak dapat terhubung ke server. Menggunakan data perkiraan offline (kurang akurat).');
+            
+            // We still return true because we did provide some prayer times
+            return true;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Fallback prayer times for when all online methods fail
+    const getOfflineFallbackPrayerTimes = () => {
+        const now = new Date();
+        const month = now.getMonth(); // 0-11
+        
+        // Extremely simplified fallback data based on Jakarta
+        // In a real app, you'd have a more comprehensive offline database
+        let fallbackTimes = {
+            // Default fallback for Jakarta area
+            Fajr: "04:40",
+            Dhuhr: "12:00",
+            Asr: "15:15",
+            Maghrib: "18:00",
+            Isha: "19:15"
+        };
+        
+        // Adjust slightly based on month (very rough approximation)
+        if (month >= 0 && month <= 2) { // Jan-Mar
+            fallbackTimes = {
+                Fajr: "04:45",
+                Dhuhr: "12:10",
+                Asr: "15:25",
+                Maghrib: "18:15",
+                Isha: "19:30"
+            };
+        } else if (month >= 3 && month <= 5) { // Apr-Jun
+            fallbackTimes = {
+                Fajr: "04:40",
+                Dhuhr: "12:00",
+                Asr: "15:15",
+                Maghrib: "18:00",
+                Isha: "19:15"
+            };
+        } else if (month >= 6 && month <= 8) { // Jul-Sep
+            fallbackTimes = {
+                Fajr: "04:35",
+                Dhuhr: "11:55",
+                Asr: "15:05",
+                Maghrib: "17:45",
+                Isha: "19:00"
+            };
+        } else { // Oct-Dec
+            fallbackTimes = {
+                Fajr: "04:30",
+                Dhuhr: "11:50",
+                Asr: "15:00",
+                Maghrib: "17:40",
+                Isha: "18:55"
+            };
+        }
+        
+        return fallbackTimes;
+    };
+
+    const calculateNextPrayer = () => {
+        if (!prayerTimes) return;
+
+        // Prayer times to display (we don't need all from the API)
+        const prayers = [
+            { name: 'Fajr', time: prayerTimes.Fajr, nameID: 'Subuh' },
+            { name: 'Dhuhr', time: prayerTimes.Dhuhr, nameID: 'Dzuhur' },
+            { name: 'Asr', time: prayerTimes.Asr, nameID: 'Ashar' },
+            { name: 'Maghrib', time: prayerTimes.Maghrib, nameID: 'Maghrib' },
+            { name: 'Isha', time: prayerTimes.Isha, nameID: 'Isya' }
+        ];
+
+        const now = currentTime;
+        const nowTimeString = now.toTimeString().substring(0, 5);
+
+        // Find the next prayer
+        let nextPrayerTime = null;
+
+        for (const prayer of prayers) {
+            if (prayer.time > nowTimeString) {
+                nextPrayerTime = prayer;
+                break;
+            }
+        }
+
+        // If no next prayer found today, it means the next prayer is Fajr tomorrow
+        if (!nextPrayerTime) {
+            nextPrayerTime = prayers[0]; // Fajr
+        }
+
+        setNextPrayer(nextPrayerTime);
+        
+        // Calculate time remaining
+        if (nextPrayerTime) {
+            calculateTimeRemaining(now, nextPrayerTime.time);
+        }
+    };
+
+    const formatTimeToLocale = (timeString) => {
+        if (!timeString) return '';
+        
+        const [hours, minutes] = timeString.split(':');
+        const date = new Date();
+        date.setHours(parseInt(hours, 10));
+        date.setMinutes(parseInt(minutes, 10));
+        
+        return date.toLocaleTimeString('id-ID', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: false 
+        });
+    };
+
+    // Format current time for display
+    const formattedCurrentTime = currentTime.toLocaleTimeString('id-ID', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    });
+
+    const handleRefresh = () => {
+        setError(null); // Clear previous errors
+        setLoading(true);
+        
+        console.log('Refreshing prayer times...');
+        
+        if (location) {
+            fetchPrayerTimes();
+        } else if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const coords = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    };
+                    console.log('Got user location:', coords);
+                    setLocation(coords);
+                    fetchLocationName(coords.latitude, coords.longitude);
+                    setError(null);
+                },
+                (error) => {
+                    console.error('Error getting location:', error);
+                    // Provide more detailed error based on error code
+                    let errorMsg = 'Menggunakan lokasi default. ';
+                    
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMsg += 'Akses lokasi ditolak. Silakan izinkan akses lokasi pada browser Anda.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMsg += 'Informasi lokasi tidak tersedia.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMsg += 'Permintaan lokasi habis waktu.';
+                            break;
+                        default:
+                            errorMsg += 'Untuk akurasi lebih baik, izinkan akses lokasi pada browser Anda.';
+                    }
+                    
+                    // Fallback to Jakarta Pusat
+                    const defaultCoords = {
+                        latitude: -6.1751,
+                        longitude: 106.8650
+                    };
+                    setLocation(defaultCoords);
+                    setLocationName('Jakarta Pusat, Indonesia (default)');
+                    setError(errorMsg);
+                    
+                    // Continue with default location
+                    fetchPrayerTimes();
+                },
+                { 
+                    timeout: 10000,
+                    maximumAge: 60000, // Accept cached position up to 1 minute old
+                    enableHighAccuracy: false // Don't need high accuracy, save battery
+                }
+            );
+        } else {
+            // Fallback to a default location if geolocation is not supported
+            const defaultCoords = {
+                latitude: -6.1751,
+                longitude: 106.8650
+            };
+            setLocation(defaultCoords);
+            setLocationName('Jakarta Pusat, Indonesia (default)');
+            setError('Geolokasi tidak didukung oleh browser Anda. Menggunakan lokasi default.');
+            
+            // Continue with default location
+            fetchPrayerTimes();
+        }
+    };
