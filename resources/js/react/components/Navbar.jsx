@@ -1,22 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 function Navbar({ user, setUser }) {
     const navigate = useNavigate();
     const location = useLocation();
     const [breadcrumbs, setBreadcrumbs] = useState([]);
-    const [surahName, setSurahName] = useState('');
     
-    // Search functionality states
-    const [searchTerm, setSearchTerm] = useState('');
-    const [suggestions, setSuggestions] = useState([]);
-    const [showSuggestions, setShowSuggestions] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [highlightedIndex, setHighlightedIndex] = useState(-1);
-    const [surahs, setSurahs] = useState([]);
-    const searchRef = useRef(null);
-    const suggestionsRef = useRef(null);
-     // Generate breadcrumbs based on current location
+    // Generate breadcrumbs based on current location
     useEffect(() => {
         const generateBreadcrumbs = async () => {
             const pathSegments = location.pathname.split('/').filter(segment => segment);
@@ -25,23 +15,47 @@ function Navbar({ user, setUser }) {
             if (pathSegments.length > 0) {
                 // Handle different routes
                 if (pathSegments[0] === 'surah' && pathSegments[1]) {
-                    // Fetch surah name
+                    // Fetch surah name for both /surah/{number} and /surah/{number}/{ayahNumber}
                     try {
                         const response = await fetch(`/api/surahs/${pathSegments[1]}`);
                         const data = await response.json();
                         if (data.status === 'success') {
                             const surahName = data.data.surah.name_latin || `Surah ${pathSegments[1]}`;
-                            setSurahName(surahName);
                             breadcrumbItems.push({
                                 name: surahName,
                                 path: `/surah/${pathSegments[1]}`
                             });
+                            
+                            // If there's an ayah number, add ayah breadcrumb
+                            if (pathSegments[2]) {
+                                breadcrumbItems.push({
+                                    name: `Ayat ${pathSegments[2]}`,
+                                    path: `/surah/${pathSegments[1]}/${pathSegments[2]}`
+                                });
+                            }
+                        } else {
+                            breadcrumbItems.push({
+                                name: `Surah ${pathSegments[1]}`,
+                                path: `/surah/${pathSegments[1]}`
+                            });
+                            if (pathSegments[2]) {
+                                breadcrumbItems.push({
+                                    name: `Ayat ${pathSegments[2]}`,
+                                    path: `/surah/${pathSegments[1]}/${pathSegments[2]}`
+                                });
+                            }
                         }
                     } catch (error) {
                         breadcrumbItems.push({
                             name: `Surah ${pathSegments[1]}`,
                             path: `/surah/${pathSegments[1]}`
                         });
+                        if (pathSegments[2]) {
+                            breadcrumbItems.push({
+                                name: `Ayat ${pathSegments[2]}`,
+                                path: `/surah/${pathSegments[1]}/${pathSegments[2]}`
+                            });
+                        }
                     }
                 } else if (pathSegments[0] === 'ayah' && pathSegments[1] && pathSegments[2]) {
                     // Add surah breadcrumb
@@ -70,7 +84,7 @@ function Navbar({ user, setUser }) {
                     // Add ayah breadcrumb
                     breadcrumbItems.push({
                         name: `Ayat ${pathSegments[2]}`,
-                        path: `/ayah/${pathSegments[1]}/${pathSegments[2]}`
+                        path: `/surah/${pathSegments[1]}/${pathSegments[2]}`
                     });
                 } else if (pathSegments[0] === 'search') {
                     breadcrumbItems.push({
@@ -101,215 +115,24 @@ function Navbar({ user, setUser }) {
         generateBreadcrumbs();
     }, [location.pathname]);
 
-    // Load surahs for search autocomplete
+    // Listen for custom urlChange events
     useEffect(() => {
-        fetch('/api/surahs')
-            .then(response => response.json())
-            .then(response => {
-                if (response.status === 'success') {
-                    setSurahs(response.data);
-                }
-            })
-            .catch(error => console.error('Error loading surahs:', error));
-    }, []);
-
-    // Search functionality
-    const fetchSuggestions = async (query) => {
-        if (!query || query.length < 2) {
-            setSuggestions([]);
-            return;
-        }
-        
-        setIsLoading(true);
-        try {
-            const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=5`);
-            if (!response.ok) throw new Error('Failed to fetch suggestions');
-            
-            const data = await response.json();
-            if (data.status === 'success') {
-                const ayahResults = Array.isArray(data.data) ? data.data : [];
-                
-                if (!Array.isArray(ayahResults)) {
-                    console.error('Unexpected API response format:', data);
-                    setSuggestions([]);
-                    return;
-                }
-                
-                const textSuggestions = ayahResults.map(ayah => {
-                    if (!ayah || typeof ayah !== 'object') {
-                        console.error('Invalid ayah data:', ayah);
-                        return null;
-                    }
-                    
-                    const ayahData = {
-                        ...ayah,
-                        surah_number: ayah.surah_number || null,
-                        number: ayah.number || ayah.ayah_number || null,
-                        text_indonesian: ayah.text_indonesian || ''
-                    };
-                    
-                    if (!ayahData.surah_number || !ayahData.number) {
-                        return null;
-                    }
-                    
-                    let highlightedText = ayahData.text_indonesian;
-                    const lowerText = ayahData.text_indonesian.toLowerCase();
-                    const lowerQuery = query.toLowerCase();
-                    
-                    if (lowerText.includes(lowerQuery)) {
-                        const startIndex = lowerText.indexOf(lowerQuery);
-                        highlightedText = {
-                            before: ayahData.text_indonesian.substring(0, startIndex),
-                            match: ayahData.text_indonesian.substring(startIndex, startIndex + query.length),
-                            after: ayahData.text_indonesian.substring(startIndex + query.length)
-                        };
-                    }
-                    
-                    return {
-                        type: 'ayah',
-                        ayah: ayahData,
-                        surahName: surahs.find(s => s.number === ayahData.surah_number)?.name_latin || `Surah ${ayahData.surah_number}`,
-                        text: ayahData.text_indonesian,
-                        highlightedText: highlightedText
-                    };
-                })
-                .filter(Boolean)
-                .slice(0, 5);
-                
-                setSuggestions(textSuggestions);
-            }
-        } catch (error) {
-            console.error('Error fetching suggestions:', error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    // Debounce search input
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (searchTerm) {
-                fetchSuggestions(searchTerm);
+        const handleUrlChange = (event) => {
+            if (event.detail && event.detail.path) {
+                // Use the provided path from the event
+                navigate(event.detail.path, { replace: true });
             } else {
-                setSuggestions([]);
-            }
-        }, 300);
-        
-        return () => clearTimeout(timer);
-    }, [searchTerm, surahs]);
-
-    // Handle clicks outside of the search component
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (searchRef.current && !searchRef.current.contains(event.target)) {
-                setShowSuggestions(false);
+                // Fallback to reading current path
+                const currentPath = window.location.pathname;
+                navigate(currentPath, { replace: true });
             }
         };
         
-        document.addEventListener('mousedown', handleClickOutside);
+        window.addEventListener('urlChange', handleUrlChange);
         return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
+            window.removeEventListener('urlChange', handleUrlChange);
         };
-    }, [searchRef]);
-
-    // Reset highlighted index when suggestions change
-    useEffect(() => {
-        setHighlightedIndex(-1);
-    }, [suggestions]);
-
-    // Scroll highlighted suggestion into view
-    useEffect(() => {
-        if (highlightedIndex >= 0 && suggestionsRef.current) {
-            const highlightedElement = suggestionsRef.current.querySelector(`li:nth-child(${highlightedIndex + 1})`);
-            if (highlightedElement) {
-                highlightedElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
-        }
-    }, [highlightedIndex]);
-
-    const handleSearchSubmit = (e) => {
-        e.preventDefault();
-        const query = e.target.elements.search.value.trim();
-        if (query) {
-            navigate(`/search?q=${encodeURIComponent(query)}`);
-            setShowSuggestions(false);
-        }
-    };
-
-    const handleSearchChange = (e) => {
-        const value = e.target.value;
-        setSearchTerm(value);
-        if (value.length >= 2) {
-            setShowSuggestions(true);
-        } else {
-            setShowSuggestions(false);
-        }
-    };
-
-    const handleSearchFocus = () => {
-        if (searchTerm && searchTerm.length >= 2) {
-            setShowSuggestions(true);
-        }
-    };
-
-    const handleKeyDown = (e) => {
-        if (!showSuggestions || suggestions.length === 0) {
-            return;
-        }
-
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            setHighlightedIndex(prevIndex => 
-                prevIndex < suggestions.length - 1 ? prevIndex + 1 : 0
-            );
-        } 
-        else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            setHighlightedIndex(prevIndex => 
-                prevIndex > 0 ? prevIndex - 1 : suggestions.length - 1
-            );
-        } 
-        else if (e.key === 'Enter' && highlightedIndex >= 0) {
-            e.preventDefault();
-            const suggestion = suggestions[highlightedIndex];
-            if (suggestion.type === 'ayah' && suggestion.ayah) {
-                handleSuggestionClick(suggestion);
-            }
-        }
-        else if (e.key === 'Escape') {
-            setShowSuggestions(false);
-            setHighlightedIndex(-1);
-        }
-    };
-
-    const handleSuggestionClick = (suggestion) => {
-        if (suggestion.type === 'ayah' && suggestion.ayah) {
-            const surah_number = suggestion.ayah.surah_number;
-            const ayah_number = suggestion.ayah.number || suggestion.ayah.ayah_number;
-            
-            if (surah_number && ayah_number) {
-                navigate(`/ayah/${surah_number}/${ayah_number}`);
-            } else {
-                console.error('Invalid ayah data for navigation:', suggestion.ayah);
-            }
-        } else {
-            console.error('Invalid suggestion data:', suggestion);
-        }
-        setShowSuggestions(false);
-        setSearchTerm('');
-    };
-
-    const handleViewAllResults = () => {
-        navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
-        setShowSuggestions(false);
-    };
-
-    const handleClearSearch = () => {
-        setSearchTerm('');
-        setSuggestions([]);
-        setShowSuggestions(false);
-        setHighlightedIndex(-1);
-    };
+    }, [navigate]);
 
     const handleLogout = async () => {
         try {
@@ -334,127 +157,18 @@ function Navbar({ user, setUser }) {
     
     return (
         <>
-            <nav className="bg-white shadow-sm fixed top-0 left-0 right-0 z-50 border-b border-gray-100">
+            <nav className="bg-white shadow-md fixed top-0 left-0 right-0 z-50">
                 <div className="container mx-auto px-4 py-3 max-w-6xl">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
                             <Link to="/" className="flex items-center">
                                 <div className="flex items-center justify-center w-8 h-8 bg-islamic-green text-white rounded-md mr-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+                                        <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 005.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
                                     </svg>
                                 </div>
                                 <span className="ml-2 text-xl font-semibold text-islamic-green">indoquran.web.id</span>
                             </Link>
-                        </div>
-                        
-                        <div className="hidden md:block">
-                            <form onSubmit={handleSearchSubmit} className="flex items-center">
-                                <div className="relative" ref={searchRef}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 absolute left-3 top-2.5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                                    </svg>
-                                    <input 
-                                        type="text" 
-                                        name="search"
-                                        value={searchTerm}
-                                        onChange={handleSearchChange}
-                                        onFocus={handleSearchFocus}
-                                        onKeyDown={handleKeyDown}
-                                        placeholder="Cari ayat Al-Quran..." 
-                                        className="pl-10 pr-10 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-islamic-green focus:border-transparent w-80"
-                                    />
-                                    {searchTerm && (
-                                        <button
-                                            type="button"
-                                            onClick={handleClearSearch}
-                                            className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
-                                    )}
-
-                                    {/* Desktop Autocomplete Suggestions */}
-                                    {showSuggestions && searchTerm.length >= 2 && (
-                                        <div 
-                                            className="absolute z-50 mt-1 w-full bg-white rounded-md shadow-lg max-h-80 overflow-y-auto border border-gray-200"
-                                            ref={suggestionsRef}
-                                        >
-                                            {isLoading ? (
-                                                <div className="p-3 text-center text-gray-500">
-                                                    <div className="inline-block animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-islamic-green mr-2"></div>
-                                                    Mencari...
-                                                </div>
-                                            ) : suggestions.length > 0 ? (
-                                                <ul className="py-1">
-                                                    {suggestions.map((suggestion, index) => (
-                                                        <li 
-                                                            key={`${suggestion.type}-${index}`}
-                                                            onClick={() => handleSuggestionClick(suggestion)}
-                                                            className={`px-3 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0 ${
-                                                                highlightedIndex === index ? 'bg-gray-100' : ''
-                                                            } hover:bg-islamic-green/5`}
-                                                            onMouseEnter={() => setHighlightedIndex(index)}
-                                                        >
-                                                            {suggestion.ayah ? (
-                                                                <div>
-                                                                    <div className="flex items-center text-islamic-brown text-sm mb-1">
-                                                                        <span className="font-medium">{suggestion.surahName}</span>
-                                                                        <span className="mx-1">•</span>
-                                                                        <span>Ayat {suggestion.ayah.number || suggestion.ayah.ayah_number}</span>
-                                                                        <span className="ml-auto text-xs text-islamic-green">Lihat ayat →</span>
-                                                                    </div>
-                                                                    <p className="text-gray-700 text-sm overflow-hidden text-ellipsis" 
-                                                                       style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
-                                                                        <span className="text-islamic-green font-medium">Terjemahan: </span>
-                                                                        {typeof suggestion.highlightedText === 'object' ? (
-                                                                            <span>
-                                                                                "{suggestion.highlightedText.before}
-                                                                                <span className="bg-yellow-100 font-medium">{suggestion.highlightedText.match}</span>
-                                                                                {suggestion.highlightedText.after}"
-                                                                            </span>
-                                                                        ) : (
-                                                                            `"${suggestion.text}"`
-                                                                        )}
-                                                                    </p>
-                                                                </div>
-                                                            ) : (
-                                                                <div className="p-2 text-sm text-gray-500">
-                                                                    Data ayat tidak lengkap
-                                                                </div>
-                                                            )}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            ) : (
-                                                <div className="p-4 text-center">
-                                                    <div className="text-gray-500 mb-2">Tidak ada hasil yang cocok</div>
-                                                    <p className="text-sm text-gray-400">
-                                                        Coba gunakan kata kunci lain atau cari berdasarkan isi ayat
-                                                    </p>
-                                                </div>
-                                            )}
-                                            
-                                            {/* View All Results Button */}
-                                            {!isLoading && suggestions.length > 0 && (
-                                                <div className="p-3 border-t border-gray-100">
-                                                    <button
-                                                        onClick={handleViewAllResults}
-                                                        className="w-full py-2 px-3 bg-islamic-green/10 hover:bg-islamic-green/20 text-islamic-green font-medium rounded-md transition-colors flex items-center justify-center"
-                                                    >
-                                                        <span>Lihat Semua Hasil</span>
-                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                                        </svg>
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            </form>
                         </div>
                         
                         <div className="flex items-center space-x-4">
@@ -496,121 +210,12 @@ function Navbar({ user, setUser }) {
                             )}
                         </div>
                     </div>
-                    
-                    <div className="mt-3 md:hidden">
-                        <form onSubmit={handleSearchSubmit} className="flex items-center">
-                            <div className="relative w-full" ref={searchRef}>
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 absolute left-3 top-2.5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                                </svg>
-                                <input 
-                                    type="text" 
-                                    name="search"
-                                    value={searchTerm}
-                                    onChange={handleSearchChange}
-                                    onFocus={handleSearchFocus}
-                                    onKeyDown={handleKeyDown}
-                                    placeholder="Cari ayat Al-Quran..." 
-                                    className="w-full pl-10 pr-10 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-islamic-green focus:border-transparent"
-                                />
-                                {searchTerm && (
-                                    <button
-                                        type="button"
-                                        onClick={handleClearSearch}
-                                        className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                )}
-
-                                {/* Mobile Autocomplete Suggestions */}
-                                {showSuggestions && searchTerm.length >= 2 && (
-                                    <div 
-                                        className="absolute z-50 mt-1 w-full bg-white rounded-md shadow-lg max-h-80 overflow-y-auto border border-gray-200"
-                                        ref={suggestionsRef}
-                                    >
-                                        {isLoading ? (
-                                            <div className="p-3 text-center text-gray-500">
-                                                <div className="inline-block animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-islamic-green mr-2"></div>
-                                                Mencari...
-                                            </div>
-                                        ) : suggestions.length > 0 ? (
-                                            <ul className="py-1">
-                                                {suggestions.map((suggestion, index) => (
-                                                    <li 
-                                                        key={`${suggestion.type}-${index}`}
-                                                        onClick={() => handleSuggestionClick(suggestion)}
-                                                        className={`px-3 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0 ${
-                                                            highlightedIndex === index ? 'bg-gray-100' : ''
-                                                        } hover:bg-islamic-green/5`}
-                                                        onMouseEnter={() => setHighlightedIndex(index)}
-                                                    >
-                                                        {suggestion.ayah ? (
-                                                            <div>
-                                                                <div className="flex items-center text-islamic-brown text-xs mb-1">
-                                                                    <span className="font-medium">{suggestion.surahName}</span>
-                                                                    <span className="mx-1">•</span>
-                                                                    <span>Ayat {suggestion.ayah.number || suggestion.ayah.ayah_number}</span>
-                                                                    <span className="ml-auto text-xs text-islamic-green">Lihat →</span>
-                                                                </div>
-                                                                <p className="text-gray-700 text-xs overflow-hidden text-ellipsis" 
-                                                                   style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
-                                                                    <span className="text-islamic-green font-medium">Terjemahan: </span>
-                                                                    {typeof suggestion.highlightedText === 'object' ? (
-                                                                        <span>
-                                                                            "{suggestion.highlightedText.before}
-                                                                            <span className="bg-yellow-100 font-medium">{suggestion.highlightedText.match}</span>
-                                                                            {suggestion.highlightedText.after}"
-                                                                        </span>
-                                                                    ) : (
-                                                                        `"${suggestion.text}"`
-                                                                    )}
-                                                                </p>
-                                                            </div>
-                                                        ) : (
-                                                            <div className="p-2 text-xs text-gray-500">
-                                                                Data ayat tidak lengkap
-                                                            </div>
-                                                        )}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        ) : (
-                                            <div className="p-4 text-center">
-                                                <div className="text-gray-500 mb-2 text-sm">Tidak ada hasil yang cocok</div>
-                                                <p className="text-xs text-gray-400">
-                                                    Coba gunakan kata kunci lain
-                                                </p>
-                                            </div>
-                                        )}
-                                        
-                                        {/* View All Results Button */}
-                                        {!isLoading && suggestions.length > 0 && (
-                                            <div className="p-3 border-t border-gray-100">
-                                                <button
-                                                    onClick={handleViewAllResults}
-                                                    className="w-full py-2 px-3 bg-islamic-green/10 hover:bg-islamic-green/20 text-islamic-green font-medium rounded-md transition-colors flex items-center justify-center text-sm"
-                                                >
-                                                    <span>Lihat Semua Hasil</span>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        </form>
-                    </div>
                 </div>
             </nav>
 
             {/* Floating Breadcrumb Navigation */}
             {breadcrumbs.length > 1 && (
-                <div className="fixed top-16 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
+                <div className="fixed top-16 left-0 right-0 z-40 bg-transparent backdrop-blur-sm">
                     <div className="container mx-auto px-4 py-2 max-w-6xl">
                         {/* Desktop Breadcrumbs */}
                         <div className="hidden md:block">
@@ -644,28 +249,27 @@ function Navbar({ user, setUser }) {
                         {/* Mobile Breadcrumbs */}
                         <div className="md:hidden">
                             <nav className="flex" aria-label="Breadcrumb">
-                                <ol className="inline-flex items-center space-x-1 text-xs">
-                                    {breadcrumbs.map((breadcrumb, index) => (
-                                        <li key={index} className="inline-flex items-center">
-                                            {index > 0 && (
-                                                <svg className="w-3 h-3 text-gray-400 mx-1" fill="currentColor" viewBox="0 0 20 20">
+                                <ol className="inline-flex items-center space-x-1">
+                                    {breadcrumbs.length > 1 && (
+                                        <>
+                                            <li className="inline-flex items-center">
+                                                <Link
+                                                    to={breadcrumbs[breadcrumbs.length - 2].path}
+                                                    className="text-sm font-medium text-gray-500 hover:text-primary-600"
+                                                >
+                                                    {breadcrumbs[breadcrumbs.length - 2].name}
+                                                </Link>
+                                            </li>
+                                            <li className="inline-flex items-center">
+                                                <svg className="w-4 h-4 text-gray-400 mx-1" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path>
                                                 </svg>
-                                            )}
-                                            {index === breadcrumbs.length - 1 ? (
-                                                <span className="font-medium text-primary-600">
-                                                    {breadcrumb.name}
+                                                <span className="text-sm font-medium text-primary-600">
+                                                    {breadcrumbs[breadcrumbs.length - 1].name}
                                                 </span>
-                                            ) : (
-                                                <Link
-                                                    to={breadcrumb.path}
-                                                    className="font-medium text-gray-500 hover:text-primary-600"
-                                                >
-                                                    {breadcrumb.name}
-                                                </Link>
-                                            )}
-                                        </li>
-                                    ))}
+                                            </li>
+                                        </>
+                                    )}
                                 </ol>
                             </nav>
                         </div>

@@ -17,19 +17,26 @@ class BookmarkController extends Controller
         $user = Auth::user();
         $favoritesOnly = $request->query('favorites_only', false);
         
+        // Start with the base query
         $query = $user->bookmarkedAyahs()
-                     ->with(['surah:number,name_indonesian,name_arabic'])
-                     ->orderBy('user_ayah_bookmarks.created_at', 'desc');
+                     ->with(['surah:number,name_indonesian,name_arabic,name_latin']);
         
         if ($favoritesOnly) {
             $query->wherePivot('is_favorite', true);
         }
         
+        // Get the results
         $bookmarks = $query->get();
+        
+        // Sort the collection by surah_number and ayah_number
+        $sortedBookmarks = $bookmarks->sortBy([
+            ['surah_number', 'asc'],
+            ['ayah_number', 'asc']
+        ])->values();
         
         return response()->json([
             'status' => 'success',
-            'data' => $bookmarks
+            'data' => $sortedBookmarks
         ]);
     }
 

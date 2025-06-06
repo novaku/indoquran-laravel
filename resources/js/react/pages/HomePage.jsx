@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import QuranHeader from '../components/QuranHeader';
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
+import SearchWidget from '../components/SearchWidget';
 
 function HomePage() {
     const [surahs, setSurahs] = useState([]);
@@ -81,13 +82,17 @@ function HomePage() {
             <QuranHeader className="mb-10" />
             <div className="w-64 h-1 bg-gradient-to-r from-transparent via-islamic-green/40 to-transparent mx-auto mb-8"></div>
             
-            {/* Prayer Times Widget */}
-            <div className="mb-8">
-                <PrayerTimesWidget />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {surahs.map(surah => (
+            <div className="max-w-6xl mx-auto px-4">
+                {/* Search Widget */}
+                <SearchWidget />
+
+                {/* Prayer Times Widget */}
+                <div className="mb-8">
+                    <PrayerTimesWidget />
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {surahs.map(surah => (
                     <div 
                         key={surah.number}
                         onClick={(e) => handleSurahClick(surah, e)}
@@ -98,7 +103,12 @@ function HomePage() {
                                 <span className="text-lg font-bold text-white">{surah.number}</span>
                             </div>
                             <div className="flex-1">
-                                <h3 className="text-lg font-semibold text-islamic-green">{surah.name_latin}</h3>
+                                <div className="flex items-center">
+                                    <h3 className="text-lg font-semibold text-islamic-green">{surah.name_latin}</h3>
+                                    <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-md">
+                                        Surah {surah.number}
+                                    </span>
+                                </div>
                                 <p className="text-islamic-brown text-sm">{surah.name_indonesian || "The " + surah.name_latin}</p>
                             </div>
                             <div className="ml-auto">
@@ -129,11 +139,11 @@ function HomePage() {
                         </div>
                     </div>
                 ))}
-            </div>
+                </div>
 
-            {/* Modal */}
-            {isModalOpen && selectedSurah && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                {/* Modal */}
+                {isModalOpen && selectedSurah && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9000]">
                     <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
                         <div className="p-6">
                             <div className="flex justify-between items-start mb-4">
@@ -142,7 +152,12 @@ function HomePage() {
                                         <span className="text-xl font-bold text-white">{selectedSurah.number}</span>
                                     </div>
                                     <div>
-                                        <h2 className="text-2xl font-semibold text-islamic-green">{selectedSurah.name_latin}</h2>
+                                        <div className="flex items-center">
+                                            <h2 className="text-2xl font-semibold text-islamic-green">{selectedSurah.name_latin}</h2>
+                                            <span className="ml-2 text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-md">
+                                                Surah {selectedSurah.number}
+                                            </span>
+                                        </div>
                                         <p className="text-islamic-brown">{selectedSurah.name_indonesian || selectedSurah.name_latin}</p>
                                     </div>
                                 </div>
@@ -189,23 +204,22 @@ function HomePage() {
                             <div className="flex justify-end space-x-3">
                                 <button 
                                     onClick={handleCloseModal}
-                                    className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                                    className="px-8 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-black font-semibold rounded-lg hover:from-gray-600 hover:to-gray-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-gray-300 focus:ring-opacity-50"
                                 >
-                                    Tutup
+                                    ✕ Tutup
                                 </button>
                                 <Link 
                                     to={`/surah/${selectedSurah.number}`}
-                                    className="px-6 py-2 bg-islamic-green text-white rounded-lg hover:bg-islamic-green/90 transition-colors"
+                                    className="px-8 py-3 bg-gradient-to-r from-islamic-green to-green-600 text-black font-semibold rounded-lg hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-green-300 focus:ring-opacity-50"
                                 >
-                                    Lihat Surah
+                                    🔗 Buka Surah
                                 </Link>
                             </div>
                         </div>
                     </div>
                 </div>
             )}
-
-            {/* Remove duplicate Prayer Times Widget from here */}
+            </div>
         </div>
     );
 }

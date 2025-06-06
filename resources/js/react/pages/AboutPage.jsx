@@ -2,7 +2,7 @@ import React from 'react';
 
 function AboutPage() {
     return (
-        <div className="bg-white p-8 rounded-lg shadow-md">
+        <div className="bg-white p-8 rounded-lg shadow-md mx-auto max-w-6xl">
             <h1 className="text-3xl font-bold text-islamic-green mb-6 border-b pb-3">Tentang IndoQuran</h1>
             
             <section className="mb-8">
@@ -48,7 +48,7 @@ function AboutPage() {
                 <h2 className="text-xl font-semibold text-islamic-brown mb-3">Kontak</h2>
                 <p className="text-gray-700 leading-relaxed">
                     Jika Anda memiliki pertanyaan, saran, atau masukan, silahkan hubungi kami melalui
-                    halaman Kontak atau kirim email ke <a href="mailto:info@indoquran.id" className="text-islamic-green hover:underline">info@indoquran.id</a>.
+                    halaman Kontak atau kirim email ke <a href="mailto:kontak@indoquran.web.id" className="text-islamic-green hover:underline">kontak@indoquran.web.id</a>.
                 </p>
             </section>
         </div>

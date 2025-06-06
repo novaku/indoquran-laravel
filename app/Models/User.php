@@ -77,4 +77,14 @@ class User extends Authenticatable
                     ->withPivot(['is_favorite', 'notes', 'created_at'])
                     ->withTimestamps();
     }
+    
+    /**
+     * Get sorted bookmarked ayahs (by surah and ayah number).
+     */
+    public function sortedBookmarkedAyahs(): BelongsToMany
+    {
+        return $this->bookmarkedAyahs()
+                    ->orderBy('surah_number', 'asc')
+                    ->orderBy('ayah_number', 'asc');
+    }
 }

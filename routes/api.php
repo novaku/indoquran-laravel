@@ -3,7 +3,6 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SurahController;
-use App\Http\Controllers\AyahController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -57,6 +56,17 @@ Route::middleware(['auth'])->group(function() {
 // Surah routes
 Route::get('/surahs', [App\Http\Controllers\QuranController::class, 'getAllSurahs']);
 Route::get('/surahs/{number}', [App\Http\Controllers\QuranController::class, 'getSurah']);
+Route::get('/surahs/{number}/ayahs/{ayahNumber}', [App\Http\Controllers\QuranController::class, 'getAyah']);
+
+// Test route
+Route::get('/test-ayah/{surahNumber}/{ayahNumber}', function($surahNumber, $ayahNumber) {
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Test route is working',
+        'surahNumber' => $surahNumber,
+        'ayahNumber' => $ayahNumber
+    ]);
+});
 
 // Ayah routes
 Route::get('/ayahs/{surahNumber}/{ayahNumber}', [App\Http\Controllers\QuranController::class, 'getAyah']);

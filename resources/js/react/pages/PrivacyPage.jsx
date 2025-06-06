@@ -2,7 +2,7 @@ import React from 'react';
 
 function PrivacyPage() {
     return (
-        <div className="bg-white p-8 rounded-lg shadow-md">
+        <div className="bg-white p-8 rounded-lg shadow-md mx-auto max-w-6xl">
             <h1 className="text-3xl font-bold text-islamic-green mb-6 border-b pb-3">Kebijakan Privasi</h1>
             
             <section className="mb-8">
@@ -99,7 +99,7 @@ function PrivacyPage() {
                     Jika Anda memiliki pertanyaan atau kekhawatiran tentang Kebijakan Privasi ini, silakan hubungi kami di:
                 </p>
                 <p className="text-gray-700">
-                    Email: <a href="mailto:privacy@indoquran.id" className="text-islamic-green hover:underline">privacy@indoquran.id</a>
+                    Email: <a href="mailto:kontak@indoquran.web.id" className="text-islamic-green hover:underline">kontak@indoquran.web.id</a>
                 </p>
             </section>
         </div>

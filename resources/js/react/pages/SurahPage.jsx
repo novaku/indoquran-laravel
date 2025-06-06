@@ -1,13 +1,15 @@
 // filepath: /Users/novaherdi/Documents/GitHub/indoquran-laravel/resources/js/react/pages/SurahPage.jsx
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { IoPlayCircleOutline, IoPauseCircleOutline, IoArrowBackOutline, IoArrowForwardOutline, IoAddOutline, IoRemoveOutline, IoReloadOutline, IoChevronDownOutline, IoChevronUpOutline, IoInformationCircleOutline, IoBookmarkOutline, IoBookmark, IoHeartOutline, IoHeart, IoChevronDownSharp, IoLinkOutline, IoCloseOutline } from 'react-icons/io5';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { IoPlayCircleOutline, IoPauseCircleOutline, IoArrowBackOutline, IoArrowForwardOutline, IoAddOutline, IoRemoveOutline, IoReloadOutline, IoChevronDownOutline, IoChevronUpOutline, IoInformationCircleOutline, IoBookmarkOutline, IoBookmark, IoHeartOutline, IoHeart, IoChevronDownSharp, IoCloseOutline } from 'react-icons/io5';
 import QuranHeader from '../components/QuranHeader';
+import { AyahCard } from '../features/quran';
 import { fetchFootnote } from '../services/FootnoteService';
 import { toggleBookmark, toggleFavorite, getBookmarkStatus } from '../services/BookmarkService';
 
 function SurahPage({ user }) {
-    const { number } = useParams();
+    const { number, ayahNumber } = useParams();
+    const navigate = useNavigate();
     const [surah, setSurah] = useState(null);
     const [ayahs, setAyahs] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -15,7 +17,18 @@ function SurahPage({ user }) {
     const [currentAudio, setCurrentAudio] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [activeAyah, setActiveAyah] = useState(null);
-    const [currentVerseIndex, setCurrentVerseIndex] = useState(1);
+    const [currentVerseIndex, setCurrentVerseIndex] = useState(() => {
+        // First check if ayahNumber is provided in URL
+        if (ayahNumber) {
+            const ayahIndex = parseInt(ayahNumber, 10);
+            if (ayahIndex > 0) {
+                return ayahIndex;
+            }
+        }
+        // Try to restore from localStorage, fallback to 1
+        const saved = localStorage.getItem(`surah-${number}-verse`);
+        return saved ? parseInt(saved, 10) : 1;
+    });
     const [fontSize, setFontSize] = useState(4); // Font size for Arabic text (in rem)
     const [showTafsir, setShowTafsir] = useState(false); // State to control tafsir visibility
     const [activeFootnote, setActiveFootnote] = useState(null); // Track active footnote
@@ -44,6 +57,37 @@ function SurahPage({ user }) {
                 if (response.status === 'success') {
                     setSurah(response.data.surah);
                     setAyahs(response.data.ayahs);
+                    
+                    // Validate current verse index against actual ayah count
+                    let indexToSet;
+                    if (ayahNumber) {
+                        // If ayahNumber is provided in URL, use it
+                        const urlAyahIndex = parseInt(ayahNumber, 10);
+                        if (urlAyahIndex > 0 && urlAyahIndex <= response.data.ayahs.length) {
+                            indexToSet = urlAyahIndex;
+                        } else {
+                            // Invalid ayah number in URL, default to first ayah
+                            indexToSet = 1;
+                        }
+                    } else {
+                        // Use saved index from localStorage
+                        const savedIndex = parseInt(localStorage.getItem(`surah-${number}-verse`) || '1', 10);
+                        const maxIndex = response.data.ayahs.length;
+                        
+                        if (savedIndex > maxIndex) {
+                            // If saved index is beyond available ayahs, set to last ayah
+                            indexToSet = maxIndex;
+                        } else if (savedIndex < 1) {
+                            // If saved index is invalid, set to first ayah
+                            indexToSet = 1;
+                        } else {
+                            // Use saved index
+                            indexToSet = savedIndex;
+                        }
+                    }
+                    
+                    setCurrentVerseIndex(indexToSet);
+                    localStorage.setItem(`surah-${number}-verse`, indexToSet.toString());
                 } else {
                     setError("Gagal memuat data surah");
                 }
@@ -53,7 +97,7 @@ function SurahPage({ user }) {
                 setError(err.message);
                 setLoading(false);
             });
-    }, [number]);
+    }, [number, ayahNumber]);
 
     // Load bookmark statuses for all ayahs when user is logged in and ayahs are loaded
     useEffect(() => {
@@ -120,6 +164,28 @@ function SurahPage({ user }) {
         }
     }, [ayahs, selectedQari]);
     
+    // Save current verse index to localStorage whenever it changes
+    useEffect(() => {
+        if (currentVerseIndex && number) {
+            localStorage.setItem(`surah-${number}-verse`, currentVerseIndex.toString());
+        }
+    }, [currentVerseIndex, number]);
+    
+    // Cleanup localStorage for other surahs (optional - keeps storage clean)
+    useEffect(() => {
+        // Clean up old surah positions (keep only current and a few recent ones)
+        const currentKey = `surah-${number}-verse`;
+        const allKeys = Object.keys(localStorage);
+        const surahKeys = allKeys.filter(key => key.startsWith('surah-') && key.endsWith('-verse'));
+        
+        // Keep only the 5 most recent surah positions to avoid localStorage bloat
+        if (surahKeys.length > 5) {
+            const otherKeys = surahKeys.filter(key => key !== currentKey);
+            // Remove oldest entries (simple cleanup - in a real app you might want more sophisticated logic)
+            otherKeys.slice(0, -4).forEach(key => localStorage.removeItem(key));
+        }
+    }, [number]);
+    
     // Handle click outside qari dropdown
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -167,9 +233,16 @@ function SurahPage({ user }) {
                 currentAudio.onended = null;
                 currentAudio.onerror = null;
                 currentAudio.onstalled = null;
+                currentAudio.onloadedmetadata = null;
+                currentAudio.ontimeupdate = null;
                 
-                // Then pause the audio
-                currentAudio.pause();
+                // Then pause and clean up the audio
+                try {
+                    currentAudio.pause();
+                    currentAudio.currentTime = 0;
+                } catch (err) {
+                    console.warn('Could not clean up audio properly', err);
+                }
                 
                 // Finally reset states
                 setCurrentAudio(null);
@@ -183,7 +256,14 @@ function SurahPage({ user }) {
                 surahAudio.onerror = null;
                 surahAudio.ontimeupdate = null;
                 surahAudio.onloadedmetadata = null;
-                surahAudio.pause();
+                
+                try {
+                    surahAudio.pause();
+                    surahAudio.currentTime = 0;
+                } catch (err) {
+                    console.warn('Could not clean up surah audio properly', err);
+                }
+                
                 setSurahAudio(null);
                 setIsSurahPlaying(false);
             }
@@ -226,18 +306,26 @@ function SurahPage({ user }) {
         // Clean up any existing audio before creating a new one
         if (currentAudio) {
             const oldAudio = currentAudio;
-            // First remove event listeners to prevent them from firing during cleanup
-            oldAudio.onended = null;
-            oldAudio.onerror = null;
-            oldAudio.onstalled = null;
             
-            // Reset states before pausing to avoid race conditions
+            // First set state to null to prevent any state updates from affecting a disposed audio object
             setCurrentAudio(null);
             setIsPlaying(false);
             setActiveAyah(null);
             
-            // Now pause the audio
+            // Now remove all event listeners to prevent memory leaks and unintended callbacks
+            oldAudio.onended = null;
+            oldAudio.onerror = null;
+            oldAudio.onstalled = null;
+            oldAudio.onloadedmetadata = null;
+            oldAudio.ontimeupdate = null;
+            
+            // Now pause and reset the audio
             oldAudio.pause();
+            try {
+                oldAudio.currentTime = 0;
+            } catch (err) {
+                console.warn('Could not reset audio currentTime', err);
+            }
             
             // Small delay before creating a new audio instance to ensure clean separation
             setTimeout(createAndPlayNewAudio, 50);
@@ -254,9 +342,14 @@ function SurahPage({ user }) {
             const audio = new Audio(audioUrl);
             
             // Add event listeners
-            audio.onended = () => {
+            audio.onended = function onAudioEnded() {
+                console.log('Audio ended');
+                // Update state to indicate current audio has finished
                 setIsPlaying(false);
                 setActiveAyah(null);
+                
+                // No auto-play next ayah - just end the current audio
+                console.log('Playback completed');
             };
             
             // Enhanced error handling
@@ -494,13 +587,104 @@ function SurahPage({ user }) {
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
+    // Function to fetch a specific ayah via AJAX
+    const fetchAyah = async (surahId, ayahId) => {
+        try {
+            // Show loading indicator
+            const loadingIndicator = document.getElementById('ayah-loading-indicator');
+            if (loadingIndicator) loadingIndicator.style.display = 'flex';
+            
+            const response = await fetch(`/api/surahs/${surahId}/ayahs/${ayahId}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch ayah');
+            }
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                // Get the ayah from the response
+                const fetchedAyah = data.data.ayah;
+                
+                // Update the current verse index
+                const ayahIndex = parseInt(ayahId, 10);
+                setCurrentVerseIndex(ayahIndex);
+                
+                // Reset audio and footnote states
+                if (currentAudio) {
+                    stopAudio();
+                }
+                setActiveFootnote(null);
+                setFootnoteContent('');
+                setShowTooltip(null);
+                
+                // Update URL without page refresh using replaceState
+                window.history.replaceState(null, '', `/surah/${surahId}/${ayahId}`);
+                // Dispatch a custom event to notify other components about URL change
+                window.dispatchEvent(new CustomEvent('urlChange', { detail: { path: `/surah/${surahId}/${ayahId}` } }));
+                
+                // Save to localStorage
+                localStorage.setItem(`surah-${surahId}-verse`, ayahId.toString());
+                
+                // Update bookmark status if available
+                if (data.data.bookmark) {
+                    setBookmarkStatuses(prev => ({
+                        ...prev,
+                        [fetchedAyah.id]: {
+                            isBookmarked: true,
+                            isFavorite: data.data.bookmark.is_favorite
+                        }
+                    }));
+                }
+                
+                // Hide loading indicator
+                if (loadingIndicator) loadingIndicator.style.display = 'none';
+                
+                // Scroll to Arabic text after a short delay to ensure DOM updates
+                setTimeout(() => scrollToArabicText(), 100);
+                
+                // Return the ayah data
+                return fetchedAyah;
+            } else {
+                throw new Error(data.message || 'Failed to fetch ayah');
+            }
+        } catch (error) {
+            console.error('Error fetching ayah:', error);
+            setError('Failed to load ayah. Please try again later.');
+            
+            // Hide loading indicator on error
+            const loadingIndicator = document.getElementById('ayah-loading-indicator');
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
+            
+            return null;
+        }
+    };
+
     const handleVerseChange = (index) => {
-        setCurrentVerseIndex(index);
-        // Reset footnote state when changing verses
-        setActiveFootnote(null);
-        setFootnoteContent('');
-        setShowTooltip(null);
-        scrollToArabicText();
+        fetchAyah(number, index);
+        
+        // Auto-play the selected ayah after a short delay
+        setTimeout(() => {
+            const selectedAyah = ayahs[index - 1];
+            if (selectedAyah) {
+                try {
+                    // Parse audio URLs for the selected ayah
+                    const audioUrls = typeof selectedAyah.audio_urls === 'string' 
+                        ? JSON.parse(selectedAyah.audio_urls) 
+                        : selectedAyah.audio_urls;
+                    
+                    // Play audio with selected qari
+                    if (audioUrls && typeof audioUrls === 'object' && audioUrls[selectedQari]) {
+                        playAudio(audioUrls[selectedQari], selectedAyah.id);
+                    } else if (selectedAyah.audio_url) {
+                        playAudio(selectedAyah.audio_url, selectedAyah.id);
+                    } else {
+                        showToast('Audio tidak tersedia untuk ayat ini', 'warning');
+                    }
+                } catch (error) {
+                    console.error('Error playing selected ayah:', error);
+                    showToast('Gagal memutar ayat', 'error');
+                }
+            }
+        }, 200);
     };
     
     const handlePlayClick = () => {
@@ -553,29 +737,55 @@ function SurahPage({ user }) {
             const arabicTextElement = document.getElementById('ayah-arabic-text');
             if (arabicTextElement) {
                 arabicTextElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Add a subtle highlight effect
+                arabicTextElement.classList.add('highlight-animation');
+                setTimeout(() => {
+                    arabicTextElement.classList.remove('highlight-animation');
+                }, 1000);
             }
         }, 100);
     };
     
     const handlePrevious = () => {
         if (currentVerseIndex > 1) {
-            setCurrentVerseIndex(currentVerseIndex - 1);
+            const previousIndex = currentVerseIndex - 1;
+            setCurrentVerseIndex(previousIndex);
+            // Reset audio and state
+            if (currentAudio) {
+                stopAudio();
+            }
             // Reset footnote state
             setActiveFootnote(null);
             setFootnoteContent('');
             setShowTooltip(null);
             scrollToArabicText();
+            
+            // Update URL without page refresh using replaceState
+            window.history.replaceState(null, '', `/surah/${number}/${previousIndex}`);
+            // Dispatch a custom event to notify other components about URL change
+            window.dispatchEvent(new CustomEvent('urlChange', { detail: { path: `/surah/${number}/${previousIndex}` } }));
         }
     };
     
     const handleNext = () => {
         if (currentVerseIndex < ayahs.length) {
-            setCurrentVerseIndex(currentVerseIndex + 1);
+            const nextIndex = currentVerseIndex + 1;
+            setCurrentVerseIndex(nextIndex);
+            // Reset audio and state
+            if (currentAudio) {
+                stopAudio();
+            }
             // Reset footnote state
             setActiveFootnote(null);
             setFootnoteContent('');
             setShowTooltip(null);
             scrollToArabicText();
+            
+            // Update URL without page refresh using replaceState
+            window.history.replaceState(null, '', `/surah/${number}/${nextIndex}`);
+            // Dispatch a custom event to notify other components about URL change
+            window.dispatchEvent(new CustomEvent('urlChange', { detail: { path: `/surah/${number}/${nextIndex}` } }));
         }
     };
     
@@ -709,7 +919,7 @@ function SurahPage({ user }) {
                         
                         {/* Tooltip */}
                         {showTooltip === footnoteId && (
-                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 p-3 z-50">
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 p-3 z-[9997]">
                                 <div className="text-primary-800 font-medium mb-1 text-xs">
                                     Catatan Kaki #{footnoteId}:
                                 </div>
@@ -744,16 +954,7 @@ function SurahPage({ user }) {
         }, 3000);
     };
 
-    // Handle go to ayah button - generates URL and copies to clipboard
-    const handleGoToAyah = () => {
-        if (!currentAyah) return;
-        
-        const ayahUrl = `${window.location.origin}/ayah/${number}/${currentVerseIndex}`;
-        
-        // Open the URL in a new tab
-        window.open(ayahUrl, '_blank');
-        showToast('Link ayat dibuka di tab baru', 'info');
-    };
+
 
     // Handle bookmark toggle
     const handleBookmarkToggle = async (ayahId) => {
@@ -823,6 +1024,92 @@ function SurahPage({ user }) {
         }
     };
     
+    // Share ayah to WhatsApp
+    const handleShare = (ayah) => {
+        if (!ayah) {
+            console.error('Invalid ayah data for sharing');
+            showToast('Tidak dapat membagikan ayat, data tidak lengkap', 'error');
+            return;
+        }
+        
+        try {
+            // Create a complete ayah object with surah information if it's missing
+            const completeAyah = {
+                ...ayah,
+                // If ayah doesn't have surah info, add it from the surah state variable
+                surah: ayah.surah || surah,
+                surah_number: ayah.surah_number || surah.number,
+                ayah_number: ayah.ayah_number || currentVerseIndex
+            };
+            
+            // Get the current URL for sharing
+            const shareUrl = `${window.location.origin}/surah/${completeAyah.surah_number}/${completeAyah.ayah_number}`;
+            
+            // Create share text with proper formatting
+            // Use the Indonesian text if available, otherwise fall back to the transliteration
+            const translationText = completeAyah.text_indonesia || completeAyah.text_indonesian || ''; 
+            
+            // Clean up any HTML tags that might be in the translation
+            const cleanTranslation = translationText.replace(/<\/?[^>]+(>|$)/g, '');
+            
+            // Create share text with proper error handling for undefined values
+            const surahNameLatin = completeAyah.surah?.name_latin || surah?.name_latin || '';
+            const surahNameArabic = completeAyah.surah?.name_arabic || surah?.name_arabic || '';
+            const ayahNumber = completeAyah.ayah_number || currentVerseIndex;
+            const arabicText = completeAyah.text_arabic || '';
+            
+            const shareText = `Surah ${surahNameLatin} (${surahNameArabic}) - Ayat ${ayahNumber}\n\n${arabicText}\n\n${cleanTranslation}\n\nBaca di IndoQuran: ${shareUrl}`;
+            
+            // Create the WhatsApp URL with proper encoding
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+            
+            // Open in a new window with specific features to ensure it works on mobile and desktop
+            const shareWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+            
+            // Fallback if window.open is blocked
+            if (!shareWindow) {
+                // Create a temporary link and click it
+                const tempLink = document.createElement('a');
+                tempLink.target = '_blank';
+                tempLink.href = whatsappUrl;
+                tempLink.rel = 'noopener noreferrer';
+                tempLink.click();
+            }
+            
+            showToast('Membuka WhatsApp untuk berbagi ayat', 'success');
+        } catch (error) {
+            console.error('Error sharing to WhatsApp:', error);
+            showToast('Gagal membagikan ke WhatsApp', 'error');
+        }
+    };
+    
+    // Handle browser back/forward navigation
+    useEffect(() => {
+        const handlePopState = (event) => {
+            // Extract ayah number from current URL
+            const path = window.location.pathname;
+            const pathSegments = path.split('/');
+            const urlAyahNumber = pathSegments[pathSegments.length - 1];
+            
+            if (urlAyahNumber && !isNaN(urlAyahNumber)) {
+                const ayahIndex = parseInt(urlAyahNumber, 10);
+                if (ayahIndex > 0 && ayahIndex <= ayahs.length) {
+                    setCurrentVerseIndex(ayahIndex);
+                    // Reset footnote state
+                    setActiveFootnote(null);
+                    setFootnoteContent('');
+                    setShowTooltip(null);
+                    scrollToArabicText();
+                }
+            }
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => {
+            window.removeEventListener('popstate', handlePopState);
+        };
+    }, [ayahs.length]);
+    
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
@@ -831,7 +1118,7 @@ function SurahPage({ user }) {
         );
     }
     
-    if (error || !surah) {
+    if (error || !ayahs.length) {
         return (
             <div className="bg-accent-50 border-l-4 border-accent-500 text-accent-700 p-4 rounded-lg shadow-islamic" role="alert">
                 <strong className="font-bold">Kesalahan! </strong>
@@ -840,40 +1127,15 @@ function SurahPage({ user }) {
         );
     }
     
-    const currentAyah = ayahs.length > 0 ? ayahs[currentVerseIndex - 1] : null;
+    const currentAyah = ayahs[currentVerseIndex - 1];
     const progressPercentage = (currentVerseIndex / ayahs.length) * 100;
     
     return (
-        <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-orange-50">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
             {/* Main Container */}
-            <div className="max-w-4xl mx-auto px-4 py-6">
+            <div className="max-w-6xl mx-auto px-4 py-6">
                 
-                {/* Bismillah Header */}
-                <div className="text-center mb-6">
-                    <div className="relative bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl shadow-xl p-8 border-4 border-double border-amber-300 overflow-hidden">
-                        {/* Decorative corner elements */}
-                        <div className="absolute top-2 left-2 w-6 h-6 border-l-4 border-t-4 border-amber-400 rounded-tl-lg"></div>
-                        <div className="absolute top-2 right-2 w-6 h-6 border-r-4 border-t-4 border-amber-400 rounded-tr-lg"></div>
-                        <div className="absolute bottom-2 left-2 w-6 h-6 border-l-4 border-b-4 border-amber-400 rounded-bl-lg"></div>
-                        <div className="absolute bottom-2 right-2 w-6 h-6 border-r-4 border-b-4 border-amber-400 rounded-br-lg"></div>
-                        
-                        {/* Inner decorative border */}
-                        <div className="absolute inset-4 border-2 border-dotted border-amber-300 rounded-2xl opacity-60"></div>
-                        
-                        {/* Top and bottom decorative elements */}
-                        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-16 h-4 bg-gradient-to-b from-amber-400 to-transparent rounded-b-full opacity-70"></div>
-                        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-4 bg-gradient-to-t from-amber-400 to-transparent rounded-t-full opacity-70"></div>
-                        
-                        <div className="relative z-10">
-                            <p className="font-arabic text-4xl text-amber-800 mb-3 drop-shadow-sm" dir="rtl">
-                                بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
-                            </p>
-                            <p className="text-sm text-amber-700 font-medium">
-                                Dengan menyebut nama Allah Yang Maha Pemurah lagi Maha Penyayang.
-                            </p>
-                        </div>
-                    </div>
-                </div>
+                {/* Surah bismillah removed */}
 
                 {/* Surah Information - Compact */}
                 <div className="text-center mb-6">
@@ -936,7 +1198,7 @@ function SurahPage({ user }) {
                                 
                                 {/* Dropdown Menu */}
                                 {isQariDropdownOpen && (
-                                    <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-48 max-h-60 overflow-y-auto">
+                                    <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-[9998] min-w-48 max-h-60 overflow-y-auto">
                                         {qariOptions.map((qari) => (
                                             <button
                                                 key={qari.id}
@@ -1073,6 +1335,10 @@ function SurahPage({ user }) {
                             >
                                 {currentAyah.text_arabic}
                             </p>
+                            {/* Loading indicator - hidden by default */}
+                            <div id="ayah-loading-indicator" className="flex justify-center mt-4" style={{ display: 'none' }}>
+                                <div className="animate-pulse w-8 h-8 rounded-full bg-green-200"></div>
+                            </div>
                         </div>
                     </div>
                     
@@ -1091,51 +1357,71 @@ function SurahPage({ user }) {
                     </div>
 
                     {/* Action Buttons */}
-                    {user && (
-                        <div className="flex justify-center gap-3 mb-6">
-                            <button
-                                onClick={() => handleBookmarkToggle(currentAyah.id)}
-                                disabled={bookmarkLoading[currentAyah.id]}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg hover:shadow-md transition-all duration-300 ${
-                                    bookmarkStatuses[currentAyah.id]?.is_bookmarked
-                                        ? 'bg-blue-50 text-blue-700'
-                                        : 'bg-white text-gray-600 hover:bg-gray-50'
-                                }`}
+                    <div className="flex justify-center gap-3 mb-6">
+                        {user && (
+                            <>
+                                <button
+                                    onClick={() => handleBookmarkToggle(currentAyah.id)}
+                                    disabled={bookmarkLoading[currentAyah.id]}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg hover:shadow-md transition-all duration-300 ${
+                                        bookmarkStatuses[currentAyah.id]?.is_bookmarked
+                                            ? 'bg-blue-50 text-blue-700'
+                                            : 'bg-white text-gray-600 hover:bg-gray-50'
+                                    }`}
+                                >
+                                    {bookmarkLoading[currentAyah.id] ? (
+                                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                                    ) : bookmarkStatuses[currentAyah.id]?.is_bookmarked ? (
+                                        <IoBookmark className="text-lg" />
+                                    ) : (
+                                        <IoBookmarkOutline className="text-lg" />
+                                    )}
+                                    <span className="text-sm">
+                                        {bookmarkStatuses[currentAyah.id]?.is_bookmarked ? 'Ditandai' : 'Tandai'}
+                                    </span>
+                                </button>
+                                
+                                <button
+                                    onClick={() => handleFavoriteToggle(currentAyah.id)}
+                                    disabled={bookmarkLoading[currentAyah.id]}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg hover:shadow-md transition-all duration-300 ${
+                                        bookmarkStatuses[currentAyah.id]?.is_favorite
+                                            ? 'bg-red-50 text-red-700'
+                                            : 'bg-white text-gray-600 hover:bg-gray-50'
+                                    }`}
+                                >
+                                    {bookmarkLoading[currentAyah.id] ? (
+                                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                                    ) : bookmarkStatuses[currentAyah.id]?.is_favorite ? (
+                                        <IoHeart className="text-lg" />
+                                    ) : (
+                                        <IoHeartOutline className="text-lg" />
+                                    )}
+                                    <span className="text-sm">
+                                        {bookmarkStatuses[currentAyah.id]?.is_favorite ? 'Difavoritkan' : 'Favoritkan'}
+                                    </span>
+                                </button>
+                            </>
+                        )}
+                        
+                        {/* WhatsApp Share Button */}
+                        <button
+                            onClick={() => handleShare(currentAyah)}
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 hover:shadow-md transition-all duration-300"
+                            title="Bagikan ke WhatsApp"
+                        >
+                            <svg 
+                                xmlns="http://www.w3.org/2000/svg" 
+                                className="h-5 w-5" 
+                                fill="currentColor" 
+                                viewBox="0 0 24 24"
                             >
-                                {bookmarkLoading[currentAyah.id] ? (
-                                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                                ) : bookmarkStatuses[currentAyah.id]?.is_bookmarked ? (
-                                    <IoBookmark className="text-lg" />
-                                ) : (
-                                    <IoBookmarkOutline className="text-lg" />
-                                )}
-                                <span className="text-sm">
-                                    {bookmarkStatuses[currentAyah.id]?.is_bookmarked ? 'Ditandai' : 'Tandai'}
-                                </span>
-                            </button>
-                            
-                            <button
-                                onClick={() => handleFavoriteToggle(currentAyah.id)}
-                                disabled={bookmarkLoading[currentAyah.id]}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg hover:shadow-md transition-all duration-300 ${
-                                    bookmarkStatuses[currentAyah.id]?.is_favorite
-                                        ? 'bg-red-50 text-red-700'
-                                        : 'bg-white text-gray-600 hover:bg-gray-50'
-                                }`}
-                            >
-                                {bookmarkLoading[currentAyah.id] ? (
-                                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                                ) : bookmarkStatuses[currentAyah.id]?.is_favorite ? (
-                                    <IoHeart className="text-lg" />
-                                ) : (
-                                    <IoHeartOutline className="text-lg" />
-                                )}
-                                <span className="text-sm">
-                                    {bookmarkStatuses[currentAyah.id]?.is_favorite ? 'Difavoritkan' : 'Favoritkan'}
-                                </span>
-                            </button>
-                        </div>
-                    )}
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                                <path d="M13.507 21.508h-.014c-2.083 0-4.144-.534-5.949-1.546l-.426-.26-4.422 1.16 1.182-4.319-.29-.466a11.89 11.89 0 01-1.819-6.38c0-6.582 5.361-11.942 11.943-11.942 3.189 0 6.188 1.243 8.441 3.499 2.255 2.256 3.495 5.253 3.494 8.442 0 6.58-5.36 11.942-11.94 11.942z" fill-rule="nonzero"/>
+                            </svg>
+                            <span className="text-sm">Bagikan ke WhatsApp</span>
+                        </button>
+                    </div>
                     
                     {/* Tafsir Toggle */}
                     <div className="text-center mb-4">
@@ -1157,14 +1443,16 @@ function SurahPage({ user }) {
                         </button>
                     </div>
                     
-                    {/* Tafsir Content */}                        {showTafsir && currentAyah.tafsir && (
-                            <div className="mt-4 p-4 bg-gray-50 rounded-lg hover:shadow-md transition-shadow duration-300">
-                                <h4 className="font-medium text-gray-800 mb-2">Tafsir</h4>
+                    {/* Tafsir Content */}
+                    {showTafsir && currentAyah.tafsir && (
+                        <div className="mt-4 p-4 bg-gray-50 rounded-lg hover:shadow-md transition-shadow duration-300">
+                            <h4 className="font-medium text-gray-800 mb-2">Tafsir</h4>
                             <p className="text-gray-700 leading-relaxed text-sm">
                                 {currentAyah.tafsir || '(Tafsir tidak tersedia)'}
-                            </p>                                {activeFootnote && (
-                                    <div className="mt-4 p-3 bg-yellow-50 rounded hover:shadow-md transition-shadow duration-300">
-                                        <h5 className="font-medium text-yellow-800 mb-1">Catatan Kaki #{activeFootnote}</h5>
+                            </p>
+                            {activeFootnote && (
+                                <div className="mt-4 p-3 bg-yellow-50 rounded hover:shadow-md transition-shadow duration-300">
+                                    <h5 className="font-medium text-yellow-800 mb-1">Catatan Kaki #{activeFootnote}</h5>
                                     {isLoadingFootnote ? (
                                         <div className="flex items-center gap-2 py-2">
                                             <div className="w-4 h-4 border-2 border-yellow-600 border-t-transparent rounded-full animate-spin"></div>
@@ -1186,70 +1474,70 @@ function SurahPage({ user }) {
             {/* Navigation Controls */}
             <div className="flex justify-between items-center mb-6 bg-white rounded-xl shadow-sm p-4 hover:shadow-lg transition-shadow duration-300">
                 <button 
-                    onClick={handlePrevious}
+                    onClick={() => {
+                        if (currentVerseIndex > 1) {
+                            const previousIndex = currentVerseIndex - 1;
+                            fetchAyah(number, previousIndex);
+                        }
+                    }}
                     disabled={currentVerseIndex <= 1}
                     className="flex items-center gap-2 px-4 py-2 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 hover:shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    <IoArrowBackOutline className="text-lg" /> 
+                    <IoArrowBackOutline className="text-lg" />
                     <span>Sebelumnya</span>
                 </button>
                 
-                <div className="flex flex-col items-center gap-3">
-                    {/* Play Button */}
-                    <div className="flex items-center gap-2">
-                        <button 
-                            onClick={handlePlayClick}
-                            className="w-12 h-12 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center transition-colors text-white shadow-md"
-                            title={isPlaying && activeAyah === currentAyah?.id ? 'Jeda Audio' : 'Putar Audio'}
-                        >
-                            {isPlaying && activeAyah === currentAyah?.id ? (
-                                <IoPauseCircleOutline className="text-2xl" />
-                            ) : (
-                                <IoPlayCircleOutline className="text-2xl" />
-                            )}
-                        </button>
-                        
-                        {/* Go to Ayah Button */}
-                        <button 
-                            onClick={handleGoToAyah}
-                            className="w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center transition-colors text-white shadow-md"
-                            title="Buka ayat di tab baru"
-                        >
-                            <IoLinkOutline className="text-xl" />
-                        </button>
-                        
-                        {/* Stop Button - Only show when audio is active */}
-                        {(isPlaying || activeAyah) && (
-                            <button 
-                                onClick={stopAudio}
-                                className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition-colors text-white shadow-md"
-                                title="Hentikan Audio"
-                            >
-                                <div className="w-3 h-3 bg-white rounded-sm"></div>
-                            </button>
+                <div className="flex items-center gap-4">
+                    {/* Audio Control */}
+                    <button 
+                        onClick={handlePlayClick}
+                        className="w-12 h-12 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center transition-colors text-white shadow-md"
+                        title={isPlaying && activeAyah === currentAyah?.id ? 'Jeda Audio' : 'Putar Audio'}
+                    >
+                        {isPlaying && activeAyah === currentAyah?.id ? (
+                            <IoPauseCircleOutline className="text-2xl" />
+                        ) : (
+                            <IoPlayCircleOutline className="text-2xl" />
                         )}
-                    </div>
-                    
-                    {/* Audio Status */}
-                    {activeAyah === currentAyah?.id && (
-                        <div className="text-center">
-                            {isPlaying ? (
-                                <div className="inline-flex items-center gap-1 px-2 py-1 bg-green-50 rounded text-xs text-green-700 hover:shadow-md transition-shadow duration-300">
-                                    <span className="w-1.5 h-1.5 bg-green-600 rounded-full animate-pulse"></span>
-                                    <span>Sedang Diputar</span>
-                                </div>
-                            ) : (
-                                <div className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-50 rounded text-xs text-yellow-700 hover:shadow-md transition-shadow duration-300">
-                                    <span className="w-1.5 h-1.5 bg-yellow-600 rounded-full"></span>
-                                    <span>Dijeda</span>
-                                </div>
-                            )}
-                        </div>
+                    </button>
+
+
+                    {/* Share Button */}
+                    {/* Share Button */}
+                    <button
+                        onClick={() => handleShare(currentAyah)}
+                        className="w-12 h-12 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center transition-colors text-white shadow-md"
+                        title="Bagikan ke WhatsApp"
+                    >
+                        <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            className="h-6 w-6" 
+                            fill="currentColor" 
+                            viewBox="0 0 24 24"
+                        >
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                        </svg>
+                    </button>
+
+                    {/* Stop Button - Only show when audio is playing */}
+                    {(isPlaying || activeAyah) && (
+                        <button 
+                            onClick={stopAudio}
+                            className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition-colors text-white shadow-md"
+                            title="Hentikan Audio"
+                        >
+                            <div className="w-3 h-3 bg-white rounded-sm"></div>
+                        </button>
                     )}
                 </div>
-                
+
                 <button 
-                    onClick={handleNext}
+                    onClick={() => {
+                        if (currentVerseIndex < ayahs.length) {
+                            const nextIndex = currentVerseIndex + 1;
+                            fetchAyah(number, nextIndex);
+                        }
+                    }}
                     disabled={currentVerseIndex >= ayahs.length}
                     className="flex items-center gap-2 px-4 py-2 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 hover:shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -1258,88 +1546,41 @@ function SurahPage({ user }) {
                 </button>
             </div>
             
-            {/* Verse Selector Grid */}
-            <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-lg transition-shadow duration-300">
-                <div className="grid grid-cols-10 gap-2">
+            {/* Ayah Navigation Buttons */}
+            <div className="bg-white rounded-xl shadow-sm p-4 mb-6 hover:shadow-lg transition-shadow duration-300">
+                <div className="text-sm text-gray-600 mb-4 text-center">
+                    <h3 className="font-medium text-gray-800">Pilih Ayat</h3>
+                    <p className="text-xs text-gray-500 mt-1">Klik nomor ayat untuk langsung menuju ke ayat tersebut</p>
+                </div>
+                <div className="flex flex-wrap gap-2 justify-center">
                     {ayahs.map((ayah, index) => {
-                        const verseNumber = index + 1;
-                        const bookmarkStatus = bookmarkStatuses[ayah.id];
-                        const isBookmarked = bookmarkStatus?.is_bookmarked;
-                        const isFavorite = bookmarkStatus?.is_favorite;
-                        const isCurrent = currentVerseIndex === verseNumber;
-                        
+                        const isFavorite = bookmarkStatuses[ayah.id]?.is_favorite;
                         return (
-                            <button 
-                                key={verseNumber}
-                                onClick={() => handleVerseChange(verseNumber)}
-                                className={`relative w-10 h-10 rounded-lg flex items-center justify-center text-sm font-medium hover:shadow-md transition-all duration-300 ${
-                                    isCurrent 
-                                        ? 'bg-green-600 text-white shadow-md' 
-                                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                            <button
+                                key={ayah.id}
+                                onClick={() => {
+                                    const newVerseIndex = index + 1;
+                                    fetchAyah(number, newVerseIndex);
+                                }}
+                                className={`w-10 h-10 rounded-lg flex items-center justify-center text-sm font-medium transition-all duration-300 relative ${
+                                    currentVerseIndex === index + 1
+                                        ? 'bg-green-600 text-white shadow-md'
+                                        : isFavorite
+                                            ? 'bg-red-50 text-red-600 hover:bg-red-100 hover:shadow-sm'
+                                            : 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:shadow-sm'
                                 }`}
-                                title={`Ayat ${verseNumber}${isBookmarked ? ' (Ditandai)' : ''}${isFavorite ? ' (Difavoritkan)' : ''}`}
+                                title={`Ayat ${index + 1}${isFavorite ? ' (Favorit)' : ''}`}
                             >
-                                <span>{verseNumber}</span>
-                                
-                                {/* Bookmark indicator */}
-                                {isBookmarked && (
-                                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
-                                        <IoBookmark className="text-white text-xs" />
-                                    </div>
-                                )}
-                                
-                                {/* Favorite indicator */}
+                                {index + 1}
                                 {isFavorite && (
-                                    <div className="absolute -top-1 -left-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
-                                        <IoHeart className="text-white text-xs" />
-                                    </div>
+                                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
                                 )}
                             </button>
                         );
                     })}
                 </div>
-                
-                {/* Legend */}
-                <div className="flex justify-center items-center gap-4 mt-4 text-xs text-gray-500">
-                    <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
-                            <IoBookmark className="text-white text-xs" />
-                        </div>
-                        <span>Bookmark</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
-                            <IoHeart className="text-white text-xs" />
-                        </div>
-                        <span>Favorit</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 bg-green-600 rounded"></div>
-                        <span>Saat Ini</span>
-                    </div>
-                </div>
             </div>
-            
-            {/* Toast Notification */}
-            {toast && (
-                <div className="fixed top-4 right-4 z-50">
-                    <div className={`flex items-center p-4 rounded-md shadow-lg ${
-                        toast.type === 'success' ? 'bg-green-100 text-green-800 border-l-4 border-green-500' :
-                        toast.type === 'error' ? 'bg-red-100 text-red-800 border-l-4 border-red-500' :
-                        toast.type === 'info' ? 'bg-blue-100 text-blue-800 border-l-4 border-blue-500' :
-                        'bg-yellow-100 text-yellow-800 border-l-4 border-yellow-500'
-                    }`}>
-                        <div className="mr-3">{toast.message}</div>
-                        <button 
-                            onClick={() => setToast(null)}
-                            className="ml-auto text-gray-500 hover:text-gray-700"
-                        >
-                            <IoCloseOutline size={20} />
-                        </button>
-                    </div>
-                </div>
-            )}
-            </div>
+        </div>
         </div>
     );
 }

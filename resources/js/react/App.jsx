@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import SurahPage from './pages/SurahPage';
-import AyahPage from './pages/AyahPage';
 import SearchPage from './pages/SearchPage';
 import AuthPage from './pages/AuthPage';
 import ProfilePage from './pages/ProfilePage';
@@ -38,7 +37,7 @@ function App() {
             <div className="flex flex-col min-h-screen bg-[#faf8f2]">
                 <Navbar user={user} setUser={setUser} />
                 
-                <main className="flex-grow container mx-auto px-4 py-8 pt-24 pb-32 relative z-10 max-w-6xl">
+                <main className="flex-grow container mx-auto px-4 py-8 pt-24 pb-32 relative max-w-6xl">
                     {loading ? (
                         <div className="flex justify-center items-center h-64">
                             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-islamic-green shadow-parchment"></div>
@@ -47,7 +46,7 @@ function App() {
                         <Routes>
                             <Route path="/" element={<HomePage />} />
                             <Route path="/surah/:number" element={<SurahPage user={user} />} />
-                            <Route path="/ayah/:surahNumber/:ayahNumber" element={<AyahPage />} />
+                            <Route path="/surah/:number/:ayahNumber" element={<SurahPage user={user} />} />
                             <Route path="/search" element={<SearchPage />} />
                             <Route path="/bookmarks" element={<BookmarksPage user={user} />} />
                             <Route path="/about" element={<AboutPage />} />

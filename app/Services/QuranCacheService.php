@@ -63,16 +63,28 @@ class QuranCacheService
     /**
      * Get a specific ayah, cached
      *
-     * @param int $surahNumber
-     * @param int $ayahNumber
+     * @param int|string $surahNumber
+     * @param int|string $ayahNumber
      * @return Ayah|null
      */
-    public function getAyah(int $surahNumber, int $ayahNumber): ?Ayah
+    public function getAyah($surahNumber, $ayahNumber): ?Ayah
     {
+        // Convert parameters to integers
+        $surahNumber = (int) $surahNumber;
+        $ayahNumber = (int) $ayahNumber;
+        
+        \Log::info('QuranCacheService::getAyah', ['surah' => $surahNumber, 'ayah' => $ayahNumber]);
+        
         return Cache::remember("ayah_{$surahNumber}_{$ayahNumber}", $this->getCacheTtl(), function () use ($surahNumber, $ayahNumber) {
-            return Ayah::where('surah_number', $surahNumber)
+            $ayah = Ayah::where('surah_number', $surahNumber)
                 ->where('ayah_number', $ayahNumber)
                 ->first();
+                
+            if (!$ayah) {
+                \Log::warning('Ayah not found in database', ['surah' => $surahNumber, 'ayah' => $ayahNumber]);
+            }
+            
+            return $ayah;
         });
     }
 

@@ -30,6 +30,31 @@
     font-style: normal;
 }
 
+/* Custom highlight animation for search results - more subtle */
+@keyframes highlight-pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.08);
+    }
+    70% {
+        box-shadow: 0 0 0 2px rgba(217, 119, 6, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(217, 119, 6, 0);
+    }
+}
+
+.translation-html mark {
+    animation: highlight-pulse 3s infinite;
+    transition: all 0.3s ease;
+    border-radius: 3px;
+}
+
+.translation-html mark:hover {
+    transform: none;
+    box-shadow: none;
+    background: rgba(251, 191, 36, 0.2);
+}
+
 /* Custom styling for Arabic Quran texts */
 .font-arabic {
     font-family: 'Scheherazade New', 'Amiri', 'Scheherazade', 'Noto Naskh Arabic', 'Traditional Arabic', serif;
@@ -216,4 +241,14 @@
     .surah-card, .ayah-card {
         padding: 1.5rem;
     }
+}
+
+/* Highlight animation for ayah navigation */
+@keyframes highlightFade {
+    0% { background-color: rgba(166, 226, 186, 0.4); }
+    100% { background-color: transparent; }
+}
+
+.highlight-animation {
+    animation: highlightFade 1s ease-out;
 }

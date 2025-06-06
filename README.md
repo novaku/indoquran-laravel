@@ -195,8 +195,8 @@ Project ini dilisensikan di bawah [MIT License](https://opensource.org/licenses/
 ## 📞 Kontak
 
 Untuk pertanyaan, saran, atau dukungan teknis, silakan hubungi:
-- Email: info@indoquran.com
-- Website: https://indoquran.com
+- Email: kontak@indoquran.web.id
+- Website: https://indoquran.web.id
 
 ---
 
