@@ -1,30 +1,44 @@
-<IfModule mod_headers.c>
-    # Set proper MIME types for font files
-    <FilesMatch "\.(ttf)$">
-        ForceType application/font-sfnt
-        Header set Content-Type application/font-sfnt
-        Header set Access-Control-Allow-Origin "*"
-        Header set Cache-Control "max-age=31536000, public"
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    # Add proper MIME types for fonts
+    <IfModule mod_mime.c>
+        AddType font/ttf                        ttf
+        AddType font/otf                        otf
+        AddType font/woff                       woff
+        AddType font/woff2                      woff2
+        AddType application/vnd.ms-fontobject   eot
+    </IfModule>
+
+    # Add proper headers for font files
+    <FilesMatch "\.(ttf|otf|eot|woff|woff2)$">
+        <IfModule mod_headers.c>
+            Header set Access-Control-Allow-Origin "*"
+            Header set Cache-Control "max-age=31536000, public"
+            Header set X-Content-Type-Options "nosniff"
+            Header set Vary "Origin"
+        </IfModule>
     </FilesMatch>
-    
-    <FilesMatch "\.(woff)$">
-        ForceType application/font-woff
-        Header set Content-Type application/font-woff
-        Header set Access-Control-Allow-Origin "*"
-        Header set Cache-Control "max-age=31536000, public"
-    </FilesMatch>
-    
-    <FilesMatch "\.(woff2)$">
-        ForceType application/font-woff2
-        Header set Content-Type application/font-woff2
-        Header set Access-Control-Allow-Origin "*" 
-        Header set Cache-Control "max-age=31536000, public"
-    </FilesMatch>
-    
-    <FilesMatch "\.(eot)$">
-        ForceType application/vnd.ms-fontobject
-        Header set Content-Type application/vnd.ms-fontobject
-        Header set Access-Control-Allow-Origin "*"
-        Header set Cache-Control "max-age=31536000, public"
-    </FilesMatch>
+
+    RewriteEngine On
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Handle X-XSRF-Token Header
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
 </IfModule>
