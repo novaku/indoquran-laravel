@@ -29,8 +29,6 @@ export default defineConfig(({ command, mode }) => {
         ],
         // Set base URL for asset loading
         base: command === 'build' && assetUrl ? `${assetUrl}/` : '',
-        // Set base URL for asset loading
-        base: command === 'build' && assetUrl ? `${assetUrl}/` : '',
         server: {
             hmr: {
                 host: 'localhost',
