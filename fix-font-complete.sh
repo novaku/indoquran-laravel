@@ -102,8 +102,9 @@ echo "✅ .htaccess updated with font MIME types"
 # -----------------------------------------------------------------------------
 echo "📥 Downloading fresh copies of Scheherazade New font..."
 
-# Create temporary directory
-TEMP_DIR=$(mktemp -d)
+# Create temporary directory in current folder
+TEMP_DIR="./temp_font_fix_$(date +%s)"
+mkdir -p "$TEMP_DIR"
 FONT_URL="https://software.sil.org/downloads/r/scheherazade/ScheherazadeNew-2.100.zip"
 
 # Download and extract
@@ -156,7 +157,7 @@ php artisan route:clear
 # 6. CLEANUP
 # -----------------------------------------------------------------------------
 echo "🧹 Cleaning up temporary files..."
-rm -rf $TEMP_DIR
+rm -rf "$TEMP_DIR"
 
 # -----------------------------------------------------------------------------
 # FINAL STEPS AND CHECKLIST
