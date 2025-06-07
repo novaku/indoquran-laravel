@@ -6,6 +6,8 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'App\\Console\\Commands\\GenerateSitemap' => $baseDir . '/app/Console/Commands/GenerateSitemap.php',
+    'App\\Console\\Kernel' => $baseDir . '/app/Console/Kernel.php',
     'App\\Http\\Controllers\\Auth\\LoginController' => $baseDir . '/app/Http/Controllers/Auth/LoginController.php',
     'App\\Http\\Controllers\\Auth\\ProfileController' => $baseDir . '/app/Http/Controllers/Auth/ProfileController.php',
     'App\\Http\\Controllers\\Auth\\RegisterController' => $baseDir . '/app/Http/Controllers/Auth/RegisterController.php',
@@ -13,6 +15,7 @@ return array(
     'App\\Http\\Controllers\\BookmarkController' => $baseDir . '/app/Http/Controllers/BookmarkController.php',
     'App\\Http\\Controllers\\ContactController' => $baseDir . '/app/Http/Controllers/ContactController.php',
     'App\\Http\\Controllers\\Controller' => $baseDir . '/app/Http/Controllers/Controller.php',
+    'App\\Http\\Controllers\\FontController' => $baseDir . '/app/Http/Controllers/FontController.php',
     'App\\Http\\Controllers\\PrayerTimesController' => $baseDir . '/app/Http/Controllers/PrayerTimesController.php',
     'App\\Http\\Controllers\\QuranController' => $baseDir . '/app/Http/Controllers/QuranController.php',
     'App\\Http\\Controllers\\SearchController' => $baseDir . '/app/Http/Controllers/SearchController.php',

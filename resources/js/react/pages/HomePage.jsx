@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import QuranHeader from '../components/QuranHeader';
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
+import MetaTags from '../components/MetaTags';
+import StructuredData from '../components/StructuredData';
 
 function HomePage() {
     const [surahs, setSurahs] = useState([]);
@@ -78,57 +80,75 @@ function HomePage() {
     
     return (
         <div>
-            <QuranHeader className="mb-10" />
-            <div className="w-64 h-1 bg-gradient-to-r from-transparent via-islamic-green/40 to-transparent mx-auto mb-8"></div>
+            <MetaTags 
+                title="Al-Quran Digital Indonesia | Baca Al-Quran Online dengan Terjemahan Indonesia"
+                description="Baca Al-Quran digital lengkap dengan terjemahan bahasa Indonesia, tafsir, dan audio. Cari ayat, bookmark, dan pelajari Al-Quran dengan mudah secara online."
+                keywords="al quran digital, baca quran online, al quran indonesia, terjemahan quran, quran digital, al quran indonesia"
+                canonicalUrl="https://my.indoquran.web.id/"
+            />
             
-            {/* Prayer Times Widget */}
+            <StructuredData type="WebSite" data={{}} />
+            
+            <QuranHeader />
+            
+            <PrayerTimesWidget className="mb-8" />
+            
             <div className="mb-8">
-                <PrayerTimesWidget />
-            </div>
+                <h1 className="text-3xl font-bold text-islamic-green mb-2">Al-Quran Digital</h1>
+                <p className="text-lg text-gray-600 mb-6">Baca, dengar, dan pelajari Al-Quran secara online dengan terjemahan bahasa Indonesia</p>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {surahs.map(surah => (
-                    <div 
-                        key={surah.number}
-                        onClick={(e) => handleSurahClick(surah, e)}
-                        className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 cursor-pointer"
-                    >
-                        <div className="flex items-center p-4">
-                            <div className="w-10 h-10 flex items-center justify-center bg-islamic-green rounded-full mr-4">
-                                <span className="text-lg font-bold text-white">{surah.number}</span>
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="text-lg font-semibold text-islamic-green">{surah.name_latin}</h3>
-                                <p className="text-islamic-brown text-sm">{surah.name_indonesian || "The " + surah.name_latin}</p>
-                            </div>
-                            <div className="ml-auto">
-                                <span className="text-2xl text-islamic-green font-arabic">{surah.name_arabic}</span>
-                            </div>
-                        </div>
-                        <div className="px-4 pb-4">
-                            {surah.description_short && (
-                                <p className="text-gray-600 text-sm mb-3 leading-relaxed">
-                                    {truncateDescription(surah.description_short)}
-                                </p>
-                            )}
-                            <div className="flex justify-between text-sm items-center mb-3">
-                                <span className={`px-2 py-0.5 rounded-md text-xs ${surah.revelation_place === 'Meccan' ? 'bg-green-50 text-islamic-green' : 'bg-blue-50 text-blue-700'}`}>
-                                    {surah.revelation_place}
-                                </span>
-                                <span className="text-islamic-brown">{surah.total_ayahs} ayat</span>
-                            </div>
-                            <div className="flex justify-end">
-                                <Link 
-                                    to={`/surah/${surah.number}`}
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="text-islamic-green hover:text-islamic-green/80 text-sm font-medium transition-colors"
-                                >
-                                    Lihat Surah →
-                                </Link>
-                            </div>
-                        </div>
+                {loading ? (
+                    <div className="flex justify-center items-center h-64">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-islamic-green"></div>
                     </div>
-                ))}
+                ) : error ? (
+                    <div className="bg-red-100 text-red-700 p-4 rounded-lg">{error}</div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {surahs.map(surah => (
+                            <div 
+                                key={surah.number} 
+                                onClick={(e) => handleSurahClick(surah, e)}
+                                className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 cursor-pointer"
+                            >
+                                <div className="flex items-center p-4">
+                                    <div className="w-10 h-10 flex items-center justify-center bg-islamic-green rounded-full mr-4">
+                                        <span className="text-lg font-bold text-white">{surah.number}</span>
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="text-lg font-semibold text-islamic-green">{surah.name_latin}</h3>
+                                        <p className="text-islamic-brown text-sm">{surah.name_indonesian || "The " + surah.name_latin}</p>
+                                    </div>
+                                    <div className="ml-auto">
+                                        <span className="text-2xl text-islamic-green font-arabic">{surah.name_arabic}</span>
+                                    </div>
+                                </div>
+                                <div className="px-4 pb-4">
+                                    {surah.description_short && (
+                                        <p className="text-gray-600 text-sm mb-3 leading-relaxed">
+                                            {truncateDescription(surah.description_short)}
+                                        </p>
+                                    )}
+                                    <div className="flex justify-between text-sm items-center mb-3">
+                                        <span className={`px-2 py-0.5 rounded-md text-xs ${surah.revelation_place === 'Meccan' ? 'bg-green-50 text-islamic-green' : 'bg-blue-50 text-blue-700'}`}>
+                                            {surah.revelation_place}
+                                        </span>
+                                        <span className="text-islamic-brown">{surah.total_ayahs} ayat</span>
+                                    </div>
+                                    <div className="flex justify-end">
+                                        <Link 
+                                            to={`/surah/${surah.number}`}
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="text-islamic-green hover:text-islamic-green/80 text-sm font-medium transition-colors"
+                                        >
+                                            Lihat Surah →
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Modal */}

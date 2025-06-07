@@ -5,19 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
-    @if(app()->environment('local'))
-    <!-- Development CSP for hot reload -->
-    <meta http-equiv="Content-Security-Policy" content="
-        script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: http://localhost:5173 ws://localhost:5173;
-        style-src 'self' 'unsafe-inline' blob: data: http://localhost:5173 https://fonts.bunny.net https://fonts.googleapis.com fonts.bunny.net;
-        connect-src 'self' ws://localhost:5173 http://localhost:5173;
-        img-src 'self' data: blob:;
-        media-src 'self' https://*.nos.wjv-1.neo.id https://*.equran.id https://*.equran.nos.wjv-1.neo.id https://*.quranicaudio.com https://*.qurancdn.com https://*.vercel.app *;
-        font-src 'self' data: blob: https://fonts.bunny.net https://fonts.gstatic.com fonts.bunny.net fonts.gstatic.com;
-    ">
-    @endif
-
-    <title>{{ config('app.name', 'Al-Quran Digital') }}</title>
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="{{ $metaDescription ?? 'Al-Quran Digital Indonesia - Baca, dengar, dan pelajari Al-Quran secara online dengan terjemahan bahasa Indonesia, fitur bookmark, dan pencarian ayat.' }}">
+    <meta name="keywords" content="{{ $metaKeywords ?? 'al quran digital, baca quran online, al quran indonesia, terjemahan quran, quran digital, al quran indonesia' }}">
+    <meta name="author" content="IndoQuran">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="{{ $metaTitle ?? config('app.name', 'Al-Quran Digital') }}">
+    <meta property="og:description" content="{{ $metaDescription ?? 'Al-Quran Digital Indonesia - Baca, dengar, dan pelajari Al-Quran secara online dengan terjemahan bahasa Indonesia.' }}">
+    <meta property="og:image" content="{{ asset('android-chrome-512x512.png') }}">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ url()->current() }}">
+    <meta property="twitter:title" content="{{ $metaTitle ?? config('app.name', 'Al-Quran Digital') }}">
+    <meta property="twitter:description" content="{{ $metaDescription ?? 'Al-Quran Digital Indonesia - Baca, dengar, dan pelajari Al-Quran secara online dengan terjemahan bahasa Indonesia.' }}">
+    <meta property="twitter:image" content="{{ asset('android-chrome-512x512.png') }}">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ url()->current() }}">
+    
+    <title>{{ $metaTitle ?? config('app.name', 'Al-Quran Digital') }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">

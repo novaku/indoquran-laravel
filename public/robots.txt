@@ -1,2 +1,9 @@
 User-agent: *
-Disallow:
+Allow: /
+
+# Disallow any admin pages if they exist
+Disallow: /admin/
+Disallow: /api/
+
+# Sitemap file
+Sitemap: https://my.indoquran.web.id/sitemap.xml

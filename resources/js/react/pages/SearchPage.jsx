@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import AyahCard from '../components/AyahCard';
 import QuranHeader from '../components/QuranHeader';
+import MetaTags from '../components/MetaTags';
+import StructuredData from '../components/StructuredData';
 
 function SearchPage() {
     const location = useLocation();
@@ -156,6 +158,12 @@ function SearchPage() {
     if (!query) {
         return (
             <div className="max-w-2xl mx-auto">
+                <MetaTags 
+                    title="Pencarian Al-Quran | Cari Ayat dalam Al-Quran"
+                    description="Cari ayat dalam Al-Quran berdasarkan terjemahan Bahasa Indonesia dengan mudah dan cepat."
+                    keywords="cari ayat quran, pencarian al quran, search al quran, al quran digital, cari terjemahan quran"
+                    canonicalUrl="https://my.indoquran.web.id/search"
+                />
                 <QuranHeader className="mb-8" />
                 
                 <div className="text-center mb-8">
@@ -223,6 +231,23 @@ function SearchPage() {
     
     return (
         <div>
+            <MetaTags 
+                title={`Hasil Pencarian: ${query} | Al-Quran Digital Indonesia`}
+                description={`Hasil pencarian untuk "${query}" dalam Al-Quran. Menemukan ${totalResults} ayat yang sesuai dengan kata kunci Anda.`}
+                keywords={`cari ayat quran ${query}, pencarian al quran, ${query} dalam quran, al quran digital`}
+                canonicalUrl={`https://my.indoquran.web.id/search?q=${encodeURIComponent(query)}`}
+            />
+            
+            {results.length > 0 && (
+                <StructuredData 
+                    type="SearchResults" 
+                    data={{
+                        query: query,
+                        results: results
+                    }} 
+                />
+            )}
+            
             <QuranHeader className="mb-6" />
             
             <div className="mb-8">

@@ -526,6 +526,8 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
     );
 
     public static $classMap = array (
+        'App\\Console\\Commands\\GenerateSitemap' => __DIR__ . '/../..' . '/app/Console/Commands/GenerateSitemap.php',
+        'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\Http\\Controllers\\Auth\\LoginController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/LoginController.php',
         'App\\Http\\Controllers\\Auth\\ProfileController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/ProfileController.php',
         'App\\Http\\Controllers\\Auth\\RegisterController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/RegisterController.php',
@@ -533,6 +535,7 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
         'App\\Http\\Controllers\\BookmarkController' => __DIR__ . '/../..' . '/app/Http/Controllers/BookmarkController.php',
         'App\\Http\\Controllers\\ContactController' => __DIR__ . '/../..' . '/app/Http/Controllers/ContactController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
+        'App\\Http\\Controllers\\FontController' => __DIR__ . '/../..' . '/app/Http/Controllers/FontController.php',
         'App\\Http\\Controllers\\PrayerTimesController' => __DIR__ . '/../..' . '/app/Http/Controllers/PrayerTimesController.php',
         'App\\Http\\Controllers\\QuranController' => __DIR__ . '/../..' . '/app/Http/Controllers/QuranController.php',
         'App\\Http\\Controllers\\SearchController' => __DIR__ . '/../..' . '/app/Http/Controllers/SearchController.php',
