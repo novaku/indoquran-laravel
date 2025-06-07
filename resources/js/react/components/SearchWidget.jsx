@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getApiUrl } from '../utils/api';
 
 const SearchWidget = () => {
     const navigate = useNavigate();
@@ -16,7 +17,7 @@ const SearchWidget = () => {
 
     // Load surahs for search autocomplete
     useEffect(() => {
-        fetch('/api/surahs')
+        fetch(getApiUrl('/api/surahs'))
             .then(response => response.json())
             .then(response => {
                 if (response.status === 'success') {
@@ -46,7 +47,7 @@ const SearchWidget = () => {
         
         setIsLoading(true);
         try {
-            const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=5`);
+            const response = await fetch(getApiUrl(`/api/search?q=${encodeURIComponent(query)}&limit=5`));
             if (!response.ok) throw new Error('Failed to fetch suggestions');
             
             const data = await response.json();

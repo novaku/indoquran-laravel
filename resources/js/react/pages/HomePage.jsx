@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { getApiUrl } from '../utils/api';
 import QuranHeader from '../components/QuranHeader';
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import SearchWidget from '../components/SearchWidget';
@@ -12,7 +13,7 @@ function HomePage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     
     useEffect(() => {
-        fetch('/api/surahs')
+        fetch(getApiUrl('/api/surahs'))
             .then(response => {
                 if (!response.ok) throw new Error('Failed to fetch surahs');
                 return response.json();

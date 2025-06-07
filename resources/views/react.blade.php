@@ -29,6 +29,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Lateef&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Noto+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Scheherazade+New:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Scripts -->
+    <script>
+        window.Laravel = {
+            csrfToken: '{{ csrf_token() }}',
+            appEnv: '{{ config('app.env') }}',
+            appUrl: '{{ config('app.url') }}'
+        };
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/react/index.jsx'])
     
     @if(app()->environment('local'))

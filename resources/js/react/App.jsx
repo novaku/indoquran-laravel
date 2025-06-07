@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { getApiUrl } from './utils/api';
 import HomePage from './pages/HomePage';
 import SurahPage from './pages/SurahPage';
 import SearchPage from './pages/SearchPage';
@@ -18,7 +19,7 @@ function App() {
     
     useEffect(() => {
         // Check if user is logged in
-        fetch('/api/user')
+        fetch(getApiUrl('/api/user'))
             .then(response => {
                 if (response.ok) return response.json();
                 throw new Error('Tidak memiliki akses');

@@ -6,6 +6,7 @@ import QuranHeader from '../components/QuranHeader';
 import { AyahCard } from '../features/quran';
 import { fetchFootnote } from '../services/FootnoteService';
 import { toggleBookmark, toggleFavorite, getBookmarkStatus } from '../services/BookmarkService';
+import { getApiUrl } from '../utils/api';
 
 function SurahPage({ user }) {
     const { number, ayahNumber } = useParams();
@@ -51,7 +52,7 @@ function SurahPage({ user }) {
     
     useEffect(() => {
         setLoading(true);
-        fetch(`/api/surahs/${number}`)
+        fetch(getApiUrl(`/api/surahs/${number}`))
             .then(res => res.json())
             .then((response) => {
                 if (response.status === 'success') {
@@ -594,7 +595,7 @@ function SurahPage({ user }) {
             const loadingIndicator = document.getElementById('ayah-loading-indicator');
             if (loadingIndicator) loadingIndicator.style.display = 'flex';
             
-            const response = await fetch(`/api/surahs/${surahId}/ayahs/${ayahId}`);
+            const response = await fetch(getApiUrl(`/api/surahs/${surahId}/ayahs/${ayahId}`));
             if (!response.ok) {
                 throw new Error('Failed to fetch ayah');
             }

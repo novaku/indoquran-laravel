@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { getApiUrl } from '../utils/api';
 
 function Navbar({ user, setUser }) {
     const navigate = useNavigate();
@@ -17,7 +18,7 @@ function Navbar({ user, setUser }) {
                 if (pathSegments[0] === 'surah' && pathSegments[1]) {
                     // Fetch surah name for both /surah/{number} and /surah/{number}/{ayahNumber}
                     try {
-                        const response = await fetch(`/api/surahs/${pathSegments[1]}`);
+                        const response = await fetch(getApiUrl(`/api/surahs/${pathSegments[1]}`));
                         const data = await response.json();
                         if (data.status === 'success') {
                             const surahName = data.data.surah.name_latin || `Surah ${pathSegments[1]}`;
@@ -60,7 +61,7 @@ function Navbar({ user, setUser }) {
                 } else if (pathSegments[0] === 'ayah' && pathSegments[1] && pathSegments[2]) {
                     // Add surah breadcrumb
                     try {
-                        const response = await fetch(`/api/surahs/${pathSegments[1]}`);
+                        const response = await fetch(getApiUrl(`/api/surahs/${pathSegments[1]}`));
                         const data = await response.json();
                         if (data.status === 'success') {
                             const surahName = data.data.surah.name_latin || `Surah ${pathSegments[1]}`;
@@ -136,7 +137,7 @@ function Navbar({ user, setUser }) {
 
     const handleLogout = async () => {
         try {
-            await fetch('/api/logout', {
+            await fetch(getApiUrl('/api/logout'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -3,7 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
+        "build": "vite build --mode production",
         "dev": "vite",
         "dev:host": "vite --host",
         "preview": "vite preview",

@@ -1,6 +1,6 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-4N2ao79m.css",
+    "file": "assets/app-BK5Gux9k.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
@@ -13,13 +13,13 @@
     "src": "resources/fonts/ScheherazadeNew-Regular.ttf"
   },
   "resources/js/app.js": {
-    "file": "assets/app-BQzU03ej.js",
+    "file": "assets/app-Cd6YUjYZ.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true
   },
   "resources/js/react/index.jsx": {
-    "file": "assets/index-DAmLysN9.js",
+    "file": "assets/index-DvqjKmJU.js",
     "name": "index",
     "src": "resources/js/react/index.jsx",
     "isEntry": true

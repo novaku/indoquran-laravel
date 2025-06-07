@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getApiUrl } from '../utils/api';
 
 function ContactPage() {
     const navigate = useNavigate();
@@ -66,7 +67,7 @@ function ContactPage() {
         setIsSubmitting(true);
         
         try {
-            const response = await fetch('/api/contact', {
+            const response = await fetch(getApiUrl('/api/contact'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

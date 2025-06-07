@@ -2,6 +2,7 @@
  * BookmarkService.js
  * Service to handle bookmark and favorite functionality for ayahs
  */
+import { getApiUrl } from '../utils/api';
 
 /**
  * Toggle bookmark status for an ayah
@@ -10,7 +11,7 @@
  */
 export const toggleBookmark = async (ayahId) => {
     try {
-        const response = await fetch(`/api/bookmarks/ayah/${ayahId}/toggle`, {
+        const response = await fetch(getApiUrl(`/api/bookmarks/ayah/${ayahId}/toggle`), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -36,7 +37,7 @@ export const toggleBookmark = async (ayahId) => {
  */
 export const toggleFavorite = async (ayahId) => {
     try {
-        const response = await fetch(`/api/bookmarks/ayah/${ayahId}/favorite`, {
+        const response = await fetch(getApiUrl(`/api/bookmarks/ayah/${ayahId}/favorite`), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -62,7 +63,7 @@ export const toggleFavorite = async (ayahId) => {
  */
 export const getBookmarkStatus = async (ayahIds) => {
     try {
-        const response = await fetch(`/api/bookmarks/status?ayah_ids=${ayahIds.join(',')}`, {
+        const response = await fetch(getApiUrl(`/api/bookmarks/status?ayah_ids=${ayahIds.join(',')}`), {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -90,7 +91,7 @@ export const getBookmarkStatus = async (ayahIds) => {
 export const getUserBookmarks = async (favoritesOnly = false) => {
     try {
         const url = favoritesOnly ? '/api/bookmarks?favorites_only=true' : '/api/bookmarks';
-        const response = await fetch(url, {
+        const response = await fetch(getApiUrl(url), {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -118,7 +119,7 @@ export const getUserBookmarks = async (favoritesOnly = false) => {
  */
 export const updateBookmarkNotes = async (ayahId, notes) => {
     try {
-        const response = await fetch(`/api/bookmarks/ayah/${ayahId}/notes`, {
+        const response = await fetch(getApiUrl(`/api/bookmarks/ayah/${ayahId}/notes`), {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

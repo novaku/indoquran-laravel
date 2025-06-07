@@ -3,6 +3,7 @@ import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { AyahCard } from '../features/quran';
 import QuranHeader from '../components/QuranHeader';
 import { useDocumentTitle } from '../hooks';
+import { getApiUrl } from '../utils/api';
 
 function SearchPage() {
     const location = useLocation();
@@ -24,7 +25,7 @@ function SearchPage() {
         if (!query) return;
         
         setLoading(true);
-        fetch(`/api/search?q=${encodeURIComponent(query)}`)
+        fetch(getApiUrl(`/api/search?q=${encodeURIComponent(query)}`))
             .then(response => {
                 if (!response.ok) throw new Error('Failed to fetch search results');
                 return response.json();

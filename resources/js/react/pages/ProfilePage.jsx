@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getApiUrl } from '../utils/api';
 
 function ProfilePage({ user, setUser }) {
     const navigate = useNavigate();
@@ -22,7 +23,7 @@ function ProfilePage({ user, setUser }) {
         }
         
         // Get the latest user data
-        fetch('/api/profile')
+        fetch(getApiUrl('/api/profile'))
             .then(response => {
                 if (!response.ok) {
                     if (response.status === 401) {
@@ -62,7 +63,7 @@ function ProfilePage({ user, setUser }) {
         setMessage(null);
         
         try {
-            const response = await fetch('/api/profile', {
+            const response = await fetch(getApiUrl('/api/profile'), {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -108,7 +109,7 @@ function ProfilePage({ user, setUser }) {
     
     const handleLogout = async () => {
         try {
-            await fetch('/api/logout', {
+            await fetch(getApiUrl('/api/logout'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
