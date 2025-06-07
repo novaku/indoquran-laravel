@@ -50,10 +50,49 @@ IndoQuran adalah platform digital modern yang memudahkan akses terhadap Al-Quran
 
 ## 🛠 Teknologi yang Digunakan
 
+- **Backend**: Laravel 12.x, PHP 8.2+
+- **Frontend**: React 19.x, TailwindCSS 4.x
+- **Database**: MySQL
+- **Cache**: Redis
+- **Deployment**: Shared Hosting
+
+## 🔧 Troubleshooting
+
+### Database Connection Issues
+
+If you encounter database connection errors, verify your MySQL configuration:
+
+1. Check your .env file settings:
+   ```
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=indoquran
+   DB_USERNAME=root
+   DB_PASSWORD=your_password
+   ```
+
+2. Make sure your MySQL server is running:
+   ```bash
+   mysql --version
+   sudo service mysql status  # Linux
+   brew services list         # macOS
+   ```
+
+3. Run migrations to set up the database schema:
+   ```bash
+   php artisan migrate --force
+   ```
+
+4. Clear config cache after making changes:
+   ```bash
+   php artisan config:clear
+   ```
+
 ### Backend
 - **Laravel 12.x**: Framework PHP modern dengan fitur terlengkap
 - **PHP 8.2+**: Performa tinggi dan fitur bahasa terbaru
-- **SQLite Database**: Database ringan dan cepat
+- **MySQL Database**: Database relasional yang handal dan scalable
 - **Laravel Sanctum**: Autentikasi API yang aman
 - **Caching System**: Optimasi performa dengan cache pintar
 
@@ -77,6 +116,7 @@ IndoQuran adalah platform digital modern yang memudahkan akses terhadap Al-Quran
 - Composer
 - Node.js & NPM
 - Git
+- MySQL 8.0+
 
 ### Langkah Instalasi
 
@@ -99,12 +139,24 @@ IndoQuran adalah platform digital modern yang memudahkan akses terhadap Al-Quran
 4. **Setup Environment**
    ```bash
    cp .env.example .env
+   
+   # Update database configuration in .env
+   # DB_CONNECTION=mysql
+   # DB_HOST=127.0.0.1
+   # DB_PORT=3306
+   # DB_DATABASE=indoquran
+   # DB_USERNAME=root
+   # DB_PASSWORD=your_password
+   
    php artisan key:generate
    ```
 
 5. **Setup Database**
    ```bash
-   touch database/database.sqlite
+   # Create MySQL database
+   mysql -u root -p -e "CREATE DATABASE indoquran CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+   
+   # Run migrations and seed data
    php artisan migrate
    php artisan db:seed
    ```
