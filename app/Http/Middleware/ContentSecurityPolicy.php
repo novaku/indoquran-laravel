@@ -36,7 +36,7 @@ class ContentSecurityPolicy
                 "default-src 'self'",
                 "script-src 'self' 'unsafe-inline' blob: https://*.infird.com",
                 "style-src 'self' 'unsafe-inline' https://fonts.bunny.net https://fonts.googleapis.com",
-                "font-src 'self' https://fonts.bunny.net https://fonts.gstatic.com https://*.indoquran.web.id",
+                "font-src 'self' data: https://fonts.bunny.net https://fonts.gstatic.com https://*.indoquran.web.id my.indoquran.web.id",
                 "img-src 'self' data: blob:",
                 "media-src 'self' https://*.nos.wjv-1.neo.id https://*.equran.id https://*.equran.nos.wjv-1.neo.id https://*.quranicaudio.com https://*.qurancdn.com https://*.vercel.app *",
                 "connect-src 'self' https://download.quranicaudio.com https://*.infird.com",
