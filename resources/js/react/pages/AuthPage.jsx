@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { getRoutePath } from '../utils/routes';
 
 function AuthPage({ setUser }) {
     const { action } = useParams();
@@ -169,14 +170,14 @@ function AuthPage({ setUser }) {
                     {isLogin ? (
                         <>
                             Belum punya akun?{' '}
-                            <Link to="/auth/register" className="text-green-600 hover:text-green-800 font-semibold hover:underline">
+                            <Link to={getRoutePath('/auth/register')} className="text-green-600 hover:text-green-800 font-semibold hover:underline">
                                 Daftar
                             </Link>
                         </>
                     ) : (
                         <>
                             Sudah punya akun?{' '}
-                            <Link to="/auth/login" className="text-green-600 hover:text-green-800 font-semibold hover:underline">
+                            <Link to={getRoutePath('/auth/login')} className="text-green-600 hover:text-green-800 font-semibold hover:underline">
                                 Masuk
                             </Link>
                         </>

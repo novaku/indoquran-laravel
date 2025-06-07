@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { getApiUrl } from './utils/api';
+import { getRouterBasename } from './utils/routes';
 import HomePage from './pages/HomePage';
 import SurahPage from './pages/SurahPage';
 import SearchPage from './pages/SearchPage';
@@ -34,7 +35,7 @@ function App() {
     }, []);
     
     return (
-        <Router>
+        <Router basename={getRouterBasename()}>
             <div className="flex flex-col min-h-screen bg-[#faf8f2]">
                 <Navbar user={user} setUser={setUser} />
                 

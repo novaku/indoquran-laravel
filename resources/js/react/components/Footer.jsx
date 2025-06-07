@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { getRoutePath } from '../utils/routes';
 
 function Footer() {
     return (
@@ -7,9 +8,9 @@ function Footer() {
             <div className="container mx-auto px-4 max-w-6xl">
                 <div className="flex flex-col md:flex-row justify-between items-center">
                     <div className="flex space-x-6">
-                        <Link to="/about" className="text-islamic-green hover:text-islamic-gold transition-colors">Tentang</Link>
-                        <Link to="/privacy" className="text-islamic-green hover:text-islamic-gold transition-colors">Privasi</Link>
-                        <Link to="/contact" className="text-islamic-green hover:text-islamic-gold transition-colors">Kontak</Link>
+                        <Link to={getRoutePath('/about')} className="text-islamic-green hover:text-islamic-gold transition-colors">Tentang</Link>
+                        <Link to={getRoutePath('/privacy')} className="text-islamic-green hover:text-islamic-gold transition-colors">Privasi</Link>
+                        <Link to={getRoutePath('/contact')} className="text-islamic-green hover:text-islamic-gold transition-colors">Kontak</Link>
                     </div>
                     
                     <div className="mt-3 md:mt-0 text-islamic-brown text-sm">

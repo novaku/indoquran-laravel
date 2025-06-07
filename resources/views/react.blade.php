@@ -19,6 +19,13 @@
 
     <title>{{ config('app.name', 'Al-Quran Digital') }}</title>
 
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset_url('/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset_url('/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset_url('/favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ asset_url('/site.webmanifest') }}">
+    <link rel="shortcut icon" href="{{ asset_url('/favicon.ico') }}">
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -33,7 +40,8 @@
         window.Laravel = {
             csrfToken: '{{ csrf_token() }}',
             appEnv: '{{ config('app.env') }}',
-            appUrl: '{{ config('app.url') }}'
+            appUrl: '{{ config('app.url') }}',
+            baseUrl: '{{ app()->environment('production') ? '/public' : '' }}'
         };
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/react/index.jsx'])

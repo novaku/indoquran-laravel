@@ -1,0 +1,64 @@
+# Handle PHP files in the public directory
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Force HTTPS
+    RewriteCond %{HTTPS} off
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    
+    # Handle HTTP Authorization for APIs
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    
+    # Handle XSRF Token
+    RewriteCond %{HTTP:X-XSRF-TOKEN} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-TOKEN}]
+    
+    # Redirect trailing slashes
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+    
+    # Handle front controller
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+    
+# Support client-side routing for React SPA
+    # If the request is not for an actual file or directory
+    # and it's not starting with /api, /public, or other backend paths
+    # rewrite to index.php to allow React Router to handle it
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} !^/api
+    RewriteCond %{REQUEST_URI} !^/storage
+    RewriteCond %{REQUEST_URI} !^/build
+    RewriteRule ^(.*)$ /public/index.php [L]
+</IfModule>
+
+# Handle static file caching
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # Images
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    
+    # Video
+    ExpiresByType video/mp4 "access plus 1 year"
+    ExpiresByType video/mpeg "access plus 1 year"
+    
+    # CSS, JavaScript
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    
+    # Others
+    ExpiresByType application/pdf "access plus 1 month"
+    ExpiresByType application/x-font-ttf "access plus 1 year"
+    ExpiresByType font/ttf "access plus 1 year"
+</IfModule>

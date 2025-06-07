@@ -124,6 +124,10 @@ IndoQuran adalah platform digital modern yang memudahkan akses terhadap Al-Quran
    npm run dev
    ```
 
+### Deployment Produksi
+
+Untuk informasi lengkap mengenai deployment di lingkungan produksi dan penanganan URL dengan prefix `/public`, silakan baca [PRODUCTION.md](PRODUCTION.md).
+
 ## 📡 API Endpoints
 
 ### Surah & Ayat

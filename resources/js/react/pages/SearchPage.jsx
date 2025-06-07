@@ -4,6 +4,8 @@ import { AyahCard } from '../features/quran';
 import QuranHeader from '../components/QuranHeader';
 import { useDocumentTitle } from '../hooks';
 import { getApiUrl } from '../utils/api';
+import { getRoutePath } from '../utils/routes';
+import { getAudioUrl } from '../utils/audio';
 
 function SearchPage() {
     const location = useLocation();
@@ -150,7 +152,7 @@ function SearchPage() {
         createNewAudio();
         
         function createNewAudio() {
-            const newAudio = new Audio(audioUrl);
+            const newAudio = new Audio(getAudioUrl(audioUrl));
             newAudio.addEventListener('ended', () => {
                 setIsPlaying(false);
                 setActiveAyah(null);

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { IoPlayCircleOutline, IoPauseCircleOutline, IoBookmarkOutline, IoShareSocialOutline } from 'react-icons/io5';
+import { getRoutePath } from '../utils/routes';
 
 function AyahCard({ ayah, surah, playAudio, isPlaying, activeAyah, highlightText = null }) {
     
@@ -76,7 +77,7 @@ function AyahCard({ ayah, surah, playAudio, isPlaying, activeAyah, highlightText
                         {ayah.ayah_number}
                     </div>
                     <Link 
-                        to={`/surah/${ayah.surah_number}/${ayah.ayah_number}`}
+                        to={getRoutePath(`/surah/${ayah.surah_number}/${ayah.ayah_number}`)}
                         className="text-green-600 hover:text-green-800 font-medium"
                     >
                         {surah ? `${surah.name_indonesian} (${surah.name_latin})` : `Surah ${ayah.surah_number}`}
@@ -135,7 +136,7 @@ function AyahCard({ ayah, surah, playAudio, isPlaying, activeAyah, highlightText
             <div className="mt-4 pt-3 flex justify-between text-sm text-green-600">
                 <span>Juz {ayah.juz || '-'} • Halaman {ayah.page || '-'}</span>
                 <Link 
-                    to={`/surah/${ayah.surah_number}/${ayah.ayah_number}`}
+                    to={getRoutePath(`/surah/${ayah.surah_number}/${ayah.ayah_number}`)}
                     className="flex items-center gap-1 text-green-500 hover:text-green-700 hover:shadow-sm transition-all duration-300 px-3 py-1.5 rounded bg-green-50 border border-green-100"
                 >
                     <span>Detail</span>

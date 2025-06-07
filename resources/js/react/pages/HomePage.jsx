@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getApiUrl } from '../utils/api';
+import { getRoutePath } from '../utils/routes';
 import QuranHeader from '../components/QuranHeader';
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import SearchWidget from '../components/SearchWidget';
@@ -130,7 +131,7 @@ function HomePage() {
                             </div>
                             <div className="flex justify-end">
                                 <Link 
-                                    to={`/surah/${surah.number}`}
+                                    to={getRoutePath(`/surah/${surah.number}`)}
                                     onClick={(e) => e.stopPropagation()}
                                     className="text-islamic-green hover:text-islamic-green/80 text-sm font-medium transition-colors"
                                 >
@@ -210,7 +211,7 @@ function HomePage() {
                                     ✕ Tutup
                                 </button>
                                 <Link 
-                                    to={`/surah/${selectedSurah.number}`}
+                                    to={getRoutePath(`/surah/${selectedSurah.number}`)}
                                     className="px-8 py-3 bg-gradient-to-r from-islamic-green to-green-600 text-black font-semibold rounded-lg hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-green-300 focus:ring-opacity-50"
                                 >
                                     🔗 Buka Surah

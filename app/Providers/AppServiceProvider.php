@@ -15,7 +15,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Register helpers
+        require_once app_path('Helpers/AssetHelper.php');
     }
 
     /**

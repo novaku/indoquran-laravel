@@ -7,6 +7,8 @@ import { AyahCard } from '../features/quran';
 import { fetchFootnote } from '../services/FootnoteService';
 import { toggleBookmark, toggleFavorite, getBookmarkStatus } from '../services/BookmarkService';
 import { getApiUrl } from '../utils/api';
+import { getRoutePath } from '../utils/routes';
+import { getAudioUrl } from '../utils/audio';
 
 function SurahPage({ user }) {
     const { number, ayahNumber } = useParams();
@@ -340,7 +342,9 @@ function SurahPage({ user }) {
                 return;
             }
             
-            const audio = new Audio(audioUrl);
+            // Use getAudioUrl utility to handle production prefixing
+            const processedAudioUrl = getAudioUrl(audioUrl);
+            const audio = new Audio(processedAudioUrl);
             
             // Add event listeners
             audio.onended = function onAudioEnded() {
@@ -484,7 +488,14 @@ function SurahPage({ user }) {
         createNewSurahAudio();
 
         function createNewSurahAudio() {
-            const audio = new Audio(audioUrl);
+            if (!audioUrl) {
+                showToast('URL audio surah tidak ditemukan', 'error');
+                return;
+            }
+
+            // Use getAudioUrl utility to handle production prefixing
+            const processedAudioUrl = getAudioUrl(audioUrl);
+            const audio = new Audio(processedAudioUrl);
             
             // Add event listeners
             audio.onended = () => {
@@ -560,13 +571,15 @@ function SurahPage({ user }) {
             if (audioUrls && typeof audioUrls === 'object') {
                 // Check if selected qari exists
                 if (audioUrls[selectedQari]) {
-                    playSurahAudio(audioUrls[selectedQari]);
+                    // Use getAudioUrl utility for production URL handling
+                    playSurahAudio(getAudioUrl(audioUrls[selectedQari]));
                 } else {
                     // Try first available qari
                     const firstQariKey = Object.keys(audioUrls)[0];
                     if (firstQariKey && audioUrls[firstQariKey]) {
                         setSelectedQari(firstQariKey);
-                        playSurahAudio(audioUrls[firstQariKey]);
+                        // Use getAudioUrl utility for production URL handling
+                        playSurahAudio(getAudioUrl(audioUrls[firstQariKey]));
                     } else {
                         showToast('Audio surah untuk qari ini tidak tersedia', 'warning');
                     }
@@ -672,11 +685,11 @@ function SurahPage({ user }) {
                         ? JSON.parse(selectedAyah.audio_urls) 
                         : selectedAyah.audio_urls;
                     
-                    // Play audio with selected qari
+                    // Play audio with selected qari using getAudioUrl utility
                     if (audioUrls && typeof audioUrls === 'object' && audioUrls[selectedQari]) {
-                        playAudio(audioUrls[selectedQari], selectedAyah.id);
+                        playAudio(getAudioUrl(audioUrls[selectedQari]), selectedAyah.id);
                     } else if (selectedAyah.audio_url) {
-                        playAudio(selectedAyah.audio_url, selectedAyah.id);
+                        playAudio(getAudioUrl(selectedAyah.audio_url), selectedAyah.id);
                     } else {
                         showToast('Audio tidak tersedia untuk ayat ini', 'warning');
                     }
@@ -708,21 +721,24 @@ function SurahPage({ user }) {
             if (audioUrls && typeof audioUrls === 'object') {
                 // Check if selected qari exists in the audio_urls
                 if (audioUrls[selectedQari]) {
-                    playAudio(audioUrls[selectedQari], currentAyah.id);
+                    // Use getAudioUrl utility for production URL handling
+                    playAudio(getAudioUrl(audioUrls[selectedQari]), currentAyah.id);
                 } else {
                     // If selected qari not found, try to play the first available audio
                     const firstQariKey = Object.keys(audioUrls)[0];
                     if (firstQariKey && audioUrls[firstQariKey]) {
                         // Auto-select the first qari
                         setSelectedQari(firstQariKey);
-                        playAudio(audioUrls[firstQariKey], currentAyah.id);
+                        // Use getAudioUrl utility for production URL handling
+                        playAudio(getAudioUrl(audioUrls[firstQariKey]), currentAyah.id);
                     } else {
                         showToast('Audio untuk qari ini tidak tersedia', 'warning');
                     }
                 }
             } else if (currentAyah.audio_url) {
                 // Fallback to audio_url if available
-                playAudio(currentAyah.audio_url, currentAyah.id);
+                // Use getAudioUrl utility for production URL handling
+                playAudio(getAudioUrl(currentAyah.audio_url), currentAyah.id);
             } else {
                 showToast('Audio tidak tersedia untuk ayat ini', 'warning');
             }
@@ -1418,7 +1434,7 @@ function SurahPage({ user }) {
                                 viewBox="0 0 24 24"
                             >
                                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-                                <path d="M13.507 21.508h-.014c-2.083 0-4.144-.534-5.949-1.546l-.426-.26-4.422 1.16 1.182-4.319-.29-.466a11.89 11.89 0 01-1.819-6.38c0-6.582 5.361-11.942 11.943-11.942 3.189 0 6.188 1.243 8.441 3.499 2.255 2.256 3.495 5.253 3.494 8.442 0 6.58-5.36 11.942-11.94 11.942z" fill-rule="nonzero"/>
+                                <path d="M13.507 21.508h-.014c-2.083 0-4.144-.534-5.949-1.546l-.426-.26-4.422 1.16 1.182-4.319-.29-.466a11.89 11.89 0 01-1.819-6.38c0-6.582 5.361-11.942 11.943-11.942 3.189 0 6.188 1.243 8.441 3.499 2.255 2.256 3.495 5.253 3.494 8.442 0 6.58-5.36 11.942-11.94 11.942a11.815 11.815 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" fill-rule="nonzero"/>
                             </svg>
                             <span className="text-sm">Bagikan ke WhatsApp</span>
                         </button>
@@ -1516,7 +1532,7 @@ function SurahPage({ user }) {
                             fill="currentColor" 
                             viewBox="0 0 24 24"
                         >
-                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" fill-rule="nonzero"/>
                         </svg>
                     </button>
 

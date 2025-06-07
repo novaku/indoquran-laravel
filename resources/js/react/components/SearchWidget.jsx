@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getApiUrl } from '../utils/api';
+import { getRoutePath } from '../utils/routes';
+import { navigateTo } from '../utils/navigation';
 
 const SearchWidget = () => {
     const navigate = useNavigate();
@@ -147,7 +149,7 @@ const SearchWidget = () => {
         if (!showSuggestions || highlightedIndex === -1) {
             const query = e.target.elements.search.value.trim();
             if (query) {
-                navigate(`/search?q=${encodeURIComponent(query)}`);
+                navigateTo(navigate, `/search?q=${encodeURIComponent(query)}`);
                 setShowSuggestions(false);
             }
         }
@@ -226,7 +228,7 @@ const SearchWidget = () => {
                 // Force the event loop to complete state updates before navigation
                 setTimeout(() => {
                     // Use navigate function directly from react-router-dom
-                    navigate(`/surah/${surah_number}/${ayah_number}`, { replace: true });
+                    navigateTo(navigate, `/surah/${surah_number}/${ayah_number}`, { replace: true });
                 }, 10);
             } else {
                 console.error('Invalid ayah data for navigation:', suggestion.ayah);

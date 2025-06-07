@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { IoBookmark, IoHeart, IoArrowBackOutline, IoSearchOutline, IoCreateOutline, IoSaveOutline, IoCloseOutline, IoOpenOutline, IoChevronDown, IoChevronForward, IoEye, IoEyeOff } from 'react-icons/io5';
 import { getUserBookmarks, updateBookmarkNotes, toggleBookmark, toggleFavorite } from '../services/BookmarkService';
+import { getRoutePath } from '../utils/routes';
 import { AyahCard } from '../features/quran';
 
 function BookmarksPage({ user }) {
@@ -469,14 +470,14 @@ function BookmarksPage({ user }) {
                                                     <div className="bg-white rounded-b-2xl px-6 pb-4 -mt-2 border-l border-r border-b border-green-100">
                                                         <div className="flex justify-end gap-2 pt-2">
                                                             <Link
-                                                                to={`/surah/${bookmark.surah_number}/${bookmark.ayah_number}`}
+                                                                to={getRoutePath(`/surah/${bookmark.surah_number}/${bookmark.ayah_number}`)}
                                                                 className="flex items-center gap-1 text-green-500 hover:text-green-700 hover:shadow-sm transition-all duration-300 px-3 py-1.5 rounded bg-green-50 border border-green-100"
                                                             >
                                                                 <IoOpenOutline className="text-sm" />
                                                                 <span>Buka Ayat</span>
                                                             </Link>
                                                             <Link
-                                                                to={`/surah/${bookmark.surah_number}`}
+                                                                to={getRoutePath(`/surah/${bookmark.surah_number}`)}
                                                                 className="flex items-center gap-1 text-green-500 hover:text-green-700 hover:shadow-sm transition-all duration-300 px-3 py-1.5 rounded bg-green-50 border border-green-100"
                                                             >
                                                                 <IoBookmark className="text-sm" />

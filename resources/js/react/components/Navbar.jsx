@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { getApiUrl } from '../utils/api';
+import { getRoutePath } from '../utils/routes';
+import { navigateTo } from '../utils/navigation';
 
 function Navbar({ user, setUser }) {
     const navigate = useNavigate();
@@ -121,11 +123,11 @@ function Navbar({ user, setUser }) {
         const handleUrlChange = (event) => {
             if (event.detail && event.detail.path) {
                 // Use the provided path from the event
-                navigate(event.detail.path, { replace: true });
+                navigateTo(navigate, event.detail.path, { replace: true });
             } else {
                 // Fallback to reading current path
                 const currentPath = window.location.pathname;
-                navigate(currentPath, { replace: true });
+                navigateTo(navigate, currentPath, { replace: true });
             }
         };
         
@@ -162,7 +164,7 @@ function Navbar({ user, setUser }) {
                 <div className="container mx-auto px-4 py-3 max-w-6xl">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
-                            <Link to="/" className="flex items-center">
+                            <Link to={getRoutePath('/')} className="flex items-center">
                                 <div className="flex items-center justify-center w-8 h-8 bg-islamic-green text-white rounded-md mr-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 005.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
@@ -175,7 +177,7 @@ function Navbar({ user, setUser }) {
                         <div className="flex items-center space-x-4">
                             {user ? (
                                 <Link 
-                                    to="/bookmarks" 
+                                    to={getRoutePath('/bookmarks')} 
                                     className="text-islamic-green hover:text-islamic-gold transition-colors"
                                     title="Bookmark & Favorit"
                                 >
@@ -192,7 +194,7 @@ function Navbar({ user, setUser }) {
                             )}
                             {user ? (
                                 <>
-                                    <Link to="/profile" className="text-islamic-green hover:text-islamic-gold">
+                                    <Link to={getRoutePath('/profile')} className="text-islamic-green hover:text-islamic-gold">
                                         {user.name}
                                     </Link>
                                     <button 
@@ -204,7 +206,7 @@ function Navbar({ user, setUser }) {
                                 </>
                             ) : (
                                 <>
-                                    <Link to="/auth/login" className="text-islamic-green hover:text-islamic-gold">
+                                    <Link to={getRoutePath('/auth/login')} className="text-islamic-green hover:text-islamic-gold">
                                         Masuk
                                     </Link>
                                 </>
@@ -235,7 +237,7 @@ function Navbar({ user, setUser }) {
                                                 </span>
                                             ) : (
                                                 <Link
-                                                    to={breadcrumb.path}
+                                                    to={getRoutePath(breadcrumb.path)}
                                                     className="text-sm font-medium text-gray-500 hover:text-primary-600"
                                                 >
                                                     {breadcrumb.name}
@@ -255,7 +257,7 @@ function Navbar({ user, setUser }) {
                                         <>
                                             <li className="inline-flex items-center">
                                                 <Link
-                                                    to={breadcrumbs[breadcrumbs.length - 2].path}
+                                                    to={getRoutePath(breadcrumbs[breadcrumbs.length - 2].path)}
                                                     className="text-sm font-medium text-gray-500 hover:text-primary-600"
                                                 >
                                                     {breadcrumbs[breadcrumbs.length - 2].name}

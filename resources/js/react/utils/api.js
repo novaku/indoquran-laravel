@@ -7,13 +7,10 @@
  * @returns {string} The full API URL with the correct prefix for the current environment
  */
 export const getApiUrl = (endpoint) => {
-    // Check if APP_ENV is exposed through window.Laravel object
-    const appEnv = window.Laravel?.appEnv || import.meta.env.VITE_APP_ENV || 'local';
+    // Get the base URL from window.Laravel
+    const baseUrl = window.Laravel?.baseUrl || '';
     
-    if (appEnv === 'production') {
-        return `/public${endpoint}`;
-    }
-    return endpoint;
+    return `${baseUrl}${endpoint}`;
 };
 
 /**
