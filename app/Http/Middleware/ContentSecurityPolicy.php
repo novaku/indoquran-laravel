@@ -21,12 +21,12 @@ class ContentSecurityPolicy
         if (app()->environment('local')) {
             $csp = implode('; ', [
                 "default-src 'self'",
-                "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: http://localhost:5173 ws://localhost:5173",
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: http://localhost:5173 ws://localhost:5173 https://*.google-analytics.com https://www.google-analytics.com",
                 "style-src 'self' 'unsafe-inline' blob: data: http://localhost:5173 https://fonts.bunny.net https://fonts.googleapis.com fonts.bunny.net",
                 "font-src 'self' data: blob: https://fonts.bunny.net https://fonts.gstatic.com fonts.bunny.net fonts.gstatic.com",
-                "img-src 'self' data: blob:",
+                "img-src 'self' data: blob: https://*.google-analytics.com https://www.google-analytics.com",
                 "media-src 'self' https://*.nos.wjv-1.neo.id https://*.equran.id https://*.equran.nos.wjv-1.neo.id https://*.quranicaudio.com https://*.qurancdn.com https://*.vercel.app *",
-                "connect-src 'self' ws://localhost:5173 http://localhost:5173 https://download.quranicaudio.com https://nominatim.openstreetmap.org",
+                "connect-src 'self' ws://localhost:5173 http://localhost:5173 https://download.quranicaudio.com https://nominatim.openstreetmap.org https://*.google-analytics.com https://www.google-analytics.com",
                 "worker-src 'self' blob:",
                 "child-src 'self' blob:",
             ]);
@@ -34,12 +34,12 @@ class ContentSecurityPolicy
             // Production CSP (more restrictive)
             $csp = implode('; ', [
                 "default-src 'self'",
-                "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://*.infird.com https://infird.com",
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://*.infird.com https://infird.com https://*.google-analytics.com https://www.google-analytics.com",
                 "style-src 'self' 'unsafe-inline' https://fonts.bunny.net https://fonts.googleapis.com",
                 "font-src 'self' data: blob: https://fonts.bunny.net https://fonts.gstatic.com https://*.indoquran.web.id my.indoquran.web.id https://my.indoquran.web.id",
-                "img-src 'self' data: blob:",
+                "img-src 'self' data: blob: https://*.google-analytics.com https://www.google-analytics.com",
                 "media-src 'self' https://*.nos.wjv-1.neo.id https://*.equran.id https://*.equran.nos.wjv-1.neo.id https://*.quranicaudio.com https://*.qurancdn.com https://*.vercel.app *",
-                "connect-src 'self' https://download.quranicaudio.com https://*.infird.com https://infird.com https://nominatim.openstreetmap.org",
+                "connect-src 'self' https://download.quranicaudio.com https://*.infird.com https://infird.com https://nominatim.openstreetmap.org https://*.google-analytics.com https://www.google-analytics.com",
                 "worker-src 'self' blob:",
                 "child-src 'self' blob:",
             ]);
