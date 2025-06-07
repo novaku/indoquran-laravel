@@ -34,10 +34,10 @@ class ContentSecurityPolicy
             // Production CSP (more restrictive)
             $csp = implode('; ', [
                 "default-src 'self'",
-                "script-src 'self' 'unsafe-inline'",
+                "script-src 'self' 'unsafe-inline' blob:",
                 "style-src 'self' 'unsafe-inline' https://fonts.bunny.net https://fonts.googleapis.com",
                 "font-src 'self' https://fonts.bunny.net https://fonts.gstatic.com",
-                "img-src 'self' data:",
+                "img-src 'self' data: blob:",
                 "media-src 'self' https://*.nos.wjv-1.neo.id https://*.equran.id https://*.equran.nos.wjv-1.neo.id https://*.quranicaudio.com https://*.qurancdn.com https://*.vercel.app *",
                 "connect-src 'self' https://download.quranicaudio.com",
             ]);
