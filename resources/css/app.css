@@ -1,34 +1,5 @@
-/* filepath: /Users/novaherdi/Documents/GitHub/indoquran-laravel/resources/css/app.css */
 @import "tailwindcss";
-
-/* Import Arabic font */
-@font-face {
-    font-family: 'Scheherazade New';
-    src: url('../fonts/ScheherazadeNew-Regular.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'Scheherazade New';
-    src: url('../fonts/ScheherazadeNew-Bold.ttf') format('truetype');
-    font-weight: bold;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'Scheherazade';
-    src: url('../fonts/ScheherazadeNew-Regular.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'Scheherazade';
-    src: url('../fonts/ScheherazadeNew-Bold.ttf') format('truetype');
-    font-weight: bold;
-    font-style: normal;
-}
+@import "./_fonts.css";
 
 /* Custom styling for Arabic Quran texts */
 .font-arabic {

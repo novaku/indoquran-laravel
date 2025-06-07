@@ -1,0 +1,40 @@
+/* Main CSS file - Processed by Vite */
+@import "tailwindcss";
+
+/*
+ * Font URLs will be automatically processed by Vite to use the correct base URL
+ * defined in ASSET_URL. Using relative paths will work correctly with the Vite asset resolver.
+ */
+
+/* Import Arabic font */
+@font-face {
+    font-family: 'Scheherazade New';
+    src: url('../fonts/ScheherazadeNew-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Scheherazade New';
+    src: url('../fonts/ScheherazadeNew-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Scheherazade';
+    src: url('../fonts/ScheherazadeNew-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Scheherazade';
+    src: url('../fonts/ScheherazadeNew-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}

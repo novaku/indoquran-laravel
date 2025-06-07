@@ -6,6 +6,7 @@ use App\Models\Ayah;
 use App\Models\Surah;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -25,6 +26,22 @@ class AppServiceProvider extends ServiceProvider
     {
         // Configure Redis based on environment
         if (app()->environment('production')) {
+            // Force HTTPS in production
+            URL::forceScheme('https');
+            
+            // If ASSET_URL is set, use it for all assets
+            if (config('app.asset_url')) {
+                $assetUrl = config('app.asset_url');
+                // Parse the URL to get just the domain part
+                $parsedUrl = parse_url($assetUrl);
+                $scheme = $parsedUrl['scheme'] ?? 'https';
+                $host = $parsedUrl['host'] ?? null;
+                
+                if ($host) {
+                    URL::forceRootUrl($scheme . '://' . $host);
+                }
+            }
+            
             Redis::enableEvents();
             // Use UNIX socket in production
             config(['database.redis.default.socket' => '/home/indoqura/tmp/redis.sock']);
