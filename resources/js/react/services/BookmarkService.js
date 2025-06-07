@@ -31,6 +31,7 @@ export const toggleBookmark = async (ayahId) => {
 
 /**
  * Toggle favorite status for an ayah
+ * @deprecated Use toggleBookmark instead - favorites are now handled as bookmarks with is_favorite flag for existing data
  * @param {number} ayahId - The ID of the ayah to favorite/unfavorite
  * @returns {Promise<Object>} - The favorite status response
  */

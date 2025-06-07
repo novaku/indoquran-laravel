@@ -60,6 +60,29 @@ class QuranController extends Controller
     }
 
     /**
+     * Get surah metadata only (without ayahs)
+     * 
+     * @param int $number
+     * @return JsonResponse
+     */
+    public function getSurahMetadata(int $number): JsonResponse
+    {
+        $surah = $this->quranCache->getSurah($number);
+        
+        if (!$surah) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Surah not found'
+            ], 404);
+        }
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => $surah
+        ]);
+    }
+
+    /**
      * Get a specific ayah
      * 
      * @param int $surahNumber

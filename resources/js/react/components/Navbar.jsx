@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-function Navbar({ user, setUser }) {
+function Navbar({ user, setUser, onBreadcrumbsChange }) {
     const navigate = useNavigate();
     const location = useLocation();
     const [breadcrumbs, setBreadcrumbs] = useState([]);
@@ -36,12 +36,26 @@ function Navbar({ user, setUser }) {
                                 name: surahName,
                                 path: `/surah/${pathSegments[1]}`
                             });
+                            
+                            // Add ayah breadcrumb if present in URL
+                            if (pathSegments[2]) {
+                                breadcrumbItems.push({
+                                    name: `Ayat ${pathSegments[2]}`,
+                                    path: `/surah/${pathSegments[1]}/${pathSegments[2]}`
+                                });
+                            }
                         }
                     } catch (error) {
                         breadcrumbItems.push({
                             name: `Surah ${pathSegments[1]}`,
                             path: `/surah/${pathSegments[1]}`
                         });
+                        if (pathSegments[2]) {
+                            breadcrumbItems.push({
+                                name: `Ayat ${pathSegments[2]}`,
+                                path: `/surah/${pathSegments[1]}/${pathSegments[2]}`
+                            });
+                        }
                     }
                 } else if (pathSegments[0] === 'ayah' && pathSegments[1] && pathSegments[2]) {
                     // Add surah breadcrumb
@@ -96,10 +110,15 @@ function Navbar({ user, setUser }) {
             }
             
             setBreadcrumbs(breadcrumbItems);
+            
+            // Pass breadcrumb data to parent component
+            if (onBreadcrumbsChange) {
+                onBreadcrumbsChange(breadcrumbItems);
+            }
         };
         
         generateBreadcrumbs();
-    }, [location.pathname]);
+    }, [location.pathname, onBreadcrumbsChange]);
 
     // Load surahs for search autocomplete
     useEffect(() => {
@@ -338,14 +357,14 @@ function Navbar({ user, setUser }) {
                 <div className="container mx-auto px-4 py-3 max-w-6xl">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
-                            <Link to="/" className="flex items-center">
+                            <a href="/" className="flex items-center">
                                 <div className="flex items-center justify-center w-8 h-8 bg-islamic-green text-white rounded-md mr-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
                                     </svg>
                                 </div>
                                 <span className="ml-2 text-xl font-semibold text-islamic-green">indoquran.web.id</span>
-                            </Link>
+                            </a>
                         </div>
                         
                         <div className="hidden md:block">
@@ -459,15 +478,15 @@ function Navbar({ user, setUser }) {
                         
                         <div className="flex items-center space-x-4">
                             {user ? (
-                                <Link 
-                                    to="/bookmarks" 
+                                <a 
+                                    href="/bookmarks" 
                                     className="text-islamic-green hover:text-islamic-gold transition-colors"
                                     title="Bookmark & Favorit"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                                     </svg>
-                                </Link>
+                                </a>
                             ) : (
                                 <button className="text-islamic-green hover:text-islamic-gold transition-colors opacity-50 cursor-not-allowed">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -477,21 +496,21 @@ function Navbar({ user, setUser }) {
                             )}
                             {user ? (
                                 <>
-                                    <Link to="/profile" className="text-islamic-green hover:text-islamic-gold">
+                                    <a href="/profile" className="text-islamic-green hover:text-islamic-gold">
                                         {user.name}
-                                    </Link>
+                                    </a>
                                     <button 
                                         onClick={handleLogout}
-                                        className="text-islamic-green hover:text-islamic-gold"
+                                        className="text-islamic-green hover:text-islamic-gold cursor-pointer transition-colors"
                                     >
                                         Keluar
                                     </button>
                                 </>
                             ) : (
                                 <>
-                                    <Link to="/auth/login" className="text-islamic-green hover:text-islamic-gold">
+                                    <a href="/auth/login" className="text-islamic-green hover:text-islamic-gold">
                                         Masuk
-                                    </Link>
+                                    </a>
                                 </>
                             )}
                         </div>
@@ -608,70 +627,7 @@ function Navbar({ user, setUser }) {
                 </div>
             </nav>
 
-            {/* Floating Breadcrumb Navigation */}
-            {breadcrumbs.length > 1 && (
-                <div className="fixed top-16 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
-                    <div className="container mx-auto px-4 py-2 max-w-6xl">
-                        {/* Desktop Breadcrumbs */}
-                        <div className="hidden md:block">
-                            <nav className="flex" aria-label="Breadcrumb">
-                                <ol className="inline-flex items-center space-x-1 md:space-x-2">
-                                    {breadcrumbs.map((breadcrumb, index) => (
-                                        <li key={index} className="inline-flex items-center">
-                                            {index > 0 && (
-                                                <svg className="w-4 h-4 text-gray-400 mx-1" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path>
-                                                </svg>
-                                            )}
-                                            {index === breadcrumbs.length - 1 ? (
-                                                <span className="text-sm font-medium text-primary-600">
-                                                    {breadcrumb.name}
-                                                </span>
-                                            ) : (
-                                                <Link
-                                                    to={breadcrumb.path}
-                                                    className="text-sm font-medium text-gray-500 hover:text-primary-600"
-                                                >
-                                                    {breadcrumb.name}
-                                                </Link>
-                                            )}
-                                        </li>
-                                    ))}
-                                </ol>
-                            </nav>
-                        </div>
 
-                        {/* Mobile Breadcrumbs */}
-                        <div className="md:hidden">
-                            <nav className="flex" aria-label="Breadcrumb">
-                                <ol className="inline-flex items-center space-x-1 text-xs">
-                                    {breadcrumbs.map((breadcrumb, index) => (
-                                        <li key={index} className="inline-flex items-center">
-                                            {index > 0 && (
-                                                <svg className="w-3 h-3 text-gray-400 mx-1" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path>
-                                                </svg>
-                                            )}
-                                            {index === breadcrumbs.length - 1 ? (
-                                                <span className="font-medium text-primary-600">
-                                                    {breadcrumb.name}
-                                                </span>
-                                            ) : (
-                                                <Link
-                                                    to={breadcrumb.path}
-                                                    className="font-medium text-gray-500 hover:text-primary-600"
-                                                >
-                                                    {breadcrumb.name}
-                                                </Link>
-                                            )}
-                                        </li>
-                                    ))}
-                                </ol>
-                            </nav>
-                        </div>
-                    </div>
-                </div>
-            )}
         </>
     );
 }

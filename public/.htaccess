@@ -19,6 +19,15 @@
         </IfModule>
     </FilesMatch>
 
+    # Add proper headers for JS and CSS files
+    <FilesMatch "\.(js|css)$">
+        <IfModule mod_headers.c>
+            Header set Access-Control-Allow-Origin "*"
+            Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
+            Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+        </IfModule>
+    </FilesMatch>
+
     RewriteEngine On
 
     # Handle Authorization Header

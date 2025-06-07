@@ -7,8 +7,11 @@ export default defineConfig(({ command, mode }) => {
     // Load env file based on mode
     const env = loadEnv(mode, process.cwd(), '')
     
-    // Check if ASSET_URL is defined in the environment
-    const assetUrl = env.ASSET_URL || env.VITE_ASSET_URL || env.APP_URL || ''
+    // Force development mode to use local assets, only use ASSET_URL for production builds
+    const isDev = command === 'serve' || mode === 'development'
+    const assetUrl = !isDev && mode === 'production' 
+        ? (env.ASSET_URL || env.VITE_ASSET_URL || env.APP_URL || '')
+        : ''
     
     return {
         plugins: [
@@ -27,13 +30,14 @@ export default defineConfig(({ command, mode }) => {
             }),
             tailwindcss(),
         ],
-        // Set base URL for asset loading
-        base: command === 'build' && assetUrl ? `${assetUrl}/` : '',
+        // Set base URL for asset loading - force local paths for development
+        base: !isDev && mode === 'production' && assetUrl ? `${assetUrl}/` : '/',
         server: {
             hmr: {
-                host: 'localhost',
+                host: '127.0.0.1',
                 protocol: 'ws',
             },
+            host: '127.0.0.1',
             cors: true,
             headers: {
                 'Access-Control-Allow-Origin': '*',
@@ -45,5 +49,20 @@ export default defineConfig(({ command, mode }) => {
             // Fix for development build
             global: 'globalThis',
         },
+        build: {
+            rollupOptions: {
+                output: {
+                    assetFileNames: (assetInfo) => {
+                        // Keep font files with a simple naming pattern
+                        if (assetInfo.name && /\.(woff|woff2|eot|ttf|otf)$/.test(assetInfo.name)) {
+                            return 'assets/[name]-[hash][extname]';
+                        }
+                        return 'assets/[name]-[hash][extname]';
+                    }
+                }
+            },
+            assetsDir: 'assets',
+        },
+        assetsInclude: ['**/*.ttf', '**/*.woff', '**/*.woff2', '**/*.eot', '**/*.otf']
     };
 });

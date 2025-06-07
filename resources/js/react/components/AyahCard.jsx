@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { IoPlayCircleOutline, IoPauseCircleOutline, IoBookmarkOutline, IoShareSocialOutline } from 'react-icons/io5';
 
 function AyahCard({ ayah, surah, playAudio, isPlaying, activeAyah, highlightText = null }) {
@@ -75,12 +74,12 @@ function AyahCard({ ayah, surah, playAudio, isPlaying, activeAyah, highlightText
                     <div className="h-8 w-8 bg-primary-600 rounded-full flex items-center justify-center text-white font-semibold mr-3">
                         {ayah.ayah_number}
                     </div>
-                    <Link 
-                        to={`/ayah/${ayah.surah_number}/${ayah.ayah_number}`}
+                    <a 
+                        href={`/ayah/${ayah.surah_number}/${ayah.ayah_number}`}
                         className="text-primary-600 hover:text-primary-800 font-medium"
                     >
                         {surah ? `${surah.name_indonesian} (${surah.name_latin})` : `Surah ${ayah.surah_number}`}
-                    </Link>
+                    </a>
                 </div>
                 <button 
                     onClick={handlePlayAudio}
@@ -123,12 +122,12 @@ function AyahCard({ ayah, surah, playAudio, isPlaying, activeAyah, highlightText
             
             <div className="mt-4 pt-3 flex justify-between text-sm text-primary-600">
                 <span>Juz {ayah.juz} • Halaman {ayah.page}</span>
-                <Link 
-                    to={`/ayah/${ayah.surah_number}/${ayah.ayah_number}`}
+                <a 
+                    href={`/ayah/${ayah.surah_number}/${ayah.ayah_number}`}
                     className="text-primary-500 hover:text-primary-700 hover:shadow-sm transition-all duration-300 px-2 py-1 rounded"
                 >
                     Detail
-                </Link>
+                </a>
             </div>
         </div>
     );

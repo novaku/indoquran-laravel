@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 function Footer() {
     return (
@@ -7,9 +6,9 @@ function Footer() {
             <div className="container mx-auto px-4 max-w-6xl">
                 <div className="flex flex-col md:flex-row justify-between items-center">
                     <div className="flex space-x-6">
-                        <Link to="/about" className="text-islamic-green hover:text-islamic-gold transition-colors">Tentang</Link>
-                        <Link to="/privacy" className="text-islamic-green hover:text-islamic-gold transition-colors">Privasi</Link>
-                        <Link to="/contact" className="text-islamic-green hover:text-islamic-gold transition-colors">Kontak</Link>
+                        <a href="/about" className="text-islamic-green hover:text-islamic-gold transition-colors">Tentang</a>
+                        <a href="/privacy" className="text-islamic-green hover:text-islamic-gold transition-colors">Privasi</a>
+                        <a href="/contact" className="text-islamic-green hover:text-islamic-gold transition-colors">Kontak</a>
                     </div>
                     
                     <div className="mt-3 md:mt-0 text-islamic-brown text-sm">

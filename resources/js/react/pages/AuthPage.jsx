@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 
 function AuthPage({ setUser }) {
     const { action } = useParams();
@@ -12,8 +12,22 @@ function AuthPage({ setUser }) {
     });
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+    const [loginSuccess, setLoginSuccess] = useState(false);
     
     const isLogin = action === 'login';
+    
+    // Handle redirect after successful login
+    useEffect(() => {
+        if (loginSuccess) {
+            // Add a small delay to ensure user state is properly set
+            const timeout = setTimeout(() => {
+                // Navigate to home page with replace to avoid back button issues
+                navigate('/', { replace: true });
+            }, 150);
+            
+            return () => clearTimeout(timeout);
+        }
+    }, [loginSuccess, navigate]);
     
     const handleChange = (e) => {
         setFormData({
@@ -33,6 +47,7 @@ function AuthPage({ setUser }) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
                 body: JSON.stringify(formData)
@@ -49,7 +64,12 @@ function AuthPage({ setUser }) {
             // Set user and navigate to home
             if (data.user) {
                 setUser(data.user);
-                navigate('/');
+                setLoading(false);
+                
+                // Trigger redirect via useEffect with a slight delay for state to propagate
+                setTimeout(() => {
+                    setLoginSuccess(true);
+                }, 100);
             } else {
                 setErrors({ message: 'Login successful but user data not returned.' });
                 setLoading(false);
@@ -61,7 +81,7 @@ function AuthPage({ setUser }) {
     };
     
     return (
-        <div className="max-w-md mx-auto">
+        <div className="max-w-md mx-auto px-4 py-8 pt-24">
             <div className="text-center mb-8">
                 <h1 className="text-3xl font-bold text-gray-800 mb-2">
                     {isLogin ? 'Masuk ke Akun Anda' : 'Buat Akun Baru'}
@@ -169,16 +189,16 @@ function AuthPage({ setUser }) {
                     {isLogin ? (
                         <>
                             Belum punya akun?{' '}
-                            <Link to="/auth/register" className="text-green-600 hover:text-green-800 font-semibold hover:underline">
+                            <a href="/auth/register" className="text-green-600 hover:text-green-800 font-semibold hover:underline">
                                 Daftar
-                            </Link>
+                            </a>
                         </>
                     ) : (
                         <>
                             Sudah punya akun?{' '}
-                            <Link to="/auth/login" className="text-green-600 hover:text-green-800 font-semibold hover:underline">
+                            <a href="/auth/login" className="text-green-600 hover:text-green-800 font-semibold hover:underline">
                                 Masuk
-                            </Link>
+                            </a>
                         </>
                     )}
                 </div>

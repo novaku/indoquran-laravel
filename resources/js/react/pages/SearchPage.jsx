@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import AyahCard from '../components/AyahCard';
 import QuranHeader from '../components/QuranHeader';
 import MetaTags from '../components/MetaTags';
@@ -230,7 +230,7 @@ function SearchPage() {
     }
     
     return (
-        <div>
+        <div className="max-w-2xl mx-auto px-4 py-8 pt-24">
             <MetaTags 
                 title={`Hasil Pencarian: ${query} | Al-Quran Digital Indonesia`}
                 description={`Hasil pencarian untuk "${query}" dalam Al-Quran. Menemukan ${totalResults} ayat yang sesuai dengan kata kunci Anda.`}

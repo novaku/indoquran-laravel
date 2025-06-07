@@ -2,39 +2,56 @@
 @import "tailwindcss";
 
 /*
- * Font URLs will be automatically processed by Vite to use the correct base URL
- * defined in ASSET_URL. Using relative paths will work correctly with the Vite asset resolver.
+ * Font URLs - Using relative paths that Vite will process correctly
+ * This ensures fonts are properly bundled and served
  */
 
-/* Import Arabic font */
+/* Import Arabic font - Using relative paths for proper Vite processing */
 @font-face {
     font-family: 'Scheherazade New';
-    src: url('/fonts/ScheherazadeNew-Regular.ttf') format('truetype');
-    font-weight: normal;
+    src: url('../fonts/ScheherazadeNew-Regular.ttf') format('truetype');
+    font-weight: 400;
     font-style: normal;
     font-display: swap;
 }
 
 @font-face {
     font-family: 'Scheherazade New';
-    src: url('/fonts/ScheherazadeNew-Bold.ttf') format('truetype');
-    font-weight: bold;
+    src: url('../fonts/Scheherazade_New/ScheherazadeNew-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Scheherazade New';
+    src: url('../fonts/Scheherazade_New/ScheherazadeNew-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Scheherazade New';
+    src: url('../fonts/ScheherazadeNew-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Alternative font family name for backwards compatibility */
+@font-face {
+    font-family: 'Scheherazade';
+    src: url('../fonts/ScheherazadeNew-Regular.ttf') format('truetype');
+    font-weight: 400;
     font-style: normal;
     font-display: swap;
 }
 
 @font-face {
     font-family: 'Scheherazade';
-    src: url('/fonts/ScheherazadeNew-Regular.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Scheherazade';
-    src: url('/fonts/ScheherazadeNew-Bold.ttf') format('truetype');
-    font-weight: bold;
+    src: url('../fonts/ScheherazadeNew-Bold.ttf') format('truetype');
+    font-weight: 700;
     font-style: normal;
     font-display: swap;
 }

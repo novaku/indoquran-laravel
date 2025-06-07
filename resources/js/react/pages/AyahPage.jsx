@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 function AyahPage() {
     const { surahNumber, ayahNumber } = useParams();
@@ -245,11 +245,15 @@ function AyahPage() {
         if (ayah && ayah.ayah_number > 1) {
             navigate(`/ayah/${surahNumber}/${parseInt(ayahNumber) - 1}`);
         } else if (parseInt(surahNumber) > 1) {
-            // Need to get the total ayahs of the previous surah
-            fetch(`/api/surahs/${parseInt(surahNumber) - 1}`)
+            // Need to get the total ayahs of the previous surah using metadata endpoint
+            fetch(`/api/surahs/${parseInt(surahNumber) - 1}/metadata`)
                 .then(response => response.json())
                 .then(data => {
-                    navigate(`/ayah/${parseInt(surahNumber) - 1}/${data.total_ayahs}`);
+                    if (data.status === 'success' && data.data) {
+                        navigate(`/ayah/${parseInt(surahNumber) - 1}/${data.data.total_ayahs}`);
+                    } else {
+                        console.error('Failed to fetch surah metadata');
+                    }
                 });
         }
     };
@@ -333,44 +337,44 @@ function AyahPage() {
     
     return (
         <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
-            <div className="max-w-4xl mx-auto px-4 py-6">
+            <div className="max-w-4xl mx-auto px-4 py-6 pt-24">
                 
                 {/* Main Ayah Display */}
                 <div className="bg-white rounded-3xl shadow-xl p-8 mb-6 border border-green-100">
                     
                     {/* Navigation links */}
                     <div className="flex items-center mb-4">
-                        <Link 
-                            to="/"
+                        <a 
+                            href="/"
                             className="flex items-center text-sm text-green-600 hover:text-green-700 transition-colors"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                             </svg>
                             Daftar Surah
-                        </Link>
+                        </a>
                         {ayah && ayah.surah && (
                             <>
                                 <span className="mx-2 text-gray-400">/</span>
-                                <Link 
-                                    to={`/surah/${surahNumber}`}
+                                <a 
+                                    href={`/surah/${surahNumber}`}
                                     className="flex items-center text-sm text-green-600 hover:text-green-700 transition-colors"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                                     </svg>
                                     {ayah.surah.name_simple || `Surah ${surahNumber}`}
-                                </Link>
+                                </a>
                                 <span className="mx-2 text-gray-400">/</span>
-                                <Link 
-                                    to={`/surah/${surahNumber}#ayah-${ayahNumber}`}
+                                <a 
+                                    href={`/surah/${surahNumber}#ayah-${ayahNumber}`}
                                     className="flex items-center text-sm text-green-600 hover:text-green-700 transition-colors"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
                                     </svg>
                                     Lihat di Surah
-                                </Link>
+                                </a>
                             </>
                         )}
                     </div>

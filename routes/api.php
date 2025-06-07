@@ -57,6 +57,7 @@ Route::middleware(['auth'])->group(function() {
 // Surah routes
 Route::get('/surahs', [App\Http\Controllers\QuranController::class, 'getAllSurahs']);
 Route::get('/surahs/{number}', [App\Http\Controllers\QuranController::class, 'getSurah']);
+Route::get('/surahs/{number}/metadata', [App\Http\Controllers\QuranController::class, 'getSurahMetadata']);
 
 // Ayah routes
 Route::get('/ayahs/{surahNumber}/{ayahNumber}', [App\Http\Controllers\QuranController::class, 'getAyah']);

@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { IoBookmark, IoHeart, IoArrowBackOutline, IoSearchOutline, IoCreateOutline, IoSaveOutline, IoCloseOutline } from 'react-icons/io5';
+import { useNavigate } from 'react-router-dom';
+import { IoBookmark, IoArrowBackOutline, IoSearchOutline, IoCreateOutline, IoSaveOutline, IoCloseOutline, IoChevronDownOutline, IoChevronUpOutline } from 'react-icons/io5';
 import { getUserBookmarks, updateBookmarkNotes } from '../services/BookmarkService';
 
 function BookmarksPage({ user }) {
     const navigate = useNavigate();
     const [bookmarks, setBookmarks] = useState([]);
-    const [favorites, setFavorites] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('bookmarks'); // 'bookmarks' or 'favorites'
     const [searchTerm, setSearchTerm] = useState('');
     const [editingNotes, setEditingNotes] = useState(null); // ID of bookmark being edited
     const [notesText, setNotesText] = useState('');
     const [savingNotes, setSavingNotes] = useState(false);
+    const [collapsedSurahs, setCollapsedSurahs] = useState(new Set());
+    const [collapsedAyahs, setCollapsedAyahs] = useState(new Set());
 
     useEffect(() => {
         if (!user) {
@@ -26,13 +26,8 @@ function BookmarksPage({ user }) {
     const loadBookmarks = async () => {
         setLoading(true);
         try {
-            const [allBookmarks, userFavorites] = await Promise.all([
-                getUserBookmarks(false),
-                getUserBookmarks(true)
-            ]);
-            
+            const allBookmarks = await getUserBookmarks(false); // Get all bookmarks
             setBookmarks(allBookmarks);
-            setFavorites(userFavorites);
         } catch (error) {
             console.error('Error loading bookmarks:', error);
         } finally {
@@ -42,7 +37,7 @@ function BookmarksPage({ user }) {
 
     const handleEditNotes = (bookmark) => {
         setEditingNotes(bookmark.id);
-        setNotesText(bookmark.pivot?.notes || '');
+        setNotesText(bookmark.notes || '');
     };
 
     const handleSaveNotes = async (ayahId) => {
@@ -64,8 +59,33 @@ function BookmarksPage({ user }) {
         setNotesText('');
     };
 
-    const filteredBookmarks = (activeTab === 'favorites' ? favorites : bookmarks)
-        .filter(bookmark => {
+    const toggleSurahCollapse = (surahNumber) => {
+        setCollapsedSurahs(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(surahNumber)) {
+                newSet.delete(surahNumber);
+            } else {
+                newSet.add(surahNumber);
+            }
+            return newSet;
+        });
+    };
+
+    const toggleAyahCollapse = (ayahId) => {
+        setCollapsedAyahs(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(ayahId)) {
+                newSet.delete(ayahId);
+            } else {
+                newSet.add(ayahId);
+            }
+            return newSet;
+        });
+    };
+
+    // Group bookmarks by surah and order them
+    const groupedBookmarks = () => {
+        const filtered = bookmarks.filter(bookmark => {
             if (!searchTerm) return true;
             const searchLower = searchTerm.toLowerCase();
             return (
@@ -76,216 +96,252 @@ function BookmarksPage({ user }) {
             );
         });
 
+        const grouped = {};
+        filtered.forEach(bookmark => {
+            const surahNumber = bookmark.surah_number;
+            if (!grouped[surahNumber]) {
+                grouped[surahNumber] = {
+                    surah: bookmark.surah,
+                    surah_number: surahNumber,
+                    ayahs: []
+                };
+            }
+            grouped[surahNumber].ayahs.push(bookmark);
+        });
+
+        // Convert to array and sort by surah number
+        return Object.values(grouped).sort((a, b) => a.surah_number - b.surah_number);
+    };
+
+    const groupedBookmarksData = groupedBookmarks();
+
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 shadow-islamic"></div>
+            <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
+                <div className="max-w-4xl mx-auto px-4 py-8 pt-24">
+                    <div className="flex justify-center items-center h-64">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+                    </div>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="max-w-4xl mx-auto px-4 py-8">
-            {/* Header */}
-            <div className="mb-8">
-                <div className="flex items-center gap-4 mb-4">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="p-2 rounded-lg bg-primary-50 text-primary-700 hover:bg-primary-100 hover:text-primary-800 transition-all duration-200 border border-primary-200"
-                    >
-                        <IoArrowBackOutline className="text-xl" />
-                    </button>
-                    <h1 className="text-3xl font-bold text-primary-800">
-                        {activeTab === 'favorites' ? 'Ayat Favorit' : 'Bookmark Ayat'}
-                    </h1>
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
+            <div className="max-w-4xl mx-auto px-4 py-8 pt-24">
+                {/* Header */}
+                <div className="bg-white rounded-3xl shadow-xl p-8 mb-8 border border-green-100">
+                    <div className="flex items-center gap-4 mb-4">
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="p-2 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800 transition-all duration-200 border border-green-200"
+                        >
+                            <IoArrowBackOutline className="text-xl" />
+                        </button>
+                        <h1 className="text-3xl font-bold text-green-800">
+                            Bookmark Ayat
+                        </h1>
+                    </div>
+                    
+                    {/* Search */}
+                    <div className="mt-6">
+                        <div className="relative">
+                            <IoSearchOutline className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-400" />
+                            <input
+                                type="text"
+                                placeholder="Cari ayat atau surah..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full pl-10 pr-4 py-3 border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            />
+                        </div>
+                    </div>
                 </div>
-                
-                {/* Tab Navigation */}
-                <div className="flex space-x-1 bg-primary-50 p-1 rounded-lg">
-                    <button
-                        onClick={() => setActiveTab('bookmarks')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md font-medium transition-all duration-200 ${
-                            activeTab === 'bookmarks'
-                                ? 'bg-white text-primary-700 shadow-islamic border border-primary-200'
-                                : 'bg-primary-50 text-primary-800 hover:bg-primary-100 border border-transparent'
-                        }`}
-                    >
-                        <IoBookmark className="text-lg" />
-                        Bookmark ({bookmarks.length})
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('favorites')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md font-medium transition-all duration-200 ${
-                            activeTab === 'favorites'
-                                ? 'bg-white text-red-700 shadow-islamic border border-red-200'
-                                : 'bg-red-50 text-red-800 hover:bg-red-100 border border-transparent'
-                        }`}
-                    >
-                        <IoHeart className="text-lg" />
-                        Favorit ({favorites.length})
-                    </button>
-                </div>
-            </div>
-
-            {/* Search */}
-            <div className="mb-6">
-                <div className="relative">
-                    <IoSearchOutline className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-400" />
-                    <input
-                        type="text"
-                        placeholder="Cari ayat atau surah..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 border border-primary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    />
-                </div>
-            </div>
 
             {/* Content */}
-            {filteredBookmarks.length === 0 ? (
-                <div className="text-center py-12">
+            {groupedBookmarksData.length === 0 ? (
+                <div className="bg-white rounded-3xl shadow-xl p-12 border border-green-100 text-center">
                     <div className="mb-4">
-                        {activeTab === 'favorites' ? (
-                            <IoHeart className="text-6xl text-red-300 mx-auto" />
-                        ) : (
-                            <IoBookmark className="text-6xl text-primary-300 mx-auto" />
-                        )}
+                        <IoBookmark className="text-6xl text-green-300 mx-auto" />
                     </div>
-                    <h3 className="text-xl font-semibold text-primary-700 mb-2">
+                    <h3 className="text-xl font-semibold text-green-700 mb-2">
                         {searchTerm 
                             ? 'Tidak ada hasil yang ditemukan'
-                            : activeTab === 'favorites' 
-                                ? 'Belum ada ayat favorit'
-                                : 'Belum ada bookmark'
+                            : 'Belum ada bookmark'
                         }
                     </h3>
-                    <p className="text-primary-600">
+                    <p className="text-green-600">
                         {searchTerm 
                             ? 'Coba kata kunci yang berbeda'
-                            : activeTab === 'favorites'
-                                ? 'Tandai ayat sebagai favorit dengan menekan tombol hati'
-                                : 'Simpan ayat dengan menekan tombol bookmark'
+                            : 'Simpan ayat dengan menekan tombol bookmark'
                         }
                     </p>
                 </div>
             ) : (
-                <div className="space-y-4">
-                    {filteredBookmarks.map((bookmark) => (
-                        <div
-                            key={bookmark.id}
-                            className="bg-gradient-to-br from-white to-islamic-cream border border-primary-200 rounded-lg p-6 shadow-islamic hover:shadow-islamic-md transition-all duration-300"
-                        >
-                            {/* Surah and Ayah Info */}
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-3">
-                                    <Link
-                                        to={`/surah/${bookmark.surah_number}`}
-                                        className="text-lg font-semibold text-primary-800 hover:text-primary-600 transition-colors"
-                                    >
-                                        {bookmark.surah?.name_indonesian || `Surah ${bookmark.surah_number}`}
-                                    </Link>
-                                    <span className="text-primary-600">•</span>
-                                    <span className="text-primary-600">Ayat {bookmark.ayah_number}</span>
+                <div className="space-y-6">
+                    {groupedBookmarksData.map((surahGroup) => (
+                        <div key={surahGroup.surah_number} className="bg-white rounded-3xl shadow-xl border border-green-100">
+                            {/* Surah Header */}
+                            <div 
+                                className="p-6 border-b border-green-100 cursor-pointer hover:bg-green-50/50 transition-colors rounded-t-3xl"
+                                onClick={() => toggleSurahCollapse(surahGroup.surah_number)}
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <h2 className="text-xl font-bold text-green-800">
+                                            {surahGroup.surah?.name_indonesian || `Surah ${surahGroup.surah_number}`}
+                                        </h2>
+                                        <span className="text-green-600 font-medium">
+                                            ({surahGroup.ayahs.length} ayat)
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        {collapsedSurahs.has(surahGroup.surah_number) ? (
+                                            <IoChevronDownOutline className="text-xl text-green-600" />
+                                        ) : (
+                                            <IoChevronUpOutline className="text-xl text-green-600" />
+                                        )}
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    {bookmark.pivot?.is_favorite && (
-                                        <IoHeart className="text-red-500" title="Favorit" />
-                                    )}
-                                    <IoBookmark className="text-primary-500" title="Bookmark" />
-                                </div>
                             </div>
 
-                            {/* Arabic Text */}
-                            <div className="text-right mb-4">
-                                <p 
-                                    className="font-arabic text-2xl leading-loose text-primary-800"
-                                    style={{ 
-                                        textShadow: '0 1px 1px rgba(0,0,0,0.05)'
-                                    }}
-                                >
-                                    {bookmark.text_arabic}
-                                </p>
-                            </div>
+                            {/* Ayahs */}
+                            {!collapsedSurahs.has(surahGroup.surah_number) && (
+                                <div className="divide-y divide-green-100">
+                                    {surahGroup.ayahs.map((bookmark) => (
+                                        <div key={bookmark.id} className="p-6">
+                                            {/* Ayah Header */}
+                                            <div 
+                                                className="flex items-center justify-between mb-4 cursor-pointer p-2 rounded-lg hover:bg-green-50/50 transition-colors"
+                                                onClick={() => toggleAyahCollapse(bookmark.id)}
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-lg font-semibold text-green-800">
+                                                        Ayat {bookmark.ayah_number}
+                                                    </span>
+                                                    <div className="flex items-center gap-2">
+                                                        <IoBookmark className="text-green-500" title="Bookmark" />
+                                                        {bookmark.is_favorite && (
+                                                            <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full border border-red-200">
+                                                                Favorit
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    {collapsedAyahs.has(bookmark.id) ? (
+                                                        <IoChevronDownOutline className="text-lg text-green-600" />
+                                                    ) : (
+                                                        <IoChevronUpOutline className="text-lg text-green-600" />
+                                                    )}
+                                                </div>
+                                            </div>
 
-                            {/* Indonesian Translation */}
-                            <div className="mb-3">
-                                <p className="text-primary-700 leading-relaxed">
-                                    {bookmark.text_indonesian}
-                                </p>
-                            </div>
+                                            {/* Ayah Content */}
+                                            {!collapsedAyahs.has(bookmark.id) && (
+                                                <div className="ml-4">
+                                                    {/* Arabic Text */}
+                                                    <div className="bg-green-50/70 rounded-2xl p-6 mb-6 text-center">
+                                                        <p 
+                                                            className="font-arabic text-green-800 leading-loose"
+                                                            style={{ 
+                                                                fontSize: '2.5rem',
+                                                                lineHeight: '2',
+                                                                textShadow: '0 1px 1px rgba(0,0,0,0.05)'
+                                                            }}
+                                                            dir="rtl"
+                                                        >
+                                                            {bookmark.text_arabic}
+                                                        </p>
+                                                    </div>
 
-                            {/* Transliteration */}
-                            {bookmark.text_latin && (
-                                <div className="mb-4">
-                                    <p className="text-primary-600 italic text-sm">
-                                        {bookmark.text_latin}
-                                    </p>
+                                                    {/* Indonesian Translation */}
+                                                    <div className="mb-4">
+                                                        <p className="text-green-700 leading-relaxed">
+                                                            {bookmark.text_indonesian}
+                                                        </p>
+                                                    </div>
+
+                                                    {/* Transliteration */}
+                                                    {bookmark.text_latin && (
+                                                        <div className="mb-6">
+                                                            <p className="text-green-600 italic text-sm">
+                                                                {bookmark.text_latin}
+                                                            </p>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Notes */}
+                                                    <div className="mt-6 p-4 bg-green-50 rounded-2xl border border-green-200">
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <h4 className="text-sm font-medium text-green-800">Catatan:</h4>
+                                                            {editingNotes !== bookmark.id && (
+                                                                <button
+                                                                    onClick={() => handleEditNotes(bookmark)}
+                                                                    className="p-1 rounded-md bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800 transition-all duration-200 border border-green-200"
+                                                                    title="Edit catatan"
+                                                                >
+                                                                    <IoCreateOutline className="text-lg" />
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                        
+                                                        {editingNotes === bookmark.id ? (
+                                                            <div className="space-y-2">
+                                                                <textarea
+                                                                    value={notesText}
+                                                                    onChange={(e) => setNotesText(e.target.value)}
+                                                                    placeholder="Tambahkan catatan untuk ayat ini..."
+                                                                    className="w-full p-2 text-sm border border-green-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+                                                                    rows="3"
+                                                                />
+                                                                <div className="flex gap-2">
+                                                                    <button
+                                                                        onClick={() => handleSaveNotes(bookmark.id)}
+                                                                        disabled={savingNotes}
+                                                                        className="flex items-center gap-1 px-3 py-1 bg-green-100 border border-green-300 text-green-800 text-sm rounded hover:bg-green-200 disabled:opacity-50 transition-colors"
+                                                                    >
+                                                                        <IoSaveOutline />
+                                                                        {savingNotes ? 'Menyimpan...' : 'Simpan'}
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={handleCancelEdit}
+                                                                        className="flex items-center gap-1 px-3 py-1 bg-gray-100 border border-gray-300 text-gray-800 text-sm rounded hover:bg-gray-200 transition-colors"
+                                                                    >
+                                                                        <IoCloseOutline />
+                                                                        Batal
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            <p className="text-green-700 text-sm">
+                                                                {bookmark.notes || 'Klik tombol edit untuk menambahkan catatan...'}
+                                                            </p>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Action Button */}
+                                                    <div className="mt-6 pt-4 border-t border-green-200">
+                                                        <a
+                                                            href={`/surah/${bookmark.surah_number}`}
+                                                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-50 text-green-800 hover:bg-green-100 font-medium transition-all duration-200 border border-green-200"
+                                                        >
+                                                            Baca Surah
+                                                            <IoArrowBackOutline className="rotate-180" />
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
                                 </div>
                             )}
-
-                            {/* Notes */}
-                            <div className="mt-4 p-3 bg-primary-50 rounded-lg border border-primary-200">
-                                <div className="flex items-center justify-between mb-2">
-                                    <h4 className="text-sm font-medium text-primary-800">Catatan:</h4>
-                                    {!editingNotes && (
-                                        <button
-                                            onClick={() => handleEditNotes(bookmark)}
-                                            className="p-1 rounded-md bg-primary-50 text-primary-700 hover:bg-primary-100 hover:text-primary-800 transition-all duration-200 border border-primary-200"
-                                            title="Edit catatan"
-                                        >
-                                            <IoCreateOutline className="text-lg" />
-                                        </button>
-                                    )}
-                                </div>
-                                
-                                {editingNotes === bookmark.id ? (
-                                    <div className="space-y-2">
-                                        <textarea
-                                            value={notesText}
-                                            onChange={(e) => setNotesText(e.target.value)}
-                                            placeholder="Tambahkan catatan untuk ayat ini..."
-                                            className="w-full p-2 text-sm border border-primary-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
-                                            rows="3"
-                                        />
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={() => handleSaveNotes(bookmark.id)}
-                                                disabled={savingNotes}
-                                                className="flex items-center gap-1 px-3 py-1 bg-primary-100 border border-primary-300 text-primary-800 text-sm rounded hover:bg-primary-200 disabled:opacity-50 transition-colors"
-                                            >
-                                                <IoSaveOutline />
-                                                {savingNotes ? 'Menyimpan...' : 'Simpan'}
-                                            </button>
-                                            <button
-                                                onClick={handleCancelEdit}
-                                                className="flex items-center gap-1 px-3 py-1 bg-gray-100 border border-gray-300 text-gray-800 text-sm rounded hover:bg-gray-200 transition-colors"
-                                            >
-                                                <IoCloseOutline />
-                                                Batal
-                                            </button>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <p className="text-primary-700 text-sm">
-                                        {bookmark.pivot?.notes || 'Klik tombol edit untuk menambahkan catatan...'}
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* Action Button */}
-                            <div className="mt-4 pt-4 border-t border-primary-200">
-                                <Link
-                                    to={`/surah/${bookmark.surah_number}`}
-                                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-50 text-primary-800 hover:bg-primary-100 font-medium transition-all duration-200 border border-primary-200"
-                                >
-                                    Baca Surah
-                                    <IoArrowBackOutline className="rotate-180" />
-                                </Link>
-                            </div>
                         </div>
                     ))}
                 </div>
             )}
+            </div>
         </div>
     );
 }
