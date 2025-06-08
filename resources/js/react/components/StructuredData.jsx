@@ -45,7 +45,7 @@ function StructuredData({ type, data }) {
                     "itemListElement": data.results.map((result, index) => ({
                         "@type": "ListItem",
                         "position": index + 1,
-                        "url": `https://my.indoquran.web.id/ayah/${result.surah_number}/${result.number_in_surah}`,
+                        "url": `https://my.indoquran.web.id/surah/${result.surah_number}/${result.number_in_surah}`,
                         "item": {
                             "@type": "CreativeWork",
                             "name": `Surah ${result.surah_name_latin} Ayat ${result.number_in_surah}`,

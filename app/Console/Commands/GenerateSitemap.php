@@ -88,7 +88,7 @@ class GenerateSitemap extends Command
             $ayahCount = $surah->total_ayahs ?? 0;
             for ($i = 1; $i <= $ayahCount; $i++) {
                 $xml .= $this->createUrlEntry(
-                    $baseUrl . '/ayah/' . $surah->number . '/' . $i,
+                    $baseUrl . '/surah/' . $surah->number . '/' . $i,
                     $surah->updated_at->toIso8601String(),
                     'monthly',
                     '0.7'

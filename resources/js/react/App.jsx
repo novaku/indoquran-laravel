@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import SurahPage from './pages/SurahPage';
-import AyahPage from './pages/AyahPage';
 import SearchPage from './pages/SearchPage';
 import AuthPage from './pages/AuthPage';
 import ProfilePage from './pages/ProfilePage';
@@ -19,9 +18,9 @@ function App() {
     const [loading, setLoading] = useState(true);
     const [breadcrumbs, setBreadcrumbs] = useState([]);
     
-    const handleBreadcrumbsChange = (newBreadcrumbs) => {
+    const handleBreadcrumbsChange = React.useCallback((newBreadcrumbs) => {
         setBreadcrumbs(newBreadcrumbs);
-    };
+    }, []);
     
     useEffect(() => {
         // Check if user is logged in
@@ -55,7 +54,6 @@ function App() {
                             <Route path="/" element={<HomePage />} />
                             <Route path="/surah/:number" element={<SurahPage user={user} />} />
                             <Route path="/surah/:number/:ayahNumber" element={<SurahPage user={user} />} />
-                            <Route path="/ayah/:surahNumber/:ayahNumber" element={<AyahPage />} />
                             <Route path="/search" element={<SearchPage />} />
                             <Route path="/bookmarks" element={<BookmarksPage user={user} />} />
                             <Route path="/about" element={<AboutPage />} />

@@ -57,35 +57,6 @@ function Navbar({ user, setUser, onBreadcrumbsChange }) {
                             });
                         }
                     }
-                } else if (pathSegments[0] === 'ayah' && pathSegments[1] && pathSegments[2]) {
-                    // Add surah breadcrumb
-                    try {
-                        const response = await fetch(`/api/surahs/${pathSegments[1]}`);
-                        const data = await response.json();
-                        if (data.status === 'success') {
-                            const surahName = data.data.surah.name_latin || `Surah ${pathSegments[1]}`;
-                            breadcrumbItems.push({
-                                name: surahName,
-                                path: `/surah/${pathSegments[1]}`
-                            });
-                        } else {
-                            breadcrumbItems.push({
-                                name: `Surah ${pathSegments[1]}`,
-                                path: `/surah/${pathSegments[1]}`
-                            });
-                        }
-                    } catch (error) {
-                        breadcrumbItems.push({
-                            name: `Surah ${pathSegments[1]}`,
-                            path: `/surah/${pathSegments[1]}`
-                        });
-                    }
-                    
-                    // Add ayah breadcrumb
-                    breadcrumbItems.push({
-                        name: `Ayat ${pathSegments[2]}`,
-                        path: `/ayah/${pathSegments[1]}/${pathSegments[2]}`
-                    });
                 } else if (pathSegments[0] === 'search') {
                     breadcrumbItems.push({
                         name: 'Pencarian',
@@ -307,7 +278,7 @@ function Navbar({ user, setUser, onBreadcrumbsChange }) {
             const ayah_number = suggestion.ayah.number || suggestion.ayah.ayah_number;
             
             if (surah_number && ayah_number) {
-                navigate(`/ayah/${surah_number}/${ayah_number}`);
+                navigate(`/surah/${surah_number}/${ayah_number}`);
             } else {
                 console.error('Invalid ayah data for navigation:', suggestion.ayah);
             }

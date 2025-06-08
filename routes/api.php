@@ -48,9 +48,9 @@ Route::middleware(['auth'])->group(function() {
     Route::prefix('bookmarks')->group(function() {
         Route::get('/', [BookmarkController::class, 'index']);
         Route::get('/status', [BookmarkController::class, 'getStatus']);
-        Route::post('/ayah/{ayahId}/toggle', [BookmarkController::class, 'toggle']);
-        Route::post('/ayah/{ayahId}/favorite', [BookmarkController::class, 'toggleFavorite']);
-        Route::put('/ayah/{ayahId}/notes', [BookmarkController::class, 'updateNotes']);
+        Route::post('/surah/ayah/{ayahId}/toggle', [BookmarkController::class, 'toggle']);
+        Route::post('/surah/ayah/{ayahId}/favorite', [BookmarkController::class, 'toggleFavorite']);
+        Route::put('/surah/ayah/{ayahId}/notes', [BookmarkController::class, 'updateNotes']);
     });
 });
 

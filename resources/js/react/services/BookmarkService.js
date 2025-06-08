@@ -10,7 +10,7 @@
  */
 export const toggleBookmark = async (ayahId) => {
     try {
-        const response = await fetch(`/api/bookmarks/ayah/${ayahId}/toggle`, {
+        const response = await fetch(`/api/bookmarks/surah/ayah/${ayahId}/toggle`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -37,7 +37,7 @@ export const toggleBookmark = async (ayahId) => {
  */
 export const toggleFavorite = async (ayahId) => {
     try {
-        const response = await fetch(`/api/bookmarks/ayah/${ayahId}/favorite`, {
+        const response = await fetch(`/api/bookmarks/surah/ayah/${ayahId}/favorite`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -119,7 +119,7 @@ export const getUserBookmarks = async (favoritesOnly = false) => {
  */
 export const updateBookmarkNotes = async (ayahId, notes) => {
     try {
-        const response = await fetch(`/api/bookmarks/ayah/${ayahId}/notes`, {
+        const response = await fetch(`/api/bookmarks/surah/ayah/${ayahId}/notes`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

@@ -75,7 +75,7 @@ function AyahCard({ ayah, surah, playAudio, isPlaying, activeAyah, highlightText
                         {ayah.ayah_number}
                     </div>
                     <a 
-                        href={`/ayah/${ayah.surah_number}/${ayah.ayah_number}`}
+                        href={`/surah/${ayah.surah_number}/${ayah.ayah_number}`}
                         className="text-primary-600 hover:text-primary-800 font-medium"
                     >
                         {surah ? `${surah.name_indonesian} (${surah.name_latin})` : `Surah ${ayah.surah_number}`}
@@ -123,7 +123,7 @@ function AyahCard({ ayah, surah, playAudio, isPlaying, activeAyah, highlightText
             <div className="mt-4 pt-3 flex justify-between text-sm text-primary-600">
                 <span>Juz {ayah.juz} • Halaman {ayah.page}</span>
                 <a 
-                    href={`/ayah/${ayah.surah_number}/${ayah.ayah_number}`}
+                    href={`/surah/${ayah.surah_number}/${ayah.ayah_number}`}
                     className="text-primary-500 hover:text-primary-700 hover:shadow-sm transition-all duration-300 px-2 py-1 rounded"
                 >
                     Detail

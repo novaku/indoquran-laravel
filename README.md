@@ -188,9 +188,9 @@ If you encounter database connection errors, verify your MySQL configuration:
 
 ### Bookmark (Autentikasi Required)
 - `GET /api/bookmarks` - Daftar bookmark pengguna
-- `POST /api/bookmarks/ayah/{id}/toggle` - Toggle bookmark
-- `POST /api/bookmarks/ayah/{id}/favorite` - Toggle favorit
-- `PUT /api/bookmarks/ayah/{id}/notes` - Update catatan
+- `POST /api/bookmarks/surah/ayah/{id}/toggle` - Toggle bookmark
+- `POST /api/bookmarks/surah/ayah/{id}/favorite` - Toggle favorit
+- `PUT /api/bookmarks/surah/ayah/{id}/notes` - Update catatan
 
 ## 📁 Struktur Project
 
@@ -610,9 +610,9 @@ Berhasil mengimplementasikan fungsionalitas bookmark dan favorit yang komprehens
 ### 🔌 Endpoint API
 - `GET /api/bookmarks` - Mendapatkan bookmark dan favorit pengguna
 - `GET /api/bookmarks/status` - Mendapatkan status bookmark untuk beberapa ayat
-- `POST /api/bookmarks/ayah/{id}/toggle` - Toggle status bookmark
-- `POST /api/bookmarks/ayah/{id}/favorite` - Toggle status favorit
-- `PUT /api/bookmarks/ayah/{id}/notes` - Memperbarui catatan bookmark
+- `POST /api/bookmarks/surah/ayah/{id}/toggle` - Toggle status bookmark
+- `POST /api/bookmarks/surah/ayah/{id}/favorite` - Toggle status favorit
+- `PUT /api/bookmarks/surah/ayah/{id}/notes` - Memperbarui catatan bookmark
 
 ### 🎯 Layanan Frontend
 - **BookmarkService.js**: Lapisan layanan lengkap untuk operasi bookmark
