@@ -31,6 +31,9 @@ function SurahPage() {
     const [isAudioPlaying, setIsAudioPlaying] = useState(false);
     const [audioElement, setAudioElement] = useState(null);
     
+    // Description toggle state (default to hidden)
+    const [showDescription, setShowDescription] = useState(false);
+    
     // Arabic text zoom state
     const [arabicFontSize, setArabicFontSize] = useState(3); // Default size in rem (3xl = 3rem)
     
@@ -497,6 +500,52 @@ function SurahPage() {
                         <div className="text-gray-600 text-sm mb-1">{surah.name_indonesian} • {surah.revelation_place} • {surah.total_ayahs} ayat</div>
                     </div>
                 </div>
+                
+                {/* Description Section with Toggle */}
+                {(surah.description_short || surah.description_long) && (
+                    <div className="bg-white rounded-2xl shadow-lg p-6 border border-green-100 mb-8">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-semibold text-green-800 flex items-center gap-2">
+                                <IoInformationCircleOutline className="text-green-600" />
+                                Tentang Surah {surah.name_latin}
+                            </h3>
+                            <button
+                                onClick={() => setShowDescription(!showDescription)}
+                                className="flex items-center gap-2 px-4 py-2 bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg text-green-700 hover:text-green-800 transition-colors"
+                            >
+                                <span className="text-sm font-medium">
+                                    {showDescription ? 'Sembunyikan' : 'Tampilkan'}
+                                </span>
+                                {showDescription ? <IoChevronUpOutline /> : <IoChevronDownOutline />}
+                            </button>
+                        </div>
+                        
+                        {showDescription && (
+                            <div className="space-y-4">
+                                {surah.description_short && (
+                                    <div className="p-4 bg-green-50 rounded-lg border border-green-100">
+                                        <h4 className="text-sm font-medium text-green-800 mb-2">Ringkasan:</h4>
+                                        <div 
+                                            className="text-green-700 text-sm leading-relaxed prose prose-sm max-w-none prose-green"
+                                            dangerouslySetInnerHTML={{ __html: surah.description_short }}
+                                        />
+                                    </div>
+                                )}
+                                
+                                {surah.description_long && (
+                                    <div className="p-4 bg-green-50 rounded-lg border border-green-100">
+                                        <h4 className="text-sm font-medium text-green-800 mb-2">Penjelasan Lengkap:</h4>
+                                        <div 
+                                            className="text-green-700 text-sm leading-relaxed prose prose-sm max-w-none prose-green"
+                                            dangerouslySetInnerHTML={{ __html: surah.description_long }}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
+                
                 <div className="bg-white rounded-2xl shadow-lg p-8 border border-green-100 text-center mb-8">
                     {loading ? (
                         <div className="flex justify-center items-center mb-4">
@@ -523,7 +572,7 @@ function SurahPage() {
                             </div>
 
                             {/* Arabic Text */}
-                            <div className="mb-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-100 relative">
+                            <div className="mb-4 p-6 bg-green-50/70 rounded-2xl border border-green-100 relative text-center">
                                 {/* Arabic Text Zoom Controls */}
                                 <div className="absolute top-2 left-2 flex gap-1">
                                     <button 
@@ -553,8 +602,9 @@ function SurahPage() {
                                 <div 
                                     ref={arabicTextRef} 
                                     id="arabic-text" 
-                                    className="font-arabic text-right leading-loose pt-8" 
+                                    className="font-arabic text-green-800 text-right leading-loose pt-8" 
                                     style={getArabicFontSizeStyle()}
+                                    dir="rtl"
                                 >
                                     {ayah.text_arabic}
                                 </div>
@@ -562,36 +612,36 @@ function SurahPage() {
 
                             {/* Transliteration (Latin) */}
                             {ayah.text_latin && (
-                                <div className="text-lg italic text-gray-700 mb-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                                    <div className="text-sm font-medium text-blue-800 mb-1">Transliterasi:</div>
+                                <div className="text-lg italic text-green-600 mb-3 p-3 bg-green-50 rounded-lg border border-green-100">
+                                    <div className="text-sm font-medium text-green-800 mb-1">Transliterasi:</div>
                                     {ayah.text_latin}
                                 </div>
                             )}
 
                             {/* Indonesian Translation */}
-                            <div className="text-lg text-gray-800 mb-3 p-3 bg-yellow-50 rounded-lg border border-yellow-100">
-                                <div className="text-sm font-medium text-yellow-800 mb-1">Terjemahan Indonesia:</div>
+                            <div className="text-lg text-green-700 mb-3 p-3 bg-green-50 rounded-lg border border-green-100">
+                                <div className="text-sm font-medium text-green-800 mb-1">Terjemahan Indonesia:</div>
                                 {ayah.text_indonesian || ayah.translation_id}
                             </div>
 
                             {/* English Translation */}
                             {ayah.translation_en && (
-                                <div className="text-sm text-gray-600 mb-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
-                                    <div className="text-sm font-medium text-gray-700 mb-1">English Translation:</div>
+                                <div className="text-sm text-green-600 mb-4 p-3 bg-green-50 rounded-lg border border-green-100">
+                                    <div className="text-sm font-medium text-green-700 mb-1">English Translation:</div>
                                     {ayah.translation_en}
                                 </div>
                             )}
 
                             {/* Audio Player with Qari Selection */}
                             {ayah.audio_urls && getAvailableQaris().length > 0 && (
-                                <div className="mb-4 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-100">
+                                <div className="mb-4 p-4 bg-green-50 rounded-lg border border-green-100">
                                     <div className="flex flex-col sm:flex-row items-center gap-3">
                                         <div className="flex items-center gap-2">
-                                            <label className="text-sm font-medium text-indigo-800">Qari:</label>
+                                            <label className="text-sm font-medium text-green-800">Qari:</label>
                                             <select 
                                                 value={selectedQari || ''} 
                                                 onChange={(e) => handleQariChange(e.target.value)}
-                                                className="px-3 py-1 text-sm rounded-md border border-indigo-200 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                                className="px-3 py-1 text-sm rounded-md border border-green-200 bg-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                             >
                                                 {getAvailableQaris().map(qari => (
                                                     <option key={qari} value={qari}>
@@ -604,7 +654,7 @@ function SurahPage() {
                                             {!isAudioPlaying ? (
                                                 <button 
                                                     onClick={() => playAudio(getAudioUrl())}
-                                                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                                                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                                                     disabled={!getAudioUrl()}
                                                 >
                                                     <IoPlayCircleOutline className="w-5 h-5" />
@@ -626,20 +676,20 @@ function SurahPage() {
 
                             {/* Tafsir Section */}
                             {ayah.tafsir && (
-                                <div className="mb-4 p-4 bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg border border-orange-100">
+                                <div className="mb-4 p-4 bg-green-50 rounded-lg border border-green-100">
                                     <button 
                                         onClick={() => setShowTafsir(!showTafsir)}
                                         className="flex items-center justify-between w-full text-left"
                                     >
-                                        <span className="text-sm font-medium text-orange-800">Tafsir</span>
+                                        <span className="text-sm font-medium text-green-800">Tafsir</span>
                                         {showTafsir ? (
-                                            <IoChevronUpOutline className="w-4 h-4 text-orange-600" />
+                                            <IoChevronUpOutline className="w-4 h-4 text-green-600" />
                                         ) : (
-                                            <IoChevronDownOutline className="w-4 h-4 text-orange-600" />
+                                            <IoChevronDownOutline className="w-4 h-4 text-green-600" />
                                         )}
                                     </button>
                                     {showTafsir && (
-                                        <div className="mt-3 text-sm text-gray-700 leading-relaxed text-left">
+                                        <div className="mt-3 text-sm text-green-700 leading-relaxed text-left">
                                             {ayah.tafsir}
                                         </div>
                                     )}
