@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IoBookmark, IoArrowBackOutline, IoSearchOutline, IoCreateOutline, IoSaveOutline, IoCloseOutline, IoChevronDownOutline, IoChevronUpOutline, IoAddOutline, IoRemoveOutline, IoReloadOutline, IoEyeOutline, IoEyeOffOutline, IoListOutline } from 'react-icons/io5';
+import { IoBookmark, IoArrowBackOutline, IoSearchOutline, IoCreateOutline, IoSaveOutline, IoCloseOutline, IoChevronDownOutline, IoChevronUpOutline, IoAddOutline, IoRemoveOutline, IoReloadOutline, IoEyeOutline, IoEyeOffOutline, IoListOutline, IoPlayCircleOutline, IoPauseCircleOutline } from 'react-icons/io5';
 import { getUserBookmarks, updateBookmarkNotes } from '../services/BookmarkService';
 import { useAuth } from '../hooks/useAuth.jsx';
 
@@ -22,6 +22,15 @@ function BookmarksPage() {
     // Arabic text zoom state
     const [arabicFontSize, setArabicFontSize] = useState(2.5); // Default size in rem (2.5rem)
 
+    // Audio player state
+    const [selectedQari, setSelectedQari] = useState(''); // Will be set to first available qari
+    const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+    const [audioElement, setAudioElement] = useState(null);
+    const [playingAyahId, setPlayingAyahId] = useState(null); // Track which ayah is currently playing
+
+    // Ref for audio cleanup
+    const audioRef = useRef(null);
+
     useEffect(() => {
         if (!user) {
             navigate('/auth/login');
@@ -30,6 +39,43 @@ function BookmarksPage() {
 
         loadBookmarks();
     }, [user, navigate]);
+
+    // Cleanup audio when component unmounts
+    useEffect(() => {
+        return () => {
+            if (audioElement) {
+                audioElement.pause();
+                setIsAudioPlaying(false);
+                setAudioElement(null);
+                setPlayingAyahId(null);
+            }
+        };
+    }, [audioElement]);
+
+    // Auto-select first available qari when bookmarks load
+    useEffect(() => {
+        if (bookmarks.length > 0) {
+            // Find the first bookmark with audio URLs to set default qari
+            const bookmarkWithAudio = bookmarks.find(bookmark => bookmark.audio_urls);
+            if (bookmarkWithAudio) {
+                const audioUrls = typeof bookmarkWithAudio.audio_urls === 'string' 
+                    ? JSON.parse(bookmarkWithAudio.audio_urls) 
+                    : bookmarkWithAudio.audio_urls;
+                
+                let availableQaris;
+                if (Array.isArray(audioUrls)) {
+                    const defaultQaris = ['alafasy', 'sudais', 'husary', 'minshawi', 'abdulbasit', 'maher', 'ghamdi', 'shuraim', 'ajmy', 'walk'];
+                    availableQaris = audioUrls.map((_, index) => defaultQaris[index] || `qari_${index + 1}`);
+                } else {
+                    availableQaris = Object.keys(audioUrls);
+                }
+                
+                if (availableQaris.length > 0 && !selectedQari) {
+                    setSelectedQari(availableQaris[0]);
+                }
+            }
+        }
+    }, [bookmarks]);
 
     // Arabic text zoom functions
     const handleZoomIn = () => {
@@ -53,6 +99,122 @@ function BookmarksPage() {
         };
     };
 
+    // Audio playback functions
+    const playAudio = (audioUrl, ayahId) => {
+        // Stop current audio if playing
+        if (audioElement) {
+            audioElement.pause();
+            setIsAudioPlaying(false);
+            setPlayingAyahId(null);
+        }
+        
+        const audio = new Audio(audioUrl);
+        audioRef.current = audio;
+        
+        audio.play()
+            .then(() => {
+                setIsAudioPlaying(true);
+                setAudioElement(audio);
+                setPlayingAyahId(ayahId);
+                
+                audio.onended = () => {
+                    setIsAudioPlaying(false);
+                    setAudioElement(null);
+                    setPlayingAyahId(null);
+                };
+            })
+            .catch(err => {
+                console.error('Error playing audio:', err);
+                setIsAudioPlaying(false);
+                setPlayingAyahId(null);
+            });
+    };
+
+    const stopAudio = () => {
+        if (audioElement) {
+            audioElement.pause();
+            setIsAudioPlaying(false);
+            setAudioElement(null);
+            setPlayingAyahId(null);
+        }
+    };
+
+    // Handle qari selection change
+    const handleQariChange = (qari) => {
+        setSelectedQari(qari);
+        if (isAudioPlaying) {
+            stopAudio();
+        }
+    };
+
+    // Get available qaris from audio_urls
+    const getAvailableQaris = (bookmark) => {
+        if (!bookmark?.audio_urls) return [];
+        
+        const audioUrls = typeof bookmark.audio_urls === 'string' 
+            ? JSON.parse(bookmark.audio_urls) 
+            : bookmark.audio_urls;
+        
+        // Handle both object format {qari: url} and array format [url1, url2, ...]
+        if (Array.isArray(audioUrls)) {
+            // If it's an array, create qari keys based on common order
+            const defaultQaris = ['alafasy', 'sudais', 'husary', 'minshawi', 'abdulbasit', 'maher', 'ghamdi', 'shuraim', 'ajmy', 'walk'];
+            return audioUrls.map((_, index) => defaultQaris[index] || `qari_${index + 1}`);
+        } else {
+            // If it's an object, return the keys (handles both numbered and named keys)
+            return Object.keys(audioUrls);
+        }
+    };
+
+    // Get audio URL for selected qari
+    const getAudioUrl = (bookmark) => {
+        if (!bookmark?.audio_urls) return null;
+        
+        const audioUrls = typeof bookmark.audio_urls === 'string' 
+            ? JSON.parse(bookmark.audio_urls) 
+            : bookmark.audio_urls;
+        
+        // Handle both object format {qari: url} and array format [url1, url2, ...]
+        if (Array.isArray(audioUrls)) {
+            const defaultQaris = ['alafasy', 'sudais', 'husary', 'minshawi', 'abdulbasit', 'maher', 'ghamdi', 'shuraim', 'ajmy', 'walk'];
+            const qariIndex = defaultQaris.indexOf(selectedQari);
+            return qariIndex !== -1 ? audioUrls[qariIndex] : audioUrls[0];
+        } else {
+            // For object format, directly access the URL using the selectedQari key
+            return audioUrls[selectedQari] || Object.values(audioUrls)[0];
+        }
+    };
+
+    // Get display name for qari
+    const getQariDisplayName = (qariKey) => {
+        const qariNames = {
+            // Handle numbered keys from API
+            '01': 'Abdullah Al-Juhany',
+            '02': 'Abdul Muhsin Al-Qasim',
+            '03': 'Abdurrahman As-Sudais',
+            '04': 'Ibrahim Al-Dossari',
+            '05': 'Mishary Rashid Alafasy',
+            '06': 'Maher Al Mueaqly',
+            '07': 'Ahmed ibn Ali al-Ajamy',
+            '08': 'Hani Ar-Rifai',
+            '09': 'Mahmoud Khalil Al-Husary',
+            '10': 'Mohamed Siddiq El-Minshawi',
+            // Handle named keys (fallback)
+            'husary': 'Mahmoud Khalil Al-Husary',
+            'sudais': 'Abdurrahman As-Sudais',
+            'alafasy': 'Mishary Rashid Alafasy',
+            'minshawi': 'Mohamed Siddiq El-Minshawi',
+            'abdulbasit': 'Abdul Basit Abdul Samad',
+            'maher': 'Maher Al Mueaqly',
+            'ghamdi': 'Saad Al Ghamdi',
+            'shuraim': 'Saud Ash-Shuraim',
+            'ajmy': 'Ahmed ibn Ali al-Ajamy',
+            'walk': 'Hani Ar-Rifai'
+        };
+        
+        return qariNames[qariKey] || `Qari ${qariKey}`;
+    };
+
     const loadBookmarks = async () => {
         setLoading(true);
         try {
@@ -61,10 +223,15 @@ function BookmarksPage() {
             if (Array.isArray(allBookmarks)) {
                 setBookmarks(allBookmarks);
                 
-                // Hide all surahs by default on initial load
+                // Hide all surahs and ayahs by default on initial load
                 if (initialHideAll && allBookmarks.length > 0) {
                     const uniqueSurahNumbers = [...new Set(allBookmarks.map(bookmark => bookmark.surah_number))];
                     setHiddenSurahs(new Set(uniqueSurahNumbers));
+                    
+                    // Hide all ayahs by default
+                    const allAyahIds = allBookmarks.map(bookmark => bookmark.id);
+                    setCollapsedAyahs(new Set(allAyahIds));
+                    
                     setInitialHideAll(false); // Only do this once
                 }
             } else {
@@ -371,6 +538,12 @@ function BookmarksPage() {
                                                                 Favorit
                                                             </span>
                                                         )}
+                                                        {isAudioPlaying && playingAyahId === bookmark.id && (
+                                                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full border border-blue-200 flex items-center gap-1">
+                                                                <IoPlayCircleOutline className="w-3 h-3" />
+                                                                Playing
+                                                            </span>
+                                                        )}
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-2">
@@ -413,6 +586,52 @@ function BookmarksPage() {
                                                                 <IoAddOutline className="w-4 h-4" />
                                                             </button>
                                                         </div>
+
+                                                        {/* Audio Controls */}
+                                                        {bookmark.audio_urls && (
+                                                            <div className="absolute top-2 right-2 flex gap-1">
+                                                                {/* Qari Selection */}
+                                                                {getAvailableQaris(bookmark).length > 1 && (
+                                                                    <select
+                                                                        value={selectedQari}
+                                                                        onChange={(e) => handleQariChange(e.target.value)}
+                                                                        className="p-1.5 text-xs rounded-md bg-white/80 border border-green-200 text-green-700 hover:bg-green-100 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500"
+                                                                        title="Pilih Qari"
+                                                                    >
+                                                                        {getAvailableQaris(bookmark).map(qari => (
+                                                                            <option key={qari} value={qari}>
+                                                                                {getQariDisplayName(qari)}
+                                                                            </option>
+                                                                        ))}
+                                                                    </select>
+                                                                )}
+                                                                
+                                                                {/* Play/Pause Button */}
+                                                                {isAudioPlaying && playingAyahId === bookmark.id ? (
+                                                                    <button
+                                                                        onClick={stopAudio}
+                                                                        className="p-1.5 rounded-md bg-white/80 border border-green-200 text-green-700 hover:bg-green-100 transition-colors"
+                                                                        title="Pause Audio"
+                                                                    >
+                                                                        <IoPauseCircleOutline className="w-5 h-5" />
+                                                                    </button>
+                                                                ) : (
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            const audioUrl = getAudioUrl(bookmark);
+                                                                            if (audioUrl) {
+                                                                                playAudio(audioUrl, bookmark.id);
+                                                                            }
+                                                                        }}
+                                                                        className="p-1.5 rounded-md bg-white/80 border border-green-200 text-green-700 hover:bg-green-100 transition-colors"
+                                                                        title="Play Audio"
+                                                                    >
+                                                                        <IoPlayCircleOutline className="w-5 h-5" />
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        )}
+
                                                         <p 
                                                             className="font-arabic text-green-800 leading-loose pt-8"
                                                             style={getArabicFontSizeStyle()}
