@@ -2,15 +2,11 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ProfileController;
-use App\Http\Controllers\FontController;
 use Illuminate\Support\Facades\Route;
 
 // Authentication routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
-
-// Font testing route
-Route::get('/fonts-test', [FontController::class, 'testFonts'])->name('fonts.test');
 
 // React SPA routes - serve the React app for any other routes, but don't catch /api routes
 Route::get('/{path?}', function () {

@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth.jsx';
+import { getWithAuth, putWithAuth } from '../utils/apiUtils';
 
-function ProfilePage({ user, setUser }) {
+function ProfilePage() {
     const navigate = useNavigate();
+    const { user, logout, updateUser } = useAuth();
     const [profile, setProfile] = useState(user || null);
     const [formData, setFormData] = useState({
         name: '',
@@ -22,7 +25,7 @@ function ProfilePage({ user, setUser }) {
         }
         
         // Get the latest user data
-        fetch('/api/profile')
+        getWithAuth('/api/profile')
             .then(response => {
                 if (!response.ok) {
                     if (response.status === 401) {
@@ -62,14 +65,7 @@ function ProfilePage({ user, setUser }) {
         setMessage(null);
         
         try {
-            const response = await fetch('/api/profile', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify(formData)
-            });
+            const response = await putWithAuth('/api/profile', formData);
             
             const data = await response.json();
             
@@ -83,7 +79,11 @@ function ProfilePage({ user, setUser }) {
                 return;
             }
             
-            setProfile(data);
+            setProfile(data.user);
+            
+            // Update user data in IndexedDB cache
+            await updateUser(data.user);
+            
             setMessage({
                 type: 'success',
                 text: 'Profil berhasil diperbarui'
@@ -108,19 +108,12 @@ function ProfilePage({ user, setUser }) {
     
     const handleLogout = async () => {
         try {
-            await fetch('/api/logout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            });
-            
-            // Clear user state and redirect
-            if (setUser) setUser(null);
+            console.log('🚪 [ProfilePage] Starting logout...');
+            await logout();
+            console.log('✅ [ProfilePage] Logout successful, navigating to login...');
             navigate('/auth/login');
         } catch (error) {
-            console.error('Logout failed:', error);
+            console.error('❌ [ProfilePage] Logout failed:', error);
             setMessage({
                 type: 'error',
                 text: 'Gagal logout. Silakan coba lagi.'
@@ -137,7 +130,7 @@ function ProfilePage({ user, setUser }) {
     }
     
     return (
-        <div className="max-w-md mx-auto px-4 py-8 pt-24">
+        <div className="max-w-md mx-auto px-4 py-8 pt-24 pb-20">
             <div className="text-center mb-8">
                 <h1 className="text-3xl font-bold text-gray-800 mb-2">Profil Pengguna</h1>
                 <p className="text-gray-600">Kelola pengaturan akun Anda untuk pengalaman Al-Quran yang personal</p>

@@ -22,24 +22,37 @@ use App\Http\Controllers\ContactController;
 |
 */
 
-// Return authenticated user or null
+// Return authenticated user or null - simplified without session checks
 Route::get('/user', function (Request $request) {
+    // First attempt with regular auth check
     $user = auth()->user();
+    
+    // If not found, try with token-based auth (fallback)
+    if (!$user && $request->bearerToken()) {
+        $token = $request->bearerToken();
+        $tokenModel = \Laravel\Sanctum\PersonalAccessToken::findToken($token);
+        
+        if ($tokenModel) {
+            $user = $tokenModel->tokenable;
+        }
+    }
     
     if ($user) {
         return response()->json($user);
     }
     
-    // Explicitly return null as JSON
-    return response('null', 200)->header('Content-Type', 'application/json');
+    // Use direct json_encode to ensure proper null response
+    // Laravel's response()->json(null) converts null to {}
+    return response(json_encode(null), 200)
+        ->header('Content-Type', 'application/json');
 });
 
 // Auth routes
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
 
-// Protected routes
-Route::middleware(['auth'])->group(function() {
+// Protected routes - using simple auth middleware
+Route::middleware(['simple.auth'])->group(function() {
     Route::post('/logout', [LoginController::class, 'logout']);
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::put('/profile', [ProfileController::class, 'update']);
@@ -53,6 +66,8 @@ Route::middleware(['auth'])->group(function() {
         Route::put('/surah/ayah/{ayahId}/notes', [BookmarkController::class, 'updateNotes']);
     });
 });
+
+
 
 // Surah routes
 Route::get('/surahs', [App\Http\Controllers\QuranController::class, 'getAllSurahs']);
@@ -68,22 +83,6 @@ Route::get('/search', [App\Http\Controllers\QuranController::class, 'searchAyahs
 // Contact route - restricted to internal access only
 Route::middleware(['internal.only'])->group(function() {
     Route::post('/contact', [ContactController::class, 'store']);
-});
-
-// Debug route to test session
-Route::get('/debug-user', function (Request $request) {
-    \Log::info('Debug user route called');
-    \Log::info('Session ID: ' . $request->session()->getId());
-    \Log::info('Auth check: ' . (auth()->check() ? 'true' : 'false'));
-    \Log::info('Auth user: ', [auth()->user()]);
-    \Log::info('Request user: ', [$request->user()]);
-    
-    return response()->json([
-        'session_id' => $request->session()->getId(),
-        'auth_check' => auth()->check(),
-        'auth_user' => auth()->user(),
-        'request_user' => $request->user(),
-    ]);
 });
 
 // Prayer Times API Endpoint

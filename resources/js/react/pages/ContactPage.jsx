@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { postWithAuth, getAuthToken, getAuthHeaders } from '../utils/apiUtils';
 
 function ContactPage() {
     const navigate = useNavigate();
@@ -66,12 +67,17 @@ function ContactPage() {
         setIsSubmitting(true);
         
         try {
+            // For contact API, we need to use a custom approach since it requires internal headers
+            // but we still want to include auth token if available
+            const authHeaders = getAuthHeaders();
+            
             const response = await fetch('/api/contact', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                     'X-Internal-Request': process.env.VITE_INTERNAL_API_KEY || 'ind0Quran-Internal-Key-2025!',
+                    ...authHeaders
                 },
                 body: JSON.stringify(formData)
             });
@@ -109,7 +115,7 @@ function ContactPage() {
     };
     
     return (
-        <div className="max-w-3xl mx-auto px-4 py-8 pt-24">
+        <div className="max-w-3xl mx-auto px-4 py-8 pt-24 pb-20">
             <div className="bg-white p-8 rounded-lg shadow-md">
                 <h1 className="text-3xl font-bold text-islamic-green mb-6 border-b pb-3">Hubungi Kami</h1>
                 

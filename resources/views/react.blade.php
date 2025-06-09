@@ -42,11 +42,15 @@
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/react/index.jsx'])
     
     @if(app()->environment('local'))
+    <!-- Font override for local development to prevent CORS issues -->
+    <link rel="stylesheet" href="{{ asset('dev-fonts.css') }}">
     <!-- Hot reload script for development -->
     <script>
         if (typeof window !== 'undefined') {
-            // Enable React DevTools
+            // React 19 DevTools setup
             window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = window.__REACT_DEVTOOLS_GLOBAL_HOOK__ || {};
+            // Disable the warning about outdated DevTools
+            window.__REACT_DEVTOOLS_GLOBAL_HOOK__.checkDCE = function() {};
         }
     </script>
     @endif

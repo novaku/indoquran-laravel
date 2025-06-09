@@ -168,8 +168,8 @@ If you encounter database connection errors, verify your MySQL configuration:
 
 7. **Jalankan Aplikasi**
    ```bash
-   # Development dengan auto-reload
-   npm run react:dev
+   # Gunakan script lingkungan pengembangan interaktif
+   ./dev-env.sh
    
    # Atau jalankan secara terpisah
    php artisan serve
@@ -416,115 +416,74 @@ Selamat coding! 🚀
 
 # Script Pengembangan Laravel
 
-Direktori ini berisi script bash yang membantu untuk alur kerja pengembangan Laravel.
+IndoQuran menyediakan script pengembangan yang komprehensif untuk memudahkan alur kerja pengembangan.
 
-## 🎯 **REKOMENDASI: Script All-in-One**
+## 🚀 `dev-env.sh` - Lingkungan Pengembangan Terpadu
 
-### 🚀 `run.sh` - Runner Pengembangan Lengkap ⭐
-**Script terbaik yang melakukan semua hal untuk menjalankan aplikasi web Anda!**
+**Script pengembangan komprehensif yang menggabungkan semua fitur dalam satu menu interaktif.**
 
-**Apa yang dilakukan:**
-- ✅ Memeriksa semua prasyarat (PHP, Composer)
-- ✅ Memverifikasi struktur proyek Laravel
-- ✅ Menginstal dependensi jika tidak ada
-- ✅ Menyiapkan file .env jika tidak ada
-- ✅ Menghasilkan kunci aplikasi jika diperlukan
-- ✅ Membuat database SQLite jika diperlukan
-- ✅ Menjalankan migrasi
-- ✅ Membersihkan semua cache sepenuhnya
-- ✅ Mengoptimalkan autoloader
-- ✅ Menangani konflik port secara cerdas
-- ✅ Memulai server pengembangan
-- ✅ Output berwarna indah dengan indikator kemajuan
-- ✅ **BERFUNGSI DARI CLONE SEGAR HINGGA APLIKASI WEB BERJALAN**
+**Fitur Utama:**
+- ✅ Manajemen server (Laravel & Vite)
+- ✅ Pembersihan cache & optimasi
+- ✅ Manajemen dependensi & aset
+- ✅ Operasi database (migrasi & seed)
+- ✅ Tools pengembangan (testing, route listing, tinker)
+- ✅ Status & monitoring
+- ✅ Generasi sitemap
 
 **Penggunaan:**
 ```bash
-./run.sh
+./dev-env.sh
 ```
 
-**Sempurna untuk:**
-- 🆕 Setup proyek baru
-- 🔄 Setup pengembangan awal
-- 🛠️ Setup aplikasi lengkap
+**Kategori Menu:**
 
-### 🔄 `refresh-and-run.sh` - Refresh & Run ⭐
-**Script efisien untuk menyegarkan cache dan memulai server dalam satu perintah!**
+### 🚀 Server Management
+- **Start development servers (Laravel + Vite)** - Menjalankan kedua server secara bersamaan
+- **Start Laravel server only (port 8000/8080)** - Menjalankan Laravel tanpa Vite
+- **Restart development servers** - Restart kedua server
+- **Stop all development servers** - Menghentikan semua server
 
-**Apa yang dilakukan:**
-- ✅ Memverifikasi struktur proyek Laravel
-- ✅ Membersihkan semua cache sepenuhnya (config, view, route, optimization)
-- ✅ Membersihkan file class yang dikompilasi
-- ✅ Menyegarkan autoload composer
-- ✅ Menangani konflik port secara cerdas
-- ✅ Memulai server pengembangan
-- ✅ Output berwarna indah dengan indikator kemajuan
+### 🔧 Cache & Optimization
+- **Refresh all caches and views** - Membersihkan semua cache Laravel
+- **Clear logs** - Mengosongkan file log
+- **Optimize for development** - Optimasi khusus lingkungan pengembangan
 
-**Penggunaan:**
+### 📦 Dependencies & Assets
+- **Install/Update dependencies** - Composer & NPM
+- **Build assets for production** - Build aset untuk produksi
+- **Watch assets (Vite dev mode)** - Mode watch Vite
+
+### 🗄️ Database
+- **Run migrations** - Menjalankan migrasi database
+- **Seed database** - Mengisi database dengan data dummy
+- **Fresh migration with seeding** - Migrasi ulang dari awal dengan seed
+
+### 🛠️ Development Tools
+- **Run tests** - Menjalankan test suite
+- **Show routes** - Menampilkan semua rute aplikasi
+- **Laravel Tinker (REPL)** - Shell interaktif Laravel
+- **Generate sitemap** - Membuat sitemap.xml
+
+### 📋 Status & Info
+- **Check server status** - Memeriksa status server development
+- **Show Laravel info** - Menampilkan informasi Laravel
+
+## Penggunaan Perintah Cepat
+
+### Memulai Pengembangan
 ```bash
-./refresh-and-run.sh
-```
-
-**Sempurna untuk:**
-- 🔄 Alur kerja pengembangan harian
-- 🧹 Penyegaran cache dan restart cepat
-- 🚀 Startup server cepat
-
----
-
-## 📋 Script Tambahan
-
-### 🛠️ `dev.sh`
-Pembantu pengembangan interaktif dengan berbagai opsi.
-
-**Fitur:**
-- Menyegarkan semua cache dan view
-- Memulai server pengembangan (port 8000 atau 8080)
-- Menjalankan migrasi
-- Mengisi database
-- Migrasi segar dengan pengisian
-- Menjalankan test
-- Menginstal/Memperbarui dependensi
-- Membangun aset (Vite)
-- Memantau aset (Vite dev)
-- Membersihkan semua log
-- Menampilkan rute
-- Laravel Tinker (REPL)
-
-**Penggunaan:**
-```bash
-./dev.sh
-```
-
-## Perintah Cepat
-
-### 🎯 **CARA TERCEPAT UNTUK MEMULAI**
-```bash
-# Setup lengkap dan jalankan (setup pertama kali) ⭐
-./run.sh
-
-# Penyegaran cache cepat dan jalankan (pengembangan harian) ⭐
-./refresh-and-run.sh
-```
-
-### Alur Kerja Pengembangan
-```bash
-# Setup pengembangan penuh
-./run.sh
-
-# Menyegarkan cache dan menjalankan server
-./refresh-and-run.sh
-
 # Menu pengembangan interaktif
-./dev.sh
+./dev-env.sh
+
+# Atau perintah manual
+php artisan serve
+npm run dev
 ```
 
-### Perintah Manual
+### Perintah Manual Umum
 ```bash
-# Memulai server pada port tertentu
-php artisan serve --port=8080
-
-# Membersihkan cache tertentu
+# Membersihkan cache
 php artisan cache:clear
 php artisan view:clear
 php artisan route:clear
@@ -536,56 +495,29 @@ php artisan migrate
 php artisan db:seed
 ```
 
-## 🔧 Apa yang Dilakukan Setiap Script
-
-| Script | Tujuan | Terbaik Untuk |
-|--------|---------|----------|
-| `run.sh` ⭐ | Setup lengkap + jalankan | Setup segar, pengembangan awal |
-| `refresh-and-run.sh` ⭐ | Menyegarkan cache + jalankan server | Pengembangan harian, restart cepat |
-| `dev.sh` | Menu interaktif | Opsi lanjutan, pengguna mahir |
-
 ## Catatan
 
-- ✅ Semua script berfungsi pada **macOS/Linux/zsh**
-- ✅ **Tidak diperlukan setup manual** - script menangani semuanya
-- ✅ **Penanganan konflik port** - secara otomatis menyelesaikan masalah
-- ✅ **Output berwarna indah** dengan indikator kemajuan
-- ✅ **Penanganan error** - gagal dengan baik dengan pesan yang jelas
+- ✅ Berfungsi pada **macOS/Linux/zsh**
+- ✅ Output berwarna untuk visibilitas yang lebih baik
+- ✅ Penanganan proses yang bersih (tidak meninggalkan proses zombie)
+- ✅ Penanganan error yang baik
 
-## 🎉 Indikator Keberhasilan
+## Fitur Lanjutan
 
-Ketika `run.sh` selesai dengan sukses, Anda akan melihat:
-```
-================================================
-           🎉 SETUP SELESAI! 🎉             
-================================================
-
-✅ Semua sistem siap!
-ℹ️ URL Aplikasi: http://127.0.0.1:8080
-```
-
-Ketika `refresh-and-run.sh` selesai, Anda akan melihat:
-```
-================================================
-       🎉 PENYEGARAN SELESAI! MEMULAI SERVER 🎉   
-================================================
-
-✅ Semua cache disegarkan!
-ℹ️ URL Aplikasi: http://127.0.0.1:8080
-```
+- **Status Server**: Cek status server Laravel & Vite kapan saja
+- **Manajemen Proses**: Kill dan restart proses dengan bersih
+- **Pemantauan Log**: Akses cepat ke pembersihan log
+- **Testing**: Integrasi langsung dengan fitur testing
 
 ## Pemecahan Masalah
 
 ### Masalah Izin
 ```bash
-chmod +x *.sh
+chmod +x dev-env.sh
 ```
 
-### Dependensi Tidak Ada
-Script `run.sh` akan secara otomatis menginstal dependensi yang tidak ada!
-
 ### Konflik Port
-Script akan mendeteksi dan menawarkan solusi untuk konflik port secara otomatis.
+Jika port 8000 atau 5173 sudah digunakan, script akan mendeteksi dan memberi tahu Anda.
 
 ---
 

@@ -34,16 +34,30 @@ class LoginController extends Controller
         ]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            // Only regenerate session if it exists
-            if ($request->hasSession()) {
-                $request->session()->regenerate();
-            }
+            // Simple authentication without session management
+            $user = Auth::user();
+            
+            // Log login
+            \Log::info('User logged in successfully', [
+                'user_id' => $user->id,
+                'session_id' => $request->session()->getId(),
+                'remember' => $request->boolean('remember'),
+                'auth_cookie' => $request->cookie('remember_web_' . sha1('web')),
+                'cookies' => $request->cookies->all()
+            ]);
+            
+            // Create a token for the user
+            $token = $user->createToken('auth-token')->plainTextToken;
+            
+            // Force session to persist
+            $request->session()->regenerate();
+            $request->session()->save();
             
             // For React SPA, always return JSON response
-            $user = Auth::user();
             return response()->json([
                 'user' => $user,
-                'message' => 'Login successful'
+                'message' => 'Login successful',
+                'token' => $token
             ]);
         }
 
@@ -61,14 +75,15 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
-        Auth::logout();
-
-        // Only invalidate session if it exists
-        if ($request->hasSession()) {
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-        }
-
+        // Log user before logout for debugging
+        $user = Auth::user();
+        \Log::info('User logout attempt', [
+            'user_id' => $user ? $user->id : null
+        ]);
+        
+        // Simple logout without session handling
+        Auth::guard('web')->logout();
+        
         return response()->json(['message' => 'Logged out successfully']);
     }
 }

@@ -62,6 +62,11 @@ export default {
           light: '#f9f7f3'
         }
       },
+      borderWidth: {
+        '3': '3px',
+        '5': '5px',
+        '6': '6px',
+      },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',

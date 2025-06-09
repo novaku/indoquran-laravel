@@ -4,6 +4,7 @@ import AyahCard from '../components/AyahCard';
 import QuranHeader from '../components/QuranHeader';
 import MetaTags from '../components/MetaTags';
 import StructuredData from '../components/StructuredData';
+import { fetchWithAuth } from '../utils/apiUtils';
 
 function SearchPage() {
     const location = useLocation();
@@ -28,7 +29,7 @@ function SearchPage() {
         
         setLoading(true);
         const page = currentPageFromUrl;
-        fetch(`/api/search?q=${encodeURIComponent(query)}&per_page=10&page=${page}`)
+        fetchWithAuth(`/api/search?q=${encodeURIComponent(query)}&per_page=10&page=${page}`)
             .then(response => {
                 if (!response.ok) throw new Error('Failed to fetch search results');
                 return response.json();
@@ -75,7 +76,6 @@ function SearchPage() {
         const audioUrl = ayah.audio_url;
         
         if (!audioUrl) {
-            console.warn('No audio URL available for this ayah');
             return;
         }
         
@@ -230,7 +230,7 @@ function SearchPage() {
     }
     
     return (
-        <div className="max-w-2xl mx-auto px-4 py-8 pt-24">
+        <div className="max-w-2xl mx-auto px-4 py-8 pt-24 pb-20">
             <MetaTags 
                 title={`Hasil Pencarian: ${query} | Al-Quran Digital Indonesia`}
                 description={`Hasil pencarian untuk "${query}" dalam Al-Quran. Menemukan ${totalResults} ayat yang sesuai dengan kata kunci Anda.`}

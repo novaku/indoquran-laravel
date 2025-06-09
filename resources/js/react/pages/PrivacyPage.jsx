@@ -2,7 +2,7 @@ import React from 'react';
 
 function PrivacyPage() {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-islamic-green/5 to-islamic-gold/5 pt-24">
+        <div className="min-h-screen bg-gradient-to-br from-islamic-green/5 to-islamic-gold/5 pt-24 pb-20">
             <div className="container mx-auto px-4 py-8">
                 <div className="bg-white p-8 rounded-lg shadow-md">
                     <h1 className="text-3xl font-bold text-islamic-green mb-6 border-b pb-3">Kebijakan Privasi</h1>

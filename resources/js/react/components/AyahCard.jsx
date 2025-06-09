@@ -1,7 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { IoPlayCircleOutline, IoPauseCircleOutline, IoBookmarkOutline, IoShareSocialOutline } from 'react-icons/io5';
+import { IoPlayCircleOutline, IoPauseCircleOutline, IoBookmarkOutline, IoShareSocialOutline, IoAddOutline, IoRemoveOutline, IoReloadOutline } from 'react-icons/io5';
 
 function AyahCard({ ayah, surah, playAudio, isPlaying, activeAyah, highlightText = null }) {
+    
+    // Arabic text zoom state
+    const [arabicFontSize, setArabicFontSize] = useState(3); // Default size in rem (3xl = 3rem)
+    
+    // Arabic text zoom functions
+    const handleZoomIn = () => {
+        setArabicFontSize(prev => Math.min(prev + 0.5, 6)); // Max 6rem
+    };
+
+    const handleZoomOut = () => {
+        setArabicFontSize(prev => Math.max(prev - 0.5, 1.5)); // Min 1.5rem
+    };
+
+    const resetZoom = () => {
+        setArabicFontSize(3); // Reset to default 3rem
+    };
+
+    // Get dynamic font size class
+    const getArabicFontSizeStyle = () => {
+        return {
+            fontSize: `${arabicFontSize}rem`
+        };
+    };
     
     // Highlight search terms in HTML if provided
     const highlightMatches = (htmlText) => {
@@ -95,8 +118,39 @@ function AyahCard({ ayah, surah, playAudio, isPlaying, activeAyah, highlightText
                 </button>
             </div>
             
-            <div className="text-right text-3xl leading-relaxed font-arabic mb-4 text-primary-800">
-                {ayah.text_arabic}
+            <div className="text-right leading-relaxed font-arabic mb-4 text-primary-800 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-100 p-4 relative">
+                {/* Arabic Text Zoom Controls */}
+                <div className="absolute top-2 left-2 flex gap-1">
+                    <button 
+                        onClick={handleZoomOut} 
+                        disabled={arabicFontSize <= 1.5}
+                        className="p-1.5 rounded-md bg-white/80 border border-green-200 text-green-700 hover:bg-green-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        title="Perkecil teks Arab"
+                    >
+                        <IoRemoveOutline className="w-4 h-4" />
+                    </button>
+                    <button 
+                        onClick={resetZoom}
+                        className="p-1.5 rounded-md bg-white/80 border border-green-200 text-green-700 hover:bg-green-100 transition-colors text-xs font-medium"
+                        title="Reset ukuran teks Arab"
+                    >
+                        <IoReloadOutline className="w-4 h-4" />
+                    </button>
+                    <button 
+                        onClick={handleZoomIn} 
+                        disabled={arabicFontSize >= 6}
+                        className="p-1.5 rounded-md bg-white/80 border border-green-200 text-green-700 hover:bg-green-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        title="Perbesar teks Arab"
+                    >
+                        <IoAddOutline className="w-4 h-4" />
+                    </button>
+                </div>
+                <div 
+                    className="font-arabic text-right leading-loose pt-8" 
+                    style={getArabicFontSizeStyle()}
+                >
+                    {ayah.text_arabic}
+                </div>
             </div>
             
             <div className="text-primary-700 leading-relaxed mb-2 translation-content">

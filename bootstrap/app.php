@@ -36,6 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Register the InternalAccessOnly middleware
         $middleware->alias([
             'internal.only' => \App\Http\Middleware\InternalAccessOnly::class,
+            'simple.auth' => \App\Http\Middleware\SimpleAuthMiddleware::class,
         ]);
         
         // Configure authentication redirects

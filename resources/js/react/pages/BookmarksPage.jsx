@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IoBookmark, IoArrowBackOutline, IoSearchOutline, IoCreateOutline, IoSaveOutline, IoCloseOutline, IoChevronDownOutline, IoChevronUpOutline } from 'react-icons/io5';
+import { IoBookmark, IoArrowBackOutline, IoSearchOutline, IoCreateOutline, IoSaveOutline, IoCloseOutline, IoChevronDownOutline, IoChevronUpOutline, IoAddOutline, IoRemoveOutline, IoReloadOutline } from 'react-icons/io5';
 import { getUserBookmarks, updateBookmarkNotes } from '../services/BookmarkService';
+import { useAuth } from '../hooks/useAuth.jsx';
 
-function BookmarksPage({ user }) {
+function BookmarksPage() {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [bookmarks, setBookmarks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -13,6 +15,9 @@ function BookmarksPage({ user }) {
     const [savingNotes, setSavingNotes] = useState(false);
     const [collapsedSurahs, setCollapsedSurahs] = useState(new Set());
     const [collapsedAyahs, setCollapsedAyahs] = useState(new Set());
+    
+    // Arabic text zoom state
+    const [arabicFontSize, setArabicFontSize] = useState(2.5); // Default size in rem (2.5rem)
 
     useEffect(() => {
         if (!user) {
@@ -23,13 +28,42 @@ function BookmarksPage({ user }) {
         loadBookmarks();
     }, [user, navigate]);
 
+    // Arabic text zoom functions
+    const handleZoomIn = () => {
+        setArabicFontSize(prev => Math.min(prev + 0.5, 6)); // Max 6rem
+    };
+
+    const handleZoomOut = () => {
+        setArabicFontSize(prev => Math.max(prev - 0.5, 1.5)); // Min 1.5rem
+    };
+
+    const resetZoom = () => {
+        setArabicFontSize(2.5); // Reset to default 2.5rem
+    };
+
+    // Get dynamic font size class
+    const getArabicFontSizeStyle = () => {
+        return {
+            fontSize: `${arabicFontSize}rem`,
+            lineHeight: '2',
+            textShadow: '0 1px 1px rgba(0,0,0,0.05)'
+        };
+    };
+
     const loadBookmarks = async () => {
         setLoading(true);
         try {
             const allBookmarks = await getUserBookmarks(false); // Get all bookmarks
-            setBookmarks(allBookmarks);
+            // Ensure the response is an array
+            if (Array.isArray(allBookmarks)) {
+                setBookmarks(allBookmarks);
+            } else {
+                console.error('Invalid bookmarks data received:', allBookmarks);
+                setBookmarks([]);
+            }
         } catch (error) {
             console.error('Error loading bookmarks:', error);
+            setBookmarks([]); // Set empty array on error
         } finally {
             setLoading(false);
         }
@@ -85,6 +119,11 @@ function BookmarksPage({ user }) {
 
     // Group bookmarks by surah and order them
     const groupedBookmarks = () => {
+        // Ensure bookmarks is an array before calling filter
+        if (!Array.isArray(bookmarks)) {
+            return [];
+        }
+        
         const filtered = bookmarks.filter(bookmark => {
             if (!searchTerm) return true;
             const searchLower = searchTerm.toLowerCase();
@@ -118,7 +157,7 @@ function BookmarksPage({ user }) {
     if (loading) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
-                <div className="max-w-4xl mx-auto px-4 py-8 pt-24">
+                <div className="max-w-4xl mx-auto px-4 py-8 pt-24 pb-20">
                     <div className="flex justify-center items-center h-64">
                         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
                     </div>
@@ -129,7 +168,7 @@ function BookmarksPage({ user }) {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
-            <div className="max-w-4xl mx-auto px-4 py-8 pt-24">
+            <div className="max-w-4xl mx-auto px-4 py-8 pt-24 pb-20">
                 {/* Header */}
                 <div className="bg-white rounded-3xl shadow-xl p-8 mb-8 border border-green-100">
                     <div className="flex items-center gap-4 mb-4">
@@ -242,14 +281,36 @@ function BookmarksPage({ user }) {
                                             {!collapsedAyahs.has(bookmark.id) && (
                                                 <div className="ml-4">
                                                     {/* Arabic Text */}
-                                                    <div className="bg-green-50/70 rounded-2xl p-6 mb-6 text-center">
+                                                    <div className="bg-green-50/70 rounded-2xl p-6 mb-6 text-center relative">
+                                                        {/* Arabic Text Zoom Controls */}
+                                                        <div className="absolute top-2 left-2 flex gap-1">
+                                                            <button 
+                                                                onClick={handleZoomOut} 
+                                                                disabled={arabicFontSize <= 1.5}
+                                                                className="p-1.5 rounded-md bg-white/80 border border-green-200 text-green-700 hover:bg-green-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                                title="Perkecil teks Arab"
+                                                            >
+                                                                <IoRemoveOutline className="w-4 h-4" />
+                                                            </button>
+                                                            <button 
+                                                                onClick={resetZoom}
+                                                                className="p-1.5 rounded-md bg-white/80 border border-green-200 text-green-700 hover:bg-green-100 transition-colors text-xs font-medium"
+                                                                title="Reset ukuran teks Arab"
+                                                            >
+                                                                <IoReloadOutline className="w-4 h-4" />
+                                                            </button>
+                                                            <button 
+                                                                onClick={handleZoomIn} 
+                                                                disabled={arabicFontSize >= 6}
+                                                                className="p-1.5 rounded-md bg-white/80 border border-green-200 text-green-700 hover:bg-green-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                                title="Perbesar teks Arab"
+                                                            >
+                                                                <IoAddOutline className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
                                                         <p 
-                                                            className="font-arabic text-green-800 leading-loose"
-                                                            style={{ 
-                                                                fontSize: '2.5rem',
-                                                                lineHeight: '2',
-                                                                textShadow: '0 1px 1px rgba(0,0,0,0.05)'
-                                                            }}
+                                                            className="font-arabic text-green-800 leading-loose pt-8"
+                                                            style={getArabicFontSizeStyle()}
                                                             dir="rtl"
                                                         >
                                                             {bookmark.text_arabic}

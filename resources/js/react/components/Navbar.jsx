@@ -1,11 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth.jsx';
+import { fetchWithAuth } from '../utils/apiUtils';
 
-function Navbar({ user, setUser, onBreadcrumbsChange }) {
+function Navbar({ onBreadcrumbsChange }) {
     const navigate = useNavigate();
     const location = useLocation();
+    const { user, logout } = useAuth();
     const [breadcrumbs, setBreadcrumbs] = useState([]);
     const [surahName, setSurahName] = useState('');
+    
+    // Debug logging for user state
+    useEffect(() => {
+        // User state tracking for debugging purposes
+    }, [user]);
+    
+    // Additional debug log on component render
+    useEffect(() => {
+        // Component mount tracking for debugging purposes
+    }, [user, location.pathname]);
     
     // Search functionality states
     const [searchTerm, setSearchTerm] = useState('');
@@ -27,7 +40,7 @@ function Navbar({ user, setUser, onBreadcrumbsChange }) {
                 if (pathSegments[0] === 'surah' && pathSegments[1]) {
                     // Fetch surah name
                     try {
-                        const response = await fetch(`/api/surahs/${pathSegments[1]}`);
+                        const response = await fetchWithAuth(`/api/surahs/${pathSegments[1]}`);
                         const data = await response.json();
                         if (data.status === 'success') {
                             const surahName = data.data.surah.name_latin || `Surah ${pathSegments[1]}`;
@@ -93,14 +106,16 @@ function Navbar({ user, setUser, onBreadcrumbsChange }) {
 
     // Load surahs for search autocomplete
     useEffect(() => {
-        fetch('/api/surahs')
+        fetchWithAuth('/api/surahs')
             .then(response => response.json())
             .then(response => {
                 if (response.status === 'success') {
                     setSurahs(response.data);
                 }
             })
-            .catch(error => console.error('Error loading surahs:', error));
+            .catch(error => {
+                // Error loading surahs
+            });
     }, []);
 
     // Search functionality
@@ -112,7 +127,7 @@ function Navbar({ user, setUser, onBreadcrumbsChange }) {
         
         setIsLoading(true);
         try {
-            const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=5`);
+            const response = await fetchWithAuth(`/api/search?q=${encodeURIComponent(query)}&limit=5`);
             if (!response.ok) throw new Error('Failed to fetch suggestions');
             
             const data = await response.json();
@@ -120,14 +135,12 @@ function Navbar({ user, setUser, onBreadcrumbsChange }) {
                 const ayahResults = Array.isArray(data.data) ? data.data : [];
                 
                 if (!Array.isArray(ayahResults)) {
-                    console.error('Unexpected API response format:', data);
                     setSuggestions([]);
                     return;
                 }
                 
                 const textSuggestions = ayahResults.map(ayah => {
                     if (!ayah || typeof ayah !== 'object') {
-                        console.error('Invalid ayah data:', ayah);
                         return null;
                     }
                     
@@ -169,7 +182,7 @@ function Navbar({ user, setUser, onBreadcrumbsChange }) {
                 setSuggestions(textSuggestions);
             }
         } catch (error) {
-            console.error('Error fetching suggestions:', error);
+            // Error fetching suggestions
         } finally {
             setIsLoading(false);
         }
@@ -279,11 +292,9 @@ function Navbar({ user, setUser, onBreadcrumbsChange }) {
             
             if (surah_number && ayah_number) {
                 navigate(`/surah/${surah_number}/${ayah_number}`);
-            } else {
-                console.error('Invalid ayah data for navigation:', suggestion.ayah);
             }
         } else {
-            console.error('Invalid suggestion data:', suggestion);
+            // Invalid suggestion data
         }
         setShowSuggestions(false);
         setSearchTerm('');
@@ -303,21 +314,10 @@ function Navbar({ user, setUser, onBreadcrumbsChange }) {
 
     const handleLogout = async () => {
         try {
-            await fetch('/api/logout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            });
-            
-            // Clear user state and redirect
-            if (setUser) setUser(null);
+            await logout();
             navigate('/auth/login');
         } catch (error) {
-            console.error('Logout failed:', error);
             // Still redirect even if logout API fails
-            if (setUser) setUser(null);
             navigate('/auth/login');
         }
     };
@@ -449,25 +449,17 @@ function Navbar({ user, setUser, onBreadcrumbsChange }) {
                         
                         <div className="flex items-center space-x-4">
                             {user ? (
-                                <a 
-                                    href="/bookmarks" 
-                                    className="text-islamic-green hover:text-islamic-gold transition-colors"
-                                    title="Bookmark & Favorit"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                                    </svg>
-                                </a>
-                            ) : (
-                                <button className="text-islamic-green hover:text-islamic-gold transition-colors opacity-50 cursor-not-allowed">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                                    </svg>
-                                </button>
-                            )}
-                            {user ? (
                                 <>
-                                    <a href="/profile" className="text-islamic-green hover:text-islamic-gold">
+                                    <a 
+                                        href="/bookmarks" 
+                                        className="text-islamic-green hover:text-islamic-gold transition-colors"
+                                        title="Bookmark & Favorit"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                                        </svg>
+                                    </a>
+                                    <a href="/profile" className="text-islamic-green hover:text-islamic-gold font-medium">
                                         {user.name}
                                     </a>
                                     <button 
@@ -479,6 +471,11 @@ function Navbar({ user, setUser, onBreadcrumbsChange }) {
                                 </>
                             ) : (
                                 <>
+                                    <button className="text-islamic-green hover:text-islamic-gold transition-colors opacity-50 cursor-not-allowed">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                                        </svg>
+                                    </button>
                                     <a href="/auth/login" className="text-islamic-green hover:text-islamic-gold">
                                         Masuk
                                     </a>

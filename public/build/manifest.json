@@ -1,6 +1,10 @@
 {
+  "_vendor-BEN4boU2.js": {
+    "file": "assets/vendor-BEN4boU2.js",
+    "name": "vendor"
+  },
   "resources/css/app.css": {
-    "file": "assets/app-CAYECgFd.css",
+    "file": "assets/app-Cn-8b-YZ.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
@@ -27,9 +31,12 @@
     "isEntry": true
   },
   "resources/js/react/index.jsx": {
-    "file": "assets/index-BHLjEzkh.js",
+    "file": "assets/index-Fo5pVy_G.js",
     "name": "index",
     "src": "resources/js/react/index.jsx",
-    "isEntry": true
+    "isEntry": true,
+    "imports": [
+      "_vendor-BEN4boU2.js"
+    ]
   }
 }

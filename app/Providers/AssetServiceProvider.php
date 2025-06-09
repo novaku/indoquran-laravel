@@ -21,9 +21,10 @@ class AssetServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Configure Vite to use ASSET_URL environment variable for build output
-        if (config('app.asset_url')) {
-            $assetUrl = config('app.asset_url');
-            
+        $assetUrl = config('app.asset_url');
+        
+        // For production with CDN
+        if ($assetUrl) {
             // Use a custom asset path resolver for Vite
             Vite::createAssetPathsUsing(function ($path) use ($assetUrl) {
                 // Ensure path doesn't already have the asset URL

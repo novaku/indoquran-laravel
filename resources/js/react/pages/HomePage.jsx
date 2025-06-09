@@ -3,6 +3,7 @@ import QuranHeader from '../components/QuranHeader';
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import MetaTags from '../components/MetaTags';
 import StructuredData from '../components/StructuredData';
+import { fetchWithAuth } from '../utils/apiUtils';
 
 function HomePage() {
     const [surahs, setSurahs] = useState([]);
@@ -24,7 +25,7 @@ function HomePage() {
     }, [showModal]);
     
     useEffect(() => {
-        fetch('/api/surahs')
+        fetchWithAuth('/api/surahs')
             .then(response => {
                 if (!response.ok) throw new Error('Failed to fetch surahs');
                 return response.json();
@@ -89,7 +90,7 @@ function HomePage() {
     }
     
     return (
-        <div className="min-h-screen bg-gradient-to-br from-islamic-green/5 to-islamic-gold/5 pt-24">
+        <div className="min-h-screen bg-gradient-to-br from-islamic-green/5 to-islamic-gold/5 pt-24 pb-20">
             <MetaTags 
                 title="Al-Quran Digital Indonesia | Baca Al-Quran Online dengan Terjemahan Indonesia"
                 description="Baca Al-Quran digital lengkap dengan terjemahan bahasa Indonesia, tafsir, dan audio. Cari ayat, bookmark, dan pelajari Al-Quran dengan mudah secara online."
