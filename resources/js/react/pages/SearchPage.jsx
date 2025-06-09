@@ -73,9 +73,29 @@ function SearchPage() {
     
     // Audio playback function
     const playAudio = (ayah) => {
-        const audioUrl = ayah.audio_url;
+        // Handle audio_urls object (multiple qaris) instead of single audio_url
+        let audioUrl = null;
+        
+        if (ayah.audio_urls) {
+            const audioUrls = typeof ayah.audio_urls === 'string' 
+                ? JSON.parse(ayah.audio_urls) 
+                : ayah.audio_urls;
+            
+            // Get the first available audio URL from the object
+            if (typeof audioUrls === 'object' && !Array.isArray(audioUrls)) {
+                // Object format: {qari: url, ...}
+                audioUrl = Object.values(audioUrls)[0];
+            } else if (Array.isArray(audioUrls)) {
+                // Array format: [url1, url2, ...]
+                audioUrl = audioUrls[0];
+            }
+        } else if (ayah.audio_url) {
+            // Fallback to single audio_url if available
+            audioUrl = ayah.audio_url;
+        }
         
         if (!audioUrl) {
+            console.warn('No audio URL found for ayah:', ayah);
             return;
         }
         
@@ -157,56 +177,80 @@ function SearchPage() {
     
     if (!query) {
         return (
-            <div className="max-w-2xl mx-auto">
-                <MetaTags 
-                    title="Pencarian Al-Quran | Cari Ayat dalam Al-Quran"
-                    description="Cari ayat dalam Al-Quran berdasarkan terjemahan Bahasa Indonesia dengan mudah dan cepat."
-                    keywords="cari ayat quran, pencarian al quran, search al quran, al quran digital, cari terjemahan quran"
-                    canonicalUrl="https://my.indoquran.web.id/search"
-                />
-                <QuranHeader className="mb-8" />
-                
-                <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-primary-800 mb-4">Pencarian Al-Quran</h1>
-                    <p className="text-primary-600">Cari ayat dalam Al-Quran berdasarkan terjemahan Bahasa Indonesia</p>
-                </div>
-                
-                <form 
-                    className="mb-8"
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        const formQuery = e.target.elements.q.value;
-                        if (formQuery.trim()) {
-                            window.location.href = `/search?q=${encodeURIComponent(formQuery)}`;
-                        }
-                    }}
-                >
-                    <div className="flex flex-col space-y-3">
-                        <div className="flex">
-                            <input
-                                type="text"
-                                name="q"
-                                placeholder="Masukkan kata kunci pencarian..."
-                                className="w-full px-4 py-3 rounded-l-lg border border-islamic-cream focus:outline-none focus:ring-2 focus:ring-primary-400 shadow-islamic"
-                            />
-                            <button
-                                type="submit"
-                                className="bg-primary-600 text-white px-6 py-3 rounded-r-lg hover:bg-primary-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary-400 shadow-islamic hover:shadow-islamic-md"
-                            >
-                                Cari
-                            </button>
+            <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
+                <div className="max-w-4xl mx-auto px-4 py-8 pt-24">
+                    <MetaTags 
+                        title="Pencarian Al-Quran | Cari Ayat dalam Al-Quran"
+                        description="Cari ayat dalam Al-Quran berdasarkan terjemahan Bahasa Indonesia dengan mudah dan cepat."
+                        keywords="cari ayat quran, pencarian al quran, search al quran, al quran digital, cari terjemahan quran"
+                        canonicalUrl="https://my.indoquran.web.id/search"
+                    />
+                    <QuranHeader className="mb-12" />
+                    
+                    {/* Welcome Section */}
+                    <div className="bg-white rounded-3xl shadow-xl p-10 border border-green-100 text-center mb-10">
+                        <div className="text-6xl mb-6">🔍</div>
+                        <h1 className="text-4xl font-bold text-green-800 mb-4">Pencarian Al-Quran</h1>
+                        <p className="text-green-600 text-xl mb-8">Cari ayat dalam Al-Quran berdasarkan terjemahan Bahasa Indonesia</p>
+                    </div>
+                    
+                    {/* Search Form */}
+                    <div className="bg-white rounded-3xl shadow-xl p-8 border border-green-100 mb-10">
+                        <form 
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                const formQuery = e.target.elements.q.value;
+                                if (formQuery.trim()) {
+                                    window.location.href = `/search?q=${encodeURIComponent(formQuery)}`;
+                                }
+                            }}
+                        >
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <input
+                                    type="text"
+                                    name="q"
+                                    placeholder="Masukkan kata kunci pencarian..."
+                                    className="flex-1 px-6 py-4 rounded-xl border border-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm hover:shadow-md transition-all duration-200 text-lg"
+                                />
+                                <button
+                                    type="submit"
+                                    className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 shadow-md hover:shadow-lg font-semibold text-lg"
+                                >
+                                    Cari Ayat
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    {/* Tips Section */}
+                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-8 shadow-lg border border-green-100">
+                        <h2 className="text-2xl font-semibold text-green-800 mb-6 flex items-center gap-3">
+                            <div className="text-3xl">💡</div>
+                            Tips Pencarian
+                        </h2>
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <div className="space-y-4 text-green-700">
+                                <div className="flex items-start gap-3">
+                                    <div className="text-green-600 mt-1">•</div>
+                                    <span>Gunakan kata kunci spesifik untuk hasil yang lebih akurat</span>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <div className="text-green-600 mt-1">•</div>
+                                    <span>Cari berdasarkan kata atau frasa dalam terjemahan Bahasa Indonesia</span>
+                                </div>
+                            </div>
+                            <div className="space-y-4 text-green-700">
+                                <div className="flex items-start gap-3">
+                                    <div className="text-green-600 mt-1">•</div>
+                                    <span>Untuk pencarian lebih dari satu kata, sistem akan mencari ayat yang mengandung semua kata tersebut</span>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <div className="text-green-600 mt-1">•</div>
+                                    <span>Pencarian tidak case sensitive (huruf besar dan kecil dianggap sama)</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </form>
-                
-                <div className="bg-gradient-to-br from-white to-islamic-cream rounded-lg p-6 shadow-islamic">
-                    <h2 className="text-xl font-semibold text-primary-800 mb-4">Tips Pencarian</h2>
-                    <ul className="space-y-2 text-primary-700">
-                        <li>• Gunakan kata kunci spesifik untuk hasil yang lebih akurat</li>
-                        <li>• Cari berdasarkan kata atau frasa dalam terjemahan Bahasa Indonesia</li>
-                        <li>• Untuk pencarian lebih dari satu kata, sistem akan mencari ayat yang mengandung semua kata tersebut</li>
-                        <li>• Pencarian tidak case sensitive (huruf besar dan kecil dianggap sama)</li>
-                    </ul>
                 </div>
             </div>
         );
@@ -214,89 +258,112 @@ function SearchPage() {
     
     if (loading && currentPage === 1) {
         return (
-            <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 shadow-islamic"></div>
+            <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
+                <div className="flex justify-center items-center h-64 pt-24">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500 shadow-lg mx-auto mb-4"></div>
+                        <p className="text-green-600 font-medium">Mencari ayat...</p>
+                    </div>
+                </div>
             </div>
         );
     }
     
     if (error) {
         return (
-            <div className="bg-accent-50 border-l-4 border-accent-500 text-accent-700 p-4 rounded-lg shadow-islamic" role="alert">
-                <strong className="font-bold">Kesalahan! </strong>
-                <span className="block sm:inline">{error}</span>
+            <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
+                <div className="max-w-2xl mx-auto px-4 py-8 pt-24">
+                    <div className="bg-gradient-to-br from-red-50 to-pink-50 border border-red-200 text-red-700 p-6 rounded-xl shadow-lg" role="alert">
+                        <div className="flex items-center gap-3">
+                            <div className="text-2xl">⚠️</div>
+                            <div>
+                                <strong className="font-bold">Kesalahan! </strong>
+                                <span className="block sm:inline">{error}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }
     
     return (
-        <div className="max-w-2xl mx-auto px-4 py-8 pt-24 pb-20">
-            <MetaTags 
-                title={`Hasil Pencarian: ${query} | Al-Quran Digital Indonesia`}
-                description={`Hasil pencarian untuk "${query}" dalam Al-Quran. Menemukan ${totalResults} ayat yang sesuai dengan kata kunci Anda.`}
-                keywords={`cari ayat quran ${query}, pencarian al quran, ${query} dalam quran, al quran digital`}
-                canonicalUrl={`https://my.indoquran.web.id/search?q=${encodeURIComponent(query)}`}
-            />
-            
-            {results.length > 0 && (
-                <StructuredData 
-                    type="SearchResults" 
-                    data={{
-                        query: query,
-                        results: results
-                    }} 
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
+            <div className="max-w-6xl mx-auto px-4 py-8 pt-24 pb-20">
+                <MetaTags 
+                    title={`Hasil Pencarian: ${query} | Al-Quran Digital Indonesia`}
+                    description={`Hasil pencarian untuk "${query}" dalam Al-Quran. Menemukan ${totalResults} ayat yang sesuai dengan kata kunci Anda.`}
+                    keywords={`cari ayat quran ${query}, pencarian al quran, ${query} dalam quran, al quran digital`}
+                    canonicalUrl={`https://my.indoquran.web.id/search?q=${encodeURIComponent(query)}`}
                 />
-            )}
-            
-            <QuranHeader className="mb-6" />
-            
-            <div className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-800 mb-2">Hasil Pencarian: "{query}"</h1>
-                <p className="text-gray-600">
-                    {pagination ? (
-                        <>
-                            Menampilkan {pagination.from}-{pagination.to} dari {pagination.total} hasil 
-                            dalam bahasa Indonesia
-                            {totalPages > 1 && ` (Halaman ${currentPage} dari ${totalPages})`}
-                        </>
-                    ) : (
-                        `Ditemukan ${results.length} hasil dalam bahasa Indonesia`
-                    )}
-                </p>
                 
-                <form 
-                    className="mt-4"
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        const formQuery = e.target.elements.q.value;
-                        if (formQuery.trim()) {
-                            window.location.href = `/search?q=${encodeURIComponent(formQuery)}`;
-                        }
-                    }}
-                >
-                    <div className="flex flex-col space-y-3">
-                        <div className="flex">
+                {results.length > 0 && (
+                    <StructuredData 
+                        type="SearchResults" 
+                        data={{
+                            query: query,
+                            results: results
+                        }} 
+                    />
+                )}
+                
+                <QuranHeader className="mb-8" />
+                
+                {/* Search Header Section */}
+                <div className="bg-white rounded-3xl shadow-xl p-8 mb-8 border border-green-100">
+                    <div className="mb-6">
+                        <h1 className="text-3xl font-bold text-green-800 mb-3">Hasil Pencarian: "{query}"</h1>
+                        <p className="text-green-600 text-lg">
+                            {pagination ? (
+                                <>
+                                    Menampilkan {pagination.from}-{pagination.to} dari {pagination.total} hasil 
+                                    dalam bahasa Indonesia
+                                    {totalPages > 1 && ` (Halaman ${currentPage} dari ${totalPages})`}
+                                </>
+                            ) : (
+                                `Ditemukan ${results.length} hasil dalam bahasa Indonesia`
+                            )}
+                        </p>
+                    </div>
+                    
+                    {/* Enhanced Search Form */}
+                    <form 
+                        className="mt-6"
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            const formQuery = e.target.elements.q.value;
+                            if (formQuery.trim()) {
+                                window.location.href = `/search?q=${encodeURIComponent(formQuery)}`;
+                            }
+                        }}
+                    >
+                        <div className="flex flex-col sm:flex-row gap-3">
                             <input
                                 type="text"
                                 name="q"
                                 defaultValue={query}
-                                placeholder="Cari lagi..."
-                                className="w-full px-4 py-2 rounded-l-lg border border-islamic-cream focus:outline-none focus:ring-2 focus:ring-primary-400 shadow-islamic"
+                                placeholder="Cari ayat atau kata kunci lainnya..."
+                                className="flex-1 px-6 py-4 rounded-xl border border-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm hover:shadow-md transition-all duration-200 text-lg"
                             />
                             <button
                                 type="submit"
-                                className="bg-primary-500 text-white px-4 py-2 rounded-r-lg hover:bg-primary-600 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary-400 shadow-islamic hover:shadow-islamic-md"
+                                className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 shadow-md hover:shadow-lg font-semibold"
                             >
-                                Cari
+                                Cari Ulang
                             </button>
                         </div>
-                    </div>
-                </form>
-            </div>
+                    </form>
+                </div>
             
             {results.length === 0 ? (
-                <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded relative" role="alert">
-                    <p>Tidak ditemukan hasil untuk kata kunci "{query}". Coba gunakan kata kunci lain.</p>
+                <div className="bg-gradient-to-br from-yellow-50 to-amber-50 border border-yellow-200 text-yellow-800 px-6 py-4 rounded-xl shadow-sm" role="alert">
+                    <div className="flex items-center gap-3">
+                        <div className="text-2xl">🔍</div>
+                        <div>
+                            <p className="font-semibold">Tidak ditemukan hasil</p>
+                            <p className="text-sm">Tidak ditemukan hasil untuk kata kunci "{query}". Coba gunakan kata kunci lain.</p>
+                        </div>
+                    </div>
                 </div>
             ) : (
                 <div className="space-y-6">
@@ -304,6 +371,7 @@ function SearchPage() {
                         <AyahCard 
                             key={result.id}
                             ayah={result}
+                            surah={result.surah}
                             highlightText={query}
                             playAudio={playAudio}
                             isPlaying={activeAyah === result.id && isPlaying}
@@ -317,25 +385,25 @@ function SearchPage() {
                 <div className="mt-12 space-y-6">
                     {/* Page Info */}
                     <div className="text-center">
-                        <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary-50 to-primary-100 rounded-full border border-primary-200">
-                            <span className="text-sm font-medium text-primary-700">
-                                Halaman <span className="font-bold text-primary-800">{currentPage}</span> dari <span className="font-bold text-primary-800">{totalPages}</span>
+                        <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-full border border-green-200 shadow-sm">
+                            <span className="text-sm font-medium text-green-700">
+                                Halaman <span className="font-bold text-green-800">{currentPage}</span> dari <span className="font-bold text-green-800">{totalPages}</span>
                             </span>
                         </div>
                     </div>
                     
-                    {/* Pagination Controls */}
+                    {/* Enhanced Pagination Controls */}
                     <div className="flex justify-center">
-                        <nav className="flex items-center space-x-1 bg-white rounded-lg shadow-lg border border-gray-200 p-1"
+                        <nav className="flex items-center space-x-2 bg-white rounded-xl shadow-lg border border-green-100 p-2"
                              aria-label="Pagination">
                         {/* Previous button */}
                         <button
                             onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                             disabled={currentPage === 1 || pageLoading}
-                            className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                            className={`flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
                                 currentPage === 1 || pageLoading
                                 ? 'bg-gray-50 text-gray-400 cursor-not-allowed border border-gray-200'
-                                : 'bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md'
+                                : 'bg-white text-green-700 hover:bg-green-50 hover:text-green-800 border border-green-200 hover:border-green-300 shadow-sm hover:shadow-md'
                             }`}
                         >
                             {pageLoading ? (
@@ -378,12 +446,12 @@ function SearchPage() {
                                         key={i}
                                         onClick={() => handlePageChange(i)}
                                         disabled={pageLoading}
-                                        className={`px-3 py-2 min-w-[40px] text-sm font-medium rounded-md transition-all duration-200 border ${
+                                        className={`px-4 py-3 min-w-[44px] text-sm font-medium rounded-lg transition-all duration-200 border ${
                                             currentPage === i
-                                            ? 'bg-blue-600 text-white border-blue-600 shadow-lg ring-2 ring-blue-200 font-bold'
+                                            ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white border-green-600 shadow-lg ring-2 ring-green-200 font-bold'
                                             : pageLoading
                                             ? 'bg-gray-50 text-gray-400 cursor-not-allowed border-gray-200'
-                                            : 'bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md hover:scale-105'
+                                            : 'bg-white text-green-700 hover:bg-green-50 hover:text-green-800 border-green-200 hover:border-green-300 shadow-sm hover:shadow-md hover:scale-105'
                                         }`}
                                     >
                                         {i}
@@ -395,7 +463,7 @@ function SearchPage() {
                             if (endPage < totalPages) {
                                 if (endPage < totalPages - 1) {
                                     pages.push(
-                                        <span key="ellipsis" className="px-3 py-2 text-gray-500 bg-gray-50 border border-gray-200">
+                                        <span key="ellipsis" className="px-3 py-3 text-green-500 bg-green-50 border border-green-200 rounded-lg">
                                             ...
                                         </span>
                                     );
@@ -405,12 +473,12 @@ function SearchPage() {
                                         key={totalPages}
                                         onClick={() => handlePageChange(totalPages)}
                                         disabled={pageLoading}
-                                        className={`px-3 py-2 min-w-[40px] text-sm font-medium rounded-md border transition-all duration-200 ${
+                                        className={`px-4 py-3 min-w-[44px] text-sm font-medium rounded-lg border transition-all duration-200 ${
                                             currentPage === totalPages
-                                            ? 'bg-blue-600 text-white border-blue-600 shadow-lg ring-2 ring-blue-200 font-bold'
+                                            ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white border-green-600 shadow-lg ring-2 ring-green-200 font-bold'
                                             : pageLoading
                                             ? 'bg-gray-50 text-gray-400 cursor-not-allowed border-gray-200'
-                                            : 'bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md hover:scale-105'
+                                            : 'bg-white text-green-700 hover:bg-green-50 hover:text-green-800 border-green-200 hover:border-green-300 shadow-sm hover:shadow-md hover:scale-105'
                                         }`}
                                     >
                                         {totalPages}
@@ -425,10 +493,10 @@ function SearchPage() {
                         <button
                             onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                             disabled={currentPage === totalPages || pageLoading}
-                            className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                            className={`flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
                                 currentPage === totalPages || pageLoading
                                 ? 'bg-gray-50 text-gray-400 cursor-not-allowed border border-gray-200'
-                                : 'bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md'
+                                : 'bg-white text-green-700 hover:bg-green-50 hover:text-green-800 border border-green-200 hover:border-green-300 shadow-sm hover:shadow-md'
                             }`}
                         >
                             <span className="hidden sm:inline">Selanjutnya</span>
@@ -445,6 +513,7 @@ function SearchPage() {
                     </div>
                 </div>
             )}
+            </div>
         </div>
     );
 }

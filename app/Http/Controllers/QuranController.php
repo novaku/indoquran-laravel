@@ -34,12 +34,31 @@ class QuranController extends Controller
     /**
      * Get a specific surah with its ayahs
      * 
-     * @param int $number
+     * @param string|int $number
      * @return JsonResponse
      */
-    public function getSurah(int $number): JsonResponse
+    public function getSurah($number): JsonResponse
     {
-        $surah = $this->quranCache->getSurah($number);
+        // First check if the parameter is actually a valid number
+        if (!is_numeric($number)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid surah number format'
+            ], 400);
+        }
+        
+        // Convert $number to integer to handle string input from routes
+        $surahNumber = (int) $number;
+        
+        // Verify that the surah number is in valid range (1-114)
+        if ($surahNumber < 1 || $surahNumber > 114) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Surah number must be between 1 and 114'
+            ], 400);
+        }
+        
+        $surah = $this->quranCache->getSurah($surahNumber);
         
         if (!$surah) {
             return response()->json([
@@ -48,7 +67,7 @@ class QuranController extends Controller
             ], 404);
         }
         
-        $ayahs = $this->quranCache->getSurahAyahs($number);
+        $ayahs = $this->quranCache->getSurahAyahs($surahNumber);
         
         return response()->json([
             'status' => 'success',
@@ -62,12 +81,31 @@ class QuranController extends Controller
     /**
      * Get surah metadata only (without ayahs)
      * 
-     * @param int $number
+     * @param string|int $number
      * @return JsonResponse
      */
-    public function getSurahMetadata(int $number): JsonResponse
+    public function getSurahMetadata($number): JsonResponse
     {
-        $surah = $this->quranCache->getSurah($number);
+        // First check if the parameter is actually a valid number
+        if (!is_numeric($number)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid surah number format'
+            ], 400);
+        }
+        
+        // Convert $number to integer to handle string input from routes
+        $surahNumber = (int) $number;
+        
+        // Verify that the surah number is in valid range (1-114)
+        if ($surahNumber < 1 || $surahNumber > 114) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Surah number must be between 1 and 114'
+            ], 400);
+        }
+        
+        $surah = $this->quranCache->getSurah($surahNumber);
         
         if (!$surah) {
             return response()->json([
@@ -85,13 +123,41 @@ class QuranController extends Controller
     /**
      * Get a specific ayah
      * 
-     * @param int $surahNumber
-     * @param int $ayahNumber
+     * @param string|int $surahNumber
+     * @param string|int $ayahNumber
      * @return JsonResponse
      */
-    public function getAyah(int $surahNumber, int $ayahNumber): JsonResponse
+    public function getAyah($surahNumber, $ayahNumber): JsonResponse
     {
-        $ayah = $this->quranCache->getAyah($surahNumber, $ayahNumber);
+        // Validate surah number
+        if (!is_numeric($surahNumber)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid surah number format'
+            ], 400);
+        }
+        
+        // Validate ayah number
+        if (!is_numeric($ayahNumber)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid ayah number format'
+            ], 400);
+        }
+        
+        // Convert parameters to integers to handle string input from routes
+        $surahNum = (int) $surahNumber;
+        $ayahNum = (int) $ayahNumber;
+        
+        // Verify that the surah number is in valid range (1-114)
+        if ($surahNum < 1 || $surahNum > 114) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Surah number must be between 1 and 114'
+            ], 400);
+        }
+        
+        $ayah = $this->quranCache->getAyah($surahNum, $ayahNum);
         
         if (!$ayah) {
             return response()->json([

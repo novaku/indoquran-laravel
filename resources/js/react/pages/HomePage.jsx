@@ -1,18 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import QuranHeader from '../components/QuranHeader';
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import MetaTags from '../components/MetaTags';
 import StructuredData from '../components/StructuredData';
-import { fetchWithAuth } from '../utils/apiUtils';
+import { fetchWithAuth, getAuthToken } from '../utils/apiUtils';
 
 function HomePage() {
+    const navigate = useNavigate();
     const [surahs, setSurahs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedSurah, setSelectedSurah] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    
+    // Search functionality states
+    const [searchTerm, setSearchTerm] = useState('');
+    const [suggestions, setSuggestions] = useState([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [isSearchLoading, setIsSearchLoading] = useState(false);
+    const [highlightedIndex, setHighlightedIndex] = useState(-1);
+    const searchRef = useRef(null);
+    const suggestionsRef = useRef(null);
 
-    // Handle Escape key press
+    // Handle Escape key press for modal
     useEffect(() => {
         const handleEscape = (e) => {
             if (e.key === 'Escape' && showModal) {
@@ -24,8 +35,17 @@ function HomePage() {
         return () => document.removeEventListener('keydown', handleEscape);
     }, [showModal]);
     
+    // Load surahs data
     useEffect(() => {
-        fetchWithAuth('/api/surahs')
+        const token = getAuthToken();
+        
+        fetchWithAuth('/api/surahs', {
+            headers: {
+                'Authorization': token ? `Bearer ${token}` : '',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            }
+        })
             .then(response => {
                 if (!response.ok) throw new Error('Failed to fetch surahs');
                 return response.json();
@@ -44,6 +64,50 @@ function HomePage() {
             });
     }, []);
 
+    // Search functionality
+    useEffect(() => {
+        const handleSearch = () => {
+            if (!searchTerm.trim()) {
+                setSuggestions([]);
+                setShowSuggestions(false);
+                return;
+            }
+            
+            const token = getAuthToken();
+            setIsSearchLoading(true);
+            fetchWithAuth(`/api/search?q=${encodeURIComponent(searchTerm)}&limit=5`, {
+                headers: {
+                    'Authorization': token ? `Bearer ${token}` : '',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                }
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to fetch search results');
+                    return response.json();
+                })
+                .then(response => {
+                    if (response.status === 'success') {
+                        setSuggestions(response.data);
+                        setShowSuggestions(true);
+                    } else {
+                        setError("Gagal memuat hasil pencarian");
+                    }
+                    setIsSearchLoading(false);
+                })
+                .catch(err => {
+                    setError(err.message);
+                    setIsSearchLoading(false);
+                });
+        };
+
+        const debounceSearch = setTimeout(() => {
+            handleSearch();
+        }, 300);
+
+        return () => clearTimeout(debounceSearch);
+    }, [searchTerm]);
+
     // Helper function to truncate description
     const truncateDescription = (htmlText, maxLength = 80) => {
         if (!htmlText) return '';
@@ -61,15 +125,219 @@ function HomePage() {
             : textContent;
     };
     
+    // Search functionality
+    const fetchSuggestions = async (query) => {
+        if (!query || query.length < 2) {
+            setSuggestions([]);
+            return;
+        }
+        
+        const token = getAuthToken();
+        setIsSearchLoading(true);
+        try {
+            const response = await fetchWithAuth(`/api/search?q=${encodeURIComponent(query)}&limit=5`, {
+                headers: {
+                    'Authorization': token ? `Bearer ${token}` : '',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch suggestions');
+            
+            const data = await response.json();
+            if (data.status === 'success') {
+                const ayahResults = Array.isArray(data.data) ? data.data : [];
+                
+                if (!Array.isArray(ayahResults)) {
+                    setSuggestions([]);
+                    return;
+                }
+                
+                const textSuggestions = ayahResults.map((ayah, index) => {
+                    if (!ayah || typeof ayah !== 'object') {
+                        return null;
+                    }
+                    
+                    const ayahData = {
+                        ...ayah,
+                        surah_number: ayah.surah_number || null,
+                        number: ayah.number || ayah.ayah_number || null,
+                        text_indonesian: ayah.text_indonesian || ''
+                    };
+                    
+                    if (!ayahData.surah_number || !ayahData.number) {
+                        return null;
+                    }
+                    
+                    let highlightedText = ayahData.text_indonesian;
+                    const lowerText = ayahData.text_indonesian.toLowerCase();
+                    const lowerQuery = query.toLowerCase();
+                    
+                    if (lowerText.includes(lowerQuery)) {
+                        const startIndex = lowerText.indexOf(lowerQuery);
+                        highlightedText = {
+                            before: ayahData.text_indonesian.substring(0, startIndex),
+                            match: ayahData.text_indonesian.substring(startIndex, startIndex + query.length),
+                            after: ayahData.text_indonesian.substring(startIndex + query.length)
+                        };
+                    }
+                    
+                    const suggestion = {
+                        type: 'ayah',
+                        ayah: ayahData,
+                        surahName: surahs.find(s => s.number === ayahData.surah_number)?.name_latin || `Surah ${ayahData.surah_number}`,
+                        text: ayahData.text_indonesian,
+                        highlightedText: highlightedText
+                    };
+                    
+                    return suggestion;
+                })
+                .filter(Boolean)
+                .slice(0, 5);
+                
+                setSuggestions(textSuggestions);
+            }
+        } catch (error) {
+            console.error('Error fetching suggestions:', error);
+        } finally {
+            setIsSearchLoading(false);
+        }
+    };
+
+    // Debounce search input
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (searchTerm) {
+                fetchSuggestions(searchTerm);
+            } else {
+                setSuggestions([]);
+            }
+        }, 300);
+        
+        return () => clearTimeout(timer);
+    }, [searchTerm, surahs]);
+
+    // Handle clicks outside of the search component
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (searchRef.current && !searchRef.current.contains(event.target)) {
+                setShowSuggestions(false);
+            }
+        };
+        
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [searchRef]);
+
+    // Reset highlighted index when suggestions change
+    useEffect(() => {
+        setHighlightedIndex(-1);
+    }, [suggestions]);
+
+    // Scroll highlighted suggestion into view
+    useEffect(() => {
+        if (highlightedIndex >= 0 && suggestionsRef.current) {
+            const highlightedElement = suggestionsRef.current.querySelector(`li:nth-child(${highlightedIndex + 1})`);
+            if (highlightedElement) {
+                highlightedElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+    }, [highlightedIndex]);
+
+    const handleSearchSubmit = (e) => {
+        e.preventDefault();
+        const query = e.target.elements.search.value.trim();
+        if (query) {
+            navigate(`/search?q=${encodeURIComponent(query)}`);
+            setShowSuggestions(false);
+        }
+    };
+
+    const handleSearchChange = (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+        if (value.length >= 2) {
+            setShowSuggestions(true);
+        } else {
+            setShowSuggestions(false);
+        }
+    };
+
+    const handleSearchFocus = () => {
+        if (searchTerm && searchTerm.length >= 2) {
+            setShowSuggestions(true);
+        }
+    };
+
+    const handleKeyDown = (e) => {
+        if (!showSuggestions || suggestions.length === 0) {
+            return;
+        }
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setHighlightedIndex(prevIndex => 
+                prevIndex < suggestions.length - 1 ? prevIndex + 1 : 0
+            );
+        } 
+        else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setHighlightedIndex(prevIndex => 
+                prevIndex > 0 ? prevIndex - 1 : suggestions.length - 1
+            );
+        } 
+        else if (e.key === 'Enter' && highlightedIndex >= 0) {
+            e.preventDefault();
+            const suggestion = suggestions[highlightedIndex];
+            
+            if (suggestion.type === 'ayah' && suggestion.ayah) {
+                handleSuggestionClick(suggestion);
+            }
+        }
+        else if (e.key === 'Escape') {
+            setShowSuggestions(false);
+            setHighlightedIndex(-1);
+        }
+    };
+
+    const handleSuggestionClick = (suggestion) => {
+        if (suggestion.type === 'ayah' && suggestion.ayah) {
+            const surah_number = suggestion.ayah.surah_number;
+            const ayah_number = suggestion.ayah.number || suggestion.ayah.ayah_number;
+            
+            if (surah_number && ayah_number) {
+                const navigationUrl = `/surah/${surah_number}/${ayah_number}`;
+                navigate(navigationUrl);
+            }
+        }
+        
+        setShowSuggestions(false);
+        setSearchTerm('');
+    };
+
+    const handleViewAllResults = () => {
+        navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+        setShowSuggestions(false);
+    };
+
+    const handleClearSearch = () => {
+        setSearchTerm('');
+        setSuggestions([]);
+        setShowSuggestions(false);
+        setHighlightedIndex(-1);
+    };
+    
+    const closeModal = () => {
+        setShowModal(false);
+        setSelectedSurah(null);
+    };
+
     const handleSurahClick = (e, surah) => {
         e.preventDefault(); // Prevent the Link component from navigating immediately
         setSelectedSurah(surah);
         setShowModal(true);
-    };
-
-    const closeModal = () => {
-        setShowModal(false);
-        setSelectedSurah(null);
     };
 
     if (loading) {
@@ -103,11 +371,179 @@ function HomePage() {
             <div className="container mx-auto px-4 py-8">
                 <QuranHeader />
                 
+                {/* Search Widget */}
+                <div className="mb-8 max-w-3xl mx-auto">
+                    <form onSubmit={handleSearchSubmit} className="flex items-center">
+                        <div className="relative w-full" ref={searchRef}>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 absolute left-4 top-1/2 -translate-y-1/2 text-islamic-green" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                            </svg>
+                            <input 
+                                type="text" 
+                                name="search"
+                                value={searchTerm}
+                                onChange={handleSearchChange}
+                                onFocus={handleSearchFocus}
+                                onKeyDown={handleKeyDown}
+                                placeholder="Cari ayat Al-Quran berdasarkan terjemahan Indonesia..." 
+                                className="w-full pl-12 pr-12 py-4 rounded-xl border-2 border-islamic-green/20 focus:outline-none focus:ring-2 focus:ring-islamic-green/30 focus:border-islamic-green/40 shadow-md text-base bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow"
+                            />
+                            {searchTerm && (
+                                <button
+                                    type="button"
+                                    onClick={handleClearSearch}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-islamic-green/60 hover:text-islamic-green transition-colors"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            )}
+
+                            {/* Autocomplete Suggestions */}
+                            {showSuggestions && searchTerm.length >= 2 && (
+                                <div 
+                                    className="absolute z-50 mt-2 w-full bg-white rounded-xl shadow-lg max-h-96 overflow-y-auto border border-islamic-green/20"
+                                    ref={suggestionsRef}
+                                >
+                                    {isSearchLoading ? (
+                                        <div className="p-4 text-center text-islamic-green">
+                                            <div className="inline-block animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-islamic-green mr-2"></div>
+                                            Mencari...
+                                        </div>
+                                    ) : suggestions.length > 0 ? (
+                                        <>
+                                            <div className="px-4 py-2 border-b border-islamic-green/10 bg-islamic-green/5">
+                                                <h3 className="text-xs font-medium text-islamic-green">Hasil Pencarian untuk "{searchTerm}"</h3>
+                                            </div>
+                                            <ul className="py-2">
+                                                {suggestions.map((suggestion, index) => (
+                                                <li 
+                                                    key={`${suggestion.type}-${index}`}
+                                                    onClick={() => {
+                                                        handleSuggestionClick(suggestion);
+                                                    }}
+                                                    className={`px-4 py-3 hover:bg-islamic-green/5 cursor-pointer border-b border-gray-100 last:border-b-0 ${
+                                                        highlightedIndex === index ? 'bg-islamic-green/5' : ''
+                                                    } transition-colors duration-150`}
+                                                    onMouseEnter={() => setHighlightedIndex(index)}
+                                                >
+                                                    {suggestion.ayah ? (
+                                                        <div>
+                                                            <div className="flex items-center text-islamic-brown text-sm mb-1.5">
+                                                                <span className="font-medium">{suggestion.surahName}</span>
+                                                                <span className="mx-1.5">•</span>
+                                                                <span>Ayat {suggestion.ayah.number || suggestion.ayah.ayah_number}</span>
+                                                                <span className="ml-auto text-xs text-islamic-green bg-islamic-green/10 px-2 py-0.5 rounded-full">Lihat ayat →</span>
+                                                            </div>
+                                                            <p className="text-gray-700 text-sm overflow-hidden text-ellipsis" 
+                                                               style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
+                                                                <span className="text-islamic-green font-medium">Terjemahan: </span>
+                                                                {typeof suggestion.highlightedText === 'object' ? (
+                                                                    <span>
+                                                                        "{suggestion.highlightedText.before}
+                                                                        <span className="bg-yellow-100 font-medium px-0.5 rounded-sm">{suggestion.highlightedText.match}</span>
+                                                                        {suggestion.highlightedText.after}"
+                                                                    </span>
+                                                                ) : (
+                                                                    `"${suggestion.text}"`
+                                                                )}
+                                                            </p>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="p-2 text-sm text-gray-500">
+                                                            Data ayat tidak lengkap
+                                                        </div>
+                                                    )}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        </>
+                                    ) : (
+                                        <div className="p-6 text-center">
+                                            <div className="text-islamic-green/70 mb-3 font-medium">Tidak ada hasil yang cocok</div>
+                                            <p className="text-sm text-gray-500 max-w-md mx-auto">
+                                                Coba gunakan kata kunci lain atau cari berdasarkan isi ayat. Contoh: "rahmat", "kasih sayang", "rezeki"
+                                            </p>
+                                        </div>
+                                    )}
+                                    
+                                    {/* View All Results Button */}
+                                    {!isSearchLoading && suggestions.length > 0 && (
+                                        <div className="p-4 border-t border-islamic-green/10">
+                                            <button
+                                                onClick={handleViewAllResults}
+                                                className="w-full py-3 px-4 bg-islamic-green/10 hover:bg-islamic-green/20 text-islamic-green font-medium rounded-xl transition-all duration-300 flex items-center justify-center shadow-sm hover:shadow"
+                                                type="button"
+                                            >
+                                                <span>Lihat Semua Hasil</span>
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </form>
+                    <p className="text-center text-sm text-islamic-green/70 mt-3 px-2 flex items-center justify-center gap-1.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>Cari berdasarkan kata kunci, nama surah, atau terjemahan bahasa Indonesia</span>
+                    </p>
+                </div>
+                
                 <PrayerTimesWidget className="mb-8" />
             
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-islamic-green mb-2">Al-Quran Digital</h1>
                 <p className="text-lg text-gray-600 mb-6">Baca, dengar, dan pelajari Al-Quran secara online dengan terjemahan bahasa Indonesia</p>
+            
+                {/* Search Bar */}
+                <div className="mb-6">
+                    <div className="relative">
+                        <input 
+                            type="text"
+                            value={searchTerm}
+                            onChange={handleSearchChange}
+                            onFocus={() => setShowSuggestions(true)}
+                            onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
+                            className="w-full bg-white border border-gray-300 rounded-lg py-3 px-4 shadow-sm focus:outline-none focus:ring-2 focus:ring-islamic-green/50 focus:border-islamic-green transition-all duration-200"
+                            placeholder="Cari surah atau ayat..."
+                        />
+                        {isSearchLoading && (
+                            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                                <svg className="animate-spin h-5 w-5 text-islamic-green" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4}></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                </svg>
+                            </div>
+                        )}
+                    </div>
+                    {showSuggestions && suggestions.length > 0 && (
+                        <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
+                            {suggestions.map((surah, index) => (
+                                <div 
+                                    key={surah.number} 
+                                    onClick={() => handleSuggestionClick(surah)}
+                                    className={`cursor-pointer select-none relative py-2 px-4 transition-all duration-200 
+                                        ${highlightedIndex === index ? 'bg-islamic-green/10 text-islamic-green' : 'text-gray-700'}
+                                    `}
+                                    onMouseEnter={() => setHighlightedIndex(index)}
+                                    onMouseLeave={() => setHighlightedIndex(-1)}
+                                >
+                                    <span className="block text-sm font-medium">{surah.name_latin}</span>
+                                    <span className="block text-xs text-gray-500">{surah.name_indonesian}</span>
+                                    <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                                        <span className="text-islamic-green font-arabic text-lg">{surah.name_arabic}</span>
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
             
                 {loading ? (
                     <div className="flex justify-center items-center h-64">

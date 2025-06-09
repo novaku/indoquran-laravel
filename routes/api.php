@@ -71,11 +71,12 @@ Route::middleware(['simple.auth'])->group(function() {
 
 // Surah routes
 Route::get('/surahs', [App\Http\Controllers\QuranController::class, 'getAllSurahs']);
-Route::get('/surahs/{number}', [App\Http\Controllers\QuranController::class, 'getSurah']);
-Route::get('/surahs/{number}/metadata', [App\Http\Controllers\QuranController::class, 'getSurahMetadata']);
+Route::get('/surahs/{number}', [App\Http\Controllers\QuranController::class, 'getSurah'])->where('number', '[0-9]+');
+Route::get('/surahs/{number}/metadata', [App\Http\Controllers\QuranController::class, 'getSurahMetadata'])->where('number', '[0-9]+');
 
 // Ayah routes
-Route::get('/ayahs/{surahNumber}/{ayahNumber}', [App\Http\Controllers\QuranController::class, 'getAyah']);
+Route::get('/ayahs/{surahNumber}/{ayahNumber}', [App\Http\Controllers\QuranController::class, 'getAyah'])
+    ->where(['surahNumber' => '[0-9]+', 'ayahNumber' => '[0-9]+']);
 
 // Search routes
 Route::get('/search', [App\Http\Controllers\QuranController::class, 'searchAyahs']);
