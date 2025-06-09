@@ -10,15 +10,7 @@ function Navbar({ onBreadcrumbsChange }) {
     const [breadcrumbs, setBreadcrumbs] = useState([]);
     const [surahName, setSurahName] = useState('');
     
-    // Debug logging for user state
-    useEffect(() => {
-        // User state tracking for debugging purposes
-    }, [user]);
-    
-    // Additional debug log on component render
-    useEffect(() => {
-        // Component mount tracking for debugging purposes
-    }, [user, location.pathname]);
+
     
     // Search functionality states
     const [searchTerm, setSearchTerm] = useState('');
@@ -139,8 +131,9 @@ function Navbar({ onBreadcrumbsChange }) {
                     return;
                 }
                 
-                const textSuggestions = ayahResults.map(ayah => {
+                const textSuggestions = ayahResults.map((ayah, index) => {
                     if (!ayah || typeof ayah !== 'object') {
+                        console.warn(`⚠️ Navbar - Invalid ayah object at index ${index}:`, ayah);
                         return null;
                     }
                     
@@ -152,6 +145,10 @@ function Navbar({ onBreadcrumbsChange }) {
                     };
                     
                     if (!ayahData.surah_number || !ayahData.number) {
+                        console.warn(`❌ Navbar - Missing required fields for ayah ${index + 1}:`, {
+                            surah_number: ayahData.surah_number,
+                            number: ayahData.number
+                        });
                         return null;
                     }
                     
@@ -168,13 +165,15 @@ function Navbar({ onBreadcrumbsChange }) {
                         };
                     }
                     
-                    return {
+                    const suggestion = {
                         type: 'ayah',
                         ayah: ayahData,
                         surahName: surahs.find(s => s.number === ayahData.surah_number)?.name_latin || `Surah ${ayahData.surah_number}`,
                         text: ayahData.text_indonesian,
                         highlightedText: highlightedText
                     };
+                    
+                    return suggestion;
                 })
                 .filter(Boolean)
                 .slice(0, 5);
@@ -182,7 +181,7 @@ function Navbar({ onBreadcrumbsChange }) {
                 setSuggestions(textSuggestions);
             }
         } catch (error) {
-            // Error fetching suggestions
+            console.error('❌ Navbar - Error fetching suggestions:', error);
         } finally {
             setIsLoading(false);
         }
@@ -275,8 +274,11 @@ function Navbar({ onBreadcrumbsChange }) {
         else if (e.key === 'Enter' && highlightedIndex >= 0) {
             e.preventDefault();
             const suggestion = suggestions[highlightedIndex];
+            
             if (suggestion.type === 'ayah' && suggestion.ayah) {
                 handleSuggestionClick(suggestion);
+            } else {
+                console.error('❌ Navbar - Invalid suggestion for keyboard navigation:', suggestion);
             }
         }
         else if (e.key === 'Escape') {
@@ -291,11 +293,23 @@ function Navbar({ onBreadcrumbsChange }) {
             const ayah_number = suggestion.ayah.number || suggestion.ayah.ayah_number;
             
             if (surah_number && ayah_number) {
-                navigate(`/surah/${surah_number}/${ayah_number}`);
+                const navigationUrl = `/surah/${surah_number}/${ayah_number}`;
+                navigate(navigationUrl);
+            } else {
+                console.error('❌ Navbar - Missing required navigation data:', {
+                    surah_number,
+                    ayah_number,
+                    suggestion_ayah: suggestion.ayah
+                });
             }
         } else {
-            // Invalid suggestion data
+            console.error('❌ Navbar - Invalid suggestion data structure:', {
+                suggestion_type: suggestion?.type,
+                has_ayah: !!suggestion?.ayah,
+                full_suggestion: suggestion
+            });
         }
+        
         setShowSuggestions(false);
         setSearchTerm('');
     };
@@ -382,7 +396,9 @@ function Navbar({ onBreadcrumbsChange }) {
                                                     {suggestions.map((suggestion, index) => (
                                                         <li 
                                                             key={`${suggestion.type}-${index}`}
-                                                            onClick={() => handleSuggestionClick(suggestion)}
+                                                            onClick={() => {
+                                                                handleSuggestionClick(suggestion);
+                                                            }}
                                                             className={`px-3 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0 ${
                                                                 highlightedIndex === index ? 'bg-gray-100' : ''
                                                             } hover:bg-islamic-green/5`}
@@ -528,7 +544,9 @@ function Navbar({ onBreadcrumbsChange }) {
                                                 {suggestions.map((suggestion, index) => (
                                                     <li 
                                                         key={`${suggestion.type}-${index}`}
-                                                        onClick={() => handleSuggestionClick(suggestion)}
+                                                        onClick={() => {
+                                                            handleSuggestionClick(suggestion);
+                                                        }}
                                                         className={`px-3 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0 ${
                                                             highlightedIndex === index ? 'bg-gray-100' : ''
                                                         } hover:bg-islamic-green/5`}

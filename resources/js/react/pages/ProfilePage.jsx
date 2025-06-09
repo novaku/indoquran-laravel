@@ -108,9 +108,7 @@ function ProfilePage() {
     
     const handleLogout = async () => {
         try {
-            console.log('🚪 [ProfilePage] Starting logout...');
             await logout();
-            console.log('✅ [ProfilePage] Logout successful, navigating to login...');
             navigate('/auth/login');
         } catch (error) {
             console.error('❌ [ProfilePage] Logout failed:', error);

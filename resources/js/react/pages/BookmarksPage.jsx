@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IoBookmark, IoArrowBackOutline, IoSearchOutline, IoCreateOutline, IoSaveOutline, IoCloseOutline, IoChevronDownOutline, IoChevronUpOutline, IoAddOutline, IoRemoveOutline, IoReloadOutline } from 'react-icons/io5';
+import { IoBookmark, IoArrowBackOutline, IoSearchOutline, IoCreateOutline, IoSaveOutline, IoCloseOutline, IoChevronDownOutline, IoChevronUpOutline, IoAddOutline, IoRemoveOutline, IoReloadOutline, IoEyeOutline, IoEyeOffOutline, IoListOutline } from 'react-icons/io5';
 import { getUserBookmarks, updateBookmarkNotes } from '../services/BookmarkService';
 import { useAuth } from '../hooks/useAuth.jsx';
 
@@ -15,6 +15,9 @@ function BookmarksPage() {
     const [savingNotes, setSavingNotes] = useState(false);
     const [collapsedSurahs, setCollapsedSurahs] = useState(new Set());
     const [collapsedAyahs, setCollapsedAyahs] = useState(new Set());
+    const [hiddenSurahs, setHiddenSurahs] = useState(new Set()); // Will be populated after bookmarks load
+
+    const [initialHideAll, setInitialHideAll] = useState(true); // Flag to hide all surahs initially
     
     // Arabic text zoom state
     const [arabicFontSize, setArabicFontSize] = useState(2.5); // Default size in rem (2.5rem)
@@ -57,6 +60,13 @@ function BookmarksPage() {
             // Ensure the response is an array
             if (Array.isArray(allBookmarks)) {
                 setBookmarks(allBookmarks);
+                
+                // Hide all surahs by default on initial load
+                if (initialHideAll && allBookmarks.length > 0) {
+                    const uniqueSurahNumbers = [...new Set(allBookmarks.map(bookmark => bookmark.surah_number))];
+                    setHiddenSurahs(new Set(uniqueSurahNumbers));
+                    setInitialHideAll(false); // Only do this once
+                }
             } else {
                 console.error('Invalid bookmarks data received:', allBookmarks);
                 setBookmarks([]);
@@ -117,6 +127,28 @@ function BookmarksPage() {
         });
     };
 
+    // Tab group functions for showing/hiding surahs
+    const toggleSurahVisibility = (surahNumber) => {
+        setHiddenSurahs(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(surahNumber)) {
+                newSet.delete(surahNumber);
+            } else {
+                newSet.add(surahNumber);
+            }
+            return newSet;
+        });
+    };
+
+    const showAllSurahs = () => {
+        setHiddenSurahs(new Set());
+    };
+
+    const hideAllSurahs = () => {
+        const allSurahNumbers = groupedBookmarksData.map(group => group.surah_number);
+        setHiddenSurahs(new Set(allSurahNumbers));
+    };
+
     // Group bookmarks by surah and order them
     const groupedBookmarks = () => {
         // Ensure bookmarks is an array before calling filter
@@ -148,16 +180,26 @@ function BookmarksPage() {
             grouped[surahNumber].ayahs.push(bookmark);
         });
 
-        // Convert to array and sort by surah number
-        return Object.values(grouped).sort((a, b) => a.surah_number - b.surah_number);
+        // Convert to array, sort by surah number, and sort ayahs within each surah
+        return Object.values(grouped)
+            .sort((a, b) => a.surah_number - b.surah_number)
+            .map(surahGroup => ({
+                ...surahGroup,
+                ayahs: surahGroup.ayahs.sort((a, b) => a.ayah_number - b.ayah_number)
+            }));
     };
 
     const groupedBookmarksData = groupedBookmarks();
+    
+    // Filter out hidden surahs
+    const visibleBookmarksData = groupedBookmarksData.filter(surahGroup => 
+        !hiddenSurahs.has(surahGroup.surah_number)
+    );
 
     if (loading) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
-                <div className="max-w-4xl mx-auto px-4 py-8 pt-24 pb-20">
+                <div className="max-w-6xl mx-auto px-4 py-8 pt-24 pb-20">
                     <div className="flex justify-center items-center h-64">
                         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
                     </div>
@@ -168,7 +210,7 @@ function BookmarksPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
-            <div className="max-w-4xl mx-auto px-4 py-8 pt-24 pb-20">
+            <div className="max-w-6xl mx-auto px-4 py-8 pt-24 pb-20">
                 {/* Header */}
                 <div className="bg-white rounded-3xl shadow-xl p-8 mb-8 border border-green-100">
                     <div className="flex items-center gap-4 mb-4">
@@ -196,10 +238,69 @@ function BookmarksPage() {
                             />
                         </div>
                     </div>
+                    
+                    {/* Stats Display */}
+                    <div className="mt-4 flex items-center justify-end">
+                        {groupedBookmarksData.length > 0 && (
+                            <div className="text-sm text-green-600">
+                                {visibleBookmarksData.length} dari {groupedBookmarksData.length} surah ditampilkan
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Tab Group for Surah Visibility - Always Visible */}
+                    {groupedBookmarksData.length > 0 && (
+                        <div className="mt-4 p-4 bg-green-50/50 rounded-xl border border-green-200">
+                            <div className="flex items-center justify-between mb-3">
+                                <h3 className="text-sm font-semibold text-green-800">Kontrol Tampilan Surah:</h3>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={showAllSurahs}
+                                        className="flex items-center gap-1 px-3 py-1 text-xs bg-green-100 border border-green-300 text-green-800 rounded hover:bg-green-200 transition-colors"
+                                    >
+                                        <IoEyeOutline />
+                                        Tampilkan Semua
+                                    </button>
+                                    <button
+                                        onClick={hideAllSurahs}
+                                        className="flex items-center gap-1 px-3 py-1 text-xs bg-gray-100 border border-gray-300 text-gray-800 rounded hover:bg-gray-200 transition-colors"
+                                    >
+                                        <IoEyeOffOutline />
+                                        Sembunyikan Semua
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+                                {groupedBookmarksData.map((surahGroup) => (
+                                    <button
+                                        key={surahGroup.surah_number}
+                                        onClick={() => toggleSurahVisibility(surahGroup.surah_number)}
+                                        className={`flex items-center gap-2 px-3 py-2 text-xs rounded-lg border transition-all duration-200 ${
+                                            hiddenSurahs.has(surahGroup.surah_number)
+                                                ? 'bg-gray-100 border-gray-300 text-gray-600 hover:bg-gray-200'
+                                                : 'bg-green-100 border-green-300 text-green-800 hover:bg-green-200'
+                                        }`}
+                                        title={`${surahGroup.surah?.name_indonesian || `Surah ${surahGroup.surah_number}`} (${surahGroup.ayahs.length} ayat)`}
+                                    >
+                                        {hiddenSurahs.has(surahGroup.surah_number) ? (
+                                            <IoEyeOffOutline className="flex-shrink-0" />
+                                        ) : (
+                                            <IoEyeOutline className="flex-shrink-0" />
+                                        )}
+                                        <span className="truncate">
+                                            {surahGroup.surah_number}. {surahGroup.surah?.name_indonesian?.substring(0, 8) || `Surah ${surahGroup.surah_number}`}
+                                        </span>
+                                        <span className="text-xs opacity-75">({surahGroup.ayahs.length})</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
             {/* Content */}
-            {groupedBookmarksData.length === 0 ? (
+            {visibleBookmarksData.length === 0 ? (
                 <div className="bg-white rounded-3xl shadow-xl p-12 border border-green-100 text-center">
                     <div className="mb-4">
                         <IoBookmark className="text-6xl text-green-300 mx-auto" />
@@ -207,19 +308,23 @@ function BookmarksPage() {
                     <h3 className="text-xl font-semibold text-green-700 mb-2">
                         {searchTerm 
                             ? 'Tidak ada hasil yang ditemukan'
-                            : 'Belum ada bookmark'
+                            : hiddenSurahs.size === groupedBookmarksData.length && groupedBookmarksData.length > 0
+                                ? 'Semua surah disembunyikan'
+                                : 'Belum ada bookmark'
                         }
                     </h3>
                     <p className="text-green-600">
                         {searchTerm 
                             ? 'Coba kata kunci yang berbeda'
-                            : 'Simpan ayat dengan menekan tombol bookmark'
+                            : hiddenSurahs.size === groupedBookmarksData.length && groupedBookmarksData.length > 0
+                                ? 'Gunakan kontrol surah untuk menampilkan bookmark'
+                                : 'Simpan ayat dengan menekan tombol bookmark'
                         }
                     </p>
                 </div>
             ) : (
                 <div className="space-y-6">
-                    {groupedBookmarksData.map((surahGroup) => (
+                    {visibleBookmarksData.map((surahGroup) => (
                         <div key={surahGroup.surah_number} className="bg-white rounded-3xl shadow-xl border border-green-100">
                             {/* Surah Header */}
                             <div 

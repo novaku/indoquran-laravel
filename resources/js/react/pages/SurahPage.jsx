@@ -10,33 +10,12 @@ import StructuredData from '../components/StructuredData';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { fetchWithAuth } from '../utils/apiUtils';
 
-// Debug control removed - all console logging disabled
-
-// Render counter to track component render cycles
-let renderCount = 0;
-
-// Initialize global cache to prevent refetching between component mounts
-if (!window.indoquranCache) {
-    window.indoquranCache = {
-        surahs: {},
-        ayahs: {}
-    };
-}
-
 function SurahPage() {
     const { user } = useAuth();
-    renderCount++;
-    
-    // Add component lifecycle debugging
-    useEffect(() => {
-        const instanceId = Math.random().toString(36).substring(2, 9);
-        
-        return () => {
-            renderCount = 0; // Reset render count on unmount
-        };
-    }, []);
 
     const { number, ayahNumber } = useParams();
+    
+
     const navigate = useNavigate();
     const [surah, setSurah] = useState(null);
     const [ayah, setAyah] = useState(null);
@@ -142,22 +121,27 @@ function SurahPage() {
 
     // Select ayah from already loaded data when selectedAyahNumber changes
     useEffect(() => {
-        if (!selectedAyahNumber || !allAyahs || Object.keys(allAyahs).length === 0) return;
+        if (!selectedAyahNumber || !allAyahs || Object.keys(allAyahs).length === 0) {
+            return;
+        }
         
         // Get the selected ayah from the loaded data
         const selectedAyah = allAyahs[selectedAyahNumber];
+        
         if (selectedAyah) {
             setAyah(selectedAyah);
             setError(null); // Clear any previous errors
         } else {
             // Try to find the first available ayah as fallback
             const availableKeys = Object.keys(allAyahs).map(k => parseInt(k)).sort((a, b) => a - b);
+            
             if (availableKeys.length > 0) {
                 const firstAvailableAyah = availableKeys[0];
                 setSelectedAyahNumber(firstAvailableAyah);
                 return; // This will trigger the effect again
             }
             
+            console.error('❌ SurahPage - No ayah found:', selectedAyahNumber);
             setError(`Ayat ${selectedAyahNumber} tidak ditemukan`);
         }
     }, [selectedAyahNumber, allAyahs]);
@@ -498,7 +482,7 @@ function SurahPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
-            <div className="max-w-4xl mx-auto px-4 py-8 pt-24 pb-20">
+            <div className="max-w-6xl mx-auto px-4 py-8 pt-24 pb-20">
                 <div className="bg-white rounded-3xl shadow-xl p-8 mb-8 border border-green-100">
                     <div className="mb-4">
                         <div className="flex items-center justify-between flex-wrap gap-4 mb-3">
