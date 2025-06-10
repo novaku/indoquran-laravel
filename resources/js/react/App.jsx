@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from './hooks/useAuth.jsx';
 import Navbar from './components/Navbar';
 import Breadcrumb from './components/Breadcrumb';
 import Footer from './components/Footer';
+import ScrollIndicator from './components/ScrollIndicator';
 
 // Import pages
 import AuthPage from './pages/AuthPage';
@@ -66,10 +67,11 @@ function AppContent() {
 
     return (
         <div className="flex flex-col min-h-screen bg-[#faf8f2]">
+            <ScrollIndicator />
             <Navbar user={user} setUser={setUser} onBreadcrumbsChange={handleBreadcrumbsChange} />
             <Breadcrumb breadcrumbs={breadcrumbs} />
             
-            <main className="flex-grow container mx-auto px-4 py-8 pb-32 relative z-10 max-w-6xl" style={{ marginTop: '112px' }}>
+            <main className="flex-grow container mx-auto px-4 py-8 pb-20 relative z-10 max-w-6xl" style={{ marginTop: '80px' }}>
                 <Routes>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/surah/:number" element={<SurahPage user={user} />} />

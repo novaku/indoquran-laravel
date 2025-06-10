@@ -329,3 +329,153 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
+
+/* Auto-hide Navigation and Footer Animations */
+.nav-auto-hide {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+.nav-auto-hide.hidden {
+    transform: translateY(-100%);
+}
+
+.footer-auto-hide {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+.footer-auto-hide.hidden {
+    transform: translateY(100%);
+}
+
+/* Transparent Breadcrumb Enhancements */
+.breadcrumb-transparent {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.breadcrumb-transparent:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* Auto-hide breadcrumb when navbar is hidden */
+@media (max-width: 768px) {
+    .breadcrumb-auto-hide {
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    
+    .breadcrumb-auto-hide.navbar-hidden {
+        opacity: 0.6;
+        transform: translateY(-5px) scale(0.95);
+    }
+    
+    /* Extra transparent for mobile when navbar is hidden */
+    .breadcrumb-mobile-hidden {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* Mobile Touch Improvements */
+@media (max-width: 768px) {
+    /* Larger touch targets for mobile */
+    .mobile-touch-target {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 12px;
+    }
+    
+    /* Improved dropdown animations for mobile */
+    .mobile-dropdown {
+        animation: slideDownFade 0.2s ease-out;
+        transform-origin: top;
+    }
+    
+    .mobile-dropdown-footer {
+        animation: slideUpFade 0.2s ease-out;
+        transform-origin: bottom;
+    }
+    
+    /* Smooth scrolling for mobile */
+    html {
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Prevent zoom on input focus */
+    input, select, textarea {
+        font-size: 16px;
+    }
+}
+
+/* Dropdown Animations */
+@keyframes slideDownFade {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes slideUpFade {
+    0% {
+        opacity: 0;
+        transform: translateY(10px) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Enhanced hover states for better UX */
+.nav-link {
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+    transform: translateY(-1px);
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--islamic-gold, #d4af37);
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+/* Backdrop blur support for dropdown menus */
+.dropdown-backdrop {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.9);
+}
+
+/* Safe area insets for mobile devices with notches */
+@supports (padding-top: env(safe-area-inset-top)) {
+    .navbar-mobile {
+        padding-top: env(safe-area-inset-top);
+    }
+    
+    .footer-mobile {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}

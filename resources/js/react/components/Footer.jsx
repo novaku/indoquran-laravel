@@ -1,9 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { IoLocationOutline } from 'react-icons/io5';
+import React, { useState, useEffect, useRef } from 'react';
+import { IoLocationOutline, IoChevronUpOutline } from 'react-icons/io5';
+import { useFooterAutoHide, useDropdownMenu } from '../hooks/useNavigation';
 
 function Footer() {
     const [locationName, setLocationName] = useState('');
     const [loading, setLoading] = useState(true);
+    
+    // Auto-hide functionality
+    const isVisible = useFooterAutoHide();
+    const { isOpen: isMenuOpen, toggle: toggleMenu, close: closeMenu } = useDropdownMenu();
+    const menuRef = useRef(null);
+
+    // Close menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                closeMenu();
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [closeMenu]);
 
     // Get user's location and fetch location name
     useEffect(() => {
@@ -75,20 +93,102 @@ function Footer() {
             setLoading(false);
         }
     };
+    
     return (
-        <footer className="bg-white py-4 mt-auto border-t border-gray-100 w-full z-10 fixed bottom-0 left-0 shadow-sm">
-            <div className="container mx-auto px-4 max-w-6xl">
-                <div className="flex flex-col md:flex-row justify-between items-center">
+        <footer className={`bg-white py-3 mt-auto border-t border-gray-100 w-full z-10 fixed bottom-0 left-0 shadow-sm footer-auto-hide ${
+            isVisible ? '' : 'hidden'
+        }`}>
+            <div className="container mx-auto px-4 max-w-6xl footer-mobile">
+                {/* Mobile Compact View */}
+                <div className="md:hidden">
+                    <div className="flex items-center justify-between py-2">
+                        <div className="flex items-center text-sm text-gray-500">
+                            <IoLocationOutline className="mr-1 text-islamic-green flex-shrink-0" />
+                            {loading ? (
+                                <span>...</span>
+                            ) : (
+                                <span className="truncate max-w-24">{locationName}</span>
+                            )}
+                        </div>
+                        
+                        <div className="text-islamic-brown text-xs text-center flex-1 px-2">
+                            &copy; {new Date().getFullYear()} Al-Quran Digital
+                        </div>
+                        
+                        {/* Mobile Menu Button */}
+                        <div className="relative" ref={menuRef}>
+                            <button
+                                onClick={toggleMenu}
+                                className="p-2 text-islamic-green hover:text-islamic-gold transition-colors mobile-touch-target"
+                                aria-label="Toggle footer menu"
+                            >
+                                <IoChevronUpOutline 
+                                    className={`h-5 w-5 transition-transform duration-200 ${isMenuOpen ? 'rotate-180' : ''}`} 
+                                />
+                            </button>
+
+                            {/* Mobile Dropdown Menu */}
+                            {isMenuOpen && (
+                                <div className="absolute right-0 bottom-full mb-2 w-48 dropdown-backdrop rounded-lg shadow-lg border border-gray-200 py-2 z-50 mobile-dropdown-footer">
+                                    <a 
+                                        href="/about" 
+                                        className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-islamic-green/5 hover:text-islamic-green transition-colors mobile-touch-target"
+                                        onClick={() => closeMenu()}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Tentang
+                                    </a>
+                                    <a 
+                                        href="/privacy" 
+                                        className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-islamic-green/5 hover:text-islamic-green transition-colors mobile-touch-target"
+                                        onClick={() => closeMenu()}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                        </svg>
+                                        Privasi
+                                    </a>
+                                    <a 
+                                        href="/contact" 
+                                        className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-islamic-green/5 hover:text-islamic-green transition-colors mobile-touch-target"
+                                        onClick={() => closeMenu()}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                        </svg>
+                                        Kontak
+                                    </a>
+                                    <div className="border-t border-gray-100 my-1"></div>
+                                    <div className="px-4 py-2">
+                                        <div className="flex items-center text-xs text-gray-500">
+                                            <IoLocationOutline className="mr-1 text-islamic-green flex-shrink-0" />
+                                            {loading ? (
+                                                <span>Mendeteksi lokasi...</span>
+                                            ) : (
+                                                <span className="truncate">{locationName}</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Desktop View */}
+                <div className="hidden md:flex flex-col md:flex-row justify-between items-center py-4">
                     <div className="flex flex-col md:flex-row md:space-x-6 space-y-2 md:space-y-0">
                         <div className="flex space-x-6">
-                            <a href="/about" className="text-islamic-green hover:text-islamic-gold transition-colors">Tentang</a>
-                            <a href="/privacy" className="text-islamic-green hover:text-islamic-gold transition-colors">Privasi</a>
-                            <a href="/contact" className="text-islamic-green hover:text-islamic-gold transition-colors">Kontak</a>
+                            <a href="/about" className="text-islamic-green hover:text-islamic-gold transition-colors nav-link">Tentang</a>
+                            <a href="/privacy" className="text-islamic-green hover:text-islamic-gold transition-colors nav-link">Privasi</a>
+                            <a href="/contact" className="text-islamic-green hover:text-islamic-gold transition-colors nav-link">Kontak</a>
                         </div>
                         
                         {/* Location Information */}
                         <div className="flex items-center text-sm text-gray-500">
-                            <IoLocationOutline className="mr-1 text-islamic-green" />
+                            <IoLocationOutline className="mr-1 text-islamic-green flex-shrink-0" />
                             {loading ? (
                                 <span>Mendeteksi lokasi...</span>
                             ) : (

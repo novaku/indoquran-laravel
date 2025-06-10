@@ -64,50 +64,6 @@ function HomePage() {
             });
     }, []);
 
-    // Search functionality
-    useEffect(() => {
-        const handleSearch = () => {
-            if (!searchTerm.trim()) {
-                setSuggestions([]);
-                setShowSuggestions(false);
-                return;
-            }
-            
-            const token = getAuthToken();
-            setIsSearchLoading(true);
-            fetchWithAuth(`/api/search?q=${encodeURIComponent(searchTerm)}&limit=5`, {
-                headers: {
-                    'Authorization': token ? `Bearer ${token}` : '',
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                }
-            })
-                .then(response => {
-                    if (!response.ok) throw new Error('Failed to fetch search results');
-                    return response.json();
-                })
-                .then(response => {
-                    if (response.status === 'success') {
-                        setSuggestions(response.data);
-                        setShowSuggestions(true);
-                    } else {
-                        setError("Gagal memuat hasil pencarian");
-                    }
-                    setIsSearchLoading(false);
-                })
-                .catch(err => {
-                    setError(err.message);
-                    setIsSearchLoading(false);
-                });
-        };
-
-        const debounceSearch = setTimeout(() => {
-            handleSearch();
-        }, 300);
-
-        return () => clearTimeout(debounceSearch);
-    }, [searchTerm]);
-
     // Helper function to truncate description
     const truncateDescription = (htmlText, maxLength = 80) => {
         if (!htmlText) return '';
@@ -497,52 +453,9 @@ function HomePage() {
                 
                 <PrayerTimesWidget className="mb-8" />
             
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-islamic-green mb-2">Al-Quran Digital</h1>
-                <p className="text-lg text-gray-600 mb-6">Baca, dengar, dan pelajari Al-Quran secara online dengan terjemahan bahasa Indonesia</p>
-            
-                {/* Search Bar */}
-                <div className="mb-6">
-                    <div className="relative">
-                        <input 
-                            type="text"
-                            value={searchTerm}
-                            onChange={handleSearchChange}
-                            onFocus={() => setShowSuggestions(true)}
-                            onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
-                            className="w-full bg-white border border-gray-300 rounded-lg py-3 px-4 shadow-sm focus:outline-none focus:ring-2 focus:ring-islamic-green/50 focus:border-islamic-green transition-all duration-200"
-                            placeholder="Cari surah atau ayat..."
-                        />
-                        {isSearchLoading && (
-                            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                <svg className="animate-spin h-5 w-5 text-islamic-green" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4}></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-                                </svg>
-                            </div>
-                        )}
-                    </div>
-                    {showSuggestions && suggestions.length > 0 && (
-                        <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
-                            {suggestions.map((surah, index) => (
-                                <div 
-                                    key={surah.number} 
-                                    onClick={() => handleSuggestionClick(surah)}
-                                    className={`cursor-pointer select-none relative py-2 px-4 transition-all duration-200 
-                                        ${highlightedIndex === index ? 'bg-islamic-green/10 text-islamic-green' : 'text-gray-700'}
-                                    `}
-                                    onMouseEnter={() => setHighlightedIndex(index)}
-                                    onMouseLeave={() => setHighlightedIndex(-1)}
-                                >
-                                    <span className="block text-sm font-medium">{surah.name_latin}</span>
-                                    <span className="block text-xs text-gray-500">{surah.name_indonesian}</span>
-                                    <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                                        <span className="text-islamic-green font-arabic text-lg">{surah.name_arabic}</span>
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-islamic-green mb-2">Al-Quran Digital</h1>
+                    <p className="text-lg text-gray-600 mb-6">Baca, dengar, dan pelajari Al-Quran secara online dengan terjemahan bahasa Indonesia</p>
                 </div>
             
                 {loading ? (
@@ -614,7 +527,6 @@ function HomePage() {
                         ))}
                     </div>
                 )}
-            </div>
             </div>
 
             {/* Surah Detail Modal */}
