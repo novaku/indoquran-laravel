@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Contact;
+use App\Mail\ContactNotification;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class ContactController extends Controller
 {
@@ -34,6 +37,14 @@ class ContactController extends Controller
             'message' => $request->message,
             'is_read' => false,
         ]);
+
+        // Send email notification to admin
+        try {
+            Mail::to('kontak@indoquran.web.id')->send(new ContactNotification($contact));
+        } catch (\Exception $e) {
+            // Log the error but don't fail the contact submission
+            Log::error('Failed to send contact notification email: ' . $e->getMessage());
+        }
 
         return response()->json([
             'message' => 'Pesan telah berhasil dikirim. Terima kasih telah menghubungi kami.',

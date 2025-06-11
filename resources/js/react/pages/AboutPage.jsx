@@ -49,7 +49,7 @@ function AboutPage() {
                     <h2 className="text-xl font-semibold text-islamic-brown mb-3">Kontak</h2>
                     <p className="text-gray-700 leading-relaxed">
                         Jika Anda memiliki pertanyaan, saran, atau masukan, silahkan hubungi kami melalui
-                        halaman Kontak atau kirim email ke <a href="mailto:info@indoquran.id" className="text-islamic-green hover:underline">info@indoquran.id</a>.
+                        halaman Kontak atau kirim email ke <a href="kontak@indoquran.web.id" className="text-islamic-green hover:underline">kontak@indoquran.web.id</a>.
                     </p>
                 </section>
             </div>

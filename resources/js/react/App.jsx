@@ -18,7 +18,6 @@ import ProfilePage from './pages/ProfilePage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import PrivacyPage from './pages/PrivacyPage';
-import HeaderDemoPage from './pages/HeaderDemoPage';
 
 // Main app content component with auth-protected routes
 function AppContent() {
@@ -80,7 +79,6 @@ function AppContent() {
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/contact" element={<ContactPage />} />
                     <Route path="/privacy" element={<PrivacyPage />} />
-                    <Route path="/header-demo" element={<HeaderDemoPage />} />
                     
                     {/* Protected Routes */}
                     <Route 

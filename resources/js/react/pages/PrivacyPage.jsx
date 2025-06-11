@@ -101,7 +101,7 @@ function PrivacyPage() {
                             Jika Anda memiliki pertanyaan atau kekhawatiran tentang Kebijakan Privasi ini, silakan hubungi kami di:
                         </p>
                         <p className="text-gray-700">
-                            Email: <a href="mailto:privacy@indoquran.id" className="text-islamic-green hover:underline">privacy@indoquran.id</a>
+                            Email: <a href="mailto:kontak@indoquran.web.id" className="text-islamic-green hover:underline">kontak@indoquran.web.id</a>
                         </p>
                     </section>
                 </div>
