@@ -99,5 +99,6 @@ export default {
     // Use import instead of require for ESM
     (await import('@tailwindcss/typography')).default,
     (await import('@tailwindcss/forms')).default,
+    (await import('@tailwindcss/line-clamp')).default,
   ],
 }

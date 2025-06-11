@@ -543,6 +543,7 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
         'App\\Http\\Middleware\\InternalAccessOnly' => __DIR__ . '/../..' . '/app/Http/Middleware/InternalAccessOnly.php',
         'App\\Http\\Middleware\\SimpleAuthMiddleware' => __DIR__ . '/../..' . '/app/Http/Middleware/SimpleAuthMiddleware.php',
         'App\\Http\\Middleware\\VerifyCsrfToken' => __DIR__ . '/../..' . '/app/Http/Middleware/VerifyCsrfToken.php',
+        'App\\Mail\\ContactNotification' => __DIR__ . '/../..' . '/app/Mail/ContactNotification.php',
         'App\\Models\\Ayah' => __DIR__ . '/../..' . '/app/Models/Ayah.php',
         'App\\Models\\Contact' => __DIR__ . '/../..' . '/app/Models/Contact.php',
         'App\\Models\\Surah' => __DIR__ . '/../..' . '/app/Models/Surah.php',

@@ -4,7 +4,7 @@ function QuranHeader({ className = "" }) {
   return (
     <div className={`text-center ${className}`}>
       {/* Header Container with Enhanced Design */}
-      <div className="quran-header-container islamic-pattern relative py-8 px-4 mb-6 rounded-2xl shadow-xl border border-emerald-200/30">
+      <div className="quran-header-container islamic-pattern relative py-8 px-4 mb-0 rounded-2xl shadow-xl border border-emerald-200/30">
         {/* Background Overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/90 via-green-50/80 to-teal-50/90 rounded-2xl"></div>
         

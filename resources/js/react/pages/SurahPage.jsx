@@ -1,14 +1,28 @@
 // filepath: /Users/novaherdi/Documents/GitHub/indoquran-laravel/resources/js/react/pages/SurahPage.jsx
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, memo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { IoPlayCircleOutline, IoPauseCircleOutline, IoArrowBackOutline, IoArrowForwardOutline, IoAddOutline, IoRemoveOutline, IoReloadOutline, IoChevronDownOutline, IoChevronUpOutline, IoInformationCircleOutline, IoBookmarkOutline, IoBookmark, IoChevronDownSharp, IoLinkOutline, IoCloseOutline, IoShareSocialOutline } from 'react-icons/io5';
 import QuranHeader from '../components/QuranHeader';
+import PageTransition from '../components/PageTransition';
+import LoadingSpinner from '../components/LoadingSpinner';
 import { fetchFootnote } from '../services/FootnoteService';
 import { toggleBookmark, getBookmarkStatus } from '../services/BookmarkService';
 import MetaTags from '../components/MetaTags';
 import StructuredData from '../components/StructuredData';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { fetchWithAuth } from '../utils/apiUtils';
+
+// Memoized AyahCard component for better performance
+const MemoizedAyahCard = memo(({ ayah, surah, ayahFontSize, isBookmarked, onBookmarkToggle, onPlayAudio, isPlaying, onOpenFootnote }) => {
+  return (
+    <div className="bg-white rounded-2xl shadow-lg border border-green-100 mb-6 overflow-hidden">
+      {/* Ayah content implementation */}
+      {/* ... existing ayah rendering code ... */}
+    </div>
+  );
+});
+
+MemoizedAyahCard.displayName = 'MemoizedAyahCard';
 
 function SurahPage() {
     const { user } = useAuth();
@@ -41,6 +55,12 @@ function SurahPage() {
     const [bookmarkStatuses, setBookmarkStatuses] = useState({}); // {ayahId: {is_bookmarked, is_favorite}}
     const [bookmarkLoading, setBookmarkLoading] = useState(false);
     const [bookmarkingAyah, setBookmarkingAyah] = useState(null); // Track which ayah is being bookmarked
+
+    // Footnote modal state
+    const [showFootnoteModal, setShowFootnoteModal] = useState(false);
+    const [selectedFootnote, setSelectedFootnote] = useState(null);
+    const [footnoteContent, setFootnoteContent] = useState('');
+    const [footnoteLoading, setFootnoteLoading] = useState(false);
 
     // Initialize a cache for complete surah data (including all ayahs)
     const surahCacheRef = useRef({});
@@ -476,6 +496,53 @@ function SurahPage() {
         };
     };
 
+    // Footnote handlers
+    const handleFootnoteClick = async (footnoteId) => {
+        setSelectedFootnote(footnoteId);
+        setShowFootnoteModal(true);
+        setFootnoteLoading(true);
+        setFootnoteContent('');
+
+        try {
+            const content = await fetchFootnote(footnoteId);
+            setFootnoteContent(content);
+        } catch (error) {
+            console.error('Error loading footnote:', error);
+            setFootnoteContent('Gagal memuat catatan kaki.');
+        } finally {
+            setFootnoteLoading(false);
+        }
+    };
+
+    const closeFootnoteModal = () => {
+        setShowFootnoteModal(false);
+        setSelectedFootnote(null);
+        setFootnoteContent('');
+    };
+
+    // Process text to make footnotes clickable
+    const processTextWithFootnotes = (text) => {
+        if (!text) return { __html: text };
+        
+        // Replace footnote patterns with clickable elements
+        const processedText = text.replace(
+            /<sup\s+foot_note=(\d+)>(\d+)<\/sup>/g,
+            (match, footnoteId, footnoteNumber) => {
+                return `<sup foot_note="${footnoteId}" class="footnote-reference cursor-pointer text-blue-600 hover:text-blue-800 underline" onclick="window.handleFootnoteClick && window.handleFootnoteClick('${footnoteId}')">${footnoteNumber}</sup>`;
+            }
+        );
+        
+        return { __html: processedText };
+    };
+
+    // Make footnote handler available globally for HTML onclick
+    useEffect(() => {
+        window.handleFootnoteClick = handleFootnoteClick;
+        return () => {
+            delete window.handleFootnoteClick;
+        };
+    }, []);
+
     if (loading) {
         return <div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div></div>;
     }
@@ -621,14 +688,14 @@ function SurahPage() {
                             {/* Indonesian Translation */}
                             <div className="text-lg text-green-700 mb-3 p-3 bg-green-50 rounded-lg border border-green-100">
                                 <div className="text-sm font-medium text-green-800 mb-1">Terjemahan Indonesia:</div>
-                                {ayah.text_indonesian || ayah.translation_id}
+                                <div dangerouslySetInnerHTML={processTextWithFootnotes(ayah.text_indonesian || ayah.translation_id)} />
                             </div>
 
                             {/* English Translation */}
                             {ayah.translation_en && (
                                 <div className="text-sm text-green-600 mb-4 p-3 bg-green-50 rounded-lg border border-green-100">
                                     <div className="text-sm font-medium text-green-700 mb-1">English Translation:</div>
-                                    {ayah.translation_en}
+                                    <div dangerouslySetInnerHTML={processTextWithFootnotes(ayah.translation_en)} />
                                 </div>
                             )}
 
@@ -812,6 +879,56 @@ function SurahPage() {
                     )}
                 </div>
             </div>
+
+            {/* Footnote Modal */}
+            {showFootnoteModal && (
+                <div 
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
+                    onClick={closeFootnoteModal}
+                >
+                    <div 
+                        className="bg-white rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-bold text-green-800">
+                                Catatan Kaki #{selectedFootnote}
+                            </h3>
+                            <button 
+                                onClick={closeFootnoteModal}
+                                className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+                            >
+                                <IoCloseOutline className="h-6 w-6" />
+                            </button>
+                        </div>
+
+                        {/* Content */}
+                        <div className="text-gray-700">
+                            {footnoteLoading ? (
+                                <div className="flex items-center justify-center py-8">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500"></div>
+                                    <span className="ml-2">Memuat catatan kaki...</span>
+                                </div>
+                            ) : (
+                                <div className="prose prose-sm max-w-none">
+                                    {footnoteContent}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="mt-6 flex justify-end">
+                            <button
+                                onClick={closeFootnoteModal}
+                                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                            >
+                                Tutup
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

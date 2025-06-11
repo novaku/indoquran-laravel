@@ -1,10 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { useLocation } from 'react-router-dom';
 import AyahCard from '../components/AyahCard';
 import QuranHeader from '../components/QuranHeader';
 import MetaTags from '../components/MetaTags';
 import StructuredData from '../components/StructuredData';
+import PageTransition from '../components/PageTransition';
+import LoadingSpinner from '../components/LoadingSpinner';
 import { fetchWithAuth } from '../utils/apiUtils';
+
+// Memoized AyahCard for better performance
+const MemoizedAyahCard = memo(AyahCard);
 
 function SearchPage() {
     const location = useLocation();
@@ -177,7 +182,8 @@ function SearchPage() {
     
     if (!query) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
+            <PageTransition>
+                <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
                 <div className="max-w-4xl mx-auto px-4 py-8 pt-24">
                     <MetaTags 
                         title="Pencarian Al-Quran | Cari Ayat dalam Al-Quran"
@@ -253,25 +259,29 @@ function SearchPage() {
                     </div>
                 </div>
             </div>
+        </PageTransition>
         );
     }
     
     if (loading && currentPage === 1) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
-                <div className="flex justify-center items-center h-64 pt-24">
-                    <div className="text-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500 shadow-lg mx-auto mb-4"></div>
-                        <p className="text-green-600 font-medium">Mencari ayat...</p>
+            <PageTransition isLoading={true}>
+                <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
+                    <div className="flex justify-center items-center h-64 pt-24">
+                        <div className="text-center">
+                            <LoadingSpinner size="lg" />
+                            <p className="text-green-600 font-medium mt-4">Mencari ayat...</p>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </PageTransition>
         );
     }
     
     if (error) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
+            <PageTransition>
+                <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
                 <div className="max-w-2xl mx-auto px-4 py-8 pt-24">
                     <div className="bg-gradient-to-br from-red-50 to-pink-50 border border-red-200 text-red-700 p-6 rounded-xl shadow-lg" role="alert">
                         <div className="flex items-center gap-3">
@@ -284,11 +294,13 @@ function SearchPage() {
                     </div>
                 </div>
             </div>
+            </PageTransition>
         );
     }
     
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
+        <PageTransition>
+            <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
             <div className="max-w-6xl mx-auto px-4 py-8 pt-24 pb-20">
                 <MetaTags 
                     title={`Hasil Pencarian: ${query} | Al-Quran Digital Indonesia`}
@@ -515,6 +527,7 @@ function SearchPage() {
             )}
             </div>
         </div>
+        </PageTransition>
     );
 }
 

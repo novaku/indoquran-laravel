@@ -23,6 +23,7 @@ return array(
     'App\\Http\\Middleware\\InternalAccessOnly' => $baseDir . '/app/Http/Middleware/InternalAccessOnly.php',
     'App\\Http\\Middleware\\SimpleAuthMiddleware' => $baseDir . '/app/Http/Middleware/SimpleAuthMiddleware.php',
     'App\\Http\\Middleware\\VerifyCsrfToken' => $baseDir . '/app/Http/Middleware/VerifyCsrfToken.php',
+    'App\\Mail\\ContactNotification' => $baseDir . '/app/Mail/ContactNotification.php',
     'App\\Models\\Ayah' => $baseDir . '/app/Models/Ayah.php',
     'App\\Models\\Contact' => $baseDir . '/app/Models/Contact.php',
     'App\\Models\\Surah' => $baseDir . '/app/Models/Surah.php',

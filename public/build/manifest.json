@@ -1,10 +1,24 @@
 {
+  "_BookmarkService-Cfk_G7sU.js": {
+    "file": "assets/BookmarkService-Cfk_G7sU.js",
+    "name": "BookmarkService",
+    "imports": [
+      "resources/js/react/index.jsx"
+    ]
+  },
+  "_StructuredData-C9iyN8p4.js": {
+    "file": "assets/StructuredData-C9iyN8p4.js",
+    "name": "StructuredData",
+    "imports": [
+      "resources/js/react/index.jsx"
+    ]
+  },
   "_vendor-BEN4boU2.js": {
     "file": "assets/vendor-BEN4boU2.js",
     "name": "vendor"
   },
   "resources/css/app.css": {
-    "file": "assets/app-D0J2zrwE.css",
+    "file": "assets/app-DqN9a0CM.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
@@ -31,11 +45,128 @@
     "isEntry": true
   },
   "resources/js/react/index.jsx": {
-    "file": "assets/index-ND2tEeTd.js",
+    "file": "assets/index-mNSB7Tgo.js",
     "name": "index",
     "src": "resources/js/react/index.jsx",
     "isEntry": true,
     "imports": [
+      "_vendor-BEN4boU2.js"
+    ],
+    "dynamicImports": [
+      "resources/js/react/pages/SurahPage.jsx",
+      "resources/js/react/pages/SearchPage.jsx",
+      "resources/js/react/pages/BookmarksPage.jsx",
+      "resources/js/react/pages/SearchPage.jsx",
+      "resources/js/react/pages/BookmarksPage.jsx",
+      "resources/js/react/pages/SurahPage.jsx",
+      "resources/js/react/pages/ProfilePage.jsx",
+      "resources/js/react/pages/HomePage.jsx",
+      "resources/js/react/pages/SurahPage.jsx",
+      "resources/js/react/pages/SearchPage.jsx",
+      "resources/js/react/pages/BookmarksPage.jsx",
+      "resources/js/react/pages/ProfilePage.jsx",
+      "resources/js/react/pages/HomePage.jsx",
+      "resources/js/react/pages/AuthPage.jsx",
+      "resources/js/react/pages/SurahPage.jsx",
+      "resources/js/react/pages/SearchPage.jsx",
+      "resources/js/react/pages/BookmarksPage.jsx",
+      "resources/js/react/pages/ProfilePage.jsx",
+      "resources/js/react/pages/AboutPage.jsx",
+      "resources/js/react/pages/ContactPage.jsx",
+      "resources/js/react/pages/PrivacyPage.jsx"
+    ]
+  },
+  "resources/js/react/pages/AboutPage.jsx": {
+    "file": "assets/AboutPage-DOE_2DA1.js",
+    "name": "AboutPage",
+    "src": "resources/js/react/pages/AboutPage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/react/index.jsx",
+      "_vendor-BEN4boU2.js"
+    ]
+  },
+  "resources/js/react/pages/AuthPage.jsx": {
+    "file": "assets/AuthPage-Pu0CoII2.js",
+    "name": "AuthPage",
+    "src": "resources/js/react/pages/AuthPage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/react/index.jsx",
+      "_vendor-BEN4boU2.js"
+    ]
+  },
+  "resources/js/react/pages/BookmarksPage.jsx": {
+    "file": "assets/BookmarksPage-w_Htg9v-.js",
+    "name": "BookmarksPage",
+    "src": "resources/js/react/pages/BookmarksPage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/react/index.jsx",
+      "_BookmarkService-Cfk_G7sU.js",
+      "_vendor-BEN4boU2.js"
+    ]
+  },
+  "resources/js/react/pages/ContactPage.jsx": {
+    "file": "assets/ContactPage-DQ09IgK5.js",
+    "name": "ContactPage",
+    "src": "resources/js/react/pages/ContactPage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/react/index.jsx",
+      "_vendor-BEN4boU2.js"
+    ]
+  },
+  "resources/js/react/pages/HomePage.jsx": {
+    "file": "assets/HomePage-By3nVknJ.js",
+    "name": "HomePage",
+    "src": "resources/js/react/pages/HomePage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/react/index.jsx",
+      "_StructuredData-C9iyN8p4.js",
+      "_vendor-BEN4boU2.js"
+    ]
+  },
+  "resources/js/react/pages/PrivacyPage.jsx": {
+    "file": "assets/PrivacyPage-ZbpYklXZ.js",
+    "name": "PrivacyPage",
+    "src": "resources/js/react/pages/PrivacyPage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/react/index.jsx",
+      "_vendor-BEN4boU2.js"
+    ]
+  },
+  "resources/js/react/pages/ProfilePage.jsx": {
+    "file": "assets/ProfilePage-D8ztGLbJ.js",
+    "name": "ProfilePage",
+    "src": "resources/js/react/pages/ProfilePage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/react/index.jsx",
+      "_vendor-BEN4boU2.js"
+    ]
+  },
+  "resources/js/react/pages/SearchPage.jsx": {
+    "file": "assets/SearchPage-CvzxwL4_.js",
+    "name": "SearchPage",
+    "src": "resources/js/react/pages/SearchPage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/react/index.jsx",
+      "_StructuredData-C9iyN8p4.js",
+      "_vendor-BEN4boU2.js"
+    ]
+  },
+  "resources/js/react/pages/SurahPage.jsx": {
+    "file": "assets/SurahPage-BBdeBTs7.js",
+    "name": "SurahPage",
+    "src": "resources/js/react/pages/SurahPage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/react/index.jsx",
+      "_BookmarkService-Cfk_G7sU.js",
       "_vendor-BEN4boU2.js"
     ]
   }
