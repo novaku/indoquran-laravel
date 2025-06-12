@@ -37,6 +37,19 @@ export default defineConfig(({ command, mode }) => {
             }),
             tailwindcss(),
         ],
+        build: {
+            // Configure JavaScript module output
+            rollupOptions: {
+                output: {
+                    // Ensure proper MIME type handling
+                    entryFileNames: 'assets/[name]-[hash].js',
+                    chunkFileNames: 'assets/[name]-[hash].js',
+                    assetFileNames: 'assets/[name]-[hash].[ext]',
+                    // Ensure proper module format
+                    format: 'es',
+                },
+            },
+        },
         // Set base URL for asset loading - force local paths for development
         base: !isDev && mode === 'production' && assetUrl ? `${assetUrl}/` : '/',
         server: {

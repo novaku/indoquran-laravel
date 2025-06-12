@@ -10,7 +10,7 @@
         AddType application/font-woff2          woff2
         AddType application/vnd.ms-fontobject   eot
         AddType application/javascript          js
-        AddType text/javascript                 js mjs
+        AddType text/javascript                 mjs
     </IfModule>
 
     # Add proper headers for font files
@@ -27,8 +27,19 @@
             Header set Access-Control-Allow-Origin "*"
             Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
             Header set Access-Control-Allow-Headers "Content-Type, Authorization"
-            Header set Content-Type "application/javascript; charset=utf-8" env=js
-            Header set Content-Type "text/javascript; charset=utf-8" env=mjs
+        </IfModule>
+    </FilesMatch>
+    
+    # Set proper MIME types for specific file extensions
+    <FilesMatch "\.js$">
+        <IfModule mod_headers.c>
+            Header set Content-Type "application/javascript; charset=utf-8"
+        </IfModule>
+    </FilesMatch>
+    
+    <FilesMatch "\.mjs$">
+        <IfModule mod_headers.c>
+            Header set Content-Type "text/javascript; charset=utf-8"
         </IfModule>
     </FilesMatch>
 

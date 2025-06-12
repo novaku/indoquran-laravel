@@ -35,15 +35,26 @@ export const useResourcePreloader = (config = {}) => {
       if (as === 'font') {
         link.crossOrigin = 'anonymous';
         
-        // Trigger font loading to avoid unused preload warning
-        setTimeout(() => {
-          if (document.fonts && document.fonts.load) {
-            const fontName = url.split('/').pop().replace('.woff2', '').replace('.woff', '');
-            document.fonts.load(`1em ${fontName}`).catch(() => {
-              // Silent fail for font loading
-            });
+        // Add font-display swap for better performance
+        const style = document.createElement('style');
+        const fontName = url.split('/').pop().split('.')[0];
+        style.textContent = `
+          @font-face {
+            font-family: '${fontName}';
+            src: url('${url}') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
           }
-        }, 1000);
+        `;
+        document.head.appendChild(style);
+        
+        // Trigger font loading immediately to avoid unused preload warning
+        if (document.fonts && document.fonts.load) {
+          document.fonts.load(`1em ${fontName}`).catch(() => {
+            // Silent fail for font loading
+          });
+        }
       }
     }
     

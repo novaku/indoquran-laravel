@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { IoPlayCircleOutline, IoPauseCircleOutline, IoArrowBackOutline, IoArrowForwardOutline, IoAddOutline, IoRemoveOutline, IoReloadOutline, IoBookmarkOutline, IoBookmark, IoBookOutline } from 'react-icons/io5';
+import { IoPlayCircleOutline, IoPauseCircleOutline, IoArrowBackOutline, IoArrowForwardOutline, IoAddOutline, IoRemoveOutline, IoReloadOutline, IoBookOutline } from 'react-icons/io5';
 import PageTransition from '../components/PageTransition';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
-import { toggleBookmark, getBookmarkStatus } from '../services/BookmarkService';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { fetchWithAuth } from '../utils/apiUtils';
 
@@ -27,11 +26,6 @@ function PageDetailPage() {
     // Arabic text zoom state
     const [arabicFontSize, setArabicFontSize] = useState(2.5);
     
-    // Bookmark state
-    const [bookmarkStatuses, setBookmarkStatuses] = useState({});
-    const [bookmarkingAyah, setBookmarkingAyah] = useState(null);
-    const [bookmarkLoading, setBookmarkLoading] = useState(false);
-    
     const audioRef = useRef(null);
     
     // Fetch page data
@@ -51,12 +45,6 @@ function PageDetailPage() {
             
             if (data.status === 'success') {
                 setPageData(data.data);
-                
-                // Load bookmark statuses for all ayahs if user is authenticated
-                if (user && data.data.surahs) {
-                    const allAyahs = data.data.surahs.flatMap(surah => surah.ayahs);
-                    loadBookmarkStatuses(allAyahs);
-                }
             } else {
                 setError(data.message || 'Failed to load page data');
             }
@@ -182,65 +170,6 @@ function PageDetailPage() {
         }
         
         return null;
-    };
-    
-    // Bookmark functions
-    const loadBookmarkStatuses = async (ayahs) => {
-        if (!user || !Array.isArray(ayahs) || ayahs.length === 0) return;
-        
-        setBookmarkLoading(true);
-        try {
-            const ayahIds = ayahs.map(ayah => ayah.id).filter(id => id);
-            
-            if (ayahIds.length > 0) {
-                const statuses = await getBookmarkStatus(ayahIds);
-                setBookmarkStatuses(statuses);
-            }
-        } catch (error) {
-            console.error('Error loading bookmark statuses:', error);
-        } finally {
-            setBookmarkLoading(false);
-        }
-    };
-    
-    const handleBookmarkToggle = async (ayah) => {
-        if (!user) {
-            alert('Silakan login untuk menggunakan fitur bookmark');
-            return;
-        }
-        
-        if (!ayah.id) {
-            console.error('Ayah ID not found');
-            return;
-        }
-        
-        if (bookmarkingAyah === ayah.id) {
-            return;
-        }
-        
-        setBookmarkingAyah(ayah.id);
-        try {
-            const response = await toggleBookmark(ayah.id);
-            
-            if (response.status === 'success') {
-                setBookmarkStatuses(prev => ({
-                    ...prev,
-                    [ayah.id]: {
-                        is_bookmarked: response.data.is_bookmarked,
-                        is_favorite: response.data.is_favorite
-                    }
-                }));
-            }
-        } catch (error) {
-            console.error('Error toggling bookmark:', error);
-            alert('Gagal mengubah status bookmark. Silakan coba lagi.');
-        } finally {
-            setBookmarkingAyah(null);
-        }
-    };
-    
-    const getBookmarkStatus = (ayahId) => {
-        return bookmarkStatuses[ayahId] || { is_bookmarked: false, is_favorite: false };
     };
     
     const currentPageNum = parseInt(number);
@@ -407,7 +336,8 @@ function PageDetailPage() {
                                                         className="text-right leading-relaxed font-arabic text-gray-800"
                                                         style={{ 
                                                             fontSize: `${arabicFontSize}rem`,
-                                                            lineHeight: arabicFontSize > 3 ? '1.8' : '1.6'
+                                                            lineHeight: arabicFontSize > 3 ? '1.8' : '1.6',
+                                                            fontFeatureSettings: "'calt', 'liga', 'dlig', 'clig'"
                                                         }}
                                                         dir="rtl"
                                                     >
@@ -443,28 +373,6 @@ function PageDetailPage() {
                                                                 </button>
                                                             )}
                                                         </>
-                                                    )}
-                                                    
-                                                    {/* Bookmark Button */}
-                                                    {user && (
-                                                        <button 
-                                                            onClick={() => handleBookmarkToggle(ayah)}
-                                                            disabled={bookmarkingAyah === ayah.id}
-                                                            className={`p-2 rounded-md border transition-colors disabled:opacity-50 ${
-                                                                getBookmarkStatus(ayah.id).is_bookmarked 
-                                                                    ? 'bg-yellow-500 text-white border-yellow-600 hover:bg-yellow-600' 
-                                                                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
-                                                            }`}
-                                                            title={getBookmarkStatus(ayah.id).is_bookmarked ? 'Hapus bookmark' : 'Tambah bookmark'}
-                                                        >
-                                                            {bookmarkingAyah === ayah.id ? (
-                                                                <div className="animate-spin rounded-full h-4 w-4 border-t border-b border-current"></div>
-                                                            ) : getBookmarkStatus(ayah.id).is_bookmarked ? (
-                                                                <IoBookmark className="w-4 h-4" />
-                                                            ) : (
-                                                                <IoBookmarkOutline className="w-4 h-4" />
-                                                            )}
-                                                        </button>
                                                     )}
                                                 </div>
                                             </div>

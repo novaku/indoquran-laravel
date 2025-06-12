@@ -28,8 +28,8 @@ class ContentSecurityPolicy
                 "img-src 'self' data: blob: https://*.google-analytics.com https://www.google-analytics.com https://*.googlesyndication.com https://*.google.com",
                 "media-src 'self' https://*.nos.wjv-1.neo.id https://*.equran.id https://*.equran.nos.wjv-1.neo.id https://*.quranicaudio.com https://*.qurancdn.com https://*.vercel.app *",
                 "connect-src 'self' ws://localhost:5173 ws://127.0.0.1:5173 ws://localhost:5174 ws://127.0.0.1:5174 http://localhost:5173 http://127.0.0.1:5173 http://localhost:5174 http://127.0.0.1:5174 http://localhost:8000 http://127.0.0.1:8000 http://localhost https://my.indoquran.web.id https://download.quranicaudio.com https://nominatim.openstreetmap.org https://*.google-analytics.com https://www.google-analytics.com https://www.googletagmanager.com https://tagmanager.google.com https://analytics.google.com https://cdn.jsdelivr.net",
-                "worker-src 'self' blob:",
-                "child-src 'self' blob:",
+                "worker-src 'self' blob: data:",
+                "child-src 'self' blob: data:",
                 "manifest-src 'self'",
             ]);
         } else {

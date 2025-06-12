@@ -99,8 +99,8 @@ async function networkFirstStrategy(request, cacheName) {
   try {
     const networkResponse = await fetch(request);
     
-    // Cache successful responses
-    if (networkResponse.ok) {
+    // Cache successful GET responses only (POST requests can't be cached)
+    if (networkResponse.ok && request.method === 'GET') {
       const cache = await caches.open(cacheName);
       cache.put(request, networkResponse.clone());
     }
@@ -143,7 +143,7 @@ async function cacheFirstStrategy(request, cacheName) {
   try {
     const networkResponse = await fetch(request);
     
-    if (networkResponse.ok) {
+    if (networkResponse.ok && request.method === 'GET') {
       const cache = await caches.open(cacheName);
       cache.put(request, networkResponse.clone());
     }

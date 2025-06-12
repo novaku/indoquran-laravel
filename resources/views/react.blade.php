@@ -62,6 +62,10 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     
+    <!-- Arabic Fonts -->
+    <link rel="stylesheet" href="{{ asset('fonts/arabic-font.css') }}">
+    <link rel="preload" href="{{ asset('fonts/arabic-font.woff2') }}" as="font" type="font/woff2" crossorigin="anonymous"
+    
     <!-- Structured Data for SEO -->
     <script type="application/ld+json">
     {
