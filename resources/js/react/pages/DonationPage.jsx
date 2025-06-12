@@ -25,7 +25,7 @@ function DonationPage() {
     // Bank Permata Icon Component
     const BankPermataIcon = () => (
         <div className="relative">
-            <div className="w-16 h-10 bg-gradient-to-r from-red-600 via-red-500 to-orange-500 rounded-lg shadow-lg flex items-center justify-center transform hover:scale-110 transition-all duration-300">
+            <div className="w-full h-10 bg-gradient-to-r from-red-600 via-red-500 to-orange-500 rounded-lg shadow-lg flex items-center justify-center transform hover:scale-110 transition-all duration-300">
                 <div className="text-white font-bold text-xs tracking-wider">
                     PERMATA
                 </div>
@@ -97,7 +97,7 @@ function DonationPage() {
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-100/20 to-indigo-100/20 rounded-full blur-3xl animate-pulse"></div>
                 </div>
                 
-                <div className="max-w-4xl mx-auto px-4 py-8 pt-24 relative z-10">
+                <div className="w-full max-w-7xl mx-auto px-4 py-8 pt-24 relative z-10">
                     {/* Enhanced Header Section */}
                     <div className="text-center mb-12">
                         <div className="relative inline-block mb-6">
