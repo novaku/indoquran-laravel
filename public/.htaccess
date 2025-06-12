@@ -9,8 +9,9 @@
         AddType application/font-woff           woff
         AddType application/font-woff2          woff2
         AddType application/vnd.ms-fontobject   eot
-        AddType application/javascript          js
+        AddType application/javascript          js mjs
         AddType text/javascript                 mjs
+        AddType text/css                        css
     </IfModule>
 
     # Add proper headers for font files
@@ -27,6 +28,10 @@
             Header set Access-Control-Allow-Origin "*"
             Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
             Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+            # Ensure proper content type is set
+            Header always set Content-Type "application/javascript; charset=utf-8" env=REQUEST_URI=\.js$
+            Header always set Content-Type "text/javascript; charset=utf-8" env=REQUEST_URI=\.mjs$
+            Header always set Content-Type "text/css; charset=utf-8" env=REQUEST_URI=\.css$
         </IfModule>
     </FilesMatch>
     
@@ -130,6 +135,11 @@
     RewriteRule ^ %1 [L,R=301]
 
     # Send Requests To Front Controller...
+    # But first exclude static assets from being processed by Laravel
+    RewriteCond %{REQUEST_URI} !^/build/
+    RewriteCond %{REQUEST_URI} !^/assets/
+    RewriteCond %{REQUEST_URI} !^/fonts/
+    RewriteCond %{REQUEST_URI} !^/images/
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]

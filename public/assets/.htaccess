@@ -1,4 +1,12 @@
 <IfModule mod_headers.c>
+    # Set proper MIME types for JavaScript files
+    <FilesMatch "\.(js|mjs)$">
+        ForceType application/javascript
+        Header set Content-Type "application/javascript; charset=utf-8"
+        Header set Access-Control-Allow-Origin "*"
+        Header set Cache-Control "max-age=31536000, public"
+    </FilesMatch>
+    
     # Set proper MIME types for font files
     <FilesMatch "\.(ttf)$">
         ForceType application/font-sfnt
