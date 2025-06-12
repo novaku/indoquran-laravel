@@ -28,7 +28,78 @@
         </IfModule>
     </FilesMatch>
 
+    # SEO and Security Headers
+    <IfModule mod_headers.c>
+        # Security Headers
+        Header always set X-Frame-Options "SAMEORIGIN"
+        Header always set X-Content-Type-Options "nosniff"
+        Header always set X-XSS-Protection "1; mode=block"
+        Header always set Referrer-Policy "strict-origin-when-cross-origin"
+        
+        # Remove Server Header for security
+        Header always unset Server
+        Header always unset X-Powered-By
+    </IfModule>
+
+    # Gzip Compression for Performance
+    <IfModule mod_deflate.c>
+        AddOutputFilterByType DEFLATE text/plain
+        AddOutputFilterByType DEFLATE text/html
+        AddOutputFilterByType DEFLATE text/xml
+        AddOutputFilterByType DEFLATE text/css
+        AddOutputFilterByType DEFLATE text/javascript
+        AddOutputFilterByType DEFLATE application/xml
+        AddOutputFilterByType DEFLATE application/xhtml+xml
+        AddOutputFilterByType DEFLATE application/rss+xml
+        AddOutputFilterByType DEFLATE application/javascript
+        AddOutputFilterByType DEFLATE application/x-javascript
+        AddOutputFilterByType DEFLATE application/json
+        AddOutputFilterByType DEFLATE application/ld+json
+        AddOutputFilterByType DEFLATE image/svg+xml
+    </IfModule>
+
+    # Browser Caching for Performance
+    <IfModule mod_expires.c>
+        ExpiresActive on
+        
+        # Images
+        ExpiresByType image/jpg "access plus 1 month"
+        ExpiresByType image/jpeg "access plus 1 month"
+        ExpiresByType image/gif "access plus 1 month"
+        ExpiresByType image/png "access plus 1 month"
+        ExpiresByType image/svg+xml "access plus 1 month"
+        ExpiresByType image/webp "access plus 1 month"
+        ExpiresByType image/x-icon "access plus 1 year"
+        
+        # CSS and JavaScript
+        ExpiresByType text/css "access plus 1 month"
+        ExpiresByType application/javascript "access plus 1 month"
+        ExpiresByType text/javascript "access plus 1 month"
+        
+        # Fonts
+        ExpiresByType font/woff "access plus 1 year"
+        ExpiresByType font/woff2 "access plus 1 year"
+        ExpiresByType application/font-woff "access plus 1 year"
+        ExpiresByType application/font-woff2 "access plus 1 year"
+        
+        # Audio
+        ExpiresByType audio/mpeg "access plus 1 month"
+        ExpiresByType audio/mp3 "access plus 1 month"
+        
+        # Manifest files
+        ExpiresByType application/manifest+json "access plus 1 week"
+        ExpiresByType text/cache-manifest "access plus 0 seconds"
+    </IfModule>
+
+    # Force HTTPS redirect for SEO
     RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP_HOST} ^my\.indoquran\.web\.id$ [NC]
+    RewriteRule ^(.*)$ https://my.indoquran.web.id%{REQUEST_URI} [R=301,L]
+
+    # WWW to non-WWW redirect for SEO
+    RewriteCond %{HTTP_HOST} ^www\.my\.indoquran\.web\.id$ [NC]
+    RewriteRule ^(.*)$ https://my.indoquran.web.id/$1 [R=301,L]
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .

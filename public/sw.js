@@ -1,36 +1,49 @@
-// Service Worker for caching API responses and static assets
-// This improves performance by serving cached content when possible
+// Service Worker for IndoQuran - SEO optimized caching
+// Domain: my.indoquran.web.id
+// Improves performance and SEO by serving cached content when possible
 
-const CACHE_NAME = 'indoquran-cache-v1';
-const API_CACHE_NAME = 'indoquran-api-cache-v1';
+const CACHE_NAME = 'indoquran-cache-v2.0';
+const API_CACHE_NAME = 'indoquran-api-cache-v2.0';
+const IMAGE_CACHE_NAME = 'indoquran-images-cache-v2.0';
 
-// Assets to cache on install
+// Critical assets to cache on install for better SEO scores
 const STATIC_ASSETS = [
   '/',
   '/build/assets/app.css',
   '/build/assets/app.js',
-  '/fonts/arabic-font.woff2',
-  '/fonts/indonesian-font.woff2',
-  '/images/quran-header-bg.jpg',
-  '/favicon.ico'
+  '/android-chrome-512x512.png',
+  '/android-chrome-192x192.png',
+  '/apple-touch-icon.png',
+  '/favicon.ico',
+  '/favicon-32x32.png',
+  '/favicon-16x16.png',
+  '/site.webmanifest',
+  '/robots.txt'
 ];
 
-// API endpoints to cache
+// API endpoints to cache for better performance
 const API_ENDPOINTS = [
   '/api/surahs',
-  '/api/prayer-times'
+  '/api/prayer-times',
+  '/api/search'
 ];
 
-// Install event - cache static assets
+// Install event - cache critical assets for SEO
 self.addEventListener('install', (event) => {
+  console.log('IndoQuran Service Worker installing...');
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Caching static assets');
+    Promise.all([
+      caches.open(CACHE_NAME).then(cache => {
+        console.log('Caching critical static assets for SEO');
         return cache.addAll(STATIC_ASSETS);
+      }),
+      caches.open(IMAGE_CACHE_NAME).then(cache => {
+        console.log('Initializing image cache');
+        return Promise.resolve();
       })
-      .then(() => self.skipWaiting())
+    ])
   );
+  self.skipWaiting();
 });
 
 // Activate event - clean up old caches

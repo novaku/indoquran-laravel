@@ -10,16 +10,22 @@ import { useEffect } from 'react';
  * @param {string} props.canonicalUrl - Canonical URL
  * @param {string} props.ogImage - Open Graph image URL
  * @param {string} props.ogType - Open Graph type (default: 'website')
+ * @param {string} props.author - Page author
+ * @param {Object} props.structuredData - JSON-LD structured data
  */
 function MetaTags({ 
   title, 
   description, 
   keywords, 
   canonicalUrl, 
-  ogImage = '/android-chrome-512x512.png',
-  ogType = 'website'
+  ogImage = 'https://my.indoquran.web.id/android-chrome-512x512.png',
+  ogType = 'website',
+  author = 'IndoQuran',
+  structuredData
 }) {
   useEffect(() => {
+    const baseUrl = 'https://my.indoquran.web.id';
+    
     // Update document title
     if (title) {
       document.title = title;
@@ -27,88 +33,85 @@ function MetaTags({
     
     // Update meta description
     if (description) {
-      const metaDescription = document.querySelector('meta[name="description"]');
-      if (metaDescription) {
-        metaDescription.setAttribute('content', description);
-      }
-      
-      // Update OG description
-      const ogDescription = document.querySelector('meta[property="og:description"]');
-      if (ogDescription) {
-        ogDescription.setAttribute('content', description);
-      }
-      
-      // Update Twitter description
-      const twitterDescription = document.querySelector('meta[property="twitter:description"]');
-      if (twitterDescription) {
-        twitterDescription.setAttribute('content', description);
-      }
+      updateMetaTag('meta[name="description"]', 'content', description);
+      updateMetaTag('meta[property="og:description"]', 'content', description);
+      updateMetaTag('meta[property="twitter:description"]', 'content', description);
     }
     
     // Update meta keywords
     if (keywords) {
-      const metaKeywords = document.querySelector('meta[name="keywords"]');
-      if (metaKeywords) {
-        metaKeywords.setAttribute('content', keywords);
-      }
+      updateMetaTag('meta[name="keywords"]', 'content', keywords);
+    }
+    
+    // Update author
+    if (author) {
+      updateMetaTag('meta[name="author"]', 'content', author);
     }
     
     // Update OG title
     if (title) {
-      const ogTitle = document.querySelector('meta[property="og:title"]');
-      if (ogTitle) {
-        ogTitle.setAttribute('content', title);
-      }
-      
-      // Update Twitter title
-      const twitterTitle = document.querySelector('meta[property="twitter:title"]');
-      if (twitterTitle) {
-        twitterTitle.setAttribute('content', title);
-      }
+      updateMetaTag('meta[property="og:title"]', 'content', title);
+      updateMetaTag('meta[property="twitter:title"]', 'content', title);
     }
     
     // Update canonical URL
     if (canonicalUrl) {
-      let canonicalElement = document.querySelector('link[rel="canonical"]');
-      if (canonicalElement) {
-        canonicalElement.setAttribute('href', canonicalUrl);
-      }
+      const fullCanonicalUrl = canonicalUrl.startsWith('http') ? canonicalUrl : `${baseUrl}${canonicalUrl}`;
       
-      // Update OG URL
-      const ogUrl = document.querySelector('meta[property="og:url"]');
-      if (ogUrl) {
-        ogUrl.setAttribute('content', canonicalUrl);
-      }
-      
-      // Update Twitter URL
-      const twitterUrl = document.querySelector('meta[property="twitter:url"]');
-      if (twitterUrl) {
-        twitterUrl.setAttribute('content', canonicalUrl);
-      }
+      updateLinkTag('link[rel="canonical"]', 'href', fullCanonicalUrl);
+      updateMetaTag('meta[property="og:url"]', 'content', fullCanonicalUrl);
+      updateMetaTag('meta[property="twitter:url"]', 'content', fullCanonicalUrl);
     }
     
     // Update OG image
     if (ogImage) {
-      const ogImageElement = document.querySelector('meta[property="og:image"]');
-      if (ogImageElement) {
-        ogImageElement.setAttribute('content', ogImage);
-      }
-      
-      // Update Twitter image
-      const twitterImage = document.querySelector('meta[property="twitter:image"]');
-      if (twitterImage) {
-        twitterImage.setAttribute('content', ogImage);
-      }
+      const fullImageUrl = ogImage.startsWith('http') ? ogImage : `${baseUrl}${ogImage}`;
+      updateMetaTag('meta[property="og:image"]', 'content', fullImageUrl);
+      updateMetaTag('meta[property="twitter:image"]', 'content', fullImageUrl);
     }
     
     // Update OG type
     if (ogType) {
-      const ogTypeElement = document.querySelector('meta[property="og:type"]');
-      if (ogTypeElement) {
-        ogTypeElement.setAttribute('content', ogType);
-      }
+      updateMetaTag('meta[property="og:type"]', 'content', ogType);
     }
-  }, [title, description, keywords, canonicalUrl, ogImage, ogType]);
+    
+    // Update structured data
+    if (structuredData) {
+      updateStructuredData(structuredData);
+    }
+  }, [title, description, keywords, canonicalUrl, ogImage, ogType, author, structuredData]);
+
+  // Helper function to update meta tags
+  const updateMetaTag = (selector, attribute, value) => {
+    const element = document.querySelector(selector);
+    if (element) {
+      element.setAttribute(attribute, value);
+    }
+  };
+
+  // Helper function to update link tags
+  const updateLinkTag = (selector, attribute, value) => {
+    const element = document.querySelector(selector);
+    if (element) {
+      element.setAttribute(attribute, value);
+    }
+  };
+
+  // Helper function to update structured data
+  const updateStructuredData = (data) => {
+    // Remove existing structured data
+    const existingScript = document.querySelector('script[type="application/ld+json"][data-react-meta]');
+    if (existingScript) {
+      existingScript.remove();
+    }
+
+    // Add new structured data
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-react-meta', 'true');
+    script.textContent = JSON.stringify(data);
+    document.head.appendChild(script);
+  };
 
   // This component doesn't render anything
   return null;

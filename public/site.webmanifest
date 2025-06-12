@@ -1,1 +1,84 @@
-{"name":"","short_name":"","icons":[{"src":"/android-chrome-192x192.png","sizes":"192x192","type":"image/png"},{"src":"/android-chrome-512x512.png","sizes":"512x512","type":"image/png"}],"theme_color":"#ffffff","background_color":"#ffffff","display":"standalone"}
+{
+    "name": "IndoQuran - Al-Quran Digital Indonesia",
+    "short_name": "IndoQuran",
+    "description": "Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia.",
+    "start_url": "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "theme_color": "#22c55e",
+    "background_color": "#faf8f2",
+    "categories": ["education", "books", "lifestyle"],
+    "lang": "id",
+    "scope": "/",
+    "icons": [
+        {
+            "src": "/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        },
+        {
+            "src": "/favicon-32x32.png",
+            "sizes": "32x32",
+            "type": "image/png"
+        },
+        {
+            "src": "/favicon-16x16.png",
+            "sizes": "16x16",
+            "type": "image/png"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "/images/screenshot-desktop.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "IndoQuran Desktop View"
+        },
+        {
+            "src": "/images/screenshot-mobile.png",
+            "sizes": "375x667",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "IndoQuran Mobile View"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Cari Ayat",
+            "short_name": "Cari",
+            "description": "Cari ayat dalam Al-Quran",
+            "url": "/search",
+            "icons": [
+                {
+                    "src": "/favicon-32x32.png",
+                    "sizes": "32x32"
+                }
+            ]
+        },
+        {
+            "name": "Bookmark",
+            "short_name": "Bookmark",
+            "description": "Lihat ayat yang di-bookmark",
+            "url": "/bookmarks",
+            "icons": [
+                {
+                    "src": "/favicon-32x32.png",
+                    "sizes": "32x32"
+                }
+            ]
+        }
+    ]
+}

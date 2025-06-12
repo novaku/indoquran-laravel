@@ -13,6 +13,9 @@ import ScrollIndicator from './components/ScrollIndicator';
 import LoadingSpinner from './components/LoadingSpinner';
 import PageTransition from './components/PageTransition';
 import PerformanceDebugPanel from './components/PerformanceDebugPanel';
+import SEOHead from './components/SEOHead';
+import StructuredData, { generatePageStructuredData } from './components/StructuredData';
+import { preloadCriticalResources } from './utils/seoUtils';
 
 // Lazy load pages for better performance and code splitting
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -70,6 +73,9 @@ function AppContent() {
     
     // Service Worker registration and performance monitoring
     useEffect(() => {
+        // Preload critical SEO resources
+        preloadCriticalResources();
+        
         // Register service worker
         if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
             navigator.serviceWorker.register('/sw.js')
@@ -134,6 +140,7 @@ function AppContent() {
 
     return (
         <div className="flex flex-col min-h-screen bg-[#faf8f2]">
+            <SEOHead />
             <ScrollIndicator />
             <Navbar user={user} setUser={setUser} onBreadcrumbsChange={handleBreadcrumbsChange} />
             <Breadcrumb breadcrumbs={breadcrumbs} />

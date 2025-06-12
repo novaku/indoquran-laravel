@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback, memo } from '
 import { useNavigate } from 'react-router-dom';
 import QuranHeader from '../components/QuranHeader';
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
-import MetaTags from '../components/MetaTags';
+import SEOHead, { getHomeSEO } from '../components/SEOHead';
 import StructuredData from '../components/StructuredData';
 import PageTransition from '../components/PageTransition';
 import LazyImage from '../components/LazyImage';
@@ -467,12 +467,7 @@ function HomePage() {
         <>
             <PageTransition>
                 <div className="min-h-screen bg-gradient-to-br from-islamic-green/5 to-islamic-gold/5 pb-20">
-                    <MetaTags 
-                        title="Al-Quran Digital Indonesia | Baca Al-Quran Online dengan Terjemahan Indonesia"
-                        description="Baca Al-Quran digital lengkap dengan terjemahan bahasa Indonesia, tafsir, dan audio. Cari ayat, bookmark, dan pelajari Al-Quran dengan mudah secara online."
-                        keywords="al quran digital, baca quran online, al quran indonesia, terjemahan quran, quran digital, al quran indonesia"
-                        canonicalUrl="https://my.indoquran.web.id/"
-                    />
+                    <SEOHead {...getHomeSEO()} />
                     
                     <StructuredData type="WebSite" data={{}} />
                     
