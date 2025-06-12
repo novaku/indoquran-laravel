@@ -248,14 +248,14 @@ function BookmarksPage() {
 
     const handleEditNotes = (bookmark) => {
         setEditingNotes(bookmark.id);
-        setNotesText(bookmark.notes || '');
+        setNotesText(bookmark.pivot?.notes || '');
     };
 
     const handleSaveNotes = async (ayahId) => {
         setSavingNotes(true);
         try {
             await updateBookmarkNotes(ayahId, notesText);
-            await loadBookmarks(); // Reload to get updated data
+            await loadBookmarks(); // Reload to get updated data            
             setEditingNotes(null);
             setNotesText('');
         } catch (error) {
@@ -701,7 +701,7 @@ function BookmarksPage() {
                                                             </div>
                                                         ) : (
                                                             <p className="text-green-700 text-sm">
-                                                                {bookmark.notes || 'Klik tombol edit untuk menambahkan catatan...'}
+                                                                {bookmark.pivot?.notes || 'Klik tombol edit untuk menambahkan catatan...'}
                                                             </p>
                                                         )}
                                                     </div>
