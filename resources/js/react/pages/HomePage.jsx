@@ -1,18 +1,28 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import QuranHeader from '../components/QuranHeader';
-import PrayerTimesWidget from '../components/PrayerTimesWidget';
-import SEOHead, { getHomeSEO } from '../components/SEOHead';
-import StructuredData from '../components/StructuredData';
-import PageTransition from '../components/PageTransition';
-import LazyImage from '../components/LazyImage';
-import LoadingSpinner from '../components/LoadingSpinner';
-import { fetchWithAuth, getAuthToken } from '../utils/apiUtils';
-import { useApiCache } from '../hooks/useApiCache';
-import { useComponentPreloader } from '../hooks/useResourcePreloader';
-import { getResponsiveImageProps } from '../utils/imageOptimization';
+import { 
+    ClockIcon, 
+    ArrowPathIcon as RefreshIcon, 
+    MapPinIcon as LocationMarkerIcon, 
+    CalendarIcon, 
+    ExclamationTriangleIcon as ExclamationIcon 
+} from '@heroicons/react/24/outline';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { getUserBookmarks } from '../services/BookmarkService';
+import QuranHeader from '../components/QuranHeader';
+import PageTransition from '../components/PageTransition';
+import LoadingSpinner from '../components/LoadingSpinner';
+import SEOHead from '../components/SEOHead';
+import StructuredData from '../components/StructuredData';
+import PWAInstallPrompt from '../components/PWAInstallPrompt';
+import { getHomeSEO } from '../utils/seoConfig';
+import { useApiCache } from '../hooks/useApiCache';
+import authUtils from '../utils/auth';
+import { prefetchResources } from '../utils/resourcePrefetch';
+import { fetchWithAuth } from '../utils/apiUtils';
+import { useComponentPreloader } from '../hooks/useResourcePreloader';
+import { getResponsiveImageProps } from '../utils/imageOptimization';
+import PrayerTimesWidget from '../components/PrayerTimesWidget';
 
 function HomePage() {
     const navigate = useNavigate();
@@ -50,7 +60,7 @@ function HomePage() {
         error: cacheError,
         refetch: refetchSurahs
     } = useApiCache('surahs', async () => {
-        const token = getAuthToken();
+        const token = authUtils.getAuthToken();
         const response = await fetchWithAuth('/api/surahs', {
             headers: {
                 'Authorization': token ? `Bearer ${token}` : '',
@@ -144,7 +154,7 @@ function HomePage() {
             return;
         }
         
-        const token = getAuthToken();
+        const token = authUtils.getAuthToken();
         setIsSearchLoading(true);
         try {
             const response = await fetchWithAuth(`/api/search?q=${encodeURIComponent(query)}&limit=5`, {
@@ -535,7 +545,7 @@ function HomePage() {
                                     <span className="text-islamic-green font-semibold">{bookmark.ayah_number}</span>
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <div className="flex items-center text-islamic-brown text-sm mb-1">
+                                    <div className="flex items-center text-islamic-brown text-sm mb-1.5">
                                         <span className="font-medium">{bookmark.surah?.name_latin || bookmark.surah?.name_indonesian || `Surah ${bookmark.surah_number}`}</span>
                                         <span className="mx-1.5">•</span>
                                         <span>Ayat {bookmark.ayah_number}</span>
@@ -592,6 +602,7 @@ function HomePage() {
 
     return (
         <>
+            <PWAInstallPrompt />
             <PageTransition>
                 <div className="min-h-screen bg-gradient-to-br from-islamic-green/5 to-islamic-gold/5 pb-20">
                     <SEOHead {...getHomeSEO()} />
@@ -603,7 +614,7 @@ function HomePage() {
                         
                         {/* Search Widget */}
                         <div className="mb-8 mt-8 w-full">
-                            <form onSubmit={handleSearchSubmit} className="flex items-center">
+                            <form method="post" enctype="application/x-www-form-urlencoded" onSubmit={handleSearchSubmit} className="flex items-center">
                                 <div className="relative w-full" ref={searchRef}>
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 absolute left-4 top-1/2 -translate-y-1/2 text-islamic-green" viewBox="0 0 20 20" fill="currentColor">
                                         <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />

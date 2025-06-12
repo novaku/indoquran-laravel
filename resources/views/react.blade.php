@@ -62,6 +62,19 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     
+    <!-- PWA Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="IndoQuran">
+    <meta name="application-name" content="IndoQuran">
+    <meta name="msapplication-TileColor" content="#22c55e">
+    <meta name="msapplication-config" content="/browserconfig.xml">
+    
+    <!-- PWA Display Override -->
+    <meta name="display-mode" content="standalone">
+    <meta name="standalone" content="yes">
+    
     <!-- Arabic Fonts -->
     <link rel="stylesheet" href="{{ asset('fonts/arabic-font.css') }}">
     <link rel="preload" href="{{ asset('fonts/arabic-font.woff2') }}" as="font" type="font/woff2" crossorigin="anonymous"

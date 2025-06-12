@@ -15,6 +15,27 @@ root.render(
     </StrictMode>
 );
 
+// Register Service Worker for PWA functionality
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js', {
+            scope: '/',
+            updateViaCache: 'none'
+        })
+        .then((registration) => {
+            console.log('SW registered: ', registration);
+            
+            // Check for updates periodically
+            setInterval(() => {
+                registration.update();
+            }, 60000); // Check every minute
+        })
+        .catch((registrationError) => {
+            console.log('SW registration failed: ', registrationError);
+        });
+    });
+}
+
 // Enable hot module replacement
 if (import.meta.hot) {
     import.meta.hot.accept('./App', () => {
