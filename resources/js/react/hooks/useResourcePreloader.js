@@ -30,17 +30,34 @@ export const useResourcePreloader = (config = {}) => {
     
     if (as) {
       link.as = as;
+      
+      // For fonts, ensure they get used by triggering font loading
+      if (as === 'font') {
+        link.crossOrigin = 'anonymous';
+        
+        // Trigger font loading to avoid unused preload warning
+        setTimeout(() => {
+          if (document.fonts && document.fonts.load) {
+            const fontName = url.split('/').pop().replace('.woff2', '').replace('.woff', '');
+            document.fonts.load(`1em ${fontName}`).catch(() => {
+              // Silent fail for font loading
+            });
+          }
+        }, 1000);
+      }
     }
     
-    if (as === 'font') {
+    if (as === 'font' && !link.crossOrigin) {
       link.crossOrigin = 'anonymous';
     }
 
     link.onload = () => {
-      console.log(`Preloaded: ${url}`);
+      // Silent preload completion - reduce console noise
+      // console.log(`Preloaded: ${url}`);
     };
 
     link.onerror = () => {
+      // Only log actual errors, not successful preloads
       console.warn(`Failed to preload: ${url}`);
     };
 
@@ -48,20 +65,41 @@ export const useResourcePreloader = (config = {}) => {
     preloadedResources.current.add(url);
   }, []);
 
-  // Preload critical fonts
+  // Preload critical fonts (only when actually needed)
   useEffect(() => {
     if (!enableFontPreloading) return;
 
+    // Check connection quality first
+    const isSlowConnection = 'connection' in navigator && 
+      (navigator.connection.effectiveType === '2g' || 
+       navigator.connection.effectiveType === 'slow-2g' ||
+       navigator.connection.downlink < 1.5);
+
+    if (isSlowConnection) {
+      console.log('Slow connection detected, reducing font preloading');
+      return;
+    }
+
+    // Only preload fonts that are critical and used immediately on this page
+    // Arabic font is only preloaded if we're on a page that needs it
+    const currentPath = window.location.pathname;
+    const needsArabicFont = currentPath.includes('/surah/') || 
+                           currentPath.includes('/pages/') || 
+                           currentPath.includes('/juz/');
+
+    if (!needsArabicFont) {
+      console.log('Arabic font not needed for current page, skipping preload');
+      return;
+    }
+
     const criticalFonts = [
-      '/fonts/arabic-font.woff2',
-      '/fonts/indonesian-font.woff2',
-      '/fonts/inter-var.woff2'
+      '/fonts/arabic-font.woff2'
     ];
 
-    criticalFonts.forEach(font => {
+    criticalFonts.forEach((font, index) => {
       setTimeout(() => {
         preloadResource(font, 'preload', 'font');
-      }, 500);
+      }, 500 + (index * 200)); // Stagger font loading
     });
   }, [enableFontPreloading, preloadResource]);
 
@@ -70,9 +108,11 @@ export const useResourcePreloader = (config = {}) => {
     if (!enableRoutePreloading) return;
 
     const routePreloadMap = {
-      '/': ['/search', '/bookmarks'], // From homepage, likely to visit search or bookmarks
+      '/': ['/search', '/bookmarks', '/juz', '/pages'], // From homepage, likely to visit search, bookmarks, juz, or pages
       '/search': ['/surah'], // From search, likely to visit a surah
       '/surah': ['/bookmarks', '/search'], // From surah, likely to bookmark or search more
+      '/juz': ['/surah', '/pages'], // From juz, likely to visit a surah or compare with pages
+      '/pages': ['/surah', '/juz'], // From pages, likely to visit a surah or compare with juz
       '/profile': ['/bookmarks'], // From profile, likely to visit bookmarks
       '/auth/login': ['/'], // After login, go to homepage
       '/auth/register': ['/auth/login'] // After register, might go to login
@@ -90,6 +130,9 @@ export const useResourcePreloader = (config = {}) => {
             break;
           case '/bookmarks':
             import('../pages/BookmarksPage').catch(() => {});
+            break;
+          case '/pages':
+            import('../pages/PageListPage').catch(() => {});
             break;
           case '/surah':
             import('../pages/SurahPage').catch(() => {});
@@ -229,14 +272,12 @@ export const useResourcePreloader = (config = {}) => {
       const isSlowConnection = effectiveType === 'slow-2g' || effectiveType === '2g' || downlink < 1.5;
 
       if (isSlowConnection) {
-        console.log('Slow connection detected, reducing preloading');
-        // Reduce preloading on slow connections
+        // Reduce preloading on slow connections (silent mode)
         return;
       }
 
-      // On fast connections, be more aggressive with preloading
+      // On fast connections, be more aggressive with preloading (silent mode)
       if (effectiveType === '4g' && downlink > 5) {
-        console.log('Fast connection detected, increasing preloading');
         // Additional preloading logic for fast connections
       }
     }

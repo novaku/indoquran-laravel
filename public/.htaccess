@@ -3,12 +3,14 @@
         Options -MultiViews -Indexes
     </IfModule>
 
-    # Add proper MIME types for fonts
+    # Add proper MIME types for fonts and JavaScript modules
     <IfModule mod_mime.c>
         AddType application/font-sfnt           otf ttf
         AddType application/font-woff           woff
         AddType application/font-woff2          woff2
         AddType application/vnd.ms-fontobject   eot
+        AddType application/javascript          js
+        AddType text/javascript                 js mjs
     </IfModule>
 
     # Add proper headers for font files
@@ -20,11 +22,13 @@
     </FilesMatch>
 
     # Add proper headers for JS and CSS files
-    <FilesMatch "\.(js|css)$">
+    <FilesMatch "\.(js|mjs|css)$">
         <IfModule mod_headers.c>
             Header set Access-Control-Allow-Origin "*"
             Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
             Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+            Header set Content-Type "application/javascript; charset=utf-8" env=js
+            Header set Content-Type "text/javascript; charset=utf-8" env=mjs
         </IfModule>
     </FilesMatch>
 

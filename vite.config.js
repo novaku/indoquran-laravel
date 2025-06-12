@@ -110,7 +110,9 @@ export default defineConfig(({ command, mode }) => {
                             return 'assets/[name]-[hash][extname]';
                         }
                         return 'assets/[name]-[hash][extname]';
-                    }
+                    },
+                    // Ensure correct MIME types for JavaScript modules
+                    format: 'es'
                 }
             },
             assetsDir: 'assets',

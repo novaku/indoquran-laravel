@@ -218,11 +218,10 @@ export const getPageSEOData = (pageType, data = {}) => {
   return seoData;
 };
 
-// Function to preload critical resources
+// Function to preload critical resources (only actually used ones)
 export const preloadCriticalResources = () => {
   const resources = [
-    { rel: 'preload', as: 'font', href: '/fonts/arabic-font.woff2', type: 'font/woff2', crossorigin: 'anonymous' },
-    { rel: 'preload', as: 'image', href: '/android-chrome-512x512.png' },
+    // Only preload resources that are actually used immediately
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
     { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: 'anonymous' },
     { rel: 'dns-prefetch', href: 'https://api.quran.com' }

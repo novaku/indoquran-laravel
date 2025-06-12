@@ -74,6 +74,10 @@ Route::get('/surahs', [App\Http\Controllers\QuranController::class, 'getAllSurah
 Route::get('/surahs/{number}', [App\Http\Controllers\QuranController::class, 'getSurah'])->where('number', '[0-9]+');
 Route::get('/surahs/{number}/metadata', [App\Http\Controllers\QuranController::class, 'getSurahMetadata'])->where('number', '[0-9]+');
 
+// Juz routes
+Route::get('/juz', [App\Http\Controllers\QuranController::class, 'getAllJuz']);
+Route::get('/juz/{number}', [App\Http\Controllers\QuranController::class, 'getJuz'])->where('number', '[0-9]+');
+
 // Ayah routes
 Route::get('/ayahs/{surahNumber}/{ayahNumber}', [App\Http\Controllers\QuranController::class, 'getAyah'])
     ->where(['surahNumber' => '[0-9]+', 'ayahNumber' => '[0-9]+']);
@@ -88,3 +92,7 @@ Route::middleware(['internal.only'])->group(function() {
 
 // Prayer Times API Endpoint
 Route::get('/prayer-times', [App\Http\Controllers\PrayerTimesController::class, 'getPrayerTimes']);
+
+// Page routes
+Route::get('/pages', [App\Http\Controllers\QuranController::class, 'getAllPages']);
+Route::get('/pages/{number}', [App\Http\Controllers\QuranController::class, 'getPage'])->where('number', '[0-9]+');

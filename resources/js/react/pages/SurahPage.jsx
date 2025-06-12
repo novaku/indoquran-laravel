@@ -624,14 +624,28 @@ function SurahPage() {
                             {/* Juz and Page Info */}
                             <div className="flex justify-center gap-3 mb-4">
                                 {ayah.juz && (
-                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                                    <button
+                                        onClick={() => navigate(`/juz/${ayah.juz}`)}
+                                        className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200 hover:bg-blue-200 hover:shadow-md active:bg-blue-300 transition-all cursor-pointer"
+                                        title={`Lihat Juz ${ayah.juz}`}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                        </svg>
                                         Juz {ayah.juz}
-                                    </span>
+                                    </button>
                                 )}
                                 {ayah.page && (
-                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">
+                                    <button
+                                        onClick={() => navigate(`/pages/${ayah.page}`)}
+                                        className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200 hover:bg-purple-200 hover:shadow-md active:bg-purple-300 transition-all cursor-pointer"
+                                        title={`Lihat Halaman ${ayah.page}`}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                                        </svg>
                                         Halaman {ayah.page}
-                                    </span>
+                                    </button>
                                 )}
                                 <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r from-green-600 to-emerald-600 text-white border-2 border-green-700 shadow-lg ring-2 ring-green-200 ring-opacity-50">
                                     <span className="mr-1">📖</span> Ayat {selectedAyahNumber}

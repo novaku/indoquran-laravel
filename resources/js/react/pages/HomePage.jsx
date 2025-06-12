@@ -33,7 +33,7 @@ function HomePage() {
     useComponentPreloader([
         { url: '/api/surahs', type: 'prefetch', delay: 500 },
         { url: '/api/prayer-times', type: 'prefetch', delay: 1000 },
-        { url: '/images/quran-header-bg.jpg', type: 'preload', as: 'image', delay: 100 }
+        { url: '/images/quran-logo.png', type: 'preload', as: 'image', delay: 100 }
     ]);
 
     // Use API cache for surahs data
@@ -394,22 +394,6 @@ function HomePage() {
                     </div>
                 )}
                 
-                {/* Statistics Section */}
-                <div className="grid grid-cols-3 gap-3 mb-4">
-                    <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-100">
-                        <div className="text-xs text-blue-600 mb-1">Wahyu</div>
-                        <div className="font-bold text-blue-800 text-xs">{surah.revelation_place === 'Makkah' ? '🕋 Makkah' : '🕌 Madinah'}</div>
-                    </div>
-                    <div className="text-center p-3 bg-purple-50 rounded-lg border border-purple-100">
-                        <div className="text-xs text-purple-600 mb-1">Ayat</div>
-                        <div className="font-bold text-purple-800">{surah.total_ayahs}</div>
-                    </div>
-                    <div className="text-center p-3 bg-amber-50 rounded-lg border border-amber-100">
-                        <div className="text-xs text-amber-600 mb-1">Urutan</div>
-                        <div className="font-bold text-amber-800">#{surah.number}</div>
-                    </div>
-                </div>
-                
                 {/* Action Buttons */}
                 <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                     <button
@@ -680,53 +664,69 @@ function HomePage() {
                         {/* Content Area */}
                         <div className="p-8 max-h-[60vh] overflow-y-auto">
                             {/* Quick Stats */}
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                                <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-200 text-center">
-                                    <div className="text-blue-600 text-sm font-medium mb-1 flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                        Wahyu
+                            <div className="mb-8">
+                                <div className="flex items-center justify-between bg-gradient-to-r from-blue-50 to-amber-50 p-5 rounded-xl border border-islamic-green/10">
+                                    <div className="flex items-center space-x-6">
+                                        <div className="flex items-center text-blue-700">
+                                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div className="text-sm font-medium text-blue-600">Wahyu</div>
+                                                <div className="font-bold text-blue-800">
+                                                    {selectedSurah?.revelation_place}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="h-10 w-0.5 bg-gray-300 rounded-full"></div>
+                                        
+                                        <div className="flex items-center text-purple-700">
+                                            <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-1l-4 4z" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div className="text-sm font-medium text-purple-600">Ayat</div>
+                                                <div className="font-bold text-purple-800">
+                                                    {selectedSurah?.total_ayahs || 'N/A'}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="h-10 w-0.5 bg-gray-300 rounded-full"></div>
+                                        
+                                        <div className="flex items-center text-amber-700">
+                                            <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center mr-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div className="text-sm font-medium text-amber-600">Urutan</div>
+                                                <div className="font-bold text-amber-800">
+                                                    #{selectedSurah?.number || 'N/A'}
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="font-bold text-blue-800 text-lg">
-                                        {selectedSurah?.revelation_place === 'Makkah' ? '🕋 Makkah' : '🕌 Madinah'}
-                                    </div>
-                                </div>
-                                
-                                <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-xl border border-purple-200 text-center">
-                                    <div className="text-purple-600 text-sm font-medium mb-1 flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-1l-4 4z" />
-                                        </svg>
-                                        Ayat
-                                    </div>
-                                    <div className="font-bold text-purple-800 text-lg">
-                                        {selectedSurah?.total_ayahs || 'N/A'}
-                                    </div>
-                                </div>
-                                
-                                <div className="bg-gradient-to-r from-amber-50 to-amber-100 p-4 rounded-xl border border-amber-200 text-center">
-                                    <div className="text-amber-600 text-sm font-medium mb-1 flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
-                                        </svg>
-                                        Urutan
-                                    </div>
-                                    <div className="font-bold text-amber-800 text-lg">
-                                        #{selectedSurah?.number || 'N/A'}
-                                    </div>
-                                </div>
-                                
-                                <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-xl border border-green-200 text-center">
-                                    <div className="text-green-600 text-sm font-medium mb-1 flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        Periode
-                                    </div>
-                                    <div className="font-bold text-green-800 text-sm">
-                                        {selectedSurah?.revelation_place === 'Makkah' ? 'Makkiyyah' : 'Madaniyyah'}
+                                    
+                                    <div className="flex items-center text-green-700">
+                                        <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-medium text-green-600">Periode</div>
+                                            <div className="font-bold text-green-800">
+                                                {selectedSurah?.revelation_place}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -790,7 +790,7 @@ function HomePage() {
                                     </div>
                                     <div className="flex items-center text-indigo-700">
                                         <span className="w-2 h-2 bg-indigo-400 rounded-full mr-3"></span>
-                                        <span><strong>Klasifikasi:</strong> Surah {selectedSurah?.revelation_place === 'Makkah' ? 'Makkiyyah (Makkah)' : 'Madaniyyah (Madinah)'}</span>
+                                        <span><strong>Klasifikasi:</strong> {selectedSurah?.revelation_place}</span>
                                     </div>
                                     <div className="flex items-center text-indigo-700">
                                         <span className="w-2 h-2 bg-indigo-400 rounded-full mr-3"></span>

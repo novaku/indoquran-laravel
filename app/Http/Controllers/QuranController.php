@@ -216,4 +216,164 @@ class QuranController extends Controller
             ]
         ]);
     }
+
+    /**
+     * Get all available Juz numbers
+     * 
+     * @return JsonResponse
+     */
+    public function getAllJuz(): JsonResponse
+    {
+        // Get distinct juz numbers from ayahs table
+        $juzNumbers = Ayah::select('juz')
+            ->distinct()
+            ->orderBy('juz')
+            ->pluck('juz')
+            ->filter() // Remove null values
+            ->values();
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => $juzNumbers
+        ]);
+    }
+
+    /**
+     * Get ayahs for a specific Juz
+     * 
+     * @param string|int $juzNumber
+     * @return JsonResponse
+     */
+    public function getJuz($juzNumber): JsonResponse
+    {
+        // Validate juz number
+        if (!is_numeric($juzNumber)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid juz number format'
+            ], 400);
+        }
+        
+        $juzNum = (int) $juzNumber;
+        
+        // Verify that the juz number is in valid range (1-30)
+        if ($juzNum < 1 || $juzNum > 30) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Juz number must be between 1 and 30'
+            ], 400);
+        }
+        
+        // Get all ayahs for this juz with surah information
+        $ayahs = Ayah::where('juz', $juzNum)
+            ->with('surah:number,name_indonesian,name_arabic,name_latin')
+            ->orderBy('surah_number')
+            ->orderBy('ayah_number')
+            ->get();
+        
+        if ($ayahs->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Juz not found'
+            ], 404);
+        }
+        
+        // Group ayahs by surah for better organization
+        $groupedAyahs = $ayahs->groupBy('surah_number');
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'juz_number' => $juzNum,
+                'total_ayahs' => $ayahs->count(),
+                'surahs' => $groupedAyahs->map(function ($surahAyahs) {
+                    $firstAyah = $surahAyahs->first();
+                    return [
+                        'surah' => $firstAyah->surah,
+                        'ayahs' => $surahAyahs->values()
+                    ];
+                })->values()
+            ]
+        ]);
+    }
+
+    /**
+     * Get ayahs for a specific Page
+     * 
+     * @param string|int $pageNumber
+     * @return JsonResponse
+     */
+    public function getPage($pageNumber): JsonResponse
+    {
+        // Validate page number
+        if (!is_numeric($pageNumber)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid page number format'
+            ], 400);
+        }
+        
+        $pageNum = (int) $pageNumber;
+        
+        // Verify that the page number is in valid range (1-604 for standard Mushaf)
+        if ($pageNum < 1 || $pageNum > 604) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Page number must be between 1 and 604'
+            ], 400);
+        }
+        
+        // Get all ayahs for this page with surah information
+        $ayahs = Ayah::where('page', $pageNum)
+            ->with('surah:number,name_indonesian,name_arabic,name_latin')
+            ->orderBy('surah_number')
+            ->orderBy('ayah_number')
+            ->get();
+        
+        if ($ayahs->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Page not found'
+            ], 404);
+        }
+        
+        // Group ayahs by surah for better organization
+        $groupedAyahs = $ayahs->groupBy('surah_number');
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'page_number' => $pageNum,
+                'total_ayahs' => $ayahs->count(),
+                'surahs' => $groupedAyahs->map(function ($surahAyahs) {
+                    $firstAyah = $surahAyahs->first();
+                    return [
+                        'surah' => $firstAyah->surah,
+                        'ayahs' => $surahAyahs->values()
+                    ];
+                })->values()
+            ]
+        ]);
+    }
+
+    /**
+     * Get all available Page numbers
+     * 
+     * @return JsonResponse
+     */
+    public function getAllPages(): JsonResponse
+    {
+        // Get distinct page numbers from ayahs table
+        $pageNumbers = Ayah::select('page')
+            ->distinct()
+            ->orderBy('page')
+            ->pluck('page')
+            ->filter() // Remove null values
+            ->values();
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => $pageNumbers
+        ]);
+    }
 }

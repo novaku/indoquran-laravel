@@ -11,8 +11,6 @@ const STATIC_ASSETS = [
   '/',
   '/build/assets/app.css',
   '/build/assets/app.js',
-  '/android-chrome-512x512.png',
-  '/android-chrome-192x192.png',
   '/apple-touch-icon.png',
   '/favicon.ico',
   '/favicon-32x32.png',

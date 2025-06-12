@@ -87,6 +87,28 @@ class SEOController extends Controller
                 ]);
             }
         }
+        elseif (isset($segments[0]) && $segments[0] === 'juz') {
+            // Juz page SEO
+            if (isset($segments[1]) && is_numeric($segments[1])) {
+                $juzNumber = (int) $segments[1];
+                // Specific Juz SEO
+                $seoData = array_merge($seoData, [
+                    'metaTitle' => "Juz {$juzNumber} - Teks Arab Al-Quran - IndoQuran",
+                    'metaDescription' => "Baca Juz {$juzNumber} Al-Quran dengan teks Arab lengkap. Para {$juzNumber} Al-Quran tersedia untuk dibaca dan dipelajari. Platform Al-Quran digital terlengkap di Indonesia.",
+                    'metaKeywords' => "juz {$juzNumber}, para {$juzNumber}, al quran juz {$juzNumber}, teks arab juz {$juzNumber}, quran digital, al quran indonesia",
+                    'canonicalUrl' => "https://my.indoquran.web.id/juz/{$juzNumber}",
+                    'ogType' => 'article'
+                ]);
+            } else {
+                // Juz list page SEO
+                $seoData = array_merge($seoData, [
+                    'metaTitle' => 'Daftar Juz Al-Quran - Teks Arab - IndoQuran',
+                    'metaDescription' => 'Akses semua Juz (Para) Al-Quran dengan teks Arab lengkap. 30 Juz Al-Quran tersedia untuk dibaca dan dipelajari. Platform Al-Quran digital terlengkap di Indonesia.',
+                    'metaKeywords' => 'juz al quran, para al quran, daftar juz, teks arab al quran, al quran digital, quran indonesia, juz lengkap',
+                    'canonicalUrl' => 'https://my.indoquran.web.id/juz'
+                ]);
+            }
+        }
         elseif (isset($segments[0]) && $segments[0] === 'about') {
             // About page SEO
             $seoData = array_merge($seoData, [

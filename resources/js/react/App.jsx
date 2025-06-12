@@ -27,6 +27,10 @@ const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
+const JuzListPage = lazy(() => import('./pages/JuzListPage'));
+const JuzPage = lazy(() => import('./pages/JuzPage'));
+const PageListPage = lazy(() => import('./pages/PageListPage'));
+const PageDetailPage = lazy(() => import('./pages/PageDetailPage'));
 
 // Main app content component with auth-protected routes
 function AppContent() {
@@ -48,27 +52,28 @@ function AppContent() {
     // Breadcrumbs state
     const [breadcrumbs, setBreadcrumbs] = useState([]);
     
-    // Performance hooks
-    usePreloader();
-    usePrefetchRoutes();
+    // Performance hooks - Use only one comprehensive strategy to avoid duplicates
+    // usePreloader(); // Disabled to prevent conflicts
+    // usePrefetchRoutes(); // Disabled to prevent conflicts
     usePerformanceMonitor();
     
-    // Advanced performance monitoring
+    // Advanced performance monitoring (disable console logging to reduce noise)
     const { getMetrics, getOptimizationSuggestions } = useAdvancedPerformanceMonitor({
         trackLCP: true,
         trackFID: true,
         trackCLS: true,
         trackTTFB: true,
-        logToConsole: process.env.NODE_ENV === 'development'
+        logToConsole: false // Disable console logging to reduce noise
     });
     
-    // Resource preloading
+    // Comprehensive resource preloading (includes all functionality from disabled hooks)
     useResourcePreloader({
         enableRoutePreloading: true,
         enableImagePreloading: true,
         enableFontPreloading: true,
         enableApiPreloading: true,
-        enableHoverPreloading: true
+        enableHoverPreloading: true,
+        preloadDelay: 1000 // Reduced delay for better performance
     });
     
     // Service Worker registration and performance monitoring
@@ -76,40 +81,33 @@ function AppContent() {
         // Preload critical SEO resources
         preloadCriticalResources();
         
-        // Register service worker
-        if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
-            navigator.serviceWorker.register('/sw.js')
-                .then(registration => {
-                    console.log('Service Worker registered successfully:', registration);
-                })
-                .catch(error => {
-                    console.log('Service Worker registration failed:', error);
+        // TEMPORARILY DISABLE SERVICE WORKER COMPLETELY IN DEVELOPMENT
+        if ('serviceWorker' in navigator) {
+            if (process.env.NODE_ENV === 'development') {
+                // In development, unregister any existing service workers to prevent conflicts
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    registrations.forEach(registration => {
+                        console.log('Unregistering service worker:', registration);
+                        registration.unregister();
+                    });
                 });
+                console.log('Service Worker disabled in development mode');
+            } else if (process.env.NODE_ENV === 'production') {
+                // Only register in production
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            }
         }
         
-        // Performance monitoring in development
+        // Performance monitoring in development (disabled to reduce console noise)
+        // Performance monitoring is now handled by the PerformanceDebugPanel component
         if (process.env.NODE_ENV === 'development') {
-            // Log performance metrics every 10 seconds
-            const performanceInterval = setInterval(() => {
-                const metrics = getMetrics();
-                const suggestions = getOptimizationSuggestions();
-                
-                if (Object.keys(metrics).length > 0) {
-                    console.group('🚀 Performance Metrics');
-                    console.table(metrics);
-                    console.groupEnd();
-                    
-                    if (suggestions.length > 0) {
-                        console.group('💡 Optimization Suggestions');
-                        suggestions.forEach(suggestion => {
-                            console.log(`${suggestion.metric}: ${suggestion.suggestion}`);
-                        });
-                        console.groupEnd();
-                    }
-                }
-            }, 10000);
-            
-            return () => clearInterval(performanceInterval);
+            console.log('✅ Performance monitoring available via PerformanceDebugPanel');
         }
     }, [getMetrics, getOptimizationSuggestions]);
     
@@ -160,6 +158,10 @@ function AppContent() {
                         <Route path="/surah/:number" element={<SurahPage user={user} />} />
                         <Route path="/surah/:number/:ayahNumber" element={<SurahPage user={user} />} />
                         <Route path="/search" element={<SearchPage />} />
+                        <Route path="/juz" element={<JuzListPage />} />
+                        <Route path="/juz/:number" element={<JuzPage />} />
+                        <Route path="/pages" element={<PageListPage />} />
+                        <Route path="/pages/:number" element={<PageDetailPage />} />
                         <Route path="/about" element={<AboutPage />} />
                         <Route path="/contact" element={<ContactPage />} />
                         <Route path="/privacy" element={<PrivacyPage />} />
