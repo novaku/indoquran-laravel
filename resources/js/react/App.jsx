@@ -26,6 +26,7 @@ const BookmarksPage = lazy(() => import('./pages/BookmarksPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
+const DonationPage = lazy(() => import('./pages/DonationPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const JuzListPage = lazy(() => import('./pages/JuzListPage'));
 const JuzPage = lazy(() => import('./pages/JuzPage'));
@@ -164,6 +165,7 @@ function AppContent() {
                         <Route path="/pages/:number" element={<PageDetailPage />} />
                         <Route path="/about" element={<AboutPage />} />
                         <Route path="/contact" element={<ContactPage />} />
+                        <Route path="/donation" element={<DonationPage />} />
                         <Route path="/privacy" element={<PrivacyPage />} />
                         
                         {/* Protected Routes */}

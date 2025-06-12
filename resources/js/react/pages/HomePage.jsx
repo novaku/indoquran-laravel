@@ -11,14 +11,21 @@ import { fetchWithAuth, getAuthToken } from '../utils/apiUtils';
 import { useApiCache } from '../hooks/useApiCache';
 import { useComponentPreloader } from '../hooks/useResourcePreloader';
 import { getResponsiveImageProps } from '../utils/imageOptimization';
+import { useAuth } from '../hooks/useAuth.jsx';
+import { getUserBookmarks } from '../services/BookmarkService';
 
 function HomePage() {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [surahs, setSurahs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedSurah, setSelectedSurah] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    
+    // Bookmarks state
+    const [bookmarks, setBookmarks] = useState([]);
+    const [bookmarkLoading, setBookmarkLoading] = useState(false);
     
     // Search functionality states
     const [searchTerm, setSearchTerm] = useState('');
@@ -77,6 +84,33 @@ function HomePage() {
             setLoading(cacheLoading);
         }
     }, [cachedSurahs, cacheLoading, cacheError]);
+    
+    // Load user bookmarks if user is logged in
+    useEffect(() => {
+        const loadBookmarks = async () => {
+            if (user) {
+                setBookmarkLoading(true);
+                try {
+                    const data = await getUserBookmarks();
+                    // Get the 5 most recent bookmarks
+                    const recentBookmarks = data
+                        .sort((a, b) => {
+                            const dateA = a.pivot?.created_at || a.created_at || '';
+                            const dateB = b.pivot?.created_at || b.created_at || '';
+                            return new Date(dateB) - new Date(dateA);
+                        })
+                        .slice(0, 5);
+                    setBookmarks(recentBookmarks);
+                } catch (error) {
+                    console.error('Error loading bookmarks:', error);
+                } finally {
+                    setBookmarkLoading(false);
+                }
+            }
+        };
+        
+        loadBookmarks();
+    }, [user]);
 
     // Handle Escape key press for modal
     useEffect(() => {
@@ -421,10 +455,117 @@ function HomePage() {
         );
     });
 
+    // Handle click on a bookmark
+    const handleBookmarkClick = useCallback((bookmark) => {
+        navigate(`/surah/${bookmark.surah_number}/${bookmark.ayah_number}`);
+    }, [navigate]);
+
     // Memoized filtered surahs for better performance
     const filteredSurahs = useMemo(() => {
         return surahs || [];
     }, [surahs]);
+
+    // BookmarkSummary component
+    const BookmarkSummary = ({ bookmarks, loading, onBookmarkClick }) => {
+        if (loading) {
+            return (
+                <div className="mb-8 bg-gradient-to-r from-green-50 to-amber-50 rounded-xl shadow-lg p-6 border border-islamic-green/10">
+                    <div className="flex items-center justify-center h-40">
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-islamic-green"></div>
+                        <span className="ml-3 text-islamic-green">Memuat bookmark...</span>
+                    </div>
+                </div>
+            );
+        }
+
+        if (!bookmarks || bookmarks.length === 0) {
+            return (
+                <div className="mb-8 bg-gradient-to-r from-green-50 to-amber-50 rounded-xl shadow-lg p-6 border border-islamic-green/10">
+                    <h2 className="text-lg font-bold text-islamic-green mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                        </svg>
+                        Bookmark Ayat
+                    </h2>
+                    <div className="text-center py-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-4 text-islamic-green/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                        </svg>
+                        <p className="text-gray-600">Anda belum memiliki ayat yang di-bookmark</p>
+                        <button 
+                            onClick={() => window.location.href = '/surah/1'}
+                            className="mt-4 px-4 py-2 bg-islamic-green text-white rounded-lg hover:bg-islamic-green/90 transition-colors"
+                        >
+                            Mulai Membaca Al-Quran
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        return (
+            <div className="mb-8 bg-gradient-to-r from-green-50 to-amber-50 rounded-xl shadow-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-bold text-islamic-green flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                        </svg>
+                        Bookmark Ayat Terakhir
+                    </h2>
+                    <a 
+                        href="/bookmarks" 
+                        className="text-sm text-islamic-green hover:text-islamic-green/80 font-medium flex items-center"
+                    >
+                        Lihat Semua
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
+                
+                <div className="space-y-3">
+                    {bookmarks.map((bookmark, index) => (
+                        <div 
+                            key={`bookmark-${bookmark.id}-${index}`}
+                            className="bg-white p-4 rounded-lg hover:shadow-md transition-all cursor-pointer"
+                            onClick={() => onBookmarkClick(bookmark)}
+                        >
+                            <div className="flex items-start">
+                                <div className="flex-shrink-0 w-10 h-10 bg-islamic-green/10 rounded-full flex items-center justify-center mr-3">
+                                    <span className="text-islamic-green font-semibold">{bookmark.ayah_number}</span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center text-islamic-brown text-sm mb-1">
+                                        <span className="font-medium">{bookmark.surah?.name_latin || bookmark.surah?.name_indonesian || `Surah ${bookmark.surah_number}`}</span>
+                                        <span className="mx-1.5">•</span>
+                                        <span>Ayat {bookmark.ayah_number}</span>
+                                        {bookmark.is_favorite && (
+                                            <span className="ml-2 text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full">
+                                                Favorit
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className="text-gray-700 text-sm overflow-hidden text-ellipsis" 
+                                       style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
+                                        "{bookmark.text_indonesian?.substring(0, 120)}..."
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                
+                <div className="mt-4 pt-3 border-t border-islamic-green/10">
+                    <a 
+                        href="/bookmarks" 
+                        className="w-full block py-2 text-center bg-islamic-green/10 hover:bg-islamic-green/20 text-islamic-green font-medium rounded-lg transition-colors"
+                    >
+                        Kelola Bookmark Anda
+                    </a>
+                </div>
+            </div>
+        );
+    };
 
     if (loading) {
         return (
@@ -447,6 +588,8 @@ function HomePage() {
         );
     }
     
+    /* Remove the first return statement */
+
     return (
         <>
             <PageTransition>
@@ -459,7 +602,7 @@ function HomePage() {
                         <QuranHeader />
                         
                         {/* Search Widget */}
-                        <div className="mb-8 mt-8 max-w-3xl mx-auto">
+                        <div className="mb-8 mt-8 w-full">
                             <form onSubmit={handleSearchSubmit} className="flex items-center">
                                 <div className="relative w-full" ref={searchRef}>
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 absolute left-4 top-1/2 -translate-y-1/2 text-islamic-green" viewBox="0 0 20 20" fill="currentColor">
@@ -582,7 +725,18 @@ function HomePage() {
                             </p>
                         </div>
                         
-                        <PrayerTimesWidget className="mb-8" />
+                        <PrayerTimesWidget className="mb-12" />
+                    
+                        {/* Display bookmark summary for logged in users */}
+                        {user && (
+                            <div className="mb-12 mt-8">
+                                <BookmarkSummary 
+                                    bookmarks={bookmarks} 
+                                    loading={bookmarkLoading} 
+                                    onBookmarkClick={handleBookmarkClick} 
+                                />
+                            </div>
+                        )}
                     
                         <div className="mb-8">
                             <h1 className="text-3xl font-bold text-islamic-green mb-2">Al-Quran Digital</h1>
@@ -606,6 +760,7 @@ function HomePage() {
                                 ))}
                             </div>
                         )}
+
                     </div>
                 </div>
             </PageTransition>

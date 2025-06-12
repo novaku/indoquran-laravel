@@ -44,11 +44,24 @@ export default defineConfig(({ command, mode }) => {
                     // Ensure proper MIME type handling
                     entryFileNames: 'assets/[name]-[hash].js',
                     chunkFileNames: 'assets/[name]-[hash].js',
-                    assetFileNames: 'assets/[name]-[hash].[ext]',
+                    assetFileNames: (assetInfo) => {
+                        // Keep font files with a simple naming pattern
+                        if (assetInfo.name && /\.(woff|woff2|eot|ttf|otf)$/.test(assetInfo.name)) {
+                            return 'assets/[name]-[hash][extname]';
+                        }
+                        return 'assets/[name]-[hash][extname]';
+                    },
                     // Ensure proper module format
                     format: 'es',
+                    manualChunks: {
+                        vendor: ['react', 'react-dom'],
+                    },
                 },
             },
+            // Ensure assets are properly processed
+            assetsInlineLimit: 0, // Don't inline any assets
+            outDir: 'public/build',
+            assetsDir: 'assets',
         },
         // Set base URL for asset loading - force local paths for development
         base: !isDev && mode === 'production' && assetUrl ? `${assetUrl}/` : '/',
@@ -107,28 +120,6 @@ export default defineConfig(({ command, mode }) => {
             '__DEV__': isDev,
             // Ensure React JSX runtime is properly defined
             'process.env.BABEL_ENV': JSON.stringify(isDev ? 'development' : 'production')
-        },
-        build: {
-            // Ensure assets are properly processed
-            assetsInlineLimit: 0, // Don't inline any assets
-            outDir: 'public/build',
-            rollupOptions: {
-                output: {
-                    manualChunks: {
-                        vendor: ['react', 'react-dom'],
-                    },
-                    assetFileNames: (assetInfo) => {
-                        // Keep font files with a simple naming pattern
-                        if (assetInfo.name && /\.(woff|woff2|eot|ttf|otf)$/.test(assetInfo.name)) {
-                            return 'assets/[name]-[hash][extname]';
-                        }
-                        return 'assets/[name]-[hash][extname]';
-                    },
-                    // Ensure correct MIME types for JavaScript modules
-                    format: 'es'
-                }
-            },
-            assetsDir: 'assets',
         },
         resolve: {
             alias: {
