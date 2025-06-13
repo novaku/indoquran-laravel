@@ -52,7 +52,7 @@ const PrayerForm = ({ onSubmit, loading, onCancel }) => {
                 </h3>
             </div>
             
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} encType="application/x-www-form-urlencoded" className="space-y-4">
                 {/* Title */}
                 <div>
                     <label htmlFor="title" className="block text-sm font-medium text-gray-800 mb-2">

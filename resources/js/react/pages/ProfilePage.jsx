@@ -141,7 +141,7 @@ function ProfilePage() {
             )}
             
             <div className="bg-white shadow-lg rounded-lg p-8 border border-gray-200">
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} encType="application/x-www-form-urlencoded">
                     <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
                             Nama

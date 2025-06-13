@@ -121,3 +121,6 @@ Route::get('/doa-bersama/random', [PrayerController::class, 'getRandomPrayer']);
 Route::get('/doa-bersama/{prayer}', [PrayerController::class, 'show']);
 Route::get('/doa-bersama/{prayer}/comments', [PrayerController::class, 'getComments']);
 Route::get('/kategori-doa', [PrayerController::class, 'getCategories']);
+
+// Prayer times API endpoint
+Route::get('/prayer-times', [PrayerController::class, 'getPrayerTimes']);

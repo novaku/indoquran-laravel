@@ -281,7 +281,7 @@ const SearchField = ({
 
     return (
         <div className={`relative w-full ${className}`}>
-            <form onSubmit={handleSearchSubmit} className="flex items-center">
+            <form onSubmit={handleSearchSubmit} encType="application/x-www-form-urlencoded" className="flex items-center">
                 <div className="relative w-full" ref={searchRef}>
                     <svg 
                         xmlns="http://www.w3.org/2000/svg" 

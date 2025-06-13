@@ -184,7 +184,7 @@ const PrayerCard = ({ prayer, user, onAminToggle, onCommentSubmit }) => {
                                 </svg>
                                 <span className="text-sm font-medium text-black">Tambahkan Komentar atau Dukungan</span>
                             </div>
-                            <form onSubmit={handleCommentSubmit}>
+                            <form onSubmit={handleCommentSubmit} encType="application/x-www-form-urlencoded">
                                 <div className="flex gap-3">
                                     <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white font-medium text-sm flex-shrink-0">
                                         {user.name?.charAt(0)?.toUpperCase() || 'U'}

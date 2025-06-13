@@ -113,7 +113,7 @@ function PageListPage() {
                         
                         {/* Search and Go to Page */}
                         <div className="flex items-center gap-4">
-                            <form onSubmit={handleGoToPage} className="flex items-center gap-2">
+                            <form onSubmit={handleGoToPage} encType="application/x-www-form-urlencoded" className="flex items-center gap-2">
                                 <div className="relative">
                                     <IoSearchOutline className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-400 w-4 h-4" />
                                     <input

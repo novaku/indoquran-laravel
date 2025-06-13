@@ -162,7 +162,7 @@ function ContactPage() {
                     </p>
                 </div>
                 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} encType="application/x-www-form-urlencoded" className="space-y-6">
                     <div>
                         <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                             Nama
