@@ -117,6 +117,7 @@ Route::middleware(['api.cache:7d'])->group(function() {
 
 // Public prayer routes (for viewing without auth) - Indonesian URLs
 Route::get('/doa-bersama', [PrayerController::class, 'index']);
+Route::get('/doa-bersama/random', [PrayerController::class, 'getRandomPrayer']);
 Route::get('/doa-bersama/{prayer}', [PrayerController::class, 'show']);
 Route::get('/doa-bersama/{prayer}/comments', [PrayerController::class, 'getComments']);
 Route::get('/kategori-doa', [PrayerController::class, 'getCategories']);

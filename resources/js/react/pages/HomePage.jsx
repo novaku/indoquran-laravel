@@ -24,6 +24,7 @@ import { fetchWithAuth } from '../utils/apiUtils';
 import { useComponentPreloader } from '../hooks/useResourcePreloader';
 import { getResponsiveImageProps } from '../utils/imageOptimization';
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
+import RunningTextWidget from '../components/RunningTextWidget';
 
 function HomePage() {
     const navigate = useNavigate();
@@ -420,6 +421,9 @@ function HomePage() {
                                 <span>Cari berdasarkan kata kunci, nama surah, atau terjemahan bahasa Indonesia</span>
                             </p>
                         </div>
+                        
+                        {/* Running Text for Random Doa Bersama */}
+                        <RunningTextWidget className="mb-8" />
                         
                         <PrayerTimesWidget className="mb-12" />
                     

@@ -213,14 +213,14 @@ const PrayerPage = () => {
                         <div className="flex items-center justify-center gap-3">
                             <a 
                                 href="/auth/login" 
-                                className="bg-islamic-green text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-islamic-green/90 transition-all duration-200 shadow-md hover:shadow-lg"
+                                className="bg-islamic-green text-black px-4 py-2 rounded-lg font-medium text-sm hover:bg-islamic-green/90 transition-all duration-200 shadow-md hover:shadow-lg"
                             >
                                 🔑 Login
                             </a>
                             <span className="text-islamic-green text-sm">atau</span>
                             <a 
                                 href="/auth/register" 
-                                className="bg-white text-islamic-green px-4 py-2 rounded-lg font-medium text-sm hover:bg-islamic-green/5 transition-all duration-200 shadow-md"
+                                className="bg-islamic-green text-black px-4 py-2 rounded-lg font-medium text-sm hover:bg-islamic-green/90 transition-all duration-200 shadow-md hover:shadow-lg"
                             >
                                 📝 Daftar
                             </a>

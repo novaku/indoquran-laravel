@@ -479,3 +479,35 @@
         padding-bottom: env(safe-area-inset-bottom);
     }
 }
+
+/* Running text marquee animation */
+@keyframes marquee {
+    0% {
+        transform: translateX(100%);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+.animate-marquee {
+    animation: marquee 25s linear infinite;
+    display: inline-block;
+}
+
+.animate-marquee:hover,
+.hover\:animation-paused:hover {
+    animation-play-state: paused;
+}
+
+/* Smooth gradient for text overflow */
+.marquee-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 30px;
+    background: linear-gradient(to left, rgba(249, 250, 251, 1), rgba(249, 250, 251, 0));
+    pointer-events: none;
+}

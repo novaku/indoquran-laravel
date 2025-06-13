@@ -368,4 +368,40 @@ class PrayerController extends Controller
             'message' => 'Kategori berhasil dimuat'
         ]);
     }
+
+    /**
+     * Get a random prayer for running text display
+     */
+    public function getRandomPrayer(Request $request): JsonResponse
+    {
+        try {
+            // Get a random prayer
+            $prayer = Prayer::with(['user'])
+                ->withCount(['amins', 'comments'])
+                ->inRandomOrder()
+                ->first();
+
+            if (!$prayer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada doa yang tersedia'
+                ], 404);
+            }
+
+            // Add user's amin status if authenticated
+            $userId = $this->getAuthenticatedUserId($request);
+            $prayer->user_has_amin = $userId ? $prayer->hasAminFromUser($userId) : false;
+
+            return response()->json([
+                'success' => true,
+                'data' => $prayer,
+                'message' => 'Doa acak berhasil dimuat'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat doa acak'
+            ], 500);
+        }
+    }
 }
