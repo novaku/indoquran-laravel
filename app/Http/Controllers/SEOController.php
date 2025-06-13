@@ -136,6 +136,15 @@ class SEOController extends Controller
                 'canonicalUrl' => 'https://my.indoquran.web.id/bookmarks'
             ]);
         }
+        elseif (isset($segments[0]) && $segments[0] === 'doa-bersama') {
+            // Prayer page SEO
+            $seoData = array_merge($seoData, [
+                'metaTitle' => 'Doa Bersama - Komunitas Doa Muslim - IndoQuran',
+                'metaDescription' => 'Bergabunglah dengan komunitas doa Muslim di IndoQuran. Buat dan bagikan doa, beri dukungan kepada sesama Muslim, serta temukan kekuatan dalam doa bersama.',
+                'metaKeywords' => 'doa bersama, komunitas doa, doa muslim, doa islam, permintaan doa, dukungan doa, indoquran doa',
+                'canonicalUrl' => 'https://my.indoquran.web.id/doa-bersama'
+            ]);
+        }
         elseif (isset($segments[0]) && $segments[0] === 'privacy') {
             // Privacy page SEO
             $seoData = array_merge($seoData, [

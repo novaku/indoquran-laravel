@@ -81,7 +81,8 @@ export const prefetchRoute = (routePath) => {
       '/': '/api/surahs',
       '/surah': '/api/surahs',
       '/search': '/api/search',
-      '/bookmarks': '/api/bookmarks'
+      '/bookmarks': '/api/bookmarks',
+      '/doa-bersama': '/api/doa-bersama'
     };
 
     const apiEndpoint = routeApiMap[routePath];

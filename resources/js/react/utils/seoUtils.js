@@ -23,6 +23,12 @@ export const generateSitemap = (surahs = []) => {
       priority: '0.8'
     },
     {
+      url: `${BASE_URL}/doa-bersama`,
+      lastmod: currentDate,
+      changefreq: 'daily',
+      priority: '0.7'
+    },
+    {
       url: `${BASE_URL}/about`,
       lastmod: currentDate,
       changefreq: 'monthly',
@@ -78,6 +84,7 @@ Disallow: /api/
 # Allow important pages
 Allow: /search
 Allow: /surah/
+Allow: /doa-bersama
 Allow: /about
 Allow: /contact
 Allow: /privacy

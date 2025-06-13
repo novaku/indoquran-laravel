@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\PrayerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,6 +66,14 @@ Route::middleware(['simple.auth'])->group(function() {
         Route::post('/surah/ayah/{ayahId}/favorite', [BookmarkController::class, 'toggleFavorite']);
         Route::put('/surah/ayah/{ayahId}/notes', [BookmarkController::class, 'updateNotes']);
     });
+    
+    // Prayer protected routes (Indonesian URLs)
+    Route::post('/doa-bersama', [PrayerController::class, 'store']);
+    Route::put('/doa-bersama/{prayer}', [PrayerController::class, 'update']);
+    Route::delete('/doa-bersama/{prayer}', [PrayerController::class, 'destroy']);
+    Route::post('/doa-bersama/{prayer}/amin', [PrayerController::class, 'toggleAmin']);
+    Route::post('/doa-bersama/{prayer}/comments', [PrayerController::class, 'addComment']);
+    Route::delete('/doa-bersama-comments/{comment}', [PrayerController::class, 'deleteComment']);
 });
 
 
@@ -105,3 +114,9 @@ Route::middleware(['api.cache:7d'])->group(function() {
     Route::get('/search', [App\Http\Controllers\QuranController::class, 'searchAyahs']);
     Route::get('/search/ayahs', [SearchController::class, 'apiSearch']);
 });
+
+// Public prayer routes (for viewing without auth) - Indonesian URLs
+Route::get('/doa-bersama', [PrayerController::class, 'index']);
+Route::get('/doa-bersama/{prayer}', [PrayerController::class, 'show']);
+Route::get('/doa-bersama/{prayer}/comments', [PrayerController::class, 'getComments']);
+Route::get('/kategori-doa', [PrayerController::class, 'getCategories']);

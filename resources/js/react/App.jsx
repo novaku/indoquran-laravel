@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './hooks/useAuth.jsx';
 import { usePreloader, usePrefetchRoutes, usePerformanceMonitor } from './hooks/usePerformance.js';
 import useAdvancedPerformanceMonitor from './hooks/useAdvancedPerformanceMonitor.js';
@@ -32,6 +33,7 @@ const JuzListPage = lazy(() => import('./pages/JuzListPage'));
 const JuzPage = lazy(() => import('./pages/JuzPage'));
 const PageListPage = lazy(() => import('./pages/PageListPage'));
 const PageDetailPage = lazy(() => import('./pages/PageDetailPage'));
+const PrayerPage = lazy(() => import('./pages/PrayerPage'));
 
 // Main app content component with auth-protected routes
 function AppContent() {
@@ -163,6 +165,7 @@ function AppContent() {
                         <Route path="/juz/:number" element={<JuzPage />} />
                         <Route path="/pages" element={<PageListPage />} />
                         <Route path="/pages/:number" element={<PageDetailPage />} />
+                        <Route path="/doa-bersama" element={<PrayerPage />} />
                         <Route path="/about" element={<AboutPage />} />
                         <Route path="/contact" element={<ContactPage />} />
                         <Route path="/donation" element={<DonationPage />} />
@@ -198,6 +201,33 @@ function AppContent() {
             
             
             <Footer />
+            
+            {/* Toast Notifications */}
+            <Toaster 
+                position="top-right"
+                toastOptions={{
+                    duration: 3000,
+                    style: {
+                        background: '#ffffff',
+                        color: '#374151',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '0.5rem',
+                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                    },
+                    success: {
+                        iconTheme: {
+                            primary: '#059669',
+                            secondary: '#ffffff',
+                        },
+                    },
+                    error: {
+                        iconTheme: {
+                            primary: '#dc2626',
+                            secondary: '#ffffff',
+                        },
+                    },
+                }}
+            />
             
             {/* Performance Debug Panel (Development Only) */}
             <PerformanceDebugPanel />

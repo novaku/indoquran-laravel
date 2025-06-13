@@ -151,6 +151,9 @@ export const useResourcePreloader = (config = {}) => {
           case '/profile':
             import('../pages/ProfilePage').catch(() => {});
             break;
+          case '/doa-bersama':
+            import('../pages/PrayerPage').catch(() => {});
+            break;
           case '/':
             import('../pages/HomePage').catch(() => {});
             break;
@@ -167,7 +170,8 @@ export const useResourcePreloader = (config = {}) => {
       '/': ['/api/surahs', '/api/prayer-times'],
       '/search': ['/api/surahs'],
       '/profile': ['/api/profile'],
-      '/bookmarks': ['/api/user/bookmarks']
+      '/bookmarks': ['/api/user/bookmarks'],
+      '/doa-bersama': ['/api/doa-bersama', '/api/kategori-doa']
     };
 
     const currentPath = location.pathname;

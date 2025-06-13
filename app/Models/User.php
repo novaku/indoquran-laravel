@@ -77,4 +77,28 @@ class User extends Authenticatable
                     ->withPivot(['is_favorite', 'notes', 'created_at'])
                     ->withTimestamps();
     }
+
+    /**
+     * Get the user's prayers.
+     */
+    public function prayers(): HasMany
+    {
+        return $this->hasMany(Prayer::class);
+    }
+
+    /**
+     * Get the user's prayer amins.
+     */
+    public function prayerAmins(): HasMany
+    {
+        return $this->hasMany(PrayerAmin::class);
+    }
+
+    /**
+     * Get the user's prayer comments.
+     */
+    public function prayerComments(): HasMany
+    {
+        return $this->hasMany(PrayerComment::class);
+    }
 }

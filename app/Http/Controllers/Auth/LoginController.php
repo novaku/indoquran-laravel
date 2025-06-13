@@ -34,31 +34,53 @@ class LoginController extends Controller
         ]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            // Simple authentication without session management
             $user = Auth::user();
             
-            // Log login
-            \Log::info('User logged in successfully', [
-                'user_id' => $user->id,
-                'session_id' => $request->session()->getId(),
-                'remember' => $request->boolean('remember'),
-                'auth_cookie' => $request->cookie('remember_web_' . sha1('web')),
-                'cookies' => $request->cookies->all()
-            ]);
+            // Check if this is an API request (no session handling)
+            $isApi = $request->expectsJson() || str_starts_with($request->path(), 'api/');
             
-            // Create a token for the user
-            $token = $user->createToken('auth-token')->plainTextToken;
+            if ($isApi) {
+                // API login - use token-based authentication
+                \Log::info('API User logged in successfully', [
+                    'user_id' => $user->id,
+                    'remember' => $request->boolean('remember'),
+                ]);
+                
+                // Create a token for the user
+                $token = $user->createToken('auth-token')->plainTextToken;
+                
+                return response()->json([
+                    'user' => $user,
+                    'message' => 'Login successful',
+                    'token' => $token
+                ]);
+            } else {
+                // Web login - use session-based authentication
+                \Log::info('Web User logged in successfully', [
+                    'user_id' => $user->id,
+                    'session_id' => $request->session()->getId(),
+                    'remember' => $request->boolean('remember'),
+                ]);
+                
+                // Force session to persist
+                $request->session()->regenerate();
+                $request->session()->save();
+            }
             
-            // Force session to persist
-            $request->session()->regenerate();
-            $request->session()->save();
-            
-            // For React SPA, always return JSON response
-            return response()->json([
-                'user' => $user,
-                'message' => 'Login successful',
-                'token' => $token
-            ]);
+            // Return appropriate response based on request type
+            if ($isApi) {
+                // Already returned above
+            } else {
+                // Web response - redirect or return JSON for SPA
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'user' => $user,
+                        'message' => 'Login successful'
+                    ]);
+                } else {
+                    return redirect()->intended('/');
+                }
+            }
         }
 
         return response()->json([
