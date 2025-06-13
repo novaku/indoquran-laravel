@@ -598,9 +598,9 @@ const PrayerTimesWidget = () => {
     return (
         <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 h-full">
             <div className="bg-islamic-green/95 text-white px-4 py-3 flex justify-between items-center">
-                <h2 className="text-lg font-semibold flex items-center">
+                <h2 className="text-lg text-black font-semibold flex items-center">
                     <IoTimeOutline className="mr-2" /> 
-                    <span>Jadwal Shalat</span>
+                    <span className="text-black">Jadwal Shalat</span>
                     <span className="ml-2 text-sm bg-white/20 px-2 py-0.5 rounded-full">
                         {formattedCurrentTime}
                     </span>

@@ -172,7 +172,7 @@ const RunningTextWidget = ({ className = '' }) => {
             <div className="bg-islamic-green/95 text-white px-4 py-3 flex justify-between items-center">
                 <h2 className="text-lg font-semibold flex items-center">
                     <span className="text-white text-lg mr-2">🤲</span>
-                    <span>Doa Bersama</span>
+                    <span className="text-black">Doa Bersama</span>
                 </h2>
                 <button
                     onClick={handleRefresh}
@@ -187,7 +187,7 @@ const RunningTextWidget = ({ className = '' }) => {
             <div className="p-4">
                 <div className="flex flex-col space-y-3">
                     <div className="flex items-center text-xs text-islamic-green font-medium">
-                        <span className="bg-islamic-green/15 px-2 py-1 rounded-full mr-2 border border-islamic-green/20">
+                        <span className="bg-islamic-green/15 px-2 py-1 rounded-full mr-2 border border-islamic-green/20 text-black">
                             ✨ Doa Bersama
                         </span>
                         <span className="text-gray-500">oleh</span>
