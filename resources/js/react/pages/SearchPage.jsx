@@ -6,6 +6,7 @@ import MetaTags from '../components/MetaTags';
 import StructuredData from '../components/StructuredData';
 import PageTransition from '../components/PageTransition';
 import LoadingSpinner from '../components/LoadingSpinner';
+import SearchField from '../components/SearchField';
 import { fetchWithAuth } from '../utils/apiUtils';
 
 // Memoized AyahCard for better performance
@@ -28,6 +29,7 @@ function SearchPage() {
     const [audio, setAudio] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [activeAyah, setActiveAyah] = useState(null);
+    const [surahs, setSurahs] = useState([]);
     
     useEffect(() => {
         if (!query) return;
@@ -63,6 +65,18 @@ function SearchPage() {
                 setPageLoading(false);
             });
     }, [query, currentPageFromUrl]);
+    
+    // Load surahs for SearchField component
+    useEffect(() => {
+        fetchWithAuth('/api/surahs')
+            .then(response => response.json())
+            .then(response => {
+                if (response.status === 'success') {
+                    setSurahs(response.data);
+                }
+            })
+            .catch(error => console.error('Error loading surahs:', error));
+    }, []);
     
     // Audio cleanup effect
     useEffect(() => {
@@ -202,30 +216,12 @@ function SearchPage() {
                     
                     {/* Search Form */}
                     <div className="bg-white rounded-3xl shadow-xl p-8 border border-green-100 mb-10">
-                        <form 
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                const formQuery = e.target.elements.q.value;
-                                if (formQuery.trim()) {
-                                    window.location.href = `/search?q=${encodeURIComponent(formQuery)}`;
-                                }
-                            }}
-                        >
-                            <div className="flex flex-col sm:flex-row gap-4">
-                                <input
-                                    type="text"
-                                    name="q"
-                                    placeholder="Masukkan kata kunci pencarian..."
-                                    className="flex-1 px-6 py-4 rounded-xl border border-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm hover:shadow-md transition-all duration-200 text-lg"
-                                />
-                                <button
-                                    type="submit"
-                                    className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 shadow-md hover:shadow-lg font-semibold text-lg"
-                                >
-                                    Cari Ayat
-                                </button>
-                            </div>
-                        </form>
+                        <SearchField 
+                            surahs={surahs}
+                            placeholder="Masukkan kata kunci pencarian..."
+                            theme="islamic"
+                            className="w-full"
+                        />
                     </div>
                     
                     {/* Tips Section */}
@@ -339,32 +335,14 @@ function SearchPage() {
                     </div>
                     
                     {/* Enhanced Search Form */}
-                    <form 
-                        className="mt-6"
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            const formQuery = e.target.elements.q.value;
-                            if (formQuery.trim()) {
-                                window.location.href = `/search?q=${encodeURIComponent(formQuery)}`;
-                            }
-                        }}
-                    >
-                        <div className="flex flex-col sm:flex-row gap-3">
-                            <input
-                                type="text"
-                                name="q"
-                                defaultValue={query}
-                                placeholder="Cari ayat atau kata kunci lainnya..."
-                                className="flex-1 px-6 py-4 rounded-xl border border-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm hover:shadow-md transition-all duration-200 text-lg"
-                            />
-                            <button
-                                type="submit"
-                                className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 shadow-md hover:shadow-lg font-semibold"
-                            >
-                                Cari Ulang
-                            </button>
-                        </div>
-                    </form>
+                    <div className="mt-6">
+                        <SearchField 
+                            surahs={surahs}
+                            placeholder="Cari ayat atau kata kunci lainnya..."
+                            theme="islamic"
+                            className="w-full"
+                        />
+                    </div>
                 </div>
             
             {results.length === 0 ? (

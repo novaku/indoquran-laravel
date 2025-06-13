@@ -3,11 +3,20 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\SitemapIndexController;
 use App\Http\Controllers\SEOController;
 use Illuminate\Support\Facades\Route;
 
 // SEO Routes
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+// Advanced sitemap routes for better organization
+Route::get('/sitemap-index.xml', [SitemapIndexController::class, 'index'])->name('sitemap.index');
+Route::get('/sitemap-main.xml', [SitemapIndexController::class, 'mainSitemap'])->name('sitemap.main');
+Route::get('/sitemap-surahs-{group}.xml', [SitemapIndexController::class, 'surahGroupSitemap'])
+    ->where('group', '[0-9]+')
+    ->name('sitemap.surahs');
+Route::get('/sitemap-juz.xml', [SitemapIndexController::class, 'juzSitemap'])->name('sitemap.juz');
 
 // Authentication routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');

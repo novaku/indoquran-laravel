@@ -48,57 +48,88 @@ class GenerateSitemap extends Command
      */
     protected function generateSitemap()
     {
-        $baseUrl = config('app.url');
+        // Use production URL if in production, otherwise use configured URL
+        $baseUrl = app()->environment('production') 
+            ? 'https://my.indoquran.web.id' 
+            : config('app.url');
+            
+        $this->info("Using base URL: {$baseUrl}");
+        
         $lastMod = Carbon::now()->toIso8601String();
         
         // Start XML
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
         
-        // Add static pages
+        // Add static pages with appropriate frequencies and priorities
         $staticPages = [
-            '' => '1.0',                 // Homepage
-            'search' => '0.8',           // Search page
-            'about' => '0.7',            // About page
-            'contact' => '0.7',          // Contact page
-            'privacy' => '0.6',          // Privacy page
+            '' => ['priority' => '1.0', 'changefreq' => 'daily'],                 // Homepage
+            'search' => ['priority' => '0.8', 'changefreq' => 'weekly'],          // Search page
+            'about' => ['priority' => '0.6', 'changefreq' => 'monthly'],          // About page
+            'contact' => ['priority' => '0.5', 'changefreq' => 'monthly'],        // Contact page
+            'privacy' => ['priority' => '0.3', 'changefreq' => 'yearly'],         // Privacy page
         ];
         
-        foreach ($staticPages as $path => $priority) {
+        foreach ($staticPages as $path => $config) {
             $xml .= $this->createUrlEntry(
                 $baseUrl . ($path ? '/' . $path : ''),
                 $lastMod,
-                'weekly',
-                $priority
+                $config['changefreq'],
+                $config['priority']
             );
         }
         
         // Add surah pages
-        $surahs = Surah::select('number', 'updated_at')->get();
+        $surahs = Surah::select('number', 'total_ayahs', 'updated_at')->get();
+        $this->info("Adding {$surahs->count()} surah pages...");
         
         foreach ($surahs as $surah) {
+            // Main surah page
             $xml .= $this->createUrlEntry(
                 $baseUrl . '/surah/' . $surah->number,
-                $surah->updated_at->toIso8601String(),
-                'monthly',
+                $surah->updated_at ? $surah->updated_at->toIso8601String() : $lastMod,
+                'weekly',
                 '0.9'
             );
             
-            // Add ayah pages for this surah - these have lower priority
+            // Individual ayah pages (with lower priority to avoid overwhelming sitemap)
             $ayahCount = $surah->total_ayahs ?? 0;
-            for ($i = 1; $i <= $ayahCount; $i++) {
-                $xml .= $this->createUrlEntry(
-                    $baseUrl . '/surah/' . $surah->number . '/' . $i,
-                    $surah->updated_at->toIso8601String(),
-                    'monthly',
-                    '0.7'
-                );
+            if ($ayahCount > 0) {
+                for ($i = 1; $i <= $ayahCount; $i++) {
+                    $xml .= $this->createUrlEntry(
+                        $baseUrl . '/surah/' . $surah->number . '/' . $i,
+                        $surah->updated_at ? $surah->updated_at->toIso8601String() : $lastMod,
+                        'monthly',
+                        '0.7'
+                    );
+                }
             }
+        }
+        
+        // Add Juz pages (if they exist in your application)
+        for ($juz = 1; $juz <= 30; $juz++) {
+            $xml .= $this->createUrlEntry(
+                $baseUrl . '/juz/' . $juz,
+                $lastMod,
+                'monthly',
+                '0.8'
+            );
+        }
+        
+        // Add page-based navigation (if it exists)
+        for ($page = 1; $page <= 604; $page++) {
+            $xml .= $this->createUrlEntry(
+                $baseUrl . '/pages/' . $page,
+                $lastMod,
+                'monthly',
+                '0.6'
+            );
         }
         
         // Close XML
         $xml .= '</urlset>';
         
+        $this->info('Sitemap generation completed!');
         return $xml;
     }
     

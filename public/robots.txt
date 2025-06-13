@@ -11,6 +11,8 @@ Disallow: /admin/
 # Allow important pages
 Allow: /search
 Allow: /surah/
+Allow: /juz/
+Allow: /pages/
 Allow: /about
 Allow: /contact
 Allow: /privacy
@@ -18,8 +20,9 @@ Allow: /privacy
 # Crawl delay for respectful crawling
 Crawl-delay: 1
 
-# Sitemap location
+# Sitemaps
 Sitemap: https://my.indoquran.web.id/sitemap.xml
+Sitemap: https://my.indoquran.web.id/sitemap-index.xml
 
 # Additional guidelines for major search engines
 User-agent: Googlebot

@@ -14,11 +14,15 @@ class SitemapController extends Controller
      */
     public function index()
     {
-        $baseUrl = 'https://my.indoquran.web.id';
+        // Use production URL if in production, otherwise use configured URL
+        $baseUrl = app()->environment('production') 
+            ? 'https://my.indoquran.web.id' 
+            : config('app.url');
+            
         $currentDate = now()->format('Y-m-d');
         
         // Get all surahs for dynamic URLs
-        $surahs = Surah::select('number', 'updated_at')->get();
+        $surahs = Surah::select('number', 'total_ayahs', 'updated_at')->get();
         
         // Static pages with their priorities and change frequencies
         $staticPages = [
@@ -64,7 +68,32 @@ class SitemapController extends Controller
             ];
         })->toArray();
         
-        $allPages = array_merge($staticPages, $surahPages);
+        // Add Juz pages
+        $juzPages = [];
+        for ($juz = 1; $juz <= 30; $juz++) {
+            $juzPages[] = [
+                'url' => $baseUrl . '/juz/' . $juz,
+                'lastmod' => $currentDate,
+                'changefreq' => 'monthly',
+                'priority' => '0.8'
+            ];
+        }
+        
+        // Add high-priority individual ayah pages (first 10 surahs for better crawling)
+        $popularAyahPages = [];
+        foreach ($surahs->take(10) as $surah) {
+            $ayahCount = min($surah->total_ayahs ?? 0, 50); // Limit to first 50 ayahs per popular surah
+            for ($i = 1; $i <= $ayahCount; $i++) {
+                $popularAyahPages[] = [
+                    'url' => $baseUrl . '/surah/' . $surah->number . '/' . $i,
+                    'lastmod' => $surah->updated_at ? $surah->updated_at->format('Y-m-d') : $currentDate,
+                    'changefreq' => 'monthly',
+                    'priority' => '0.7'
+                ];
+            }
+        }
+        
+        $allPages = array_merge($staticPages, $surahPages, $juzPages, $popularAyahPages);
         
         // Generate XML
         $xml = $this->generateSitemapXml($allPages);

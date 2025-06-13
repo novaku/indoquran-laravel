@@ -806,3 +806,139 @@ curl "http://127.0.0.1:8000/api/search?q=god&lang=english&per_page=3&page=1"
 - Pemisahan kepentingan yang bersih
 
 Implementasi ini menyediakan sistem paginasi yang kuat, ramah pengguna yang meningkatkan pengalaman pencarian sambil mempertahankan standar performa dan aksesibilitas yang baik.
+
+---
+
+# 🗺️ SEO & Sitemap Implementation
+
+IndoQuran includes a comprehensive sitemap system optimized for Google and other search engines, ensuring excellent SEO coverage for all Al-Quran content.
+
+## Available Commands
+
+### Sitemap Generation
+```bash
+# Generate basic sitemap
+php artisan sitemap:generate
+
+# Generate comprehensive sitemaps (recommended)
+php artisan sitemap:generate-comprehensive --production
+
+# Validate sitemap structure and SEO compliance
+php artisan sitemap:validate --production
+
+# Submit sitemaps to Google Search Console
+php artisan sitemap:submit-to-google
+```
+
+## Generated Sitemaps
+
+### Main Files
+- **`sitemap.xml`** - Primary sitemap for essential pages
+- **`sitemap-index.xml`** - Master index pointing to all sitemaps
+- **`robots.txt`** - Updated with sitemap references
+
+### Content-Specific Sitemaps
+- **`sitemap-main.xml`** - Static pages and surah overview (120+ URLs)
+- **`sitemap-juz.xml`** - All 30 Juz and 604 Mushaf pages (634 URLs)
+- **`sitemap-surahs-1.xml` to `sitemap-surahs-6.xml`** - Individual ayah pages (6000+ URLs total)
+
+## SEO Optimization Features
+
+### Priority System
+- **Homepage**: 1.0 (highest)
+- **Search**: 0.8 (high)
+- **Surah Pages**: 0.9 (very high)
+- **Juz Pages**: 0.8 (high)
+- **Individual Ayahs**: 0.7 (medium-high)
+- **Static Pages**: 0.3-0.6 (standard)
+
+### Change Frequencies
+- **Homepage**: Daily updates
+- **Surah/Juz Pages**: Weekly updates
+- **Individual Ayahs**: Monthly updates
+- **Static Pages**: Monthly to yearly
+
+### URL Structure
+All URLs follow clean, semantic patterns:
+- `https://my.indoquran.web.id/` (homepage)
+- `https://my.indoquran.web.id/surah/1` (surah pages)
+- `https://my.indoquran.web.id/surah/1/1` (individual ayahs)
+- `https://my.indoquran.web.id/juz/1` (juz pages)
+- `https://my.indoquran.web.id/pages/1` (mushaf pages)
+
+## Google Search Console Setup
+
+### 1. Submit Main Sitemap Index
+Submit this URL to Google Search Console:
+```
+https://my.indoquran.web.id/sitemap-index.xml
+```
+
+### 2. Alternative Individual Submissions
+Or submit these individually:
+```
+https://my.indoquran.web.id/sitemap.xml
+https://my.indoquran.web.id/sitemap-main.xml
+https://my.indoquran.web.id/sitemap-juz.xml
+```
+
+### 3. Monitor Indexing
+- Check coverage reports
+- Monitor crawl errors
+- Analyze search performance
+- Review indexing status
+
+## Production Deployment
+
+Use the enhanced deployment script that includes sitemap generation:
+```bash
+./deploy-with-seo.sh
+```
+
+This script automatically:
+- Generates comprehensive sitemaps
+- Validates sitemap structure
+- Submits to search engines
+- Sets up proper permissions
+- Updates robots.txt
+
+## Performance & Standards
+
+### File Organization
+- **10 sitemap files total** (well under Google's 50,000 URL limit per file)
+- **All files under 50MB** (Google's size limit)
+- **Efficient grouping** by content type and popularity
+- **Proper XML namespace** and schema compliance
+
+### Caching & Updates
+- **24-hour cache** on web-served sitemaps
+- **Database-driven** last modified dates
+- **Automatic regeneration** available via cron jobs
+- **Validation checks** before search engine submission
+
+## Maintenance
+
+### Regular Updates
+Set up automated sitemap regeneration:
+```bash
+# Add to crontab (daily at 2 AM)
+0 2 * * * cd /path/to/indoquran && php artisan sitemap:generate-comprehensive --production
+```
+
+### Validation
+Before major deployments:
+```bash
+php artisan sitemap:validate --production
+```
+
+### Resubmission
+After content updates:
+```bash
+php artisan sitemap:submit-to-google
+```
+
+## Files Included
+
+For detailed implementation guide, see: **[SITEMAP_GUIDE.md](SITEMAP_GUIDE.md)**
+
+---
