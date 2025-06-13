@@ -69,30 +69,39 @@ Route::middleware(['simple.auth'])->group(function() {
 
 
 
-// Surah routes
-Route::get('/surahs', [App\Http\Controllers\QuranController::class, 'getAllSurahs']);
-Route::get('/surahs/{number}', [App\Http\Controllers\QuranController::class, 'getSurah'])->where('number', '[0-9]+');
-Route::get('/surahs/{number}/metadata', [App\Http\Controllers\QuranController::class, 'getSurahMetadata'])->where('number', '[0-9]+');
-
-// Juz routes
-Route::get('/juz', [App\Http\Controllers\QuranController::class, 'getAllJuz']);
-Route::get('/juz/{number}', [App\Http\Controllers\QuranController::class, 'getJuz'])->where('number', '[0-9]+');
-
-// Ayah routes
-Route::get('/ayahs/{surahNumber}/{ayahNumber}', [App\Http\Controllers\QuranController::class, 'getAyah'])
-    ->where(['surahNumber' => '[0-9]+', 'ayahNumber' => '[0-9]+']);
-
-// Search routes
-Route::get('/search', [App\Http\Controllers\QuranController::class, 'searchAyahs']);
-
-// Contact route - restricted to internal access only
-Route::middleware(['internal.only'])->group(function() {
-    Route::post('/contact', [ContactController::class, 'store']);
+// Surah routes with caching
+Route::middleware(['api.cache:30d'])->group(function() {
+    Route::get('/surahs', [App\Http\Controllers\QuranController::class, 'getAllSurahs']);
 });
 
-// Prayer Times API Endpoint
-Route::get('/prayer-times', [App\Http\Controllers\PrayerTimesController::class, 'getPrayerTimes']);
+Route::middleware(['api.cache:30d'])->group(function() {
+    Route::get('/surahs/{number}', [App\Http\Controllers\QuranController::class, 'getSurah'])->where('number', '[0-9]+');
+    Route::get('/surahs/{number}/metadata', [App\Http\Controllers\QuranController::class, 'getSurahMetadata'])->where('number', '[0-9]+');
+});
 
-// Page routes
-Route::get('/pages', [App\Http\Controllers\QuranController::class, 'getAllPages']);
-Route::get('/pages/{number}', [App\Http\Controllers\QuranController::class, 'getPage'])->where('number', '[0-9]+');
+// Juz routes with caching
+Route::middleware(['api.cache:30d'])->group(function() {
+    Route::get('/juz', [App\Http\Controllers\QuranController::class, 'getAllJuz']);
+});
+
+Route::middleware(['api.cache:30d'])->group(function() {
+    Route::get('/juz/{number}', [App\Http\Controllers\QuranController::class, 'getJuz'])->where('number', '[0-9]+');
+});
+
+// Ayah routes with caching
+Route::middleware(['api.cache:30d'])->group(function() {
+    Route::get('/ayahs/{surahNumber}/{ayahNumber}', [App\Http\Controllers\QuranController::class, 'getAyah'])
+        ->where(['surahNumber' => '[0-9]+', 'ayahNumber' => '[0-9]+']);
+});
+
+// Page routes with caching
+Route::middleware(['api.cache:30d'])->group(function() {
+    Route::get('/pages', [App\Http\Controllers\QuranController::class, 'getAllPages']);
+    Route::get('/pages/{number}', [App\Http\Controllers\QuranController::class, 'getPage'])->where('number', '[0-9]+');
+});
+
+// Search routes with caching
+Route::middleware(['api.cache:7d'])->group(function() {
+    Route::get('/search', [App\Http\Controllers\QuranController::class, 'searchAyahs']);
+    Route::get('/search/ayahs', [SearchController::class, 'apiSearch']);
+});

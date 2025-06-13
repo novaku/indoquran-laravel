@@ -27,9 +27,6 @@ return Application::configure(basePath: dirname(__DIR__))
         
         $middleware->api([
             \Illuminate\Cookie\Middleware\EncryptCookies::class,
-            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-            \Illuminate\Session\Middleware\StartSession::class,
-            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ]);
         
@@ -37,6 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'internal.only' => \App\Http\Middleware\InternalAccessOnly::class,
             'simple.auth' => \App\Http\Middleware\SimpleAuthMiddleware::class,
+            'api.cache' => \App\Http\Middleware\ApiCacheMiddleware::class,
         ]);
         
         // Configure authentication redirects
