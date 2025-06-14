@@ -8,7 +8,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 
 class ContactNotification extends Mailable
 {
@@ -51,6 +53,13 @@ class ContactNotification extends Mailable
      */
     public function attachments(): array
     {
-        return [];
+        $attachments = [];
+        
+        if ($this->contact->attachment_path && Storage::disk('public')->exists($this->contact->attachment_path)) {
+            $attachments[] = Attachment::fromStorageDisk('public', $this->contact->attachment_path)
+                ->as($this->contact->attachment_original_name);
+        }
+        
+        return $attachments;
     }
 }

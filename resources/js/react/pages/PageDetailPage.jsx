@@ -354,7 +354,7 @@ function PageDetailPage() {
                                                                 <button
                                                                     onClick={stopAudio}
                                                                     className="p-2 rounded-md bg-green-50 text-green-700 hover:bg-green-100 transition-colors border border-green-200"
-                                                                    title="Pause Audio"
+                                                                    title="Jeda Audio"
                                                                 >
                                                                     <IoPauseCircleOutline className="w-5 h-5" />
                                                                 </button>
@@ -367,7 +367,7 @@ function PageDetailPage() {
                                                                         }
                                                                     }}
                                                                     className="p-2 rounded-md bg-green-50 text-green-700 hover:bg-green-100 transition-colors border border-green-200"
-                                                                    title="Play Audio"
+                                                                    title="Putar Audio"
                                                                 >
                                                                     <IoPlayCircleOutline className="w-5 h-5" />
                                                                 </button>

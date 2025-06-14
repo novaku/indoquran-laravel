@@ -144,7 +144,7 @@ function PageListPage() {
                                             ? 'bg-white text-green-600 shadow-sm' 
                                             : 'text-gray-500 hover:text-gray-700'
                                     }`}
-                                    title="Grid View"
+                                    title="Tampilan Grid"
                                 >
                                     <IoGridOutline className="w-4 h-4" />
                                 </button>
@@ -155,7 +155,7 @@ function PageListPage() {
                                             ? 'bg-white text-green-600 shadow-sm' 
                                             : 'text-gray-500 hover:text-gray-700'
                                     }`}
-                                    title="List View"
+                                    title="Tampilan Daftar"
                                 >
                                     <IoListOutline className="w-4 h-4" />
                                 </button>
@@ -235,7 +235,7 @@ function PageListPage() {
                                     key={pageNumber}
                                     onClick={() => handlePageClick(pageNumber)}
                                     className="aspect-square flex items-center justify-center p-3 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800 hover:scale-105 transition-all duration-200 border border-green-200 font-semibold"
-                                    title={`Page ${pageNumber}`}
+                                    title={`Halaman ${pageNumber}`}
                                 >
                                     <span className="text-lg">{pageNumber}</span>
                                 </button>
@@ -258,7 +258,7 @@ function PageListPage() {
                                                     key={pageNumber}
                                                     onClick={() => handlePageClick(pageNumber)}
                                                     className="flex items-center justify-center px-3 py-2 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800 transition-all duration-200 border border-green-200 font-medium"
-                                                    title={`Page ${pageNumber}`}
+                                                    title={`Halaman ${pageNumber}`}
                                                 >
                                                     <span className="text-base">{pageNumber}</span>
                                                 </button>

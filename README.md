@@ -809,7 +809,23 @@ Implementasi ini menyediakan sistem paginasi yang kuat, ramah pengguna yang meni
 
 ---
 
-# 🗺️ SEO & Sitemap Implementation
+# � Documentation
+
+Comprehensive documentation for all features and implementations is available in the [`docs/`](./docs/) folder:
+
+- **[Authentication & Security](./docs/AUTHENTICATION_HEADERS_IMPLEMENTATION.md)** - Security implementation details
+- **[Contact System](./docs/CONTACT_ENHANCEMENT_SUMMARY.md)** - Contact page with donation integration
+- **[Prayer Features](./docs/PRAYER_FEATURE_DOCUMENTATION.md)** - Prayer functionality documentation
+- **[React Translation](./docs/REACT_TRANSLATION_SUMMARY.md)** - Frontend translation to Indonesian
+- **[Email Notifications](./docs/EMAIL_NOTIFICATION_SYSTEM.md)** - Email system implementation
+- **[Running Text Widget](./docs/RUNNING_TEXT_WIDGET_COMPLETED.md)** - Dynamic text widget
+- **[Sitemap Guide](./docs/SITEMAP_GUIDE.md)** - SEO and sitemap implementation
+
+For a complete list and organized documentation index, visit the **[Documentation Index](./docs/README.md)**.
+
+---
+
+# �🗺️ SEO & Sitemap Implementation
 
 IndoQuran includes a comprehensive sitemap system optimized for Google and other search engines, ensuring excellent SEO coverage for all Al-Quran content.
 
@@ -939,6 +955,6 @@ php artisan sitemap:submit-to-google
 
 ## Files Included
 
-For detailed implementation guide, see: **[SITEMAP_GUIDE.md](SITEMAP_GUIDE.md)**
+For detailed implementation guide, see: **[SITEMAP_GUIDE.md](./docs/SITEMAP_GUIDE.md)**
 
 ---

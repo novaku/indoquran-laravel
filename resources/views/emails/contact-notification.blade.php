@@ -81,6 +81,17 @@
                 {{ $contact->message }}
             </div>
         </div>
+        
+        @if($contact->attachment_path)
+        <div class="field">
+            <strong>Lampiran:</strong>
+            <div style="background-color: #e8f5e8; padding: 10px; border-radius: 5px; margin-top: 5px;">
+                📎 {{ $contact->attachment_original_name }}
+                <br>
+                <small style="color: #666;">File lampiran telah disertakan dalam email ini</small>
+            </div>
+        </div>
+        @endif
     </div>
     
     <div class="footer">

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { IoHeartOutline, IoCopyOutline, IoCheckmarkOutline, IoShieldCheckmarkOutline, IoGiftOutline, IoWalletOutline, IoSparklesOutline, IoTrophyOutline, IoStarOutline, IoFlashOutline, IoMailOutline, IoSendOutline, IoNotificationsOutline } from 'react-icons/io5';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import PageTransition from '../components/PageTransition';
 import SEOHead from '../components/SEOHead';
 import StructuredData from '../components/StructuredData';
 
 function DonationPage() {
+    const navigate = useNavigate();
     const [copiedAccount, setCopiedAccount] = useState(false);
     const [copiedName, setCopiedName] = useState(false);
     const [copiedEMoney, setCopiedEMoney] = useState(false);
@@ -20,6 +21,36 @@ function DonationPage() {
         number: '08111101024',
         name: 'Nova Herdi Kusumah',
         providers: ['DANA', 'OVO', 'GOPAY', 'SHOPEE PAY', 'ASTRA PAY']
+    };
+
+    // Function to handle navigation to contact page with pre-filled donation data
+    const handleContactForDonation = () => {
+        const preFilledData = {
+            subject: 'Konfirmasi Donasi - IndoQuran',
+            message: `Assalamu'alaikum,
+
+Saya telah melakukan transfer donasi untuk mendukung IndoQuran dengan detail sebagai berikut:
+
+--- DETAIL TRANSFER ---
+Nama Pengirim: [Isi nama lengkap Anda]
+Tanggal Transfer: [Isi tanggal transfer]
+Nominal: Rp. [Isi jumlah donasi]
+Metode Transfer: [Pilih salah satu]
+- Bank Permata ke rekening 9906-4392-60 a.n Nova Herdi Kusumah
+- E-Money (DANA/OVO/GOPAY/SHOPEE PAY/ASTRA PAY) ke 08111101024 a.n Nova Herdi Kusumah
+
+📎 BUKTI TRANSFER: [Silakan lampirkan file bukti transfer menggunakan fitur upload yang tersedia di bawah]
+
+--- PESAN TAMBAHAN ---
+[Silakan tulis pesan atau doa khusus jika ada]
+
+Mohon konfirmasi penerimaan donasi ini. Semoga donasi ini dapat bermanfaat untuk pengembangan platform IndoQuran yang lebih baik.
+
+Barakallahu fiikum,
+Wassalamu'alaikum.`
+        };
+
+        navigate('/contact', { state: preFilledData });
     };
 
     // Bank Permata Icon Component
@@ -542,14 +573,14 @@ function DonationPage() {
 
                                 {/* Contact Button */}
                                 <div className="text-center mt-8">
-                                    <Link
-                                        to="/contact"
+                                    <button
+                                        onClick={handleContactForDonation}
                                         className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white font-bold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 text-lg"
                                     >
                                         <IoMailOutline className="mr-3 text-2xl animate-bounce" />
                                         📧 Hubungi Kami Sekarang
                                         <IoSendOutline className="ml-3 text-xl" />
-                                    </Link>
+                                    </button>
                                     <p className="text-green-600 text-sm mt-3 font-medium">
                                         Klik untuk mengisi formulir kontak dan laporkan donasi Anda
                                     </p>
