@@ -169,7 +169,9 @@ function ContactPage() {
                 requestBody.append('subject', formData.subject);
                 requestBody.append('message', formData.message);
                 requestBody.append('attachment', selectedFile);
-                // Don't set Content-Type header for FormData, let browser set it
+                // Don't set Content-Type header for FormData, let browser set it with boundary
+                // Remove Content-Type from headers as it will be set automatically
+                delete headers['Content-Type'];
             } else {
                 // Use JSON for regular form submission
                 headers['Content-Type'] = 'application/json';

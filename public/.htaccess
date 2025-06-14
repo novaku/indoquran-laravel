@@ -9,9 +9,15 @@
         AddType application/font-woff           woff
         AddType application/font-woff2          woff2
         AddType application/vnd.ms-fontobject   eot
-        AddType application/javascript          js mjs
-        AddType text/javascript                 mjs
+        AddType application/javascript          js
+        AddType application/javascript          mjs
+        AddType application/javascript          jsx
         AddType text/css                        css
+        
+        # Force JavaScript MIME type for build assets with hashes
+        <FilesMatch "^[A-Za-z0-9]+-[A-Za-z0-9_]+\.js$">
+            ForceType application/javascript
+        </FilesMatch>
     </IfModule>
 
     # Add proper headers for font files
@@ -28,10 +34,6 @@
             Header set Access-Control-Allow-Origin "*"
             Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
             Header set Access-Control-Allow-Headers "Content-Type, Authorization"
-            # Ensure proper content type is set
-            Header always set Content-Type "application/javascript; charset=utf-8" env=REQUEST_URI=\.js$
-            Header always set Content-Type "text/javascript; charset=utf-8" env=REQUEST_URI=\.mjs$
-            Header always set Content-Type "text/css; charset=utf-8" env=REQUEST_URI=\.css$
         </IfModule>
     </FilesMatch>
     
@@ -44,7 +46,7 @@
     
     <FilesMatch "\.mjs$">
         <IfModule mod_headers.c>
-            Header set Content-Type "text/javascript; charset=utf-8"
+            Header set Content-Type "application/javascript; charset=utf-8"
         </IfModule>
     </FilesMatch>
 
@@ -113,6 +115,19 @@
 
     # Force HTTPS redirect for SEO
     RewriteEngine On
+
+    # Handle JavaScript module MIME type issues
+    RewriteCond %{REQUEST_URI} \.(js|mjs)$ [OR]
+    RewriteCond %{REQUEST_URI} ^/build/assets/[A-Za-z0-9]+-[A-Za-z0-9_]+\.js$
+    RewriteRule .* - [E=CONTENT_TYPE:application/javascript]
+    Header always set Content-Type %{CONTENT_TYPE}e env=CONTENT_TYPE
+    
+    # Additional MIME type enforcement for build assets
+    <LocationMatch "^/build/assets/.*\.js$">
+        Header always set Content-Type "application/javascript; charset=utf-8"
+        Header always set Cache-Control "public, max-age=31536000"
+    </LocationMatch>
+    
     RewriteCond %{HTTPS} off
     RewriteCond %{HTTP_HOST} ^my\.indoquran\.web\.id$ [NC]
     RewriteRule ^(.*)$ https://my.indoquran.web.id%{REQUEST_URI} [R=301,L]

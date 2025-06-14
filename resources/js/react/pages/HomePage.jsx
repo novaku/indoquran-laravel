@@ -656,39 +656,46 @@ function HomePage() {
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="p-8 pt-0">
-                            <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="p-4 sm:p-8 pt-0 border-t border-gray-100 bg-gray-50/50">
+                            <div className="flex flex-col gap-3 sm:gap-4">
+                                {/* Primary Action - Always full width on mobile */}
                                 <button
                                     onClick={() => navigate(`/surah/${selectedSurah?.number}`)}
-                                    className="flex-1 bg-gradient-to-r from-islamic-green to-emerald-600 text-white py-4 px-6 rounded-2xl hover:from-islamic-green/90 hover:to-emerald-600/90 transition-all duration-300 font-semibold flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                                    className="w-full bg-gradient-to-r from-islamic-green to-emerald-600 text-white py-4 sm:py-5 px-6 sm:px-8 rounded-xl sm:rounded-2xl hover:from-islamic-green/90 hover:to-emerald-600/90 transition-all duration-300 font-bold text-base sm:text-lg flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-1 active:scale-95"
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6 mr-2 sm:mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                                     </svg>
-                                    Mulai Membaca Surah
+                                    <span className="tracking-wide">Mulai Membaca Surah</span>
                                 </button>
                                 
-                                <button
-                                    onClick={() => {
-                                        const shareText = `🕌 ${selectedSurah?.name_latin} (${selectedSurah?.name_arabic})\n\n📖 Surah ke-${selectedSurah?.number} | ${selectedSurah?.total_ayahs} ayat | ${selectedSurah?.revelation_place}\n\n${selectedSurah?.name_indonesian}\n\n🔗 Baca di IndoQuran: ${window.location.origin}/surah/${selectedSurah?.number}`;
-                                        const encodedText = encodeURIComponent(shareText);
-                                        const whatsappUrl = `https://wa.me/?text=${encodedText}`;
-                                        window.open(whatsappUrl, '_blank');
-                                    }}
-                                    className="sm:w-auto px-6 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-2xl hover:from-green-600 hover:to-green-700 transition-all duration-300 font-semibold flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-                                    </svg>
-                                    Bagikan
-                                </button>
-                                
-                                <button
-                                    onClick={closeModal}
-                                    className="sm:w-auto px-6 py-4 bg-gray-100 text-gray-700 rounded-2xl hover:bg-gray-200 transition-all duration-300 font-semibold flex items-center justify-center"
-                                >
-                                    Tutup
-                                </button>
+                                {/* Secondary Actions Row */}
+                                <div className="flex flex-col xs:flex-row gap-3 sm:gap-4">
+                                    <button
+                                        onClick={() => {
+                                            const shareText = `🕌 ${selectedSurah?.name_latin} (${selectedSurah?.name_arabic})\n\n📖 Surah ke-${selectedSurah?.number} | ${selectedSurah?.total_ayahs} ayat | ${selectedSurah?.revelation_place}\n\n${selectedSurah?.name_indonesian}\n\n🔗 Baca di IndoQuran: ${window.location.origin}/surah/${selectedSurah?.number}`;
+                                            const encodedText = encodeURIComponent(shareText);
+                                            const whatsappUrl = `https://wa.me/?text=${encodedText}`;
+                                            window.open(whatsappUrl, '_blank');
+                                        }}
+                                        className="flex-1 xs:flex-auto px-6 sm:px-8 py-4 sm:py-5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl sm:rounded-2xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 font-bold text-base sm:text-lg flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-1 active:scale-95"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6 mr-2 sm:mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                                        </svg>
+                                        <span className="tracking-wide">Bagikan</span>
+                                    </button>
+                                    
+                                    <button
+                                        onClick={closeModal}
+                                        className="flex-1 xs:flex-auto px-6 sm:px-8 py-4 sm:py-5 bg-white border-2 border-gray-300 text-gray-700 rounded-xl sm:rounded-2xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 font-bold text-base sm:text-lg flex items-center justify-center shadow-md hover:shadow-lg transform hover:-translate-y-1 active:scale-95"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6 mr-2 sm:mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                        <span className="tracking-wide">Tutup</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

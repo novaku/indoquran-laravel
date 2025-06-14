@@ -37,12 +37,18 @@ export default defineConfig(({ command, mode }) => {
             tailwindcss(),
         ],
         build: {
-            // Configure JavaScript module output
+            // Configure JavaScript module output with enhanced MIME type handling
             rollupOptions: {
                 output: {
-                    // Ensure proper MIME type handling
-                    entryFileNames: 'assets/[name]-[hash].js',
-                    chunkFileNames: 'assets/[name]-[hash].js',
+                    // Ensure proper MIME type handling with consistent naming
+                    entryFileNames: (chunkInfo) => {
+                        // Keep consistent naming for better MIME type detection
+                        return 'assets/[name]-[hash].js';
+                    },
+                    chunkFileNames: (chunkInfo) => {
+                        // Keep consistent naming for better MIME type detection
+                        return 'assets/[name]-[hash].js';
+                    },
                     assetFileNames: (assetInfo) => {
                         // Keep font files with a simple naming pattern
                         if (assetInfo.name && /\.(woff|woff2|eot|ttf|otf)$/.test(assetInfo.name)) {
@@ -56,11 +62,21 @@ export default defineConfig(({ command, mode }) => {
                         vendor: ['react', 'react-dom'],
                     },
                 },
+                // Add external dependencies handling for better module loading
+                external: (id) => {
+                    // Don't externalize anything that should be bundled
+                    return false;
+                }
             },
             // Ensure assets are properly processed
             assetsInlineLimit: 0, // Don't inline any assets
             outDir: 'public/build',
             assetsDir: 'assets',
+            // Add source maps for debugging
+            sourcemap: true,
+            // Optimize for module loading
+            target: 'es2020',
+            minify: 'esbuild',
         },
         // Set base URL for asset loading - force local paths
         base: '/',
@@ -70,6 +86,18 @@ export default defineConfig(({ command, mode }) => {
                 protocol: 'ws',
             },
             host: '127.0.0.1',
+            // Enhanced middleware for proper MIME types
+            middlewareMode: false,
+            // Configure proper headers for JavaScript modules
+            configure: (server) => {
+                server.middlewares.use((req, res, next) => {
+                    // Set proper MIME type for JavaScript files
+                    if (req.url && (req.url.endsWith('.js') || req.url.endsWith('.mjs'))) {
+                        res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+                    }
+                    next();
+                });
+            },
             // Proxy API calls to Laravel backend
             proxy: {
                 '/api': {

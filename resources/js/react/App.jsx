@@ -88,10 +88,20 @@ function AppContent() {
         
         // Service Worker Registration with improved error handling
         if (process.env.NODE_ENV === 'development') {
-            // In development, don't register the service worker
-            console.log('Service Worker disabled in development mode');
+            // In development, register a development-specific service worker
+            console.log('Service Worker running in development mode');
+            registerServiceWorker('/sw.js', {
+                debug: true,
+                autoReload: false, // Don't auto-reload in development
+                onSuccess: (registration) => {
+                    console.log('Service Worker registered in development mode:', registration);
+                },
+                onError: (error) => {
+                    console.error('Service Worker registration failed in development:', error);
+                }
+            });
         } else if (process.env.NODE_ENV === 'production') {
-            // Only register in production
+            // Only register full features in production
             registerServiceWorker('/sw.js', {
                 debug: true,
                 autoReload: true,

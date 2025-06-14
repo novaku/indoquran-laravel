@@ -19,6 +19,23 @@ class ContactController extends Controller
      */
     public function store(Request $request)
     {
+        // Log request content type and details for debugging
+        Log::info('Content-Type: ' . $request->header('Content-Type'));
+        Log::info('Request is multipart: ' . ($request->isMethod('post') && strpos($request->header('Content-Type'), 'multipart/form-data') !== false ? 'Yes' : 'No'));
+        
+        // Check if this is a multipart form data request or JSON request
+        $isMultipart = strpos($request->header('Content-Type'), 'multipart/form-data') !== false;
+        
+        // Log request parameters (excluding file content for security)
+        $logParams = $request->except(['attachment']);
+        if ($request->hasFile('attachment')) {
+            $logParams['has_attachment'] = true;
+            $logParams['attachment_original_name'] = $request->file('attachment')->getClientOriginalName();
+            $logParams['attachment_size'] = $request->file('attachment')->getSize();
+            $logParams['attachment_mime'] = $request->file('attachment')->getMimeType();
+        }
+        Log::info('Contact request parameters: ', $logParams);
+        
         // All file uploads are optional now
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:100',
@@ -38,6 +55,12 @@ class ContactController extends Controller
         // Handle file upload if present
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
+            
+            // Additional validation for the file
+            if (!$file->isValid()) {
+                return response()->json(['errors' => ['attachment' => 'File upload failed']], 422);
+            }
+            
             $originalName = $file->getClientOriginalName();
             $filename = time() . '_' . $originalName;
             $attachmentPath = $file->storeAs('contact-attachments', $filename, 'public');

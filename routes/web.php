@@ -24,6 +24,10 @@ if (app()->environment('local', 'development')) {
     Route::get('/cors-debug', [App\Http\Controllers\CorsDebugController::class, 'index']);
     Route::post('/cors-debug/test', [App\Http\Controllers\CorsDebugController::class, 'testRequest']);
     
+    // Form Enctype Debug Tool
+    Route::get('/enctype-debug', [App\Http\Controllers\EnctypeDebugController::class, 'index']);
+    Route::post('/api/enctype-test', [App\Http\Controllers\EnctypeDebugController::class, 'testSubmit']);
+    
     Route::get('proxy-assets/{path}', function ($path) {
         // This route is handled by CorsProxyMiddleware
         // The middleware will intercept and proxy the request

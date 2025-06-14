@@ -152,9 +152,79 @@ self.addEventListener('fetch', (event) => {
   const isIndoQuranResource = indoQuranDomains.some(domain => url.hostname.includes(domain));
   
   // If we detect production assets being loaded in development, try to handle CORS
-  if (isIndoQuranResource && self.location.hostname.includes('127.0.0.1') || self.location.hostname.includes('localhost')) {
+  if (isIndoQuranResource && (self.location.hostname.includes('127.0.0.1') || self.location.hostname.includes('localhost'))) {
     // For production assets loaded in development, try to provide better CORS handling
-    if (url.pathname.includes('/assets/') && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {
+    if (url.pathname.includes('/assets/') || url.pathname.includes('/build/') || 
+        url.pathname.endsWith('.js') || url.pathname.endsWith('.css')) {
+      
+      // For JavaScript modules in build directory, ensure correct MIME type
+      if ((url.pathname.includes('/build/assets/') || url.pathname.includes('/assets/')) && 
+           url.pathname.endsWith('.js')) {
+        console.log('Handling module script with proper MIME type:', url.pathname);
+        
+        const localAssetUrl = new URL(url.pathname, self.location.origin);
+        event.respondWith(
+          fetch(localAssetUrl)
+            .then(response => {
+              if (response.ok) {
+                console.log('Successfully loaded local asset instead of production:', localAssetUrl.href);
+                // Ensure correct MIME type for JavaScript modules
+                const contentType = response.headers.get('Content-Type');
+                if (!contentType || !contentType.includes('application/javascript')) {
+                  return response.blob().then(blob => {
+                    return new Response(blob, {
+                      status: response.status,
+                      statusText: response.statusText,
+                      headers: new Headers({
+                        ...Object.fromEntries(response.headers.entries()),
+                        'Content-Type': 'application/javascript'
+                      })
+                    });
+                  });
+                }
+                return response;
+              }
+              // If local asset doesn't exist, try original with CORS mode
+              return fetch(event.request, { mode: 'cors', credentials: 'omit' })
+                .catch(error => {
+                  console.error('CORS error for production asset:', error);
+                  if (url.pathname.endsWith('.js')) {
+                    return new Response(
+                      '/* Failed to load due to CORS - empty fallback provided */\nconsole.warn("Asset failed to load due to CORS: ' + url.href + '");',
+                      { headers: { 'Content-Type': 'application/javascript' } }
+                    );
+                  }
+                  if (url.pathname.endsWith('.css')) {
+                    return new Response(
+                      '/* Failed to load CSS due to CORS - empty fallback provided */',
+                      { headers: { 'Content-Type': 'text/css' } }
+                    );
+                  }
+                  throw error;
+                });
+            })
+            .catch(error => {
+              console.error('Failed to handle CORS for production asset:', error);
+              // Default empty response for JS/CSS to prevent app from breaking
+              if (url.pathname.endsWith('.js')) {
+                return new Response(
+                  '/* Failed to load JS due to CORS - empty fallback provided */',
+                  { headers: { 'Content-Type': 'application/javascript' } }
+                );
+              }
+              if (url.pathname.endsWith('.css')) {
+                return new Response(
+                  '/* Failed to load CSS due to CORS - empty fallback provided */',
+                  { headers: { 'Content-Type': 'text/css' } }
+                );
+              }
+              throw error;
+            })
+        );
+        return;
+      }
+      
+      // For other assets, use the existing logic
       const localAssetUrl = new URL(url.pathname, self.location.origin);
       event.respondWith(
         fetch(localAssetUrl)
@@ -206,6 +276,20 @@ self.addEventListener('fetch', (event) => {
 
   // Wrap in try-catch to prevent service worker crashes
   try {
+    // Handle form submissions in an async-safe way
+    if (event.request.method === 'POST') {
+      // Process forms specially to ensure proper enctype
+      event.respondWith(handleFormSubmission(event.request));
+      return;
+    }
+    
+    // Handle JavaScript module files specially to ensure correct MIME type
+    if (isJavaScriptModule(event.request)) {
+      console.log('Handling JavaScript module with enhanced MIME type checking:', event.request.url);
+      event.respondWith(handleJavaScriptModule(event.request));
+      return;
+    }
+    
     // Handle API requests with Network First strategy
     if (url.pathname.startsWith('/api/')) {
       event.respondWith(networkFirstStrategy(event.request, API_CACHE_NAME));
@@ -238,6 +322,73 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 });
+
+// Handle JavaScript modules to ensure correct MIME type
+async function handleJavaScriptModule(request) {
+  const url = new URL(request.url);
+  console.log('Handling JavaScript module with MIME type fix:', url.pathname);
+  
+  try {
+    // First try to fetch from network
+    const networkResponse = await fetch(request);
+    
+    if (networkResponse.ok) {
+      // Get the response body
+      const responseBody = await networkResponse.blob();
+      
+      // Create response with correct MIME type using our helper
+      const fixedResponse = createJavaScriptModuleResponse(responseBody);
+      
+      // Cache the fixed response for future use
+      try {
+        const cache = await caches.open(CACHE_NAME);
+        cache.put(request, fixedResponse.clone());
+      } catch (cacheError) {
+        console.warn('Failed to cache JavaScript module:', cacheError);
+      }
+      
+      return fixedResponse;
+    }
+    
+    // If network fails, try cache
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) {
+      console.log('Serving JavaScript module from cache:', url.pathname);
+      
+      // Ensure cached response has correct MIME type
+      const contentType = cachedResponse.headers.get('Content-Type');
+      if (!contentType || !contentType.includes('application/javascript')) {
+        const cachedBody = await cachedResponse.blob();
+        return createJavaScriptModuleResponse(cachedBody);
+      }
+      
+      return cachedResponse;
+    }
+    
+    // Return the original response even if it failed
+    return networkResponse;
+    
+  } catch (error) {
+    console.error('Error handling JavaScript module:', error, url.pathname);
+    
+    // Check cache as fallback
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) {
+      console.log('Using cached fallback for failed JavaScript module:', url.pathname);
+      const cachedBody = await cachedResponse.blob();
+      return createJavaScriptModuleResponse(cachedBody);
+    }
+    
+    // Return a minimal JavaScript module that won't break the app
+    const fallbackContent = `/* Failed to load JavaScript module: ${url.pathname} */
+console.warn("Failed to load JavaScript module: ${url.pathname}");
+// Export empty object to prevent import errors
+export default {};
+export { };`;
+    
+    return createJavaScriptModuleResponse(new Blob([fallbackContent], { type: 'text/plain' }));
+  }
+}
 
 // Network First strategy - try network, fallback to cache
 async function networkFirstStrategy(request, cacheName) {
@@ -336,6 +487,31 @@ async function cacheFirstStrategy(request, cacheName) {
     if (networkResponse.ok && request.method === 'GET' && !shouldSkipCache) {
       const cache = await caches.open(cacheName);
       try {
+        // For JavaScript or CSS files, ensure correct content type
+        const url = new URL(request.url);
+        if (url.pathname.endsWith('.js') || url.pathname.endsWith('.mjs') || url.pathname.endsWith('.css')) {
+          const contentType = networkResponse.headers.get('Content-Type');
+          const expectedType = url.pathname.endsWith('.css') 
+            ? 'text/css' 
+            : 'application/javascript';
+          
+          if (!contentType || !contentType.includes(expectedType)) {
+            console.log(`Fixing Content-Type for ${url.pathname} to ${expectedType}`);
+            const body = await networkResponse.clone().blob();
+            const fixedResponse = new Response(body, {
+              status: networkResponse.status,
+              statusText: networkResponse.statusText,
+              headers: new Headers({
+                ...Object.fromEntries(networkResponse.headers.entries()),
+                'Content-Type': expectedType
+              })
+            });
+            cache.put(request, fixedResponse);
+            return fixedResponse;
+          }
+        }
+        
+        // Normal caching for other file types
         cache.put(request, networkResponse.clone());
       } catch (cacheError) {
         console.error('Failed to cache response:', cacheError);
@@ -417,18 +593,121 @@ async function navigationStrategy(request) {
   }
 }
 
+// Handle form submissions properly
+async function handleFormSubmission(request) {
+  // Check if it's a form submission that might need enctype fixing
+  const url = new URL(request.url);
+  const contentType = request.headers.get('Content-Type');
+  const isContactForm = url.pathname.includes('/contact') || url.pathname.includes('/api/contact');
+  
+  // Only process forms that need fixing (e.g., contact forms with file uploads)
+  if (isContactForm && contentType && !contentType.includes('multipart/form-data')) {
+    console.log('Form submission detected, ensuring proper enctype');
+    
+    try {
+      // Clone the request with proper enctype for file uploads
+      const newHeaders = new Headers(request.headers);
+      newHeaders.set('Content-Type', 'multipart/form-data');
+      
+      const fixedRequest = new Request(request.url, {
+        method: request.method,
+        headers: newHeaders,
+        body: request.body,
+        mode: request.mode,
+        credentials: request.credentials,
+        cache: request.cache,
+        redirect: request.redirect,
+        referrer: request.referrer
+      });
+      
+      // Proceed with the fixed request
+      return networkFirstStrategy(fixedRequest, CACHE_NAME);
+    } catch (error) {
+      console.error('Error while fixing form enctype:', error);
+      // Fall back to original request if fixing fails
+    }
+  }
+  
+  // For multipart/form-data requests, make sure we don't interfere with them
+  if (contentType && contentType.includes('multipart/form-data')) {
+    console.log('Handling multipart form data request directly');
+    // Pass through without modification to ensure browser sets the correct boundary
+    return fetch(request);
+  }
+  
+  // Default: proceed with original request
+  return networkFirstStrategy(request, CACHE_NAME);
+}
+
 // Check if the request is for a static asset
 function isStaticAsset(pathname) {
-  const staticExtensions = ['.css', '.js', '.woff2', '.woff', '.ttf', '.ico', '.webmanifest'];
+  const staticExtensions = ['.css', '.js', '.mjs', '.woff2', '.woff', '.ttf', '.ico', '.webmanifest'];
   return staticExtensions.some(ext => pathname.endsWith(ext)) || 
          pathname.startsWith('/build/') || 
          pathname.startsWith('/assets/');
+}
+
+// Check if request is for a JavaScript module
+function isJavaScriptModule(request) {
+  const url = new URL(request.url);
+  // Enhanced module detection to catch build outputs with hashes (like vendor-BEN4boU2.js)
+  return (url.pathname.endsWith('.js') || url.pathname.endsWith('.mjs') || 
+          url.pathname.match(/\/[A-Za-z]+-[A-Za-z0-9_]+\.js$/)) && 
+         (url.pathname.includes('/build/assets/') || 
+          url.pathname.includes('/assets/') ||
+          request.destination === 'script' || 
+          request.mode === 'cors');
+}
+
+// Get the correct content type for a file based on its extension
+function getContentTypeByExtension(pathname) {
+  const extension = pathname.substring(pathname.lastIndexOf('.'));
+  
+  switch (extension) {
+    case '.js':
+    case '.mjs':
+      return 'application/javascript';
+    case '.css':
+      return 'text/css';
+    case '.html':
+      return 'text/html';
+    case '.json':
+      return 'application/json';
+    case '.png':
+      return 'image/png';
+    case '.jpg':
+    case '.jpeg':
+      return 'image/jpeg';
+    case '.svg':
+      return 'image/svg+xml';
+    case '.webp':
+      return 'image/webp';
+    case '.woff':
+      return 'font/woff';
+    case '.woff2':
+      return 'font/woff2';
+    case '.ttf':
+      return 'font/ttf';
+    case '.webmanifest':
+      return 'application/manifest+json';
+    default:
+      return 'text/plain';
+  }
 }
 
 // Check if the request is for an image
 function isImageRequest(request) {
   return request.destination === 'image' || 
          /\.(png|jpg|jpeg|gif|svg|webp|ico)$/i.test(new URL(request.url).pathname);
+}
+
+// Check if the request is a form submission
+function isFormSubmission(request) {
+  return request.method === 'POST' && 
+         (request.headers.get('Content-Type')?.includes('application/x-www-form-urlencoded') ||
+          request.headers.get('Content-Type')?.includes('multipart/form-data') ||
+          // Also check for JSON submissions (React forms often use this)
+          request.headers.get('Content-Type')?.includes('application/json'));
 }
 
 // Push notification support
@@ -479,6 +758,30 @@ self.addEventListener('message', (event) => {
   
   if (event.data && event.data.type === 'GET_VERSION') {
     event.ports[0].postMessage({ version: CACHE_NAME });
+  }
+});
+
+// Enhanced JavaScript module handling for proper MIME type
+function createJavaScriptModuleResponse(blob, status = 200, headers = {}) {
+  return new Response(blob, {
+    status: status,
+    statusText: status === 200 ? 'OK' : 'Error',
+    headers: new Headers({
+      ...headers,
+      'Content-Type': 'application/javascript; charset=utf-8',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Cache-Control': 'public, max-age=31536000'
+    })
+  });
+}
+
+// Intercept and fix MIME type errors for JavaScript modules
+self.addEventListener('error', (event) => {
+  console.error('Service Worker error:', event.error);
+  if (event.error && event.error.message && event.error.message.includes('MIME type')) {
+    console.log('Detected MIME type error, service worker may need to handle it');
   }
 });
 

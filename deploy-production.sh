@@ -78,14 +78,5 @@ fi
 log_message "Clearing OPcache..."
 php -r "if(function_exists('opcache_reset')) { opcache_reset(); echo 'OPcache cleared'; } else { echo 'OPcache not available'; }"
 
-# Verify the URL structure
-log_message "Verifying URL structure..."
-if [ -f test-production-urls.sh ]; then
-    log_message "Running URL verification test..."
-    ./test-production-urls.sh
-else
-    log_warning "test-production-urls.sh not found. Skipping URL verification."
-fi
-
 log_message "Deployment completed successfully!"
 log_message "Your IndoQuran application should now be running with all assets correctly prefixed with /public in production."

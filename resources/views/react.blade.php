@@ -62,6 +62,83 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     
+    <!-- Module MIME Type Fix Script -->
+    <script>
+        // Enhanced fix for JS module MIME type issues
+        (function() {
+            // Override the default module loading to handle MIME type errors
+            const originalFetch = window.fetch;
+            
+            window.fetch = function(resource, options = {}) {
+                // Handle JS modules in build/assets directory
+                if (typeof resource === 'string' && 
+                    (resource.includes('/build/assets/') || resource.includes('/assets/')) && 
+                    resource.endsWith('.js')) {
+                    
+                    console.log('Intercepting JS module request:', resource);
+                    
+                    // Set proper headers for module requests
+                    const enhancedOptions = {
+                        ...options,
+                        headers: {
+                            ...options.headers,
+                            'Accept': 'application/javascript, text/javascript, */*',
+                            'Content-Type': 'application/javascript',
+                        },
+                        credentials: 'same-origin',
+                        mode: 'cors'
+                    };
+                    
+                    return originalFetch(resource, enhancedOptions)
+                        .then(response => {
+                            // If the response is not ok, try to fix it
+                            if (!response.ok || !response.headers.get('Content-Type')?.includes('javascript')) {
+                                console.warn('MIME type issue detected, attempting fix for:', resource);
+                                
+                                // Clone the response and fix the content type
+                                return response.blob().then(blob => {
+                                    return new Response(blob, {
+                                        status: response.status,
+                                        statusText: response.statusText,
+                                        headers: new Headers({
+                                            ...Object.fromEntries(response.headers.entries()),
+                                            'Content-Type': 'application/javascript; charset=utf-8'
+                                        })
+                                    });
+                                });
+                            }
+                            return response;
+                        })
+                        .catch(error => {
+                            console.error('Failed to load JS module:', resource, error);
+                            // Return empty module to prevent app crashes
+                            return new Response('/* Failed to load module */ export default {};', {
+                                headers: { 'Content-Type': 'application/javascript; charset=utf-8' }
+                            });
+                        });
+                }
+                
+                // For all other requests, use original fetch
+                return originalFetch(resource, options);
+            };
+            
+            // Also handle dynamic import errors
+            const originalImport = window.import || (function() {});
+            if (typeof window.import !== 'undefined') {
+                const originalDynamicImport = window.import;
+                window.import = function(specifier) {
+                    return originalDynamicImport(specifier).catch(error => {
+                        console.error('Dynamic import failed:', specifier, error);
+                        // Return empty module
+                        return { default: {} };
+                    });
+                };
+            }
+            
+            console.log('Enhanced JS module MIME type fix loaded');
+        })();
+    </script>
+    
     <!-- PWA Meta Tags -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
