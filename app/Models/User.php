@@ -77,14 +77,28 @@ class User extends Authenticatable
                     ->withPivot(['is_favorite', 'notes', 'created_at'])
                     ->withTimestamps();
     }
-    
+
     /**
-     * Get sorted bookmarked ayahs (by surah and ayah number).
+     * Get the user's prayers.
      */
-    public function sortedBookmarkedAyahs(): BelongsToMany
+    public function prayers(): HasMany
     {
-        return $this->bookmarkedAyahs()
-                    ->orderBy('surah_number', 'asc')
-                    ->orderBy('ayah_number', 'asc');
+        return $this->hasMany(Prayer::class);
+    }
+
+    /**
+     * Get the user's prayer amins.
+     */
+    public function prayerAmins(): HasMany
+    {
+        return $this->hasMany(PrayerAmin::class);
+    }
+
+    /**
+     * Get the user's prayer comments.
+     */
+    public function prayerComments(): HasMany
+    {
+        return $this->hasMany(PrayerComment::class);
     }
 }

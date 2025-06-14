@@ -1,59 +1,5 @@
-/* filepath: /Users/novaherdi/Documents/GitHub/indoquran-laravel/resources/css/app.css */
 @import "tailwindcss";
-
-/* Import Arabic font */
-@font-face {
-    font-family: 'Scheherazade New';
-    src: url('../fonts/ScheherazadeNew-Regular.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'Scheherazade New';
-    src: url('../fonts/ScheherazadeNew-Bold.ttf') format('truetype');
-    font-weight: bold;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'Scheherazade';
-    src: url('../fonts/ScheherazadeNew-Regular.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'Scheherazade';
-    src: url('../fonts/ScheherazadeNew-Bold.ttf') format('truetype');
-    font-weight: bold;
-    font-style: normal;
-}
-
-/* Custom highlight animation for search results - more subtle */
-@keyframes highlight-pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.08);
-    }
-    70% {
-        box-shadow: 0 0 0 2px rgba(217, 119, 6, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(217, 119, 6, 0);
-    }
-}
-
-.translation-html mark {
-    animation: highlight-pulse 3s infinite;
-    transition: all 0.3s ease;
-    border-radius: 3px;
-}
-
-.translation-html mark:hover {
-    transform: none;
-    box-shadow: none;
-    background: rgba(251, 191, 36, 0.2);
-}
+@import "./_fonts.css";
 
 /* Custom styling for Arabic Quran texts */
 .font-arabic {
@@ -236,19 +182,332 @@
     --shadow-medium: rgba(109, 92, 63, 0.15);
 }
 
+/* Enhanced Quran Header Styling */
+.quran-header-container {
+    background: linear-gradient(135deg, 
+        rgba(16, 185, 129, 0.05) 0%, 
+        rgba(6, 95, 70, 0.08) 25%,
+        rgba(5, 150, 105, 0.06) 50%,
+        rgba(4, 120, 87, 0.08) 75%,
+        rgba(6, 78, 59, 0.05) 100%
+    );
+    position: relative;
+    overflow: hidden;
+}
+
+.quran-header-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(circle at 25% 25%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(6, 95, 70, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+/* Logo Glow Animation */
+@keyframes logoGlow {
+    0%, 100% { 
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.3),
+                    0 0 40px rgba(16, 185, 129, 0.1),
+                    0 0 60px rgba(16, 185, 129, 0.05);
+    }
+    50% { 
+        box-shadow: 0 0 30px rgba(16, 185, 129, 0.4),
+                    0 0 60px rgba(16, 185, 129, 0.2),
+                    0 0 80px rgba(16, 185, 129, 0.1);
+    }
+}
+
+.logo-glow {
+    animation: logoGlow 3s ease-in-out infinite;
+}
+
+/* Floating Animation for Decorative Elements */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.float-animation {
+    animation: float 4s ease-in-out infinite;
+}
+
+/* Arabic Text Enhancement */
+.arabic-title {
+    background: linear-gradient(135deg, #065f46, #047857, #059669);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+}
+
+.arabic-title::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #10b981, transparent);
+    border-radius: 2px;
+}
+
+/* Pulse Animation for Dots */
+@keyframes pulse-dot {
+    0%, 100% { 
+        opacity: 0.6;
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+.pulse-dot {
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* Corner Decorations Animation */
+@keyframes borderGlow {
+    0%, 100% { 
+        border-color: rgba(16, 185, 129, 0.3);
+        box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+    }
+    50% { 
+        border-color: rgba(16, 185, 129, 0.6);
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    }
+}
+
+.corner-decoration {
+    animation: borderGlow 4s ease-in-out infinite;
+}
+
+/* Backdrop Blur Enhancement */
+.glass-effect {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Islamic Pattern Background */
+.islamic-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23047857' fill-opacity='0.03'%3E%3Cpath d='M30 30c16.569 0 30-13.431 30-30C60 13.431 46.569 0 30 0S0 13.431 0 30c0 16.569 13.431 30 30 30zm0-5c13.807 0 25-11.193 25-25S43.807 5 30 5 5 16.193 5 30s11.193 25 25 25zm0-5c11.046 0 20-8.954 20-20s-8.954-20-20-20-20 8.954-20 20 8.954 20 20 20zm0-5c8.284 0 15-6.716 15-15s-6.716-15-15-15-15 6.716-15 15 6.716 15 15 15z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-size: 60px 60px;
+}
+
 /* Responsive styles */
 @media (max-width: 768px) {
     .surah-card, .ayah-card {
         padding: 1.5rem;
     }
+    
+    .quran-header-container {
+        padding: 2rem 1rem;
+    }
+    
+    .arabic-title {
+        font-size: 2.5rem !important;
+        line-height: 1.1;
+    }
 }
 
-/* Highlight animation for ayah navigation */
-@keyframes highlightFade {
-    0% { background-color: rgba(166, 226, 186, 0.4); }
-    100% { background-color: transparent; }
+/* Custom Arabic Font Styling for Header */
+.font-arabic-header {
+    font-family: 'Scheherazade New', 'Amiri', 'Scheherazade', 'Noto Naskh Arabic', serif;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-.highlight-animation {
-    animation: highlightFade 1s ease-out;
+/* Auto-hide Navigation and Footer Animations */
+.nav-auto-hide {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+.nav-auto-hide.hidden {
+    transform: translateY(-100%);
+}
+
+.footer-auto-hide {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+.footer-auto-hide.hidden {
+    transform: translateY(100%);
+}
+
+/* Transparent Breadcrumb Enhancements */
+.breadcrumb-transparent {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.breadcrumb-transparent:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* Auto-hide breadcrumb when navbar is hidden */
+@media (max-width: 768px) {
+    .breadcrumb-auto-hide {
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    
+    .breadcrumb-auto-hide.navbar-hidden {
+        opacity: 0.6;
+        transform: translateY(-5px) scale(0.95);
+    }
+    
+    /* Extra transparent for mobile when navbar is hidden */
+    .breadcrumb-mobile-hidden {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* Mobile Touch Improvements */
+@media (max-width: 768px) {
+    /* Larger touch targets for mobile */
+    .mobile-touch-target {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 12px;
+    }
+    
+    /* Improved dropdown animations for mobile */
+    .mobile-dropdown {
+        animation: slideDownFade 0.2s ease-out;
+        transform-origin: top;
+    }
+    
+    .mobile-dropdown-footer {
+        animation: slideUpFade 0.2s ease-out;
+        transform-origin: bottom;
+    }
+    
+    /* Smooth scrolling for mobile */
+    html {
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Prevent zoom on input focus */
+    input, select, textarea {
+        font-size: 16px;
+    }
+}
+
+/* Dropdown Animations */
+@keyframes slideDownFade {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes slideUpFade {
+    0% {
+        opacity: 0;
+        transform: translateY(10px) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Enhanced hover states for better UX */
+.nav-link {
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+    transform: translateY(-1px);
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--islamic-gold, #d4af37);
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+/* Backdrop blur support for dropdown menus */
+.dropdown-backdrop {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.9);
+}
+
+/* Safe area insets for mobile devices with notches */
+@supports (padding-top: env(safe-area-inset-top)) {
+    .navbar-mobile {
+        padding-top: env(safe-area-inset-top);
+    }
+    
+    .footer-mobile {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+/* Running text marquee animation */
+@keyframes marquee {
+    0% {
+        transform: translateX(100%);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+.animate-marquee {
+    animation: marquee 25s linear infinite;
+    display: inline-block;
+}
+
+.animate-marquee:hover,
+.hover\:animation-paused:hover {
+    animation-play-state: paused;
+}
+
+/* Smooth gradient for text overflow */
+.marquee-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 30px;
+    background: linear-gradient(to left, rgba(249, 250, 251, 1), rgba(249, 250, 251, 0));
+    pointer-events: none;
 }

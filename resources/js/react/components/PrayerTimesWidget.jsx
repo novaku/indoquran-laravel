@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { IoLocationOutline, IoTimeOutline, IoRefreshOutline, IoCalendarOutline, IoAlarmOutline } from 'react-icons/io5';
+import { IoLocationOutline, IoTimeOutline, IoRefreshOutline, IoCalendarOutline, IoAlarmOutline, IoSyncOutline } from 'react-icons/io5';
+import { fetchWithAuth } from '../utils/apiUtils';
 
 const PrayerTimesWidget = () => {
     const [location, setLocation] = useState(null);
@@ -12,35 +13,94 @@ const PrayerTimesWidget = () => {
     const [date, setDate] = useState(new Date());
     const [timeRemaining, setTimeRemaining] = useState('');
 
-    // Get current location
+    // Check permissions API if available
     useEffect(() => {
+        if (navigator.permissions) {
+            navigator.permissions.query({ name: 'geolocation' })
+                .then(permissionStatus => {
+                    permissionStatus.onchange = () => {
+                        // Permission status changed
+                    };
+                })
+                .catch(err => {
+                    // Could not query geolocation permissions
+                });
+        }
+    }, []);
+
+    // Function to get current location with retry logic
+    const getCurrentLocationWithRetry = (retryCount = 0) => {
+        setLoading(true);
+        
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const coords = {
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude
-                    };
-                    setLocation(coords);
-                    fetchLocationName(coords.latitude, coords.longitude);
-                    setError(null);
-                },
-                (error) => {
-                    console.error('Error getting location:', error);
-                    // Fallback to a default location (Jakarta Pusat)
-                    const defaultCoords = {
-                        latitude: -6.1751,
-                        longitude: 106.8650
-                    };
-                    setLocation(defaultCoords);
-                    setLocationName('Jakarta Pusat, Indonesia (default)');
-                    setError('Menggunakan lokasi default. Untuk akurasi lebih baik, izinkan akses lokasi pada browser Anda.');
-                    setLoading(false);
-                },
-                { timeout: 10000 } // 10 seconds timeout
-            );
+            (position) => {
+                const coords = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                };
+                setLocation(coords);
+                fetchLocationName(coords.latitude, coords.longitude);
+                setError(null);
+            },
+            (error) => {
+                // Provide detailed error message based on error code
+                let errorMsg = 'Menggunakan lokasi default. ';
+                let debugInfo = '';
+                
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMsg += 'Akses lokasi ditolak. Silakan izinkan akses lokasi pada browser Anda.';
+                        debugInfo = 'PERMISSION_DENIED';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMsg += 'Informasi lokasi tidak tersedia.';
+                        debugInfo = 'POSITION_UNAVAILABLE (might be CoreLocationProvider kCLErrorLocationUnknown)';
+                        // This often corresponds to CoreLocationProvider errors on macOS
+                        if (error.message && error.message.includes('kCLErrorLocationUnknown')) {
+                            errorMsg += ' Sistem operasi tidak dapat menentukan lokasi saat ini.';
+                        }
+                        break;
+                    case error.TIMEOUT:
+                        errorMsg += 'Permintaan lokasi habis waktu.';
+                        debugInfo = 'TIMEOUT';
+                        break;
+                    default:
+                        errorMsg += 'Untuk akurasi lebih baik, izinkan akses lokasi pada browser Anda.';
+                        debugInfo = `UNKNOWN_ERROR (code: ${error.code})`;
+                        // Check if this might be a CoreLocationProvider error
+                        if (error.message && error.message.toLowerCase().includes('corelocation')) {
+                            errorMsg += ' Terjadi masalah dengan layanan lokasi sistem.';
+                        }
+                }
+                
+                // Fallback to Jakarta Pusat, Indonesia
+                const defaultCoords = {
+                    latitude: -6.1751,
+                    longitude: 106.8650
+                };
+                setLocation(defaultCoords);
+                setLocationName('Jakarta Pusat, Indonesia (default)');
+                setError(errorMsg);
+                
+                // For CoreLocationProvider errors, try one more time with different settings
+                if ((error.code === error.POSITION_UNAVAILABLE || 
+                     error.message?.toLowerCase().includes('corelocation')) && 
+                    retryCount < 2) {
+                    setTimeout(() => {
+                        getCurrentLocationWithRetry(retryCount + 1);
+                    }, 2000);
+                    return;
+                }
+            },
+            { 
+                timeout: retryCount === 0 ? 10000 : 15000, // Longer timeout on retry
+                maximumAge: retryCount === 0 ? 60000 : 300000, // Accept older cached position on retry
+                enableHighAccuracy: retryCount > 0 // Try high accuracy on retry for stubborn systems
+            }
+        );
         } else {
-            // Fallback to a default location (Jakarta Pusat) if geolocation is not supported
+            // Fallback to Jakarta Pusat, Indonesia if geolocation is not supported
             const defaultCoords = {
                 latitude: -6.1751,
                 longitude: 106.8650
@@ -48,8 +108,21 @@ const PrayerTimesWidget = () => {
             setLocation(defaultCoords);
             setLocationName('Jakarta Pusat, Indonesia (default)');
             setError('Geolokasi tidak didukung oleh browser Anda. Menggunakan lokasi default.');
-            setLoading(false);
         }
+    };
+
+    // Handle manual location retry
+    const handleLocationRetry = () => {
+        setError(null);
+        setLocation(null);
+        setLocationName('');
+        getCurrentLocationWithRetry(0);
+    };
+
+    // Get current location with retry logic
+    useEffect(() => {
+        // Start the location request
+        getCurrentLocationWithRetry();
     }, []);
 
     // Get location name from coordinates
@@ -81,7 +154,6 @@ const PrayerTimesWidget = () => {
                 setLocationName('Lokasi saat ini');
             }
         } catch (error) {
-            console.error('Error fetching location name:', error);
             setLocationName('Lokasi saat ini');
         }
     };
@@ -161,16 +233,7 @@ const PrayerTimesWidget = () => {
             try {
                 const API_URL = `/api/prayer-times?date=${formattedDate}&latitude=${latitude}&longitude=${longitude}&method=11`;
                 
-                console.log(`Fetching prayer times from Laravel backend: ${API_URL}`);
-                
-                const response = await fetch(API_URL, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    timeout: 10000 // 10 seconds timeout
-                });
+                const response = await fetchWithAuth(API_URL);
                 
                 if (!response.ok) {
                     throw new Error(`Failed to fetch prayer times: ${response.status}`);
@@ -181,25 +244,19 @@ const PrayerTimesWidget = () => {
                 if (data.code === 200 && data.status === 'OK') {
                     setPrayerTimes(data.data.timings);
                     setError(null);
-                    console.log('Prayer times fetched successfully:', data.data.timings);
                     return;
                 } else {
                     throw new Error('Invalid data format');
                 }
             } catch (apiError) {
-                console.log('Laravel API fetch failed, using calculation method...', apiError);
-                
                 // If the API call fails for any reason, fall back to local calculation
-                console.log('Using direct prayer time calculation for coordinates:', latitude, longitude);
                 
                 try {
                     // Try to calculate prayer times directly
                     const calculatedTimes = await calculatePrayerTimes(latitude, longitude, today);
                     setPrayerTimes(calculatedTimes);
                     setError('Menggunakan perhitungan lokal karena keterbatasan akses server.');
-                    console.log('Prayer times calculated successfully:', calculatedTimes);
                 } catch (calcError) {
-                    console.error('Calculation error:', calcError);
                     // Fallback to offline data
                     const offlineTimes = getOfflineFallbackPrayerTimes();
                     setPrayerTimes(offlineTimes);
@@ -208,11 +265,8 @@ const PrayerTimesWidget = () => {
                 return;
             }
         } catch (error) {
-            console.error('Error fetching prayer times:', error);
-            
             // Network errors or other issues
             if ((error.message.includes('network') || error.message.includes('timeout') || error.name === 'AbortError') && retryCount < 2) {
-                console.log(`Retrying (${retryCount + 1}/2)...`);
                 setError(`Mencoba menghubungi server lagi... (${retryCount + 1}/2)`);
                 
                 // Wait for 2 seconds before retrying
@@ -224,7 +278,6 @@ const PrayerTimesWidget = () => {
                 
             // Try alternative API if main one failed and we've reached max retries
             if (retryCount >= 2) {
-                console.log('Trying alternative API source...');
                 setError('Mencoba sumber data alternatif...');
                 
                 // Try the alternative API
@@ -232,7 +285,6 @@ const PrayerTimesWidget = () => {
                 
                 // If alternative also failed, show the final error
                 if (!alternativeSuccess) {
-                    console.log('Using offline fallback data...');
                     // Use offline fallback as last resort
                     const offlineTimes = getOfflineFallbackPrayerTimes();
                     setPrayerTimes(offlineTimes);
@@ -260,7 +312,6 @@ const PrayerTimesWidget = () => {
             
             // Since we've already experienced issues with API access due to CSP,
             // let's directly use our local calculation method instead of trying another API
-            console.log('Using direct prayer time calculation for coordinates:', latitude, longitude);
             
             const today = new Date();
             
@@ -269,13 +320,9 @@ const PrayerTimesWidget = () => {
             
             setPrayerTimes(calculatedTimes);
             setError("Menggunakan perhitungan lokal. Data mungkin kurang akurat.");
-            console.log('Prayer times calculated successfully:', calculatedTimes);
             return true;
         } catch (error) {
-            console.error('Alternative API also failed:', error);
-            
             // Use offline fallback data as last resort
-            console.log('Using offline fallback data...');
             const offlineTimes = getOfflineFallbackPrayerTimes();
             setPrayerTimes(offlineTimes);
             setError('Tidak dapat terhubung ke server. Menggunakan data perkiraan offline (kurang akurat).');
@@ -484,8 +531,6 @@ const PrayerTimesWidget = () => {
         setError(null); // Clear previous errors
         setLoading(true);
         
-        console.log('Refreshing prayer times...');
-        
         if (location) {
             fetchPrayerTimes();
         } else if (navigator.geolocation) {
@@ -495,13 +540,11 @@ const PrayerTimesWidget = () => {
                         latitude: position.coords.latitude,
                         longitude: position.coords.longitude
                     };
-                    console.log('Got user location:', coords);
                     setLocation(coords);
                     fetchLocationName(coords.latitude, coords.longitude);
                     setError(null);
                 },
                 (error) => {
-                    console.error('Error getting location:', error);
                     // Provide more detailed error based on error code
                     let errorMsg = 'Menggunakan lokasi default. ';
                     
@@ -519,7 +562,7 @@ const PrayerTimesWidget = () => {
                             errorMsg += 'Untuk akurasi lebih baik, izinkan akses lokasi pada browser Anda.';
                     }
                     
-                    // Fallback to Jakarta Pusat
+                    // Fallback to Jakarta Pusat, Indonesia
                     const defaultCoords = {
                         latitude: -6.1751,
                         longitude: 106.8650
@@ -538,7 +581,7 @@ const PrayerTimesWidget = () => {
                 }
             );
         } else {
-            // Fallback to a default location if geolocation is not supported
+            // Fallback to Jakarta Pusat, Indonesia if geolocation is not supported
             const defaultCoords = {
                 latitude: -6.1751,
                 longitude: 106.8650
@@ -555,9 +598,9 @@ const PrayerTimesWidget = () => {
     return (
         <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 h-full">
             <div className="bg-islamic-green/95 text-white px-4 py-3 flex justify-between items-center">
-                <h2 className="text-lg font-semibold flex items-center">
+                <h2 className="text-lg text-black font-semibold flex items-center">
                     <IoTimeOutline className="mr-2" /> 
-                    <span>Jadwal Shalat</span>
+                    <span className="text-black">Jadwal Shalat</span>
                     <span className="ml-2 text-sm bg-white/20 px-2 py-0.5 rounded-full">
                         {formattedCurrentTime}
                     </span>
@@ -575,7 +618,15 @@ const PrayerTimesWidget = () => {
             <div className="p-4">
                 {error && !location ? (
                     <div className="text-red-500 text-sm p-2 bg-red-50 rounded-md mb-3">
-                        {error}
+                        <div>{error}</div>
+                        <button 
+                            onClick={handleLocationRetry} 
+                            className="mt-2 text-islamic-green underline hover:no-underline flex items-center"
+                            title="Coba deteksi lokasi lagi"
+                        >
+                            <IoSyncOutline className="mr-1" />
+                            Coba lokasi lagi
+                        </button>
                     </div>
                 ) : loading ? (
                     <div className="flex justify-center items-center py-6">
@@ -591,15 +642,27 @@ const PrayerTimesWidget = () => {
                         
                         {error && (
                             <div className={`text-sm mb-3 p-2 rounded-md ${error.includes('perkiraan') || error.includes('perhitungan lokal') ? 'bg-amber-50 text-amber-600' : 'bg-red-50 text-red-500'}`}>
-                                {error}
-                                {(error.includes('gagal') || error.includes('server')) && (
-                                    <button 
-                                        onClick={handleRefresh} 
-                                        className="ml-2 text-islamic-green underline hover:no-underline"
-                                    >
-                                        Coba lagi
-                                    </button>
-                                )}
+                                <div>{error}</div>
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                    {(error.includes('gagal') || error.includes('server')) && (
+                                        <button 
+                                            onClick={handleRefresh} 
+                                            className="text-islamic-green underline hover:no-underline"
+                                        >
+                                            Coba lagi
+                                        </button>
+                                    )}
+                                    {(error.includes('Akses lokasi') || error.includes('tidak tersedia') || error.includes('habis waktu') || error.includes('tidak didukung') || error.includes('layanan lokasi sistem')) && (
+                                        <button 
+                                            onClick={handleLocationRetry} 
+                                            className="text-islamic-green underline hover:no-underline flex items-center"
+                                            title="Coba deteksi lokasi lagi"
+                                        >
+                                            <IoSyncOutline className="mr-1" />
+                                            Coba lokasi lagi
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         )}
                         

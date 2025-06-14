@@ -19,7 +19,9 @@ class BookmarkController extends Controller
         
         // Start with the base query
         $query = $user->bookmarkedAyahs()
-                     ->with(['surah:number,name_indonesian,name_arabic,name_latin']);
+                     ->with(['surah:number,name_indonesian,name_arabic'])
+                     ->orderBy('surah_number', 'asc')
+                     ->orderBy('ayah_number', 'asc');
         
         if ($favoritesOnly) {
             $query->wherePivot('is_favorite', true);

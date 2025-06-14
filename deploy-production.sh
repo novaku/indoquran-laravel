@@ -59,24 +59,10 @@ php artisan route:cache
 php artisan view:clear
 php artisan view:cache
 
-# Migrate database if needed
-log_message "Running database migrations..."
-php artisan migrate --force
-
 # Set proper permissions
 log_message "Setting permissions..."
 find storage bootstrap/cache -type d -exec chmod 775 {} \;
 find storage bootstrap/cache -type f -exec chmod 664 {} \;
-
-# Copy production .htaccess
-log_message "Setting up production .htaccess..."
-if [ -f public/.htaccess.production ]; then
-    cp public/.htaccess.production public/.htaccess
-    log_message "Copied production .htaccess"
-else
-    log_error "public/.htaccess.production file not found!"
-    log_warning "The application may not work correctly without proper .htaccess configuration"
-fi
 
 # Verify the build directory exists
 log_message "Checking build directory..."

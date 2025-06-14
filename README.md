@@ -50,10 +50,49 @@ IndoQuran adalah platform digital modern yang memudahkan akses terhadap Al-Quran
 
 ## 🛠 Teknologi yang Digunakan
 
+- **Backend**: Laravel 12.x, PHP 8.2+
+- **Frontend**: React 19.x, TailwindCSS 4.x
+- **Database**: MySQL
+- **Cache**: Redis
+- **Deployment**: Shared Hosting
+
+## 🔧 Troubleshooting
+
+### Database Connection Issues
+
+If you encounter database connection errors, verify your MySQL configuration:
+
+1. Check your .env file settings:
+   ```
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=indoquran
+   DB_USERNAME=root
+   DB_PASSWORD=your_password
+   ```
+
+2. Make sure your MySQL server is running:
+   ```bash
+   mysql --version
+   sudo service mysql status  # Linux
+   brew services list         # macOS
+   ```
+
+3. Run migrations to set up the database schema:
+   ```bash
+   php artisan migrate --force
+   ```
+
+4. Clear config cache after making changes:
+   ```bash
+   php artisan config:clear
+   ```
+
 ### Backend
 - **Laravel 12.x**: Framework PHP modern dengan fitur terlengkap
 - **PHP 8.2+**: Performa tinggi dan fitur bahasa terbaru
-- **SQLite Database**: Database ringan dan cepat
+- **MySQL Database**: Database relasional yang handal dan scalable
 - **Laravel Sanctum**: Autentikasi API yang aman
 - **Caching System**: Optimasi performa dengan cache pintar
 
@@ -77,6 +116,7 @@ IndoQuran adalah platform digital modern yang memudahkan akses terhadap Al-Quran
 - Composer
 - Node.js & NPM
 - Git
+- MySQL 8.0+
 
 ### Langkah Instalasi
 
@@ -99,12 +139,24 @@ IndoQuran adalah platform digital modern yang memudahkan akses terhadap Al-Quran
 4. **Setup Environment**
    ```bash
    cp .env.example .env
+   
+   # Update database configuration in .env
+   # DB_CONNECTION=mysql
+   # DB_HOST=127.0.0.1
+   # DB_PORT=3306
+   # DB_DATABASE=indoquran
+   # DB_USERNAME=root
+   # DB_PASSWORD=your_password
+   
    php artisan key:generate
    ```
 
 5. **Setup Database**
    ```bash
-   touch database/database.sqlite
+   # Create MySQL database
+   mysql -u root -p -e "CREATE DATABASE indoquran CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+   
+   # Run migrations and seed data
    php artisan migrate
    php artisan db:seed
    ```
@@ -116,8 +168,8 @@ IndoQuran adalah platform digital modern yang memudahkan akses terhadap Al-Quran
 
 7. **Jalankan Aplikasi**
    ```bash
-   # Development dengan auto-reload
-   npm run react:dev
+   # Gunakan script lingkungan pengembangan interaktif
+   ./dev-env.sh
    
    # Atau jalankan secara terpisah
    php artisan serve
@@ -140,9 +192,9 @@ Untuk informasi lengkap mengenai deployment di lingkungan produksi dan penangana
 
 ### Bookmark (Autentikasi Required)
 - `GET /api/bookmarks` - Daftar bookmark pengguna
-- `POST /api/bookmarks/ayah/{id}/toggle` - Toggle bookmark
-- `POST /api/bookmarks/ayah/{id}/favorite` - Toggle favorit
-- `PUT /api/bookmarks/ayah/{id}/notes` - Update catatan
+- `POST /api/bookmarks/surah/ayah/{id}/toggle` - Toggle bookmark
+- `POST /api/bookmarks/surah/ayah/{id}/favorite` - Toggle favorit
+- `PUT /api/bookmarks/surah/ayah/{id}/notes` - Update catatan
 
 ## 📁 Struktur Project
 
@@ -368,115 +420,74 @@ Selamat coding! 🚀
 
 # Script Pengembangan Laravel
 
-Direktori ini berisi script bash yang membantu untuk alur kerja pengembangan Laravel.
+IndoQuran menyediakan script pengembangan yang komprehensif untuk memudahkan alur kerja pengembangan.
 
-## 🎯 **REKOMENDASI: Script All-in-One**
+## 🚀 `dev-env.sh` - Lingkungan Pengembangan Terpadu
 
-### 🚀 `run.sh` - Runner Pengembangan Lengkap ⭐
-**Script terbaik yang melakukan semua hal untuk menjalankan aplikasi web Anda!**
+**Script pengembangan komprehensif yang menggabungkan semua fitur dalam satu menu interaktif.**
 
-**Apa yang dilakukan:**
-- ✅ Memeriksa semua prasyarat (PHP, Composer)
-- ✅ Memverifikasi struktur proyek Laravel
-- ✅ Menginstal dependensi jika tidak ada
-- ✅ Menyiapkan file .env jika tidak ada
-- ✅ Menghasilkan kunci aplikasi jika diperlukan
-- ✅ Membuat database SQLite jika diperlukan
-- ✅ Menjalankan migrasi
-- ✅ Membersihkan semua cache sepenuhnya
-- ✅ Mengoptimalkan autoloader
-- ✅ Menangani konflik port secara cerdas
-- ✅ Memulai server pengembangan
-- ✅ Output berwarna indah dengan indikator kemajuan
-- ✅ **BERFUNGSI DARI CLONE SEGAR HINGGA APLIKASI WEB BERJALAN**
+**Fitur Utama:**
+- ✅ Manajemen server (Laravel & Vite)
+- ✅ Pembersihan cache & optimasi
+- ✅ Manajemen dependensi & aset
+- ✅ Operasi database (migrasi & seed)
+- ✅ Tools pengembangan (testing, route listing, tinker)
+- ✅ Status & monitoring
+- ✅ Generasi sitemap
 
 **Penggunaan:**
 ```bash
-./run.sh
+./dev-env.sh
 ```
 
-**Sempurna untuk:**
-- 🆕 Setup proyek baru
-- 🔄 Setup pengembangan awal
-- 🛠️ Setup aplikasi lengkap
+**Kategori Menu:**
 
-### 🔄 `refresh-and-run.sh` - Refresh & Run ⭐
-**Script efisien untuk menyegarkan cache dan memulai server dalam satu perintah!**
+### 🚀 Server Management
+- **Start development servers (Laravel + Vite)** - Menjalankan kedua server secara bersamaan
+- **Start Laravel server only (port 8000/8080)** - Menjalankan Laravel tanpa Vite
+- **Restart development servers** - Restart kedua server
+- **Stop all development servers** - Menghentikan semua server
 
-**Apa yang dilakukan:**
-- ✅ Memverifikasi struktur proyek Laravel
-- ✅ Membersihkan semua cache sepenuhnya (config, view, route, optimization)
-- ✅ Membersihkan file class yang dikompilasi
-- ✅ Menyegarkan autoload composer
-- ✅ Menangani konflik port secara cerdas
-- ✅ Memulai server pengembangan
-- ✅ Output berwarna indah dengan indikator kemajuan
+### 🔧 Cache & Optimization
+- **Refresh all caches and views** - Membersihkan semua cache Laravel
+- **Clear logs** - Mengosongkan file log
+- **Optimize for development** - Optimasi khusus lingkungan pengembangan
 
-**Penggunaan:**
+### 📦 Dependencies & Assets
+- **Install/Update dependencies** - Composer & NPM
+- **Build assets for production** - Build aset untuk produksi
+- **Watch assets (Vite dev mode)** - Mode watch Vite
+
+### 🗄️ Database
+- **Run migrations** - Menjalankan migrasi database
+- **Seed database** - Mengisi database dengan data dummy
+- **Fresh migration with seeding** - Migrasi ulang dari awal dengan seed
+
+### 🛠️ Development Tools
+- **Run tests** - Menjalankan test suite
+- **Show routes** - Menampilkan semua rute aplikasi
+- **Laravel Tinker (REPL)** - Shell interaktif Laravel
+- **Generate sitemap** - Membuat sitemap.xml
+
+### 📋 Status & Info
+- **Check server status** - Memeriksa status server development
+- **Show Laravel info** - Menampilkan informasi Laravel
+
+## Penggunaan Perintah Cepat
+
+### Memulai Pengembangan
 ```bash
-./refresh-and-run.sh
-```
-
-**Sempurna untuk:**
-- 🔄 Alur kerja pengembangan harian
-- 🧹 Penyegaran cache dan restart cepat
-- 🚀 Startup server cepat
-
----
-
-## 📋 Script Tambahan
-
-### 🛠️ `dev.sh`
-Pembantu pengembangan interaktif dengan berbagai opsi.
-
-**Fitur:**
-- Menyegarkan semua cache dan view
-- Memulai server pengembangan (port 8000 atau 8080)
-- Menjalankan migrasi
-- Mengisi database
-- Migrasi segar dengan pengisian
-- Menjalankan test
-- Menginstal/Memperbarui dependensi
-- Membangun aset (Vite)
-- Memantau aset (Vite dev)
-- Membersihkan semua log
-- Menampilkan rute
-- Laravel Tinker (REPL)
-
-**Penggunaan:**
-```bash
-./dev.sh
-```
-
-## Perintah Cepat
-
-### 🎯 **CARA TERCEPAT UNTUK MEMULAI**
-```bash
-# Setup lengkap dan jalankan (setup pertama kali) ⭐
-./run.sh
-
-# Penyegaran cache cepat dan jalankan (pengembangan harian) ⭐
-./refresh-and-run.sh
-```
-
-### Alur Kerja Pengembangan
-```bash
-# Setup pengembangan penuh
-./run.sh
-
-# Menyegarkan cache dan menjalankan server
-./refresh-and-run.sh
-
 # Menu pengembangan interaktif
-./dev.sh
+./dev-env.sh
+
+# Atau perintah manual
+php artisan serve
+npm run dev
 ```
 
-### Perintah Manual
+### Perintah Manual Umum
 ```bash
-# Memulai server pada port tertentu
-php artisan serve --port=8080
-
-# Membersihkan cache tertentu
+# Membersihkan cache
 php artisan cache:clear
 php artisan view:clear
 php artisan route:clear
@@ -488,56 +499,29 @@ php artisan migrate
 php artisan db:seed
 ```
 
-## 🔧 Apa yang Dilakukan Setiap Script
-
-| Script | Tujuan | Terbaik Untuk |
-|--------|---------|----------|
-| `run.sh` ⭐ | Setup lengkap + jalankan | Setup segar, pengembangan awal |
-| `refresh-and-run.sh` ⭐ | Menyegarkan cache + jalankan server | Pengembangan harian, restart cepat |
-| `dev.sh` | Menu interaktif | Opsi lanjutan, pengguna mahir |
-
 ## Catatan
 
-- ✅ Semua script berfungsi pada **macOS/Linux/zsh**
-- ✅ **Tidak diperlukan setup manual** - script menangani semuanya
-- ✅ **Penanganan konflik port** - secara otomatis menyelesaikan masalah
-- ✅ **Output berwarna indah** dengan indikator kemajuan
-- ✅ **Penanganan error** - gagal dengan baik dengan pesan yang jelas
+- ✅ Berfungsi pada **macOS/Linux/zsh**
+- ✅ Output berwarna untuk visibilitas yang lebih baik
+- ✅ Penanganan proses yang bersih (tidak meninggalkan proses zombie)
+- ✅ Penanganan error yang baik
 
-## 🎉 Indikator Keberhasilan
+## Fitur Lanjutan
 
-Ketika `run.sh` selesai dengan sukses, Anda akan melihat:
-```
-================================================
-           🎉 SETUP SELESAI! 🎉             
-================================================
-
-✅ Semua sistem siap!
-ℹ️ URL Aplikasi: http://127.0.0.1:8080
-```
-
-Ketika `refresh-and-run.sh` selesai, Anda akan melihat:
-```
-================================================
-       🎉 PENYEGARAN SELESAI! MEMULAI SERVER 🎉   
-================================================
-
-✅ Semua cache disegarkan!
-ℹ️ URL Aplikasi: http://127.0.0.1:8080
-```
+- **Status Server**: Cek status server Laravel & Vite kapan saja
+- **Manajemen Proses**: Kill dan restart proses dengan bersih
+- **Pemantauan Log**: Akses cepat ke pembersihan log
+- **Testing**: Integrasi langsung dengan fitur testing
 
 ## Pemecahan Masalah
 
 ### Masalah Izin
 ```bash
-chmod +x *.sh
+chmod +x dev-env.sh
 ```
 
-### Dependensi Tidak Ada
-Script `run.sh` akan secara otomatis menginstal dependensi yang tidak ada!
-
 ### Konflik Port
-Script akan mendeteksi dan menawarkan solusi untuk konflik port secara otomatis.
+Jika port 8000 atau 5173 sudah digunakan, script akan mendeteksi dan memberi tahu Anda.
 
 ---
 
@@ -562,9 +546,9 @@ Berhasil mengimplementasikan fungsionalitas bookmark dan favorit yang komprehens
 ### 🔌 Endpoint API
 - `GET /api/bookmarks` - Mendapatkan bookmark dan favorit pengguna
 - `GET /api/bookmarks/status` - Mendapatkan status bookmark untuk beberapa ayat
-- `POST /api/bookmarks/ayah/{id}/toggle` - Toggle status bookmark
-- `POST /api/bookmarks/ayah/{id}/favorite` - Toggle status favorit
-- `PUT /api/bookmarks/ayah/{id}/notes` - Memperbarui catatan bookmark
+- `POST /api/bookmarks/surah/ayah/{id}/toggle` - Toggle status bookmark
+- `POST /api/bookmarks/surah/ayah/{id}/favorite` - Toggle status favorit
+- `PUT /api/bookmarks/surah/ayah/{id}/notes` - Memperbarui catatan bookmark
 
 ### 🎯 Layanan Frontend
 - **BookmarkService.js**: Lapisan layanan lengkap untuk operasi bookmark
@@ -826,3 +810,155 @@ curl "http://127.0.0.1:8000/api/search?q=god&lang=english&per_page=3&page=1"
 - Pemisahan kepentingan yang bersih
 
 Implementasi ini menyediakan sistem paginasi yang kuat, ramah pengguna yang meningkatkan pengalaman pencarian sambil mempertahankan standar performa dan aksesibilitas yang baik.
+
+---
+
+# � Documentation
+
+Comprehensive documentation for all features and implementations is available in the [`docs/`](./docs/) folder:
+
+- **[Authentication & Security](./docs/AUTHENTICATION_HEADERS_IMPLEMENTATION.md)** - Security implementation details
+- **[Contact System](./docs/CONTACT_ENHANCEMENT_SUMMARY.md)** - Contact page with donation integration
+- **[Prayer Features](./docs/PRAYER_FEATURE_DOCUMENTATION.md)** - Prayer functionality documentation
+- **[React Translation](./docs/REACT_TRANSLATION_SUMMARY.md)** - Frontend translation to Indonesian
+- **[Email Notifications](./docs/EMAIL_NOTIFICATION_SYSTEM.md)** - Email system implementation
+- **[Running Text Widget](./docs/RUNNING_TEXT_WIDGET_COMPLETED.md)** - Dynamic text widget
+- **[Sitemap Guide](./docs/SITEMAP_GUIDE.md)** - SEO and sitemap implementation
+
+For a complete list and organized documentation index, visit the **[Documentation Index](./docs/README.md)**.
+
+---
+
+# �🗺️ SEO & Sitemap Implementation
+
+IndoQuran includes a comprehensive sitemap system optimized for Google and other search engines, ensuring excellent SEO coverage for all Al-Quran content.
+
+## Available Commands
+
+### Sitemap Generation
+```bash
+# Generate basic sitemap
+php artisan sitemap:generate
+
+# Generate comprehensive sitemaps (recommended)
+php artisan sitemap:generate-comprehensive --production
+
+# Validate sitemap structure and SEO compliance
+php artisan sitemap:validate --production
+
+# Submit sitemaps to Google Search Console
+php artisan sitemap:submit-to-google
+```
+
+## Generated Sitemaps
+
+### Main Files
+- **`sitemap.xml`** - Primary sitemap for essential pages
+- **`sitemap-index.xml`** - Master index pointing to all sitemaps
+- **`robots.txt`** - Updated with sitemap references
+
+### Content-Specific Sitemaps
+- **`sitemap-main.xml`** - Static pages and surah overview (120+ URLs)
+- **`sitemap-juz.xml`** - All 30 Juz and 604 Mushaf pages (634 URLs)
+- **`sitemap-surahs-1.xml` to `sitemap-surahs-6.xml`** - Individual ayah pages (6000+ URLs total)
+
+## SEO Optimization Features
+
+### Priority System
+- **Homepage**: 1.0 (highest)
+- **Search**: 0.8 (high)
+- **Surah Pages**: 0.9 (very high)
+- **Juz Pages**: 0.8 (high)
+- **Individual Ayahs**: 0.7 (medium-high)
+- **Static Pages**: 0.3-0.6 (standard)
+
+### Change Frequencies
+- **Homepage**: Daily updates
+- **Surah/Juz Pages**: Weekly updates
+- **Individual Ayahs**: Monthly updates
+- **Static Pages**: Monthly to yearly
+
+### URL Structure
+All URLs follow clean, semantic patterns:
+- `https://my.indoquran.web.id/` (homepage)
+- `https://my.indoquran.web.id/surah/1` (surah pages)
+- `https://my.indoquran.web.id/surah/1/1` (individual ayahs)
+- `https://my.indoquran.web.id/juz/1` (juz pages)
+- `https://my.indoquran.web.id/pages/1` (mushaf pages)
+
+## Google Search Console Setup
+
+### 1. Submit Main Sitemap Index
+Submit this URL to Google Search Console:
+```
+https://my.indoquran.web.id/sitemap-index.xml
+```
+
+### 2. Alternative Individual Submissions
+Or submit these individually:
+```
+https://my.indoquran.web.id/sitemap.xml
+https://my.indoquran.web.id/sitemap-main.xml
+https://my.indoquran.web.id/sitemap-juz.xml
+```
+
+### 3. Monitor Indexing
+- Check coverage reports
+- Monitor crawl errors
+- Analyze search performance
+- Review indexing status
+
+## Production Deployment
+
+Use the enhanced deployment script that includes sitemap generation:
+```bash
+./deploy-with-seo.sh
+```
+
+This script automatically:
+- Generates comprehensive sitemaps
+- Validates sitemap structure
+- Submits to search engines
+- Sets up proper permissions
+- Updates robots.txt
+
+## Performance & Standards
+
+### File Organization
+- **10 sitemap files total** (well under Google's 50,000 URL limit per file)
+- **All files under 50MB** (Google's size limit)
+- **Efficient grouping** by content type and popularity
+- **Proper XML namespace** and schema compliance
+
+### Caching & Updates
+- **24-hour cache** on web-served sitemaps
+- **Database-driven** last modified dates
+- **Automatic regeneration** available via cron jobs
+- **Validation checks** before search engine submission
+
+## Maintenance
+
+### Regular Updates
+Set up automated sitemap regeneration:
+```bash
+# Add to crontab (daily at 2 AM)
+0 2 * * * cd /path/to/indoquran && php artisan sitemap:generate-comprehensive --production
+```
+
+### Validation
+Before major deployments:
+```bash
+php artisan sitemap:validate --production
+```
+
+### Resubmission
+After content updates:
+```bash
+php artisan sitemap:submit-to-google
+```
+
+## Files Included
+
+For detailed implementation guide, see: **[SITEMAP_GUIDE.md](./docs/SITEMAP_GUIDE.md)**
+
+---

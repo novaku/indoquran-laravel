@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getRoutePath } from '../utils/routes';
+import { useAuth } from '../hooks/useAuth.jsx';
 
-function AuthPage({ setUser }) {
+function AuthPage() {
     const { action } = useParams();
     const navigate = useNavigate();
+    const { login } = useAuth();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -13,8 +14,24 @@ function AuthPage({ setUser }) {
     });
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+    const [loginSuccess, setLoginSuccess] = useState(false);
     
     const isLogin = action === 'login';
+    
+    // Handle redirect after successful login
+    useEffect(() => {
+        if (loginSuccess) {
+            // Add a small delay to ensure user state is properly set
+            const timeout = setTimeout(() => {
+                // Navigate to home page with replace to avoid back button issues
+                navigate('/', { replace: true });
+            }, 150);
+            
+            return () => {
+                clearTimeout(timeout);
+            };
+        }
+    }, [loginSuccess, navigate]);
     
     const handleChange = (e) => {
         setFormData({
@@ -25,44 +42,34 @@ function AuthPage({ setUser }) {
     
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         setLoading(true);
         setErrors({});
         
         try {
-            const url = isLogin ? '/api/login' : '/api/register';
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify(formData)
-            });
+            const result = await login(formData, !isLogin);
             
-            const data = await response.json();
-            
-            if (!response.ok) {
-                setErrors(data.errors || { message: data.message });
+            if (result.success) {
                 setLoading(false);
-                return;
-            }
-            
-            // Set user and navigate to home
-            if (data.user) {
-                setUser(data.user);
-                navigate('/');
+                
+                // Trigger redirect with a slight delay for state to propagate
+                setTimeout(() => {
+                    setLoginSuccess(true);
+                }, 500); // Increased delay to allow auth state to update
             } else {
-                setErrors({ message: 'Login successful but user data not returned.' });
+                console.error(`❌ [AuthPage] ${isLogin ? 'Login' : 'Register'} failed:`, result.error);
+                setErrors(result.errors || { message: result.error });
                 setLoading(false);
             }
         } catch (error) {
+            console.error(`❌ [AuthPage] ${isLogin ? 'Login' : 'Register'} error:`, error);
             setErrors({ message: 'Terjadi kesalahan. Silakan coba lagi.' });
             setLoading(false);
         }
     };
     
     return (
-        <div className="max-w-md mx-auto">
+        <div className="max-w-md mx-auto px-4 py-8 pt-24 pb-20">
             <div className="text-center mb-8">
                 <h1 className="text-3xl font-bold text-gray-800 mb-2">
                     {isLogin ? 'Masuk ke Akun Anda' : 'Buat Akun Baru'}
@@ -81,7 +88,7 @@ function AuthPage({ setUser }) {
                 </div>
             )}
             
-            <form onSubmit={handleSubmit} className="bg-white shadow-lg rounded-lg p-8 border border-gray-200">
+            <form onSubmit={handleSubmit} encType="application/x-www-form-urlencoded" className="bg-white shadow-lg rounded-lg p-8 border border-gray-200">
                 {!isLogin && (
                     <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
@@ -170,14 +177,14 @@ function AuthPage({ setUser }) {
                     {isLogin ? (
                         <>
                             Belum punya akun?{' '}
-                            <Link to={getRoutePath('/auth/register')} className="text-green-600 hover:text-green-800 font-semibold hover:underline">
+                            <Link to="/auth/register" className="text-green-600 hover:text-green-800 font-semibold hover:underline">
                                 Daftar
                             </Link>
                         </>
                     ) : (
                         <>
                             Sudah punya akun?{' '}
-                            <Link to={getRoutePath('/auth/login')} className="text-green-600 hover:text-green-800 font-semibold hover:underline">
+                            <Link to="/auth/login" className="text-green-600 hover:text-green-800 font-semibold hover:underline">
                                 Masuk
                             </Link>
                         </>

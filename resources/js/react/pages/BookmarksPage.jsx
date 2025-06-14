@@ -1,25 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { IoBookmark, IoHeart, IoArrowBackOutline, IoSearchOutline, IoCreateOutline, IoSaveOutline, IoCloseOutline, IoOpenOutline, IoChevronDown, IoChevronForward, IoEye, IoEyeOff } from 'react-icons/io5';
-import { getUserBookmarks, updateBookmarkNotes, toggleBookmark, toggleFavorite } from '../services/BookmarkService';
-import { getRoutePath } from '../utils/routes';
-import { AyahCard } from '../features/quran';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { IoBookmark, IoArrowBackOutline, IoSearchOutline, IoCreateOutline, IoSaveOutline, IoCloseOutline, IoChevronDownOutline, IoChevronUpOutline, IoAddOutline, IoRemoveOutline, IoReloadOutline, IoEyeOutline, IoEyeOffOutline, IoListOutline, IoPlayCircleOutline, IoPauseCircleOutline } from 'react-icons/io5';
+import { getUserBookmarks, updateBookmarkNotes } from '../services/BookmarkService';
+import { useAuth } from '../hooks/useAuth.jsx';
 
-function BookmarksPage({ user }) {
+function BookmarksPage() {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [bookmarks, setBookmarks] = useState([]);
-    const [favorites, setFavorites] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('bookmarks'); // 'bookmarks' or 'favorites'
     const [searchTerm, setSearchTerm] = useState('');
     const [editingNotes, setEditingNotes] = useState(null); // ID of bookmark being edited
     const [notesText, setNotesText] = useState('');
     const [savingNotes, setSavingNotes] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(5); // Number of bookmarks per page
-    const [bookmarkLoading, setBookmarkLoading] = useState({}); // Track loading state for bookmark actions
-    const [expandedSurahs, setExpandedSurahs] = useState({}); // Track which surah groups are expanded
-    const [expandedAyahs, setExpandedAyahs] = useState({}); // Track which ayahs are expanded
+    const [collapsedSurahs, setCollapsedSurahs] = useState(new Set());
+    const [collapsedAyahs, setCollapsedAyahs] = useState(new Set());
+    const [hiddenSurahs, setHiddenSurahs] = useState(new Set()); // Will be populated after bookmarks load
+
+    const [initialHideAll, setInitialHideAll] = useState(true); // Flag to hide all surahs initially
+    
+    // Arabic text zoom state
+    const [arabicFontSize, setArabicFontSize] = useState(2.5); // Default size in rem (2.5rem)
+
+    // Audio player state
+    const [selectedQari, setSelectedQari] = useState(''); // Will be set to first available qari
+    const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+    const [audioElement, setAudioElement] = useState(null);
+    const [playingAyahId, setPlayingAyahId] = useState(null); // Track which ayah is currently playing
+
+    // Ref for audio cleanup
+    const audioRef = useRef(null);
 
     useEffect(() => {
         if (!user) {
@@ -30,71 +40,209 @@ function BookmarksPage({ user }) {
         loadBookmarks();
     }, [user, navigate]);
 
-    // Initialize ayahs as collapsed by default
+    // Cleanup audio when component unmounts
     useEffect(() => {
-        // When bookmarks or favorites change, make sure newly added ones are collapsed
-        const allBookmarkIds = [...bookmarks, ...favorites].map(bookmark => bookmark.id);
-        const newExpandedAyahs = {};
+        return () => {
+            if (audioElement) {
+                audioElement.pause();
+                setIsAudioPlaying(false);
+                setAudioElement(null);
+                setPlayingAyahId(null);
+            }
+        };
+    }, [audioElement]);
+
+    // Auto-select first available qari when bookmarks load
+    useEffect(() => {
+        if (bookmarks.length > 0) {
+            // Find the first bookmark with audio URLs to set default qari
+            const bookmarkWithAudio = bookmarks.find(bookmark => bookmark.audio_urls);
+            if (bookmarkWithAudio) {
+                const audioUrls = typeof bookmarkWithAudio.audio_urls === 'string' 
+                    ? JSON.parse(bookmarkWithAudio.audio_urls) 
+                    : bookmarkWithAudio.audio_urls;
+                
+                let availableQaris;
+                if (Array.isArray(audioUrls)) {
+                    const defaultQaris = ['alafasy', 'sudais', 'husary', 'minshawi', 'abdulbasit', 'maher', 'ghamdi', 'shuraim', 'ajmy', 'walk'];
+                    availableQaris = audioUrls.map((_, index) => defaultQaris[index] || `qari_${index + 1}`);
+                } else {
+                    availableQaris = Object.keys(audioUrls);
+                }
+                
+                if (availableQaris.length > 0 && !selectedQari) {
+                    setSelectedQari(availableQaris[0]);
+                }
+            }
+        }
+    }, [bookmarks]);
+
+    // Arabic text zoom functions
+    const handleZoomIn = () => {
+        setArabicFontSize(prev => Math.min(prev + 0.5, 6)); // Max 6rem
+    };
+
+    const handleZoomOut = () => {
+        setArabicFontSize(prev => Math.max(prev - 0.5, 1.5)); // Min 1.5rem
+    };
+
+    const resetZoom = () => {
+        setArabicFontSize(2.5); // Reset to default 2.5rem
+    };
+
+    // Get dynamic font size class
+    const getArabicFontSizeStyle = () => {
+        return {
+            fontSize: `${arabicFontSize}rem`,
+            lineHeight: '2',
+            textShadow: '0 1px 1px rgba(0,0,0,0.05)'
+        };
+    };
+
+    // Audio playback functions
+    const playAudio = (audioUrl, ayahId) => {
+        // Stop current audio if playing
+        if (audioElement) {
+            audioElement.pause();
+            setIsAudioPlaying(false);
+            setPlayingAyahId(null);
+        }
         
-        // Set all ayahs to collapsed (false)
-        allBookmarkIds.forEach(id => {
-            newExpandedAyahs[id] = false;
-        });
+        const audio = new Audio(audioUrl);
+        audioRef.current = audio;
         
-        setExpandedAyahs(prev => ({
-            ...prev,
-            ...newExpandedAyahs
-        }));
-    }, [bookmarks, favorites]);
+        audio.play()
+            .then(() => {
+                setIsAudioPlaying(true);
+                setAudioElement(audio);
+                setPlayingAyahId(ayahId);
+                
+                audio.onended = () => {
+                    setIsAudioPlaying(false);
+                    setAudioElement(null);
+                    setPlayingAyahId(null);
+                };
+            })
+            .catch(err => {
+                console.error('Error playing audio:', err);
+                setIsAudioPlaying(false);
+                setPlayingAyahId(null);
+            });
+    };
+
+    const stopAudio = () => {
+        if (audioElement) {
+            audioElement.pause();
+            setIsAudioPlaying(false);
+            setAudioElement(null);
+            setPlayingAyahId(null);
+        }
+    };
+
+    // Handle qari selection change
+    const handleQariChange = (qari) => {
+        setSelectedQari(qari);
+        if (isAudioPlaying) {
+            stopAudio();
+        }
+    };
+
+    // Get available qaris from audio_urls
+    const getAvailableQaris = (bookmark) => {
+        if (!bookmark?.audio_urls) return [];
+        
+        const audioUrls = typeof bookmark.audio_urls === 'string' 
+            ? JSON.parse(bookmark.audio_urls) 
+            : bookmark.audio_urls;
+        
+        // Handle both object format {qari: url} and array format [url1, url2, ...]
+        if (Array.isArray(audioUrls)) {
+            // If it's an array, create qari keys based on common order
+            const defaultQaris = ['alafasy', 'sudais', 'husary', 'minshawi', 'abdulbasit', 'maher', 'ghamdi', 'shuraim', 'ajmy', 'walk'];
+            return audioUrls.map((_, index) => defaultQaris[index] || `qari_${index + 1}`);
+        } else {
+            // If it's an object, return the keys (handles both numbered and named keys)
+            return Object.keys(audioUrls);
+        }
+    };
+
+    // Get audio URL for selected qari
+    const getAudioUrl = (bookmark) => {
+        if (!bookmark?.audio_urls) return null;
+        
+        const audioUrls = typeof bookmark.audio_urls === 'string' 
+            ? JSON.parse(bookmark.audio_urls) 
+            : bookmark.audio_urls;
+        
+        // Handle both object format {qari: url} and array format [url1, url2, ...]
+        if (Array.isArray(audioUrls)) {
+            const defaultQaris = ['alafasy', 'sudais', 'husary', 'minshawi', 'abdulbasit', 'maher', 'ghamdi', 'shuraim', 'ajmy', 'walk'];
+            const qariIndex = defaultQaris.indexOf(selectedQari);
+            return qariIndex !== -1 ? audioUrls[qariIndex] : audioUrls[0];
+        } else {
+            // For object format, directly access the URL using the selectedQari key
+            return audioUrls[selectedQari] || Object.values(audioUrls)[0];
+        }
+    };
+
+    // Get display name for qari
+    const getQariDisplayName = (qariKey) => {
+        const qariNames = {
+            // Handle numbered keys from API
+            '01': 'Abdullah Al-Juhany',
+            '02': 'Abdul Muhsin Al-Qasim',
+            '03': 'Abdurrahman As-Sudais',
+            '04': 'Ibrahim Al-Dossari',
+            '05': 'Mishary Rashid Alafasy',
+            '06': 'Maher Al Mueaqly',
+            '07': 'Ahmed ibn Ali al-Ajamy',
+            '08': 'Hani Ar-Rifai',
+            '09': 'Mahmoud Khalil Al-Husary',
+            '10': 'Mohamed Siddiq El-Minshawi',
+            // Handle named keys (fallback)
+            'husary': 'Mahmoud Khalil Al-Husary',
+            'sudais': 'Abdurrahman As-Sudais',
+            'alafasy': 'Mishary Rashid Alafasy',
+            'minshawi': 'Mohamed Siddiq El-Minshawi',
+            'abdulbasit': 'Abdul Basit Abdul Samad',
+            'maher': 'Maher Al Mueaqly',
+            'ghamdi': 'Saad Al Ghamdi',
+            'shuraim': 'Saud Ash-Shuraim',
+            'ajmy': 'Ahmed ibn Ali al-Ajamy',
+            'walk': 'Hani Ar-Rifai'
+        };
+        
+        return qariNames[qariKey] || `Qari ${qariKey}`;
+    };
 
     const loadBookmarks = async () => {
         setLoading(true);
         try {
-            const [allBookmarks, userFavorites] = await Promise.all([
-                getUserBookmarks(false),
-                getUserBookmarks(true)
-            ]);
-            
-            setBookmarks(allBookmarks);
-            setFavorites(userFavorites);
+            const allBookmarks = await getUserBookmarks(false); // Get all bookmarks
+            // Ensure the response is an array
+            if (Array.isArray(allBookmarks)) {
+                setBookmarks(allBookmarks);
+                
+                // Hide all surahs and ayahs by default on initial load
+                if (initialHideAll && allBookmarks.length > 0) {
+                    const uniqueSurahNumbers = [...new Set(allBookmarks.map(bookmark => bookmark.surah_number))];
+                    setHiddenSurahs(new Set(uniqueSurahNumbers));
+                    
+                    // Hide all ayahs by default
+                    const allAyahIds = allBookmarks.map(bookmark => bookmark.id);
+                    setCollapsedAyahs(new Set(allAyahIds));
+                    
+                    setInitialHideAll(false); // Only do this once
+                }
+            } else {
+                console.error('Invalid bookmarks data received:', allBookmarks);
+                setBookmarks([]);
+            }
         } catch (error) {
             console.error('Error loading bookmarks:', error);
+            setBookmarks([]); // Set empty array on error
         } finally {
             setLoading(false);
-        }
-    };
-
-    const handleBookmarkToggle = async (ayahId) => {
-        if (!user) {
-            return;
-        }
-
-        setBookmarkLoading(prev => ({ ...prev, [ayahId]: true }));
-        
-        try {
-            await toggleBookmark(ayahId);
-            await loadBookmarks(); // Reload to get updated data
-        } catch (error) {
-            console.error('Error toggling bookmark:', error);
-        } finally {
-            setBookmarkLoading(prev => ({ ...prev, [ayahId]: false }));
-        }
-    };
-
-    const handleFavoriteToggle = async (ayahId) => {
-        if (!user) {
-            return;
-        }
-
-        setBookmarkLoading(prev => ({ ...prev, [ayahId]: true }));
-        
-        try {
-            await toggleFavorite(ayahId);
-            await loadBookmarks(); // Reload to get updated data
-        } catch (error) {
-            console.error('Error toggling favorite:', error);
-        } finally {
-            setBookmarkLoading(prev => ({ ...prev, [ayahId]: false }));
         }
     };
 
@@ -107,7 +255,7 @@ function BookmarksPage({ user }) {
         setSavingNotes(true);
         try {
             await updateBookmarkNotes(ayahId, notesText);
-            await loadBookmarks(); // Reload to get updated data
+            await loadBookmarks(); // Reload to get updated data            
             setEditingNotes(null);
             setNotesText('');
         } catch (error) {
@@ -122,14 +270,60 @@ function BookmarksPage({ user }) {
         setNotesText('');
     };
 
-    // Reset page when changing tabs or search term
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [activeTab, searchTerm]);
+    const toggleSurahCollapse = (surahNumber) => {
+        setCollapsedSurahs(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(surahNumber)) {
+                newSet.delete(surahNumber);
+            } else {
+                newSet.add(surahNumber);
+            }
+            return newSet;
+        });
+    };
 
-    // Get all filtered bookmarks
-    const filteredBookmarks = (activeTab === 'favorites' ? favorites : bookmarks)
-        .filter(bookmark => {
+    const toggleAyahCollapse = (ayahId) => {
+        setCollapsedAyahs(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(ayahId)) {
+                newSet.delete(ayahId);
+            } else {
+                newSet.add(ayahId);
+            }
+            return newSet;
+        });
+    };
+
+    // Tab group functions for showing/hiding surahs
+    const toggleSurahVisibility = (surahNumber) => {
+        setHiddenSurahs(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(surahNumber)) {
+                newSet.delete(surahNumber);
+            } else {
+                newSet.add(surahNumber);
+            }
+            return newSet;
+        });
+    };
+
+    const showAllSurahs = () => {
+        setHiddenSurahs(new Set());
+    };
+
+    const hideAllSurahs = () => {
+        const allSurahNumbers = groupedBookmarksData.map(group => group.surah_number);
+        setHiddenSurahs(new Set(allSurahNumbers));
+    };
+
+    // Group bookmarks by surah and order them
+    const groupedBookmarks = () => {
+        // Ensure bookmarks is an array before calling filter
+        if (!Array.isArray(bookmarks)) {
+            return [];
+        }
+        
+        const filtered = bookmarks.filter(bookmark => {
             if (!searchTerm) return true;
             const searchLower = searchTerm.toLowerCase();
             return (
@@ -139,289 +333,335 @@ function BookmarksPage({ user }) {
                 bookmark.surah_number?.toString().includes(searchLower)
             );
         });
-    
-    // Group bookmarks by surah
-    const groupedBookmarks = filteredBookmarks.reduce((groups, bookmark) => {
-        const surahNumber = bookmark.surah_number;
-        const surahName = bookmark.surah?.name_latin || bookmark.surah_name_latin || bookmark.surah_name || `Surah ${surahNumber}`;
-        
-        if (!groups[surahNumber]) {
-            groups[surahNumber] = {
-                surahNumber,
-                surahName,
-                ayahs: []
-            };
-        }
-        
-        groups[surahNumber].ayahs.push(bookmark);
-        return groups;
-    }, {});
-    
-    // Convert the grouped object to array and sort by surah number
-    const surahGroups = Object.values(groupedBookmarks).sort((a, b) => a.surahNumber - b.surahNumber);
 
-    // Toggle a surah group's expanded state
-    const toggleSurahExpand = (surahNumber) => {
-        setExpandedSurahs(prev => ({
-            ...prev,
-            [surahNumber]: !prev[surahNumber]
-        }));
-    };
-    
-    // Toggle an ayah's expanded state
-    const toggleAyahExpand = (ayahId) => {
-        setExpandedAyahs(prev => ({
-            ...prev,
-            [ayahId]: !prev[ayahId]
-        }));
-    };
-    
-    // Toggle all ayahs in a surah
-    const toggleAllAyahsInSurah = (surahNumber, ayahIds, show) => {
-        const updates = {};
-        ayahIds.forEach(id => {
-            updates[id] = show;
+        const grouped = {};
+        filtered.forEach(bookmark => {
+            const surahNumber = bookmark.surah_number;
+            if (!grouped[surahNumber]) {
+                grouped[surahNumber] = {
+                    surah: bookmark.surah,
+                    surah_number: surahNumber,
+                    ayahs: []
+                };
+            }
+            grouped[surahNumber].ayahs.push(bookmark);
         });
-        
-        setExpandedAyahs(prev => ({
-            ...prev,
-            ...updates
-        }));
+
+        // Convert to array, sort by surah number, and sort ayahs within each surah
+        return Object.values(grouped)
+            .sort((a, b) => a.surah_number - b.surah_number)
+            .map(surahGroup => ({
+                ...surahGroup,
+                ayahs: surahGroup.ayahs.sort((a, b) => a.ayah_number - b.ayah_number)
+            }));
     };
 
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const groupedBookmarksData = groupedBookmarks();
     
-    // Calculate total ayahs for pagination
-    const totalAyahsCount = filteredBookmarks.length;
-    
-    // Pagination logic for grouped display
-    const totalPages = Math.ceil(totalAyahsCount / itemsPerPage);
-    
-    // Get current bookmarks to display with pagination
-    const currentBookmarks = surahGroups;
-    
-    const handlePageChange = (pageNumber) => {
-        setCurrentPage(pageNumber);
-        // Scroll to top smoothly when page changes
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
+    // Filter out hidden surahs
+    const visibleBookmarksData = groupedBookmarksData.filter(surahGroup => 
+        !hiddenSurahs.has(surahGroup.surah_number)
+    );
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500 shadow-islamic"></div>
+            <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
+                <div className="max-w-6xl mx-auto px-4 py-8 pt-24 pb-20">
+                    <div className="flex justify-center items-center h-64">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+                    </div>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="max-w-6xl mx-auto px-4 py-8">
-            {/* Header */}
-            <div className="mb-8">
-                <div className="flex items-center gap-4 mb-4">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="p-2 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800 transition-all duration-200 border border-green-200"
-                    >
-                        <IoArrowBackOutline className="text-xl" />
-                    </button>
-                    <h1 className="text-3xl font-bold text-green-800">
-                        {activeTab === 'favorites' ? 'Ayat Favorit' : 'Bookmark Ayat'}
-                    </h1>
-                </div>
-                
-                {/* Tab Navigation */}
-                <div className="flex space-x-1 bg-green-50 p-1 rounded-lg">
-                    <button
-                        onClick={() => setActiveTab('bookmarks')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md font-medium transition-all duration-200 ${
-                            activeTab === 'bookmarks'
-                                ? 'bg-white text-green-700 shadow-islamic border border-green-200'
-                                : 'bg-green-50 text-green-800 hover:bg-green-100 border border-transparent'
-                        }`}
-                    >
-                        <IoBookmark className="text-lg flex-shrink-0" />
-                        <span className="flex-1">
-                            <span>Bookmark ({bookmarks.length})</span> 
-                            {surahGroups.length > 0 && <span className="ml-1 whitespace-nowrap">• {surahGroups.length} Surah</span>}
-                        </span>
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('favorites')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md font-medium transition-all duration-200 ${
-                            activeTab === 'favorites'
-                                ? 'bg-white text-red-700 shadow-islamic border border-red-200'
-                                : 'bg-red-50 text-red-800 hover:bg-red-100 border border-transparent'
-                        }`}
-                    >
-                        <IoHeart className="text-lg flex-shrink-0" />
-                        <span className="flex-1">
-                            <span>Favorit ({favorites.length})</span> 
-                            {surahGroups.length > 0 && <span className="ml-1 whitespace-nowrap">• {surahGroups.length} Surah</span>}
-                        </span>
-                    </button>
-                </div>
-            </div>
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
+            <div className="max-w-6xl mx-auto px-4 py-8 pt-24 pb-20">
+                {/* Header */}
+                <div className="bg-white rounded-3xl shadow-xl p-8 mb-8 border border-green-100">
+                    <div className="flex items-center gap-4 mb-4">
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="p-2 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800 transition-all duration-200 border border-green-200"
+                        >
+                            <IoArrowBackOutline className="text-xl" />
+                        </button>
+                        <h1 className="text-3xl font-bold text-green-800">
+                            Bookmark Ayat
+                        </h1>
+                    </div>
+                    
+                    {/* Search */}
+                    <div className="mt-6">
+                        <div className="relative">
+                            <IoSearchOutline className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-400" />
+                            <input
+                                type="text"
+                                placeholder="Cari ayat atau surah..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full pl-10 pr-4 py-3 border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            />
+                        </div>
+                    </div>
+                    
+                    {/* Stats Display */}
+                    <div className="mt-4 flex items-center justify-end">
+                        {groupedBookmarksData.length > 0 && (
+                            <div className="text-sm text-green-600">
+                                {visibleBookmarksData.length} dari {groupedBookmarksData.length} surah ditampilkan
+                            </div>
+                        )}
+                    </div>
 
-            {/* Search */}
-            <div className="mb-6">
-                <div className="relative">
-                    <IoSearchOutline className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-400" />
-                    <input
-                        type="text"
-                        placeholder="Cari ayat atau surah..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    />
+                    {/* Tab Group for Surah Visibility - Always Visible */}
+                    {groupedBookmarksData.length > 0 && (
+                        <div className="mt-4 p-4 bg-green-50/50 rounded-xl border border-green-200">
+                            <div className="flex items-center justify-between mb-3">
+                                <h3 className="text-sm font-semibold text-green-800">Kontrol Tampilan Surah:</h3>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={showAllSurahs}
+                                        className="flex items-center gap-1 px-3 py-1 text-xs bg-green-100 border border-green-300 text-green-800 rounded hover:bg-green-200 transition-colors"
+                                    >
+                                        <IoEyeOutline />
+                                        Tampilkan Semua
+                                    </button>
+                                    <button
+                                        onClick={hideAllSurahs}
+                                        className="flex items-center gap-1 px-3 py-1 text-xs bg-gray-100 border border-gray-300 text-gray-800 rounded hover:bg-gray-200 transition-colors"
+                                    >
+                                        <IoEyeOffOutline />
+                                        Sembunyikan Semua
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+                                {groupedBookmarksData.map((surahGroup) => (
+                                    <button
+                                        key={surahGroup.surah_number}
+                                        onClick={() => toggleSurahVisibility(surahGroup.surah_number)}
+                                        className={`flex items-center gap-2 px-3 py-2 text-xs rounded-lg border transition-all duration-200 ${
+                                            hiddenSurahs.has(surahGroup.surah_number)
+                                                ? 'bg-gray-100 border-gray-300 text-gray-600 hover:bg-gray-200'
+                                                : 'bg-green-100 border-green-300 text-green-800 hover:bg-green-200'
+                                        }`}
+                                        title={`${surahGroup.surah?.name_indonesian || `Surah ${surahGroup.surah_number}`} (${surahGroup.ayahs.length} ayat)`}
+                                    >
+                                        {hiddenSurahs.has(surahGroup.surah_number) ? (
+                                            <IoEyeOffOutline className="flex-shrink-0" />
+                                        ) : (
+                                            <IoEyeOutline className="flex-shrink-0" />
+                                        )}
+                                        <span className="truncate">
+                                            {surahGroup.surah_number}. {surahGroup.surah?.name_indonesian?.substring(0, 8) || `Surah ${surahGroup.surah_number}`}
+                                        </span>
+                                        <span className="text-xs opacity-75">({surahGroup.ayahs.length})</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
-            </div>
 
             {/* Content */}
-            {filteredBookmarks.length === 0 ? (
-                <div className="text-center py-12">
+            {visibleBookmarksData.length === 0 ? (
+                <div className="bg-white rounded-3xl shadow-xl p-12 border border-green-100 text-center">
                     <div className="mb-4">
-                        {activeTab === 'favorites' ? (
-                            <IoHeart className="text-6xl text-red-300 mx-auto" />
-                        ) : (
-                            <IoBookmark className="text-6xl text-green-300 mx-auto" />
-                        )}
+                        <IoBookmark className="text-6xl text-green-300 mx-auto" />
                     </div>
                     <h3 className="text-xl font-semibold text-green-700 mb-2">
                         {searchTerm 
                             ? 'Tidak ada hasil yang ditemukan'
-                            : activeTab === 'favorites' 
-                                ? 'Belum ada ayat favorit'
+                            : hiddenSurahs.size === groupedBookmarksData.length && groupedBookmarksData.length > 0
+                                ? 'Semua surah disembunyikan'
                                 : 'Belum ada bookmark'
                         }
                     </h3>
                     <p className="text-green-600">
                         {searchTerm 
                             ? 'Coba kata kunci yang berbeda'
-                            : activeTab === 'favorites'
-                                ? 'Tandai ayat sebagai favorit dengan menekan tombol hati'
+                            : hiddenSurahs.size === groupedBookmarksData.length && groupedBookmarksData.length > 0
+                                ? 'Gunakan kontrol surah untuk menampilkan bookmark'
                                 : 'Simpan ayat dengan menekan tombol bookmark'
                         }
                     </p>
                 </div>
             ) : (
-                <div className="space-y-4">
-                    {/* Pagination Info */}
-                    <div className="text-center">
-                        <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-50 to-green-100 rounded-full border border-green-200">
-                            <span className="text-sm font-medium text-green-700">
-                                Menampilkan {filteredBookmarks.length} {activeTab === 'favorites' ? 'favorit' : 'bookmark'} dalam {surahGroups.length} surah
-                            </span>
-                        </div>
-                    </div>
-                    
-                    {/* Surah Groups */}
-                    {currentBookmarks.map((group) => (
-                        <div key={group.surahNumber} className="mb-4">
-                            {/* Surah Header with Toggle */}
-                            <div className="bg-gradient-to-r from-green-100 to-green-50 rounded-xl px-4 py-3 border border-green-200 shadow-sm">
-                                <div className="flex items-center justify-between cursor-pointer hover:from-green-200 hover:to-green-100 transition-all duration-200"
-                                     onClick={() => toggleSurahExpand(group.surahNumber)}>
-                                    <div className="flex items-center gap-2">
-                                        {expandedSurahs[group.surahNumber] ? (
-                                            <IoChevronDown className="text-green-600 text-lg" />
-                                        ) : (
-                                            <IoChevronForward className="text-green-600 text-lg" />
-                                        )}
-                                        <h3 className="font-semibold text-green-800">
-                                            Surah {group.surahName}
-                                        </h3>
+                <div className="space-y-6">
+                    {visibleBookmarksData.map((surahGroup) => (
+                        <div key={surahGroup.surah_number} className="bg-white rounded-3xl shadow-xl border border-green-100">
+                            {/* Surah Header */}
+                            <div 
+                                className="p-6 border-b border-green-100 cursor-pointer hover:bg-green-50/50 transition-colors rounded-t-3xl"
+                                onClick={() => toggleSurahCollapse(surahGroup.surah_number)}
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <h2 className="text-xl font-bold text-green-800">
+                                            {surahGroup.surah?.name_indonesian || `Surah ${surahGroup.surah_number}`}
+                                        </h2>
+                                        <span className="text-green-600 font-medium">
+                                            ({surahGroup.ayahs.length} ayat)
+                                        </span>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <span className="text-xs bg-green-600 text-white px-2 py-1 rounded-full">
-                                            {group.surahNumber}
-                                        </span>
-                                        <span className="text-xs bg-white text-green-600 px-2 py-1 rounded-full border border-green-200">
-                                            {group.ayahs.length} ayat
-                                        </span>
+                                        {collapsedSurahs.has(surahGroup.surah_number) ? (
+                                            <IoChevronDownOutline className="text-xl text-green-600" />
+                                        ) : (
+                                            <IoChevronUpOutline className="text-xl text-green-600" />
+                                        )}
                                     </div>
                                 </div>
-                                
-                                {/* Ayah toggle controls - only show when surah is expanded */}
-                                {expandedSurahs[group.surahNumber] && (
-                                    <div className="flex justify-end mt-2 pt-2 border-t border-green-200">
-                                        <div className="flex gap-2">
-                                            <button 
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    toggleAllAyahsInSurah(group.surahNumber, group.ayahs.map(ayah => ayah.id), true);
-                                                }}
-                                                className="flex items-center gap-1 text-green-600 hover:text-green-800 text-xs px-2 py-1 bg-white rounded-md border border-green-200 hover:bg-green-50 transition-colors"
-                                            >
-                                                <IoEye className="text-sm" />
-                                                <span>Tampilkan Semua</span>
-                                            </button>
-                                            <button 
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    toggleAllAyahsInSurah(group.surahNumber, group.ayahs.map(ayah => ayah.id), false);
-                                                }}
-                                                className="flex items-center gap-1 text-green-600 hover:text-green-800 text-xs px-2 py-1 bg-white rounded-md border border-green-200 hover:bg-green-50 transition-colors"
-                                            >
-                                                <IoEyeOff className="text-sm" />
-                                                <span>Sembunyikan Semua</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
                             </div>
-                            
-                            {/* Collapsible Ayahs */}
-                            {expandedSurahs[group.surahNumber] && (
-                                <div className="border-x border-b border-green-200 rounded-b-xl mb-4 divide-y divide-green-100">
-                                    {group.ayahs.map((bookmark) => (
-                                        <div key={bookmark.id} className="relative">
-                                            {/* Ayah Header with Toggle */}
+
+                            {/* Ayahs */}
+                            {!collapsedSurahs.has(surahGroup.surah_number) && (
+                                <div className="divide-y divide-green-100">
+                                    {surahGroup.ayahs.map((bookmark) => (
+                                        <div key={bookmark.id} className="p-6">
+                                            {/* Ayah Header */}
                                             <div 
-                                                className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-green-50 to-white cursor-pointer hover:bg-green-100 transition-all duration-200"
-                                                onClick={() => toggleAyahExpand(bookmark.id)}
+                                                className="flex items-center justify-between mb-4 cursor-pointer p-2 rounded-lg hover:bg-green-50/50 transition-colors"
+                                                onClick={() => toggleAyahCollapse(bookmark.id)}
                                             >
-                                                <div className="flex items-center gap-2">
-                                                    {expandedAyahs[bookmark.id] ? (
-                                                        <IoChevronDown className="text-green-600 text-sm" />
-                                                    ) : (
-                                                        <IoChevronForward className="text-green-600 text-sm" />
-                                                    )}
-                                                    <h4 className="text-sm font-medium text-green-700">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-lg font-semibold text-green-800">
                                                         Ayat {bookmark.ayah_number}
-                                                    </h4>
+                                                    </span>
+                                                    <div className="flex items-center gap-2">
+                                                        <IoBookmark className="text-green-500" title="Bookmark" />
+                                                        {bookmark.is_favorite && (
+                                                            <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full border border-red-200">
+                                                                Favorit
+                                                            </span>
+                                                        )}
+                                                        {isAudioPlaying && playingAyahId === bookmark.id && (
+                                                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full border border-blue-200 flex items-center gap-1">
+                                                                <IoPlayCircleOutline className="w-3 h-3" />
+                                                                Playing
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                                {/* Removed favorite and bookmark icons */}
+                                                <div className="flex items-center gap-2">
+                                                    {collapsedAyahs.has(bookmark.id) ? (
+                                                        <IoChevronDownOutline className="text-lg text-green-600" />
+                                                    ) : (
+                                                        <IoChevronUpOutline className="text-lg text-green-600" />
+                                                    )}
+                                                </div>
                                             </div>
 
-                                            {/* Expanded Ayah Content */}
-                                            {expandedAyahs[bookmark.id] && (
-                                                <>
-                                                    {/* Removed bookmark indicators */}
+                                            {/* Ayah Content */}
+                                            {!collapsedAyahs.has(bookmark.id) && (
+                                                <div className="ml-4">
+                                                    {/* Arabic Text */}
+                                                    <div className="bg-green-50/70 rounded-2xl p-6 mb-6 text-center relative">
+                                                        {/* Arabic Text Zoom Controls */}
+                                                        <div className="absolute top-2 left-2 flex gap-1">
+                                                            <button 
+                                                                onClick={handleZoomOut} 
+                                                                disabled={arabicFontSize <= 1.5}
+                                                                className="p-1.5 rounded-md bg-white/80 border border-green-200 text-green-700 hover:bg-green-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                                title="Perkecil teks Arab"
+                                                            >
+                                                                <IoRemoveOutline className="w-4 h-4" />
+                                                            </button>
+                                                            <button 
+                                                                onClick={resetZoom}
+                                                                className="p-1.5 rounded-md bg-white/80 border border-green-200 text-green-700 hover:bg-green-100 transition-colors text-xs font-medium"
+                                                                title="Reset ukuran teks Arab"
+                                                            >
+                                                                <IoReloadOutline className="w-4 h-4" />
+                                                            </button>
+                                                            <button 
+                                                                onClick={handleZoomIn} 
+                                                                disabled={arabicFontSize >= 6}
+                                                                className="p-1.5 rounded-md bg-white/80 border border-green-200 text-green-700 hover:bg-green-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                                title="Perbesar teks Arab"
+                                                            >
+                                                                <IoAddOutline className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
 
-                                                    {/* Use AyahCard component */}
-                                                    <AyahCard 
-                                                        ayah={bookmark} 
-                                                        surah={{
-                                                            name_indonesian: bookmark.surah?.name_indonesian || "Surah", 
-                                                            name_latin: bookmark.surah?.name_latin || bookmark.surah_name_latin || bookmark.surah_name || `${bookmark.surah_number}`,
-                                                            number: bookmark.surah_number
-                                                        }}
-                                                        highlightText={searchTerm}
-                                                        showBookmarkControls
-                                                        isBookmarked={bookmark.pivot?.is_bookmarked}
-                                                        isFavorite={bookmark.pivot?.is_favorite}
-                                                        onBookmarkToggle={handleBookmarkToggle}
-                                                        onFavoriteToggle={handleFavoriteToggle}
-                                                        variant="full"
-                                                    />
+                                                        {/* Audio Controls */}
+                                                        {bookmark.audio_urls && (
+                                                            <div className="absolute top-2 right-2 flex gap-1">
+                                                                {/* Qari Selection */}
+                                                                {getAvailableQaris(bookmark).length > 1 && (
+                                                                    <select
+                                                                        value={selectedQari}
+                                                                        onChange={(e) => handleQariChange(e.target.value)}
+                                                                        className="p-1.5 text-xs rounded-md bg-white/80 border border-green-200 text-green-700 hover:bg-green-100 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500"
+                                                                        title="Pilih Qari"
+                                                                    >
+                                                                        {getAvailableQaris(bookmark).map(qari => (
+                                                                            <option key={qari} value={qari}>
+                                                                                {getQariDisplayName(qari)}
+                                                                            </option>
+                                                                        ))}
+                                                                    </select>
+                                                                )}
+                                                                
+                                                                {/* Play/Pause Button */}
+                                                                {isAudioPlaying && playingAyahId === bookmark.id ? (
+                                                                    <button
+                                                                        onClick={stopAudio}
+                                                                        className="p-1.5 rounded-md bg-white/80 border border-green-200 text-green-700 hover:bg-green-100 transition-colors"
+                                                                        title="Pause Audio"
+                                                                    >
+                                                                        <IoPauseCircleOutline className="w-5 h-5" />
+                                                                    </button>
+                                                                ) : (
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            const audioUrl = getAudioUrl(bookmark);
+                                                                            if (audioUrl) {
+                                                                                playAudio(audioUrl, bookmark.id);
+                                                                            }
+                                                                        }}
+                                                                        className="p-1.5 rounded-md bg-white/80 border border-green-200 text-green-700 hover:bg-green-100 transition-colors"
+                                                                        title="Play Audio"
+                                                                    >
+                                                                        <IoPlayCircleOutline className="w-5 h-5" />
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        )}
 
-                                                    {/* Notes Section */}
-                                                    <div className="bg-green-50 rounded-lg p-4 border border-green-100 -mt-4 rounded-t-none">
+                                                        <p 
+                                                            className="font-arabic text-green-800 leading-loose pt-8"
+                                                            style={getArabicFontSizeStyle()}
+                                                            dir="rtl"
+                                                        >
+                                                            {bookmark.text_arabic}
+                                                        </p>
+                                                    </div>
+
+                                                    {/* Indonesian Translation */}
+                                                    <div className="mb-4">
+                                                        <p className="text-green-700 leading-relaxed">
+                                                            {bookmark.text_indonesian}
+                                                        </p>
+                                                    </div>
+
+                                                    {/* Transliteration */}
+                                                    {bookmark.text_latin && (
+                                                        <div className="mb-6">
+                                                            <p className="text-green-600 italic text-sm">
+                                                                {bookmark.text_latin}
+                                                            </p>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Notes */}
+                                                    <div className="mt-6 p-4 bg-green-50 rounded-2xl border border-green-200">
                                                         <div className="flex items-center justify-between mb-2">
                                                             <h4 className="text-sm font-medium text-green-800">Catatan:</h4>
-                                                            {!editingNotes && (
+                                                            {editingNotes !== bookmark.id && (
                                                                 <button
                                                                     onClick={() => handleEditNotes(bookmark)}
                                                                     className="p-1 rounded-md bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800 transition-all duration-200 border border-green-200"
@@ -466,27 +706,17 @@ function BookmarksPage({ user }) {
                                                         )}
                                                     </div>
 
-                                                    {/* Additional Actions */}
-                                                    <div className="bg-white rounded-b-2xl px-6 pb-4 -mt-2 border-l border-r border-b border-green-100">
-                                                        <div className="flex justify-end gap-2 pt-2">
-                                                            <Link
-                                                                to={getRoutePath(`/surah/${bookmark.surah_number}/${bookmark.ayah_number}`)}
-                                                                className="flex items-center gap-1 text-green-500 hover:text-green-700 hover:shadow-sm transition-all duration-300 px-3 py-1.5 rounded bg-green-50 border border-green-100"
-                                                            >
-                                                                <IoOpenOutline className="text-sm" />
-                                                                <span>Buka Ayat</span>
-                                                            </Link>
-                                                            <Link
-                                                                to={getRoutePath(`/surah/${bookmark.surah_number}`)}
-                                                                className="flex items-center gap-1 text-green-500 hover:text-green-700 hover:shadow-sm transition-all duration-300 px-3 py-1.5 rounded bg-green-50 border border-green-100"
-                                                            >
-                                                                <IoBookmark className="text-sm" />
-                                                                <span>Baca Surah</span>
-                                                                <IoArrowBackOutline className="rotate-180" />
-                                                            </Link>
-                                                        </div>
+                                                    {/* Action Button */}
+                                                    <div className="mt-6 pt-4 border-t border-green-200">
+                                                        <a
+                                                            href={`/surah/${bookmark.surah_number}`}
+                                                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-50 text-green-800 hover:bg-green-100 font-medium transition-all duration-200 border border-green-200"
+                                                        >
+                                                            Baca Surah
+                                                            <IoArrowBackOutline className="rotate-180" />
+                                                        </a>
                                                     </div>
-                                                </>
+                                                </div>
                                             )}
                                         </div>
                                     ))}
@@ -494,116 +724,9 @@ function BookmarksPage({ user }) {
                             )}
                         </div>
                     ))}
-                    
-                    {/* Pagination Controls */}
-                    {totalPages > 1 && (
-                        <div className="mt-12 flex justify-center">
-                            <nav className="flex items-center space-x-1 bg-white rounded-lg shadow-lg border border-gray-200 p-1"
-                                aria-label="Pagination">
-                                {/* Previous button */}
-                                <button
-                                    onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                                    disabled={currentPage === 1}
-                                    className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-                                        currentPage === 1
-                                        ? 'bg-gray-50 text-gray-400 cursor-not-allowed border border-gray-200'
-                                        : 'bg-white text-green-700 hover:bg-green-50 hover:text-green-600 border border-gray-200 hover:border-green-300 shadow-sm hover:shadow-md'
-                                    }`}
-                                >
-                                    <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                                    </svg>
-                                    <span className="hidden sm:inline">Sebelumnya</span>
-                                    <span className="sm:hidden">Prev</span>
-                                </button>
-                                
-                                {/* Page numbers */}
-                                {(() => {
-                                    const pages = [];
-                                    const maxVisible = 5;
-                                    let startPage, endPage;
-                                    
-                                    if (totalPages <= maxVisible) {
-                                        startPage = 1;
-                                        endPage = totalPages;
-                                    } else {
-                                        if (currentPage <= 3) {
-                                            startPage = 1;
-                                            endPage = maxVisible;
-                                        } else if (currentPage + 2 >= totalPages) {
-                                            startPage = totalPages - maxVisible + 1;
-                                            endPage = totalPages;
-                                        } else {
-                                            startPage = currentPage - 2;
-                                            endPage = currentPage + 2;
-                                        }
-                                    }
-                                    
-                                    // Always show page numbers in the calculated range
-                                    for (let i = startPage; i <= endPage; i++) {
-                                        pages.push(
-                                            <button
-                                                key={i}
-                                                onClick={() => handlePageChange(i)}
-                                                className={`px-3 py-2 min-w-[40px] text-sm font-medium rounded-md transition-all duration-200 border ${
-                                                    currentPage === i
-                                                    ? 'bg-green-600 text-white border-green-600 shadow-lg ring-2 ring-green-200 font-bold'
-                                                    : 'bg-white text-green-700 hover:bg-green-50 hover:text-green-600 border-gray-200 hover:border-green-300 shadow-sm hover:shadow-md hover:scale-105'
-                                                }`}
-                                            >
-                                                {i}
-                                            </button>
-                                        );
-                                    }
-                                    
-                                    // Show ellipsis and last page if needed
-                                    if (endPage < totalPages) {
-                                        if (endPage < totalPages - 1) {
-                                            pages.push(
-                                                <span key="ellipsis" className="px-3 py-2 text-gray-500 bg-gray-50 border border-gray-200">
-                                                    ...
-                                                </span>
-                                            );
-                                        }
-                                        pages.push(
-                                            <button
-                                                key={totalPages}
-                                                onClick={() => handlePageChange(totalPages)}
-                                                className={`px-3 py-2 min-w-[40px] text-sm font-medium rounded-md border transition-all duration-200 ${
-                                                    currentPage === totalPages
-                                                    ? 'bg-green-600 text-white border-green-600 shadow-lg ring-2 ring-green-200 font-bold'
-                                                    : 'bg-white text-green-700 hover:bg-green-50 hover:text-green-600 border-gray-200 hover:border-green-300 shadow-sm hover:shadow-md hover:scale-105'
-                                                }`}
-                                            >
-                                                {totalPages}
-                                            </button>
-                                        );
-                                    }
-                                    
-                                    return pages;
-                                })()}
-                                
-                                {/* Next button */}
-                                <button
-                                    onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-                                    disabled={currentPage === totalPages}
-                                    className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-                                        currentPage === totalPages
-                                        ? 'bg-gray-50 text-gray-400 cursor-not-allowed border border-gray-200'
-                                        : 'bg-white text-green-700 hover:bg-green-50 hover:text-green-600 border border-gray-200 hover:border-green-300 shadow-sm hover:shadow-md'
-                                    }`}
-                                >
-                                    <span className="hidden sm:inline">Selanjutnya</span>
-                                    <span className="sm:hidden">Next</span>
-                                    <svg className="h-4 w-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </button>
-                            </nav>
-                        </div>
-                    )}
                 </div>
             )}
+            </div>
         </div>
     );
 }

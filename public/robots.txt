@@ -1,2 +1,38 @@
 User-agent: *
-Disallow:
+Allow: /
+
+# Disallow private pages
+Disallow: /auth/
+Disallow: /profile
+Disallow: /bookmarks
+Disallow: /api/
+Disallow: /admin/
+
+# Allow important pages
+Allow: /search
+Allow: /surah/
+Allow: /juz/
+Allow: /pages/
+Allow: /about
+Allow: /contact
+Allow: /privacy
+
+# Crawl delay for respectful crawling
+Crawl-delay: 1
+
+# Sitemaps
+Sitemap: https://my.indoquran.web.id/sitemap.xml
+Sitemap: https://my.indoquran.web.id/sitemap-index.xml
+
+# Additional guidelines for major search engines
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 1

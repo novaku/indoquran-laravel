@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getApiUrl } from '../utils/api';
+import { useAuth } from '../hooks/useAuth.jsx';
+import { getWithAuth, putWithAuth } from '../utils/apiUtils';
 
-function ProfilePage({ user, setUser }) {
+function ProfilePage() {
     const navigate = useNavigate();
+    const { user, logout, updateUser } = useAuth();
     const [profile, setProfile] = useState(user || null);
     const [formData, setFormData] = useState({
         name: '',
@@ -23,7 +25,7 @@ function ProfilePage({ user, setUser }) {
         }
         
         // Get the latest user data
-        fetch(getApiUrl('/api/profile'))
+        getWithAuth('/api/profile')
             .then(response => {
                 if (!response.ok) {
                     if (response.status === 401) {
@@ -63,14 +65,7 @@ function ProfilePage({ user, setUser }) {
         setMessage(null);
         
         try {
-            const response = await fetch(getApiUrl('/api/profile'), {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify(formData)
-            });
+            const response = await putWithAuth('/api/profile', formData);
             
             const data = await response.json();
             
@@ -84,7 +79,11 @@ function ProfilePage({ user, setUser }) {
                 return;
             }
             
-            setProfile(data);
+            setProfile(data.user);
+            
+            // Update user data in IndexedDB cache
+            await updateUser(data.user);
+            
             setMessage({
                 type: 'success',
                 text: 'Profil berhasil diperbarui'
@@ -109,19 +108,10 @@ function ProfilePage({ user, setUser }) {
     
     const handleLogout = async () => {
         try {
-            await fetch(getApiUrl('/api/logout'), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            });
-            
-            // Clear user state and redirect
-            if (setUser) setUser(null);
+            await logout();
             navigate('/auth/login');
         } catch (error) {
-            console.error('Logout failed:', error);
+            console.error('❌ [ProfilePage] Logout failed:', error);
             setMessage({
                 type: 'error',
                 text: 'Gagal logout. Silakan coba lagi.'
@@ -138,20 +128,20 @@ function ProfilePage({ user, setUser }) {
     }
     
     return (
-        <div className="max-w-md mx-auto">
+        <div className="max-w-md mx-auto px-4 py-8 pt-24 pb-20">
             <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold text-gray-800 mb-2">Profil</h1>
-                <p className="text-gray-600">Kelola pengaturan akun Anda</p>
+                <h1 className="text-3xl font-bold text-gray-800 mb-2">Profil Pengguna</h1>
+                <p className="text-gray-600">Kelola pengaturan akun Anda untuk pengalaman Al-Quran yang personal</p>
             </div>
             
             {message && (
                 <div className={`mb-4 p-4 rounded-lg ${message.type === 'success' ? 'bg-green-50 border-l-4 border-green-500 text-green-700' : 'bg-red-50 border-l-4 border-red-500 text-red-700'}`}>
-                    {message.text}
+                    <span className="block sm:inline">{message.text}</span>
                 </div>
             )}
             
             <div className="bg-white shadow-lg rounded-lg p-8 border border-gray-200">
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} encType="application/x-www-form-urlencoded">
                     <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
                             Nama
@@ -163,6 +153,7 @@ function ProfilePage({ user, setUser }) {
                             value={formData.name}
                             onChange={handleChange}
                             className={`appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
+                            placeholder="Nama lengkap Anda"
                         />
                         {errors.name && <p className="text-red-600 text-xs mt-1">{errors.name}</p>}
                     </div>
@@ -178,6 +169,7 @@ function ProfilePage({ user, setUser }) {
                             value={formData.email}
                             onChange={handleChange}
                             className={`appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
+                            placeholder="Alamat email Anda"
                         />
                         {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email}</p>}
                     </div>
@@ -197,6 +189,7 @@ function ProfilePage({ user, setUser }) {
                                 value={formData.current_password}
                                 onChange={handleChange}
                                 className={`appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.current_password ? 'border-red-500' : 'border-gray-300'}`}
+                                placeholder="Kata sandi saat ini"
                             />
                             {errors.current_password && <p className="text-red-600 text-xs mt-1">{errors.current_password}</p>}
                         </div>
@@ -212,6 +205,7 @@ function ProfilePage({ user, setUser }) {
                                 value={formData.password}
                                 onChange={handleChange}
                                 className={`appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
+                                placeholder="Kata sandi baru"
                             />
                             {errors.password && <p className="text-red-600 text-xs mt-1">{errors.password}</p>}
                         </div>
@@ -227,6 +221,7 @@ function ProfilePage({ user, setUser }) {
                                 value={formData.password_confirmation}
                                 onChange={handleChange}
                                 className="appearance-none border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                placeholder="Konfirmasi kata sandi baru"
                             />
                         </div>
                     </div>
@@ -235,23 +230,26 @@ function ProfilePage({ user, setUser }) {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center"
+                            className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 shadow-lg hover:shadow-xl transition-all duration-300 w-full flex justify-center items-center"
                         >
-                            {loading && (
-                                <svg className="animate-spin h-5 w-5 text-white mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            {loading ? (
+                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
+                            ) : (
+                                'Simpan Perubahan'
                             )}
-                            Simpan Perubahan
                         </button>
-                        
+                    </div>
+                    
+                    <div className="text-center text-gray-600 text-sm">
                         <button
                             type="button"
                             onClick={handleLogout}
-                            className="text-green-600 hover:text-green-800 font-semibold hover:underline transition-colors duration-300"
+                            className="text-green-600 hover:text-green-800 font-semibold hover:underline"
                         >
-                            Keluar
+                            Keluar dari Akun
                         </button>
                     </div>
                 </form>

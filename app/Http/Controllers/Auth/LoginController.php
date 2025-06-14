@@ -34,17 +34,53 @@ class LoginController extends Controller
         ]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            // Only regenerate session if it exists
-            if ($request->hasSession()) {
+            $user = Auth::user();
+            
+            // Check if this is an API request (no session handling)
+            $isApi = $request->expectsJson() || str_starts_with($request->path(), 'api/');
+            
+            if ($isApi) {
+                // API login - use token-based authentication
+                \Log::info('API User logged in successfully', [
+                    'user_id' => $user->id,
+                    'remember' => $request->boolean('remember'),
+                ]);
+                
+                // Create a token for the user
+                $token = $user->createToken('auth-token')->plainTextToken;
+                
+                return response()->json([
+                    'user' => $user,
+                    'message' => 'Login successful',
+                    'token' => $token
+                ]);
+            } else {
+                // Web login - use session-based authentication
+                \Log::info('Web User logged in successfully', [
+                    'user_id' => $user->id,
+                    'session_id' => $request->session()->getId(),
+                    'remember' => $request->boolean('remember'),
+                ]);
+                
+                // Force session to persist
                 $request->session()->regenerate();
+                $request->session()->save();
             }
             
-            // For React SPA, always return JSON response
-            $user = Auth::user();
-            return response()->json([
-                'user' => $user,
-                'message' => 'Login successful'
-            ]);
+            // Return appropriate response based on request type
+            if ($isApi) {
+                // Already returned above
+            } else {
+                // Web response - redirect or return JSON for SPA
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'user' => $user,
+                        'message' => 'Login successful'
+                    ]);
+                } else {
+                    return redirect()->intended('/');
+                }
+            }
         }
 
         return response()->json([
@@ -61,14 +97,15 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
-        Auth::logout();
-
-        // Only invalidate session if it exists
-        if ($request->hasSession()) {
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-        }
-
+        // Log user before logout for debugging
+        $user = Auth::user();
+        \Log::info('User logout attempt', [
+            'user_id' => $user ? $user->id : null
+        ]);
+        
+        // Simple logout without session handling
+        Auth::guard('web')->logout();
+        
         return response()->json(['message' => 'Logged out successfully']);
     }
 }

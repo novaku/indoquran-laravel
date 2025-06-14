@@ -1,0 +1,13 @@
+/* Arabic Font declaration */
+@font-face {
+  font-family: 'arabic-font';
+  src: url('/fonts/arabic-font.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Apply the font where needed */
+.font-arabic {
+  font-family: 'arabic-font', 'Scheherazade New', 'Noto Naskh Arabic', serif;
+}

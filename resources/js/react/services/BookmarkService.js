@@ -2,7 +2,7 @@
  * BookmarkService.js
  * Service to handle bookmark and favorite functionality for ayahs
  */
-import { getApiUrl } from '../utils/api';
+import { postWithAuth, getWithAuth, putWithAuth } from '../utils/apiUtils';
 
 /**
  * Toggle bookmark status for an ayah
@@ -11,13 +11,7 @@ import { getApiUrl } from '../utils/api';
  */
 export const toggleBookmark = async (ayahId) => {
     try {
-        const response = await fetch(getApiUrl(`/api/bookmarks/ayah/${ayahId}/toggle`), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        });
+        const response = await postWithAuth(`/api/bookmarks/surah/ayah/${ayahId}/toggle`);
 
         if (!response.ok) {
             throw new Error('Failed to toggle bookmark');
@@ -32,18 +26,13 @@ export const toggleBookmark = async (ayahId) => {
 
 /**
  * Toggle favorite status for an ayah
+ * @deprecated Use toggleBookmark instead - favorites are now handled as bookmarks with is_favorite flag for existing data
  * @param {number} ayahId - The ID of the ayah to favorite/unfavorite
  * @returns {Promise<Object>} - The favorite status response
  */
 export const toggleFavorite = async (ayahId) => {
     try {
-        const response = await fetch(getApiUrl(`/api/bookmarks/ayah/${ayahId}/favorite`), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        });
+        const response = await postWithAuth(`/api/bookmarks/surah/ayah/${ayahId}/favorite`);
 
         if (!response.ok) {
             throw new Error('Failed to toggle favorite');
@@ -63,13 +52,7 @@ export const toggleFavorite = async (ayahId) => {
  */
 export const getBookmarkStatus = async (ayahIds) => {
     try {
-        const response = await fetch(getApiUrl(`/api/bookmarks/status?ayah_ids=${ayahIds.join(',')}`), {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        });
+        const response = await getWithAuth(`/api/bookmarks/status?ayah_ids=${ayahIds.join(',')}`);
 
         if (!response.ok) {
             throw new Error('Failed to get bookmark status');
@@ -91,13 +74,7 @@ export const getBookmarkStatus = async (ayahIds) => {
 export const getUserBookmarks = async (favoritesOnly = false) => {
     try {
         const url = favoritesOnly ? '/api/bookmarks?favorites_only=true' : '/api/bookmarks';
-        const response = await fetch(getApiUrl(url), {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        });
+        const response = await getWithAuth(url);
 
         if (!response.ok) {
             throw new Error('Failed to get bookmarks');
@@ -119,14 +96,7 @@ export const getUserBookmarks = async (favoritesOnly = false) => {
  */
 export const updateBookmarkNotes = async (ayahId, notes) => {
     try {
-        const response = await fetch(getApiUrl(`/api/bookmarks/ayah/${ayahId}/notes`), {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({ notes })
-        });
+        const response = await putWithAuth(`/api/bookmarks/surah/ayah/${ayahId}/notes`, { notes });
 
         if (!response.ok) {
             throw new Error('Failed to update notes');

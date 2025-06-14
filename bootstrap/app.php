@@ -12,21 +12,29 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Add CORS middleware globally
+        $middleware->web(prepend: [
+            \Illuminate\Http\Middleware\HandleCors::class,
+        ]);
+        
         $middleware->web(append: [
             \App\Http\Middleware\ContentSecurityPolicy::class,
         ]);
         
+        $middleware->api(prepend: [
+            \Illuminate\Http\Middleware\HandleCors::class,
+        ]);
+        
         $middleware->api([
             \Illuminate\Cookie\Middleware\EncryptCookies::class,
-            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-            \Illuminate\Session\Middleware\StartSession::class,
-            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ]);
         
         // Register the InternalAccessOnly middleware
         $middleware->alias([
             'internal.only' => \App\Http\Middleware\InternalAccessOnly::class,
+            'simple.auth' => \App\Http\Middleware\SimpleAuthMiddleware::class,
+            'api.cache' => \App\Http\Middleware\ApiCacheMiddleware::class,
         ]);
         
         // Configure authentication redirects

@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Mail\UserRegistrationNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Password;
 
 class RegisterController extends Controller
@@ -44,6 +47,24 @@ class RegisterController extends Controller
         ]);
 
         Auth::login($user);
+
+        // Send email notification to admin about new user registration
+        try {
+            Mail::to('kontak@indoquran.web.id')->send(new UserRegistrationNotification($user));
+            Log::info('User registration notification email sent successfully', [
+                'user_id' => $user->id,
+                'user_email' => $user->email,
+                'user_name' => $user->name
+            ]);
+        } catch (\Exception $e) {
+            // Log the error but don't fail the registration process
+            Log::error('Failed to send user registration notification email', [
+                'user_id' => $user->id,
+                'user_email' => $user->email,
+                'user_name' => $user->name,
+                'error' => $e->getMessage()
+            ]);
+        }
 
         return response()->json([
             'user' => $user,
