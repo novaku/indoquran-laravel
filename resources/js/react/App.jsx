@@ -5,6 +5,8 @@ import { AuthProvider, useAuth } from './hooks/useAuth.jsx';
 import { usePreloader, usePrefetchRoutes, usePerformanceMonitor } from './hooks/usePerformance.js';
 import useAdvancedPerformanceMonitor from './hooks/useAdvancedPerformanceMonitor.js';
 import useResourcePreloader from './hooks/useResourcePreloader.js';
+import { registerServiceWorker } from './utils/serviceWorkerUtils.js';
+import { corsSafeFetch, getAssetUrl } from './utils/corsUtils.js';
 
 // Import critical components (loaded immediately)
 import Navbar from './components/Navbar';
@@ -84,27 +86,27 @@ function AppContent() {
         // Preload critical SEO resources
         preloadCriticalResources();
         
-        // TEMPORARILY DISABLE SERVICE WORKER COMPLETELY IN DEVELOPMENT
-        if ('serviceWorker' in navigator) {
-            if (process.env.NODE_ENV === 'development') {
-                // In development, unregister any existing service workers to prevent conflicts
-                navigator.serviceWorker.getRegistrations().then(registrations => {
-                    registrations.forEach(registration => {
-                        console.log('Unregistering service worker:', registration);
-                        registration.unregister();
-                    });
-                });
-                console.log('Service Worker disabled in development mode');
-            } else if (process.env.NODE_ENV === 'production') {
-                // Only register in production
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('Service Worker registered successfully:', registration);
-                    })
-                    .catch(error => {
-                        console.log('Service Worker registration failed:', error);
-                    });
-            }
+        // Service Worker Registration with improved error handling
+        if (process.env.NODE_ENV === 'development') {
+            // In development, don't register the service worker
+            console.log('Service Worker disabled in development mode');
+        } else if (process.env.NODE_ENV === 'production') {
+            // Only register in production
+            registerServiceWorker('/sw.js', {
+                debug: true,
+                autoReload: true,
+                onSuccess: (registration) => {
+                    console.log('Service Worker registered successfully:', registration);
+                },
+                onError: (error) => {
+                    console.error('Service Worker registration failed:', error);
+                },
+                onUpdate: (registration) => {
+                    console.log('New service worker available, reloading to activate');
+                    // You could show a notification to the user here instead of auto-reloading
+                    window.location.reload();
+                }
+            });
         }
         
         // Performance monitoring in development (disabled to reduce console noise)

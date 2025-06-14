@@ -18,6 +18,27 @@ Route::get('/sitemap-surahs-{group}.xml', [SitemapIndexController::class, 'surah
     ->name('sitemap.surahs');
 Route::get('/sitemap-juz.xml', [SitemapIndexController::class, 'juzSitemap'])->name('sitemap.juz');
 
+// CORS Proxy route for development environment only
+if (app()->environment('local', 'development')) {
+    // CORS Debug tool
+    Route::get('/cors-debug', [App\Http\Controllers\CorsDebugController::class, 'index']);
+    Route::post('/cors-debug/test', [App\Http\Controllers\CorsDebugController::class, 'testRequest']);
+    
+    Route::get('proxy-assets/{path}', function ($path) {
+        // This route is handled by CorsProxyMiddleware
+        // The middleware will intercept and proxy the request
+        return response('Proxy endpoint', 200);
+    })->where('path', '.*')->middleware('cors.proxy');
+
+    // CORS Options route to handle preflight requests
+    Route::options('proxy-assets/{path}', function () {
+        return response('', 200)
+            ->header('Access-Control-Allow-Origin', '*')
+            ->header('Access-Control-Allow-Methods', 'GET, OPTIONS')
+            ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    })->where('path', '.*');
+}
+
 // Authentication routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);

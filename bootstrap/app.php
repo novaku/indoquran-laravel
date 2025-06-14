@@ -9,7 +9,7 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
         api: __DIR__.'/../routes/api.php',
-        health: '/up',
+        health: '/up'
     )
     ->withMiddleware(function (Middleware $middleware) {
         // Add CORS middleware globally
@@ -35,6 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'internal.only' => \App\Http\Middleware\InternalAccessOnly::class,
             'simple.auth' => \App\Http\Middleware\SimpleAuthMiddleware::class,
             'api.cache' => \App\Http\Middleware\ApiCacheMiddleware::class,
+            'cors.proxy' => \App\Http\Middleware\CorsProxyMiddleware::class, // Add our CORS proxy middleware
         ]);
         
         // Configure authentication redirects

@@ -3,6 +3,8 @@
  * Domain: my.indoquran.web.id
  */
 
+import { getCorsSafeUrl } from './corsUtils';
+
 const BASE_URL = 'https://my.indoquran.web.id';
 
 // Generate sitemap XML for all pages
@@ -234,13 +236,26 @@ export const preloadCriticalResources = () => {
     { rel: 'dns-prefetch', href: 'https://api.quran.com' }
   ];
 
+  // Add preconnect for production domain if in development
+  if (process.env.NODE_ENV === 'development') {
+    resources.push({ rel: 'preconnect', href: 'https://my.indoquran.web.id' });
+    
+    // Also add a preload for the proxy endpoint
+    resources.push({ rel: 'preconnect', href: window.location.origin + '/proxy-assets' });
+  }
+
   resources.forEach(resource => {
     const link = document.createElement('link');
     Object.keys(resource).forEach(key => {
       if (key === 'crossorigin' && resource[key]) {
         link.setAttribute(key, resource[key]);
       } else if (key !== 'crossorigin') {
-        link.setAttribute(key, resource[key]);
+        // Use CORS-safe URL for href attributes
+        if (key === 'href') {
+          link.setAttribute(key, getCorsSafeUrl(resource[key]));
+        } else {
+          link.setAttribute(key, resource[key]);
+        }
       }
     });
     document.head.appendChild(link);

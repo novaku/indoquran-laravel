@@ -2,10 +2,10 @@
 // Support both production and development environments
 // Enables installation, offline functionality, and optimized caching
 
-const CACHE_NAME = 'indoquran-cache-v4.0';
-const API_CACHE_NAME = 'indoquran-api-cache-v4.0';
-const IMAGE_CACHE_NAME = 'indoquran-images-cache-v4.0';
-const OFFLINE_CACHE_NAME = 'indoquran-offline-v4.0';
+const CACHE_NAME = 'indoquran-cache-v4.2';
+const API_CACHE_NAME = 'indoquran-api-cache-v4.2';
+const IMAGE_CACHE_NAME = 'indoquran-images-cache-v4.2';
+const OFFLINE_CACHE_NAME = 'indoquran-offline-v4.2';
 
 // Critical assets to cache on install for PWA functionality
 const STATIC_ASSETS = [
@@ -142,46 +142,130 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Handle API requests with Network First strategy
-  if (url.pathname.startsWith('/api/')) {
-    event.respondWith(networkFirstStrategy(event.request, API_CACHE_NAME));
+  // Skip handling for problematic URLs like OpenStreetMap
+  if (url.hostname.includes('nominatim.openstreetmap.org')) {
+    return; // Let the browser handle these directly
+  }
+
+  // Handle CORS issues for production assets in development environment
+  const indoQuranDomains = ['indoquran.web.id', 'my.indoquran.web.id'];
+  const isIndoQuranResource = indoQuranDomains.some(domain => url.hostname.includes(domain));
+  
+  // If we detect production assets being loaded in development, try to handle CORS
+  if (isIndoQuranResource && self.location.hostname.includes('127.0.0.1') || self.location.hostname.includes('localhost')) {
+    // For production assets loaded in development, try to provide better CORS handling
+    if (url.pathname.includes('/assets/') && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {
+      const localAssetUrl = new URL(url.pathname, self.location.origin);
+      event.respondWith(
+        fetch(localAssetUrl)
+          .then(response => {
+            if (response.ok) {
+              console.log('Successfully loaded local asset instead of production:', localAssetUrl.href);
+              return response;
+            }
+            // If local asset doesn't exist, try original with CORS mode
+            return fetch(event.request, { mode: 'cors', credentials: 'omit' })
+              .catch(error => {
+                console.error('CORS error for production asset:', error);
+                if (url.pathname.endsWith('.js')) {
+                  return new Response(
+                    '/* Failed to load due to CORS - empty fallback provided */\nconsole.warn("Asset failed to load due to CORS: ' + url.href + '");',
+                    { headers: { 'Content-Type': 'application/javascript' } }
+                  );
+                }
+                if (url.pathname.endsWith('.css')) {
+                  return new Response(
+                    '/* Failed to load CSS due to CORS - empty fallback provided */',
+                    { headers: { 'Content-Type': 'text/css' } }
+                  );
+                }
+                throw error;
+              });
+          })
+          .catch(error => {
+            console.error('Failed to handle CORS for production asset:', error);
+            // Default empty response for JS/CSS to prevent app from breaking
+            if (url.pathname.endsWith('.js')) {
+              return new Response(
+                '/* Failed to load JS due to CORS - empty fallback provided */',
+                { headers: { 'Content-Type': 'application/javascript' } }
+              );
+            }
+            if (url.pathname.endsWith('.css')) {
+              return new Response(
+                '/* Failed to load CSS due to CORS - empty fallback provided */',
+                { headers: { 'Content-Type': 'text/css' } }
+              );
+            }
+            throw error;
+          })
+      );
+      return;
+    }
+  }
+
+  // Wrap in try-catch to prevent service worker crashes
+  try {
+    // Handle API requests with Network First strategy
+    if (url.pathname.startsWith('/api/')) {
+      event.respondWith(networkFirstStrategy(event.request, API_CACHE_NAME));
+      return;
+    }
+    
+    // Handle images with Cache First strategy
+    if (isImageRequest(event.request)) {
+      event.respondWith(cacheFirstStrategy(event.request, IMAGE_CACHE_NAME));
+      return;
+    }
+    
+    // Handle static assets with Cache First strategy
+    if (isStaticAsset(url.pathname)) {
+      event.respondWith(cacheFirstStrategy(event.request, CACHE_NAME));
+      return;
+    }
+    
+    // Handle navigation requests with Network First + offline fallback
+    if (event.request.mode === 'navigate') {
+      event.respondWith(navigationStrategy(event.request));
+      return;
+    }
+    
+    // Default to network first for everything else
+    event.respondWith(networkFirstStrategy(event.request, CACHE_NAME));
+  } catch (error) {
+    console.error('Error in fetch event handler:', error, event.request.url);
+    // Let the browser handle the request normally if we fail
     return;
   }
-  
-  // Handle images with Cache First strategy
-  if (isImageRequest(event.request)) {
-    event.respondWith(cacheFirstStrategy(event.request, IMAGE_CACHE_NAME));
-    return;
-  }
-  
-  // Handle static assets with Cache First strategy
-  if (isStaticAsset(url.pathname)) {
-    event.respondWith(cacheFirstStrategy(event.request, CACHE_NAME));
-    return;
-  }
-  
-  // Handle navigation requests with Network First + offline fallback
-  if (event.request.mode === 'navigate') {
-    event.respondWith(navigationStrategy(event.request));
-    return;
-  }
-  
-  // Default to network first for everything else
-  event.respondWith(networkFirstStrategy(event.request, CACHE_NAME));
 });
 
 // Network First strategy - try network, fallback to cache
 async function networkFirstStrategy(request, cacheName) {
   try {
+    // Skip problematic external requests
+    const url = new URL(request.url);
+    const skipCacheDomains = ['nominatim.openstreetmap.org'];
+    const shouldSkipCache = skipCacheDomains.some(domain => url.hostname.includes(domain));
+    
+    if (shouldSkipCache) {
+      console.log('Skipping problematic URL in networkFirstStrategy:', request.url);
+      return fetch(request);
+    }
+    
     const networkResponse = await fetch(request);
     
     if (networkResponse.ok && request.method === 'GET') {
-      const cache = await caches.open(cacheName);
-      cache.put(request, networkResponse.clone());
+      try {
+        const cache = await caches.open(cacheName);
+        cache.put(request, networkResponse.clone());
+      } catch (cacheError) {
+        console.error('Failed to cache response in networkFirstStrategy:', cacheError);
+      }
     }
     
     return networkResponse;
   } catch (error) {
+    console.log('Network request failed, trying cache:', request.url);
     const cachedResponse = await caches.match(request);
     if (cachedResponse) {
       return cachedResponse;
@@ -215,15 +299,73 @@ async function cacheFirstStrategy(request, cacheName) {
   }
   
   try {
-    const networkResponse = await fetch(request);
+    // Skip external URLs that might cause CORS issues
+    const url = new URL(request.url);
+    const isExternalRequest = !url.hostname.includes(self.location.hostname) && 
+                             !['fonts.googleapis.com', 'fonts.gstatic.com'].includes(url.hostname);
     
-    if (networkResponse.ok && request.method === 'GET') {
+    // Handle IndoQuran domains specially (include both local and production domains)
+    const indoQuranDomains = ['indoquran.web.id', 'my.indoquran.web.id', '127.0.0.1:8000', 'localhost:8000'];
+    const isIndoQuranResource = indoQuranDomains.some(domain => url.hostname.includes(domain));
+    
+    // Skip caching certain problematic domains
+    const skipCacheDomains = ['nominatim.openstreetmap.org'];
+    const shouldSkipCache = skipCacheDomains.some(domain => url.hostname.includes(domain));
+    
+    if (isExternalRequest && !isIndoQuranResource && shouldSkipCache) {
+      console.log('Skipping external request in service worker:', request.url);
+      return fetch(request);
+    }
+    
+    // Create a modified request for CORS if needed (for IndoQuran resources only)
+    let fetchRequest = request;
+    if (isIndoQuranResource && !url.hostname.includes(self.location.hostname)) {
+      // For IndoQuran resources, we need to handle CORS specially
+      // Clone the request and modify it to add CORS mode
+      fetchRequest = new Request(request.url, {
+        method: request.method,
+        headers: request.headers,
+        mode: 'cors',
+        credentials: 'same-origin',
+        redirect: 'follow',
+      });
+    }
+    
+    const networkResponse = await fetch(fetchRequest);
+    
+    if (networkResponse.ok && request.method === 'GET' && !shouldSkipCache) {
       const cache = await caches.open(cacheName);
-      cache.put(request, networkResponse.clone());
+      try {
+        cache.put(request, networkResponse.clone());
+      } catch (cacheError) {
+        console.error('Failed to cache response:', cacheError);
+      }
     }
     
     return networkResponse;
   } catch (error) {
+    console.error('Fetch error in cacheFirstStrategy:', error, request.url);
+    
+    // Special handling for CORS errors
+    const url = new URL(request.url);
+    if (error.message && error.message.includes('CORS')) {
+      console.log('CORS error detected, trying to proxy the request');
+      
+      // If we're trying to load a JS file from production in development, we can fallback to the local version
+      if (url.pathname.includes('/assets/') && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {
+        // Try to load the local version of the asset
+        const localUrl = new URL(url.pathname, self.location.origin);
+        try {
+          const localResponse = await fetch(localUrl);
+          if (localResponse.ok) {
+            return localResponse;
+          }
+        } catch (localError) {
+          console.error('Failed to fetch local version:', localError);
+        }
+      }
+    }
+    
     // Return a fallback for images
     if (isImageRequest(request)) {
       return new Response(
@@ -231,6 +373,15 @@ async function cacheFirstStrategy(request, cacheName) {
         { headers: { 'Content-Type': 'image/svg+xml' } }
       );
     }
+    
+    // For JavaScript files, return an empty JS file to prevent breaking the app
+    if (url.pathname.endsWith('.js')) {
+      return new Response(
+        '/* Failed to load due to CORS or network error */',
+        { headers: { 'Content-Type': 'application/javascript' } }
+      );
+    }
+    
     throw error;
   }
 }
