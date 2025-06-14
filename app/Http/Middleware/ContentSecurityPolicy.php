@@ -33,7 +33,7 @@ class ContentSecurityPolicy
                 "manifest-src 'self'",
             ]);
         } else {
-            // Production CSP (more restrictive)
+            // Production CSP (more restrictive) - Block all external scripts except trusted sources
             $csp = implode('; ', [
                 "default-src 'self'",
                 "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://my.indoquran.web.id https://*.google-analytics.com https://www.google-analytics.com https://www.googletagmanager.com https://tagmanager.google.com https://analytics.google.com https://*.googlesyndication.com https://*.google.com",
@@ -46,10 +46,22 @@ class ContentSecurityPolicy
                 "worker-src 'self' blob:",
                 "child-src 'self' blob:",
                 "manifest-src 'self'",
+                "frame-ancestors 'none'",
+                "base-uri 'self'",
+                "form-action 'self'",
+                "upgrade-insecure-requests",
+                "block-all-mixed-content"
             ]);
         }
         
         $response->headers->set('Content-Security-Policy', $csp);
+        
+        // Add additional security headers to prevent malware injection
+        $response->headers->set('X-Frame-Options', 'DENY');
+        $response->headers->set('X-Content-Type-Options', 'nosniff');
+        $response->headers->set('X-XSS-Protection', '1; mode=block');
+        $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
+        $response->headers->set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
         
         return $response;
     }

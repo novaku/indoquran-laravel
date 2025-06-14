@@ -9,8 +9,6 @@ export default defineConfig(({ command, mode }) => {
     
     // Force development mode to use local assets, only use ASSET_URL for production builds
     const isDev = command === 'serve' || mode === 'development'
-    // Always use empty assetUrl for local development to ensure relative paths
-    const assetUrl = ''
     
     // Setup environment for React
     process.env.NODE_ENV = isDev ? 'development' : 'production';
@@ -25,60 +23,47 @@ export default defineConfig(({ command, mode }) => {
                     'app/**/*.php',
                     'routes/**/*.php',
                 ],
-                // Ensure font files are properly handled
                 publicDirectory: 'public',
             }),
             react({
-                // Simplified React configuration
-                include: '**/*.{js,jsx,tsx}', // Add .js to support JSX in js files
+                include: '**/*.{js,jsx,tsx}',
                 jsxRuntime: 'automatic',
                 fastRefresh: true
             }),
             tailwindcss(),
         ],
         build: {
-            // Configure JavaScript module output with enhanced MIME type handling
             rollupOptions: {
                 output: {
-                    // Ensure proper MIME type handling with consistent naming
-                    entryFileNames: (chunkInfo) => {
-                        // Keep consistent naming for better MIME type detection
-                        return 'assets/[name]-[hash].js';
-                    },
-                    chunkFileNames: (chunkInfo) => {
-                        // Keep consistent naming for better MIME type detection
-                        return 'assets/[name]-[hash].js';
-                    },
+                    entryFileNames: 'assets/[name]-[hash].js',
+                    chunkFileNames: 'assets/[name]-[hash].js',
                     assetFileNames: (assetInfo) => {
-                        // Keep font files with a simple naming pattern
-                        if (assetInfo.name && /\.(woff|woff2|eot|ttf|otf)$/.test(assetInfo.name)) {
-                            return 'assets/[name]-[hash][extname]';
+                        const extType = assetInfo.name.split('.').at(1);
+                        if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {
+                            return `assets/img/[name]-[hash][extname]`;
                         }
-                        return 'assets/[name]-[hash][extname]';
+                        if (/css/i.test(extType)) {
+                            return `assets/css/[name]-[hash][extname]`;
+                        }
+                        if (/woff2?|eot|ttf|otf/i.test(extType)) {
+                            return `assets/fonts/[name]-[hash][extname]`;
+                        }
+                        return `assets/[name]-[hash][extname]`;
                     },
-                    // Ensure proper module format
                     format: 'es',
                     manualChunks: {
                         vendor: ['react', 'react-dom'],
                     },
                 },
-                // Add external dependencies handling for better module loading
-                external: (id) => {
-                    // Don't externalize anything that should be bundled
-                    return false;
-                }
             },
-            // Ensure assets are properly processed
-            assetsInlineLimit: 0, // Don't inline any assets
-            outDir: 'public/build',
-            assetsDir: 'assets',
-            // Add source maps for debugging
-            sourcemap: true,
-            // Optimize for module loading
-            target: 'es2020',
             minify: 'esbuild',
+            sourcemap: false,
+            assetsDir: 'assets',
+            chunkSizeWarningLimit: 1000,
+            cssCodeSplit: true,
+            outDir: 'public/build',
+            target: 'es2020',
         },
-        // Set base URL for asset loading - force local paths
         base: '/',
         server: {
             hmr: {
@@ -86,71 +71,19 @@ export default defineConfig(({ command, mode }) => {
                 protocol: 'ws',
             },
             host: '127.0.0.1',
-            // Enhanced middleware for proper MIME types
             middlewareMode: false,
-            // Configure proper headers for JavaScript modules
-            configure: (server) => {
-                server.middlewares.use((req, res, next) => {
-                    // Set proper MIME type for JavaScript files
-                    if (req.url && (req.url.endsWith('.js') || req.url.endsWith('.mjs'))) {
-                        res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
-                    }
-                    next();
-                });
-            },
-            // Proxy API calls to Laravel backend
-            proxy: {
-                '/api': {
-                    target: 'http://127.0.0.1:8000',
-                    changeOrigin: true,
-                    secure: false,
-                    ws: true,
-                },
-                '/sanctum': {
-                    target: 'http://127.0.0.1:8000',
-                    changeOrigin: true,
-                    secure: false,
-                },
-                '/login': {
-                    target: 'http://127.0.0.1:8000',
-                    changeOrigin: true,
-                    secure: false,
-                },
-                '/logout': {
-                    target: 'http://127.0.0.1:8000',
-                    changeOrigin: true,
-                    secure: false,
-                },
-                '/register': {
-                    target: 'http://127.0.0.1:8000',
-                    changeOrigin: true,
-                    secure: false,
-                }
-            },
-            cors: {
-                origin: '*',
-                methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-                credentials: true,
-            },
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-            },
         },
         define: {
-            // Fix for development build
-            global: 'globalThis',
-            // Add process.env polyfill for React
-            'process.env.NODE_ENV': JSON.stringify(isDev ? 'development' : 'production'),
-            // Fix for React DevTools and React 19
-            '__DEV__': isDev,
-            // Ensure React JSX runtime is properly defined
-            'process.env.BABEL_ENV': JSON.stringify(isDev ? 'development' : 'production')
+            'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+            'process.env.VITE_APP_URL': JSON.stringify(env.VITE_APP_URL || 'http://localhost:8000'),
+            'import.meta.env.DEV': isDev,
+            'import.meta.env.PROD': !isDev,
+            'import.meta.env.MODE': JSON.stringify(mode),
         },
         resolve: {
             alias: {
-                '@': '/resources',
+                '@': '/resources/js',
+                '~': '/resources',
             },
         },
         assetsInclude: ['**/*.ttf', '**/*.woff', '**/*.woff2', '**/*.eot', '**/*.otf']
