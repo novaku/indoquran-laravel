@@ -64,18 +64,66 @@
     
     <!-- Module MIME Type Fix Script -->
     <script>
-        // Enhanced fix for JS module MIME type issues
+        // Enhanced fix for JS module MIME type issues and malicious script injection protection
         (function() {
+            // Prevent malicious script injection
+            const originalCreateElement = document.createElement.bind(document);
+            document.createElement = function(tagName) {
+                const element = originalCreateElement(tagName);
+                
+                // Block creation of script elements with suspicious sources
+                if (tagName.toLowerCase() === 'script') {
+                    const originalSetAttribute = element.setAttribute.bind(element);
+                    element.setAttribute = function(name, value) {
+                        if (name.toLowerCase() === 'src' && 
+                            (value.includes('infird.com') || 
+                             value.includes('b50b7f30') ||
+                             value.match(/^https?:\/\/[^\/]+\/cdn\/[a-f0-9-]+/))) {
+                            console.warn('Blocked suspicious script injection:', value);
+                            return; // Block the script
+                        }
+                        return originalSetAttribute(name, value);
+                    };
+                    
+                    // Also override src property
+                    Object.defineProperty(element, 'src', {
+                        set: function(value) {
+                            if (value.includes('infird.com') || 
+                                value.includes('b50b7f30') ||
+                                value.match(/^https?:\/\/[^\/]+\/cdn\/[a-f0-9-]+/)) {
+                                console.warn('Blocked suspicious script src:', value);
+                                return;
+                            }
+                            this.setAttribute('src', value);
+                        },
+                        get: function() {
+                            return this.getAttribute('src');
+                        }
+                    });
+                }
+                
+                return element;
+            };
+            
             // Override the default module loading to handle MIME type errors
             const originalFetch = window.fetch;
             
             window.fetch = function(resource, options = {}) {
+                // Block suspicious requests
+                if (typeof resource === 'string' && 
+                    (resource.includes('infird.com') || 
+                     resource.includes('b50b7f30') ||
+                     resource.match(/^https?:\/\/[^\/]+\/cdn\/[a-f0-9-]+/))) {
+                    console.warn('Blocked suspicious fetch request:', resource);
+                    return Promise.reject(new Error('Blocked suspicious request'));
+                }
+                
                 // Handle JS modules in build/assets directory
                 if (typeof resource === 'string' && 
                     (resource.includes('/build/assets/') || resource.includes('/assets/')) && 
                     resource.endsWith('.js')) {
                     
-                    console.log('Intercepting JS module request:', resource);
+                    console.log('Loading JS module:', resource);
                     
                     // Set proper headers for module requests
                     const enhancedOptions = {
@@ -122,6 +170,18 @@
                 return originalFetch(resource, options);
             };
             
+            // Block document.write injection
+            const originalWrite = document.write;
+            document.write = function(markup) {
+                if (markup.includes('infird.com') || 
+                    markup.includes('b50b7f30') ||
+                    markup.match(/script[^>]*src[^>]*\/cdn\/[a-f0-9-]+/)) {
+                    console.warn('Blocked suspicious document.write:', markup);
+                    return;
+                }
+                return originalWrite.call(document, markup);
+            };
+            
             // Also handle dynamic import errors
             const originalImport = window.import || (function() {});
             if (typeof window.import !== 'undefined') {
@@ -135,8 +195,32 @@
                 };
             }
             
-            console.log('Enhanced JS module MIME type fix loaded');
+            console.log('Enhanced security and JS module MIME type fix loaded');
         })();
+        
+        // Error handling for the React app
+        window.addEventListener('error', function(e) {
+            if (e.message && e.message.includes('infird.com')) {
+                console.warn('Blocked error from malicious script injection');
+                e.preventDefault();
+                return false;
+            }
+            
+            // If there's a module loading error, try to recover
+            if (e.message && e.message.includes('Failed to fetch')) {
+                console.error('Module loading failed, attempting recovery...');
+                // Don't prevent the error, but log it for debugging
+            }
+        });
+        
+        // Unhandled promise rejection handler
+        window.addEventListener('unhandledrejection', function(e) {
+            if (e.reason && e.reason.toString().includes('infird.com')) {
+                console.warn('Blocked promise rejection from malicious script');
+                e.preventDefault();
+                return false;
+            }
+        });
     </script>
     
     <!-- PWA Meta Tags -->
@@ -203,7 +287,179 @@
     @endif
 </head>
 <body class="font-sans antialiased">
-    <div id="app"></div>
+    <div id="app">
+        <!-- Fallback content while React loads -->
+        <div id="app-loading" style="
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            font-family: 'Figtree', sans-serif;
+            text-align: center;
+            padding: 2rem;
+        ">
+            <div style="
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                border-radius: 20px;
+                padding: 3rem;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+                max-width: 500px;
+                width: 100%;
+            ">
+                <div style="
+                    width: 60px;
+                    height: 60px;
+                    border: 4px solid rgba(255, 255, 255, 0.3);
+                    border-top: 4px solid white;
+                    border-radius: 50%;
+                    animation: spin 1s linear infinite;
+                    margin: 0 auto 2rem;
+                "></div>
+                
+                <h1 style="
+                    font-size: 2rem;
+                    font-weight: 600;
+                    margin: 0 0 1rem 0;
+                    background: linear-gradient(45deg, #ffffff, #f0f9ff);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                ">IndoQuran</h1>
+                
+                <p style="
+                    font-size: 1.1rem;
+                    margin: 0 0 1.5rem 0;
+                    opacity: 0.9;
+                ">Al-Quran Digital Indonesia</p>
+                
+                <div id="loading-status" style="
+                    font-size: 0.9rem;
+                    opacity: 0.8;
+                    min-height: 1.5rem;
+                ">Memuat aplikasi...</div>
+                
+                <div style="
+                    margin-top: 2rem;
+                    font-size: 0.8rem;
+                    opacity: 0.7;
+                ">
+                    <div>Platform Al-Quran terlengkap</div>
+                    <div>dengan terjemahan bahasa Indonesia</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading timeout and error handling -->
+    <script>
+        (function() {
+            let loadingTimeout;
+            let retryCount = 0;
+            const maxRetries = 3;
+            
+            function updateLoadingStatus(message) {
+                const statusEl = document.getElementById('loading-status');
+                if (statusEl) statusEl.textContent = message;
+            }
+            
+            function hideLoadingScreen() {
+                const loadingEl = document.getElementById('app-loading');
+                if (loadingEl) {
+                    loadingEl.style.opacity = '0';
+                    loadingEl.style.transition = 'opacity 0.5s ease-out';
+                    setTimeout(() => {
+                        if (loadingEl.parentNode) {
+                            loadingEl.parentNode.removeChild(loadingEl);
+                        }
+                    }, 500);
+                }
+            }
+            
+            function showError() {
+                updateLoadingStatus('Terjadi masalah saat memuat. Silakan refresh halaman.');
+                
+                // Add retry button
+                const statusEl = document.getElementById('loading-status');
+                if (statusEl) {
+                    statusEl.innerHTML = `
+                        <div>Terjadi masalah saat memuat aplikasi</div>
+                        <button onclick="window.location.reload()" style="
+                            background: rgba(255, 255, 255, 0.2);
+                            border: 1px solid rgba(255, 255, 255, 0.3);
+                            color: white;
+                            padding: 0.5rem 1rem;
+                            border-radius: 8px;
+                            margin-top: 1rem;
+                            cursor: pointer;
+                            font-size: 0.9rem;
+                        ">Coba Lagi</button>
+                    `;
+                }
+            }
+            
+            // Check if React app loaded successfully
+            function checkAppLoaded() {
+                const appEl = document.getElementById('app');
+                if (appEl && appEl.children.length > 1) {
+                    // React app has loaded
+                    hideLoadingScreen();
+                    clearTimeout(loadingTimeout);
+                    return true;
+                }
+                return false;
+            }
+            
+            // Monitor for React app loading
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'childList' && mutation.target.id === 'app') {
+                        if (checkAppLoaded()) {
+                            observer.disconnect();
+                        }
+                    }
+                });
+            });
+            
+            observer.observe(document.getElementById('app'), {
+                childList: true,
+                subtree: true
+            });
+            
+            // Set timeout for loading
+            loadingTimeout = setTimeout(function() {
+                if (!checkAppLoaded()) {
+                    if (retryCount < maxRetries) {
+                        retryCount++;
+                        updateLoadingStatus(`Mencoba lagi... (${retryCount}/${maxRetries})`);
+                        
+                        // Try to reload the page
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+                    } else {
+                        showError();
+                    }
+                }
+            }, 10000); // 10 second timeout
+            
+            // Update loading messages
+            setTimeout(() => updateLoadingStatus('Memuat komponen...'), 1000);
+            setTimeout(() => updateLoadingStatus('Menyiapkan antarmuka...'), 3000);
+            setTimeout(() => updateLoadingStatus('Hampir selesai...'), 6000);
+        })();
+    </script>
+    
+    <!-- CSS for loading animation -->
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
     
     @if(app()->environment('local'))
     <!-- Development helpers: Hot reload is handled by Vite in the React components -->
