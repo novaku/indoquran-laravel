@@ -156,14 +156,8 @@
     <link rel="stylesheet" href="{{ asset('fonts/arabic-font.css') }}">
     <link rel="preload" href="{{ asset('fonts/arabic-font.woff2') }}" as="font" type="font/woff2" crossorigin="anonymous">
     
-    <!-- Production Scripts - Only load in production -->
-    @if(app()->environment('production'))
-    <!-- Vite Assets for Production -->
+    <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/react/index.jsx'])
-    @else
-    <!-- Development Assets -->
-    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/react/index.jsx'])
-    @endif
     
     <!-- Structured Data for SEO -->
     <script type="application/ld+json">
