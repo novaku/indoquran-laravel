@@ -285,7 +285,6 @@ self.addEventListener('fetch', (event) => {
     
     // Handle JavaScript module files specially to ensure correct MIME type
     if (isJavaScriptModule(event.request)) {
-      console.log('Handling JavaScript module with enhanced MIME type checking:', event.request.url);
       event.respondWith(handleJavaScriptModule(event.request));
       return;
     }
@@ -326,7 +325,6 @@ self.addEventListener('fetch', (event) => {
 // Handle JavaScript modules to ensure correct MIME type
 async function handleJavaScriptModule(request) {
   const url = new URL(request.url);
-  console.log('Handling JavaScript module with MIME type fix:', url.pathname);
   
   try {
     // First try to fetch from network

@@ -130,6 +130,58 @@ function Navbar({ onBreadcrumbsChange }) {
                         name: 'Donasi',
                         path: '/donation'
                     });
+                } else if (pathSegments[0] === 'about') {
+                    breadcrumbItems.push({
+                        name: 'Tentang',
+                        path: '/about'
+                    });
+                } else if (pathSegments[0] === 'privacy') {
+                    breadcrumbItems.push({
+                        name: 'Privasi',
+                        path: '/privacy'
+                    });
+                } else if (pathSegments[0] === 'contact') {
+                    breadcrumbItems.push({
+                        name: 'Kontak',
+                        path: '/contact'
+                    });
+                } else if (pathSegments[0] === 'tajwid') {
+                    breadcrumbItems.push({
+                        name: 'Ilmu Tajwid',
+                        path: '/tajwid'
+                    });
+                } else if (pathSegments[0] === 'tutorial') {
+                    breadcrumbItems.push({
+                        name: 'Tutorial',
+                        path: '/tutorial'
+                    });
+                    
+                    if (pathSegments[1] === 'membaca') {
+                        breadcrumbItems.push({
+                            name: 'Belajar Membaca',
+                            path: '/tutorial/membaca'
+                        });
+                    } else if (pathSegments[1] === 'menulis') {
+                        breadcrumbItems.push({
+                            name: 'Belajar Menulis',
+                            path: '/tutorial/menulis'
+                        });
+                    } else if (pathSegments[1] === 'hafalan') {
+                        breadcrumbItems.push({
+                            name: 'Teknik Menghafal',
+                            path: '/tutorial/hafalan'
+                        });
+                    }
+                } else if (pathSegments[0] === 'kamus') {
+                    breadcrumbItems.push({
+                        name: 'Kamus Arab',
+                        path: '/kamus'
+                    });
+                } else if (pathSegments[0] === 'konverter') {
+                    breadcrumbItems.push({
+                        name: 'Konverter Tanggal',
+                        path: '/konverter'
+                    });
                 } else if (pathSegments[0] === 'profile') {
                     breadcrumbItems.push({
                         name: 'Profil',
@@ -143,11 +195,11 @@ function Navbar({ onBreadcrumbsChange }) {
                 }
             }
             
-            setBreadcrumbs(breadcrumbItems);
+            setBreadcrumbs(breadcrumbs);
             
             // Pass breadcrumb data to parent component
             if (onBreadcrumbsChange) {
-                onBreadcrumbsChange(breadcrumbItems);
+                onBreadcrumbsChange(breadcrumbs);
             }
         };
         
@@ -180,15 +232,20 @@ function Navbar({ onBreadcrumbsChange }) {
                                         <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 005.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0 0 14.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0 0 14.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 1 1-2 0V4.804z" />
                                     </svg>
                                 </div>
-                                <span className="ml-2 text-xl font-semibold text-islamic-green hidden sm:inline">indoquran.web.id</span>
-                                <span className="ml-2 text-lg font-semibold text-islamic-green sm:hidden">QuranID</span>
+                                <div className="flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-islamic-gold mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 1L9 9l-8 0 6.5 4.7L5 22l7-5.1L19 22l-2.5-8.3L23 9l-8 0L12 1z"/>
+                                    </svg>
+                                    <span className="text-xl font-semibold text-islamic-green hidden sm:inline">indoquran.web.id</span>
+                                    <span className="text-lg font-semibold text-islamic-green sm:hidden">indoquran.web.id</span>
+                                </div>
                             </a>
                         </div>
                         
                         {/* Desktop Navigation */}
                         <div className="hidden md:flex items-center space-x-4">
                             
-                            {/* Desktop Dropdown Menu */}
+                            {/* Desktop User Dropdown Menu */}
                             <div className="relative" ref={desktopMenuRef}>
                                 <button
                                     onClick={toggleDesktopMenu}
@@ -385,7 +442,7 @@ function Navbar({ onBreadcrumbsChange }) {
                                                 onClick={() => closeMobileMenu()}
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 0 0 5.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0 0 14.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0 0 14.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 1 1-2 0V4.804z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 005.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0 0 14.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0 0 14.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 1 1-2 0V4.804z" />
                                                 </svg>
                                                 Juz Al-Quran
                                             </a>
@@ -439,6 +496,38 @@ function Navbar({ onBreadcrumbsChange }) {
                                                 </svg>
                                                 Profil
                                             </a>
+                                            
+                                            <div className="border-t border-gray-100 my-1"></div>
+                                            <a 
+                                                href="/about" 
+                                                className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-islamic-green/5 hover:text-islamic-green transition-colors mobile-touch-target"
+                                                onClick={() => closeMobileMenu()}
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                Tentang
+                                            </a>
+                                            <a 
+                                                href="/privacy" 
+                                                className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-islamic-green/5 hover:text-islamic-green transition-colors mobile-touch-target"
+                                                onClick={() => closeMobileMenu()}
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                                </svg>
+                                                Privasi
+                                            </a>
+                                            <a 
+                                                href="/contact" 
+                                                className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-islamic-green/5 hover:text-islamic-green transition-colors mobile-touch-target"
+                                                onClick={() => closeMobileMenu()}
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                                </svg>
+                                                Kontak
+                                            </a>
                                             <button 
                                                 onClick={handleLogout}
                                                 className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors text-left mobile-touch-target"
@@ -453,7 +542,7 @@ function Navbar({ onBreadcrumbsChange }) {
                                         <>
                                             <a 
                                                 href="/juz" 
-                                                className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-islamic-green/5 hover:text-islamic-green transition-colors mobile-touch-target"
+                                                className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-islamic-green/5 hover:text-islamic-green transition-colors"
                                                 onClick={() => closeMobileMenu()}
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -463,7 +552,7 @@ function Navbar({ onBreadcrumbsChange }) {
                                             </a>
                                             <a 
                                                 href="/pages" 
-                                                className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-islamic-green/5 hover:text-islamic-green transition-colors mobile-touch-target"
+                                                className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-islamic-green/5 hover:text-islamic-green transition-colors"
                                                 onClick={() => closeMobileMenu()}
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -473,7 +562,7 @@ function Navbar({ onBreadcrumbsChange }) {
                                             </a>
                                             <a 
                                                 href="/doa-bersama" 
-                                                className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-islamic-green/5 hover:text-islamic-green transition-colors mobile-touch-target"
+                                                className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-islamic-green/5 hover:text-islamic-green transition-colors"
                                                 onClick={() => closeMobileMenu()}
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -483,13 +572,45 @@ function Navbar({ onBreadcrumbsChange }) {
                                             </a>
                                             <a 
                                                 href="/donation" 
-                                                className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-islamic-green/5 hover:text-islamic-green transition-colors mobile-touch-target"
+                                                className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-islamic-green/5 hover:text-islamic-green transition-colors"
                                                 onClick={() => closeMobileMenu()}
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                                 </svg>
                                                 Donasi
+                                            </a>
+                                            
+                                            <div className="border-t border-gray-100 my-1"></div>
+                                            <a 
+                                                href="/about" 
+                                                className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-islamic-green/5 hover:text-islamic-green transition-colors mobile-touch-target"
+                                                onClick={() => closeMobileMenu()}
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                Tentang
+                                            </a>
+                                            <a 
+                                                href="/privacy" 
+                                                className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-islamic-green/5 hover:text-islamic-green transition-colors mobile-touch-target"
+                                                onClick={() => closeMobileMenu()}
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                                </svg>
+                                                Privasi
+                                            </a>
+                                            <a 
+                                                href="/contact" 
+                                                className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-islamic-green/5 hover:text-islamic-green transition-colors mobile-touch-target"
+                                                onClick={() => closeMobileMenu()}
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                                </svg>
+                                                Kontak
                                             </a>
                                             <a 
                                                 href="/auth/login" 
@@ -519,8 +640,6 @@ function Navbar({ onBreadcrumbsChange }) {
                     </div>
                 </div>
             </nav>
-
-
         </>
     );
 }
