@@ -26,6 +26,7 @@ export const AuthProvider = ({ children }) => {
             // Check authentication with server
             await checkAuthWithServer();
         } catch (error) {
+            console.error('Auth initialization failed:', error);
             setUser(null);
             setLoading(false);
             setIsInitialized(true);
@@ -44,8 +45,15 @@ export const AuthProvider = ({ children }) => {
                 return;
             }
 
-            // API call with Bearer token
-            const response = await getWithAuth('/api/user');
+            // API call with Bearer token with timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+            const response = await getWithAuth('/api/user', {
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
 
             if (response.ok) {
                 const userData = await response.json();
@@ -64,6 +72,11 @@ export const AuthProvider = ({ children }) => {
                 setToken(null);
             }
         } catch (error) {
+            if (error.name === 'AbortError') {
+                console.error('Auth check timed out');
+            } else {
+                console.error('Auth check failed:', error);
+            }
             setUser(null);
             localStorage.removeItem('auth_token');
             setToken(null);
@@ -152,6 +165,17 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         if (!isInitialized) {
             initializeAuth();
+            
+            // Safety fallback - force initialization after 15 seconds
+            const fallbackTimeout = setTimeout(() => {
+                if (!isInitialized) {
+                    console.warn('Auth initialization timed out, forcing completion');
+                    setLoading(false);
+                    setIsInitialized(true);
+                }
+            }, 15000);
+
+            return () => clearTimeout(fallbackTimeout);
         }
     }, [initializeAuth, isInitialized]);
 

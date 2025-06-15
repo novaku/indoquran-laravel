@@ -16,7 +16,7 @@ export default defineConfig(({ command, mode }) => {
     return {
         plugins: [
             laravel({
-                input: ['resources/css/app.css', 'resources/js/app.js', 'resources/js/react/index.jsx'],
+                input: ['resources/css/app.css', 'resources/js/react/index.jsx'],
                 refresh: [
                     'resources/views/**',
                     'resources/js/react/**',

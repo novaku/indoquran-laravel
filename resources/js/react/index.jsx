@@ -7,13 +7,26 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 
-const root = createRoot(document.getElementById('app'));
+// Get the app container
+const container = document.getElementById('app');
 
-root.render(
-    <StrictMode>
-        <App />
-    </StrictMode>
-);
+if (!container) {
+    console.error('React app container #app not found');
+} else {
+    try {
+        const root = createRoot(container);
+        
+        root.render(
+            <StrictMode>
+                <App />
+            </StrictMode>
+        );
+        
+        console.log('React app initialized successfully');
+    } catch (error) {
+        console.error('Failed to initialize React app:', error);
+    }
+}
 
 // Register Service Worker for PWA functionality
 if ('serviceWorker' in navigator && import.meta.env.PROD && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
