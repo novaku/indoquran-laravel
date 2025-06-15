@@ -16,7 +16,7 @@
 export const registerServiceWorker = (swPath = '/sw.js', options = {}) => {
     const {
         debug = false,
-        autoReload = true,
+        autoReload = false, // Changed default to false to prevent unwanted refreshes
         onSuccess = null,
         onError = null,
         onUpdate = null
@@ -32,10 +32,10 @@ export const registerServiceWorker = (swPath = '/sw.js', options = {}) => {
         .then(registration => {
             if (debug) console.log('Service Worker registered successfully:', registration);
 
-            // Check for updates periodically
-            setInterval(() => {
-                registration.update();
-            }, 60 * 60 * 1000); // Check for updates every hour
+            // Check for updates periodically (disabled to prevent frequent refreshes)
+            // setInterval(() => {
+            //     registration.update();
+            // }, 60 * 60 * 1000); // Check for updates every hour
 
             // Handle service worker updates
             registration.addEventListener('updatefound', () => {
@@ -49,8 +49,9 @@ export const registerServiceWorker = (swPath = '/sw.js', options = {}) => {
                         if (onUpdate) {
                             onUpdate(registration);
                         } else if (autoReload) {
-                            // Automatically reload to activate the new service worker
-                            window.location.reload();
+                            // Note: Auto-reload disabled by default to prevent unwanted refreshes
+                            console.log('New service worker available - manual refresh required');
+                            // window.location.reload();
                         }
                     }
                 });
@@ -90,8 +91,8 @@ export const registerServiceWorker = (swPath = '/sw.js', options = {}) => {
     navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (debug) console.log('Service Worker updated, controller changed');
         if (autoReload) {
-            if (debug) console.log('Reloading page to activate new service worker');
-            window.location.reload();
+            if (debug) console.log('Auto-reload disabled - manual refresh required for new service worker');
+            // window.location.reload();
         }
     });
 };

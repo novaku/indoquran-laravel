@@ -104,7 +104,7 @@ function AppContent() {
             // Only register full features in production
             registerServiceWorker('/sw.js', {
                 debug: true,
-                autoReload: true,
+                autoReload: false, // Disabled auto-reload to prevent unwanted page refreshes
                 onSuccess: (registration) => {
                     console.log('Service Worker registered successfully:', registration);
                 },
@@ -112,9 +112,8 @@ function AppContent() {
                     console.error('Service Worker registration failed:', error);
                 },
                 onUpdate: (registration) => {
-                    console.log('New service worker available, reloading to activate');
-                    // You could show a notification to the user here instead of auto-reloading
-                    window.location.reload();
+                    console.log('New service worker available');
+                    // Removed auto-reload - user can manually refresh if needed
                 }
             });
         }

@@ -105,7 +105,8 @@ export const usePWA = () => {
     const updateApp = () => {
         if (swRegistration && swRegistration.waiting) {
             swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
-            window.location.reload();
+            // Removed auto-reload - user can manually refresh if needed
+            console.log('App update ready - please refresh manually to activate');
         }
     };
 
