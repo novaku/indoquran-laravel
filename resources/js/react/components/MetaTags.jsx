@@ -68,7 +68,13 @@ function MetaTags({
       const fullImageUrl = ogImage.startsWith('http') ? ogImage : `${baseUrl}${ogImage}`;
       updateMetaTag('meta[property="og:image"]', 'content', fullImageUrl);
       updateMetaTag('meta[property="twitter:image"]', 'content', fullImageUrl);
+      updateMetaTag('meta[property="og:image:width"]', 'content', '1200');
+      updateMetaTag('meta[property="og:image:height"]', 'content', '630');
+      updateMetaTag('meta[property="og:image:type"]', 'content', 'image/png');
     }
+    
+    // Update Twitter card type for better display
+    updateMetaTag('meta[name="twitter:card"]', 'content', 'summary_large_image');
     
     // Update OG type
     if (ogType) {

@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 /**
  * StructuredData component for managing JSON-LD structured data
  * Optimized for IndoQuran website with domain my.indoquran.web.id
+ * Updated June 2025 with enhanced Schema.org implementations
  */
 function StructuredData({ type, data, pageType }) {
   const baseUrl = 'https://my.indoquran.web.id';
@@ -19,6 +20,7 @@ function StructuredData({ type, data, pageType }) {
             "url": baseUrl,
             "description": "Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia.",
             "inLanguage": "id",
+            "dateModified": new Date().toISOString(),
             "publisher": {
               "@type": "Organization",
               "name": "IndoQuran",
@@ -28,7 +30,12 @@ function StructuredData({ type, data, pageType }) {
                 "url": `${baseUrl}/android-chrome-512x512.png`,
                 "width": 512,
                 "height": 512
-              }
+              },
+              "sameAs": [
+                "https://www.facebook.com/indoquran",
+                "https://twitter.com/indoquran",
+                "https://instagram.com/indoquran"
+              ]
             },
             "potentialAction": {
               "@type": "SearchAction",
@@ -46,11 +53,12 @@ function StructuredData({ type, data, pageType }) {
             "headline": data.title || `Surah ${data.name_latin || data.name}`,
             "description": data.description || `Baca dan dengarkan Surah ${data.name_latin || data.name} lengkap dengan terjemahan bahasa Indonesia di IndoQuran.`,
             "url": `${baseUrl}/surah/${data.number}`,
-            "datePublished": "2024-01-01T00:00:00Z",
-            "dateModified": new Date().toISOString(),
+            "datePublished": data.datePublished || "2025-06-15T00:00:00Z",
+            "dateModified": data.dateModified || new Date().toISOString(),
             "author": {
               "@type": "Organization",
-              "name": "IndoQuran"
+              "name": "IndoQuran",
+              "url": baseUrl
             },
             "publisher": {
               "@type": "Organization",
@@ -71,8 +79,16 @@ function StructuredData({ type, data, pageType }) {
             "about": {
               "@type": "Thing",
               "name": "Al-Quran",
-              "description": "Kitab suci umat Islam"
+              "description": "Kitab suci umat Islam",
+              "sameAs": "https://id.wikipedia.org/wiki/Al-Qur%27an"
             },
+            "isPartOf": {
+              "@type": "CreativeWork",
+              "name": "Al-Quran",
+              "alternateName": "Kitab Suci"
+            },
+            "accessMode": ["textual", "auditory"],
+            "accessibilityFeature": ["readingOrder", "alternativeText", "displayTransformability"],
             "keywords": `Surah ${data.name_latin || data.name}, Al-Quran, terjemahan, audio, murottal, quran indonesia`,
             "articleSection": "Surah",
             "wordCount": data.total_ayahs || 0,
@@ -149,6 +165,55 @@ function StructuredData({ type, data, pageType }) {
               "https://www.twitter.com/indoquran",
               "https://www.instagram.com/indoquran"
             ],
+            ...data
+          };
+          
+        case 'FAQ':
+        case 'faq':
+          return {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": data.questions?.map(q => ({
+              "@type": "Question",
+              "name": q.question,
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": q.answer
+              }
+            })) || [],
+            ...data
+          };
+          
+        case 'PrayerTime':
+        case 'prayerTime':
+          return {
+            "@context": "https://schema.org",
+            "@type": "Event",
+            "name": data.title || "Jadwal Sholat",
+            "description": data.description || "Jadwal waktu sholat untuk wilayah Indonesia",
+            "startDate": data.date,
+            "location": {
+              "@type": "Place",
+              "name": data.location || "Indonesia",
+              "address": {
+                "@type": "PostalAddress",
+                "addressCountry": "ID",
+                "addressRegion": data.region || "Jakarta"
+              }
+            },
+            "organizer": {
+              "@type": "Organization",
+              "name": "IndoQuran",
+              "url": baseUrl
+            },
+            "eventSchedule": data.prayers?.map(prayer => ({
+              "@type": "Schedule",
+              "startTime": prayer.time,
+              "scheduledTime": prayer.time,
+              "byDay": ["https://schema.org/Monday", "https://schema.org/Tuesday", "https://schema.org/Wednesday", 
+                         "https://schema.org/Thursday", "https://schema.org/Friday", "https://schema.org/Saturday", "https://schema.org/Sunday"],
+              "name": prayer.name
+            })) || [],
             ...data
           };
           

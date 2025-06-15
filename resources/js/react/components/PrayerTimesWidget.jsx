@@ -524,12 +524,12 @@ const PrayerTimesWidget = () => {
     };
 
     return (
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 h-full">
-            <div className="bg-islamic-green/95 text-white px-4 py-3 flex justify-between items-center">
-                <h2 className="text-lg text-black font-semibold flex items-center">
-                    <IoTimeOutline className="mr-2" /> 
+        <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 h-full">
+            <div className="bg-islamic-green/95 text-white px-6 py-4 flex justify-between items-center">
+                <h2 className="text-xl text-black font-semibold flex items-center">
+                    <IoTimeOutline className="mr-3" /> 
                     <span className="text-black">Jadwal Shalat</span>
-                    <span className="ml-2 text-sm bg-white/20 px-2 py-0.5 rounded-full">
+                    <span className="ml-3 text-sm bg-white/20 px-3 py-1 rounded-full">
                         {formattedCurrentTime}
                     </span>
                 </h2>
@@ -543,7 +543,7 @@ const PrayerTimesWidget = () => {
                 </button>
             </div>
             
-            <div className="p-4">
+            <div className="p-6">
                 {error && !location ? (
                     <div className="text-red-500 text-sm p-2 bg-red-50 rounded-md mb-3">
                         <div>{error}</div>
