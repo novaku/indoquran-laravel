@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { IoLocationOutline, IoTimeOutline, IoRefreshOutline, IoCalendarOutline, IoAlarmOutline, IoSyncOutline } from 'react-icons/io5';
 import { fetchWithAuth } from '../utils/apiUtils';
+import { initializeGeolocation } from '../utils/geolocationUtils';
 
 const PrayerTimesWidget = () => {
     const [location, setLocation] = useState(null);
@@ -13,148 +14,75 @@ const PrayerTimesWidget = () => {
     const [date, setDate] = useState(new Date());
     const [timeRemaining, setTimeRemaining] = useState('');
 
-    // Check permissions API if available
+    // Initialize geolocation
     useEffect(() => {
-        if (navigator.permissions) {
-            navigator.permissions.query({ name: 'geolocation' })
-                .then(permissionStatus => {
-                    permissionStatus.onchange = () => {
-                        // Permission status changed
-                    };
-                })
-                .catch(err => {
-                    // Could not query geolocation permissions
+        const setupGeolocation = async () => {
+            setLoading(true);
+            
+            try {
+                const result = await initializeGeolocation({
+                    enableRetry: true,
+                    maxRetries: 2,
+                    options: { 
+                        timeout: 10000, 
+                        maximumAge: 60000, 
+                        enableHighAccuracy: false 
+                    }
                 });
-        }
+                
+                setLocation(result.location);
+                setLocationName(result.locationName);
+                
+                if (result.error) {
+                    setError(result.error);
+                } else {
+                    setError(null);
+                }
+            } catch (err) {
+                console.error('Failed to initialize geolocation:', err);
+                setError('Gagal menginisialisasi layanan lokasi');
+                // Use default location
+                setLocation({ latitude: -6.1751, longitude: 106.8650 });
+                setLocationName('Jakarta Pusat, Indonesia (default)');
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        setupGeolocation();
     }, []);
 
-    // Function to get current location with retry logic
-    const getCurrentLocationWithRetry = (retryCount = 0) => {
-        setLoading(true);
-        
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const coords = {
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude
-                };
-                setLocation(coords);
-                fetchLocationName(coords.latitude, coords.longitude);
-                setError(null);
-            },
-            (error) => {
-                // Provide detailed error message based on error code
-                let errorMsg = 'Menggunakan lokasi default. ';
-                let debugInfo = '';
-                
-                switch(error.code) {
-                    case error.PERMISSION_DENIED:
-                        errorMsg += 'Akses lokasi ditolak. Silakan izinkan akses lokasi pada browser Anda.';
-                        debugInfo = 'PERMISSION_DENIED';
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        errorMsg += 'Informasi lokasi tidak tersedia.';
-                        debugInfo = 'POSITION_UNAVAILABLE (might be CoreLocationProvider kCLErrorLocationUnknown)';
-                        // This often corresponds to CoreLocationProvider errors on macOS
-                        if (error.message && error.message.includes('kCLErrorLocationUnknown')) {
-                            errorMsg += ' Sistem operasi tidak dapat menentukan lokasi saat ini.';
-                        }
-                        break;
-                    case error.TIMEOUT:
-                        errorMsg += 'Permintaan lokasi habis waktu.';
-                        debugInfo = 'TIMEOUT';
-                        break;
-                    default:
-                        errorMsg += 'Untuk akurasi lebih baik, izinkan akses lokasi pada browser Anda.';
-                        debugInfo = `UNKNOWN_ERROR (code: ${error.code})`;
-                        // Check if this might be a CoreLocationProvider error
-                        if (error.message && error.message.toLowerCase().includes('corelocation')) {
-                            errorMsg += ' Terjadi masalah dengan layanan lokasi sistem.';
-                        }
-                }
-                
-                // Fallback to Jakarta Pusat, Indonesia
-                const defaultCoords = {
-                    latitude: -6.1751,
-                    longitude: 106.8650
-                };
-                setLocation(defaultCoords);
-                setLocationName('Jakarta Pusat, Indonesia (default)');
-                setError(errorMsg);
-                
-                // For CoreLocationProvider errors, try one more time with different settings
-                if ((error.code === error.POSITION_UNAVAILABLE || 
-                     error.message?.toLowerCase().includes('corelocation')) && 
-                    retryCount < 2) {
-                    setTimeout(() => {
-                        getCurrentLocationWithRetry(retryCount + 1);
-                    }, 2000);
-                    return;
-                }
-            },
-            { 
-                timeout: retryCount === 0 ? 10000 : 15000, // Longer timeout on retry
-                maximumAge: retryCount === 0 ? 60000 : 300000, // Accept older cached position on retry
-                enableHighAccuracy: retryCount > 0 // Try high accuracy on retry for stubborn systems
-            }
-        );
-        } else {
-            // Fallback to Jakarta Pusat, Indonesia if geolocation is not supported
-            const defaultCoords = {
-                latitude: -6.1751,
-                longitude: 106.8650
-            };
-            setLocation(defaultCoords);
-            setLocationName('Jakarta Pusat, Indonesia (default)');
-            setError('Geolokasi tidak didukung oleh browser Anda. Menggunakan lokasi default.');
-        }
-    };
-
     // Handle manual location retry
-    const handleLocationRetry = () => {
+    const handleLocationRetry = async () => {
         setError(null);
         setLocation(null);
         setLocationName('');
-        getCurrentLocationWithRetry(0);
-    };
-
-    // Get current location with retry logic
-    useEffect(() => {
-        // Start the location request
-        getCurrentLocationWithRetry();
-    }, []);
-
-    // Get location name from coordinates
-    const fetchLocationName = async (latitude, longitude) => {
+        setLoading(true);
+        
         try {
-            const response = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`
-            );
+            const result = await initializeGeolocation({
+                enableRetry: true,
+                maxRetries: 1, // Only retry once for manual retry
+                options: { 
+                    timeout: 15000, 
+                    maximumAge: 0, // Force fresh location request
+                    enableHighAccuracy: true // Try high accuracy on manual retry
+                }
+            });
             
-            if (!response.ok) {
-                throw new Error('Gagal mendapatkan nama lokasi');
-            }
+            setLocation(result.location);
+            setLocationName(result.locationName);
             
-            const data = await response.json();
-            
-            if (data && data.address) {
-                // Create a readable location name from the address components
-                const city = data.address.city || data.address.town || data.address.village || data.address.hamlet;
-                const state = data.address.state || data.address.county;
-                const country = data.address.country;
-                
-                let locationStr = '';
-                if (city) locationStr += city;
-                if (state && state !== city) locationStr += locationStr ? `, ${state}` : state;
-                if (country) locationStr += locationStr ? `, ${country}` : country;
-                
-                setLocationName(locationStr || 'Lokasi saat ini');
+            if (result.error) {
+                setError(result.error);
             } else {
-                setLocationName('Lokasi saat ini');
+                setError(null);
             }
-        } catch (error) {
-            setLocationName('Lokasi saat ini');
+        } catch (err) {
+            console.error('Failed to retry geolocation:', err);
+            setError('Gagal mendapatkan lokasi terbaru');
+        } finally {
+            setLoading(false);
         }
     };
 

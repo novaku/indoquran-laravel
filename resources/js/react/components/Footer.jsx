@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { IoLocationOutline, IoChevronUpOutline } from 'react-icons/io5';
 import { useFooterAutoHide, useDropdownMenu } from '../hooks/useNavigation';
+import { initializeGeolocation } from '../utils/geolocationUtils';
 
 function Footer() {
     const [locationName, setLocationName] = useState('');
@@ -25,74 +26,28 @@ function Footer() {
 
     // Get user's location and fetch location name
     useEffect(() => {
-        const getCurrentLocation = () => {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const coords = {
-                            latitude: position.coords.latitude,
-                            longitude: position.coords.longitude
-                        };
-                        fetchLocationName(coords.latitude, coords.longitude);
-                    },
-                    (error) => {
-                        console.log('Footer location error:', error);
-                        // Fallback to Jakarta, Indonesia
-                        fetchLocationName(-6.1751, 106.8650);
-                    },
-                    { 
+        const setupLocation = async () => {
+            try {
+                const result = await initializeGeolocation({
+                    enableRetry: false, // For footer, don't retry to avoid blocking
+                    options: { 
                         timeout: 10000,
-                        maximumAge: 300000, // 5 minutes cache
-                        enableHighAccuracy: false // For footer, we don't need high accuracy
+                        maximumAge: 300000, // 5 minutes cache for footer
+                        enableHighAccuracy: false // Don't need high accuracy for footer
                     }
-                );
-            } else {
-                // Fallback to Jakarta, Indonesia if geolocation is not supported
-                fetchLocationName(-6.1751, 106.8650);
+                });
+                
+                setLocationName(result.locationName);
+                setLoading(false);
+            } catch (err) {
+                console.warn('Footer geolocation error:', err);
+                setLocationName('Jakarta Pusat, Indonesia');
+                setLoading(false);
             }
         };
-
-        getCurrentLocation();
+        
+        setupLocation();
     }, []);
-
-    // Get location name from coordinates
-    const fetchLocationName = async (latitude, longitude) => {
-        try {
-            const response = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`
-            );
-            
-            if (!response.ok) {
-                throw new Error('Failed to fetch location name');
-            }
-            
-            const data = await response.json();
-            
-            if (data && data.address) {
-                // Create a readable location name from the address components
-                const city = data.address.city || data.address.town || data.address.village || data.address.hamlet || data.address.county;
-                const country = data.address.country;
-                
-                let locationStr = '';
-                if (city && country) {
-                    locationStr = `${city}, ${country}`;
-                } else if (country) {
-                    locationStr = country;
-                } else {
-                    locationStr = 'Indonesia'; // Default fallback
-                }
-                
-                setLocationName(locationStr);
-            } else {
-                setLocationName('Indonesia');
-            }
-        } catch (error) {
-            console.error('Error fetching location name for footer:', error);
-            setLocationName('Indonesia');
-        } finally {
-            setLoading(false);
-        }
-    };
     
     return (
         <footer className={`bg-white py-3 mt-auto border-t border-gray-100 w-full z-10 fixed bottom-0 left-0 shadow-sm footer-auto-hide ${

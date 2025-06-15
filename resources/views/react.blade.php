@@ -7,6 +7,9 @@
     <meta name="theme-color" content="#22c55e">
     <meta name="color-scheme" content="light">
     
+    <!-- Permissions Policy for Geolocation -->
+    <meta http-equiv="Permissions-Policy" content="geolocation=(self)">
+    
     <!-- SEO Meta Tags -->
     <meta name="description" content="{{ $metaDescription ?? 'IndoQuran - Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia, fitur bookmark, pencarian ayat, dan audio murottal berkualitas tinggi.' }}">
     <meta name="keywords" content="{{ $metaKeywords ?? 'al quran indonesia, quran online, al quran digital, baca quran, terjemahan quran, murottal, quran indonesia, ayat al quran, surah quran, tafsir quran, hafalan quran, indoquran' }}">
