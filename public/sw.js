@@ -85,7 +85,7 @@ const OFFLINE_HTML = `
         <div class="icon">📖</div>
         <h1>IndoQuran Offline</h1>
         <p>Anda sedang offline. Beberapa fitur mungkin tidak tersedia, tetapi Anda masih dapat mengakses konten yang telah di-cache.</p>
-        <a href="/" class="button" onclick="window.location.reload()">Coba Lagi</a>
+        <a href="/" class="button" onclick="console.log('Manual refresh recommended');">Kembali ke Beranda</a>
     </div>
 </body>
 </html>

@@ -92,7 +92,7 @@ function AppContent() {
             console.log('Service Worker running in development mode');
             registerServiceWorker('/sw.js', {
                 debug: true,
-                autoReload: false, // Don't auto-reload in development
+                autoReload: false, // Disabled auto-reload in development too
                 onSuccess: (registration) => {
                     console.log('Service Worker registered in development mode:', registration);
                 },

@@ -387,7 +387,7 @@
                 if (statusEl) {
                     statusEl.innerHTML = `
                         <div>Terjadi masalah saat memuat aplikasi</div>
-                        <button onclick="window.location.reload()" style="
+                        <button onclick="console.log('Manual refresh required'); alert('Silakan refresh halaman secara manual (Ctrl+R atau Cmd+R)');" style="
                             background: rgba(255, 255, 255, 0.2);
                             border: 1px solid rgba(255, 255, 255, 0.3);
                             color: white;
@@ -396,7 +396,7 @@
                             margin-top: 1rem;
                             cursor: pointer;
                             font-size: 0.9rem;
-                        ">Coba Lagi</button>
+                        ">Refresh Manual</button>
                     `;
                 }
             }
@@ -429,22 +429,20 @@
                 subtree: true
             });
             
-            // Set timeout for loading
+            // Set timeout for loading (disabled to prevent unwanted refreshes)
             loadingTimeout = setTimeout(function() {
                 if (!checkAppLoaded()) {
                     if (retryCount < maxRetries) {
                         retryCount++;
-                        updateLoadingStatus(`Mencoba lagi... (${retryCount}/${maxRetries})`);
+                        updateLoadingStatus(`App masih loading... (${retryCount}/${maxRetries})`);
                         
-                        // Try to reload the page
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 2000);
+                        // Removed auto-reload to prevent unwanted page refreshes
+                        console.log('App still loading, but auto-reload disabled');
                     } else {
                         showError();
                     }
                 }
-            }, 10000); // 10 second timeout
+            }, 30000); // Increased timeout to 30 seconds and disabled auto-reload
             
             // Update loading messages
             setTimeout(() => updateLoadingStatus('Memuat komponen...'), 1000);

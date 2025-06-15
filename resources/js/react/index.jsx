@@ -25,10 +25,10 @@ if ('serviceWorker' in navigator && import.meta.env.PROD && window.location.host
         .then((registration) => {
             console.log('SW registered: ', registration);
             
-            // Check for updates periodically
-            setInterval(() => {
-                registration.update();
-            }, 60000); // Check every minute
+            // Periodic update check disabled to prevent unwanted refreshes
+            // setInterval(() => {
+            //     registration.update();
+            // }, 60000); // Check every minute - DISABLED
         })
         .catch((registrationError) => {
             console.log('SW registration failed: ', registrationError);
