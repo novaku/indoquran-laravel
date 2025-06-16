@@ -233,8 +233,8 @@ function Navbar({ onBreadcrumbsChange }) {
                                     </svg>
                                 </div>
                                 <div className="flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-islamic-gold mr-2" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 1L9 9l-8 0 6.5 4.7L5 22l7-5.1L19 22l-2.5-8.3L23 9l-8 0L12 1z"/>
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-islamic-gold mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C20.832 18.477 19.247 18 17.5 18c-1.746 0-3.332.477-4.5 1.253" />
                                     </svg>
                                     <span className="text-xl font-semibold text-islamic-green hidden sm:inline">indoquran.web.id</span>
                                     <span className="text-lg font-semibold text-islamic-green sm:hidden">indoquran.web.id</span>
