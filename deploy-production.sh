@@ -2,6 +2,16 @@
 
 # Production deployment script for IndoQuran Laravel + React app
 # This script should be run on the production server
+#
+# IMPORTANT: This script does NOT build assets or delete existing build files!
+# Frontend assets must be built locally using ./build-for-production.sh
+# and committed to git before running this deployment script.
+#
+# This script only:
+# 1. Pulls latest code from git (including pre-built assets)
+# 2. Installs PHP dependencies
+# 3. Optimizes Laravel caches
+# 4. Verifies that vendor assets are present and protects them
 
 # Enable strict error handling
 set -e
@@ -40,6 +50,17 @@ else
     fi
 fi
 
+# Ensure we don't accidentally run build scripts that would delete vendor files
+log_message "Protecting build assets during deployment..."
+
+# Check if any build-related commands are attempting to run
+if pgrep -f "npm\|node\|vite" > /dev/null; then
+    log_error "Node.js/npm processes detected running on production server!"
+    log_error "This server should NOT run build processes."
+    log_error "Build assets should be generated locally and committed to git."
+    exit 1
+fi
+
 log_message "Starting deployment process..."
 
 # Pull the latest changes from the repository
@@ -64,8 +85,8 @@ log_message "Setting permissions..."
 find storage bootstrap/cache -type d -exec chmod 775 {} \;
 find storage bootstrap/cache -type f -exec chmod 664 {} \;
 
-# Verify the build directory exists
-log_message "Checking build directory..."
+# Verify the build directory exists and protect vendor files
+log_message "Checking build directory and protecting vendor assets..."
 if [ -d public/build ]; then
     log_message "Build directory found"
     
@@ -91,8 +112,17 @@ if [ -d public/build ]; then
     # Check if assets directory exists and has files
     if [ -d public/build/assets ]; then
         asset_count=$(find public/build/assets -type f | wc -l)
+        vendor_count=$(find public/build/assets -name "vendor*.js" | wc -l)
         if [ $asset_count -gt 0 ]; then
             log_message "✓ Found $asset_count asset files"
+            if [ $vendor_count -gt 0 ]; then
+                log_message "✓ Found $vendor_count vendor chunk files"
+                # Set vendor files as read-only to prevent accidental deletion
+                find public/build/assets -name "vendor*.js" -exec chmod 444 {} \; 2>/dev/null || true
+                log_message "✓ Vendor files protected from accidental deletion"
+            else
+                log_warning "⚠ No vendor chunk files found - this may cause loading issues"
+            fi
         else
             log_warning "✗ Assets directory is empty"
             log_warning "Run build script on local machine and commit the files"
@@ -119,6 +149,27 @@ fi
 # Clear OPcache if available
 log_message "Clearing OPcache..."
 php -r "if(function_exists('opcache_reset')) { opcache_reset(); echo 'OPcache cleared'; } else { echo 'OPcache not available'; }"
+
+# Final verification that vendor files are still present
+log_message "Final verification of critical assets..."
+if [ -d public/build/assets ]; then
+    vendor_count=$(find public/build/assets -name "vendor*.js" | wc -l)
+    if [ $vendor_count -gt 0 ]; then
+        log_message "✓ Vendor chunk files verified: $vendor_count files present"
+        # List vendor files for confirmation
+        find public/build/assets -name "vendor*.js" -exec basename {} \; | while read file; do
+            log_message "  - $file"
+        done
+    else
+        log_error "✗ CRITICAL: Vendor chunk files missing after deployment!"
+        log_error "This will cause JavaScript errors on the frontend."
+        log_error "Check if any scripts accidentally deleted the build directory."
+        exit 1
+    fi
+else
+    log_error "✗ CRITICAL: Assets directory missing after deployment!"
+    exit 1
+fi
 
 log_message "Deployment completed successfully!"
 log_message "Your IndoQuran application should now be running with all assets correctly prefixed with /public in production."
