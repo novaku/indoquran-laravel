@@ -194,7 +194,7 @@ function SidebarNavigation() {
             {/* Mobile Menu Trigger */}
             <button
                 onClick={() => setIsVisible(!isVisible)}
-                className="fixed top-4 left-4 z-50 p-2 bg-islamic-green text-white rounded-lg shadow-lg md:hidden"
+                className="fixed top-4 left-4 z-50 p-2 bg-islamic-green text-black rounded-lg shadow-lg md:hidden"
                 aria-label="Toggle menu"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -234,8 +234,8 @@ function SidebarNavigation() {
                                 <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 005.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0 0 14.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0 0 14.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 1 1-2 0V4.804z" />
                             </svg>
                         </div>
-                        <div className="ml-3 opacity-0 md:group-hover:opacity-100 md:max-w-0 md:group-hover:max-w-xs transition-all duration-300 whitespace-nowrap overflow-hidden">
-                            <span className="text-lg font-semibold text-islamic-green">IndoQuran</span>
+                        <div className="ml-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:max-w-xs md:group-hover:max-w-xs max-w-xs transition-all duration-300 whitespace-nowrap overflow-hidden">
+                            <span className="text-lg font-semibold text-black">IndoQuran</span>
                         </div>
                     </div>
                     
@@ -260,17 +260,17 @@ function SidebarNavigation() {
                                 key={item.path}
                                 href={item.path}
                                 onClick={handleNavItemClick}
-                                className={`flex items-center justify-center md:justify-start px-3 py-3 rounded-lg transition-all duration-200 relative ${
+                                className={`flex items-center justify-start px-3 py-3 rounded-lg transition-all duration-200 relative ${
                                     isCurrentPath(item.path)
-                                        ? 'bg-islamic-green text-black shadow-md'
-                                        : 'text-gray-700 hover:bg-islamic-green/10 hover:text-islamic-green'
+                                        ? 'bg-islamic-green text-white shadow-md'
+                                        : 'text-black hover:bg-islamic-green/10 hover:text-islamic-green'
                                 }`}
                                 title={item.name}
                             >
                                 <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
                                     {item.icon}
                                 </div>
-                                <span className="ml-3 opacity-0 md:group-hover:opacity-100 md:max-w-0 md:group-hover:max-w-xs transition-all duration-300 whitespace-nowrap overflow-hidden">
+                                <span className="ml-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:max-w-xs md:group-hover:max-w-xs max-w-xs transition-all duration-300 whitespace-nowrap overflow-hidden text-left">
                                     {item.name}
                                 </span>
                             </a>
@@ -281,8 +281,8 @@ function SidebarNavigation() {
                     {userItems.length > 0 && (
                         <div className="mt-6">
                             <div className="px-3 mb-2 overflow-hidden">
-                                <div className="opacity-0 md:group-hover:opacity-100 md:max-w-0 md:group-hover:max-w-xs transition-all duration-300">
-                                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                <div className="opacity-100 md:opacity-0 md:group-hover:opacity-100 md:max-w-xs md:group-hover:max-w-xs max-w-xs transition-all duration-300">
+                                    <h3 className="text-xs font-semibold text-black uppercase tracking-wider whitespace-nowrap text-left">
                                         {user ? 'Akun' : 'Autentikasi'}
                                     </h3>
                                 </div>
@@ -293,17 +293,17 @@ function SidebarNavigation() {
                                         key={item.path}
                                         href={item.path}
                                         onClick={handleNavItemClick}
-                                        className={`flex items-center justify-center md:justify-start px-3 py-3 rounded-lg transition-all duration-200 relative ${
+                                        className={`flex items-center justify-start px-3 py-3 rounded-lg transition-all duration-200 relative ${
                                             isCurrentPath(item.path)
-                                                ? 'bg-islamic-green text-black shadow-md'
-                                                : 'text-gray-700 hover:bg-islamic-green/10 hover:text-islamic-green'
+                                                ? 'bg-islamic-green text-white shadow-md'
+                                                : 'text-black hover:bg-islamic-green/10 hover:text-islamic-green'
                                         }`}
                                         title={item.name}
                                     >
                                         <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
                                             {item.icon}
                                         </div>
-                                        <span className="ml-3 opacity-0 md:group-hover:opacity-100 md:max-w-0 md:group-hover:max-w-xs transition-all duration-300 whitespace-nowrap overflow-hidden">
+                                        <span className="ml-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:max-w-xs md:group-hover:max-w-xs max-w-xs transition-all duration-300 whitespace-nowrap overflow-hidden text-left">
                                             {item.name}
                                         </span>
                                     </a>
@@ -321,17 +321,17 @@ function SidebarNavigation() {
                                 key={item.path}
                                 href={item.path}
                                 onClick={handleNavItemClick}
-                                className={`flex items-center justify-center md:justify-start px-3 py-3 rounded-lg transition-all duration-200 relative ${
+                                className={`flex items-center justify-start px-3 py-3 rounded-lg transition-all duration-200 relative ${
                                     isCurrentPath(item.path)
-                                        ? 'bg-islamic-green text-black shadow-md'
-                                        : 'text-gray-700 hover:bg-islamic-green/10 hover:text-islamic-green'
+                                        ? 'bg-islamic-green text-white shadow-md'
+                                        : 'text-black hover:bg-islamic-green/10 hover:text-islamic-green'
                                 }`}
                                 title={item.name}
                             >
                                 <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
                                     {item.icon}
                                 </div>
-                                <span className="ml-3 opacity-0 md:group-hover:opacity-100 md:max-w-0 md:group-hover:max-w-xs transition-all duration-300 whitespace-nowrap overflow-hidden">
+                                <span className="ml-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:max-w-xs md:group-hover:max-w-xs max-w-xs transition-all duration-300 whitespace-nowrap overflow-hidden text-left">
                                     {item.name}
                                 </span>
                             </a>
@@ -341,7 +341,7 @@ function SidebarNavigation() {
                         {user && (
                             <button
                                 onClick={handleLogout}
-                                className="flex items-center justify-center md:justify-start w-full px-3 py-3 rounded-lg transition-all duration-200 relative text-gray-700 hover:bg-red-50 hover:text-red-600"
+                                className="flex items-center justify-start w-full px-3 py-3 rounded-lg transition-all duration-200 relative text-black hover:bg-red-50 hover:text-red-600"
                                 title="Keluar"
                             >
                                 <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
@@ -349,7 +349,7 @@ function SidebarNavigation() {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                     </svg>
                                 </div>
-                                <span className="ml-3 opacity-0 md:group-hover:opacity-100 md:max-w-0 md:group-hover:max-w-xs transition-all duration-300 whitespace-nowrap overflow-hidden">
+                                <span className="ml-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:max-w-xs md:group-hover:max-w-xs max-w-xs transition-all duration-300 whitespace-nowrap overflow-hidden text-left">
                                     Keluar
                                 </span>
                             </button>
@@ -360,15 +360,15 @@ function SidebarNavigation() {
                 {/* User Info (if logged in) */}
                 {user && (
                     <div className="border-t border-gray-200 p-3 overflow-hidden">
-                        <div className="flex items-center justify-center md:justify-start">
+                        <div className="flex items-center justify-start">
                             <div className="flex items-center justify-center w-8 h-8 bg-islamic-gold text-white rounded-full flex-shrink-0">
                                 <span className="text-sm font-medium">
                                     {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                                 </span>
                             </div>
-                            <div className="ml-3 opacity-0 md:group-hover:opacity-100 md:max-w-0 md:group-hover:max-w-xs transition-all duration-300 overflow-hidden">
-                                <p className="text-sm font-medium text-gray-900 truncate whitespace-nowrap">{user.name}</p>
-                                <p className="text-xs text-gray-500 truncate whitespace-nowrap">{user.email}</p>
+                            <div className="ml-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:max-w-xs md:group-hover:max-w-xs max-w-xs transition-all duration-300 overflow-hidden">
+                                <p className="text-sm font-medium text-black truncate whitespace-nowrap text-left">{user.name}</p>
+                                <p className="text-xs text-gray-600 truncate whitespace-nowrap text-left">{user.email}</p>
                             </div>
                         </div>
                     </div>
