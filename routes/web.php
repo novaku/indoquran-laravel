@@ -47,8 +47,8 @@ if (app()->environment('local', 'development')) {
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 
-// React SPA routes with SEO optimization - serve the React app for any other routes, but don't catch /api routes
-Route::get('/{path?}', [SEOController::class, 'handleReactRoute'])->where('path', '^(?!api).*');
+// React SPA routes with SEO optimization - serve the React app for any other routes, but don't catch /api or build routes
+Route::get('/{path?}', [SEOController::class, 'handleReactRoute'])->where('path', '^(?!api|build|assets|fonts|images|storage).*');
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');

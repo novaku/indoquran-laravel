@@ -36,6 +36,7 @@ const JuzPage = lazy(() => import('./pages/JuzPage'));
 const PageListPage = lazy(() => import('./pages/PageListPage'));
 const PageDetailPage = lazy(() => import('./pages/PageDetailPage'));
 const PrayerPage = lazy(() => import('./pages/PrayerPage'));
+const VersionHistoryPage = lazy(() => import('./pages/VersionHistoryPage'));
 
 // Main app content component with auth-protected routes
 function AppContent() {
@@ -181,6 +182,7 @@ function AppContent() {
                         <Route path="/contact" element={<ContactPage />} />
                         <Route path="/donation" element={<DonationPage />} />
                         <Route path="/privacy" element={<PrivacyPage />} />
+                        <Route path="/version-history" element={<VersionHistoryPage />} />
                         
                         {/* Protected Routes */}
                         <Route 
