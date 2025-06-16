@@ -8,6 +8,10 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        'xs': '480px',
+        // sm, md, lg, xl, 2xl are already defined by default
+      },
       fontFamily: {
         arabic: ['Scheherazade New', 'Scheherazade', 'Noto Naskh Arabic', 'serif'],
         sans: ['Inter', 'Noto Sans', 'ui-sans-serif', 'system-ui'],
