@@ -15,7 +15,7 @@ function BookmarksPage() {
     const [savingNotes, setSavingNotes] = useState(false);
     const [collapsedSurahs, setCollapsedSurahs] = useState(new Set());
     const [collapsedAyahs, setCollapsedAyahs] = useState(new Set());
-    const [hiddenSurahs, setHiddenSurahs] = useState(new Set()); // Will be populated after bookmarks load
+    const [hiddenSurahs, setHiddenSurahs] = useState(new Set()); // Empty by default to show all surahs
 
     const [initialHideAll, setInitialHideAll] = useState(true); // Flag to hide all surahs initially
     
@@ -223,12 +223,10 @@ function BookmarksPage() {
             if (Array.isArray(allBookmarks)) {
                 setBookmarks(allBookmarks);
                 
-                // Hide all surahs and ayahs by default on initial load
+                // Show all surahs by default, but collapse ayahs for better UX
                 if (initialHideAll && allBookmarks.length > 0) {
-                    const uniqueSurahNumbers = [...new Set(allBookmarks.map(bookmark => bookmark.surah_number))];
-                    setHiddenSurahs(new Set(uniqueSurahNumbers));
-                    
-                    // Hide all ayahs by default
+                    // Keep hiddenSurahs empty to show all surahs by default
+                    // But collapse all ayahs by default for better organization
                     const allAyahIds = allBookmarks.map(bookmark => bookmark.id);
                     setCollapsedAyahs(new Set(allAyahIds));
                     

@@ -2,22 +2,19 @@ import React, { useState, useCallback, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './hooks/useAuth.jsx';
-import { usePreloader, usePrefetchRoutes, usePerformanceMonitor } from './hooks/usePerformance.js';
+import { usePerformanceMonitor } from './hooks/usePerformance.js';
 import useAdvancedPerformanceMonitor from './hooks/useAdvancedPerformanceMonitor.js';
 import useResourcePreloader from './hooks/useResourcePreloader.js';
 import { registerServiceWorker } from './utils/serviceWorkerUtils.js';
-import { corsSafeFetch, getAssetUrl } from './utils/corsUtils.js';
 
 // Import critical components (loaded immediately)
-import Navbar from './components/Navbar';
-import Breadcrumb from './components/Breadcrumb';
+import SidebarNavigation from './components/SidebarNavigation';
 import Footer from './components/Footer';
 import ScrollIndicator from './components/ScrollIndicator';
 import LoadingSpinner from './components/LoadingSpinner';
 import PageTransition from './components/PageTransition';
 import PerformanceDebugPanel from './components/PerformanceDebugPanel';
 import SEOHead from './components/SEOHead';
-import StructuredData, { generatePageStructuredData } from './components/StructuredData';
 import { preloadCriticalResources } from './utils/seoUtils';
 
 // Lazy load pages for better performance and code splitting
@@ -55,12 +52,7 @@ function AppContent() {
     const isAuthenticated = Boolean(user);
     const isLoading = loading || !isInitialized;
     
-    // Breadcrumbs state
-    const [breadcrumbs, setBreadcrumbs] = useState([]);
-    
-    // Performance hooks - Use only one comprehensive strategy to avoid duplicates
-    // usePreloader(); // Disabled to prevent conflicts
-    // usePrefetchRoutes(); // Disabled to prevent conflicts
+    // Performance hooks
     usePerformanceMonitor();
     
     // Advanced performance monitoring (disable console logging to reduce noise)
@@ -125,10 +117,6 @@ function AppContent() {
             console.log('✅ Performance monitoring available via PerformanceDebugPanel');
         }
     }, [getMetrics, getOptimizationSuggestions]);
-    
-    const handleBreadcrumbsChange = useCallback((newBreadcrumbs) => {
-        setBreadcrumbs(newBreadcrumbs);
-    }, []);
 
     // Legacy setUser function for backward compatibility
     const setUser = useCallback((userData) => {
@@ -152,68 +140,71 @@ function AppContent() {
     }
 
     return (
-        <div className="flex flex-col min-h-screen bg-[#faf8f2]">
+        <div className="flex min-h-screen bg-[#faf8f2]">
             <SEOHead />
             <ScrollIndicator />
-            <Navbar user={user} setUser={setUser} onBreadcrumbsChange={handleBreadcrumbsChange} />
-            <Breadcrumb breadcrumbs={breadcrumbs} />
             
-            <main className="flex-grow container mx-auto px-4 py-8 pb-20 relative z-10 max-w-6xl" style={{ marginTop: '80px' }}>
-                <Suspense 
-                    fallback={
-                        <PageTransition isLoading={true}>
-                            <div className="flex justify-center items-center h-64">
-                                <LoadingSpinner size="lg" />
-                            </div>
-                        </PageTransition>
-                    }
-                >
-                    <Routes>
-                        <Route path="/" element={<HomePage />} />
-                        <Route path="/surah/:number" element={<SurahPage user={user} />} />
-                        <Route path="/surah/:number/:ayahNumber" element={<SurahPage user={user} />} />
-                        <Route path="/search" element={<SearchPage />} />
-                        <Route path="/juz" element={<JuzListPage />} />
-                        <Route path="/juz/:number" element={<JuzPage />} />
-                        <Route path="/pages" element={<PageListPage />} />
-                        <Route path="/pages/:number" element={<PageDetailPage />} />
-                        <Route path="/doa-bersama" element={<PrayerPage />} />
-                        <Route path="/about" element={<AboutPage />} />
-                        <Route path="/contact" element={<ContactPage />} />
-                        <Route path="/donation" element={<DonationPage />} />
-                        <Route path="/privacy" element={<PrivacyPage />} />
-                        <Route path="/version-history" element={<VersionHistoryPage />} />
-                        
-                        {/* Protected Routes */}
-                        <Route 
-                            path="/bookmarks" 
-                            element={
-                                isAuthenticated ? <BookmarksPage user={user} /> : <Navigate to="/auth/login" replace />
-                            } 
-                        />
-                        <Route 
-                            path="/profile" 
-                            element={
-                                isAuthenticated ? <ProfilePage user={user} setUser={setUser} /> : <Navigate to="/auth/login" replace />
-                            } 
-                        />
-                        
-                        {/* Auth Routes */}
-                        <Route 
-                            path="/auth/:action" 
-                            element={
-                                isAuthenticated ? <Navigate to="/" replace /> : <AuthPage setUser={setUser} checkAuth={checkAuth} />
-                            } 
-                        />
-                        
-                        {/* Fallback route */}
-                        <Route path="*" element={<Navigate to="/" replace />} />
-                    </Routes>
-                </Suspense>
-            </main>
+            {/* Sidebar Navigation */}
+            <SidebarNavigation />
             
-            
-            <Footer />
+            {/* Main Content Area */}
+            <div className="flex-1 flex flex-col transition-all duration-300 ease-in-out">
+                <main className="flex-grow container mx-auto px-4 py-8 pb-20 relative z-10 max-w-6xl">
+                    <Suspense 
+                        fallback={
+                            <PageTransition isLoading={true}>
+                                <div className="flex justify-center items-center h-64">
+                                    <LoadingSpinner size="lg" />
+                                </div>
+                            </PageTransition>
+                        }
+                    >
+                        <Routes>
+                            <Route path="/" element={<HomePage />} />
+                            <Route path="/surah/:number" element={<SurahPage user={user} />} />
+                            <Route path="/surah/:number/:ayahNumber" element={<SurahPage user={user} />} />
+                            <Route path="/search" element={<SearchPage />} />
+                            <Route path="/juz" element={<JuzListPage />} />
+                            <Route path="/juz/:number" element={<JuzPage />} />
+                            <Route path="/pages" element={<PageListPage />} />
+                            <Route path="/pages/:number" element={<PageDetailPage />} />
+                            <Route path="/doa-bersama" element={<PrayerPage />} />
+                            <Route path="/about" element={<AboutPage />} />
+                            <Route path="/contact" element={<ContactPage />} />
+                            <Route path="/donation" element={<DonationPage />} />
+                            <Route path="/privacy" element={<PrivacyPage />} />
+                            <Route path="/version-history" element={<VersionHistoryPage />} />
+                            
+                            {/* Protected Routes */}
+                            <Route 
+                                path="/bookmarks" 
+                                element={
+                                    isAuthenticated ? <BookmarksPage user={user} /> : <Navigate to="/auth/login" replace />
+                                } 
+                            />
+                            <Route 
+                                path="/profile" 
+                                element={
+                                    isAuthenticated ? <ProfilePage user={user} setUser={setUser} /> : <Navigate to="/auth/login" replace />
+                                } 
+                            />
+                            
+                            {/* Auth Routes */}
+                            <Route 
+                                path="/auth/:action" 
+                                element={
+                                    isAuthenticated ? <Navigate to="/" replace /> : <AuthPage setUser={setUser} checkAuth={checkAuth} />
+                                } 
+                            />
+                            
+                            {/* Fallback route */}
+                            <Route path="*" element={<Navigate to="/" replace />} />
+                        </Routes>
+                    </Suspense>
+                </main>
+                
+                <Footer />
+            </div>
             
             {/* Toast Notifications */}
             <Toaster 

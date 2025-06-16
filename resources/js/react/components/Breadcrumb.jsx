@@ -1,30 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useLocation } from 'react-router-dom';
 
 function Breadcrumb({ breadcrumbs }) {
     const location = useLocation();
-    const [isNavbarVisible, setIsNavbarVisible] = useState(true);
-    const [lastScrollY, setLastScrollY] = useState(0);
-
-    // Track navbar visibility to adjust breadcrumb transparency
-    useEffect(() => {
-        const handleScroll = () => {
-            const currentScrollY = window.scrollY;
-            
-            if (currentScrollY < 10) {
-                setIsNavbarVisible(true);
-            } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
-                setIsNavbarVisible(false);
-            } else if (currentScrollY < lastScrollY) {
-                setIsNavbarVisible(true);
-            }
-            
-            setLastScrollY(currentScrollY);
-        };
-
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [lastScrollY]);
 
     // Don't show breadcrumb on home page 
     if (breadcrumbs.length <= 1) {
@@ -32,12 +10,8 @@ function Breadcrumb({ breadcrumbs }) {
     }
 
     return (
-        <div className={`fixed left-0 right-0 top-16 z-30 flex items-center justify-center pointer-events-none transition-all duration-300 ${
-            !isNavbarVisible ? 'top-4' : ''
-        }`}>
-            <div className={`flex items-center breadcrumb-transparent rounded-full px-3 py-1.5 pointer-events-auto transition-all duration-200 ${
-                !isNavbarVisible ? 'bg-white/10 hover:bg-white/20' : ''
-            }`}>
+        <div className="fixed left-0 right-0 top-4 z-30 flex items-center justify-center pointer-events-none transition-all duration-300">
+            <div className="flex items-center breadcrumb-transparent rounded-full px-3 py-1.5 pointer-events-auto transition-all duration-200">
                 <nav className="flex" aria-label="Breadcrumb">
                     <ol className="inline-flex items-center space-x-1 md:space-x-2">
                         {breadcrumbs.map((breadcrumb, index) => (
