@@ -6,6 +6,31 @@ import StructuredData from '../components/StructuredData';
 function VersionHistoryPage() {
     const versions = [
         {
+            version: "2.1.1",
+            date: "16 Juni 2025",
+            type: "patch",
+            title: "Peningkatan UI Navigasi & Mobile Experience",
+            description: "Perbaikan antarmuka navigasi dan peningkatan pengalaman mobile untuk kemudahan akses.",
+            changes: [
+                {
+                    type: "improvement",
+                    text: "Peningkatan kontras teks pada menu aktif sidebar untuk keterbacaan yang lebih baik"
+                },
+                {
+                    type: "improvement", 
+                    text: "Penambahan smooth scrolling pada navigasi mobile dengan momentum scrolling iOS"
+                },
+                {
+                    type: "improvement",
+                    text: "Optimisasi responsivitas sidebar untuk berbagai ukuran perangkat mobile"
+                },
+                {
+                    type: "fix",
+                    text: "Perbaikan overflow handling pada menu navigasi mobile"
+                }
+            ]
+        },
+        {
             version: "2.1.0",
             date: "16 Juni 2025",
             type: "major",

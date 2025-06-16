@@ -217,7 +217,7 @@ function SidebarNavigation() {
             <div
                 className={`fixed left-0 top-0 h-full bg-white shadow-lg border-r border-gray-200 z-40 transition-all duration-300 ease-in-out group ${
                     isVisible ? 'translate-x-0 w-60' : 'md:translate-x-0 md:w-16 -translate-x-full w-60'
-                } md:hover:w-60`}
+                } md:hover:w-60 max-h-screen overflow-hidden`}
                 onMouseLeave={() => {
                     if (window.innerWidth >= 768) {
                         setIsVisible(false);
@@ -252,7 +252,7 @@ function SidebarNavigation() {
                 </div>
 
                 {/* Main Navigation */}
-                <div className="flex-1 overflow-y-auto py-4">
+                <div className="flex-1 overflow-y-auto py-4 scroll-smooth" style={{ WebkitOverflowScrolling: 'touch' }}>
                     {/* Primary Navigation */}
                     <nav className="space-y-1 px-2">
                         {navigationItems.map((item) => (
@@ -262,7 +262,7 @@ function SidebarNavigation() {
                                 onClick={handleNavItemClick}
                                 className={`flex items-center justify-start px-3 py-3 rounded-lg transition-all duration-200 relative ${
                                     isCurrentPath(item.path)
-                                        ? 'bg-islamic-green text-white shadow-md'
+                                        ? 'bg-islamic-green text-gray-500 shadow-md'
                                         : 'text-black hover:bg-islamic-green/10 hover:text-islamic-green'
                                 }`}
                                 title={item.name}
@@ -295,7 +295,7 @@ function SidebarNavigation() {
                                         onClick={handleNavItemClick}
                                         className={`flex items-center justify-start px-3 py-3 rounded-lg transition-all duration-200 relative ${
                                             isCurrentPath(item.path)
-                                                ? 'bg-islamic-green text-white shadow-md'
+                                                ? 'bg-islamic-green text-gray-500 shadow-md'
                                                 : 'text-black hover:bg-islamic-green/10 hover:text-islamic-green'
                                         }`}
                                         title={item.name}
@@ -323,7 +323,7 @@ function SidebarNavigation() {
                                 onClick={handleNavItemClick}
                                 className={`flex items-center justify-start px-3 py-3 rounded-lg transition-all duration-200 relative ${
                                     isCurrentPath(item.path)
-                                        ? 'bg-islamic-green text-white shadow-md'
+                                        ? 'bg-islamic-green text-gray-500 shadow-md'
                                         : 'text-black hover:bg-islamic-green/10 hover:text-islamic-green'
                                 }`}
                                 title={item.name}
