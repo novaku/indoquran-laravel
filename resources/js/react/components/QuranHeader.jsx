@@ -44,7 +44,6 @@ function QuranHeader({ className = "" }) {
           <div className="space-y-3">
             <h1 className="font-arabic-header text-3xl md:text-5xl lg:text-6xl leading-tight transform transition-all duration-500 hover:scale-102 cursor-default my-2 text-emerald-700" 
                 style={{ 
-                  fontFamily: 'Scheherazade New, Amiri, serif',
                   textShadow: '0 4px 12px rgba(6, 95, 70, 0.15)',
                 }}>
               القرآن الكريم

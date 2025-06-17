@@ -3,7 +3,7 @@
 
 /* Custom styling for Arabic Quran texts */
 .font-arabic {
-    font-family: 'Scheherazade New', 'Amiri', 'Scheherazade', 'Noto Naskh Arabic', 'Traditional Arabic', serif;
+    font-family: 'AlQuran-IndoPak', 'Scheherazade New', 'Amiri', 'Scheherazade', 'Noto Naskh Arabic', 'Traditional Arabic', serif;
     font-weight: normal;
     line-height: 1.2;
     word-spacing: 0.3em;
@@ -321,7 +321,7 @@
 
 /* Custom Arabic Font Styling for Header */
 .font-arabic-header {
-    font-family: 'Scheherazade New', 'Amiri', 'Scheherazade', 'Noto Naskh Arabic', serif;
+    font-family: 'AlQuran-IndoPak', 'Scheherazade New', 'Amiri', 'Scheherazade', 'Noto Naskh Arabic', serif;
     font-weight: 700;
     line-height: 1.1;
     letter-spacing: 0.02em;
