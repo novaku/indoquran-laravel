@@ -47,11 +47,25 @@ class SearchController extends Controller
     {
         $query = $request->input('q');
         $language = $request->input('lang', 'indonesian'); // Default to Indonesian
+        $perPage = (int)$request->input('per_page', 10); // Default to 10 items per page, respect the client preference
+        $page = (int)$request->input('page', 1); // Get current page
+        
+        // Validate per_page to reasonable limits
+        $perPage = max(1, min($perPage, 50)); // Between 1 and 50
         
         if (empty($query)) {
             return response()->json([
+                'status' => 'error',
+                'message' => 'No search query provided',
                 'data' => [],
-                'message' => 'No search query provided'
+                'pagination' => [
+                    'total' => 0,
+                    'per_page' => $perPage,
+                    'current_page' => $page,
+                    'last_page' => 0,
+                    'from' => 0,
+                    'to' => 0
+                ]
             ]);
         }
         
@@ -64,9 +78,25 @@ class SearchController extends Controller
             $resultsQuery->searchIndonesianText($query);
         }
         
-        $results = $resultsQuery->paginate(20)
-                               ->appends(['q' => $query, 'lang' => $language]);
+        // Add ordering for consistent pagination results
+        $resultsQuery->orderBy('surah_number')->orderBy('ayah_number');
         
-        return response()->json($results);
+        $results = $resultsQuery->paginate($perPage, ['*'], 'page', $page)
+                               ->appends(['q' => $query, 'lang' => $language, 'per_page' => $perPage]);
+        
+        // Format the response in a consistent way
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Search results found',
+            'data' => $results->items(),
+            'pagination' => [
+                'total' => $results->total(),
+                'per_page' => $results->perPage(),
+                'current_page' => $results->currentPage(),
+                'last_page' => $results->lastPage(),
+                'from' => $results->firstItem() ?: 0,
+                'to' => $results->lastItem() ?: 0
+            ]
+        ]);
     }
 }

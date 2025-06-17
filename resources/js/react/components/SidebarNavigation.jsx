@@ -262,7 +262,7 @@ function SidebarNavigation() {
                                 onClick={handleNavItemClick}
                                 className={`flex items-center justify-start px-3 py-3 rounded-lg transition-all duration-200 relative ${
                                     isCurrentPath(item.path)
-                                        ? 'bg-islamic-green text-gray-500 shadow-md'
+                                        ? 'bg-islamic-green text-green-600 shadow-md'
                                         : 'text-black hover:bg-islamic-green/10 hover:text-islamic-green'
                                 }`}
                                 title={item.name}
@@ -295,7 +295,7 @@ function SidebarNavigation() {
                                         onClick={handleNavItemClick}
                                         className={`flex items-center justify-start px-3 py-3 rounded-lg transition-all duration-200 relative ${
                                             isCurrentPath(item.path)
-                                                ? 'bg-islamic-green text-gray-500 shadow-md'
+                                                ? 'bg-islamic-green text-green-600 shadow-md'
                                                 : 'text-black hover:bg-islamic-green/10 hover:text-islamic-green'
                                         }`}
                                         title={item.name}
@@ -323,7 +323,7 @@ function SidebarNavigation() {
                                 onClick={handleNavItemClick}
                                 className={`flex items-center justify-start px-3 py-3 rounded-lg transition-all duration-200 relative ${
                                     isCurrentPath(item.path)
-                                        ? 'bg-islamic-green text-gray-500 shadow-md'
+                                        ? 'bg-islamic-green text-green-600 shadow-md'
                                         : 'text-black hover:bg-islamic-green/10 hover:text-islamic-green'
                                 }`}
                                 title={item.name}

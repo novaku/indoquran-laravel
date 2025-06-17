@@ -213,7 +213,10 @@ class QuranController extends Controller
     }
 
     /**
-     * Search ayahs by Indonesian text
+     * Search for ayahs based on Indonesian or English text.
+     * 
+     * Search is performed as an AND operation between words.
+     * For example, a search for "anak allah" will find ayahs that contain both "anak" AND "allah".
      * 
      * @param Request $request
      * @return JsonResponse
@@ -221,29 +224,60 @@ class QuranController extends Controller
     public function searchAyahs(Request $request): JsonResponse
     {
         $query = $request->input('q');
+        $perPage = (int)$request->input('per_page', 10);
+        $page = (int)$request->input('page', 1);
+        $language = $request->input('lang', 'indonesian'); // Default to Indonesian
+        
+        // Validate per_page to reasonable limits
+        $perPage = max(1, min($perPage, 50)); // Between 1 and 50
         
         if (!$query) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Search query is required'
+                'message' => 'Search query is required',
+                'pagination' => [
+                    'total' => 0,
+                    'per_page' => $perPage,
+                    'current_page' => $page,
+                    'last_page' => 0,
+                    'from' => 0,
+                    'to' => 0
+                ]
             ], 400);
         }
         
-        // Build the search query for Indonesian text
-        $searchQuery = Ayah::with('surah:number,name_indonesian,name_arabic,name_latin')
-            ->searchIndonesianText($query);
+        // Build the search query based on language
+        $searchQuery = Ayah::with('surah:number,name_indonesian,name_arabic,name_latin');
         
-        // Add ordering
+        if ($language === 'english') {
+            $searchQuery->searchEnglishText($query);
+        } else {
+            $searchQuery->searchIndonesianText($query);
+        }
+        
+        // Add ordering for consistent pagination
         $searchQuery->orderBy('surah_number')->orderBy('ayah_number');
         
-        // Get all results without pagination
-        $results = $searchQuery->get();
+        // Apply pagination with proper appending of query parameters for pagination links
+        $paginatedResults = $searchQuery->paginate($perPage, ['*'], 'page', $page)
+                                     ->appends($request->only(['q', 'per_page', 'lang']));
         
         return response()->json([
             'status' => 'success',
-            'query' => $query,
-            'data' => $results,
-            'total' => $results->count()
+            'query' => [
+                'text' => $query,
+                'language' => $language,
+                'search_mode' => 'AND' // Indicating that search uses AND between terms
+            ],
+            'data' => $paginatedResults->items(),
+            'pagination' => [
+                'total' => $paginatedResults->total(),
+                'per_page' => $paginatedResults->perPage(),
+                'current_page' => $paginatedResults->currentPage(),
+                'last_page' => $paginatedResults->lastPage(),
+                'from' => $paginatedResults->firstItem() ?: 0,
+                'to' => $paginatedResults->lastItem() ?: 0
+            ]
         ]);
     }
 

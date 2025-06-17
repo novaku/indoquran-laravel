@@ -65,9 +65,34 @@ class Ayah extends Model
             return !empty(trim($term));
         });
         
+        // Apply AND condition for each search term
+        // This will work like: WHERE text_indonesian LIKE '%term1%' AND text_indonesian LIKE '%term2%'
         foreach ($searchTerms as $term) {
             $term = trim($term);
             $query->where('text_indonesian', 'like', '%' . $term . '%');
+        }
+
+        return $query;
+    }
+    
+    /**
+     * Scope a query to search ayahs by English text.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string $search
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeSearchEnglishText($query, $search)
+    {
+        $searchTerms = array_filter(explode(' ', trim($search)), function($term) {
+            return !empty(trim($term));
+        });
+        
+        // Apply AND condition for each search term
+        // This will work like: WHERE text_english LIKE '%term1%' AND text_english LIKE '%term2%'
+        foreach ($searchTerms as $term) {
+            $term = trim($term);
+            $query->where('text_english', 'like', '%' . $term . '%');
         }
 
         return $query;

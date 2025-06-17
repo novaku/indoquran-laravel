@@ -18,7 +18,7 @@ function DonationPage() {
     };
 
     const eMoneyDetails = {
-        number: '08111101024',
+        number: '0811-110-1024',
         name: 'Nova Herdi Kusumah',
         providers: ['DANA', 'OVO', 'GOPAY', 'SHOPEE PAY', 'ASTRA PAY']
     };

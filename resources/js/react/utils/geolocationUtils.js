@@ -87,15 +87,16 @@ export const requestGeolocation = (
 };
 
 /**
- * Get location name from coordinates using OpenStreetMap Nominatim
+ * Get location name from coordinates using our own proxy to OpenStreetMap Nominatim
  * @param {number} latitude 
  * @param {number} longitude 
  * @returns {Promise<string>} Location name or default text
  */
 export const getLocationName = async (latitude, longitude) => {
     try {
+        // Use our own API proxy endpoint instead of directly calling Nominatim
         const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`
+            `/api/geocode/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`
         );
         
         if (!response.ok) {

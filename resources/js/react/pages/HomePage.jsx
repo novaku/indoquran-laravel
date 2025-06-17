@@ -144,84 +144,87 @@ function HomePage() {
         }, [surah, onSurahClick]);
 
         return (
-            <div className="group bg-white rounded-lg xs:rounded-xl sm:rounded-2xl p-3 xs:p-4 sm:p-5 md:p-6 shadow-md xs:shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden">
-                {/* Background Pattern */}
-                <div className="absolute top-0 right-0 w-8 xs:w-10 sm:w-12 md:w-16 lg:w-20 h-8 xs:h-10 sm:h-12 md:h-16 lg:h-20 bg-gradient-to-br from-islamic-green/5 to-islamic-gold/5 rounded-bl-xl xs:rounded-bl-2xl sm:rounded-bl-3xl"></div>
+            <div className="group bg-white rounded-lg xs:rounded-xl sm:rounded-2xl p-4 xs:p-5 sm:p-6 md:p-7 shadow-md xs:shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden w-full">
+                {/* Enhanced Background Pattern */}
+                <div className="absolute top-0 right-0 w-12 xs:w-14 sm:w-16 md:w-20 lg:w-24 h-12 xs:h-14 sm:h-16 md:h-20 lg:h-24 bg-gradient-to-br from-islamic-green/10 to-islamic-gold/10 rounded-bl-xl xs:rounded-bl-2xl sm:rounded-bl-3xl"></div>
                 
-                {/* Header Section */}
-                <div className="flex items-start justify-between mb-3 xs:mb-4 sm:mb-5">
-                    <div className="flex items-start space-x-2 xs:space-x-3 sm:space-x-4 flex-1 min-w-0">
-                        <div className="w-10 xs:w-11 sm:w-12 md:w-14 h-10 xs:h-11 sm:h-12 md:h-14 bg-gradient-to-br from-islamic-green to-islamic-gold rounded-lg xs:rounded-xl sm:rounded-2xl flex items-center justify-center text-white font-bold text-sm xs:text-base sm:text-lg md:text-xl shadow-md xs:shadow-lg relative flex-shrink-0">
-                            <span className="text-black font-bold drop-shadow-sm">{surah.number}</span>
-                            <div className="absolute -top-0.5 xs:-top-1 -right-0.5 xs:-right-1 w-4 xs:w-5 sm:w-6 h-4 xs:h-5 sm:h-6 bg-islamic-gold rounded-full flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-2 xs:h-2.5 sm:h-3 w-2 xs:w-2.5 sm:w-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                {/* Header Section with Improved Layout */}
+                <div className="flex items-start justify-between mb-4 xs:mb-5 sm:mb-6">
+                    <div className="flex items-start space-x-3 xs:space-x-4 sm:space-x-5 flex-1 min-w-0">
+                        {/* Improved Surah Number Box */}
+                        <div className="w-12 xs:w-14 sm:w-16 md:w-18 h-12 xs:h-14 sm:h-16 md:h-18 bg-gradient-to-br from-islamic-green to-islamic-gold rounded-lg xs:rounded-xl sm:rounded-2xl flex items-center justify-center shadow-md xs:shadow-lg relative flex-shrink-0">
+                            <span className="text-black font-bold text-base xs:text-lg sm:text-xl md:text-2xl drop-shadow-md">{surah.number}</span>
+                            <div className="absolute -top-1 xs:-top-1.5 -right-1 xs:-right-1.5 w-5 xs:w-6 sm:w-7 h-5 xs:h-6 sm:h-7 bg-islamic-gold rounded-full flex items-center justify-center shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 xs:h-3.5 sm:h-4 w-3 xs:w-3.5 sm:w-4 text-green" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                 </svg>
                             </div>
                         </div>
+                        
+                        {/* Improved Latin Name and Metadata */}
                         <div className="flex-1 min-w-0">
-                            <h3 className="text-sm xs:text-base sm:text-lg md:text-xl font-bold text-islamic-green group-hover:text-islamic-gold transition-colors mb-1 xs:mb-1.5 leading-tight">
+                            <h3 className="text-base xs:text-lg sm:text-xl md:text-2xl font-bold text-islamic-green group-hover:text-islamic-gold transition-colors mb-2 xs:mb-2.5 leading-tight">
                                 <span className="block truncate">{surah.name_latin}</span>
                             </h3>
-                            <div className="space-y-1 text-xs xs:text-sm text-gray-600">
+                            <div className="space-y-2 text-sm xs:text-base text-gray-700">
                                 <div className="flex items-center min-w-0">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 xs:h-3.5 sm:h-4 w-3 xs:w-3.5 sm:w-4 mr-1 xs:mr-1.5 text-islamic-green flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 xs:h-4.5 sm:h-5 w-4 xs:w-4.5 sm:w-5 mr-2 text-islamic-green flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
-                                    <span className="truncate">{surah.revelation_place}</span>
+                                    <span className="truncate font-medium">{surah.revelation_place}</span>
                                 </div>
                                 <div className="flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 xs:h-3.5 sm:h-4 w-3 xs:w-3.5 sm:w-4 mr-1 xs:mr-1.5 text-islamic-green flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-1l-4 4z" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 xs:h-4.5 sm:h-5 w-4 xs:w-4.5 sm:w-5 mr-2 text-islamic-green flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-1l-4 4z" />
                                     </svg>
-                                    <span>{surah.total_ayahs} ayat</span>
+                                    <span className="font-medium">{surah.total_ayahs} ayat</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    {/* Arabic Name Section */}
-                    <div className="text-right ml-2 xs:ml-3 sm:ml-4 flex-shrink-0 min-w-0 max-w-[80px] xs:max-w-[90px] sm:max-w-[120px]">
-                        <h4 className="text-lg xs:text-xl sm:text-2xl md:text-3xl font-arabic text-islamic-green mb-0.5 xs:mb-1 leading-none truncate">{surah.name_arabic}</h4>
-                        <p className="text-xs xs:text-sm text-gray-500 font-medium truncate">{surah.name_indonesian}</p>
+                    {/* Enhanced Arabic Name Section */}
+                    <div className="text-right ml-3 xs:ml-4 sm:ml-5 flex-shrink-0 min-w-0 max-w-[100px] xs:max-w-[120px] sm:max-w-[140px]">
+                        <h4 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-arabic text-islamic-green mb-1 xs:mb-2 leading-none truncate">{surah.name_arabic}</h4>
+                        <p className="text-sm xs:text-base text-gray-700 font-medium truncate">{surah.name_indonesian}</p>
                     </div>
                 </div>
                 
-                {/* Description Section */}
+                {/* Enhanced Description Section */}
                 {surah.description_short && (
-                    <div className="mb-3 xs:mb-4 sm:mb-5 p-3 xs:p-4 sm:p-5 bg-gradient-to-r from-islamic-green/5 to-islamic-gold/5 rounded-lg xs:rounded-xl sm:rounded-2xl border border-islamic-green/10">
-                        <h5 className="text-xs xs:text-sm sm:text-base font-semibold text-islamic-green mb-2 xs:mb-3 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 xs:h-4 sm:h-5 w-3 xs:w-4 sm:w-5 mr-1 xs:mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <div className="mb-4 xs:mb-5 sm:mb-6 p-4 xs:p-5 sm:p-6 bg-gradient-to-r from-islamic-green/10 to-islamic-gold/10 rounded-lg xs:rounded-xl sm:rounded-2xl border border-islamic-green/20">
+                        <h5 className="text-sm xs:text-base sm:text-lg font-semibold text-islamic-green mb-2 xs:mb-3 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 xs:h-5 sm:h-6 w-4 xs:w-5 sm:w-6 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             Tentang Surah
                         </h5>
-                        <p className="text-gray-600 text-xs xs:text-sm sm:text-base leading-relaxed line-clamp-2 xs:line-clamp-3">
+                        <p className="text-gray-700 text-sm xs:text-base sm:text-lg leading-relaxed line-clamp-2 xs:line-clamp-3">
                             {truncateDescription(surah.description_short, 80)}
                         </p>
                     </div>
                 )}
                 
-                {/* Action Buttons */}
-                <div className="flex items-center justify-between pt-2 xs:pt-3 sm:pt-4 border-t border-gray-100 space-x-2 xs:space-x-3">
+                {/* Enhanced Action Buttons */}
+                <div className="flex items-center justify-between pt-3 xs:pt-4 sm:pt-5 border-t border-gray-200 space-x-3 xs:space-x-4">
                     <button
                         onClick={handleDetailClick}
-                        className="flex items-center px-2 xs:px-3 sm:px-4 py-2 xs:py-2.5 sm:py-3 bg-green-100 text-green-700 rounded-lg xs:rounded-xl hover:bg-green-600 hover:text-white transition-all duration-300 text-xs xs:text-sm sm:text-base font-medium shadow-sm flex-1 justify-center min-w-0"
+                        className="flex items-center px-3 xs:px-4 sm:px-5 py-2.5 xs:py-3 sm:py-3.5 bg-green-100 text-green-700 rounded-lg xs:rounded-xl hover:bg-green-600 hover:text-white transition-all duration-300 text-sm xs:text-base sm:text-lg font-medium shadow-sm flex-1 justify-center min-w-0"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 xs:h-4 sm:h-5 w-3 xs:w-4 sm:w-5 mr-1 xs:mr-1.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 xs:h-5 sm:h-6 w-4 xs:w-5 sm:w-6 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <span className="truncate">Detail</span>
                     </button>
                     
                     <a 
                         href={`/surah/${surah.number}`}
-                        className="flex items-center px-2 xs:px-3 sm:px-4 py-2 xs:py-2.5 sm:py-3 bg-green-600 text-white rounded-lg xs:rounded-xl hover:bg-green-700 transition-all duration-300 text-xs xs:text-sm sm:text-base font-medium shadow-sm flex-1 justify-center min-w-0"
+                        className="flex items-center px-3 xs:px-4 sm:px-5 py-2.5 xs:py-3 sm:py-3.5 bg-green-600 text-white rounded-lg xs:rounded-xl hover:bg-green-700 transition-all duration-300 text-sm xs:text-base sm:text-lg font-medium shadow-sm flex-1 justify-center min-w-0"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 xs:h-4 sm:h-5 w-3 xs:w-4 sm:w-5 mr-1 xs:mr-1.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 xs:h-5 sm:h-6 w-4 xs:w-5 sm:w-6 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                         </svg>
                         <span className="truncate">Baca</span>
                     </a>
@@ -267,7 +270,7 @@ function HomePage() {
                     
                     <StructuredData type="WebSite" data={{}} />
                     
-                    <div className="max-w-6xl mx-auto px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 xl:px-12">
+                    <div className="max-w-5xl mx-auto px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 xl:px-12">
                         <QuranHeader />
                         
                         {/* Widget Pencarian */}
@@ -311,7 +314,7 @@ function HomePage() {
                         ) : error ? (
                             <div className="bg-red-100 text-red-700 p-3 xs:p-4 rounded-lg text-sm xs:text-base">{error}</div>
                         ) : (
-                            <div className="grid grid-cols-1 xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 xs:gap-3 sm:gap-4 md:gap-5 lg:gap-6">
+                            <div className="grid grid-cols-1 xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4 xs:gap-5 sm:gap-6 md:gap-7 lg:gap-8">
                                 {filteredSurahs.map(surah => (
                                     <SurahCard 
                                         key={surah.number} 

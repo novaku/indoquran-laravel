@@ -22,6 +22,9 @@ use App\Http\Controllers\PrayerController;
 |
 */
 
+// Geocoding proxy
+Route::get('/geocode/reverse', [\App\Http\Controllers\Api\GeocodingController::class, 'reverseGeocode']);
+
 // Return authenticated user or null - simplified without session checks
 Route::get('/user', function (Request $request) {
     // First attempt with regular auth check
