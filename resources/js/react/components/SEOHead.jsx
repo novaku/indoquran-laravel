@@ -140,7 +140,7 @@ export const getSearchSEO = (query, results = []) => ({
   title: `Hasil Pencarian "${query}" - IndoQuran`,
   description: `Hasil pencarian Al-Quran untuk "${query}". Ditemukan ${results.length} ayat yang sesuai dengan pencarian Anda. Cari ayat, surah, dan terjemahan dalam Al-Quran.`,
   keywords: `pencarian quran, cari ayat, ${query}, al quran indonesia, pencarian al quran`,
-  canonicalUrl: `https://my.indoquran.web.id/search?q=${encodeURIComponent(query)}`,
+  canonicalUrl: `https://my.indoquran.web.id/cari?q=${encodeURIComponent(query)}`,
   structuredDataType: 'SearchResults',
   structuredData: { query, results },
   pageType: 'search'

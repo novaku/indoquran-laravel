@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class SearchController extends Controller
 {
     /**
-     * Search for ayahs based on Indonesian or English text.
+     * Search for ayahs based on Indonesian text.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -16,7 +16,6 @@ class SearchController extends Controller
     public function search(Request $request)
     {
         $query = $request->input('q');
-        $language = $request->input('lang', 'indonesian'); // Default to Indonesian
         
         if (empty($query)) {
             return view('search.index');
@@ -24,21 +23,16 @@ class SearchController extends Controller
         
         // Using the custom scope we defined in Ayah model
         $resultsQuery = Ayah::query()->with('surah');
-        
-        if ($language === 'english') {
-            $resultsQuery->searchEnglishText($query);
-        } else {
-            $resultsQuery->searchIndonesianText($query);
-        }
+        $resultsQuery->searchIndonesianText($query);
         
         $results = $resultsQuery->paginate(20)
-                               ->appends(['q' => $query, 'lang' => $language]);
+                               ->appends(['q' => $query]);
         
-        return view('search.results', compact('results', 'query', 'language'));
+        return view('search.results', compact('results', 'query'));
     }
     
     /**
-     * API search for ayahs based on Indonesian or English text.
+     * API search for ayahs based on Indonesian text.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
@@ -46,7 +40,6 @@ class SearchController extends Controller
     public function apiSearch(Request $request)
     {
         $query = $request->input('q');
-        $language = $request->input('lang', 'indonesian'); // Default to Indonesian
         $perPage = (int)$request->input('per_page', 10); // Default to 10 items per page, respect the client preference
         $page = (int)$request->input('page', 1); // Get current page
         
@@ -71,18 +64,13 @@ class SearchController extends Controller
         
         // Using the custom scope we defined in Ayah model
         $resultsQuery = Ayah::query()->with('surah');
-        
-        if ($language === 'english') {
-            $resultsQuery->searchEnglishText($query);
-        } else {
-            $resultsQuery->searchIndonesianText($query);
-        }
+        $resultsQuery->searchIndonesianText($query);
         
         // Add ordering for consistent pagination results
         $resultsQuery->orderBy('surah_number')->orderBy('ayah_number');
         
         $results = $resultsQuery->paginate($perPage, ['*'], 'page', $page)
-                               ->appends(['q' => $query, 'lang' => $language, 'per_page' => $perPage]);
+                               ->appends(['q' => $query, 'per_page' => $perPage]);
         
         // Format the response in a consistent way
         return response()->json([

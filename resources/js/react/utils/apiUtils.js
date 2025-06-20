@@ -1,7 +1,6 @@
 /**
  * API utility functions with Bearer token authentication
  */
-import { corsSafeFetch, getCorsSafeUrl } from './corsUtils';
 
 /**
  * Get the authentication token from localStorage
@@ -45,8 +44,7 @@ export const getCsrfToken = () => {
  * @returns {Promise<Response>} The fetch response
  */
 export const getWithAuth = async (url, options = {}) => {
-    const corsUrl = getCorsSafeUrl(url);
-    return fetch(corsUrl, {
+    return fetch(url, {
         method: 'GET',
         headers: {
             ...getAuthHeaders(),
@@ -64,8 +62,7 @@ export const getWithAuth = async (url, options = {}) => {
  * @returns {Promise<Response>} The fetch response
  */
 export const postWithAuth = async (url, data = {}, options = {}) => {
-    const corsUrl = getCorsSafeUrl(url);
-    return fetch(corsUrl, {
+    return fetch(url, {
         method: 'POST',
         headers: {
             ...getAuthHeaders(),
@@ -84,8 +81,7 @@ export const postWithAuth = async (url, data = {}, options = {}) => {
  * @returns {Promise<Response>} The fetch response
  */
 export const putWithAuth = async (url, data = {}, options = {}) => {
-    const corsUrl = getCorsSafeUrl(url);
-    return fetch(corsUrl, {
+    return fetch(url, {
         method: 'PUT',
         headers: {
             ...getAuthHeaders(),
@@ -103,8 +99,7 @@ export const putWithAuth = async (url, data = {}, options = {}) => {
  * @returns {Promise<Response>} The fetch response
  */
 export const deleteWithAuth = async (url, options = {}) => {
-    const corsUrl = getCorsSafeUrl(url);
-    return fetch(corsUrl, {
+    return fetch(url, {
         method: 'DELETE',
         headers: {
             ...getAuthHeaders(),
@@ -121,8 +116,7 @@ export const deleteWithAuth = async (url, options = {}) => {
  * @returns {Promise<Response>} The fetch response
  */
 export const fetchWithAuth = async (url, options = {}) => {
-    const corsUrl = getCorsSafeUrl(url);
-    return fetch(corsUrl, {
+    return fetch(url, {
         headers: {
             ...getAuthHeaders(),
             ...options.headers

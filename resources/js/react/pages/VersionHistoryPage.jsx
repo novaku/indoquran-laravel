@@ -374,7 +374,7 @@ function VersionHistoryPage() {
                         </p>
                         <div className="mt-4">
                             <a 
-                                href="/contact" 
+                                href="/kontak" 
                                 className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200"
                             >
                                 <span>Berikan Masukan</span>

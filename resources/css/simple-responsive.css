@@ -1,0 +1,179 @@
+/* Simple and responsive styles for IndoQuran */
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  color: #374151;
+  background-color: #f9fafb;
+}
+
+/* Arabic text styling */
+.font-arabic {
+  font-family: 'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif;
+  font-weight: 400;
+  line-height: 2;
+}
+
+/* Mobile-first responsive design */
+@media (max-width: 640px) {
+  /* Better touch targets on mobile */
+  button, 
+  a[role="button"],
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Improved text sizing on mobile */
+  .font-arabic {
+    font-size: 1.25rem;
+    line-height: 2.5;
+  }
+
+  /* Better spacing on mobile */
+  .mobile-spacing {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Navigation improvements */
+  .mobile-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+    z-index: 50;
+  }
+
+  /* Card improvements */
+  .mobile-card {
+    margin-left: -1rem;
+    margin-right: -1rem;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+}
+
+/* Tablet styles */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .font-arabic {
+    font-size: 1.375rem;
+    line-height: 2.25;
+  }
+}
+
+/* Desktop styles */
+@media (min-width: 1025px) {
+  .font-arabic {
+    font-size: 1.5rem;
+    line-height: 2;
+  }
+}
+
+/* Focus styles for accessibility */
+*:focus {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+}
+
+/* Loading states */
+.loading-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Smooth transitions */
+.smooth-transition {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Better scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #10b981;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #059669;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .font-arabic {
+    font-size: 14pt;
+    line-height: 1.8;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  body {
+    background-color: white;
+    color: black;
+  }
+  
+  .border-gray-200 {
+    border-color: #000;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* RTL support for Arabic text */
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Better dark mode support (if needed later) */
+@media (prefers-color-scheme: dark) {
+  .dark-mode-auto {
+    background-color: #1f2937;
+    color: #f9fafb;
+  }
+}

@@ -40,7 +40,7 @@ function PageDetailPage() {
             setLoading(true);
             setError(null);
             
-            const response = await fetchWithAuth(`/api/pages/${pageNumber}`);
+            const response = await fetchWithAuth(`/api/halaman/${pageNumber}`);
             const data = await response.json();
             
             if (data.status === 'success') {

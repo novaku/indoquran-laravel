@@ -13,7 +13,7 @@ export default {
         // sm, md, lg, xl, 2xl are already defined by default
       },
       fontFamily: {
-        arabic: ['Scheherazade New', 'Scheherazade', 'Noto Naskh Arabic', 'serif'],
+        arabic: ['Amiri', 'Scheherazade New', 'Scheherazade', 'Noto Naskh Arabic', 'serif'],
         sans: ['Inter', 'Noto Sans', 'ui-sans-serif', 'system-ui'],
         serif: ['Playfair Display', 'ui-serif', 'Georgia'],
         amiri: ['Amiri', 'serif'],

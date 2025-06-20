@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { IoArrowBackOutline, IoHandRightOutline, IoAddOutline, IoHeartOutline } from 'react-icons/io5';
 import { useAuth } from '../hooks/useAuth';
 import { fetchWithAuth, postWithAuth } from '../utils/apiUtils';
 import { toast } from 'react-hot-toast';
@@ -9,6 +11,7 @@ import PrayerFilters from '../components/PrayerFilters';
 import SEOHead from '../components/SEOHead';
 
 const PrayerPage = () => {
+    const navigate = useNavigate();
     const { user } = useAuth();
     const [prayers, setPrayers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -180,123 +183,119 @@ const PrayerPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-islamic-green/5 to-islamic-gold/5 pb-20">
-            <div className="container mx-auto px-4">
-                <SEOHead 
-                    title="Doa Bersama - IndoQuran"
-                    description="Bergabunglah dalam doa bersama umat Islam. Posting doa, berikan amin, dan saling mendukung dalam spiritualitas."
-                    keywords="doa bersama, doa islam, amin, komunitas muslim, spiritual"
-                />
-
+        <>
+            <SEOHead 
+                title="Doa Bersama - IndoQuran"
+                description="Bergabunglah dalam doa bersama umat Islam. Posting doa, berikan amin, dan saling mendukung dalam spiritualitas."
+                keywords="doa bersama, doa islam, amin, komunitas muslim, spiritual"
+            />
+            
+            <div className="min-h-screen bg-gray-50 pt-16">
                 {/* Header */}
-                <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-islamic-green mb-4">
-                        🤲 Doa Bersama
-                    </h1>
-                    <p className="text-gray-600 mb-4">
-                        Mari berdoa bersama dan saling mendukung dalam kebaikan
-                    </p>
-                    
-                    {/* Login Information */}
-                    {!user && (
-                        <div className="bg-gradient-to-r from-islamic-green/10 to-islamic-gold/10 rounded-lg p-4 mb-6 mx-auto max-w-2xl">
-                            <div className="flex items-center justify-center mb-2">
-                                <svg className="w-5 h-5 text-islamic-green mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span className="text-sm font-semibold text-islamic-green">
-                                    ℹ️ Informasi Penting
-                                </span>
-                            </div>
-                            <p className="text-sm text-gray-800 mb-3">
-                                Untuk dapat <strong>mengirim doa</strong>, <strong>memberikan amin</strong>, dan <strong>mengomentari doa</strong>, 
-                                Anda perlu login terlebih dahulu.
-                            </p>
-                            <div className="flex items-center justify-center gap-3">
-                                <a 
-                                    href="/auth/login" 
-                                    className="bg-islamic-green text-black px-4 py-2 rounded-lg font-medium text-sm hover:bg-islamic-green/90 transition-all duration-200 shadow-md hover:shadow-lg"
-                                >
-                                    🔑 Login
-                                </a>
-                                <span className="text-islamic-green text-sm">atau</span>
-                                <a 
-                                    href="/auth/register" 
-                                    className="bg-islamic-green text-black px-4 py-2 rounded-lg font-medium text-sm hover:bg-islamic-green/90 transition-all duration-200 shadow-md hover:shadow-lg"
-                                >
-                                    📝 Daftar
-                                </a>
-                            </div>
+                <div className="bg-white shadow-sm border-b">
+                    <div className="max-w-4xl mx-auto px-4 py-4">
+                        <div className="flex items-center gap-4 mb-4">
+                            <button
+                                onClick={() => navigate('/')}
+                                className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
+                            >
+                                <IoArrowBackOutline className="w-5 h-5" />
+                                <span>Kembali</span>
+                            </button>
                         </div>
-                    )}
-
-                    {user && (
-                        <div className="bg-gradient-to-r from-islamic-green/10 to-islamic-gold/10 rounded-lg p-4 mb-6 mx-auto max-w-2xl">
-                            <div className="flex items-center justify-center mb-2">
-                                <span className="text-sm font-semibold text-islamic-green">
-                                    ✨ Selamat datang, {user.name}!
-                                </span>
+                        
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <IoHandRightOutline className="w-6 h-6 text-green-600" />
+                                <h1 className="text-2xl font-bold text-gray-900">Doa Bersama</h1>
                             </div>
-                            <p className="text-sm text-gray-800 mb-3">
-                                Anda dapat mengirim doa, memberikan amin, dan berkomentar pada doa-doa yang ada.
-                            </p>
+                            
+                            {user && (
+                                <button
+                                    onClick={() => setShowForm(!showForm)}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                                        showForm 
+                                            ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                            : 'bg-green-600 text-white hover:bg-green-700'
+                                    }`}
+                                >
+                                    <IoAddOutline className="w-5 h-5" />
+                                    {showForm ? 'Batal' : 'Kirim Doa'}
+                                </button>
+                            )}
                         </div>
-                    )}
-                    
-                    {user && (
-                        <button
-                            onClick={() => setShowForm(!showForm)}
-                            className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg transition-all duration-200 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
-                        >
-                            {showForm ? '✖ Batal' : '+ Kirim Doa'}
-                        </button>
-                    )}
+                    </div>
                 </div>
 
-                {/* Prayer Form */}
-                {showForm && user && (
-                    <div className="mb-8">
-                        <PrayerForm 
-                            onSubmit={handleSubmitPrayer}
-                            loading={submitting}
-                            onCancel={() => setShowForm(false)}
+                {/* Content */}
+                <div className="max-w-4xl mx-auto px-4 py-6">
+                    {/* Login Notice */}
+                    {!user && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                            <div className="flex items-center gap-3">
+                                <div className="flex-shrink-0">
+                                    <IoHeartOutline className="w-5 h-5 text-blue-600" />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-sm text-blue-800">
+                                        Untuk dapat mengirim doa, memberikan amin, dan berkomentar, silakan{' '}
+                                        <a href="/auth/login" className="font-medium underline hover:no-underline">
+                                            login
+                                        </a>{' '}
+                                        atau{' '}
+                                        <a href="/auth/register" className="font-medium underline hover:no-underline">
+                                            daftar
+                                        </a>{' '}
+                                        terlebih dahulu.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Prayer Form */}
+                    {showForm && user && (
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                            <PrayerForm 
+                                onSubmit={handleSubmitPrayer}
+                                loading={submitting}
+                                onCancel={() => setShowForm(false)}
+                            />
+                        </div>
+                    )}
+
+                    {/* Filters */}
+                    <div className="mb-6">
+                        <PrayerFilters 
+                            filters={filters}
+                            onFiltersChange={setFilters}
+                            totalPrayers={pagination.total}
                         />
                     </div>
-                )}
 
-                {/* Filters */}
-                <PrayerFilters 
-                    filters={filters}
-                    onFiltersChange={setFilters}
-                    totalPrayers={pagination.total}
-                />
-
-                {/* Prayer List */}
-                <div className="space-y-6">
-                    {loading && prayers.length === 0 ? (
-                        <div className="flex justify-center py-12">
-                            <LoadingSpinner size="lg" />
-                        </div>
-                    ) : prayers.length === 0 ? (
-                        <div className="text-center py-12">
-                            <div className="text-gray-400 mb-4">
-                                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-                                </svg>
+                    {/* Prayer List */}
+                    <div className="space-y-4">
+                        {loading && prayers.length === 0 ? (
+                            <div className="flex justify-center py-12">
+                                <LoadingSpinner size="lg" />
                             </div>
-                            <h3 className="text-lg font-medium text-gray-500 mb-2">
-                                Belum ada doa
-                            </h3>
-                            <p className="text-gray-400">
-                                {filters.search || filters.category !== 'all' 
-                                    ? 'Tidak ada doa yang sesuai dengan filter' 
-                                    : 'Jadilah yang pertama mengirim doa'
-                                }
-                            </p>
-                        </div>
-                    ) : (
-                        <>
-                            {prayers.map((prayer) => (
+                        ) : prayers.length === 0 ? (
+                            <div className="text-center py-12">
+                                <div className="text-gray-400 mb-4">
+                                    <IoHandRightOutline className="w-16 h-16 mx-auto" />
+                                </div>
+                                <h3 className="text-lg font-medium text-gray-500 mb-2">
+                                    Belum ada doa
+                                </h3>
+                                <p className="text-gray-400">
+                                    {filters.search || filters.category !== 'all' 
+                                        ? 'Tidak ada doa yang sesuai dengan filter' 
+                                        : 'Jadilah yang pertama mengirim doa'
+                                    }
+                                </p>
+                            </div>
+                        ) : (
+                            prayers.map((prayer) => (
                                 <PrayerCard
                                     key={prayer.id}
                                     prayer={prayer}
@@ -304,172 +303,45 @@ const PrayerPage = () => {
                                     onAminToggle={handleAminToggle}
                                     onCommentSubmit={handleCommentSubmit}
                                 />
-                            ))}
-                        </>
+                            ))
+                        )}
+                    </div>
+
+                    {/* Simple Pagination */}
+                    {pagination.last_page > 1 && !loading && prayers.length > 0 && (
+                        <div className="mt-8 flex items-center justify-center gap-4">
+                            <button
+                                onClick={() => handlePageChange(pagination.current_page - 1)}
+                                disabled={pagination.current_page === 1}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                                    pagination.current_page === 1
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                                }`}
+                            >
+                                Sebelumnya
+                            </button>
+                            
+                            <span className="text-sm text-gray-600">
+                                Halaman {pagination.current_page} dari {pagination.last_page}
+                            </span>
+                            
+                            <button
+                                onClick={() => handlePageChange(pagination.current_page + 1)}
+                                disabled={pagination.current_page === pagination.last_page}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                                    pagination.current_page === pagination.last_page
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                                }`}
+                            >
+                                Selanjutnya
+                            </button>
+                        </div>
                     )}
                 </div>
-
-                {/* Pagination */}
-                {pagination.last_page > 1 && !loading && prayers.length > 0 && (
-                    <div className="mt-12 space-y-6">
-                        {/* Page Info */}
-                        <div className="text-center">
-                            <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-islamic-green/10 to-islamic-gold/10 rounded-full shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-default">
-                                <span className="text-sm font-medium text-islamic-green">
-                                    Halaman <span className="font-bold text-islamic-green">{pagination.current_page}</span> dari <span className="font-bold text-islamic-green">{pagination.last_page}</span>
-                                    <span className="mx-2">•</span>
-                                    <span className="font-bold text-islamic-green">{pagination.total}</span> doa total
-                                </span>
-                            </div>
-                        </div>
-                        
-                        {/* Enhanced Pagination Controls */}
-                        <div className="flex justify-center">
-                            <nav className="flex items-center space-x-3 bg-white rounded-xl shadow-xl p-3"
-                                 aria-label="Pagination">
-                            {/* Previous button */}
-                            <button
-                                onClick={() => handlePageChange(Math.max(1, pagination.current_page - 1))}
-                                disabled={pagination.current_page === 1}
-                                className={`flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 transform ${
-                                    pagination.current_page === 1
-                                    ? 'bg-gray-50 text-gray-400 cursor-not-allowed shadow-sm'
-                                    : 'bg-white text-islamic-green hover:bg-islamic-green/10 hover:text-islamic-green shadow-md hover:shadow-xl hover:scale-105 hover:-translate-y-0.5'
-                                }`}
-                            >
-                                <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                                </svg>
-                                <span className="hidden sm:inline">Sebelumnya</span>
-                                <span className="sm:hidden">Prev</span>
-                            </button>
-                            
-                            {/* Page numbers */}
-                            {(() => {
-                                const pages = [];
-                                const maxVisible = 5;
-                                const totalPages = pagination.last_page;
-                                const currentPage = pagination.current_page;
-                                let startPage, endPage;
-                                
-                                if (totalPages <= maxVisible) {
-                                    startPage = 1;
-                                    endPage = totalPages;
-                                } else {
-                                    if (currentPage <= 3) {
-                                        startPage = 1;
-                                        endPage = maxVisible;
-                                    } else if (currentPage + 2 >= totalPages) {
-                                        startPage = totalPages - maxVisible + 1;
-                                        endPage = totalPages;
-                                    } else {
-                                        startPage = currentPage - 2;
-                                        endPage = currentPage + 2;
-                                    }
-                                }
-                                
-                                // Always show page numbers in the calculated range
-                                for (let i = startPage; i <= endPage; i++) {
-                                    pages.push(
-                                        <button
-                                            key={i}
-                                            onClick={() => handlePageChange(i)}
-                                            className={`px-4 py-3 min-w-[44px] text-sm font-medium rounded-lg transition-all duration-300 transform ${
-                                                currentPage === i
-                                                ? 'bg-gradient-to-r from-islamic-green to-emerald-600 text-white shadow-lg ring-2 ring-islamic-green/20 font-bold'
-                                                : 'bg-white text-islamic-green hover:bg-islamic-green/10 hover:text-islamic-green shadow-md hover:shadow-xl hover:scale-110 hover:-translate-y-1'
-                                            }`}
-                                        >
-                                            {i}
-                                        </button>
-                                    );
-                                }
-                                
-                                // Show ellipsis and last page if needed
-                                if (endPage < totalPages) {
-                                    if (endPage < totalPages - 1) {
-                                        pages.push(
-                                            <span key="ellipsis" className="px-3 py-3 text-islamic-green bg-islamic-green/5 rounded-lg shadow-sm">
-                                                ...
-                                            </span>
-                                        );
-                                    }
-                                    pages.push(
-                                        <button
-                                            key={totalPages}
-                                            onClick={() => handlePageChange(totalPages)}
-                                            className={`px-4 py-3 min-w-[44px] text-sm font-medium rounded-lg transition-all duration-300 transform ${
-                                                currentPage === totalPages
-                                                ? 'bg-gradient-to-r from-islamic-green to-emerald-600 text-white shadow-lg ring-2 ring-islamic-green/20 font-bold'
-                                                : 'bg-white text-islamic-green hover:bg-islamic-green/10 hover:text-islamic-green shadow-md hover:shadow-xl hover:scale-110 hover:-translate-y-1'
-                                            }`}
-                                        >
-                                            {totalPages}
-                                        </button>
-                                    );
-                                }
-                                
-                                return pages;
-                            })()}
-                            
-                            {/* Next button */}
-                            <button
-                                onClick={() => handlePageChange(Math.min(pagination.last_page, pagination.current_page + 1))}
-                                disabled={pagination.current_page === pagination.last_page}
-                                className={`flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 transform ${
-                                    pagination.current_page === pagination.last_page
-                                    ? 'bg-gray-50 text-gray-400 cursor-not-allowed shadow-sm'
-                                    : 'bg-white text-islamic-green hover:bg-islamic-green/10 hover:text-islamic-green shadow-md hover:shadow-xl hover:scale-105 hover:-translate-y-0.5'
-                                }`}
-                            >
-                                <span className="hidden sm:inline">Selanjutnya</span>
-                                <span className="sm:hidden">Next</span>
-                                <svg className="h-4 w-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                                </svg>
-                            </button>
-                            </nav>
-                        </div>
-                    </div>
-                )}
-
-                {/* Not logged in message */}
-                {!user && (
-                    <div className="bg-gradient-to-r from-islamic-gold/10 to-islamic-green/10 rounded-xl p-6 mt-8 shadow-lg">
-                        <div className="flex items-center">
-                            <div className="flex-shrink-0">
-                                <svg className="h-8 w-8 text-islamic-gold" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                </svg>
-                            </div>
-                            <div className="ml-4 flex-1">
-                                <h3 className="text-lg font-bold text-islamic-gold mb-2">
-                                    🤲 Bergabunglah dalam Doa Bersama
-                                </h3>
-                                <p className="text-sm text-gray-800 mb-4">
-                                    Untuk dapat mengirim doa, memberikan amin, dan berkomentar, Anda perlu login terlebih dahulu.
-                                </p>
-                                <div className="flex items-center gap-3">
-                                    <a 
-                                        href="/auth/login" 
-                                        className="bg-gradient-to-r from-islamic-green to-emerald-600 text-white px-6 py-3 rounded-lg font-bold text-sm hover:from-emerald-700 hover:to-green-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-                                    >
-                                        🔑 Login Sekarang
-                                    </a>
-                                    <span className="text-islamic-gold text-sm">atau</span>
-                                    <a 
-                                        href="/auth/register" 
-                                        className="bg-white text-islamic-green px-6 py-3 rounded-lg font-bold text-sm hover:bg-gray-50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-                                    >
-                                        📝 Daftar Baru
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
             </div>
-        </div>
+        </>
     );
 };
 

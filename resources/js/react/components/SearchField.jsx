@@ -9,25 +9,52 @@ const SearchField = ({
     surahs = [], 
     className = '',
     placeholder = 'Cari ayat Al-Quran berdasarkan terjemahan Indonesia...',
-    theme = 'islamic' // 'islamic' or 'amber'
+    theme = 'islamic', // 'islamic' or 'amber'
+    value, // controlled value
+    onChange, // controlled onChange
+    disableAutocomplete = false // prop to disable autocomplete suggestions
 }) => {
     const navigate = useNavigate();
     
     // Search functionality states
-    const [searchTerm, setSearchTerm] = useState('');
+    const [internalSearchTerm, setInternalSearchTerm] = useState('');
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [isSearchLoading, setIsSearchLoading] = useState(false);
     const [highlightedIndex, setHighlightedIndex] = useState(-1);
     const searchRef = useRef(null);
     const suggestionsRef = useRef(null);
+    const searchTimeoutRef = useRef(null);
+    const currentRequestRef = useRef(null);
+    const lastSearchTermRef = useRef('');
+
+    // Determine if this is a controlled component
+    const isControlled = value !== undefined;
+    // Ensure searchTerm is always a string
+    const searchTerm = isControlled ? String(value || '') : internalSearchTerm;
 
     // Search functionality
-    const fetchSuggestions = async (query) => {
+    const fetchSuggestions = useCallback(async (query) => {
         if (!query || query.length < 2) {
             setSuggestions([]);
+            setIsSearchLoading(false);
             return;
         }
+
+        // Don't make API call if the query is the same as the last one
+        if (lastSearchTermRef.current === query) {
+            return;
+        }
+        lastSearchTermRef.current = query;
+
+        // Cancel previous request if it exists
+        if (currentRequestRef.current) {
+            currentRequestRef.current.abort();
+        }
+
+        // Create new AbortController for this request
+        const abortController = new AbortController();
+        currentRequestRef.current = abortController;
         
         const token = authUtils.getAuthToken();
         setIsSearchLoading(true);
@@ -52,7 +79,8 @@ const SearchField = ({
                 }));
 
             // Then, fetch ayah results from API
-            const response = await fetchWithAuth(`/api/search?q=${encodeURIComponent(query)}&limit=5`, {
+            const response = await fetchWithAuth(`/api/cari?q=${encodeURIComponent(query)}&limit=5`, {
+                signal: abortController.signal,
                 headers: {
                     'Authorization': token ? `Bearer ${token}` : '',
                     'Content-Type': 'application/json',
@@ -116,24 +144,67 @@ const SearchField = ({
                 setSuggestions([...surahResults, ...textSuggestions]);
             }
         } catch (error) {
-            console.error('Error fetching suggestions:', error);
-        } finally {
-            setIsSearchLoading(false);
-        }
-    };
-
-    // Debounce search input
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (searchTerm) {
-                fetchSuggestions(searchTerm);
-            } else {
+            // Don't log errors for aborted requests
+            if (error.name !== 'AbortError') {
+                console.error('Error fetching suggestions:', error);
                 setSuggestions([]);
             }
-        }, 300);
+        } finally {
+            // Only update loading state if this request wasn't aborted
+            if (!abortController.signal.aborted) {
+                setIsSearchLoading(false);
+            }
+            // Clear the current request reference
+            if (currentRequestRef.current === abortController) {
+                currentRequestRef.current = null;
+            }
+        }
+    }, [surahs]); // Only depend on surahs, which should be memoized by parent component
+
+    // Debounced search function
+    const debouncedFetchSuggestions = useCallback((query) => {
+        // Clear any existing timeout
+        if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current);
+        }
         
-        return () => clearTimeout(timer);
-    }, [searchTerm, surahs]);
+        // Ensure query is a string
+        const searchQuery = String(query || '');
+        
+        // Set new timeout
+        searchTimeoutRef.current = setTimeout(() => {
+            if (searchQuery && searchQuery.length >= 2) {
+                fetchSuggestions(searchQuery);
+            } else {
+                setSuggestions([]);
+                setShowSuggestions(false);
+                setIsSearchLoading(false);
+            }
+        }, 500); // Increased debounce delay to 500ms to reduce API calls
+    }, [fetchSuggestions]);
+
+    // Handle search term changes
+    useEffect(() => {
+        // Only fetch suggestions if autocomplete is not disabled
+        if (!disableAutocomplete) {
+            debouncedFetchSuggestions(searchTerm);
+        } else {
+            // Clear suggestions if autocomplete is disabled
+            setSuggestions([]);
+            setShowSuggestions(false);
+            setIsSearchLoading(false);
+        }
+        
+        // Cleanup timeout and abort request on unmount
+        return () => {
+            if (searchTimeoutRef.current) {
+                clearTimeout(searchTimeoutRef.current);
+            }
+            if (currentRequestRef.current) {
+                currentRequestRef.current.abort();
+            }
+        };
+    }, [searchTerm, debouncedFetchSuggestions, disableAutocomplete]);
 
     // Handle clicks outside of the search component
     useEffect(() => {
@@ -168,15 +239,28 @@ const SearchField = ({
         e.preventDefault();
         const query = e.target.elements.search.value.trim();
         if (query) {
-            navigate(`/search?q=${encodeURIComponent(query)}`);
+            navigate(`/cari?q=${encodeURIComponent(query)}`);
             setShowSuggestions(false);
             if (onViewAllResults) onViewAllResults(query);
         }
     };
 
     const handleSearchChange = (e) => {
-        const value = e.target.value;
-        setSearchTerm(value);
+        // Ensure we have a valid event and value
+        if (!e || !e.target) return;
+        
+        const value = e.target.value || '';
+        
+        if (isControlled) {
+            // In controlled mode, call the parent's onChange with the string value
+            if (onChange && typeof onChange === 'function') {
+                onChange(value);
+            }
+        } else {
+            // In uncontrolled mode, update internal state
+            setInternalSearchTerm(value);
+        }
+        
         if (value.length >= 2) {
             setShowSuggestions(true);
         } else {
@@ -185,7 +269,8 @@ const SearchField = ({
     };
 
     const handleSearchFocus = () => {
-        if (searchTerm && searchTerm.length >= 2) {
+        // Only show suggestions if autocomplete is not disabled
+        if (!disableAutocomplete && searchTerm && searchTerm.length >= 2) {
             setShowSuggestions(true);
         }
     };
@@ -238,18 +323,33 @@ const SearchField = ({
         }
         
         setShowSuggestions(false);
-        setSearchTerm('');
+        
+        // Update the search field with the selected suggestion text
+        const suggestionText = suggestion.text || '';
+        if (isControlled) {
+            if (onChange) onChange(suggestionText);
+        } else {
+            setInternalSearchTerm(suggestionText);
+        }
+        
         if (onSuggestionClick) onSuggestionClick(suggestion);
-    }, [navigate, onSuggestionClick]);
+    }, [navigate, onSuggestionClick, isControlled, onChange]);
 
     const handleViewAllResults = () => {
-        navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+        navigate(`/cari?q=${encodeURIComponent(searchTerm)}`);
         setShowSuggestions(false);
         if (onViewAllResults) onViewAllResults(searchTerm);
     };
 
     const handleClearSearch = () => {
-        setSearchTerm('');
+        if (isControlled) {
+            // In controlled mode, pass empty string to parent
+            if (onChange) {
+                onChange('');
+            }
+        } else {
+            setInternalSearchTerm('');
+        }
         setSuggestions([]);
         setShowSuggestions(false);
         setHighlightedIndex(-1);
@@ -281,7 +381,7 @@ const SearchField = ({
 
     return (
         <div className={`relative w-full ${className}`}>
-            <form onSubmit={handleSearchSubmit} enctype="application/x-www-form-urlencoded" className="flex items-center">
+            <form onSubmit={handleSearchSubmit} method="GET" className="flex items-center">
                 <div className="relative w-full" ref={searchRef}>
                     <svg 
                         xmlns="http://www.w3.org/2000/svg" 
@@ -314,7 +414,7 @@ const SearchField = ({
                     )}
 
                     {/* Autocomplete Suggestions */}
-                    {showSuggestions && searchTerm.length >= 2 && (
+                    {!disableAutocomplete && showSuggestions && searchTerm.length >= 2 && (
                         <div 
                             className={`absolute mt-2 w-full bg-white rounded-xl shadow-lg max-h-96 overflow-y-auto border border-${currentTheme.primaryBorder} z-50`}
                             ref={suggestionsRef}

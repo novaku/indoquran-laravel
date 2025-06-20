@@ -48,12 +48,27 @@ export default defineConfig(({ command, mode }) => {
                         if (/woff2?|eot|ttf|otf/i.test(extType)) {
                             return `assets/fonts/[name]-[hash][extname]`;
                         }
+                        // Ensure all font files go to assets/fonts directory
+                        if (assetInfo.name && /\.(woff2?|eot|ttf|otf)$/i.test(assetInfo.name)) {
+                            return `assets/fonts/[name]-[hash][extname]`;
+                        }
                         return `assets/[name]-[hash][extname]`;
                     },
                     format: 'es',
                     manualChunks: {
                         vendor: ['react', 'react-dom'],
                     },
+                },
+                // Handle external modules and warnings
+                external: [],
+                onwarn: (warning, warn) => {
+                    // Suppress specific warnings
+                    if (warning.code === 'EVAL' || 
+                        warning.message.includes('React DevTools') ||
+                        warning.message.includes('__REACT_DEVTOOLS_GLOBAL_HOOK__')) {
+                        return;
+                    }
+                    warn(warning);
                 },
             },
             minify: 'esbuild',
@@ -63,8 +78,12 @@ export default defineConfig(({ command, mode }) => {
             cssCodeSplit: true,
             outDir: 'public/build',
             target: 'es2020',
+            // Additional options to handle React DevTools
+            commonjsOptions: {
+                transformMixedEsModules: true,
+            },
         },
-        base: '/',
+        base: '/build/',
         server: {
             hmr: {
                 host: '127.0.0.1',
@@ -79,6 +98,9 @@ export default defineConfig(({ command, mode }) => {
             'import.meta.env.DEV': isDev,
             'import.meta.env.PROD': !isDev,
             'import.meta.env.MODE': JSON.stringify(mode),
+            // Fix React DevTools issue
+            '__REACT_DEVTOOLS_GLOBAL_HOOK__': JSON.stringify({}),
+            'global': 'globalThis',
         },
         resolve: {
             alias: {

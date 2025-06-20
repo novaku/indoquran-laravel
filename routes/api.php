@@ -65,6 +65,7 @@ Route::middleware(['simple.auth'])->group(function() {
         Route::get('/', [BookmarkController::class, 'index']);
         Route::get('/status', [BookmarkController::class, 'getStatus']);
         Route::post('/surah/ayah/{ayahId}/toggle', [BookmarkController::class, 'toggle']);
+        Route::post('/surah/{surahNumber}/ayah/{ayahNumber}/toggle', [BookmarkController::class, 'toggleByNumbers']);
         Route::post('/surah/ayah/{ayahId}/favorite', [BookmarkController::class, 'toggleFavorite']);
         Route::put('/surah/ayah/{ayahId}/notes', [BookmarkController::class, 'updateNotes']);
     });
@@ -78,12 +79,13 @@ Route::middleware(['simple.auth'])->group(function() {
     Route::delete('/doa-bersama-comments/{comment}', [PrayerController::class, 'deleteComment']);
 });
 
-
-
 // Surah routes with caching
 Route::middleware(['api.cache:30d'])->group(function() {
     Route::get('/surahs', [App\Http\Controllers\QuranController::class, 'getAllSurahs']);
 });
+
+// Random surah route - no caching for randomness
+Route::get('/surahs/random', [App\Http\Controllers\QuranController::class, 'getRandomSurahs']);
 
 Route::middleware(['api.cache:30d'])->group(function() {
     Route::get('/surahs/{number}', [App\Http\Controllers\QuranController::class, 'getSurah'])->where('number', '[0-9]+');
@@ -105,16 +107,23 @@ Route::middleware(['api.cache:30d'])->group(function() {
         ->where(['surahNumber' => '[0-9]+', 'ayahNumber' => '[0-9]+']);
 });
 
-// Page routes with caching
+// Page routes with caching - Indonesian URLs
 Route::middleware(['api.cache:30d'])->group(function() {
-    Route::get('/pages', [App\Http\Controllers\QuranController::class, 'getAllPages']);
-    Route::get('/pages/{number}', [App\Http\Controllers\QuranController::class, 'getPage'])->where('number', '[0-9]+');
+    Route::get('/halaman', [App\Http\Controllers\QuranController::class, 'getAllPages']);
+    Route::get('/halaman/{number}', [App\Http\Controllers\QuranController::class, 'getPage'])->where('number', '[0-9]+');
 });
 
-// Search routes with caching
+// Search routes with caching - Indonesian URLs
 Route::middleware(['api.cache:7d'])->group(function() {
-    Route::get('/search', [App\Http\Controllers\QuranController::class, 'searchAyahs']);
-    Route::get('/search/ayahs', [SearchController::class, 'apiSearch']);
+    Route::get('/cari', [App\Http\Controllers\QuranController::class, 'searchAyahs']);
+    Route::get('/cari/ayahs', [SearchController::class, 'apiSearch']);
+});
+
+// Protected reading progress routes
+Route::middleware('auth:sanctum')->group(function() {
+    Route::get('/reading-progress', [App\Http\Controllers\ReadingProgressController::class, 'getProgress']);
+    Route::post('/reading-progress', [App\Http\Controllers\ReadingProgressController::class, 'updateProgress']);
+    Route::get('/reading-progress/stats', [App\Http\Controllers\ReadingProgressController::class, 'getStats']);
 });
 
 // Public prayer routes (for viewing without auth) - Indonesian URLs

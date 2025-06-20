@@ -3,8 +3,6 @@
  * Domain: my.indoquran.web.id
  */
 
-import { getCorsSafeUrl } from './corsUtils';
-
 const BASE_URL = 'https://my.indoquran.web.id';
 
 // Generate sitemap XML for all pages
@@ -250,12 +248,8 @@ export const preloadCriticalResources = () => {
       if (key === 'crossorigin' && resource[key]) {
         link.setAttribute(key, resource[key]);
       } else if (key !== 'crossorigin') {
-        // Use CORS-safe URL for href attributes
-        if (key === 'href') {
-          link.setAttribute(key, getCorsSafeUrl(resource[key]));
-        } else {
-          link.setAttribute(key, resource[key]);
-        }
+        // Use URL directly for href attributes
+        link.setAttribute(key, resource[key]);
       }
     });
     document.head.appendChild(link);

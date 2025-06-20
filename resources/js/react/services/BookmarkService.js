@@ -108,3 +108,24 @@ export const updateBookmarkNotes = async (ayahId, notes) => {
         throw error;
     }
 };
+
+/**
+ * Toggle bookmark status for an ayah using surah and ayah numbers
+ * @param {number} surahNumber - The number of the surah
+ * @param {number} ayahNumber - The number of the ayah within the surah
+ * @returns {Promise<Object>} - The bookmark status response
+ */
+export const toggleBookmarkByNumbers = async (surahNumber, ayahNumber) => {
+    try {
+        const response = await postWithAuth(`/api/bookmarks/surah/${surahNumber}/ayah/${ayahNumber}/toggle`);
+
+        if (!response.ok) {
+            throw new Error('Failed to toggle bookmark');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error toggling bookmark:', error);
+        throw error;
+    }
+};

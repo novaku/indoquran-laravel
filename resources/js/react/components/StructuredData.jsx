@@ -39,7 +39,7 @@ function StructuredData({ type, data, pageType }) {
             },
             "potentialAction": {
               "@type": "SearchAction",
-              "target": `${baseUrl}/search?q={search_term_string}`,
+              "target": `${baseUrl}/cari?q={search_term_string}`,
               "query-input": "required name=search_term_string"
             },
             ...data
@@ -129,7 +129,7 @@ function StructuredData({ type, data, pageType }) {
             "inLanguage": "id",
             "potentialAction": {
               "@type": "SearchAction",
-              "target": `${baseUrl}/search?q={search_term_string}`,
+              "target": `${baseUrl}/cari?q={search_term_string}`,
               "query-input": "required name=search_term_string"
             },
             ...data

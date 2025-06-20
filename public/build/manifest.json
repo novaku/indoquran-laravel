@@ -1,20 +1,27 @@
 {
-  "_BookmarkService-DDDyjscS.js": {
-    "file": "assets/BookmarkService-DDDyjscS.js",
-    "name": "BookmarkService",
+  "_ArrowLeftIcon-BHw5TZr1.js": {
+    "file": "assets/ArrowLeftIcon-BHw5TZr1.js",
+    "name": "ArrowLeftIcon",
     "imports": [
       "resources/js/react/index.jsx"
     ]
   },
-  "_QuranHeader-De3OtAaU.js": {
-    "file": "assets/QuranHeader-De3OtAaU.js",
-    "name": "QuranHeader",
+  "_ChevronRightIcon-9VY0t_u7.js": {
+    "file": "assets/ChevronRightIcon-9VY0t_u7.js",
+    "name": "ChevronRightIcon",
     "imports": [
       "resources/js/react/index.jsx"
     ]
   },
-  "_SearchField-bAaShk5i.js": {
-    "file": "assets/SearchField-bAaShk5i.js",
+  "_ReadingProgressService-SnJ9btXn.js": {
+    "file": "assets/ReadingProgressService-SnJ9btXn.js",
+    "name": "ReadingProgressService",
+    "imports": [
+      "resources/js/react/index.jsx"
+    ]
+  },
+  "_SearchField-CTme0R52.js": {
+    "file": "assets/SearchField-CTme0R52.js",
     "name": "SearchField",
     "imports": [
       "resources/js/react/index.jsx",
@@ -25,17 +32,24 @@
     "file": "assets/auth-CHpCKrUu.js",
     "name": "auth"
   },
-  "_vendor-DavUf6mE.js": {
-    "file": "assets/vendor-DavUf6mE.js",
+  "_index-PzVSKbAG.js": {
+    "file": "assets/index-PzVSKbAG.js",
+    "name": "index",
+    "imports": [
+      "resources/js/react/index.jsx"
+    ]
+  },
+  "_vendor-CcCrBLU2.js": {
+    "file": "assets/vendor-CcCrBLU2.js",
     "name": "vendor"
   },
   "resources/css/app.css": {
-    "file": "assets/css/app-Cnd7aSVG.css",
+    "file": "assets/css/app-DW2WP3Ud.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/fonts/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED.ttf": {
-    "file": "assets/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED-Bx0VfKLP.ttf",
+    "file": "assets/fonts/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED-Bx0VfKLP.ttf",
     "src": "resources/fonts/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED.ttf"
   },
   "resources/fonts/ScheherazadeNew-Bold.ttf": {
@@ -55,211 +69,382 @@
     "src": "resources/fonts/Scheherazade_New/ScheherazadeNew-SemiBold.ttf"
   },
   "resources/js/react/index.jsx": {
-    "file": "assets/index-DAfW79Gk.js",
+    "file": "assets/index-BSO_nI6O.js",
     "name": "index",
     "src": "resources/js/react/index.jsx",
     "isEntry": true,
     "imports": [
-      "_vendor-DavUf6mE.js"
+      "_vendor-CcCrBLU2.js"
     ],
     "dynamicImports": [
-      "resources/js/react/pages/SearchPage.jsx",
-      "resources/js/react/pages/BookmarksPage.jsx",
-      "resources/js/react/pages/PageListPage.jsx",
-      "resources/js/react/pages/SurahPage.jsx",
-      "resources/js/react/pages/ProfilePage.jsx",
-      "resources/js/react/pages/PrayerPage.jsx",
-      "resources/js/react/pages/HomePage.jsx",
-      "resources/js/react/pages/SurahPage.jsx",
-      "resources/js/react/pages/SearchPage.jsx",
-      "resources/js/react/pages/BookmarksPage.jsx",
-      "resources/js/react/pages/ProfilePage.jsx",
-      "resources/js/react/pages/HomePage.jsx",
-      "resources/js/react/pages/AuthPage.jsx",
-      "resources/js/react/pages/SurahPage.jsx",
-      "resources/js/react/pages/SearchPage.jsx",
-      "resources/js/react/pages/BookmarksPage.jsx",
-      "resources/js/react/pages/ProfilePage.jsx",
-      "resources/js/react/pages/AboutPage.jsx",
-      "resources/js/react/pages/ContactPage.jsx",
-      "resources/js/react/pages/DonationPage.jsx",
+      "resources/js/react/pages/SimpleHomePage.jsx",
+      "resources/js/react/pages/SimpleAuthPage.jsx",
+      "resources/js/react/pages/SimpleSurahPage.jsx",
+      "resources/js/react/pages/SimpleSearchPage.jsx",
+      "resources/js/react/pages/SimpleBookmarksPage.jsx",
+      "resources/js/react/pages/SimpleProfilePage.jsx",
+      "resources/js/react/pages/SimpleAboutPage.jsx",
+      "resources/js/react/pages/SimpleContactPage.jsx",
+      "resources/js/react/pages/SimpleDonationPage.jsx",
       "resources/js/react/pages/PrivacyPage.jsx",
-      "resources/js/react/pages/JuzListPage.jsx",
+      "resources/js/react/pages/SimpleJuzListPage.jsx",
       "resources/js/react/pages/JuzPage.jsx",
       "resources/js/react/pages/PageListPage.jsx",
       "resources/js/react/pages/PageDetailPage.jsx",
       "resources/js/react/pages/PrayerPage.jsx",
       "resources/js/react/pages/VersionHistoryPage.jsx"
-    ]
-  },
-  "resources/js/react/pages/AboutPage.jsx": {
-    "file": "assets/AboutPage-CGUcJqqk.js",
-    "name": "AboutPage",
-    "src": "resources/js/react/pages/AboutPage.jsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/react/index.jsx",
-      "_vendor-DavUf6mE.js"
-    ]
-  },
-  "resources/js/react/pages/AuthPage.jsx": {
-    "file": "assets/AuthPage-CntshYeH.js",
-    "name": "AuthPage",
-    "src": "resources/js/react/pages/AuthPage.jsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/react/index.jsx",
-      "_vendor-DavUf6mE.js"
-    ]
-  },
-  "resources/js/react/pages/BookmarksPage.jsx": {
-    "file": "assets/BookmarksPage-C3N_gzZT.js",
-    "name": "BookmarksPage",
-    "src": "resources/js/react/pages/BookmarksPage.jsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/react/index.jsx",
-      "_BookmarkService-DDDyjscS.js",
-      "_vendor-DavUf6mE.js"
-    ]
-  },
-  "resources/js/react/pages/ContactPage.jsx": {
-    "file": "assets/ContactPage-B0nzzHZf.js",
-    "name": "ContactPage",
-    "src": "resources/js/react/pages/ContactPage.jsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/react/index.jsx",
-      "_auth-CHpCKrUu.js",
-      "_vendor-DavUf6mE.js"
-    ]
-  },
-  "resources/js/react/pages/DonationPage.jsx": {
-    "file": "assets/DonationPage-DtgRgV4c.js",
-    "name": "DonationPage",
-    "src": "resources/js/react/pages/DonationPage.jsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/react/index.jsx",
-      "_vendor-DavUf6mE.js"
-    ]
-  },
-  "resources/js/react/pages/HomePage.jsx": {
-    "file": "assets/HomePage-BfPurNMw.js",
-    "name": "HomePage",
-    "src": "resources/js/react/pages/HomePage.jsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/react/index.jsx",
-      "_QuranHeader-De3OtAaU.js",
-      "_SearchField-bAaShk5i.js",
-      "_auth-CHpCKrUu.js",
-      "_vendor-DavUf6mE.js"
-    ]
-  },
-  "resources/js/react/pages/JuzListPage.jsx": {
-    "file": "assets/JuzListPage-CkW0sldW.js",
-    "name": "JuzListPage",
-    "src": "resources/js/react/pages/JuzListPage.jsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/react/index.jsx",
-      "_vendor-DavUf6mE.js"
+    ],
+    "css": [
+      "assets/css/app-DW2WP3Ud.css"
+    ],
+    "assets": [
+      "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
+      "assets/fonts/ScheherazadeNew-Medium-Cs5FBglF.ttf",
+      "assets/fonts/ScheherazadeNew-SemiBold-DuGB7l1E.ttf",
+      "assets/fonts/ScheherazadeNew-Bold-Dz8iJGMF.ttf",
+      "assets/fonts/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED-Bx0VfKLP.ttf"
     ]
   },
   "resources/js/react/pages/JuzPage.jsx": {
-    "file": "assets/JuzPage-Cf9cfIM9.js",
+    "file": "assets/JuzPage-CvOWdtTO.js",
     "name": "JuzPage",
     "src": "resources/js/react/pages/JuzPage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/react/index.jsx",
-      "_vendor-DavUf6mE.js"
+      "_index-PzVSKbAG.js",
+      "_vendor-CcCrBLU2.js"
+    ],
+    "css": [
+      "assets/css/app-DW2WP3Ud.css"
+    ],
+    "assets": [
+      "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
+      "assets/fonts/ScheherazadeNew-Medium-Cs5FBglF.ttf",
+      "assets/fonts/ScheherazadeNew-SemiBold-DuGB7l1E.ttf",
+      "assets/fonts/ScheherazadeNew-Bold-Dz8iJGMF.ttf",
+      "assets/fonts/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED-Bx0VfKLP.ttf"
     ]
   },
   "resources/js/react/pages/PageDetailPage.jsx": {
-    "file": "assets/PageDetailPage-BHcjXfY0.js",
+    "file": "assets/PageDetailPage-ETSlH4ow.js",
     "name": "PageDetailPage",
     "src": "resources/js/react/pages/PageDetailPage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/react/index.jsx",
-      "_vendor-DavUf6mE.js"
+      "_index-PzVSKbAG.js",
+      "_vendor-CcCrBLU2.js"
+    ],
+    "css": [
+      "assets/css/app-DW2WP3Ud.css"
+    ],
+    "assets": [
+      "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
+      "assets/fonts/ScheherazadeNew-Medium-Cs5FBglF.ttf",
+      "assets/fonts/ScheherazadeNew-SemiBold-DuGB7l1E.ttf",
+      "assets/fonts/ScheherazadeNew-Bold-Dz8iJGMF.ttf",
+      "assets/fonts/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED-Bx0VfKLP.ttf"
     ]
   },
   "resources/js/react/pages/PageListPage.jsx": {
-    "file": "assets/PageListPage-JuKzXOnh.js",
+    "file": "assets/PageListPage-sabvJWZ1.js",
     "name": "PageListPage",
     "src": "resources/js/react/pages/PageListPage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/react/index.jsx",
-      "_QuranHeader-De3OtAaU.js",
-      "_vendor-DavUf6mE.js"
+      "_ArrowLeftIcon-BHw5TZr1.js",
+      "_vendor-CcCrBLU2.js"
+    ],
+    "css": [
+      "assets/css/app-DW2WP3Ud.css"
+    ],
+    "assets": [
+      "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
+      "assets/fonts/ScheherazadeNew-Medium-Cs5FBglF.ttf",
+      "assets/fonts/ScheherazadeNew-SemiBold-DuGB7l1E.ttf",
+      "assets/fonts/ScheherazadeNew-Bold-Dz8iJGMF.ttf",
+      "assets/fonts/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED-Bx0VfKLP.ttf"
     ]
   },
   "resources/js/react/pages/PrayerPage.jsx": {
-    "file": "assets/PrayerPage-CkcIxP5K.js",
+    "file": "assets/PrayerPage-BOgX_fNI.js",
     "name": "PrayerPage",
     "src": "resources/js/react/pages/PrayerPage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/react/index.jsx",
-      "_vendor-DavUf6mE.js"
+      "_index-PzVSKbAG.js",
+      "_vendor-CcCrBLU2.js"
+    ],
+    "css": [
+      "assets/css/app-DW2WP3Ud.css"
+    ],
+    "assets": [
+      "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
+      "assets/fonts/ScheherazadeNew-Medium-Cs5FBglF.ttf",
+      "assets/fonts/ScheherazadeNew-SemiBold-DuGB7l1E.ttf",
+      "assets/fonts/ScheherazadeNew-Bold-Dz8iJGMF.ttf",
+      "assets/fonts/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED-Bx0VfKLP.ttf"
     ]
   },
   "resources/js/react/pages/PrivacyPage.jsx": {
-    "file": "assets/PrivacyPage-BDIilIOw.js",
+    "file": "assets/PrivacyPage-B0aHDWZ1.js",
     "name": "PrivacyPage",
     "src": "resources/js/react/pages/PrivacyPage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/react/index.jsx",
-      "_vendor-DavUf6mE.js"
+      "_vendor-CcCrBLU2.js"
+    ],
+    "css": [
+      "assets/css/app-DW2WP3Ud.css"
+    ],
+    "assets": [
+      "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
+      "assets/fonts/ScheherazadeNew-Medium-Cs5FBglF.ttf",
+      "assets/fonts/ScheherazadeNew-SemiBold-DuGB7l1E.ttf",
+      "assets/fonts/ScheherazadeNew-Bold-Dz8iJGMF.ttf",
+      "assets/fonts/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED-Bx0VfKLP.ttf"
     ]
   },
-  "resources/js/react/pages/ProfilePage.jsx": {
-    "file": "assets/ProfilePage-CtVJMAAO.js",
-    "name": "ProfilePage",
-    "src": "resources/js/react/pages/ProfilePage.jsx",
+  "resources/js/react/pages/SimpleAboutPage.jsx": {
+    "file": "assets/SimpleAboutPage-Dba5Mclt.js",
+    "name": "SimpleAboutPage",
+    "src": "resources/js/react/pages/SimpleAboutPage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/react/index.jsx",
-      "_vendor-DavUf6mE.js"
+      "_index-PzVSKbAG.js",
+      "_vendor-CcCrBLU2.js"
+    ],
+    "css": [
+      "assets/css/app-DW2WP3Ud.css"
+    ],
+    "assets": [
+      "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
+      "assets/fonts/ScheherazadeNew-Medium-Cs5FBglF.ttf",
+      "assets/fonts/ScheherazadeNew-SemiBold-DuGB7l1E.ttf",
+      "assets/fonts/ScheherazadeNew-Bold-Dz8iJGMF.ttf",
+      "assets/fonts/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED-Bx0VfKLP.ttf"
     ]
   },
-  "resources/js/react/pages/SearchPage.jsx": {
-    "file": "assets/SearchPage-Bcl4UXi1.js",
-    "name": "SearchPage",
-    "src": "resources/js/react/pages/SearchPage.jsx",
+  "resources/js/react/pages/SimpleAuthPage.jsx": {
+    "file": "assets/SimpleAuthPage-PcwzPkNT.js",
+    "name": "SimpleAuthPage",
+    "src": "resources/js/react/pages/SimpleAuthPage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/react/index.jsx",
-      "_QuranHeader-De3OtAaU.js",
-      "_SearchField-bAaShk5i.js",
-      "_vendor-DavUf6mE.js",
-      "_auth-CHpCKrUu.js"
+      "_vendor-CcCrBLU2.js"
+    ],
+    "css": [
+      "assets/css/app-DW2WP3Ud.css"
+    ],
+    "assets": [
+      "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
+      "assets/fonts/ScheherazadeNew-Medium-Cs5FBglF.ttf",
+      "assets/fonts/ScheherazadeNew-SemiBold-DuGB7l1E.ttf",
+      "assets/fonts/ScheherazadeNew-Bold-Dz8iJGMF.ttf",
+      "assets/fonts/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED-Bx0VfKLP.ttf"
     ]
   },
-  "resources/js/react/pages/SurahPage.jsx": {
-    "file": "assets/SurahPage-CfeNDday.js",
-    "name": "SurahPage",
-    "src": "resources/js/react/pages/SurahPage.jsx",
+  "resources/js/react/pages/SimpleBookmarksPage.jsx": {
+    "file": "assets/SimpleBookmarksPage-BJ-s3KJb.js",
+    "name": "SimpleBookmarksPage",
+    "src": "resources/js/react/pages/SimpleBookmarksPage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/react/index.jsx",
-      "_BookmarkService-DDDyjscS.js",
-      "_vendor-DavUf6mE.js"
+      "_index-PzVSKbAG.js",
+      "_vendor-CcCrBLU2.js"
+    ],
+    "css": [
+      "assets/css/app-DW2WP3Ud.css"
+    ],
+    "assets": [
+      "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
+      "assets/fonts/ScheherazadeNew-Medium-Cs5FBglF.ttf",
+      "assets/fonts/ScheherazadeNew-SemiBold-DuGB7l1E.ttf",
+      "assets/fonts/ScheherazadeNew-Bold-Dz8iJGMF.ttf",
+      "assets/fonts/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED-Bx0VfKLP.ttf"
+    ]
+  },
+  "resources/js/react/pages/SimpleContactPage.jsx": {
+    "file": "assets/SimpleContactPage-rjh6ImqV.js",
+    "name": "SimpleContactPage",
+    "src": "resources/js/react/pages/SimpleContactPage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/react/index.jsx",
+      "_index-PzVSKbAG.js",
+      "_auth-CHpCKrUu.js",
+      "_vendor-CcCrBLU2.js"
+    ],
+    "css": [
+      "assets/css/app-DW2WP3Ud.css"
+    ],
+    "assets": [
+      "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
+      "assets/fonts/ScheherazadeNew-Medium-Cs5FBglF.ttf",
+      "assets/fonts/ScheherazadeNew-SemiBold-DuGB7l1E.ttf",
+      "assets/fonts/ScheherazadeNew-Bold-Dz8iJGMF.ttf",
+      "assets/fonts/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED-Bx0VfKLP.ttf"
+    ]
+  },
+  "resources/js/react/pages/SimpleDonationPage.jsx": {
+    "file": "assets/SimpleDonationPage-CnGuT-am.js",
+    "name": "SimpleDonationPage",
+    "src": "resources/js/react/pages/SimpleDonationPage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/react/index.jsx",
+      "_index-PzVSKbAG.js",
+      "_vendor-CcCrBLU2.js"
+    ],
+    "css": [
+      "assets/css/app-DW2WP3Ud.css"
+    ],
+    "assets": [
+      "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
+      "assets/fonts/ScheherazadeNew-Medium-Cs5FBglF.ttf",
+      "assets/fonts/ScheherazadeNew-SemiBold-DuGB7l1E.ttf",
+      "assets/fonts/ScheherazadeNew-Bold-Dz8iJGMF.ttf",
+      "assets/fonts/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED-Bx0VfKLP.ttf"
+    ]
+  },
+  "resources/js/react/pages/SimpleHomePage.jsx": {
+    "file": "assets/SimpleHomePage-C_znTI-E.js",
+    "name": "SimpleHomePage",
+    "src": "resources/js/react/pages/SimpleHomePage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/react/index.jsx",
+      "_SearchField-CTme0R52.js",
+      "_index-PzVSKbAG.js",
+      "_ReadingProgressService-SnJ9btXn.js",
+      "_auth-CHpCKrUu.js",
+      "_ChevronRightIcon-9VY0t_u7.js",
+      "_vendor-CcCrBLU2.js"
+    ],
+    "css": [
+      "assets/css/app-DW2WP3Ud.css"
+    ],
+    "assets": [
+      "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
+      "assets/fonts/ScheherazadeNew-Medium-Cs5FBglF.ttf",
+      "assets/fonts/ScheherazadeNew-SemiBold-DuGB7l1E.ttf",
+      "assets/fonts/ScheherazadeNew-Bold-Dz8iJGMF.ttf",
+      "assets/fonts/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED-Bx0VfKLP.ttf"
+    ]
+  },
+  "resources/js/react/pages/SimpleJuzListPage.jsx": {
+    "file": "assets/SimpleJuzListPage-g_nixn0s.js",
+    "name": "SimpleJuzListPage",
+    "src": "resources/js/react/pages/SimpleJuzListPage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/react/index.jsx",
+      "_ArrowLeftIcon-BHw5TZr1.js",
+      "_ChevronRightIcon-9VY0t_u7.js",
+      "_vendor-CcCrBLU2.js"
+    ],
+    "css": [
+      "assets/css/app-DW2WP3Ud.css"
+    ],
+    "assets": [
+      "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
+      "assets/fonts/ScheherazadeNew-Medium-Cs5FBglF.ttf",
+      "assets/fonts/ScheherazadeNew-SemiBold-DuGB7l1E.ttf",
+      "assets/fonts/ScheherazadeNew-Bold-Dz8iJGMF.ttf",
+      "assets/fonts/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED-Bx0VfKLP.ttf"
+    ]
+  },
+  "resources/js/react/pages/SimpleProfilePage.jsx": {
+    "file": "assets/SimpleProfilePage-Db7RnShc.js",
+    "name": "SimpleProfilePage",
+    "src": "resources/js/react/pages/SimpleProfilePage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/react/index.jsx",
+      "_index-PzVSKbAG.js",
+      "_vendor-CcCrBLU2.js"
+    ],
+    "css": [
+      "assets/css/app-DW2WP3Ud.css"
+    ],
+    "assets": [
+      "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
+      "assets/fonts/ScheherazadeNew-Medium-Cs5FBglF.ttf",
+      "assets/fonts/ScheherazadeNew-SemiBold-DuGB7l1E.ttf",
+      "assets/fonts/ScheherazadeNew-Bold-Dz8iJGMF.ttf",
+      "assets/fonts/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED-Bx0VfKLP.ttf"
+    ]
+  },
+  "resources/js/react/pages/SimpleSearchPage.jsx": {
+    "file": "assets/SimpleSearchPage-GLMAAKdF.js",
+    "name": "SimpleSearchPage",
+    "src": "resources/js/react/pages/SimpleSearchPage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/react/index.jsx",
+      "_SearchField-CTme0R52.js",
+      "_auth-CHpCKrUu.js",
+      "_ChevronRightIcon-9VY0t_u7.js",
+      "_vendor-CcCrBLU2.js"
+    ],
+    "css": [
+      "assets/css/app-DW2WP3Ud.css"
+    ],
+    "assets": [
+      "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
+      "assets/fonts/ScheherazadeNew-Medium-Cs5FBglF.ttf",
+      "assets/fonts/ScheherazadeNew-SemiBold-DuGB7l1E.ttf",
+      "assets/fonts/ScheherazadeNew-Bold-Dz8iJGMF.ttf",
+      "assets/fonts/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED-Bx0VfKLP.ttf"
+    ]
+  },
+  "resources/js/react/pages/SimpleSurahPage.jsx": {
+    "file": "assets/SimpleSurahPage-B-WbmDfv.js",
+    "name": "SimpleSurahPage",
+    "src": "resources/js/react/pages/SimpleSurahPage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/react/index.jsx",
+      "_auth-CHpCKrUu.js",
+      "_ReadingProgressService-SnJ9btXn.js",
+      "_vendor-CcCrBLU2.js"
+    ],
+    "css": [
+      "assets/css/app-DW2WP3Ud.css"
+    ],
+    "assets": [
+      "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
+      "assets/fonts/ScheherazadeNew-Medium-Cs5FBglF.ttf",
+      "assets/fonts/ScheherazadeNew-SemiBold-DuGB7l1E.ttf",
+      "assets/fonts/ScheherazadeNew-Bold-Dz8iJGMF.ttf",
+      "assets/fonts/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED-Bx0VfKLP.ttf"
     ]
   },
   "resources/js/react/pages/VersionHistoryPage.jsx": {
-    "file": "assets/VersionHistoryPage-u0-GcFe2.js",
+    "file": "assets/VersionHistoryPage-DFJz5j42.js",
     "name": "VersionHistoryPage",
     "src": "resources/js/react/pages/VersionHistoryPage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/react/index.jsx",
-      "_vendor-DavUf6mE.js"
+      "_vendor-CcCrBLU2.js"
+    ],
+    "css": [
+      "assets/css/app-DW2WP3Ud.css"
+    ],
+    "assets": [
+      "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
+      "assets/fonts/ScheherazadeNew-Medium-Cs5FBglF.ttf",
+      "assets/fonts/ScheherazadeNew-SemiBold-DuGB7l1E.ttf",
+      "assets/fonts/ScheherazadeNew-Bold-Dz8iJGMF.ttf",
+      "assets/fonts/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED-Bx0VfKLP.ttf"
     ]
   }
 }

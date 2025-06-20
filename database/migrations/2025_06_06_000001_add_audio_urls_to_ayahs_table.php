@@ -19,7 +19,6 @@ return new class extends Migration
                 $table->text('text_arabic');
                 $table->text('text_latin');
                 $table->text('text_indonesian');
-                $table->text('text_english')->nullable();
                 $table->unsignedSmallInteger('juz');
                 $table->unsignedSmallInteger('page');
                 $table->text('tafsir')->nullable();

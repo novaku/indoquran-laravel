@@ -64,10 +64,10 @@ class GenerateSitemap extends Command
         // Add static pages with appropriate frequencies and priorities
         $staticPages = [
             '' => ['priority' => '1.0', 'changefreq' => 'daily'],                 // Homepage
-            'search' => ['priority' => '0.8', 'changefreq' => 'weekly'],          // Search page
-            'about' => ['priority' => '0.6', 'changefreq' => 'monthly'],          // About page
-            'contact' => ['priority' => '0.5', 'changefreq' => 'monthly'],        // Contact page
-            'privacy' => ['priority' => '0.3', 'changefreq' => 'yearly'],         // Privacy page
+            'cari' => ['priority' => '0.8', 'changefreq' => 'weekly'],          // Search page
+            'tentang' => ['priority' => '0.6', 'changefreq' => 'monthly'],          // About page
+            'kontak' => ['priority' => '0.5', 'changefreq' => 'monthly'],        // Contact page
+            'kebijakan' => ['priority' => '0.3', 'changefreq' => 'yearly'],         // Privacy page
         ];
         
         foreach ($staticPages as $path => $config) {

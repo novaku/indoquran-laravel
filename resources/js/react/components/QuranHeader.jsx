@@ -1,5 +1,4 @@
 import React from 'react';
-import PWAStatus from './PWAStatus';
 
 function QuranHeader({ className = "" }) {
   return (
@@ -106,9 +105,6 @@ function QuranHeader({ className = "" }) {
               — Al-Isra: 82 —
             </p>
           </div>
-
-          {/* PWA Status */}
-          <PWAStatus className="mt-4" />
         </div>
 
         {/* Modern Corner Accents */}

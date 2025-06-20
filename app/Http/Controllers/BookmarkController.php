@@ -179,4 +179,55 @@ class BookmarkController extends Controller
             'data' => $statuses
         ]);
     }
+
+    /**
+     * Toggle bookmark for an ayah using surah and ayah numbers
+     */
+    public function toggleByNumbers(Request $request, $surahNumber, $ayahNumber)
+    {
+        $user = Auth::user();
+        
+        // Find the ayah by surah and ayah numbers
+        $ayah = Ayah::where('surah_number', $surahNumber)
+                   ->where('ayah_number', $ayahNumber)
+                   ->first();
+        
+        if (!$ayah) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Ayah not found'
+            ], 404);
+        }
+        
+        $bookmark = UserAyahBookmark::where('user_id', $user->id)
+                                  ->where('ayah_id', $ayah->id)
+                                  ->first();
+        
+        if ($bookmark) {
+            // Remove bookmark
+            $bookmark->delete();
+            $isBookmarked = false;
+            $isFavorite = false;
+        } else {
+            // Add bookmark
+            $bookmark = UserAyahBookmark::create([
+                'user_id' => $user->id,
+                'ayah_id' => $ayah->id,
+                'is_favorite' => false
+            ]);
+            $isBookmarked = true;
+            $isFavorite = false;
+        }
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'is_bookmarked' => $isBookmarked,
+                'is_favorite' => $isFavorite,
+                'ayah_id' => $ayah->id,
+                'surah_number' => $surahNumber,
+                'ayah_number' => $ayahNumber
+            ]
+        ]);
+    }
 }

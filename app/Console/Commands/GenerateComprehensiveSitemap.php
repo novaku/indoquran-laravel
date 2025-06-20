@@ -70,10 +70,10 @@ class GenerateComprehensiveSitemap extends Command
         // Static pages
         $staticPages = [
             '' => ['priority' => '1.0', 'changefreq' => 'daily'],
-            'search' => ['priority' => '0.8', 'changefreq' => 'weekly'],
-            'about' => ['priority' => '0.6', 'changefreq' => 'monthly'],
-            'contact' => ['priority' => '0.5', 'changefreq' => 'monthly'],
-            'privacy' => ['priority' => '0.3', 'changefreq' => 'yearly'],
+            'cari' => ['priority' => '0.8', 'changefreq' => 'weekly'],
+            'tentang' => ['priority' => '0.6', 'changefreq' => 'monthly'],
+            'kontak' => ['priority' => '0.5', 'changefreq' => 'monthly'],
+            'kebijakan' => ['priority' => '0.3', 'changefreq' => 'yearly'],
         ];
         
         foreach ($staticPages as $path => $config) {
@@ -145,10 +145,10 @@ class GenerateComprehensiveSitemap extends Command
         // Static pages
         $staticPages = [
             '' => ['priority' => '1.0', 'changefreq' => 'daily'],
-            'search' => ['priority' => '0.8', 'changefreq' => 'weekly'],
-            'about' => ['priority' => '0.6', 'changefreq' => 'monthly'],
-            'contact' => ['priority' => '0.5', 'changefreq' => 'monthly'],
-            'privacy' => ['priority' => '0.3', 'changefreq' => 'yearly'],
+            'cari' => ['priority' => '0.8', 'changefreq' => 'weekly'],
+            'tentang' => ['priority' => '0.6', 'changefreq' => 'monthly'],
+            'kontak' => ['priority' => '0.5', 'changefreq' => 'monthly'],
+            'kebijakan' => ['priority' => '0.3', 'changefreq' => 'yearly'],
         ];
         
         foreach ($staticPages as $path => $config) {
@@ -270,13 +270,13 @@ class GenerateComprehensiveSitemap extends Command
         $robotsTxt .= "Disallow: /api/\n";
         $robotsTxt .= "Disallow: /admin/\n\n";
         $robotsTxt .= "# Allow important pages\n";
-        $robotsTxt .= "Allow: /search\n";
+        $robotsTxt .= "Allow: /cari\n";
         $robotsTxt .= "Allow: /surah/\n";
         $robotsTxt .= "Allow: /juz/\n";
-        $robotsTxt .= "Allow: /pages/\n";
-        $robotsTxt .= "Allow: /about\n";
-        $robotsTxt .= "Allow: /contact\n";
-        $robotsTxt .= "Allow: /privacy\n\n";
+        $robotsTxt .= "Allow: /halaman/\n";
+        $robotsTxt .= "Allow: /tentang\n";
+        $robotsTxt .= "Allow: /kontak\n";
+        $robotsTxt .= "Allow: /kebijakan\n\n";
         $robotsTxt .= "# Crawl delay for respectful crawling\n";
         $robotsTxt .= "Crawl-delay: 1\n\n";
         $robotsTxt .= "# Sitemaps\n";

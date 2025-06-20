@@ -32,6 +32,62 @@ class QuranController extends Controller
     }
 
     /**
+     * Get random surahs for popular section
+     * 
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function getRandomSurahs(Request $request): JsonResponse
+    {
+        $count = $request->query('count', 6); // Default 6 surahs
+        $count = min(max((int)$count, 1), 20); // Limit between 1-20
+        
+        $allSurahs = $this->quranCache->getAllSurahs()->toArray();
+        
+        if (empty($allSurahs)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No surahs available'
+            ], 404);
+        }
+        
+        // Mix of popular surahs and random ones
+        $popularSurahs = [1, 2, 18, 36, 55, 67, 112, 113, 114]; // Al-Fatihah, Al-Baqarah, Al-Kahf, Ya-Sin, Ar-Rahman, Al-Mulk, Al-Ikhlas, Al-Falaq, An-Nas
+        $randomSurahs = [];
+        
+        // First, try to include some popular surahs
+        $popularAvailable = array_filter($allSurahs, function($surah) use ($popularSurahs) {
+            return in_array($surah['number'], $popularSurahs);
+        });
+        
+        // Shuffle and take some popular ones
+        $popularAvailable = array_values($popularAvailable);
+        shuffle($popularAvailable);
+        $selectedCount = min(ceil($count * 0.6), count($popularAvailable)); // 60% popular surahs
+        $randomSurahs = array_slice($popularAvailable, 0, $selectedCount);
+        
+        // Fill the rest with random surahs
+        $remaining = $count - count($randomSurahs);
+        if ($remaining > 0) {
+            $otherSurahs = array_filter($allSurahs, function($surah) use ($randomSurahs) {
+                return !in_array($surah['number'], array_column($randomSurahs, 'number'));
+            });
+            
+            $otherSurahs = array_values($otherSurahs);
+            shuffle($otherSurahs);
+            $randomSurahs = array_merge($randomSurahs, array_slice($otherSurahs, 0, $remaining));
+        }
+        
+        // Shuffle the final result
+        shuffle($randomSurahs);
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => $randomSurahs
+        ]);
+    }
+
+    /**
      * Get a specific surah with its ayahs
      * 
      * @param string|int $number
@@ -213,7 +269,7 @@ class QuranController extends Controller
     }
 
     /**
-     * Search for ayahs based on Indonesian or English text.
+     * Search for ayahs based on Indonesian text.
      * 
      * Search is performed as an AND operation between words.
      * For example, a search for "anak allah" will find ayahs that contain both "anak" AND "allah".
@@ -226,7 +282,7 @@ class QuranController extends Controller
         $query = $request->input('q');
         $perPage = (int)$request->input('per_page', 10);
         $page = (int)$request->input('page', 1);
-        $language = $request->input('lang', 'indonesian'); // Default to Indonesian
+        $revelationPlace = $request->input('revelation_place');
         
         // Validate per_page to reasonable limits
         $perPage = max(1, min($perPage, 50)); // Between 1 and 50
@@ -246,13 +302,15 @@ class QuranController extends Controller
             ], 400);
         }
         
-        // Build the search query based on language
-        $searchQuery = Ayah::with('surah:number,name_indonesian,name_arabic,name_latin');
+        // Build the search query using Indonesian text
+        $searchQuery = Ayah::with('surah:number,name_indonesian,name_arabic,name_latin,revelation_place');
+        $searchQuery->searchIndonesianText($query);
         
-        if ($language === 'english') {
-            $searchQuery->searchEnglishText($query);
-        } else {
-            $searchQuery->searchIndonesianText($query);
+        // Add revelation place filter if provided
+        if ($revelationPlace && in_array($revelationPlace, ['makkah', 'madinah'])) {
+            $searchQuery->whereHas('surah', function ($query) use ($revelationPlace) {
+                $query->where('revelation_place', $revelationPlace);
+            });
         }
         
         // Add ordering for consistent pagination
@@ -260,13 +318,13 @@ class QuranController extends Controller
         
         // Apply pagination with proper appending of query parameters for pagination links
         $paginatedResults = $searchQuery->paginate($perPage, ['*'], 'page', $page)
-                                     ->appends($request->only(['q', 'per_page', 'lang']));
+                                     ->appends($request->only(['q', 'per_page', 'revelation_place']));
         
         return response()->json([
             'status' => 'success',
             'query' => [
                 'text' => $query,
-                'language' => $language,
+                'revelation_place' => $revelationPlace,
                 'search_mode' => 'AND' // Indicating that search uses AND between terms
             ],
             'data' => $paginatedResults->items(),
