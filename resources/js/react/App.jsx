@@ -174,24 +174,35 @@ function AppContent() {
                     <Route path="/contact" element={<Navigate to="/kontak" replace />} />
                     <Route path="/donation" element={<Navigate to="/donasi" replace />} />
                     <Route path="/privacy" element={<Navigate to="/kebijakan" replace />} />
+                    <Route path="/bookmark" element={<Navigate to="/penanda" replace />} />
+                    <Route path="/profile" element={<Navigate to="/profil" replace />} />
+                    <Route path="/auth/login" element={<Navigate to="/masuk" replace />} />
+                    <Route path="/auth/register" element={<Navigate to="/daftar" replace />} />
+                    <Route path="/auth/:action" element={<Navigate to="/masuk" replace />} />
                     
                     {/* Protected Routes */}
                     <Route 
-                        path="/bookmarks" 
+                        path="/penanda" 
                         element={
-                            isAuthenticated ? <BookmarksPage user={user} /> : <Navigate to="/auth/login" replace />
+                            isAuthenticated ? <BookmarksPage user={user} /> : <Navigate to="/masuk" replace />
                         } 
                     />
                     <Route 
-                        path="/profile" 
+                        path="/profil" 
                         element={
-                            isAuthenticated ? <ProfilePage user={user} setUser={setUser} /> : <Navigate to="/auth/login" replace />
+                            isAuthenticated ? <ProfilePage user={user} setUser={setUser} /> : <Navigate to="/masuk" replace />
                         } 
                     />
                     
                     {/* Auth Routes */}
                     <Route 
-                        path="/auth/:action" 
+                        path="/masuk" 
+                        element={
+                            isAuthenticated ? <Navigate to="/" replace /> : <AuthPage />
+                        } 
+                    />
+                    <Route 
+                        path="/daftar" 
                         element={
                             isAuthenticated ? <Navigate to="/" replace /> : <AuthPage />
                         } 

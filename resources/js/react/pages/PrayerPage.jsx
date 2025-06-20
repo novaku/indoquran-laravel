@@ -239,7 +239,7 @@ const PrayerPage = () => {
                                 <div className="flex-1">
                                     <p className="text-sm text-blue-800">
                                         Untuk dapat mengirim doa, memberikan amin, dan berkomentar, silakan{' '}
-                                        <a href="/auth/login" className="font-medium underline hover:no-underline">
+                                        <a href="/masuk" className="font-medium underline hover:no-underline">
                                             login
                                         </a>{' '}
                                         atau{' '}

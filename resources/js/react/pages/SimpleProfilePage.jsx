@@ -27,7 +27,7 @@ function SimpleProfilePage() {
 
     useEffect(() => {
         if (!user) {
-            navigate('/auth/login');
+            navigate('/masuk');
             return;
         }
         

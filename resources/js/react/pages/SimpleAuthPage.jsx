@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { 
     EyeIcon, 
     EyeSlashIcon, 
@@ -11,7 +11,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
 
 function SimpleAuthPage() {
-    const { action } = useParams();
+    const location = useLocation();
     const navigate = useNavigate();
     const { login } = useAuth();
     const [formData, setFormData] = useState({
@@ -25,8 +25,8 @@ function SimpleAuthPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     
-    const isLogin = action === 'login';
-    const isRegister = action === 'register';
+    const isLogin = location.pathname === '/masuk';
+    const isRegister = location.pathname === '/daftar';
     
     useEffect(() => {
         setErrors({});
@@ -36,7 +36,7 @@ function SimpleAuthPage() {
             password: '',
             password_confirmation: ''
         });
-    }, [action]);
+    }, [location.pathname]);
     
     const handleChange = (e) => {
         setFormData({
@@ -140,7 +140,7 @@ function SimpleAuthPage() {
                         <>
                             Belum punya akun?{' '}
                             <Link 
-                                to="/auth/register" 
+                                to="/daftar" 
                                 className="font-medium text-green-600 hover:text-green-500"
                             >
                                 Buat di sini
@@ -150,7 +150,7 @@ function SimpleAuthPage() {
                         <>
                             Sudah punya akun?{' '}
                             <Link 
-                                to="/auth/login" 
+                                to="/masuk" 
                                 className="font-medium text-green-600 hover:text-green-500"
                             >
                                 Masuk

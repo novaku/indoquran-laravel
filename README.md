@@ -191,10 +191,10 @@ Untuk informasi lengkap mengenai deployment di lingkungan produksi dan penangana
 - `GET /api/search?q={query}&page={page}&per_page={limit}` - Pencarian ayat
 
 ### Bookmark (Autentikasi Required)
-- `GET /api/bookmarks` - Daftar bookmark pengguna
-- `POST /api/bookmarks/surah/ayah/{id}/toggle` - Toggle bookmark
-- `POST /api/bookmarks/surah/ayah/{id}/favorite` - Toggle favorit
-- `PUT /api/bookmarks/surah/ayah/{id}/notes` - Update catatan
+- `GET /api/bookmark` - Daftar bookmark pengguna
+- `POST /api/bookmark/surah/ayah/{id}/toggle` - Toggle bookmark
+- `POST /api/bookmark/surah/ayah/{id}/favorite` - Toggle favorit
+- `PUT /api/bookmark/surah/ayah/{id}/notes` - Update catatan
 
 ## 📁 Struktur Project
 
@@ -544,11 +544,11 @@ Berhasil mengimplementasikan fungsionalitas bookmark dan favorit yang komprehens
 - **Model Ayah**: Ditambahkan relasi untuk `bookmarks`, `bookmarkedByUsers`
 
 ### 🔌 Endpoint API
-- `GET /api/bookmarks` - Mendapatkan bookmark dan favorit pengguna
-- `GET /api/bookmarks/status` - Mendapatkan status bookmark untuk beberapa ayat
-- `POST /api/bookmarks/surah/ayah/{id}/toggle` - Toggle status bookmark
-- `POST /api/bookmarks/surah/ayah/{id}/favorite` - Toggle status favorit
-- `PUT /api/bookmarks/surah/ayah/{id}/notes` - Memperbarui catatan bookmark
+- `GET /api/bookmark` - Mendapatkan bookmark dan favorit pengguna
+- `GET /api/bookmark/status` - Mendapatkan status bookmark untuk beberapa ayat
+- `POST /api/bookmark/surah/ayah/{id}/toggle` - Toggle status bookmark
+- `POST /api/bookmark/surah/ayah/{id}/favorite` - Toggle status favorit
+- `PUT /api/bookmark/surah/ayah/{id}/notes` - Memperbarui catatan bookmark
 
 ### 🎯 Layanan Frontend
 - **BookmarkService.js**: Lapisan layanan lengkap untuk operasi bookmark
@@ -568,7 +568,7 @@ Berhasil mengimplementasikan fungsionalitas bookmark dan favorit yang komprehens
 - **Pemeriksaan Autentikasi**: Meminta login saat tidak terautentikasi
 
 #### BookmarksPage
-- **Halaman Khusus**: Rute `/bookmarks` untuk mengelola ayat yang disimpan
+- **Halaman Khusus**: Rute `/bookmark` untuk mengelola ayat yang disimpan
 - **Antarmuka Tab**: Tab terpisah untuk bookmark dan favorit
 - **Fungsionalitas Pencarian**: Cari melalui ayat yang disimpan berdasarkan teks atau surah
 - **Manajemen Catatan**: Tambah, edit, dan simpan catatan untuk ayat yang di-bookmark
@@ -649,7 +649,7 @@ Berhasil mengimplementasikan fungsionalitas bookmark dan favorit yang komprehens
 2. **Membaca Ayat**: Navigasi ke halaman surah apa pun (misalnya, `/surah/1`)
 3. **Bookmark**: Klik ikon bookmark di samping ayat mana pun
 4. **Favorit**: Klik ikon hati untuk menandai sebagai favorit
-5. **Mengelola**: Kunjungi `/bookmarks` untuk melihat dan mengelola ayat yang disimpan
+5. **Mengelola**: Kunjungi `/bookmark` untuk melihat dan mengelola ayat yang disimpan
 6. **Catatan**: Tambahkan catatan pribadi ke ayat yang di-bookmark
 7. **Pencarian**: Gunakan fungsionalitas pencarian untuk menemukan ayat tertentu yang disimpan
 

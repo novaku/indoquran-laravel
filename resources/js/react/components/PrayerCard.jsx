@@ -255,7 +255,7 @@ const PrayerCard = ({ prayer, user, onAminToggle, onCommentSubmit }) => {
                             </p>
                             <div className="flex items-center justify-center gap-3">
                                 <a 
-                                    href="/auth/login" 
+                                    href="/masuk" 
                                     className="bg-orange-600 text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-orange-700 transition-all duration-200"
                                 >
                                     🔑 Login

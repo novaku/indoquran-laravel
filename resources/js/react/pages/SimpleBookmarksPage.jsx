@@ -17,7 +17,7 @@ function SimpleBookmarksPage() {
 
     useEffect(() => {
         if (!user) {
-            navigate('/auth/login');
+            navigate('/masuk');
             return;
         }
         loadBookmarks();

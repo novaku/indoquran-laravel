@@ -111,7 +111,7 @@ function SimpleSurahPage() {
                     // Fetch bookmarks if user is logged in
                     if (user) {
                         try {
-                            const bookmarksResponse = await fetchWithAuth('/api/bookmarks', {
+                            const bookmarksResponse = await fetchWithAuth('/api/penanda', {
                                 headers: {
                                     'Authorization': `Bearer ${token}`,
                                     'Content-Type': 'application/json',
@@ -172,7 +172,7 @@ function SimpleSurahPage() {
 
     const toggleBookmark = async (ayahNum) => {
         if (!user) {
-            navigate('/auth/login');
+            navigate('/masuk');
             return;
         }
 
@@ -189,7 +189,7 @@ function SimpleSurahPage() {
             });
 
             // Use the new endpoint that accepts surah and ayah numbers
-            const response = await fetchWithAuth(`/api/bookmarks/surah/${number}/ayah/${ayahNum}/toggle`, {
+            const response = await fetchWithAuth(`/api/penanda/surah/${number}/ayah/${ayahNum}/toggle`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

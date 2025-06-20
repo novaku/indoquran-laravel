@@ -76,9 +76,10 @@ export const generateRobotsTxt = () => {
 Allow: /
 
 # Disallow private pages
-Disallow: /auth/
-Disallow: /profile
-Disallow: /bookmarks
+Disallow: /masuk
+Disallow: /daftar
+Disallow: /profil
+Disallow: /penanda
 Disallow: /api/
 
 # Allow important pages

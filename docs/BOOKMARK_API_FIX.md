@@ -4,7 +4,7 @@
 The bookmark toggle functionality was returning a 500 Internal Server Error because the frontend was using an incorrect API endpoint that required ayah database IDs, which were not always available.
 
 ## Root Cause
-- The original endpoint `/api/bookmarks/surah/ayah/{ayahId}/toggle` required the ayah's database ID
+- The original endpoint `/api/bookmark/surah/ayah/{ayahId}/toggle` required the ayah's database ID
 - The frontend code was trying to find the ayah database ID from the ayah object, but this field was not consistently available
 - This caused 500 errors when trying to toggle bookmarks
 
@@ -21,7 +21,7 @@ The bookmark toggle functionality was returning a 500 Internal Server Error beca
    Route::post('/surah/{surahNumber}/ayah/{ayahNumber}/toggle', [BookmarkController::class, 'toggleByNumbers']);
    ```
    - Located in: `/routes/api.php`
-   - Full endpoint: `/api/bookmarks/surah/{surahNumber}/ayah/{ayahNumber}/toggle`
+   - Full endpoint: `/api/bookmark/surah/{surahNumber}/ayah/{ayahNumber}/toggle`
 
 ### Frontend Changes
 1. **Updated SimpleSurahPage.jsx**:
@@ -35,8 +35,8 @@ The bookmark toggle functionality was returning a 500 Internal Server Error beca
    - Kept existing methods for backward compatibility
 
 ### API Endpoints
-- **Old**: `POST /api/bookmarks/surah/ayah/{ayahId}/toggle` (still available for compatibility)
-- **New**: `POST /api/bookmarks/surah/{surahNumber}/ayah/{ayahNumber}/toggle` (recommended)
+- **Old**: `POST /api/bookmark/surah/ayah/{ayahId}/toggle` (still available for compatibility)
+- **New**: `POST /api/bookmark/surah/{surahNumber}/ayah/{ayahNumber}/toggle` (recommended)
 
 ## Files Modified
 1. `/app/Http/Controllers/BookmarkController.php` - Added `toggleByNumbers` method

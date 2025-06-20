@@ -61,7 +61,7 @@ Route::middleware(['simple.auth'])->group(function() {
     Route::put('/profile', [ProfileController::class, 'update']);
     
     // Bookmark routes
-    Route::prefix('bookmarks')->group(function() {
+    Route::prefix('penanda')->group(function() {
         Route::get('/', [BookmarkController::class, 'index']);
         Route::get('/status', [BookmarkController::class, 'getStatus']);
         Route::post('/surah/ayah/{ayahId}/toggle', [BookmarkController::class, 'toggle']);
@@ -70,6 +70,16 @@ Route::middleware(['simple.auth'])->group(function() {
         Route::put('/surah/ayah/{ayahId}/notes', [BookmarkController::class, 'updateNotes']);
     });
     
+    // Backward compatibility for old bookmark API routes
+    Route::prefix('bookmark')->group(function() {
+        Route::get('/', [BookmarkController::class, 'index']);
+        Route::get('/status', [BookmarkController::class, 'getStatus']);
+        Route::post('/surah/ayah/{ayahId}/toggle', [BookmarkController::class, 'toggle']);
+        Route::post('/surah/{surahNumber}/ayah/{ayahNumber}/toggle', [BookmarkController::class, 'toggleByNumbers']);
+        Route::post('/surah/ayah/{ayahId}/favorite', [BookmarkController::class, 'toggleFavorite']);
+        Route::put('/surah/ayah/{ayahId}/notes', [BookmarkController::class, 'updateNotes']);
+    });
+
     // Prayer protected routes (Indonesian URLs)
     Route::post('/doa-bersama', [PrayerController::class, 'store']);
     Route::put('/doa-bersama/{prayer}', [PrayerController::class, 'update']);

@@ -11,7 +11,7 @@ import { postWithAuth, getWithAuth, putWithAuth } from '../utils/apiUtils';
  */
 export const toggleBookmark = async (ayahId) => {
     try {
-        const response = await postWithAuth(`/api/bookmarks/surah/ayah/${ayahId}/toggle`);
+        const response = await postWithAuth(`/api/penanda/surah/ayah/${ayahId}/toggle`);
 
         if (!response.ok) {
             throw new Error('Failed to toggle bookmark');
@@ -32,7 +32,7 @@ export const toggleBookmark = async (ayahId) => {
  */
 export const toggleFavorite = async (ayahId) => {
     try {
-        const response = await postWithAuth(`/api/bookmarks/surah/ayah/${ayahId}/favorite`);
+        const response = await postWithAuth(`/api/penanda/surah/ayah/${ayahId}/favorite`);
 
         if (!response.ok) {
             throw new Error('Failed to toggle favorite');
@@ -52,7 +52,7 @@ export const toggleFavorite = async (ayahId) => {
  */
 export const getBookmarkStatus = async (ayahIds) => {
     try {
-        const response = await getWithAuth(`/api/bookmarks/status?ayah_ids=${ayahIds.join(',')}`);
+        const response = await getWithAuth(`/api/penanda/status?ayah_ids=${ayahIds.join(',')}`);
 
         if (!response.ok) {
             throw new Error('Failed to get bookmark status');
@@ -73,7 +73,7 @@ export const getBookmarkStatus = async (ayahIds) => {
  */
 export const getUserBookmarks = async (favoritesOnly = false) => {
     try {
-        const url = favoritesOnly ? '/api/bookmarks?favorites_only=true' : '/api/bookmarks';
+        const url = favoritesOnly ? '/api/penanda?favorites_only=true' : '/api/penanda';
         const response = await getWithAuth(url);
 
         if (!response.ok) {
@@ -96,7 +96,7 @@ export const getUserBookmarks = async (favoritesOnly = false) => {
  */
 export const updateBookmarkNotes = async (ayahId, notes) => {
     try {
-        const response = await putWithAuth(`/api/bookmarks/surah/ayah/${ayahId}/notes`, { notes });
+        const response = await putWithAuth(`/api/penanda/surah/ayah/${ayahId}/notes`, { notes });
 
         if (!response.ok) {
             throw new Error('Failed to update notes');
@@ -117,7 +117,7 @@ export const updateBookmarkNotes = async (ayahId, notes) => {
  */
 export const toggleBookmarkByNumbers = async (surahNumber, ayahNumber) => {
     try {
-        const response = await postWithAuth(`/api/bookmarks/surah/${surahNumber}/ayah/${ayahNumber}/toggle`);
+        const response = await postWithAuth(`/api/penanda/surah/${surahNumber}/ayah/${ayahNumber}/toggle`);
 
         if (!response.ok) {
             throw new Error('Failed to toggle bookmark');

@@ -26,10 +26,10 @@ function SimpleFooter() {
             { name: 'Kebijakan Privasi', path: '/kebijakan' },
         ],
         'Akun': [
-            { name: 'Masuk', path: '/auth/login' },
-            { name: 'Buat Akun', path: '/auth/register' },
-            { name: 'Penanda Saya', path: '/bookmarks' },
-            { name: 'Profil Saya', path: '/profile' },
+            { name: 'Masuk', path: '/masuk' },
+            { name: 'Buat Akun', path: '/daftar' },
+            { name: 'Penanda Saya', path: '/penanda' },
+            { name: 'Profil Saya', path: '/profil' },
         ]
     };
 

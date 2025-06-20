@@ -74,8 +74,8 @@ function SimpleHeader() {
     ];
 
     const userNavItems = user ? [
-        { name: 'Bookmark', path: '/bookmarks', icon: HeartIcon },
-        { name: 'Profil', path: '/profile', icon: UserIcon },
+        { name: 'Penanda', path: '/penanda', icon: HeartIcon },
+        { name: 'Profil', path: '/profil', icon: UserIcon },
     ] : [];
 
     const isActivePath = (path) => {
@@ -179,7 +179,7 @@ function SimpleHeader() {
                             </div>
                         ) : (
                             <Link
-                                to="/auth/login"
+                                to="/masuk"
                                 className="hidden md:inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors"
                             >
                                 Masuk
@@ -274,7 +274,7 @@ function SimpleHeader() {
                                 <>
                                     <hr className="my-4 border-gray-200" />
                                     <Link
-                                        to="/auth/login"
+                                        to="/masuk"
                                         className="block px-3 py-2 rounded-md text-base font-medium text-white bg-green-600 hover:bg-green-700 transition-colors text-center"
                                     >
                                         Masuk

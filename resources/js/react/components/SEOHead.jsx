@@ -147,10 +147,10 @@ export const getSearchSEO = (query, results = []) => ({
 });
 
 export const getBookmarksSEO = () => ({
-  title: 'Bookmark Ayat Favorit - IndoQuran',
-  description: 'Kelola dan akses bookmark ayat Al-Quran favorit Anda. Simpan ayat-ayat penting untuk dibaca kembali dengan mudah di IndoQuran.',
-  keywords: 'bookmark quran, ayat favorit, simpan ayat, al quran bookmark, indoquran bookmark',
-  canonicalUrl: 'https://my.indoquran.web.id/bookmarks',
+  title: 'Penanda Ayat Favorit - IndoQuran',
+  description: 'Kelola dan akses penanda ayat Al-Quran favorit Anda. Simpan ayat-ayat penting untuk dibaca kembali dengan mudah di IndoQuran.',
+  keywords: 'penanda quran, ayat favorit, simpan ayat, al quran penanda, indoquran penanda',
+  canonicalUrl: 'https://my.indoquran.web.id/penanda',
   pageType: 'bookmarks'
 });
 

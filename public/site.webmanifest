@@ -78,10 +78,10 @@
             ]
         },
         {
-            "name": "Bookmark",
-            "short_name": "Bookmark",
-            "description": "Lihat ayat yang telah di-bookmark",
-            "url": "/bookmarks",
+            "name": "Penanda",
+            "short_name": "Penanda",
+            "description": "Lihat ayat yang telah di-penanda",
+            "url": "/penanda",
             "icons": [
                 {
                     "src": "/android-chrome-192x192.png",

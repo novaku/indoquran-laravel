@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SitemapIndexController;
@@ -42,6 +43,12 @@ if (app()->environment('local', 'development')) {
             ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     })->where('path', '.*');
 }
+
+// Indonesian language routes
+Route::get('/masuk', [LoginController::class, 'showLoginForm'])->name('masuk');
+Route::post('/masuk', [LoginController::class, 'login']);
+Route::get('/daftar', [RegisterController::class, 'showRegistrationForm'])->name('daftar');
+Route::post('/daftar', [RegisterController::class, 'register']);
 
 // Authentication routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');

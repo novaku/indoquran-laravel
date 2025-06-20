@@ -127,13 +127,40 @@ class SEOController extends Controller
                 'canonicalUrl' => 'https://my.indoquran.web.id/contact'
             ]);
         }
-        elseif (isset($segments[0]) && $segments[0] === 'bookmarks') {
+        elseif (isset($segments[0]) && $segments[0] === 'penanda') {
             // Bookmarks page SEO
             $seoData = array_merge($seoData, [
-                'metaTitle' => 'Bookmark Ayat Favorit - IndoQuran',
-                'metaDescription' => 'Kelola dan akses bookmark ayat Al-Quran favorit Anda. Simpan ayat-ayat penting untuk dibaca kembali dengan mudah di IndoQuran.',
-                'metaKeywords' => 'bookmark quran, ayat favorit, simpan ayat, al quran bookmark, indoquran bookmark',
-                'canonicalUrl' => 'https://my.indoquran.web.id/bookmarks'
+                'metaTitle' => 'Penanda Ayat Favorit - IndoQuran',
+                'metaDescription' => 'Kelola dan akses penanda ayat Al-Quran favorit Anda. Simpan ayat-ayat penting untuk dibaca kembali dengan mudah di IndoQuran.',
+                'metaKeywords' => 'penanda quran, ayat favorit, simpan ayat, al quran penanda, indoquran penanda',
+                'canonicalUrl' => 'https://my.indoquran.web.id/penanda'
+            ]);
+        }
+        elseif (isset($segments[0]) && $segments[0] === 'profil') {
+            // Profile page SEO
+            $seoData = array_merge($seoData, [
+                'metaTitle' => 'Profil Pengguna - IndoQuran',
+                'metaDescription' => 'Kelola profil dan pengaturan akun IndoQuran Anda.',
+                'metaKeywords' => 'profil indoquran, pengaturan akun, pengguna',
+                'canonicalUrl' => 'https://my.indoquran.web.id/profil'
+            ]);
+        }
+        elseif (isset($segments[0]) && $segments[0] === 'masuk') {
+            // Login page SEO
+            $seoData = array_merge($seoData, [
+                'metaTitle' => 'Masuk - IndoQuran',
+                'metaDescription' => 'Masuk ke akun IndoQuran Anda untuk mengakses fitur penanda dan sinkronisasi bacaan.',
+                'metaKeywords' => 'masuk indoquran, login, akun pengguna',
+                'canonicalUrl' => 'https://my.indoquran.web.id/masuk'
+            ]);
+        }
+        elseif (isset($segments[0]) && $segments[0] === 'daftar') {
+            // Register page SEO
+            $seoData = array_merge($seoData, [
+                'metaTitle' => 'Daftar Akun - IndoQuran',
+                'metaDescription' => 'Buat akun IndoQuran untuk menyimpan penanda ayat dan sinkronisasi progres bacaan Anda.',
+                'metaKeywords' => 'daftar indoquran, buat akun, registrasi pengguna',
+                'canonicalUrl' => 'https://my.indoquran.web.id/daftar'
             ]);
         }
         elseif (isset($segments[0]) && $segments[0] === 'doa-bersama') {
@@ -145,13 +172,13 @@ class SEOController extends Controller
                 'canonicalUrl' => 'https://my.indoquran.web.id/doa-bersama'
             ]);
         }
-        elseif (isset($segments[0]) && $segments[0] === 'privacy') {
+        elseif (isset($segments[0]) && $segments[0] === 'kebijakan') {
             // Privacy page SEO
             $seoData = array_merge($seoData, [
                 'metaTitle' => 'Kebijakan Privasi - IndoQuran',
                 'metaDescription' => 'Baca kebijakan privasi IndoQuran. Kami berkomitmen melindungi data pribadi dan privasi pengguna platform Al-Quran digital kami.',
                 'metaKeywords' => 'kebijakan privasi, privacy policy, perlindungan data, keamanan data',
-                'canonicalUrl' => 'https://my.indoquran.web.id/privacy'
+                'canonicalUrl' => 'https://my.indoquran.web.id/kebijakan'
             ]);
         }
 
