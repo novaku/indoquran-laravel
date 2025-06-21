@@ -1,14 +1,108 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { 
     BookOpenIcon,
     HeartIcon,
     EnvelopeIcon,
-    InformationCircleIcon
+    InformationCircleIcon,
+    ArrowPathIcon
 } from '@heroicons/react/24/outline';
+import { fetchWithAuth } from '../utils/apiUtils';
+import authUtils from '../utils/auth';
 
 function SimpleFooter() {
     const currentYear = new Date().getFullYear();
+    const [surahs, setSurahs] = useState([]);
+    const [popularSurahs, setPopularSurahs] = useState([]);
+    const [loadingPopular, setLoadingPopular] = useState(false);
+
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    };
+
+    // Fetch popular/random surahs
+    const fetchPopularSurahs = useCallback(async () => {
+        setLoadingPopular(true);
+        try {
+            const token = authUtils.getAuthToken();
+            const response = await fetchWithAuth('/api/surahs/random?count=7', {
+                headers: {
+                    'Authorization': token ? `Bearer ${token}` : '',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                }
+            });
+            
+            if (!response.ok) throw new Error('Failed to fetch popular surahs');
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                setPopularSurahs(result.data);
+            } else {
+                throw new Error("Failed to load popular surahs");
+            }
+        } catch (error) {
+            console.error('Error fetching popular surahs:', error);
+            // Fallback to featured surahs if API fails
+            if (surahs.length > 0) {
+                const featured = [
+                    surahs.find(s => s.number === 1), // Al-Fatihah
+                    surahs.find(s => s.number === 2), // Al-Baqarah
+                    surahs.find(s => s.number === 18), // Al-Kahf
+                    surahs.find(s => s.number === 36), // Ya-Sin
+                    surahs.find(s => s.number === 55), // Ar-Rahman
+                    surahs.find(s => s.number === 67), // Al-Mulk
+                    surahs.find(s => s.number === 112), // Al-Ikhlas
+                ].filter(Boolean);
+                setPopularSurahs(featured);
+            }
+        } finally {
+            setLoadingPopular(false);
+        }
+    }, [surahs]);
+
+    // Fetch surahs data
+    useEffect(() => {
+        const fetchSurahs = async () => {
+            try {
+                const token = authUtils.getAuthToken();
+                const response = await fetchWithAuth('/api/surahs', {
+                    headers: {
+                        'Authorization': token ? `Bearer ${token}` : '',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Failed to fetch surahs');
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    setSurahs(result.data);
+                } else {
+                    throw new Error("Failed to load surahs");
+                }
+            } catch (error) {
+                console.error('Error fetching surahs:', error);
+            }
+        };
+
+        fetchSurahs();
+    }, []);
+
+    // Fetch popular surahs when surahs are loaded
+    useEffect(() => {
+        if (surahs.length > 0) {
+            fetchPopularSurahs();
+        }
+    }, [surahs, fetchPopularSurahs]);
+
+    const handleRefreshPopular = () => {
+        fetchPopularSurahs();
+    };
 
     const footerLinks = {
         'Navigasi': [
@@ -67,6 +161,7 @@ function SimpleFooter() {
                                         <li key={link.path}>
                                             <Link
                                                 to={link.path}
+                                                onClick={scrollToTop}
                                                 className="text-gray-300 hover:text-white transition-colors text-sm"
                                             >
                                                 {link.name}
@@ -81,29 +176,64 @@ function SimpleFooter() {
 
                 {/* Popular Surahs */}
                 <div className="border-t border-gray-800 py-8">
-                    <h3 className="text-white font-semibold mb-4">Surah Populer</h3>
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-white font-semibold">Surah Populer</h3>
+                        <button
+                            onClick={handleRefreshPopular}
+                            disabled={loadingPopular}
+                            className="flex items-center space-x-1 px-2 py-1 text-xs text-gray-400 hover:text-white hover:bg-gray-800 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Dapatkan surah acak"
+                        >
+                            <ArrowPathIcon className={`w-3 h-3 ${loadingPopular ? 'animate-spin' : ''}`} />
+                            <span>Acak</span>
+                        </button>
+                    </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 text-sm">
-                        <Link to="/surah/1" className="text-gray-300 hover:text-white transition-colors">
-                            Al-Fatihah
-                        </Link>
-                        <Link to="/surah/2" className="text-gray-300 hover:text-white transition-colors">
-                            Al-Baqarah
-                        </Link>
-                        <Link to="/surah/18" className="text-gray-300 hover:text-white transition-colors">
-                            Al-Kahf
-                        </Link>
-                        <Link to="/surah/36" className="text-gray-300 hover:text-white transition-colors">
-                            Ya-Sin
-                        </Link>
-                        <Link to="/surah/55" className="text-gray-300 hover:text-white transition-colors">
-                            Ar-Rahman
-                        </Link>
-                        <Link to="/surah/67" className="text-gray-300 hover:text-white transition-colors">
-                            Al-Mulk
-                        </Link>
-                        <Link to="/surah/112" className="text-gray-300 hover:text-white transition-colors">
-                            Al-Ikhlas
-                        </Link>
+                        {loadingPopular ? (
+                            // Loading skeleton
+                            Array.from({ length: 7 }).map((_, index) => (
+                                <div key={index} className="animate-pulse">
+                                    <div className="h-4 bg-gray-700 rounded w-16"></div>
+                                </div>
+                            ))
+                        ) : popularSurahs.length > 0 ? (
+                            popularSurahs.map((surah) => (
+                                <Link 
+                                    key={surah.number}
+                                    to={`/surah/${surah.number}`} 
+                                    onClick={scrollToTop} 
+                                    className="text-gray-300 hover:text-white transition-colors"
+                                    title={`${surah.name_english} (${surah.name_arabic})`}
+                                >
+                                    {surah.name_latin}
+                                </Link>
+                            ))
+                        ) : (
+                            // Fallback static links
+                            <>
+                                <Link to="/surah/1" onClick={scrollToTop} className="text-gray-300 hover:text-white transition-colors">
+                                    Al-Fatihah
+                                </Link>
+                                <Link to="/surah/2" onClick={scrollToTop} className="text-gray-300 hover:text-white transition-colors">
+                                    Al-Baqarah
+                                </Link>
+                                <Link to="/surah/18" onClick={scrollToTop} className="text-gray-300 hover:text-white transition-colors">
+                                    Al-Kahf
+                                </Link>
+                                <Link to="/surah/36" onClick={scrollToTop} className="text-gray-300 hover:text-white transition-colors">
+                                    Ya-Sin
+                                </Link>
+                                <Link to="/surah/55" onClick={scrollToTop} className="text-gray-300 hover:text-white transition-colors">
+                                    Ar-Rahman
+                                </Link>
+                                <Link to="/surah/67" onClick={scrollToTop} className="text-gray-300 hover:text-white transition-colors">
+                                    Al-Mulk
+                                </Link>
+                                <Link to="/surah/112" onClick={scrollToTop} className="text-gray-300 hover:text-white transition-colors">
+                                    Al-Ikhlas
+                                </Link>
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -116,19 +246,22 @@ function SimpleFooter() {
                         
                         <div className="flex items-center space-x-6 text-sm">
                             <Link 
-                                to="/kebijakan" 
+                                to="/kebijakan"
+                                onClick={scrollToTop}
                                 className="text-gray-400 hover:text-white transition-colors"
                             >
                                 Privasi
                             </Link>
                             <Link 
-                                to="/tentang" 
+                                to="/tentang"
+                                onClick={scrollToTop}
                                 className="text-gray-400 hover:text-white transition-colors"
                             >
                                 Ketentuan
                             </Link>
                             <Link 
-                                to="/kontak" 
+                                to="/kontak"
+                                onClick={scrollToTop}
                                 className="text-gray-400 hover:text-white transition-colors flex items-center space-x-1"
                             >
                                 <EnvelopeIcon className="w-4 h-4" />

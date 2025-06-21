@@ -92,7 +92,6 @@ export const getHomeSEO = () => ({
   structuredDataType: 'website',
   pageType: 'home',
   additionalMeta: {
-    'apple-mobile-web-app-capable': 'yes',
     'application-name': 'IndoQuran',
     'revisit-after': '7 days'
   }

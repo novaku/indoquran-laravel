@@ -51,35 +51,14 @@ if (!container) {
     }
 }
 
-// Register Service Worker for PWA functionality
-if ('serviceWorker' in navigator && import.meta.env.PROD && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js', {
-            scope: '/',
-            updateViaCache: 'none'
-        })
-        .then((registration) => {
-            console.log('SW registered: ', registration);
-            
-            // Periodic update check disabled to prevent unwanted refreshes
-            // setInterval(() => {
-            //     registration.update();
-            // }, 60000); // Check every minute - DISABLED
-        })
-        .catch((registrationError) => {
-            console.log('SW registration failed: ', registrationError);
-        });
+// Unregister any existing service workers (PWA functionality removed)
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for (let registration of registrations) {
+            registration.unregister();
+            console.log('Service worker unregistered (PWA functionality removed)');
+        }
     });
-} else {
-    // Unregister any service workers in development
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-            for (let registration of registrations) {
-                registration.unregister();
-                console.log('SW unregistered in development');
-            }
-        });
-    }
 }
 
 // Enable hot module replacement

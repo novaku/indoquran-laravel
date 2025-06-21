@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'rea
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './hooks/useAuth.jsx';
 import useAdvancedPerformanceMonitor from './hooks/useAdvancedPerformanceMonitor.js';
-import { registerServiceWorker } from './utils/serviceWorkerUtils.js';
 import '../../css/app.css';
 
 // Import critical components (loaded immediately)
@@ -72,42 +71,10 @@ function AppContent() {
         logToConsole: false // Disable console logging to reduce noise
     });
     
-    // Service Worker registration and performance monitoring
+    // SEO and performance monitoring initialization
     useEffect(() => {
         // Preload critical SEO resources
         preloadCriticalResources();
-        
-        // Service Worker Registration with improved error handling
-        if (process.env.NODE_ENV === 'development') {
-            // In development, register a development-specific service worker
-            console.log('Service Worker running in development mode');
-            registerServiceWorker('/sw.js', {
-                debug: true,
-                autoReload: false, // Disabled auto-reload in development too
-                onSuccess: (registration) => {
-                    console.log('Service Worker registered in development mode:', registration);
-                },
-                onError: (error) => {
-                    console.error('Service Worker registration failed in development:', error);
-                }
-            });
-        } else if (process.env.NODE_ENV === 'production') {
-            // Only register full features in production
-            registerServiceWorker('/sw.js', {
-                debug: true,
-                autoReload: false, // Disabled auto-reload to prevent unwanted page refreshes
-                onSuccess: (registration) => {
-                    console.log('Service Worker registered successfully:', registration);
-                },
-                onError: (error) => {
-                    console.error('Service Worker registration failed:', error);
-                },
-                onUpdate: (registration) => {
-                    console.log('New service worker available');
-                    // Removed auto-reload - user can manually refresh if needed
-                }
-            });
-        }
         
         // Performance monitoring in development (disabled to reduce console noise)
         // Performance monitoring is now handled by the PerformanceDebugPanel component

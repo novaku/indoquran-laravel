@@ -58,12 +58,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Lateef&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Noto+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Scheherazade+New:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Icons and Manifest -->
+    <!-- Icons -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="manifest" href="/site.webmanifest">
     
     <!-- Module MIME Type Fix Script -->
     <script>
@@ -225,19 +224,6 @@
             }
         });
     </script>
-    
-    <!-- PWA Meta Tags -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="IndoQuran">
-    <meta name="application-name" content="IndoQuran">
-    <meta name="msapplication-TileColor" content="#22c55e">
-    <meta name="msapplication-config" content="/browserconfig.xml">
-    
-    <!-- PWA Display Override -->
-    <meta name="display-mode" content="standalone">
-    <meta name="standalone" content="yes">
     
     <!-- Arabic Fonts -->
     <link rel="stylesheet" href="{{ asset('fonts/arabic-font.css') }}">
