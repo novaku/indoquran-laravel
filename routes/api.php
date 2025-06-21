@@ -129,6 +129,11 @@ Route::middleware(['api.cache:7d'])->group(function() {
     Route::get('/cari/ayahs', [SearchController::class, 'apiSearch']);
 });
 
+// Search logging routes
+Route::post('/search/log', [App\Http\Controllers\SearchLogController::class, 'logSearch']);
+Route::get('/search/popular', [App\Http\Controllers\SearchLogController::class, 'getPopularSearches']);
+Route::get('/search/history', [App\Http\Controllers\SearchLogController::class, 'getSearchHistoryByIp']);
+
 // Protected reading progress routes
 Route::middleware('auth:sanctum')->group(function() {
     Route::get('/reading-progress', [App\Http\Controllers\ReadingProgressController::class, 'getProgress']);

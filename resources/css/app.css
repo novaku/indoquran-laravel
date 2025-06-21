@@ -415,6 +415,57 @@
     }
 }
 
+/* Mobile Touch Optimization */
+@media (max-width: 768px) {
+    /* Improve touch targets for mobile */
+    .touch-manipulation {
+        touch-action: manipulation;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+    
+    /* Ensure minimum touch target size */
+    button, a, [role="button"] {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* Better tap highlight for mobile */
+    * {
+        -webkit-tap-highlight-color: rgba(34, 197, 94, 0.2);
+        -webkit-touch-callout: none;
+    }
+    
+    /* Prevent text selection on touch */
+    .mobile-menu button,
+    .mobile-menu a {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+    
+    /* Smoother animations on mobile */
+    .mobile-menu {
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+    }
+}
+
+/* iOS specific optimizations */
+@supports (-webkit-touch-callout: none) {
+    .touch-manipulation {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+}
+
 /* Dropdown Animations */
 @keyframes slideDownFade {
     0% {
@@ -595,6 +646,31 @@
 
 .prose-blue li::marker {
     color: rgb(59 130 246); /* blue-500 */
+}
+
+/* Line clamp utility for text truncation */
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .prose-blue p {

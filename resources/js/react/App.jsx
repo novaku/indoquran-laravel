@@ -16,6 +16,7 @@ import { preloadCriticalResources } from './utils/seoUtils';
 // Lazy load pages for better performance and code splitting
 const HomePage = lazy(() => import('./pages/SimpleHomePage'));
 const AuthPage = lazy(() => import('./pages/SimpleAuthPage'));
+const SurahListPage = lazy(() => import('./pages/SurahListPage'));
 const SurahPage = lazy(() => import('./pages/SimpleSurahPage'));
 const SearchPage = lazy(() => import('./pages/SimpleSearchPage'));
 const BookmarksPage = lazy(() => import('./pages/SimpleBookmarksPage'));
@@ -119,6 +120,7 @@ function AppContent() {
             >
                 <Routes>
                     <Route path="/" element={<HomePage />} />
+                    <Route path="/surah" element={<SurahListPage />} />
                     <Route path="/surah/:number" element={<SurahPage user={user} />} />
                     <Route path="/surah/:number/:ayahNumber" element={<SurahPage user={user} />} />
                     <Route path="/cari" element={<SearchPage />} />

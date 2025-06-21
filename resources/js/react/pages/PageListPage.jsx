@@ -214,7 +214,7 @@ function PageListPage() {
                 {/* Navigation Links */}
                 <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
                     <Link
-                        to="/"
+                        to="/surah"
                         className="flex items-center justify-center space-x-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
                     >
                         <BookOpenIcon className="w-5 h-5" />

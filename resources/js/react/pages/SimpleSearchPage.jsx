@@ -91,6 +91,44 @@ function SimpleSearchPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [resultsPerPage] = useState(10);
     const [totalResults, setTotalResults] = useState(0);
+    
+    // Popular searches state
+    const [popularSearches, setPopularSearches] = useState([
+        'Al-Fatihah', 'Al-Baqarah', 'Ya-Sin', 'Ar-Rahman', 'Al-Kahf', 'Al-Mulk'
+    ]);
+
+    // Function to fetch popular searches from API
+    const fetchPopularSearches = useCallback(async () => {
+        try {
+            const response = await fetchWithAuth('/api/search/popular?limit=6');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.status === 'success' && Array.isArray(data.data)) {
+                    setPopularSearches(data.data);
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching popular searches:', error);
+            // Keep default popular searches if API fails
+        }
+    }, []);
+
+    // Function to log search term (tanpa authentication)
+    const logSearchTerm = useCallback(async (searchTerm) => {
+        try {
+            await fetchWithAuth('/api/search/log', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ term: searchTerm })
+            });
+        } catch (error) {
+            console.error('Error logging search term:', error);
+            // Don't block search if logging fails
+        }
+    }, []);
 
     // Debounce query changes
     useEffect(() => {
@@ -129,6 +167,11 @@ function SimpleSearchPage() {
 
         fetchSurahs();
     }, []);
+
+    // Fetch popular searches on component mount
+    useEffect(() => {
+        fetchPopularSearches();
+    }, [fetchPopularSearches]);
 
     // Perform search when debounced query changes and surahs are loaded
     useEffect(() => {
@@ -179,6 +222,11 @@ function SimpleSearchPage() {
         try {
             setLoading(true);
             setError(null);
+            
+            // Log search term (don't wait for it to complete)
+            if (page === 1) { // Only log on first page to avoid duplicate logs
+                logSearchTerm(searchQuery.trim());
+            }
             
             // Hanya mencari ayat dari API (tanpa pencarian surah di frontend)
             const token = authUtils.getAuthToken();
@@ -249,6 +297,11 @@ function SimpleSearchPage() {
                             setTimeout(() => performSearch(searchQuery, correctPage), 100);
                             return;
                         }
+                    }
+                    
+                    // Refresh popular searches after successful search (only on first page)
+                    if (page === 1 && apiTotalResults > 0) {
+                        fetchPopularSearches();
                     }
                 } else {
                     // API returned success but no data or wrong format
@@ -350,11 +403,6 @@ function SimpleSearchPage() {
     const goToLastPage = () => goToPage(totalPages);
     const goToPrevPage = () => goToPage(currentPage - 1);
     const goToNextPage = () => goToPage(currentPage + 1);
-
-    // Popular searches and featured surahs
-    const popularSearches = [
-        'Al-Fatihah', 'Al-Baqarah', 'Ya-Sin', 'Ar-Rahman', 'Al-Kahf', 'Al-Mulk'
-    ];
 
     const featuredSurahs = useMemo(() => {
         if (!surahs.length) return [];

@@ -296,7 +296,7 @@ function SimpleHomePage() {
                                         <span>Acak</span>
                                     </button>
                                     <Link 
-                                        to="/cari"
+                                        to="/surah"
                                         className="flex items-center space-x-1 text-green-600 hover:text-green-700 font-medium"
                                     >
                                         <span>Lihat Semua</span>
@@ -370,6 +370,25 @@ function SimpleHomePage() {
                             <h2 className="text-2xl font-bold text-gray-900 mb-6">Jelajahi</h2>
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Link
+                                    to="/surah"
+                                    className="group p-6 rounded-xl border border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200"
+                                >
+                                    <div className="flex items-center space-x-4">
+                                        <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200">
+                                            <BookOpenIcon className="w-6 h-6 text-green-600" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold text-gray-900 group-hover:text-green-700">
+                                                Daftar Surah
+                                            </h3>
+                                            <p className="text-sm text-gray-500">
+                                                Semua 114 surah Al-Quran
+                                            </p>
+                                        </div>
+                                    </div>
+                                </Link>
+
                                 <Link
                                     to="/juz"
                                     className="group p-6 rounded-xl border border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200"
