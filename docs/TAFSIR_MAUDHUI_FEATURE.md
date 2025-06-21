@@ -16,6 +16,7 @@ Fitur Tafsir Maudhui telah berhasil ditambahkan ke aplikasi IndoQuran sebagai ko
 - Error handling dan loading states
 - Interactive expand/collapse untuk daftar ayat
 - Integration dengan React Router untuk navigation
+- **Auto-scroll to ayah**: Link ayat menggunakan format `/surah/{surah}/{ayah}` yang otomatis scroll ke ayat Arab yang dituju
 
 ### 2. Controller - TafsirMaudhuiController.php (API Only)
 **Location**: `/app/Http/Controllers/TafsirMaudhuiController.php`
@@ -191,11 +192,31 @@ The feature uses external links (`<a href>`) instead of React Router links becau
 
 ## Testing Recommendations
 1. Test search functionality with various keywords
-2. Verify all verse links navigate correctly
+2. Verify all verse links navigate correctly and auto-scroll to Arabic text
 3. Test responsive design on different devices
 4. Validate SEO meta tags
 5. Check accessibility compliance
 6. Test with slow network connections
+7. **Auto-scroll testing**: Verify that clicking ayah links from Tafsir Maudhui properly scrolls to and highlights the Arabic text
+
+## Auto-Scroll Implementation Details
+
+### Overview
+Ketika user mengklik link ayat dari halaman Tafsir Maudhui, halaman surah akan:
+1. Navigate ke URL `/surah/{surah}/{ayah}`
+2. Otomatis scroll ke text Arab ayat yang dituju
+3. Memberikan highlight visual sementara pada ayat untuk better UX
+
+### Technical Implementation
+- **Multiple scroll strategies**: currentAyahRef, specific ayah ID, fallback to container
+- **Visual feedback**: Temporary yellow highlight yang fade setelah 2 detik
+- **Timing optimization**: Auto-scroll terjadi dengan delay yang optimal untuk DOM rendering
+- **URL detection**: Component mendeteksi perubahan URL dan melakukan scroll otomatis
+
+### Components Modified
+- `SimpleSurahPage.jsx`: Enhanced dengan `scrollToCurrentAyah()` function
+- Auto-scroll detection untuk direct links dari external sources
+- Improved scroll reliability dengan multiple fallback strategies
 
 ## Maintenance Notes
 - JSON data can be updated by replacing the file

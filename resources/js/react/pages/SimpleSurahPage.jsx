@@ -69,6 +69,83 @@ function SimpleSurahPage() {
     const copyButtonRef = useRef(null);
     const isNavigatingRef = useRef(false); // Track navigation state to prevent race conditions
 
+    // Improved scroll function for better ayah targeting
+    const scrollToCurrentAyah = useCallback((ayahNum = currentAyahNumber) => {
+        console.log(`🎯 Scrolling to ayah ${ayahNum}...`);
+        
+        // Try multiple scroll strategies for best reliability
+        const scrollStrategies = [
+            // Strategy 1: Use currentAyahRef if available
+            () => {
+                if (currentAyahRef.current) {
+                    console.log('📍 Using currentAyahRef for scroll');
+                    currentAyahRef.current.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                        inline: 'nearest'
+                    });
+                    return true;
+                }
+                return false;
+            },
+            
+            // Strategy 2: Use specific ayah ID
+            () => {
+                const ayahElement = document.getElementById(`ayah-${ayahNum}-arabic`);
+                if (ayahElement) {
+                    console.log(`📍 Using ayah ID #ayah-${ayahNum}-arabic for scroll`);
+                    ayahElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                        inline: 'nearest'
+                    });
+                    return true;
+                }
+                return false;
+            },
+            
+            // Strategy 3: Use ayah content container
+            () => {
+                const ayahContent = document.getElementById('ayah-content');
+                if (ayahContent) {
+                    console.log('📍 Using ayah-content container for scroll');
+                    ayahContent.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                        inline: 'nearest'
+                    });
+                    return true;
+                }
+                return false;
+            }
+        ];
+        
+        // Try each strategy until one works
+        for (const strategy of scrollStrategies) {
+            if (strategy()) {
+                break;
+            }
+        }
+        
+        // Add visual highlight effect for better UX
+        setTimeout(() => {
+            const arabicElement = document.getElementById(`ayah-${ayahNum}-arabic`);
+            if (arabicElement) {
+                // Add temporary highlight
+                arabicElement.style.background = 'linear-gradient(90deg, #fef3c7, #fde68a)';
+                arabicElement.style.borderRadius = '8px';
+                arabicElement.style.padding = '8px';
+                arabicElement.style.transition = 'all 0.3s ease';
+                
+                // Remove highlight after 2 seconds
+                setTimeout(() => {
+                    arabicElement.style.background = 'transparent';
+                    arabicElement.style.padding = '0';
+                }, 2000);
+            }
+        }, 500);
+    }, [currentAyahNumber]);
+
     // Get current ayah - simplified and reliable approach with type-safe comparison
     const currentAyah = ayahs.find(ayah => parseInt(ayah.ayah_number) === parseInt(currentAyahNumber)) || null;
     
@@ -281,6 +358,12 @@ function SimpleSurahPage() {
                 console.log(`✅ URL Pattern: /surah/${number}/${ayahNum}`);
                 setCurrentAyahNumber(ayahNum);
                 
+                // Auto-scroll to ayat when coming from external link (like Tafsir Maudhui)
+                // Wait for the component to update and then scroll
+                setTimeout(() => {
+                    scrollToCurrentAyah(ayahNum);
+                }, 100);
+                
                 // Update reading progress if user is logged in and surah number is available
                 if (user && number) {
                     updateReadingProgress(parseInt(number), ayahNum)
@@ -337,6 +420,20 @@ function SimpleSurahPage() {
             }
         }
     }, [ayahs, loading, number, navigate, ayahNumber, availableAyahNumbers]);
+
+    // Auto-scroll when component is fully loaded (especially for direct links from Tafsir Maudhui)
+    useEffect(() => {
+        // Only scroll if we have data loaded and a specific ayah in URL
+        if (!loading && ayahs.length > 0 && ayahNumber && currentAyah) {
+            const ayahNum = parseInt(ayahNumber);
+            console.log(`🎯 Component loaded with ayah ${ayahNum}, performing auto-scroll...`);
+            
+            // Add a delay to ensure DOM is fully rendered
+            setTimeout(() => {
+                scrollToCurrentAyah(ayahNum);
+            }, 200);
+        }
+    }, [loading, ayahs.length, ayahNumber, currentAyah, scrollToCurrentAyah]);
 
     const toggleBookmark = async (ayahNum) => {
         if (!user) {
@@ -786,25 +883,9 @@ function SimpleSurahPage() {
                 }
             }
             
-            // Auto scroll to ayah content after a short delay to allow state update
+            // Use improved scroll function
             setTimeout(() => {
-                if (currentAyahRef.current) {
-                    currentAyahRef.current.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center',
-                        inline: 'nearest'
-                    });
-                } else {
-                    // Fallback: scroll to ayah content container
-                    const ayahContent = document.getElementById('ayah-content');
-                    if (ayahContent) {
-                        ayahContent.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'center',
-                            inline: 'nearest'
-                        });
-                    }
-                }
+                scrollToCurrentAyah(ayahNum);
             }, 300);
             
             // Reset navigation flag after a reasonable delay
@@ -817,7 +898,7 @@ function SimpleSurahPage() {
             console.error('❌ Navigation error:', error);
             isNavigatingRef.current = false; // Reset flag immediately on error
         }
-    }, [availableAyahNumbers, number, navigate, user]);
+    }, [availableAyahNumbers, number, navigate, user, scrollToCurrentAyah]);
 
     const goToPreviousAyah = useCallback(() => {
         const currentIndex = availableAyahNumbers.indexOf(currentAyahNumber);
