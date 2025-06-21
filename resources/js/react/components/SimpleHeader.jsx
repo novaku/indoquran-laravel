@@ -23,6 +23,8 @@ function SimpleHeader() {
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [isQuranDropdownOpen, setIsQuranDropdownOpen] = useState(false);
     const [isCommunityDropdownOpen, setIsCommunityDropdownOpen] = useState(false);
+    const [isQuranMobileDropdownOpen, setIsQuranMobileDropdownOpen] = useState(false);
+    const [isCommunityMobileDropdownOpen, setIsCommunityMobileDropdownOpen] = useState(false);
 
     // Close mobile menu when route changes
     useEffect(() => {
@@ -30,6 +32,8 @@ function SimpleHeader() {
         setIsUserMenuOpen(false);
         setIsQuranDropdownOpen(false);
         setIsCommunityDropdownOpen(false);
+        setIsQuranMobileDropdownOpen(false);
+        setIsCommunityMobileDropdownOpen(false);
     }, [location]);
 
     // Close menus when clicking outside
@@ -142,11 +146,12 @@ function SimpleHeader() {
                                 <button
                                     key={item.path}
                                     onClick={handleSearchClick}
-                                    className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                                    className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors touch-manipulation ${
                                         isActivePath(item.path)
                                             ? 'text-green-600 bg-green-50'
-                                            : 'text-gray-700 hover:text-green-600 hover:bg-gray-50'
+                                            : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 active:bg-gray-100'
                                     }`}
+                                    style={{ minHeight: '44px', minWidth: '100px' }}
                                 >
                                     <item.icon className="w-4 h-4" />
                                     <span>{item.name}</span>
@@ -155,11 +160,12 @@ function SimpleHeader() {
                                 <Link
                                     key={item.path}
                                     to={item.path}
-                                    className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                                    className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors touch-manipulation ${
                                         isActivePath(item.path)
                                             ? 'text-green-600 bg-green-50'
-                                            : 'text-gray-700 hover:text-green-600 hover:bg-gray-50'
+                                            : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 active:bg-gray-100'
                                     }`}
+                                    style={{ minHeight: '44px', minWidth: '100px' }}
                                 >
                                     <item.icon className="w-4 h-4" />
                                     <span>{item.name}</span>
@@ -170,12 +176,13 @@ function SimpleHeader() {
                         {/* Al-Quran Dropdown */}
                         <div className="relative quran-dropdown">
                             <button
-                                className={`quran-dropdown-button flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                                className={`quran-dropdown-button flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors touch-manipulation ${
                                     isQuranDropdownActive 
                                         ? 'text-green-600 bg-green-50' 
                                         : 'text-gray-700 hover:text-green-600 hover:bg-gray-50'
                                 }`}
                                 onClick={() => setIsQuranDropdownOpen(!isQuranDropdownOpen)}
+                                style={{ minHeight: '44px', minWidth: '120px' }}
                             >
                                 <BookOpenIcon className="w-4 h-4" />
                                 <span>Al-Quran</span>
@@ -188,11 +195,12 @@ function SimpleHeader() {
                                         <Link
                                             key={item.path}
                                             to={item.path}
-                                            className={`flex items-start space-x-3 px-4 py-3 text-sm transition-colors ${
+                                            className={`flex items-start space-x-3 px-4 py-4 text-sm transition-colors touch-manipulation ${
                                                 isActivePath(item.path)
                                                     ? 'bg-green-50 text-green-600'
-                                                    : 'text-gray-700 hover:bg-gray-50 hover:text-green-600'
+                                                    : 'text-gray-700 hover:bg-gray-50 hover:text-green-600 active:bg-gray-100'
                                             }`}
+                                            style={{ minHeight: '56px' }}
                                         >
                                             <item.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
                                             <div>
@@ -208,12 +216,13 @@ function SimpleHeader() {
                         {/* Community Dropdown */}
                         <div className="relative community-dropdown">
                             <button
-                                className={`community-dropdown-button flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                                className={`community-dropdown-button flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors touch-manipulation ${
                                     isCommunityDropdownActive 
                                         ? 'text-green-600 bg-green-50' 
                                         : 'text-gray-700 hover:text-green-600 hover:bg-gray-50'
                                 }`}
                                 onClick={() => setIsCommunityDropdownOpen(!isCommunityDropdownOpen)}
+                                style={{ minHeight: '44px', minWidth: '120px' }}
                             >
                                 <HeartIcon className="w-4 h-4" />
                                 <span>Komunitas</span>
@@ -226,11 +235,12 @@ function SimpleHeader() {
                                         <Link
                                             key={item.path}
                                             to={item.path}
-                                            className={`flex items-start space-x-3 px-4 py-3 text-sm transition-colors ${
+                                            className={`flex items-start space-x-3 px-4 py-4 text-sm transition-colors touch-manipulation ${
                                                 isActivePath(item.path)
                                                     ? 'bg-green-50 text-green-600'
-                                                    : 'text-gray-700 hover:bg-gray-50 hover:text-green-600'
+                                                    : 'text-gray-700 hover:bg-gray-50 hover:text-green-600 active:bg-gray-100'
                                             }`}
+                                            style={{ minHeight: '56px' }}
                                         >
                                             <item.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
                                             <div>
@@ -347,38 +357,72 @@ function SimpleHeader() {
 
                             {/* Al-Quran Section */}
                             <div className="pt-4">
-                                <div className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                    Al-Quran
-                                </div>
-                                {quranDropdownItems.map((item) => (
-                                    <Link
-                                        key={item.path}
-                                        to={item.path}
-                                        className="flex items-center space-x-3 px-4 py-4 rounded-md text-base font-medium text-gray-700 hover:text-green-600 hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation"
-                                        style={{ minHeight: '48px' }}
-                                    >
-                                        <item.icon className="w-5 h-5" />
-                                        <span>{item.name}</span>
-                                    </Link>
-                                ))}
+                                <button
+                                    onClick={() => setIsQuranMobileDropdownOpen(!isQuranMobileDropdownOpen)}
+                                    className="w-full flex items-center justify-between px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-green-600 transition-colors touch-manipulation"
+                                    style={{ minHeight: '44px' }}
+                                >
+                                    <span>Al-Quran</span>
+                                    <ChevronDownIcon className={`w-4 h-4 transition-transform ${isQuranMobileDropdownOpen ? 'rotate-180' : ''}`} />
+                                </button>
+                                
+                                {isQuranMobileDropdownOpen && (
+                                    <div className="space-y-1">
+                                        {quranDropdownItems.map((item) => (
+                                            <Link
+                                                key={item.path}
+                                                to={item.path}
+                                                className={`flex items-start space-x-3 px-6 py-4 ml-4 rounded-md text-base font-medium transition-colors touch-manipulation ${
+                                                    isActivePath(item.path)
+                                                        ? 'text-green-600 bg-green-50'
+                                                        : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 active:bg-gray-100'
+                                                }`}
+                                                style={{ minHeight: '56px' }}
+                                            >
+                                                <item.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                                                <div>
+                                                    <div className="font-medium">{item.name}</div>
+                                                    <div className="text-xs text-gray-500 mt-1">{item.description}</div>
+                                                </div>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                             {/* Community Section */}
                             <div className="pt-4">
-                                <div className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                    Komunitas
-                                </div>
-                                {communityDropdownItems.map((item) => (
-                                    <Link
-                                        key={item.path}
-                                        to={item.path}
-                                        className="flex items-center space-x-3 px-4 py-4 rounded-md text-base font-medium text-gray-700 hover:text-green-600 hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation"
-                                        style={{ minHeight: '48px' }}
-                                    >
-                                        <item.icon className="w-5 h-5" />
-                                        <span>{item.name}</span>
-                                    </Link>
-                                ))}
+                                <button
+                                    onClick={() => setIsCommunityMobileDropdownOpen(!isCommunityMobileDropdownOpen)}
+                                    className="w-full flex items-center justify-between px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-green-600 transition-colors touch-manipulation"
+                                    style={{ minHeight: '44px' }}
+                                >
+                                    <span>Komunitas</span>
+                                    <ChevronDownIcon className={`w-4 h-4 transition-transform ${isCommunityMobileDropdownOpen ? 'rotate-180' : ''}`} />
+                                </button>
+                                
+                                {isCommunityMobileDropdownOpen && (
+                                    <div className="space-y-1">
+                                        {communityDropdownItems.map((item) => (
+                                            <Link
+                                                key={item.path}
+                                                to={item.path}
+                                                className={`flex items-start space-x-3 px-6 py-4 ml-4 rounded-md text-base font-medium transition-colors touch-manipulation ${
+                                                    isActivePath(item.path)
+                                                        ? 'text-green-600 bg-green-50'
+                                                        : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 active:bg-gray-100'
+                                                }`}
+                                                style={{ minHeight: '56px' }}
+                                            >
+                                                <item.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                                                <div>
+                                                    <div className="font-medium">{item.name}</div>
+                                                    <div className="text-xs text-gray-500 mt-1">{item.description}</div>
+                                                </div>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                             {user ? (
