@@ -14,7 +14,8 @@ import {
     StarIcon,
     ArrowPathIcon,
     BookmarkIcon,
-    DocumentTextIcon
+    DocumentTextIcon,
+    ShareIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../hooks/useAuth.jsx';
 import SearchField from '../components/SearchField';
@@ -163,6 +164,13 @@ function SimpleHomePage() {
         fetchPopularSurahs();
     };
 
+    const handleShareToWhatsApp = () => {
+        const url = window.location.origin;
+        const text = "Baca, Dengarkan, dan Pelajari Al-Quran Online di IndoQuran 📖✨\n\nNikmati Al-Quran dengan bacaan yang indah, terjemahan akurat, dan alat pembelajaran komprehensif.";
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text + '\n\n' + url)}`;
+        window.open(whatsappUrl, '_blank');
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -233,6 +241,15 @@ function SimpleHomePage() {
                                 <MagnifyingGlassIcon className="w-6 h-6" />
                                 <span>Pencarian Lanjutan</span>
                             </Link>
+
+                            <button
+                                onClick={handleShareToWhatsApp}
+                                className="flex items-center space-x-2 px-6 py-4 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-colors font-semibold text-lg"
+                                title="Bagikan ke WhatsApp"
+                            >
+                                <ShareIcon className="w-6 h-6" />
+                                <span>Share</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -497,6 +514,21 @@ function SimpleHomePage() {
                                     <span className="font-semibold text-gray-900">604</span>
                                 </div>
                             </div>
+                        </div>
+
+                        {/* Share Widget */}
+                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Bagikan</h3>
+                            <p className="text-gray-600 mb-4 text-sm">
+                                Ajak teman dan keluarga untuk membaca Al-Quran bersama
+                            </p>
+                            <button
+                                onClick={handleShareToWhatsApp}
+                                className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium"
+                            >
+                                <ShareIcon className="w-5 h-5" />
+                                <span>Bagikan ke WhatsApp</span>
+                            </button>
                         </div>
 
                         {/* Community Section */}
