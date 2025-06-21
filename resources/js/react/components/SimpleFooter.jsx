@@ -104,10 +104,13 @@ function SimpleFooter() {
         fetchPopularSurahs();
     };
 
+    const isUserAuthenticated = authUtils.isAuthenticated();
+    
     const footerLinks = {
         'Navigasi': [
             { name: 'Beranda', path: '/' },
             { name: 'Cari', path: '/cari' },
+            { name: 'Daftar Surah', path: '/surah' },
             { name: 'Jelajahi Juz', path: '/juz' },
             { name: 'Jelajahi Halaman', path: '/halaman' },
             { name: 'Doa Bersama', path: '/doa-bersama' },
@@ -120,8 +123,11 @@ function SimpleFooter() {
             { name: 'Kebijakan Privasi', path: '/kebijakan' },
         ],
         'Akun': [
-            { name: 'Masuk', path: '/masuk' },
-            { name: 'Buat Akun', path: '/daftar' },
+            // Hanya tampilkan link Masuk dan Buat Akun jika user belum login
+            ...(isUserAuthenticated ? [] : [
+                { name: 'Masuk', path: '/masuk' },
+                { name: 'Buat Akun', path: '/daftar' },
+            ]),
             { name: 'Penanda Saya', path: '/penanda' },
             { name: 'Profil Saya', path: '/profil' },
         ]
