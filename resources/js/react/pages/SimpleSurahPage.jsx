@@ -43,7 +43,12 @@ function SimpleSurahPage() {
     const [ayahs, setAyahs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [currentAyahNumber, setCurrentAyahNumber] = useState(parseInt(ayahNumber) || 1);
+    const [currentAyahNumber, setCurrentAyahNumber] = useState(() => {
+        // Initialize with URL parameter if available, otherwise default to 1
+        const initialAyah = parseInt(ayahNumber) || 1;
+        console.log('🎯 Initial ayah number:', initialAyah);
+        return initialAyah;
+    });
     const [bookmarkedAyahs, setBookmarkedAyahs] = useState(new Set());
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentPlayingAyah, setCurrentPlayingAyah] = useState(null);
@@ -62,19 +67,46 @@ function SimpleSurahPage() {
     const ayahRefs = useRef({});
     const currentAyahRef = useRef(null);
     const copyButtonRef = useRef(null);
+    const isNavigatingRef = useRef(false); // Track navigation state to prevent race conditions
 
     // Get current ayah - try multiple possible field names with fallback
-    let currentAyah = ayahs.find(ayah => 
-        ayah.ayah_number === currentAyahNumber || 
-        ayah.number === currentAyahNumber ||
-        ayah.verse_number === currentAyahNumber ||
-        ayah.id === currentAyahNumber
-    );
+    let currentAyah = null;
     
-    // If no ayah found for the requested number and ayahs are available, use the first ayah
-    if (!currentAyah && ayahs.length > 0 && currentAyahNumber === 1) {
-        currentAyah = ayahs[0];
-        console.log('🔄 Using first ayah as fallback:', currentAyah);
+    if (ayahs.length > 0) {
+        // First try to find by exact ayah number
+        currentAyah = ayahs.find(ayah => 
+            ayah.ayah_number === currentAyahNumber || 
+            ayah.number === currentAyahNumber ||
+            ayah.verse_number === currentAyahNumber ||
+            ayah.id === currentAyahNumber
+        );
+        
+        // If not found and currentAyahNumber is 1, use the first ayah
+        if (!currentAyah && currentAyahNumber === 1) {
+            currentAyah = ayahs[0];
+            console.log('🔄 Using first ayah as fallback for ayah 1:', currentAyah);
+        }
+        
+        // If still not found, try to find the closest valid ayah
+        if (!currentAyah) {
+            // Find the closest available ayah number
+            const availableNumbers = ayahs.map(ayah => 
+                ayah.ayah_number || ayah.number || ayah.verse_number || ayah.id || 1
+            ).sort((a, b) => a - b);
+            
+            const closestNumber = availableNumbers.reduce((prev, curr) => {
+                return Math.abs(curr - currentAyahNumber) < Math.abs(prev - currentAyahNumber) ? curr : prev;
+            });
+            
+            currentAyah = ayahs.find(ayah => 
+                ayah.ayah_number === closestNumber || 
+                ayah.number === closestNumber ||
+                ayah.verse_number === closestNumber ||
+                ayah.id === closestNumber
+            );
+            
+            console.log(`🔄 Using closest ayah ${closestNumber} for requested ${currentAyahNumber}:`, currentAyah);
+        }
     }
     
     // Debug: Log current ayah finding result
@@ -261,18 +293,27 @@ function SimpleSurahPage() {
     useEffect(() => {
         if (ayahNumber) {
             const ayahNum = parseInt(ayahNumber);
-            setCurrentAyahNumber(ayahNum);
             
-            // Update reading progress if user is logged in and surah number is available
-            if (user && number) {
-                updateReadingProgress(parseInt(number), ayahNum)
-                    .then(() => {
-                        console.log('📖 Reading progress updated on URL change:', { surah: number, ayah: ayahNum });
-                    })
-                    .catch(error => {
-                        console.error('❌ Error updating reading progress on URL change:', error);
-                    });
+            // Only update state if it's actually different and we're not in the middle of navigation
+            if (ayahNum !== currentAyahNumber && !isNavigatingRef.current) {
+                console.log(`🔄 URL ayah changed from ${currentAyahNumber} to ${ayahNum}`);
+                setCurrentAyahNumber(ayahNum);
+                
+                // Update reading progress if user is logged in and surah number is available
+                if (user && number) {
+                    updateReadingProgress(parseInt(number), ayahNum)
+                        .then(() => {
+                            console.log('📖 Reading progress updated on URL change:', { surah: number, ayah: ayahNum });
+                        })
+                        .catch(error => {
+                            console.error('❌ Error updating reading progress on URL change:', error);
+                        });
+                }
             }
+        } else if (!ayahNumber && currentAyahNumber !== 1 && !isNavigatingRef.current) {
+            // If no ayah number in URL, default to ayah 1
+            console.log('🔄 No ayah in URL, defaulting to ayah 1');
+            setCurrentAyahNumber(1);
         }
     }, [ayahNumber, user, number]);
 
@@ -282,6 +323,13 @@ function SimpleSurahPage() {
             const maxAyahNumber = Math.max(...ayahs.map(ayah => 
                 ayah.ayah_number || ayah.number || ayah.verse_number || ayah.id || 1
             ));
+            
+            console.log('🔍 URL validation check:', {
+                currentAyahNumber,
+                maxAyahNumber,
+                ayahsLength: ayahs.length,
+                urlAyahParam: ayahNumber
+            });
             
             // If current ayah number exceeds max available ayahs, redirect to last ayah
             if (currentAyahNumber > maxAyahNumber) {
@@ -298,15 +346,24 @@ function SimpleSurahPage() {
                 ayah.id === currentAyahNumber
             );
             
-            // If current ayah doesn't exist, redirect to first ayah
+            // If current ayah doesn't exist, redirect to first available ayah
             if (!currentAyahExists) {
                 const firstAyah = ayahs[0];
                 const firstAyahNum = firstAyah.ayah_number || firstAyah.number || firstAyah.verse_number || 1;
                 console.log(`🚨 URL contains non-existent ayah ${currentAyahNumber}, redirecting to ayah ${firstAyahNum}`);
                 navigate(`/surah/${number}/${firstAyahNum}`, { replace: true });
+                return;
+            }
+            
+            // Ensure URL matches current state (fix for production routing issues)
+            const urlAyahParam = parseInt(ayahNumber);
+            if (urlAyahParam && urlAyahParam !== currentAyahNumber && currentAyahExists) {
+                console.log(`🔄 Syncing URL ayah ${urlAyahParam} with state ayah ${currentAyahNumber}`);
+                // Use replace to avoid adding to history
+                navigate(`/surah/${number}/${currentAyahNumber}`, { replace: true });
             }
         }
-    }, [ayahs, currentAyahNumber, loading, number, navigate]);
+    }, [ayahs, currentAyahNumber, loading, number, navigate, ayahNumber]);
 
     const toggleBookmark = async (ayahNum) => {
         if (!user) {
@@ -724,9 +781,29 @@ function SimpleSurahPage() {
         };
     }, [showCopyDropdown]);
 
-    const navigateToAyah = async (ayahNum) => {
-        if (ayahNum >= 1 && ayahNum <= totalAyahs) {
-            setCurrentAyahNumber(ayahNum);
+    const navigateToAyah = useCallback(async (ayahNum) => {
+        if (ayahNum >= 1 && ayahNum <= totalAyahs && !isNavigatingRef.current) {
+            // Set navigation flag to prevent race conditions
+            isNavigatingRef.current = true;
+            
+            // First validate that the ayah exists in our data
+            const targetAyah = ayahs.find(ayah => 
+                ayah.ayah_number === ayahNum || 
+                ayah.number === ayahNum ||
+                ayah.verse_number === ayahNum ||
+                ayah.id === ayahNum
+            );
+            
+            if (!targetAyah) {
+                console.warn(`🚨 Ayah ${ayahNum} not found in data, skipping navigation`);
+                isNavigatingRef.current = false;
+                return;
+            }
+            
+            console.log(`🎯 Navigating to ayah ${ayahNum}:`, targetAyah);
+            
+            // Don't set state here - let the URL change handle it through useEffect
+            // This prevents race conditions between state updates and URL changes
             navigate(`/surah/${number}/${ayahNum}`);
             
             // Update reading progress if user is logged in
@@ -760,21 +837,24 @@ function SimpleSurahPage() {
                         });
                     }
                 }
-            }, 150);
+                
+                // Reset navigation flag after scroll
+                isNavigatingRef.current = false;
+            }, 200); // Slightly increased delay for production
         }
-    };
+    }, [ayahs, totalAyahs, number, navigate, user]);
 
-    const goToPreviousAyah = () => {
+    const goToPreviousAyah = useCallback(() => {
         if (currentAyahNumber > 1) {
             navigateToAyah(currentAyahNumber - 1);
         }
-    };
+    }, [currentAyahNumber, navigateToAyah]);
 
-    const goToNextAyah = () => {
+    const goToNextAyah = useCallback(() => {
         if (currentAyahNumber < totalAyahs) {
             navigateToAyah(currentAyahNumber + 1);
         }
-    };
+    }, [currentAyahNumber, totalAyahs, navigateToAyah]);
 
     const navigateToSurah = (surahNum) => {
         if (surahNum >= 1 && surahNum <= 114) {
