@@ -1,34 +1,34 @@
 {
-  "_ArrowLeftIcon-D5UWTY_1.js": {
-    "file": "assets/ArrowLeftIcon-D5UWTY_1.js",
+  "_ArrowLeftIcon-BhhhliA_.js": {
+    "file": "assets/ArrowLeftIcon-BhhhliA_.js",
     "name": "ArrowLeftIcon",
     "imports": [
       "resources/js/react/index.jsx"
     ]
   },
-  "_ChevronRightIcon-CUJ0mDQz.js": {
-    "file": "assets/ChevronRightIcon-CUJ0mDQz.js",
+  "_ChevronRightIcon-CjloKRkh.js": {
+    "file": "assets/ChevronRightIcon-CjloKRkh.js",
     "name": "ChevronRightIcon",
     "imports": [
       "resources/js/react/index.jsx"
     ]
   },
-  "_ReadingProgressService-CqRCsZdH.js": {
-    "file": "assets/ReadingProgressService-CqRCsZdH.js",
+  "_ReadingProgressService-DcFM5vh-.js": {
+    "file": "assets/ReadingProgressService-DcFM5vh-.js",
     "name": "ReadingProgressService",
     "imports": [
       "resources/js/react/index.jsx"
     ]
   },
-  "_SearchField-BjszXUiR.js": {
-    "file": "assets/SearchField-BjszXUiR.js",
+  "_SearchField-8-i1zshy.js": {
+    "file": "assets/SearchField-8-i1zshy.js",
     "name": "SearchField",
     "imports": [
       "resources/js/react/index.jsx"
     ]
   },
-  "_index-ikyat1ec.js": {
-    "file": "assets/index-ikyat1ec.js",
+  "_index-DBIrRnEO.js": {
+    "file": "assets/index-DBIrRnEO.js",
     "name": "index",
     "imports": [
       "resources/js/react/index.jsx"
@@ -64,7 +64,7 @@
     "src": "resources/fonts/Scheherazade_New/ScheherazadeNew-SemiBold.ttf"
   },
   "resources/js/react/index.jsx": {
-    "file": "assets/index-CKRVVfM4.js",
+    "file": "assets/index-BWFgJrEQ.js",
     "name": "index",
     "src": "resources/js/react/index.jsx",
     "isEntry": true,
@@ -101,13 +101,13 @@
     ]
   },
   "resources/js/react/pages/JuzPage.jsx": {
-    "file": "assets/JuzPage-CWMHOsiK.js",
+    "file": "assets/JuzPage-B7XchMSS.js",
     "name": "JuzPage",
     "src": "resources/js/react/pages/JuzPage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/react/index.jsx",
-      "_index-ikyat1ec.js",
+      "_index-DBIrRnEO.js",
       "_vendor-CcCrBLU2.js"
     ],
     "css": [
@@ -122,13 +122,13 @@
     ]
   },
   "resources/js/react/pages/PageDetailPage.jsx": {
-    "file": "assets/PageDetailPage-CcrX8HE5.js",
+    "file": "assets/PageDetailPage-BM-rlao_.js",
     "name": "PageDetailPage",
     "src": "resources/js/react/pages/PageDetailPage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/react/index.jsx",
-      "_index-ikyat1ec.js",
+      "_index-DBIrRnEO.js",
       "_vendor-CcCrBLU2.js"
     ],
     "css": [
@@ -143,13 +143,13 @@
     ]
   },
   "resources/js/react/pages/PageListPage.jsx": {
-    "file": "assets/PageListPage-CqbIsRkO.js",
+    "file": "assets/PageListPage-xdadNw5n.js",
     "name": "PageListPage",
     "src": "resources/js/react/pages/PageListPage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/react/index.jsx",
-      "_ArrowLeftIcon-D5UWTY_1.js",
+      "_ArrowLeftIcon-BhhhliA_.js",
       "_vendor-CcCrBLU2.js"
     ],
     "css": [
@@ -164,13 +164,13 @@
     ]
   },
   "resources/js/react/pages/PrayerPage.jsx": {
-    "file": "assets/PrayerPage-DDVmgCC5.js",
+    "file": "assets/PrayerPage-CL14hTwV.js",
     "name": "PrayerPage",
     "src": "resources/js/react/pages/PrayerPage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/react/index.jsx",
-      "_index-ikyat1ec.js",
+      "_index-DBIrRnEO.js",
       "_vendor-CcCrBLU2.js"
     ],
     "css": [
@@ -185,7 +185,7 @@
     ]
   },
   "resources/js/react/pages/PrivacyPage.jsx": {
-    "file": "assets/PrivacyPage-DdtnIXXu.js",
+    "file": "assets/PrivacyPage-Bky85ngO.js",
     "name": "PrivacyPage",
     "src": "resources/js/react/pages/PrivacyPage.jsx",
     "isDynamicEntry": true,
@@ -205,13 +205,13 @@
     ]
   },
   "resources/js/react/pages/SimpleAboutPage.jsx": {
-    "file": "assets/SimpleAboutPage-xPDshjBD.js",
+    "file": "assets/SimpleAboutPage-CHqZWIMT.js",
     "name": "SimpleAboutPage",
     "src": "resources/js/react/pages/SimpleAboutPage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/react/index.jsx",
-      "_index-ikyat1ec.js",
+      "_index-DBIrRnEO.js",
       "_vendor-CcCrBLU2.js"
     ],
     "css": [
@@ -226,7 +226,7 @@
     ]
   },
   "resources/js/react/pages/SimpleAuthPage.jsx": {
-    "file": "assets/SimpleAuthPage-BgUXt8uy.js",
+    "file": "assets/SimpleAuthPage-CXN_OJBE.js",
     "name": "SimpleAuthPage",
     "src": "resources/js/react/pages/SimpleAuthPage.jsx",
     "isDynamicEntry": true,
@@ -246,13 +246,13 @@
     ]
   },
   "resources/js/react/pages/SimpleBookmarksPage.jsx": {
-    "file": "assets/SimpleBookmarksPage-BqQAqpAv.js",
+    "file": "assets/SimpleBookmarksPage-Czrxi7bw.js",
     "name": "SimpleBookmarksPage",
     "src": "resources/js/react/pages/SimpleBookmarksPage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/react/index.jsx",
-      "_index-ikyat1ec.js",
+      "_index-DBIrRnEO.js",
       "_vendor-CcCrBLU2.js"
     ],
     "css": [
@@ -267,13 +267,13 @@
     ]
   },
   "resources/js/react/pages/SimpleContactPage.jsx": {
-    "file": "assets/SimpleContactPage-BABlcFxI.js",
+    "file": "assets/SimpleContactPage-Cyg5DLro.js",
     "name": "SimpleContactPage",
     "src": "resources/js/react/pages/SimpleContactPage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/react/index.jsx",
-      "_index-ikyat1ec.js",
+      "_index-DBIrRnEO.js",
       "_vendor-CcCrBLU2.js"
     ],
     "css": [
@@ -288,13 +288,13 @@
     ]
   },
   "resources/js/react/pages/SimpleDonationPage.jsx": {
-    "file": "assets/SimpleDonationPage-BGu3JT1b.js",
+    "file": "assets/SimpleDonationPage-DPhpStQ8.js",
     "name": "SimpleDonationPage",
     "src": "resources/js/react/pages/SimpleDonationPage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/react/index.jsx",
-      "_index-ikyat1ec.js",
+      "_index-DBIrRnEO.js",
       "_vendor-CcCrBLU2.js"
     ],
     "css": [
@@ -309,16 +309,16 @@
     ]
   },
   "resources/js/react/pages/SimpleHomePage.jsx": {
-    "file": "assets/SimpleHomePage-Br-8eHHg.js",
+    "file": "assets/SimpleHomePage-IIT41Jbm.js",
     "name": "SimpleHomePage",
     "src": "resources/js/react/pages/SimpleHomePage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/react/index.jsx",
-      "_SearchField-BjszXUiR.js",
-      "_index-ikyat1ec.js",
-      "_ReadingProgressService-CqRCsZdH.js",
-      "_ChevronRightIcon-CUJ0mDQz.js",
+      "_SearchField-8-i1zshy.js",
+      "_index-DBIrRnEO.js",
+      "_ReadingProgressService-DcFM5vh-.js",
+      "_ChevronRightIcon-CjloKRkh.js",
       "_vendor-CcCrBLU2.js"
     ],
     "css": [
@@ -333,14 +333,14 @@
     ]
   },
   "resources/js/react/pages/SimpleJuzListPage.jsx": {
-    "file": "assets/SimpleJuzListPage-Bh371DqD.js",
+    "file": "assets/SimpleJuzListPage-BI1rXcSK.js",
     "name": "SimpleJuzListPage",
     "src": "resources/js/react/pages/SimpleJuzListPage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/react/index.jsx",
-      "_ArrowLeftIcon-D5UWTY_1.js",
-      "_ChevronRightIcon-CUJ0mDQz.js",
+      "_ArrowLeftIcon-BhhhliA_.js",
+      "_ChevronRightIcon-CjloKRkh.js",
       "_vendor-CcCrBLU2.js"
     ],
     "css": [
@@ -355,13 +355,13 @@
     ]
   },
   "resources/js/react/pages/SimpleProfilePage.jsx": {
-    "file": "assets/SimpleProfilePage-Bt-bDgG0.js",
+    "file": "assets/SimpleProfilePage-DXCS9KY0.js",
     "name": "SimpleProfilePage",
     "src": "resources/js/react/pages/SimpleProfilePage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/react/index.jsx",
-      "_index-ikyat1ec.js",
+      "_index-DBIrRnEO.js",
       "_vendor-CcCrBLU2.js"
     ],
     "css": [
@@ -376,14 +376,14 @@
     ]
   },
   "resources/js/react/pages/SimpleSearchPage.jsx": {
-    "file": "assets/SimpleSearchPage-9I4yWMic.js",
+    "file": "assets/SimpleSearchPage-XBEHVpU0.js",
     "name": "SimpleSearchPage",
     "src": "resources/js/react/pages/SimpleSearchPage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/react/index.jsx",
-      "_SearchField-BjszXUiR.js",
-      "_ChevronRightIcon-CUJ0mDQz.js",
+      "_SearchField-8-i1zshy.js",
+      "_ChevronRightIcon-CjloKRkh.js",
       "_vendor-CcCrBLU2.js"
     ],
     "css": [
@@ -398,13 +398,13 @@
     ]
   },
   "resources/js/react/pages/SimpleSurahPage.jsx": {
-    "file": "assets/SimpleSurahPage-Cn5LVhCl.js",
+    "file": "assets/SimpleSurahPage-DtpGYQ20.js",
     "name": "SimpleSurahPage",
     "src": "resources/js/react/pages/SimpleSurahPage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/react/index.jsx",
-      "_ReadingProgressService-CqRCsZdH.js",
+      "_ReadingProgressService-DcFM5vh-.js",
       "_vendor-CcCrBLU2.js"
     ],
     "css": [
@@ -419,7 +419,7 @@
     ]
   },
   "resources/js/react/pages/VersionHistoryPage.jsx": {
-    "file": "assets/VersionHistoryPage-BWyIZLdA.js",
+    "file": "assets/VersionHistoryPage-Dc21xbMe.js",
     "name": "VersionHistoryPage",
     "src": "resources/js/react/pages/VersionHistoryPage.jsx",
     "isDynamicEntry": true,
