@@ -116,7 +116,6 @@ function SimpleFooter() {
             { name: 'Doa Bersama', path: '/doa-bersama' },
         ],
         'Pelajari': [
-            { name: 'Tentang Al-Quran', path: '/tentang' },
             { name: 'Tentang Kami', path: '/tentang' },
             { name: 'Donasi', path: '/donasi' },
             { name: 'Kontak', path: '/kontak' },
