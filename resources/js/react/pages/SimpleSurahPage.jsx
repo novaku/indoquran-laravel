@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { createPortal } from 'react-dom';
 import { 
     PlayIcon, 
     PauseIcon, 
@@ -11,7 +10,6 @@ import {
     SpeakerXMarkIcon,
     ChevronDownIcon,
     ChevronUpIcon,
-    DocumentDuplicateIcon,
     EllipsisVerticalIcon,
     BookOpenIcon,
     XMarkIcon
@@ -30,7 +28,7 @@ import { updateReadingProgress } from '../services/ReadingProgressService';
 // WhatsApp Icon Component
 const WhatsAppIcon = ({ className }) => (
     <svg viewBox="0 0 24 24" className={className} fill="currentColor">
-        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.051 3.488"/>
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298.347.446.52.149.174.198.298.298.497.099.198.05.371-.025.52-.075.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.051 3.488"/>
     </svg>
 );
 
@@ -52,6 +50,7 @@ function SimpleSurahPage() {
     const [bookmarkedAyahs, setBookmarkedAyahs] = useState(new Set());
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentPlayingAyah, setCurrentPlayingAyah] = useState(null);
+    const [isAudioLoading, setIsAudioLoading] = useState(false);
     const [fontSize, setFontSize] = useState(24);
     const [showDescriptionShort, setShowDescriptionShort] = useState(true);
     const [showDescriptionLong, setShowDescriptionLong] = useState(false);
@@ -59,14 +58,11 @@ function SimpleSurahPage() {
     const [selectedText, setSelectedText] = useState('');
     const [showFloatingShare, setShowFloatingShare] = useState(false);
     const [selectionPosition, setSelectionPosition] = useState({ x: 0, y: 0 });
-    const [showCopyDropdown, setShowCopyDropdown] = useState(false);
-    const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
     const [showTafsir, setShowTafsir] = useState(false);
     const [expandedTafsirs, setExpandedTafsirs] = useState(new Set());
 
     const ayahRefs = useRef({});
     const currentAyahRef = useRef(null);
-    const copyButtonRef = useRef(null);
     const isNavigatingRef = useRef(false); // Track navigation state to prevent race conditions
 
     // Improved scroll function for better ayah targeting
@@ -512,80 +508,243 @@ function SimpleSurahPage() {
 
     const playAyah = async (ayahNum) => {
         try {
+            console.log(`🎵 Playing ayah ${ayahNum}...`);
+            setIsAudioLoading(true);
+            
+            // Stop any currently playing audio
             if (audioElement) {
                 audioElement.pause();
+                setAudioElement(null);
             }
 
             const ayah = ayahs.find(a => a.ayah_number === ayahNum || a.number === ayahNum);
-            if (ayah) {
-                let audioUrl = null;
+            if (!ayah) {
+                console.error(`❌ Ayah ${ayahNum} not found in data`);
+                setIsAudioLoading(false);
+                return;
+            }
+
+            console.log('🔍 Found ayah:', {
+                ayah_number: ayah.ayah_number,
+                audio_url: ayah.audio_url ? 'Present' : 'Missing',
+                audio_urls: ayah.audio_urls ? 'Present' : 'Missing',
+                audio_urls_type: typeof ayah.audio_urls,
+                audio_urls_preview: ayah.audio_urls ? JSON.stringify(ayah.audio_urls).substring(0, 200) + '...' : 'None'
+            });
+
+            let audioUrl = null;
+            
+            // Handle different audio URL formats
+            if (ayah.audio_url) {
+                audioUrl = ayah.audio_url;
+                console.log('🎵 Using direct audio_url:', audioUrl);
+            } else if (ayah.audio_urls) {
+                const audioUrls = typeof ayah.audio_urls === 'string' 
+                    ? JSON.parse(ayah.audio_urls) 
+                    : ayah.audio_urls;
                 
-                // Handle different audio URL formats
-                if (ayah.audio_url) {
-                    audioUrl = ayah.audio_url;
-                } else if (ayah.audio_urls) {
-                    const audioUrls = typeof ayah.audio_urls === 'string' 
-                        ? JSON.parse(ayah.audio_urls) 
-                        : ayah.audio_urls;
+                console.log('🎵 Processing audio_urls:', audioUrls);
+                
+                if (Array.isArray(audioUrls) && audioUrls.length > 0) {
+                    audioUrl = audioUrls[0];
+                    console.log('🎵 Using first URL from array:', audioUrl);
+                } else if (typeof audioUrls === 'object' && audioUrls !== null) {
+                    // Handle both old format (qari names) and new format (numbered keys)
+                    const preferredQaris = ['alafasy', 'sudais', 'husary', 'minshawi', 'abdulbasit'];
+                    const preferredKeys = ['03', '05', '01', '02', '04']; // Sudais, Alafasy, Abdullah, Abdul-Muhsin, Ibrahim
                     
-                    if (Array.isArray(audioUrls) && audioUrls.length > 0) {
-                        audioUrl = audioUrls[0];
-                    } else if (typeof audioUrls === 'object') {
-                        // Get first available audio URL
-                        const qaris = ['alafasy', 'sudais', 'husary', 'minshawi', 'abdulbasit'];
-                        for (const qari of qaris) {
-                            if (audioUrls[qari]) {
-                                audioUrl = audioUrls[qari];
+                    // Try preferred qari names first (for backward compatibility)
+                    for (const qari of preferredQaris) {
+                        if (audioUrls[qari]) {
+                            audioUrl = audioUrls[qari];
+                            console.log(`🎵 Using preferred qari ${qari}:`, audioUrl);
+                            break;
+                        }
+                    }
+                    
+                    // If no qari names found, try numbered keys
+                    if (!audioUrl) {
+                        for (const key of preferredKeys) {
+                            if (audioUrls[key]) {
+                                audioUrl = audioUrls[key];
+                                console.log(`🎵 Using preferred key ${key}:`, audioUrl);
                                 break;
                             }
                         }
-                        // If no preferred qari found, get first available
-                        if (!audioUrl) {
-                            audioUrl = Object.values(audioUrls)[0];
+                    }
+                    
+                    // If still no URL found, get first available
+                    if (!audioUrl) {
+                        const firstKey = Object.keys(audioUrls)[0];
+                        if (firstKey) {
+                            audioUrl = audioUrls[firstKey];
+                            console.log(`🎵 Using first available (${firstKey}):`, audioUrl);
                         }
                     }
                 }
+            }
+            
+            if (!audioUrl) {
+                console.error('❌ No audio URL found for ayah', ayahNum);
+                setIsAudioLoading(false);
+                alert('Audio tidak tersedia untuk ayat ini');
+                return;
+            }
+
+            console.log(`🎵 Attempting to play audio from: ${audioUrl}`);
+            
+            const audio = new Audio(audioUrl);
+            
+            // Set up event listeners
+            audio.onloadstart = () => {
+                console.log('🎵 Audio loading started...');
+                setIsAudioLoading(true);
+            };
+            
+            audio.oncanplay = () => {
+                console.log('🎵 Audio can start playing');
+                setIsAudioLoading(false);
+            };
+            
+            audio.onplay = () => {
+                console.log('🎵 Audio playback started');
+                setIsPlaying(true);
+                setCurrentPlayingAyah(ayahNum);
+                setIsAudioLoading(false);
+            };
+            
+            audio.onpause = () => {
+                console.log('🎵 Audio paused');
+                setIsPlaying(false);
+                setCurrentPlayingAyah(null);
+                setIsAudioLoading(false);
+            };
+            
+            audio.onended = () => {
+                console.log('🎵 Audio playback ended');
+                setIsPlaying(false);
+                setCurrentPlayingAyah(null);
+                setAudioElement(null);
+                setIsAudioLoading(false);
+            };
+            
+            audio.onerror = (e) => {
+                console.error('❌ Audio error:', {
+                    error: e,
+                    code: audio.error?.code,
+                    message: audio.error?.message,
+                    url: audioUrl
+                });
+                setIsPlaying(false);
+                setCurrentPlayingAyah(null);
+                setAudioElement(null);
+                setIsAudioLoading(false);
                 
-                if (audioUrl) {
-                    const audio = new Audio(audioUrl);
-                    audio.onplay = () => {
-                        setIsPlaying(true);
-                        setCurrentPlayingAyah(ayahNum);
-                    };
-                    audio.onpause = () => {
-                        setIsPlaying(false);
-                        setCurrentPlayingAyah(null);
-                    };
-                    audio.onended = () => {
-                        setIsPlaying(false);
-                        setCurrentPlayingAyah(null);
-                    };
-                    audio.onerror = (e) => {
-                        console.error('Audio error:', e);
-                        setIsPlaying(false);
-                        setCurrentPlayingAyah(null);
-                    };
-                    
-                    setAudioElement(audio);
-                    await audio.play();
+                // Show user-friendly error message
+                let errorMessage = 'Gagal memutar audio. ';
+                if (audio.error?.code === 4) {
+                    errorMessage += 'Format audio tidak didukung.';
+                } else if (audio.error?.code === 3) {
+                    errorMessage += 'Audio rusak atau tidak dapat dimuat.';
+                } else if (audio.error?.code === 2) {
+                    errorMessage += 'Koneksi terputus saat memuat audio.';
+                } else {
+                    errorMessage += 'Silakan coba lagi.';
+                }
+                alert(errorMessage);
+            };
+            
+            // Store audio element reference
+            setAudioElement(audio);
+            
+            // Attempt to play
+            try {
+                await audio.play();
+                console.log('✅ Audio play() succeeded');
+            } catch (playError) {
+                console.error('❌ Audio play() failed:', playError);
+                setIsPlaying(false);
+                setCurrentPlayingAyah(null);
+                setAudioElement(null);
+                setIsAudioLoading(false);
+                
+                if (playError.name === 'NotAllowedError') {
+                    alert('Browser menghalangi autoplay audio. Silakan klik tombol play untuk memutar audio.');
+                } else if (playError.name === 'NotSupportedError') {
+                    alert('Format audio tidak didukung di browser ini.');
+                } else {
+                    alert('Gagal memutar audio. Periksa koneksi internet Anda.');
                 }
             }
         } catch (error) {
-            console.error('❌ Error playing audio:', error);
+            console.error('❌ Error in playAyah function:', error);
             setIsPlaying(false);
             setCurrentPlayingAyah(null);
+            setAudioElement(null);
+            setIsAudioLoading(false);
+            alert('Terjadi kesalahan saat memutar audio.');
         }
     };
 
     const pauseAudio = () => {
+        console.log('⏸️ Pausing audio...');
         if (audioElement) {
-            audioElement.pause();
+            try {
+                audioElement.pause();
+                setIsAudioLoading(false);
+                console.log('✅ Audio paused successfully');
+            } catch (error) {
+                console.error('❌ Error pausing audio:', error);
+                setIsAudioLoading(false);
+            }
+        } else {
+            console.log('⚠️ No audio element to pause');
+            setIsAudioLoading(false);
         }
     };
 
     const shareAyah = async (ayahNum) => {
-        const ayah = ayahs.find(a => a.ayah_number === ayahNum || a.number === ayahNum);
-        if (ayah) {
+        // Validate input parameters
+        if (!ayahNum || isNaN(ayahNum)) {
+            console.error('❌ ShareAyah: Invalid ayah number provided:', ayahNum);
+            alert('Nomor ayat tidak valid. Silakan coba lagi.');
+            return;
+        }
+        
+        if (!surah || ayahs.length === 0) {
+            console.error('❌ ShareAyah: Data surah atau ayat belum dimuat');
+            alert('Data Al-Qur\'an sedang dimuat. Silakan tunggu sebentar dan coba lagi.');
+            return;
+        }
+        
+        console.log('🔄 ShareAyah called with:', {
+            ayahNum,
+            currentAyahNumber,
+            ayahsLength: ayahs.length,
+            firstFewAyahs: ayahs.slice(0, 3).map(a => ({
+                ayah_number: a.ayah_number,
+                number: a.number,
+                verse_number: a.verse_number
+            }))
+        });
+        
+        const ayah = ayahs.find(a => 
+            parseInt(a.ayah_number) === parseInt(ayahNum) || 
+            parseInt(a.number) === parseInt(ayahNum) ||
+            parseInt(a.verse_number) === parseInt(ayahNum)
+        );
+        
+        console.log('🎯 ShareAyah found ayah:', {
+            found: !!ayah,
+            ayah: ayah ? {
+                ayah_number: ayah.ayah_number,
+                number: ayah.number,
+                text_arabic: ayah.text_arabic?.substring(0, 50) + '...',
+                text_indonesian: ayah.text_indonesian?.substring(0, 50) + '...'
+            } : null
+        });
+        
+        if (ayah && surah) {
             // Get Indonesian translation
             const indonesianText = ayah.text_indonesian || ayah.translation_id || '';
             
@@ -607,14 +766,80 @@ function SimpleSurahPage() {
                 shareText += `📚 Tafsir:\n${ayah.tafsir}\n\n`;
             }
             
-            shareText += `� Surah ${surah.name_latin} (${surah.name_arabic}) - Ayat ${ayahNum}\n`;
-            shareText += `�🔗 Baca selengkapnya: ${window.location.origin}/surah/${number}/${ayahNum}\n\n`;
+            shareText += `📍 Surah ${surah.name_latin} (${surah.name_arabic}) - Ayat ${ayahNum}\n`;
+            shareText += `🔗 Baca selengkapnya: ${window.location.origin}/surah/${number}/${ayahNum}\n\n`;
             shareText += `📱 IndoQuran - Baca Al-Qur'an dengan mudah`;
 
             // Share via WhatsApp only
             const encodedText = encodeURIComponent(shareText);
             const whatsappUrl = `https://wa.me/?text=${encodedText}`;
-            window.open(whatsappUrl, '_blank');
+            
+            console.log('📤 Opening WhatsApp share:', {
+                ayahNumber: ayahNum,
+                surahName: surah.name_latin,
+                shareTextLength: shareText.length,
+                encodedTextLength: encodedText.length,
+                whatsappUrl: whatsappUrl.substring(0, 100) + '...',
+                shareTextPreview: shareText.substring(0, 200) + '...'
+            });
+            
+            try {
+                // Check if device supports WhatsApp app
+                const userAgent = navigator.userAgent;
+                const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+                
+                if (isMobile) {
+                    // Try WhatsApp app first on mobile
+                    const appUrl = `whatsapp://send?text=${encodedText}`;
+                    window.location.href = appUrl;
+                    
+                    // Fallback to web WhatsApp after a delay
+                    setTimeout(() => {
+                        window.open(whatsappUrl, '_blank');
+                    }, 2000);
+                } else {
+                    // Use web WhatsApp on desktop
+                    window.open(whatsappUrl, '_blank');
+                }
+                
+                console.log('✅ WhatsApp share initiated successfully');
+                
+                // Show success message
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-all text-sm';
+                alertDiv.textContent = '✅ WhatsApp terbuka untuk berbagi ayat!';
+                document.body.appendChild(alertDiv);
+                
+                setTimeout(() => {
+                    alertDiv.style.opacity = '0';
+                    setTimeout(() => document.body.removeChild(alertDiv), 500);
+                }, 3000);
+                
+            } catch (error) {
+                console.error('❌ Error opening WhatsApp:', error);
+                
+                // Show error message with fallback option
+                const confirmCopy = confirm('Gagal membuka WhatsApp. Ingin menyalin teks untuk dibagikan secara manual?');
+                if (confirmCopy) {
+                    try {
+                        await navigator.clipboard.writeText(shareText);
+                        alert('✅ Teks berhasil disalin! Silakan paste di aplikasi chat Anda.');
+                    } catch (copyError) {
+                        console.error('❌ Error copying text:', copyError);
+                        alert('Gagal menyalin teks. Silakan coba lagi atau bagikan secara manual.');
+                    }
+                }
+            }
+        } else {
+            console.error('❌ ShareAyah: Ayah not found for number:', ayahNum);
+            console.error('📊 Available ayah numbers:', ayahs.map(a => a.ayah_number));
+            console.error('🔍 Surah data available:', !!surah);
+            
+            const errorMessage = !surah 
+                ? 'Data surah belum dimuat. Silakan tunggu sebentar dan coba lagi.'
+                : `Ayat ${ayahNum} tidak ditemukan. Ayat tersedia: 1-${ayahs.length}`;
+                
+            alert(errorMessage);
         }
     };
 
@@ -789,15 +1014,14 @@ function SimpleSurahPage() {
             }
             // Escape to close dropdown
             if (e.key === 'Escape') {
-                setShowCopyDropdown(false);
                 setShowFloatingShare(false);
             }
         };
 
         const handleClickOutside = (e) => {
-            // Close copy dropdown if clicking outside
-            if (showCopyDropdown && !e.target.closest('.copy-dropdown-container')) {
-                setShowCopyDropdown(false);
+            // Close floating share if clicking outside
+            if (showFloatingShare && !e.target.closest('.floating-share-container')) {
+                setShowFloatingShare(false);
             }
         };
 
@@ -812,44 +1036,23 @@ function SimpleSurahPage() {
             document.removeEventListener('keydown', handleKeyDown);
             document.removeEventListener('click', handleClickOutside);
         };
-    }, [currentAyahNumber, showCopyDropdown, showDescriptionShort, showDescriptionLong]);
+    }, [currentAyahNumber, showDescriptionShort, showDescriptionLong]);
 
-    // Close dropdown when clicking outside and handle positioning
+    // Audio cleanup effect
     useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (showCopyDropdown) {
-                const isDropdownContainer = event.target.closest('.copy-dropdown-container');
-                const isDropdownPortal = event.target.closest('.copy-dropdown-portal');
-                if (!isDropdownContainer && !isDropdownPortal) {
-                    setShowCopyDropdown(false);
+        return () => {
+            console.log('🧹 Cleaning up audio on component unmount...');
+            if (audioElement) {
+                try {
+                    audioElement.pause();
+                    audioElement.currentTime = 0;
+                    console.log('✅ Audio cleaned up successfully');
+                } catch (error) {
+                    console.error('❌ Error cleaning up audio:', error);
                 }
             }
         };
-
-        const updateDropdownPosition = () => {
-            if (copyButtonRef.current && showCopyDropdown) {
-                const rect = copyButtonRef.current.getBoundingClientRect();
-                setDropdownPosition({
-                    top: rect.bottom + window.scrollY + 8,
-                    left: rect.left + window.scrollX
-                });
-            }
-        };
-
-        if (showCopyDropdown) {
-            updateDropdownPosition();
-            window.addEventListener('scroll', updateDropdownPosition);
-            window.addEventListener('resize', updateDropdownPosition);
-        }
-
-        document.addEventListener('mousedown', handleClickOutside);
-        
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-            window.removeEventListener('scroll', updateDropdownPosition);
-            window.removeEventListener('resize', updateDropdownPosition);
-        };
-    }, [showCopyDropdown]);
+    }, [audioElement]);
 
     const navigateToAyah = useCallback(async (ayahNum) => {
         // Check if navigation is already in progress
@@ -1227,23 +1430,6 @@ function SimpleSurahPage() {
 
                         {/* Mobile: Group secondary buttons */}
                         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
-                            {/* Tafsir Toggle Button */}
-                            <button
-                                onClick={toggleTafsir}
-                                className={`flex items-center justify-center space-x-2 px-4 py-2 rounded-lg transition-colors group w-full sm:w-auto ${
-                                    showTafsir
-                                        ? 'bg-purple-100 text-purple-700 hover:bg-purple-200'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                }`}
-                                title="Tampilkan/sembunyikan tafsir ayat (Ctrl+T)"
-                            >
-                                <BookOpenIcon className="w-4 h-4" />
-                                <span className="text-sm sm:text-base">{showTafsir ? 'Sembunyikan' : 'Tampilkan'} Tafsir</span>
-                                <span className="hidden lg:group-hover:inline-block text-xs opacity-75 ml-1">
-                                    (⌘T)
-                                </span>
-                            </button>
-
                             {/* Share Surah Button */}
                             <button
                                 onClick={shareSurah}
@@ -1384,19 +1570,23 @@ function SimpleSurahPage() {
                                     </button>
                                 )}
 
-                                {/* Copy Options Dropdown */}
-                                <div className="relative copy-dropdown-container">
-                                    <button
-                                        ref={copyButtonRef}
-                                        onClick={() => setShowCopyDropdown(!showCopyDropdown)}
-                                        className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm sm:text-base"
-                                        title="Salin teks ayat"
-                                    >
-                                        <DocumentDuplicateIcon className="w-4 h-4" />
-                                        <span>Salin</span>
-                                        <ChevronDownIcon className="w-3 h-3" />
-                                    </button>
-                                </div>
+                                {/* Tafsir Toggle Button */}
+                                <button
+                                    onClick={toggleTafsir}
+                                    className={`flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm sm:text-base ${
+                                        showTafsir
+                                            ? 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    }`}
+                                    title="Tampilkan/sembunyikan tafsir ayat (Ctrl+T)"
+                                >
+                                    <BookOpenIcon className="w-4 h-4" />
+                                    <span className="hidden sm:inline">{showTafsir ? 'Sembunyikan' : 'Tampilkan'} Tafsir</span>
+                                    <span className="sm:hidden">{showTafsir ? 'Sembunyikan' : 'Tafsir'}</span>
+                                    <span className="hidden lg:group-hover:inline-block text-xs opacity-75 ml-1">
+                                        (⌘T)
+                                    </span>
+                                </button>
 
                                 {/* Audio Toggle Button */}
                                 <button
@@ -1405,10 +1595,24 @@ function SimpleSurahPage() {
                                             ? pauseAudio() 
                                             : playAyah(currentAyahNumber)
                                     }
-                                    className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm sm:text-base"
-                                    title={isPlaying && currentPlayingAyah === currentAyahNumber ? 'Pause audio' : 'Putar audio'}
+                                    disabled={isAudioLoading}
+                                    className={`flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm sm:text-base ${
+                                        isAudioLoading 
+                                            ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                            : 'bg-green-100 text-green-700 hover:bg-green-200'
+                                    }`}
+                                    title={
+                                        isAudioLoading ? 'Memuat audio...' :
+                                        isPlaying && currentPlayingAyah === currentAyahNumber ? 'Pause audio' : 'Putar audio'
+                                    }
                                 >
-                                    {isPlaying && currentPlayingAyah === currentAyahNumber ? (
+                                    {isAudioLoading ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                                            <span className="hidden sm:inline">Memuat...</span>
+                                            <span className="sm:hidden">⏳</span>
+                                        </>
+                                    ) : isPlaying && currentPlayingAyah === currentAyahNumber ? (
                                         <>
                                             <SpeakerXMarkIcon className="w-4 h-4" />
                                             <span className="hidden sm:inline">Pause</span>
@@ -1423,72 +1627,6 @@ function SimpleSurahPage() {
                                     )}
                                 </button>
                             </div>
-
-                            {/* Portal-based Dropdown - Enhanced mobile positioning */}
-                            {showCopyDropdown && createPortal(
-                                <div 
-                                    className="fixed w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-[9999] copy-dropdown-portal"
-                                    style={{
-                                        top: `${dropdownPosition.top}px`,
-                                        left: `${Math.max(8, Math.min(window.innerWidth - 200, dropdownPosition.left))}px` // Keep within viewport
-                                    }}
-                                >
-                                    <div className="py-1">
-                                        <button
-                                            onClick={() => {
-                                                copyAyahText(currentAyahNumber, 'arabic');
-                                                setShowCopyDropdown(false);
-                                            }}
-                                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                                        >
-                                            📖 Salin Teks Arab
-                                        </button>
-                                        {currentAyah?.text_latin && (
-                                            <button
-                                                onClick={() => {
-                                                    copyAyahText(currentAyahNumber, 'latin');
-                                                    setShowCopyDropdown(false);
-                                                }}
-                                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                                            >
-                                                � Salin Transliterasi
-                                            </button>
-                                        )}
-                                        {(currentAyah?.text_indonesian || currentAyah?.translation_id) && (
-                                            <button
-                                                onClick={() => {
-                                                    copyAyahText(currentAyahNumber, 'indonesian');
-                                                    setShowCopyDropdown(false);
-                                                }}
-                                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                                            >
-                                                🇮🇩 Salin Terjemahan
-                                            </button>
-                                        )}
-                                        {currentAyah?.tafsir && (
-                                            <button
-                                                onClick={() => {
-                                                    copyAyahText(currentAyahNumber, 'tafsir');
-                                                    setShowCopyDropdown(false);
-                                                }}
-                                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                                            >
-                                                📖 Salin Tafsir
-                                            </button>
-                                        )}
-                                        <button
-                                            onClick={() => {
-                                                copyAyahText(currentAyahNumber, 'all');
-                                                setShowCopyDropdown(false);
-                                            }}
-                                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 border-t border-gray-100"
-                                        >
-                                            📄 Salin Semua Teks
-                                        </button>
-                                    </div>
-                                </div>,
-                                document.body
-                            )}
 
                             {/* Navigation Controls */}
                             <div className="flex items-center justify-center gap-3 sm:gap-4 mb-8">
@@ -1509,10 +1647,20 @@ function SimpleSurahPage() {
                                             ? pauseAudio() 
                                             : playAyah(currentAyahNumber)
                                     }
-                                    className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors shadow-lg"
-                                    title={isPlaying && currentPlayingAyah === currentAyahNumber ? 'Pause audio' : 'Putar audio'}
+                                    disabled={isAudioLoading}
+                                    className={`flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full transition-colors shadow-lg ${
+                                        isAudioLoading 
+                                            ? 'bg-gray-400 text-white cursor-not-allowed'
+                                            : 'bg-green-600 text-white hover:bg-green-700'
+                                    }`}
+                                    title={
+                                        isAudioLoading ? 'Memuat audio...' :
+                                        isPlaying && currentPlayingAyah === currentAyahNumber ? 'Pause audio' : 'Putar audio'
+                                    }
                                 >
-                                    {isPlaying && currentPlayingAyah === currentAyahNumber ? (
+                                    {isAudioLoading ? (
+                                        <div className="w-6 h-6 sm:w-8 sm:h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                    ) : isPlaying && currentPlayingAyah === currentAyahNumber ? (
                                         <PauseIcon className="w-6 h-6 sm:w-8 sm:h-8" />
                                     ) : (
                                         <PlayIcon className="w-6 h-6 sm:w-8 sm:h-8 ml-1" />
