@@ -509,6 +509,16 @@ function SimpleSurahPage() {
     const playAyah = async (ayahNum) => {
         try {
             console.log(`🎵 Playing ayah ${ayahNum}...`);
+            console.log('🔍 PlayAyah Debug:', {
+                ayahNum,
+                ayahNumType: typeof ayahNum,
+                ayahsLength: ayahs.length,
+                availableAyahNumbers: ayahs.slice(0, 5).map(a => ({
+                    ayah_number: a.ayah_number,
+                    number: a.number,
+                    verse_number: a.verse_number
+                }))
+            });
             setIsAudioLoading(true);
             
             // Stop any currently playing audio
@@ -517,7 +527,23 @@ function SimpleSurahPage() {
                 setAudioElement(null);
             }
 
-            const ayah = ayahs.find(a => a.ayah_number === ayahNum || a.number === ayahNum);
+            const ayah = ayahs.find(a => 
+                parseInt(a.ayah_number) === parseInt(ayahNum) || 
+                parseInt(a.number) === parseInt(ayahNum) ||
+                parseInt(a.verse_number) === parseInt(ayahNum)
+            );
+            
+            console.log('🎯 PlayAyah found ayah:', {
+                found: !!ayah,
+                searchedFor: ayahNum,
+                ayah: ayah ? {
+                    ayah_number: ayah.ayah_number,
+                    number: ayah.number,
+                    verse_number: ayah.verse_number,
+                    hasAudio: !!(ayah.audio_url || ayah.audio_urls)
+                } : null
+            });
+            
             if (!ayah) {
                 console.error(`❌ Ayah ${ayahNum} not found in data`);
                 setIsAudioLoading(false);
@@ -876,7 +902,11 @@ function SimpleSurahPage() {
     };
 
     const copyAyahText = async (ayahNum, type = 'arabic') => {
-        const ayah = ayahs.find(a => a.ayah_number === ayahNum || a.number === ayahNum);
+        const ayah = ayahs.find(a => 
+            parseInt(a.ayah_number) === parseInt(ayahNum) || 
+            parseInt(a.number) === parseInt(ayahNum) ||
+            parseInt(a.verse_number) === parseInt(ayahNum)
+        );
         if (ayah) {
             let textToCopy = '';
             
