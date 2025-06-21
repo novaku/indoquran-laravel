@@ -63,10 +63,58 @@ function SimpleSurahPage() {
     const currentAyahRef = useRef(null);
     const copyButtonRef = useRef(null);
 
-    // Get current ayah
-    const currentAyah = ayahs.find(ayah => ayah.ayah_number === currentAyahNumber || ayah.number === currentAyahNumber);
-    const totalAyahs = surah?.total_ayahs || surah?.verses_count || ayahs.length || 0;
+    // Get current ayah - try multiple possible field names with fallback
+    let currentAyah = ayahs.find(ayah => 
+        ayah.ayah_number === currentAyahNumber || 
+        ayah.number === currentAyahNumber ||
+        ayah.verse_number === currentAyahNumber ||
+        ayah.id === currentAyahNumber
+    );
+    
+    // If no ayah found for the requested number and ayahs are available, use the first ayah
+    if (!currentAyah && ayahs.length > 0 && currentAyahNumber === 1) {
+        currentAyah = ayahs[0];
+        console.log('🔄 Using first ayah as fallback:', currentAyah);
+    }
+    
+    // Debug: Log current ayah finding result
+    useEffect(() => {
+        console.log('🎯 Current Ayah Finding Result:', {
+            currentAyahNumber,
+            ayahsLength: ayahs.length,
+            found: !!currentAyah,
+            currentAyah: currentAyah ? {
+                ayah_number: currentAyah.ayah_number,
+                number: currentAyah.number,
+                verse_number: currentAyah.verse_number,
+                id: currentAyah.id,
+                text_arabic: currentAyah.text_arabic ? currentAyah.text_arabic.substring(0, 50) + '...' : 'No Arabic text'
+            } : null,
+            totalAyahs: ayahs.length,
+            firstAyahInArray: ayahs.length > 0 ? {
+                ayah_number: ayahs[0].ayah_number,
+                number: ayahs[0].number,
+                verse_number: ayahs[0].verse_number,
+                id: ayahs[0].id
+            } : 'No ayahs available'
+        });
+    }, [currentAyahNumber, ayahs, currentAyah]);
+    const totalAyahs = surah?.total_ayahs || ayahs.length || 0;
     const completionPercentage = totalAyahs > 0 ? Math.round((currentAyahNumber / totalAyahs) * 100) : 0;
+    
+    // Debug total ayahs calculation
+    useEffect(() => {
+        if (surah) {
+            console.log('📊 Total Ayahs Debug:', {
+                surah_total_ayahs: surah.total_ayahs,
+                surah_verses_count: surah.verses_count,
+                surah_number_of_ayahs: surah.number_of_ayahs,
+                ayahs_length: ayahs.length,
+                calculated_totalAyahs: totalAyahs,
+                surahFields: Object.keys(surah)
+            });
+        }
+    }, [surah, ayahs, totalAyahs]);
 
     // Fetch surah data
     useEffect(() => {
@@ -91,8 +139,38 @@ function SimpleSurahPage() {
                     const surahData = surahResult.data.surah || surahResult.data;
                     const ayahsData = surahResult.data.ayahs || [];
                     
+                    console.log('🚀 API Response Debug:', {
+                        surahDataKeys: surahData ? Object.keys(surahData) : 'No surah data',
+                        ayahsDataLength: ayahsData.length,
+                        ayahsIsArray: Array.isArray(ayahsData),
+                        firstThreeAyahs: ayahsData.slice(0, 3).map(ayah => ({
+                            id: ayah.id,
+                            ayah_number: ayah.ayah_number,
+                            surah_number: ayah.surah_number,
+                            text_arabic_preview: ayah.text_arabic ? ayah.text_arabic.substring(0, 30) + '...' : 'No Arabic text'
+                        }))
+                    });
+                    
                     setSurah(surahData);
                     setAyahs(Array.isArray(ayahsData) ? ayahsData : []);
+                    
+                    // Ensure currentAyahNumber is valid when ayahs are loaded
+                    if (Array.isArray(ayahsData) && ayahsData.length > 0) {
+                        const requestedAyah = ayahsData.find(ayah => 
+                            ayah.ayah_number === currentAyahNumber || 
+                            ayah.number === currentAyahNumber ||
+                            ayah.verse_number === currentAyahNumber ||
+                            ayah.id === currentAyahNumber
+                        );
+                        
+                        // If the requested ayah is not found, use the first ayah
+                        if (!requestedAyah && currentAyahNumber === 1) {
+                            const firstAyah = ayahsData[0];
+                            const firstAyahNum = firstAyah.ayah_number || firstAyah.number || firstAyah.verse_number || 1;
+                            console.log('🔄 Adjusting currentAyahNumber to first available ayah:', firstAyahNum);
+                            setCurrentAyahNumber(firstAyahNum);
+                        }
+                    }
                     
                     // Debug: Log tafsir availability
                     console.log('📖 Tafsir Debug:', {
@@ -105,7 +183,19 @@ function SimpleSurahPage() {
                     console.log('🔖 Ayah Structure Debug:', {
                         firstAyah: ayahsData[0],
                         hasId: !!ayahsData[0]?.id,
-                        ayahFields: ayahsData[0] ? Object.keys(ayahsData[0]) : []
+                        ayahFields: ayahsData[0] ? Object.keys(ayahsData[0]) : [],
+                        totalAyahsReceived: ayahsData.length
+                    });
+
+                    // Debug: Log current ayah finding logic
+                    console.log('🔍 Current Ayah Debug:', {
+                        currentAyahNumber,
+                        ayahsData: ayahsData.slice(0, 3).map(ayah => ({
+                            ayah_number: ayah.ayah_number,
+                            number: ayah.number,
+                            verse_number: ayah.verse_number,
+                            id: ayah.id
+                        }))
                     });
                     
                     // Fetch bookmarks if user is logged in
@@ -934,7 +1024,7 @@ function SimpleSurahPage() {
 
                 {/* Main Content - Single Ayah Display */}
                 <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg mb-6" id="ayah-content">
-                    {currentAyah ? (
+                    {!loading && ayahs.length > 0 && currentAyah ? (
                         <>
                             {/* Bismillah or Ayah Content */}
                             <div className="text-center mb-8">
@@ -1218,9 +1308,14 @@ function SimpleSurahPage() {
                         </>
                     ) : (
                         <div className="text-center py-12">
-                            <p className="text-gray-500 text-lg">Memuat ayat...</p>
-                            {ayahs.length === 0 && !loading && (
+                            {loading ? (
+                                <p className="text-gray-500 text-lg">Memuat ayat...</p>
+                            ) : ayahs.length === 0 ? (
                                 <p className="text-red-500 text-sm mt-2">Tidak ada ayat ditemukan. Silakan periksa nomor surah.</p>
+                            ) : !currentAyah ? (
+                                <p className="text-orange-500 text-sm mt-2">Ayat nomor {currentAyahNumber} tidak ditemukan. Silakan pilih ayat yang tersedia.</p>
+                            ) : (
+                                <p className="text-gray-500 text-lg">Memuat ayat...</p>
                             )}
                         </div>
                     )}
