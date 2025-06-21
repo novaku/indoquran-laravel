@@ -923,6 +923,13 @@ function SimpleSurahPage() {
                     -webkit-box-orient: vertical;
                     overflow: hidden;
                 }
+                
+                /* Custom grid columns for responsive navigation */
+                @media (min-width: 1024px) {
+                    .grid-cols-15 {
+                        grid-template-columns: repeat(15, minmax(0, 1fr));
+                    }
+                }
             `}</style>
 
             <SEOHead 
@@ -958,21 +965,25 @@ function SimpleSurahPage() {
                     <div className="flex items-center justify-between">
                         <button
                             onClick={() => navigate('/')}
-                            className="flex items-center space-x-2 text-gray-600 hover:text-green-600"
+                            className="flex items-center space-x-2 text-gray-600 hover:text-green-600 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                            title="Kembali ke beranda"
                         >
                             <ChevronLeftIcon className="w-5 h-5" />
+                            <span className="hidden sm:inline text-sm">Beranda</span>
                         </button>
                         
-                        <div className="text-center">
-                            <h1 className="text-lg font-semibold text-gray-800">
+                        <div className="text-center flex-1 mx-4">
+                            <h1 className="text-base sm:text-lg font-semibold text-gray-800 truncate">
                                 {surah.name_latin || surah.name_english}
                             </h1>
-                            <p className="text-sm text-gray-500">
-                                Ayat {currentAyahNumber} dari {maxAyahNumber} • {completionPercentage}% selesai
+                            <p className="text-xs sm:text-sm text-gray-500">
+                                <span className="hidden sm:inline">Ayat {currentAyahNumber} dari {maxAyahNumber} • </span>
+                                <span className="sm:hidden">{currentAyahNumber}/{maxAyahNumber} • </span>
+                                {completionPercentage}%
                             </p>
                         </div>
 
-                        <div className="w-8"></div>
+                        <div className="w-16 sm:w-8"></div>
                     </div>
                 </div>
             </div>
@@ -1011,12 +1022,12 @@ function SimpleSurahPage() {
 
                         {/* Description Controls */}
                         {(surah.description_short || surah.description_long || surah.description) && (
-                            <div className="flex justify-center items-center space-x-3 mb-4">
+                            <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-3 mb-4">
                                 {/* Toggle Description Short */}
                                 {(surah.description_short || surah.description) && (
                                     <button
                                         onClick={() => setShowDescriptionShort(!showDescriptionShort)}
-                                        className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 shadow-sm border group ${
+                                        className={`flex items-center justify-center space-x-2 px-3 sm:px-4 py-2 rounded-lg transition-all duration-200 shadow-sm border group w-full sm:w-auto ${
                                             showDescriptionShort 
                                                 ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white border-green-600 shadow-green-200' 
                                                 : 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border-green-200 hover:from-green-200 hover:to-emerald-200'
@@ -1034,7 +1045,7 @@ function SimpleSurahPage() {
                                         ) : (
                                             <ChevronDownIcon className="w-4 h-4" />
                                         )}
-                                        <span className="hidden group-hover:inline-block text-xs opacity-75 ml-1">
+                                        <span className="hidden lg:group-hover:inline-block text-xs opacity-75 ml-1">
                                             (⌘⇧R)
                                         </span>
                                     </button>
@@ -1044,7 +1055,7 @@ function SimpleSurahPage() {
                                 {surah.description_long && (
                                     <button
                                         onClick={() => setShowDescriptionLong(!showDescriptionLong)}
-                                        className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 shadow-sm border group ${
+                                        className={`flex items-center justify-center space-x-2 px-3 sm:px-4 py-2 rounded-lg transition-all duration-200 shadow-sm border group w-full sm:w-auto ${
                                             showDescriptionLong 
                                                 ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-600 shadow-blue-200' 
                                                 : 'bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 border-blue-200 hover:from-blue-200 hover:to-indigo-200'
@@ -1053,14 +1064,15 @@ function SimpleSurahPage() {
                                     >
                                         <InformationCircleIcon className="w-4 h-4" />
                                         <span className="text-sm font-medium">
-                                            {showDescriptionLong ? 'Sembunyikan' : 'Tampilkan'} Penjelasan Lengkap
+                                            <span className="hidden sm:inline">{showDescriptionLong ? 'Sembunyikan' : 'Tampilkan'} Penjelasan Lengkap</span>
+                                            <span className="sm:hidden">{showDescriptionLong ? 'Sembunyikan' : 'Tampilkan'} Detail</span>
                                         </span>
                                         {showDescriptionLong ? (
                                             <ChevronUpIcon className="w-4 h-4" />
                                         ) : (
                                             <ChevronDownIcon className="w-4 h-4" />
                                         )}
-                                        <span className="hidden group-hover:inline-block text-xs opacity-75 ml-1">
+                                        <span className="hidden lg:group-hover:inline-block text-xs opacity-75 ml-1">
                                             (⌘⇧D)
                                         </span>
                                     </button>
@@ -1114,7 +1126,7 @@ function SimpleSurahPage() {
                     </div>
 
                     {/* Action Controls */}
-                    <div className="flex justify-center items-center space-x-4">
+                    <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4">
                         {/* Font Size Controls */}
                         <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-2">
                             <button
@@ -1132,35 +1144,38 @@ function SimpleSurahPage() {
                             </button>
                         </div>
 
-                        {/* Tafsir Toggle Button */}
-                        <button
-                            onClick={toggleTafsir}
-                            className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors group ${
-                                showTafsir
-                                    ? 'bg-purple-100 text-purple-700 hover:bg-purple-200'
-                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
-                            title="Tampilkan/sembunyikan tafsir ayat (Ctrl+T)"
-                        >
-                            <BookOpenIcon className="w-4 h-4" />
-                            <span>{showTafsir ? 'Sembunyikan' : 'Tampilkan'} Tafsir</span>
-                            <span className="hidden group-hover:inline-block text-xs opacity-75 ml-1">
-                                (⌘T)
-                            </span>
-                        </button>
+                        {/* Mobile: Group secondary buttons */}
+                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+                            {/* Tafsir Toggle Button */}
+                            <button
+                                onClick={toggleTafsir}
+                                className={`flex items-center justify-center space-x-2 px-4 py-2 rounded-lg transition-colors group w-full sm:w-auto ${
+                                    showTafsir
+                                        ? 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                }`}
+                                title="Tampilkan/sembunyikan tafsir ayat (Ctrl+T)"
+                            >
+                                <BookOpenIcon className="w-4 h-4" />
+                                <span className="text-sm sm:text-base">{showTafsir ? 'Sembunyikan' : 'Tampilkan'} Tafsir</span>
+                                <span className="hidden lg:group-hover:inline-block text-xs opacity-75 ml-1">
+                                    (⌘T)
+                                </span>
+                            </button>
 
-                        {/* Share Surah Button */}
-                        <button
-                            onClick={shareSurah}
-                            className="flex items-center space-x-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors group"
-                            title="Bagikan informasi surah ini (Ctrl+Shift+U)"
-                        >
-                            <WhatsAppIcon className="w-4 h-4" />
-                            <span>Bagikan Surah</span>
-                            <span className="hidden group-hover:inline-block text-xs opacity-75 ml-1">
-                                (⌘⇧U)
-                            </span>
-                        </button>
+                            {/* Share Surah Button */}
+                            <button
+                                onClick={shareSurah}
+                                className="flex items-center justify-center space-x-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors group w-full sm:w-auto"
+                                title="Bagikan informasi surah ini (Ctrl+Shift+U)"
+                            >
+                                <WhatsAppIcon className="w-4 h-4" />
+                                <span className="text-sm sm:text-base">Bagikan Surah</span>
+                                <span className="hidden lg:group-hover:inline-block text-xs opacity-75 ml-1">
+                                    (⌘⇧U)
+                                </span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -1253,16 +1268,17 @@ function SimpleSurahPage() {
                             </div>
 
                             {/* Ayah Action Buttons */}
-                            <div className="flex items-center justify-center space-x-3 mb-6">
+                            <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6">
                                 {/* Share Ayah Button */}
                                 <button
                                     onClick={() => shareAyah(currentAyahNumber)}
-                                    className="flex items-center space-x-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors group"
+                                    className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors group text-sm sm:text-base"
                                     title="Bagikan ayat ini ke WhatsApp (Ctrl+Shift+S)"
                                 >
                                     <WhatsAppIcon className="w-4 h-4" />
-                                    <span>Bagikan Ayat</span>
-                                    <span className="hidden group-hover:inline-block text-xs opacity-75 ml-1">
+                                    <span className="hidden sm:inline">Bagikan Ayat</span>
+                                    <span className="sm:hidden">Bagikan</span>
+                                    <span className="hidden lg:group-hover:inline-block text-xs opacity-75 ml-1">
                                         (⌘⇧S)
                                     </span>
                                 </button>
@@ -1271,7 +1287,7 @@ function SimpleSurahPage() {
                                 {user && (
                                     <button
                                         onClick={() => toggleBookmark(currentAyahNumber)}
-                                        className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                                        className={`flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm sm:text-base ${
                                             bookmarkedAyahs.has(currentAyahNumber)
                                                 ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
                                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -1292,7 +1308,7 @@ function SimpleSurahPage() {
                                     <button
                                         ref={copyButtonRef}
                                         onClick={() => setShowCopyDropdown(!showCopyDropdown)}
-                                        className="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                                        className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm sm:text-base"
                                         title="Salin teks ayat"
                                     >
                                         <DocumentDuplicateIcon className="w-4 h-4" />
@@ -1301,92 +1317,6 @@ function SimpleSurahPage() {
                                     </button>
                                 </div>
 
-                                {/* Portal-based Dropdown */}
-                                {showCopyDropdown && createPortal(
-                                    <div 
-                                        className="fixed w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-[9999] copy-dropdown-portal"
-                                        style={{
-                                            top: `${dropdownPosition.top}px`,
-                                            left: `${dropdownPosition.left}px`
-                                        }}
-                                    >
-                                        <div className="py-1">
-                                            <button
-                                                onClick={() => {
-                                                    copyAyahText(currentAyahNumber, 'arabic');
-                                                    setShowCopyDropdown(false);
-                                                }}
-                                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                                            >
-                                                📖 Salin Teks Arab
-                                            </button>
-                                            {currentAyah?.text_latin && (
-                                                <button
-                                                    onClick={() => {
-                                                        copyAyahText(currentAyahNumber, 'latin');
-                                                        setShowCopyDropdown(false);
-                                                    }}
-                                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                                                >
-                                                    🔤 Salin Transliterasi
-                                                </button>
-                                            )}
-                                            {(currentAyah?.text_indonesian || currentAyah?.translation_id) && (
-                                                <button
-                                                    onClick={() => {
-                                                        copyAyahText(currentAyahNumber, 'indonesian');
-                                                        setShowCopyDropdown(false);
-                                                    }}
-                                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                                                >
-                                                    🇮🇩 Salin Terjemahan
-                                                </button>
-                                            )}
-                                            {currentAyah?.tafsir && (
-                                                <button
-                                                    onClick={() => {
-                                                        copyAyahText(currentAyahNumber, 'tafsir');
-                                                        setShowCopyDropdown(false);
-                                                    }}
-                                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                                                >
-                                                    📖 Salin Tafsir
-                                                </button>
-                                            )}
-                                            <button
-                                                onClick={() => {
-                                                    copyAyahText(currentAyahNumber, 'all');
-                                                    setShowCopyDropdown(false);
-                                                }}
-                                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 border-t border-gray-100"
-                                            >
-                                                📄 Salin Semua Teks
-                                            </button>
-                                        </div>
-                                    </div>,
-                                    document.body
-                                )}
-
-                                {/* Bookmark Button */}
-                                {user && (
-                                    <button
-                                        onClick={() => toggleBookmark(currentAyahNumber)}
-                                        className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                                            bookmarkedAyahs.has(currentAyahNumber)
-                                                ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
-                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                        }`}
-                                        title={bookmarkedAyahs.has(currentAyahNumber) ? 'Hapus bookmark' : 'Tambah bookmark'}
-                                    >
-                                        {bookmarkedAyahs.has(currentAyahNumber) ? (
-                                            <BookmarkSolidIcon className="w-4 h-4" />
-                                        ) : (
-                                            <BookmarkOutlineIcon className="w-4 h-4" />
-                                        )}
-                                        <span>Bookmark</span>
-                                    </button>
-                                )}
-
                                 {/* Audio Toggle Button */}
                                 <button
                                     onClick={() => 
@@ -1394,32 +1324,101 @@ function SimpleSurahPage() {
                                             ? pauseAudio() 
                                             : playAyah(currentAyahNumber)
                                     }
-                                    className="flex items-center space-x-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
+                                    className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm sm:text-base"
                                     title={isPlaying && currentPlayingAyah === currentAyahNumber ? 'Pause audio' : 'Putar audio'}
                                 >
                                     {isPlaying && currentPlayingAyah === currentAyahNumber ? (
                                         <>
                                             <SpeakerXMarkIcon className="w-4 h-4" />
-                                            <span>Pause</span>
+                                            <span className="hidden sm:inline">Pause</span>
+                                            <span className="sm:hidden">⏸</span>
                                         </>
                                     ) : (
                                         <>
                                             <SpeakerWaveIcon className="w-4 h-4" />
-                                            <span>Dengar</span>
+                                            <span className="hidden sm:inline">Dengar</span>
+                                            <span className="sm:hidden">▶</span>
                                         </>
                                     )}
                                 </button>
                             </div>
 
+                            {/* Portal-based Dropdown - Enhanced mobile positioning */}
+                            {showCopyDropdown && createPortal(
+                                <div 
+                                    className="fixed w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-[9999] copy-dropdown-portal"
+                                    style={{
+                                        top: `${dropdownPosition.top}px`,
+                                        left: `${Math.max(8, Math.min(window.innerWidth - 200, dropdownPosition.left))}px` // Keep within viewport
+                                    }}
+                                >
+                                    <div className="py-1">
+                                        <button
+                                            onClick={() => {
+                                                copyAyahText(currentAyahNumber, 'arabic');
+                                                setShowCopyDropdown(false);
+                                            }}
+                                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                                        >
+                                            📖 Salin Teks Arab
+                                        </button>
+                                        {currentAyah?.text_latin && (
+                                            <button
+                                                onClick={() => {
+                                                    copyAyahText(currentAyahNumber, 'latin');
+                                                    setShowCopyDropdown(false);
+                                                }}
+                                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                                            >
+                                                � Salin Transliterasi
+                                            </button>
+                                        )}
+                                        {(currentAyah?.text_indonesian || currentAyah?.translation_id) && (
+                                            <button
+                                                onClick={() => {
+                                                    copyAyahText(currentAyahNumber, 'indonesian');
+                                                    setShowCopyDropdown(false);
+                                                }}
+                                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                                            >
+                                                🇮🇩 Salin Terjemahan
+                                            </button>
+                                        )}
+                                        {currentAyah?.tafsir && (
+                                            <button
+                                                onClick={() => {
+                                                    copyAyahText(currentAyahNumber, 'tafsir');
+                                                    setShowCopyDropdown(false);
+                                                }}
+                                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                                            >
+                                                📖 Salin Tafsir
+                                            </button>
+                                        )}
+                                        <button
+                                            onClick={() => {
+                                                copyAyahText(currentAyahNumber, 'all');
+                                                setShowCopyDropdown(false);
+                                            }}
+                                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 border-t border-gray-100"
+                                        >
+                                            📄 Salin Semua Teks
+                                        </button>
+                                    </div>
+                                </div>,
+                                document.body
+                            )}
+
                             {/* Navigation Controls */}
-                            <div className="flex items-center justify-center space-x-4 mb-8">
+                            <div className="flex items-center justify-center gap-3 sm:gap-4 mb-8">
                                 <button
                                     onClick={goToPreviousAyah}
                                     disabled={availableAyahNumbers.indexOf(currentAyahNumber) <= 0}
-                                    className="flex items-center space-x-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                    className="flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base"
                                 >
-                                    <ChevronLeftIcon className="w-5 h-5" />
-                                    <span>Sebelumnya</span>
+                                    <ChevronLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                                    <span className="hidden sm:inline">Sebelumnya</span>
+                                    <span className="sm:hidden">Prev</span>
                                 </button>
 
                                 {/* Play Button */}
@@ -1429,22 +1428,24 @@ function SimpleSurahPage() {
                                             ? pauseAudio() 
                                             : playAyah(currentAyahNumber)
                                     }
-                                    className="flex items-center justify-center w-16 h-16 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors shadow-lg"
+                                    className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors shadow-lg"
+                                    title={isPlaying && currentPlayingAyah === currentAyahNumber ? 'Pause audio' : 'Putar audio'}
                                 >
                                     {isPlaying && currentPlayingAyah === currentAyahNumber ? (
-                                        <PauseIcon className="w-8 h-8" />
+                                        <PauseIcon className="w-6 h-6 sm:w-8 sm:h-8" />
                                     ) : (
-                                        <PlayIcon className="w-8 h-8 ml-1" />
+                                        <PlayIcon className="w-6 h-6 sm:w-8 sm:h-8 ml-1" />
                                     )}
                                 </button>
 
                                 <button
                                     onClick={goToNextAyah}
                                     disabled={availableAyahNumbers.indexOf(currentAyahNumber) >= availableAyahNumbers.length - 1}
-                                    className="flex items-center space-x-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                    className="flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base"
                                 >
-                                    <span>Selanjutnya</span>
-                                    <ChevronRightIcon className="w-5 h-5" />
+                                    <span className="hidden sm:inline">Selanjutnya</span>
+                                    <span className="sm:hidden">Next</span>
+                                    <ChevronRightIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                                 </button>
                             </div>
                         </>
@@ -1456,11 +1457,14 @@ function SimpleSurahPage() {
                 </div>
 
                 {/* Ayah Grid Navigation */}
-                <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg">
+                <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-lg">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-gray-800">Navigasi Ayat</h3>
+                        <div className="text-xs sm:text-sm text-gray-500">
+                            Ayat {currentAyahNumber} dari {maxAyahNumber}
+                        </div>
                     </div>
-                    <div className="grid grid-cols-10 gap-2 max-h-96 overflow-y-auto">
+                    <div className="grid grid-cols-8 sm:grid-cols-10 md:grid-cols-12 lg:grid-cols-15 gap-2 max-h-80 sm:max-h-96 overflow-y-auto">
                         {availableAyahNumbers.map((ayahNum) => {
                             const isCurrentAyah = ayahNum === currentAyahNumber;
                             return (
@@ -1468,10 +1472,10 @@ function SimpleSurahPage() {
                                     <button
                                         onClick={() => navigateToAyah(ayahNum)}
                                         className={`
-                                            w-12 h-12 rounded-lg text-sm font-medium transition-all
+                                            w-10 h-10 sm:w-12 sm:h-12 rounded-lg text-xs sm:text-sm font-medium transition-all
                                             ${isCurrentAyah 
-                                                ? 'bg-green-600 text-white shadow-lg' 
-                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                ? 'bg-green-600 text-white shadow-lg scale-105' 
+                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105'
                                             }
                                         `}
                                         title={`Pergi ke ayat ${ayahNum}`}
