@@ -782,7 +782,8 @@ function SimpleSurahPage() {
         }
     };
 
-    if (loading) {
+    // Show loading state until API response is complete and data is processed
+    if (loading || !surah || ayahs.length === 0 || !currentAyah) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <LoadingSpinner size="lg" />
@@ -790,7 +791,8 @@ function SimpleSurahPage() {
         );
     }
 
-    if (error || !surah) {
+    // Show error state only if there's an actual error and not just loading
+    if (error) {
         return (
             <div className="min-h-screen flex items-center justify-center px-4">
                 <div className="text-center">
@@ -1072,7 +1074,7 @@ function SimpleSurahPage() {
 
                 {/* Main Content - Single Ayah Display */}
                 <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg mb-6" id="ayah-content">
-                    {!loading && ayahs.length > 0 && currentAyah ? (
+                    {currentAyah ? (
                         <>
                             {/* Bismillah or Ayah Content */}
                             <div className="text-center mb-8">
@@ -1356,15 +1358,7 @@ function SimpleSurahPage() {
                         </>
                     ) : (
                         <div className="text-center py-12">
-                            {loading ? (
-                                <p className="text-gray-500 text-lg">Memuat ayat...</p>
-                            ) : ayahs.length === 0 ? (
-                                <p className="text-red-500 text-sm mt-2">Tidak ada ayat ditemukan. Silakan periksa nomor surah.</p>
-                            ) : !currentAyah ? (
-                                <p className="text-gray-500 text-lg">Memuat ayat...</p>
-                            ) : (
-                                <p className="text-gray-500 text-lg">Memuat ayat...</p>
-                            )}
+                            <p className="text-gray-500 text-lg">Ayat tidak ditemukan</p>
                         </div>
                     )}
                 </div>
