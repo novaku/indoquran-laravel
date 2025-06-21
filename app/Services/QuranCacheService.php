@@ -5,63 +5,45 @@ namespace App\Services;
 use App\Models\Ayah;
 use App\Models\Surah;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 
 class QuranCacheService
 {
     /**
-     * Get cache TTL based on environment
-     * 1 second for non-production, 30 days for production
-     *
-     * @return \DateTimeInterface|\DateInterval|int
-     */
-    private function getCacheTtl()
-    {
-        return app()->environment('production') ? now()->addDays(30) : now()->addSecond();
-    }
-
-    /**
-     * Get all surahs, cached
+     * Get all surahs, direct database call (cache disabled)
      *
      * @return Collection
      */
     public function getAllSurahs(): Collection
     {
-        return Cache::remember('all_surahs', $this->getCacheTtl(), function () {
-            return Surah::orderBy('number')->get();
-        });
+        return Surah::orderBy('number')->get();
     }
 
     /**
-     * Get a specific surah by number, cached
+     * Get a specific surah by number, direct database call (cache disabled)
      *
      * @param int $number
      * @return Surah|null
      */
     public function getSurah(int $number): ?Surah
     {
-        return Cache::remember("surah_{$number}", $this->getCacheTtl(), function () use ($number) {
-            return Surah::where('number', $number)->first();
-        });
+        return Surah::where('number', $number)->first();
     }
 
     /**
-     * Get all ayahs for a surah, cached
+     * Get all ayahs for a surah, direct database call (cache disabled)
      *
      * @param int $surahNumber
      * @return Collection
      */
     public function getSurahAyahs(int $surahNumber): Collection
     {
-        return Cache::remember("surah_{$surahNumber}_ayahs", $this->getCacheTtl(), function () use ($surahNumber) {
-            return Ayah::where('surah_number', $surahNumber)
-                ->orderBy('ayah_number')
-                ->get();
-        });
+        return Ayah::where('surah_number', $surahNumber)
+            ->orderBy('ayah_number')
+            ->get();
     }
 
     /**
-     * Get a specific ayah, cached
+     * Get a specific ayah, direct database call (cache disabled)
      *
      * @param int|string $surahNumber
      * @param int|string $ayahNumber
@@ -75,22 +57,19 @@ class QuranCacheService
         
         \Log::info('QuranCacheService::getAyah', ['surah' => $surahNumber, 'ayah' => $ayahNumber]);
         
-        return Cache::remember("ayah_{$surahNumber}_{$ayahNumber}", $this->getCacheTtl(), function () use ($surahNumber, $ayahNumber) {
-            $ayah = Ayah::where('surah_number', $surahNumber)
-                ->where('ayah_number', $ayahNumber)
-                ->first();
-                
-            if (!$ayah) {
-                \Log::warning('Ayah not found in database', ['surah' => $surahNumber, 'ayah' => $ayahNumber]);
-            }
+        $ayah = Ayah::where('surah_number', $surahNumber)
+            ->where('ayah_number', $ayahNumber)
+            ->first();
             
-            return $ayah;
-        });
+        if (!$ayah) {
+            \Log::warning('Ayah not found in database', ['surah' => $surahNumber, 'ayah' => $ayahNumber]);
+        }
+        
+        return $ayah;
     }
 
     /**
-     * Search ayahs by Indonesian text, cached briefly 
-     * 1 hour for production, 1 second for non-production
+     * Search ayahs by Indonesian text, direct database call (cache disabled)
      *
      * @param string $query
      * @param int $limit
@@ -98,31 +77,19 @@ class QuranCacheService
      */
     public function searchAyahs(string $query, int $limit = 20): Collection
     {
-        $cacheKey = "search_" . md5($query) . "_{$limit}";
-        $searchCacheTtl = app()->environment('production') ? now()->addHour() : now()->addSecond();
-        
-        return Cache::remember($cacheKey, $searchCacheTtl, function () use ($query, $limit) {
-            return Ayah::where('text_indonesian', 'like', "%{$query}%")
-                ->orderBy('surah_number')
-                ->orderBy('ayah_number')
-                ->limit($limit)
-                ->get();
-        });
+        return Ayah::where('text_indonesian', 'like', "%{$query}%")
+            ->orderBy('surah_number')
+            ->orderBy('ayah_number')
+            ->limit($limit)
+            ->get();
     }
 
     /**
-     * Clear all Quran-related cache
+     * Clear all Quran-related cache (no-op since cache is disabled)
      */
     public function clearCache(): void
     {
-        Cache::forget('all_surahs');
-        
-        // Clear individual surah caches
-        for ($i = 1; $i <= 114; $i++) {
-            Cache::forget("surah_{$i}");
-            Cache::forget("surah_{$i}_ayahs");
-        }
-        
-        // Other cache entries will expire naturally
+        // Cache is disabled, so no cache to clear
+        \Log::info('Cache clearing requested, but cache is disabled');
     }
 }
