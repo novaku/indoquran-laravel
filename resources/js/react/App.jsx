@@ -31,6 +31,7 @@ const PageListPage = lazy(() => import('./pages/PageListPage'));
 const PageDetailPage = lazy(() => import('./pages/PageDetailPage'));
 const PrayerPage = lazy(() => import('./pages/PrayerPage'));
 const VersionHistoryPage = lazy(() => import('./pages/VersionHistoryPage'));
+const TafsirMaudhuiPage = lazy(() => import('./pages/TafsirMaudhuiPage'));
 
 // Redirect component for pages with parameters
 const PagesRedirect = () => {
@@ -128,6 +129,7 @@ function AppContent() {
                     <Route path="/juz/:number" element={<JuzPage />} />
                     <Route path="/halaman" element={<PageListPage />} />
                     <Route path="/halaman/:number" element={<PageDetailPage />} />
+                    <Route path="/tafsir-maudhui" element={<TafsirMaudhuiPage />} />
                     <Route path="/doa-bersama" element={<PrayerPage />} />
                     <Route path="/tentang" element={<AboutPage />} />
                     <Route path="/kontak" element={<ContactPage />} />

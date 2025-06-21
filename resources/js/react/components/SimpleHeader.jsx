@@ -91,6 +91,7 @@ function SimpleHeader() {
         { name: 'Daftar Surah', path: '/surah', icon: BookOpenIcon, description: 'Jelajahi 114 surah Al-Quran' },
         { name: 'Juz', path: '/juz', icon: DocumentTextIcon, description: 'Baca berdasarkan juz (para)' },
         { name: 'Halaman', path: '/halaman', icon: DocumentTextIcon, description: 'Baca berdasarkan halaman mushaf' },
+        { name: 'Tafsir Maudhui', path: '/tafsir-maudhui', icon: SparklesIcon, description: 'Topik-topik tematik dalam Al-Quran' },
     ];
 
     const communityDropdownItems = [

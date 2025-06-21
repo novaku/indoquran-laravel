@@ -163,6 +163,16 @@ class SEOController extends Controller
                 'canonicalUrl' => 'https://my.indoquran.web.id/daftar'
             ]);
         }
+        elseif (isset($segments[0]) && $segments[0] === 'tafsir-maudhui') {
+            // Tafsir Maudhui page SEO
+            $seoData = array_merge($seoData, [
+                'metaTitle' => 'Tafsir Maudhui - Topik-topik dalam Al-Quran | IndoQuran',
+                'metaDescription' => 'Jelajahi topik-topik penting dalam Al-Quran melalui pendekatan tafsir maudhui. Temukan ayat-ayat Al-Quran berdasarkan tema seperti akidah, ibadah, akhlak, muamalah, dan banyak lagi.',
+                'metaKeywords' => 'tafsir maudhui, topik quran, tema al quran, tafsir tematik, akidah islam, ibadah islam, akhlak islam, muamalah islam, indoquran',
+                'canonicalUrl' => url('/tafsir-maudhui'),
+                'ogType' => 'article'
+            ]);
+        }
         elseif (isset($segments[0]) && $segments[0] === 'doa-bersama') {
             // Prayer page SEO
             $seoData = array_merge($seoData, [

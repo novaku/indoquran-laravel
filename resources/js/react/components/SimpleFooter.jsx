@@ -113,6 +113,7 @@ function SimpleFooter() {
             { name: 'Daftar Surah', path: '/surah' },
             { name: 'Jelajahi Juz', path: '/juz' },
             { name: 'Jelajahi Halaman', path: '/halaman' },
+            { name: 'Tafsir Maudhui', path: '/tafsir-maudhui' },
             { name: 'Doa Bersama', path: '/doa-bersama' },
         ],
         'Pelajari': [
@@ -164,13 +165,22 @@ function SimpleFooter() {
                                 <ul className="space-y-3">
                                     {links.map((link) => (
                                         <li key={link.path}>
-                                            <Link
-                                                to={link.path}
-                                                onClick={scrollToTop}
-                                                className="text-gray-300 hover:text-white transition-colors text-sm"
-                                            >
-                                                {link.name}
-                                            </Link>
+                                            {link.external ? (
+                                                <a
+                                                    href={link.path}
+                                                    className="text-gray-300 hover:text-white transition-colors text-sm"
+                                                >
+                                                    {link.name}
+                                                </a>
+                                            ) : (
+                                                <Link
+                                                    to={link.path}
+                                                    onClick={scrollToTop}
+                                                    className="text-gray-300 hover:text-white transition-colors text-sm"
+                                                >
+                                                    {link.name}
+                                                </Link>
+                                            )}
                                         </li>
                                     ))}
                                 </ul>

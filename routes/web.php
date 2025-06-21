@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SitemapIndexController;
 use App\Http\Controllers\SEOController;
+use App\Http\Controllers\TafsirMaudhuiController;
 use Illuminate\Support\Facades\Route;
 
 // SEO Routes
@@ -53,6 +54,10 @@ Route::post('/daftar', [RegisterController::class, 'register']);
 // Authentication routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
+
+// API routes for Tafsir Maudhui (to be consumed by React)
+Route::get('/api/tafsir-maudhui', [TafsirMaudhuiController::class, 'api'])->name('tafsir-maudhui.api');
+Route::get('/api/tafsir-maudhui/search', [TafsirMaudhuiController::class, 'search'])->name('tafsir-maudhui.search');
 
 // React SPA routes with SEO optimization - serve the React app for any other routes, but don't catch /api or build routes
 Route::get('/{path?}', [SEOController::class, 'handleReactRoute'])->where('path', '^(?!api|build|assets|fonts|images|storage).*');
