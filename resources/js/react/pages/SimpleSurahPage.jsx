@@ -69,8 +69,8 @@ function SimpleSurahPage() {
     const copyButtonRef = useRef(null);
     const isNavigatingRef = useRef(false); // Track navigation state to prevent race conditions
 
-    // Get current ayah - simplified and reliable approach
-    const currentAyah = ayahs.find(ayah => ayah.ayah_number === currentAyahNumber) || null;
+    // Get current ayah - simplified and reliable approach with type-safe comparison
+    const currentAyah = ayahs.find(ayah => parseInt(ayah.ayah_number) === parseInt(currentAyahNumber)) || null;
     
     // Debug: Log current ayah finding result
     useEffect(() => {
@@ -95,11 +95,11 @@ function SimpleSurahPage() {
         });
     }, [currentAyahNumber, ayahs, currentAyah]);
     // Calculate total ayahs and available ayah numbers from actual data
-    const availableAyahNumbers = ayahs.map(ayah => ayah.ayah_number).filter(num => num).sort((a, b) => a - b);
+    const availableAyahNumbers = ayahs.map(ayah => parseInt(ayah.ayah_number)).filter(num => num && !isNaN(num)).sort((a, b) => a - b);
     const totalAyahs = availableAyahNumbers.length;
     const minAyahNumber = availableAyahNumbers[0] || 1;
     const maxAyahNumber = availableAyahNumbers[availableAyahNumbers.length - 1] || 1;
-    const completionPercentage = totalAyahs > 0 ? Math.round(((availableAyahNumbers.indexOf(currentAyahNumber) + 1) / totalAyahs) * 100) : 0;
+    const completionPercentage = totalAyahs > 0 ? Math.round(((availableAyahNumbers.indexOf(parseInt(currentAyahNumber)) + 1) / totalAyahs) * 100) : 0;
     
     // Debug total ayahs calculation
     useEffect(() => {
@@ -309,15 +309,30 @@ function SimpleSurahPage() {
         if (ayahs.length > 0 && !loading && availableAyahNumbers.length > 0) {
             const urlAyahParam = parseInt(ayahNumber);
             
+            // Debug the comparison
+            console.log('🔍 URL Validation Debug:', {
+                urlAyahParam,
+                urlAyahParamType: typeof urlAyahParam,
+                availableAyahNumbers,
+                availableAyahNumbersTypes: availableAyahNumbers.map(n => typeof n),
+                includes: availableAyahNumbers.includes(urlAyahParam),
+                isValidNumber: !isNaN(urlAyahParam) && urlAyahParam > 0
+            });
+            
             // Only redirect if the URL contains an ayah number that doesn't exist in our data
-            if (urlAyahParam && !availableAyahNumbers.includes(urlAyahParam)) {
+            if (urlAyahParam && !isNaN(urlAyahParam) && !availableAyahNumbers.includes(urlAyahParam)) {
                 // Find the closest available ayah
                 const closestAyah = availableAyahNumbers.reduce((prev, curr) => {
                     return Math.abs(curr - urlAyahParam) < Math.abs(prev - urlAyahParam) ? curr : prev;
                 });
                 
                 console.log(`🚨 URL contains invalid ayah ${urlAyahParam}, redirecting to closest ayah ${closestAyah}`);
+                isNavigatingRef.current = true;
                 navigate(`/surah/${number}/${closestAyah}`, { replace: true });
+                // Reset navigation flag after a delay
+                setTimeout(() => {
+                    isNavigatingRef.current = false;
+                }, 1000);
                 return;
             }
         }
