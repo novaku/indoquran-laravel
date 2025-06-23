@@ -136,11 +136,11 @@ export const preloadRouteResources = (currentRoute) => {
 const getModuleForRoute = (route) => {
     const routeModuleMap = {
         '/surah': () => import(/* webpackChunkName: "surah-list" */ '../pages/SurahListPage'),
-        '/surah/1': () => import(/* webpackChunkName: "surah" */ '../pages/SimpleSurahPage'),
-        '/cari': () => import(/* webpackChunkName: "search" */ '../pages/SimpleSearchPage'),
-        '/juz': () => import(/* webpackChunkName: "juz-pages" */ '../pages/SimpleJuzListPage'),
-        '/tentang': () => import(/* webpackChunkName: "content-pages" */ '../pages/SimpleAboutPage'),
-        '/kontak': () => import(/* webpackChunkName: "content-pages" */ '../pages/SimpleContactPage'),
+        '/surah/1': () => import(/* webpackChunkName: "surah" */ '../pages/SurahDetailPage'),
+        '/cari': () => import(/* webpackChunkName: "search" */ '../pages/QuranSearchPage'),
+        '/juz': () => import(/* webpackChunkName: "juz-pages" */ '../pages/JuzIndexPage'),
+        '/tentang': () => import(/* webpackChunkName: "content-pages" */ '../pages/AboutProjectPage'),
+        '/kontak': () => import(/* webpackChunkName: "content-pages" */ '../pages/ContactSupportPage'),
     };
     
     return routeModuleMap[route];

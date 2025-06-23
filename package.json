@@ -28,6 +28,7 @@
         "react-devtools": "^6.1.2",
         "react-dom": "^18.3.1",
         "tailwindcss": "^4.1.8",
+        "terser": "^5.43.1",
         "vite": "^6.2.4"
     },
     "dependencies": {

@@ -690,3 +690,33 @@
 .prose-sm li {
     display: list-item;
 }
+
+/* Scrollbar styling for breadcrumb */
+.scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari, Opera */
+}
+
+/* Breadcrumb specific styles */
+.breadcrumb-transparent .truncate {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+/* Enhanced hover effect for breadcrumb links */
+.breadcrumb-transparent a:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Better focus styles for accessibility */
+.breadcrumb-transparent a:focus,
+.breadcrumb-transparent span:focus {
+    outline: 2px solid #10b981;
+    outline-offset: 2px;
+}

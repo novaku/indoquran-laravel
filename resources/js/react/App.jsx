@@ -7,7 +7,7 @@ import { useIntelligentPreload } from './hooks/usePerformanceOptimization.js';
 import '../../css/app.css';
 
 // Import critical components (loaded immediately)
-import SimpleLayout from './components/SimpleLayout';
+import QuranLayout from './components/QuranLayout';
 import LoadingSpinner from './components/LoadingSpinner';
 import { OptimizedLoadingSpinner } from './components/OptimizedLoadingSpinner';
 import OptimizedErrorBoundary from './components/OptimizedErrorBoundary';
@@ -18,41 +18,41 @@ import { preloadCriticalResources } from './utils/seoUtils';
 
 // Enhanced lazy loading with component-level prefetching and optimized chunk names
 const HomePage = lazy(() => 
-  import(/* webpackChunkName: "home" */ './pages/SimpleHomePage')
+  import(/* webpackChunkName: "home" */ './pages/QuranHomePage')
     .then(module => ({ default: module.default }))
 );
 
 // Core pages (high priority)
 const AuthPage = lazy(() => 
-  import(/* webpackChunkName: "auth" */ './pages/SimpleAuthPage')
+  import(/* webpackChunkName: "auth" */ './pages/UserAuthPage')
 );
 const SurahListPage = lazy(() => 
   import(/* webpackChunkName: "surah-list" */ './pages/SurahListPage')
 );
 const SurahPage = lazy(() => 
-  import(/* webpackChunkName: "surah" */ './pages/SimpleSurahPage')
+  import(/* webpackChunkName: "surah" */ './pages/SurahDetailPage')
 );
 const SearchPage = lazy(() => 
-  import(/* webpackChunkName: "search" */ './pages/SimpleSearchPage')
+  import(/* webpackChunkName: "search" */ './pages/QuranSearchPage')
 );
 
 // User pages (medium priority)
 const BookmarksPage = lazy(() => 
-  import(/* webpackChunkName: "user-features" */ './pages/SimpleBookmarksPage')
+  import(/* webpackChunkName: "user-features" */ './pages/UserBookmarksPage')
 );
 const ProfilePage = lazy(() => 
-  import(/* webpackChunkName: "user-features" */ './pages/SimpleProfilePage')
+  import(/* webpackChunkName: "user-features" */ './pages/UserProfilePage')
 );
 
 // Content pages (lower priority, grouped together)
 const AboutPage = lazy(() => 
-  import(/* webpackChunkName: "content-pages" */ './pages/SimpleAboutPage')
+  import(/* webpackChunkName: "content-pages" */ './pages/AboutProjectPage')
 );
 const ContactPage = lazy(() => 
-  import(/* webpackChunkName: "content-pages" */ './pages/SimpleContactPage')
+  import(/* webpackChunkName: "content-pages" */ './pages/ContactSupportPage')
 );
 const DonationPage = lazy(() => 
-  import(/* webpackChunkName: "content-pages" */ './pages/SimpleDonationPage')
+  import(/* webpackChunkName: "content-pages" */ './pages/DonationSupportPage')
 );
 const PrivacyPage = lazy(() => 
   import(/* webpackChunkName: "content-pages" */ './pages/PrivacyPage')
@@ -60,7 +60,7 @@ const PrivacyPage = lazy(() =>
 
 // Juz and Page features (grouped for better caching)
 const JuzListPage = lazy(() => 
-  import(/* webpackChunkName: "juz-pages" */ './pages/SimpleJuzListPage')
+  import(/* webpackChunkName: "juz-pages" */ './pages/JuzIndexPage')
 );
 const JuzPage = lazy(() => 
   import(/* webpackChunkName: "juz-pages" */ './pages/JuzPage')
@@ -120,13 +120,13 @@ const usePrefetchOptimization = () => {
                 requestIdleCallback(() => {
                     // Prefetch high-probability pages
                     import(/* webpackChunkName: "surah-list" */ './pages/SurahListPage');
-                    import(/* webpackChunkName: "search" */ './pages/SimpleSearchPage');
+                    import(/* webpackChunkName: "search" */ './pages/QuranSearchPage');
                 });
             } else {
                 // Fallback for browsers without requestIdleCallback
                 setTimeout(() => {
                     import(/* webpackChunkName: "surah-list" */ './pages/SurahListPage');
-                    import(/* webpackChunkName: "search" */ './pages/SimpleSearchPage');
+                    import(/* webpackChunkName: "search" */ './pages/QuranSearchPage');
                 }, 2000);
             }
         };
@@ -216,7 +216,7 @@ const AppContent = memo(() => {
 
     return (
         <OptimizedErrorBoundary maxRetries={3}>
-            <SimpleLayout>
+            <QuranLayout>
                 <SEOHead />
                 
                 <Suspense fallback={SuspenseFallback}>
@@ -320,7 +320,7 @@ const AppContent = memo(() => {
                 
                 {/* Performance Debug Panel (Development Only) */}
                 <PerformanceDebugPanel />
-            </SimpleLayout>
+            </QuranLayout>
         </OptimizedErrorBoundary>
     );
 });
