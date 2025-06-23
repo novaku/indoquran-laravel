@@ -32,6 +32,7 @@ class ContactNotification extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+            to: 'kontak@indoquran.web.id',
             subject: 'Pesan Kontak Baru dari ' . $this->contact->name,
         );
     }

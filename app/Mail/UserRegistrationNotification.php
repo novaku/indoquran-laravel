@@ -30,6 +30,7 @@ class UserRegistrationNotification extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+            to: 'kontak@indoquran.web.id',
             subject: 'Pengguna Baru Terdaftar - ' . $this->user->name,
         );
     }
