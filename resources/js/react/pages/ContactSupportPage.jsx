@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { IoMailOutline, IoArrowBackOutline, IoSendOutline, IoPersonOutline, IoDocumentAttachOutline } from 'react-icons/io5';
+import { IoMailOutline, IoSendOutline, IoPersonOutline, IoDocumentAttachOutline } from 'react-icons/io5';
 import { postWithAuth, getAuthToken } from '../utils/apiUtils';
 import { isAuthenticated, authenticatedFetch } from '../utils/auth';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -175,16 +175,6 @@ function ContactSupportPage() {
                 {/* Header */}
                 <div className="bg-white shadow-sm border-b">
                     <div className="max-w-2xl mx-auto px-4 py-4">
-                        <div className="flex items-center gap-4 mb-4">
-                            <button
-                                onClick={() => navigate('/')}
-                                className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
-                            >
-                                <IoArrowBackOutline className="w-5 h-5" />
-                                <span>Kembali</span>
-                            </button>
-                        </div>
-                        
                         <div className="flex items-center gap-3">
                             <IoMailOutline className="w-6 h-6 text-green-600" />
                             <h1 className="text-2xl font-bold text-gray-900">Hubungi Kami</h1>

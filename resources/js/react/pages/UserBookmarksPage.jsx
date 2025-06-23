@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IoBookmark, IoArrowBackOutline, IoSearchOutline, IoTrashOutline, IoChevronDown, IoChevronUp } from 'react-icons/io5';
+import { IoBookmark, IoSearchOutline, IoTrashOutline, IoChevronDown, IoChevronUp } from 'react-icons/io5';
 import { getUserBookmarks } from '../services/BookmarkService';
 import { useAuth } from '../hooks/useAuth.jsx';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -102,16 +102,6 @@ function UserBookmarksPage() {
                 {/* Header */}
                 <div className="bg-white shadow-sm border-b">
                     <div className="max-w-4xl mx-auto px-4 py-4">
-                        <div className="flex items-center gap-4 mb-4">
-                            <button
-                                onClick={() => navigate('/')}
-                                className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
-                            >
-                                <IoArrowBackOutline className="w-5 h-5" />
-                                <span>Kembali</span>
-                            </button>
-                        </div>
-                        
                         <div className="flex items-center gap-3 mb-4">
                             <IoBookmark className="w-6 h-6 text-green-600" />
                             <h1 className="text-2xl font-bold text-gray-900">Penanda Saya</h1>

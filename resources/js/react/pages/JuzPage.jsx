@@ -4,7 +4,7 @@ import { fetchWithAuth } from '../utils/apiUtils';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PageTransition from '../components/PageTransition';
 import SEOHead from '../components/SEOHead';
-import { IoArrowBackOutline, IoBookOutline, IoAddOutline, IoRemoveOutline, IoReloadOutline, IoPlayCircleOutline, IoPauseCircleOutline } from 'react-icons/io5';
+import { IoBookOutline, IoAddOutline, IoRemoveOutline, IoReloadOutline, IoPlayCircleOutline, IoPauseCircleOutline } from 'react-icons/io5';
 
 function JuzPage() {
     const { number } = useParams();
@@ -175,12 +175,6 @@ function JuzPage() {
                                 <div className="text-red-500 text-6xl mb-4">⚠️</div>
                                 <h2 className="text-2xl font-bold text-red-800 mb-2">Error</h2>
                                 <p className="text-red-600 mb-4">{error}</p>
-                                <button
-                                    onClick={() => navigate(-1)}
-                                    className="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-colors"
-                                >
-                                    Kembali
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -207,12 +201,6 @@ function JuzPage() {
                     {/* Header */}
                     <div className="bg-white rounded-3xl shadow-xl p-8 mb-8 border border-green-100">
                         <div className="flex items-center gap-4 mb-4">
-                            <button
-                                onClick={() => navigate(-1)}
-                                className="p-2 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800 transition-all duration-200 border border-green-200"
-                            >
-                                <IoArrowBackOutline className="text-xl" />
-                            </button>
                             <div className="flex items-center gap-3">
                                 <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl">
                                     <IoBookOutline className="text-2xl" />

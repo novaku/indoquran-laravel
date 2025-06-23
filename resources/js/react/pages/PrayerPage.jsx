@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IoArrowBackOutline, IoHandRightOutline, IoAddOutline, IoHeartOutline } from 'react-icons/io5';
+import { IoHandRightOutline, IoAddOutline, IoHeartOutline } from 'react-icons/io5';
 import { useAuth } from '../hooks/useAuth';
 import { fetchWithAuth, postWithAuth } from '../utils/apiUtils';
 import { toast } from 'react-hot-toast';
@@ -194,16 +194,6 @@ const PrayerPage = () => {
                 {/* Header */}
                 <div className="bg-white shadow-sm border-b">
                     <div className="max-w-4xl mx-auto px-4 py-4">
-                        <div className="flex items-center gap-4 mb-4">
-                            <button
-                                onClick={() => navigate('/')}
-                                className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
-                            >
-                                <IoArrowBackOutline className="w-5 h-5" />
-                                <span>Kembali</span>
-                            </button>
-                        </div>
-                        
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <IoHandRightOutline className="w-6 h-6 text-green-600" />

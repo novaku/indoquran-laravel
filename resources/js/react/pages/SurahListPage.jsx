@@ -3,7 +3,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import { 
     BookOpenIcon,
     MagnifyingGlassIcon,
-    ArrowLeftIcon,
     MapPinIcon,
     PlayIcon,
     StarIcon
@@ -115,16 +114,6 @@ function SurahListPage() {
                 {/* Header */}
                 <div className="bg-white border-b border-gray-200 shadow-sm">
                     <div className="max-w-7xl mx-auto px-4 py-6">
-                        <div className="flex items-center space-x-4 mb-6">
-                            <Link
-                                to="/"
-                                className="flex items-center text-gray-600 hover:text-green-600 transition-colors"
-                            >
-                                <ArrowLeftIcon className="w-5 h-5" />
-                                <span className="ml-2 hidden sm:inline">Kembali ke Beranda</span>
-                            </Link>
-                        </div>
-                        
                         <div className="flex items-center space-x-3 mb-6">
                             <BookOpenIcon className="w-8 h-8 text-green-600" />
                             <div>

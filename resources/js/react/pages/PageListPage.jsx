@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
-    ArrowLeftIcon,
     BookOpenIcon,
     MagnifyingGlassIcon
 } from '@heroicons/react/24/outline';
@@ -105,16 +104,6 @@ function PageListPage() {
             {/* Header */}
             <div className="bg-white border-b border-gray-200">
                 <div className="max-w-4xl mx-auto px-4 py-6">
-                    <div className="flex items-center space-x-4 mb-4">
-                        <Link
-                            to="/"
-                            className="flex items-center text-gray-600 hover:text-green-600 transition-colors"
-                        >
-                            <ArrowLeftIcon className="w-5 h-5" />
-                            <span className="ml-2 hidden sm:inline">Kembali ke Beranda</span>
-                        </Link>
-                    </div>
-                    
                     <div className="text-center">
                         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                             Telusuri berdasarkan Halaman

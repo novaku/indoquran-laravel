@@ -1277,15 +1277,6 @@ function SurahDetailPage() {
             <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-40">
                 <div className="max-w-6xl mx-auto px-4 py-3">
                     <div className="flex items-center justify-between">
-                        <button
-                            onClick={() => navigate('/')}
-                            className="flex items-center space-x-2 text-gray-600 hover:text-green-600 p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                            title="Kembali ke beranda"
-                        >
-                            <ChevronLeftIcon className="w-5 h-5" />
-                            <span className="hidden sm:inline text-sm">Beranda</span>
-                        </button>
-                        
                         <div className="text-center flex-1 mx-4">
                             <h1 className="text-base sm:text-lg font-semibold text-gray-800 truncate">
                                 {surah.name_latin || surah.name_english}
