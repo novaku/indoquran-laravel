@@ -12,28 +12,25 @@ Your `.env` file has been updated with the Redis socket configuration:
 CACHE_STORE=redis
 CACHE_DRIVER=redis
 REDIS_CLIENT=predis
-REDIS_HOST=127.0.0.1
-REDIS_PASSWORD=null
-REDIS_PORT=6379
 REDIS_SOCKET=/home/indoqura/tmp/redis.sock
 ```
 
-**Important:** When `REDIS_SOCKET` is set, Laravel will use the Unix socket instead of the host/port combination.
+**Note:** This configuration uses only the Unix socket connection, which is more secure and often faster than TCP connections.
 
 ### 2. Laravel Configuration
 
-The Redis configuration in `config/database.php` already supports socket connections:
+The Redis configuration in `config/database.php` has been simplified to use only socket connections:
 
 ```php
 'redis' => [
     'client' => env('REDIS_CLIENT', 'predis'),
     'default' => [
-        'socket' => env('REDIS_SOCKET', null),
-        // ... other settings
+        'socket' => env('REDIS_SOCKET'),
+        'database' => env('REDIS_DB', '0'),
     ],
     'cache' => [
-        'socket' => env('REDIS_SOCKET', null),
-        // ... other settings
+        'socket' => env('REDIS_SOCKET'),
+        'database' => env('REDIS_CACHE_DB', '1'),
     ],
 ],
 ```
