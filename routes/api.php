@@ -54,6 +54,9 @@ Route::get('/user', function (Request $request) {
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
 
+// Contact route (public, no auth required)
+Route::post('/contact', [ContactController::class, 'store']);
+
 // Protected routes - using simple auth middleware
 Route::middleware(['simple.auth'])->group(function() {
     Route::post('/logout', [LoginController::class, 'logout']);

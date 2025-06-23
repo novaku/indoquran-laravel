@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
         // Run the Quran data seeder
         $this->call([
             QuranDataSeeder::class,
+            AdminUserSeeder::class,
         ]);
     }
 }

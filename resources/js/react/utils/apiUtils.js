@@ -57,18 +57,23 @@ export const getWithAuth = async (url, options = {}) => {
 /**
  * Make a POST request with authentication
  * @param {string} url - The URL to fetch
- * @param {Object} data - The data to send in the request body
+ * @param {Object|FormData} data - The data to send in the request body
  * @param {Object} options - Additional fetch options
  * @returns {Promise<Response>} The fetch response
  */
 export const postWithAuth = async (url, data = {}, options = {}) => {
+    const isFormData = data instanceof FormData;
+    const headers = { ...getAuthHeaders(), ...options.headers };
+    
+    // Remove Content-Type for FormData to let browser set it with boundary
+    if (isFormData) {
+        delete headers['Content-Type'];
+    }
+    
     return fetch(url, {
         method: 'POST',
-        headers: {
-            ...getAuthHeaders(),
-            ...options.headers
-        },
-        body: JSON.stringify(data),
+        headers,
+        body: isFormData ? data : JSON.stringify(data),
         ...options
     });
 };

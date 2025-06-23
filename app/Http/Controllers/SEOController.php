@@ -231,6 +231,16 @@ class SEOController extends Controller
                 'canonicalUrl' => url('/riwayat-versi')
             ]);
         }
+        elseif (isset($segments[0]) && $segments[0] === 'admin') {
+            // Admin panel SEO (minimal for security)
+            $seoData = array_merge($seoData, [
+                'metaTitle' => 'Admin Panel - IndoQuran',
+                'metaDescription' => 'Panel administrasi IndoQuran untuk pengelolaan sistem.',
+                'metaKeywords' => 'admin, panel administrasi, indoquran',
+                'canonicalUrl' => url('/admin'),
+                'ogType' => 'website'
+            ]);
+        }
 
         return view('react', $seoData);
     }

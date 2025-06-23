@@ -36,6 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'simple.auth' => \App\Http\Middleware\SimpleAuthMiddleware::class,
             'api.cache' => \App\Http\Middleware\ApiCacheMiddleware::class,
             'cors.proxy' => \App\Http\Middleware\CorsProxyMiddleware::class, // Add our CORS proxy middleware
+            'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
         
         // Configure authentication redirects

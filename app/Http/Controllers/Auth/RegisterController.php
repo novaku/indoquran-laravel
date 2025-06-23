@@ -46,6 +46,21 @@ class RegisterController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        // Send email verification notification
+        try {
+            $user->sendEmailVerificationNotification();
+            Log::info('Email verification notification sent', [
+                'user_id' => $user->id,
+                'user_email' => $user->email
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to send email verification notification', [
+                'user_id' => $user->id,
+                'user_email' => $user->email,
+                'error' => $e->getMessage()
+            ]);
+        }
+
         Auth::login($user);
 
         // Send email notification to admin about new user registration
@@ -68,7 +83,8 @@ class RegisterController extends Controller
 
         return response()->json([
             'user' => $user,
-            'message' => 'Registration successful'
+            'message' => 'Registration successful. Please check your email to verify your account.',
+            'email_verification_sent' => true
         ]);
     }
 }

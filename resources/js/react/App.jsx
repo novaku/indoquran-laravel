@@ -32,6 +32,8 @@ const PageDetailPage = lazy(() => import('./pages/PageDetailPage'));
 const PrayerPage = lazy(() => import('./pages/PrayerPage'));
 const RiwayatVersiPage = lazy(() => import('./pages/RiwayatVersiPage'));
 const TafsirMaudhuiPage = lazy(() => import('./pages/TafsirMaudhuiPage'));
+const AdminLoginPage = lazy(() => import('./pages/AdminLoginPage'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 
 // Redirect component for pages with parameters
 const PagesRedirect = () => {
@@ -136,6 +138,11 @@ function AppContent() {
                     <Route path="/donasi" element={<DonationPage />} />
                     <Route path="/kebijakan" element={<PrivacyPage />} />
                     <Route path="/riwayat-versi" element={<RiwayatVersiPage />} />
+                    
+                    {/* Admin Routes */}
+                    <Route path="/admin/login" element={<AdminLoginPage />} />
+                    <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                    <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
                     
                     {/* Backward compatibility redirects */}
                     <Route path="/version-history" element={<Navigate to="/riwayat-versi" replace />} />

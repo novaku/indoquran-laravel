@@ -26,6 +26,13 @@ class ContactController extends Controller
         // Check if this is a multipart form data request or JSON request
         $isMultipart = strpos($request->header('Content-Type'), 'multipart/form-data') !== false;
         
+        // Log ALL request parameters for debugging
+        Log::info('All request data: ', $request->all());
+        Log::info('Request input name: "' . $request->input('name') . '"');
+        Log::info('Request input email: "' . $request->input('email') . '"');
+        Log::info('Request input subject: "' . $request->input('subject') . '"');
+        Log::info('Request input message: "' . $request->input('message') . '"');
+        
         // Log request parameters (excluding file content for security)
         $logParams = $request->except(['attachment']);
         if ($request->hasFile('attachment')) {

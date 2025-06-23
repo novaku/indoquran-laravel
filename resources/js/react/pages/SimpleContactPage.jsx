@@ -94,15 +94,39 @@ function SimpleContactPage() {
         setErrors({});
         setSuccessMessage('');
 
+        // Frontend validation
+        const newErrors = {};
+        if (!formData.name?.trim()) newErrors.name = ['Nama tidak boleh kosong'];
+        if (!formData.email?.trim()) newErrors.email = ['Email tidak boleh kosong'];
+        if (!formData.subject?.trim()) newErrors.subject = ['Subjek tidak boleh kosong'];
+        if (!formData.message?.trim()) newErrors.message = ['Pesan tidak boleh kosong'];
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            setIsSubmitting(false);
+            return;
+        }
+
         try {
             const submitData = new FormData();
-            Object.keys(formData).forEach(key => {
-                submitData.append(key, formData[key]);
-            });
+            
+            // Add each field individually with trimmed values
+            submitData.append('name', formData.name.trim());
+            submitData.append('email', formData.email.trim());
+            submitData.append('subject', formData.subject.trim());
+            submitData.append('message', formData.message.trim());
             
             if (selectedFile) {
                 submitData.append('attachment', selectedFile);
             }
+
+            console.log('Submitting contact form with data:', {
+                name: formData.name.trim(),
+                email: formData.email.trim(),
+                subject: formData.subject.trim(),
+                message: formData.message.trim(),
+                hasFile: !!selectedFile
+            });
 
             const response = isAuthenticated() 
                 ? await postWithAuth('/api/contact', submitData)
@@ -110,8 +134,7 @@ function SimpleContactPage() {
                     method: 'POST',
                     body: submitData,
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
                 });
 
@@ -126,6 +149,7 @@ function SimpleContactPage() {
                 setSelectedFile(null);
             } else {
                 const errorData = await response.json();
+                console.error('Contact submission failed:', response.status, errorData);
                 if (errorData.errors) {
                     setErrors(errorData.errors);
                 } else {
