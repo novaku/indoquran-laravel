@@ -12,7 +12,8 @@ import {
     ArrowRightOnRectangleIcon,
     ChevronDownIcon,
     DocumentTextIcon,
-    SparklesIcon
+    SparklesIcon,
+    ClockIcon
 } from '@heroicons/react/24/outline';
 
 function SimpleHeader() {
@@ -23,17 +24,23 @@ function SimpleHeader() {
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [isQuranDropdownOpen, setIsQuranDropdownOpen] = useState(false);
     const [isCommunityDropdownOpen, setIsCommunityDropdownOpen] = useState(false);
+    const [isMainNavDropdownOpen, setIsMainNavDropdownOpen] = useState(false);
     const [isQuranMobileDropdownOpen, setIsQuranMobileDropdownOpen] = useState(false);
     const [isCommunityMobileDropdownOpen, setIsCommunityMobileDropdownOpen] = useState(false);
+    const [isUserMobileDropdownOpen, setIsUserMobileDropdownOpen] = useState(false);
+    const [isMainNavMobileDropdownOpen, setIsMainNavMobileDropdownOpen] = useState(false);
 
     // Close mobile menu when route changes
     useEffect(() => {
         setIsMobileMenuOpen(false);
         setIsUserMenuOpen(false);
+        setIsMainNavDropdownOpen(false);
         setIsQuranDropdownOpen(false);
         setIsCommunityDropdownOpen(false);
         setIsQuranMobileDropdownOpen(false);
         setIsCommunityMobileDropdownOpen(false);
+        setIsUserMobileDropdownOpen(false);
+        setIsMainNavMobileDropdownOpen(false);
     }, [location]);
 
     // Close menus when clicking outside
@@ -44,6 +51,9 @@ function SimpleHeader() {
             }
             if (!event.target.closest('.user-menu') && !event.target.closest('.user-menu-button')) {
                 setIsUserMenuOpen(false);
+            }
+            if (!event.target.closest('.main-nav-dropdown') && !event.target.closest('.main-nav-dropdown-button')) {
+                setIsMainNavDropdownOpen(false);
             }
             if (!event.target.closest('.quran-dropdown') && !event.target.closest('.quran-dropdown-button')) {
                 setIsQuranDropdownOpen(false);
@@ -87,8 +97,9 @@ function SimpleHeader() {
     };
 
     const mainNavItems = [
-        { name: 'Beranda', path: '/', icon: BookOpenIcon },
-        { name: 'Pencarian', path: '/cari', icon: MagnifyingGlassIcon },
+        { name: 'Beranda', path: '/', icon: BookOpenIcon, description: 'Halaman utama IndoQuran' },
+        { name: 'Pencarian', path: '/cari', icon: MagnifyingGlassIcon, description: 'Cari ayat dan surah' },
+        { name: 'Riwayat Versi', path: '/riwayat-versi', icon: ClockIcon, description: 'Catatan perubahan aplikasi' },
     ];
 
     const quranDropdownItems = [
@@ -116,6 +127,7 @@ function SimpleHeader() {
     };
 
     // Check if any dropdown items are active
+    const isMainNavDropdownActive = mainNavItems.some(item => isActivePath(item.path));
     const isQuranDropdownActive = quranDropdownItems.some(item => isActivePath(item.path));
     const isCommunityDropdownActive = communityDropdownItems.some(item => isActivePath(item.path));
 
@@ -140,38 +152,64 @@ function SimpleHeader() {
 
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex items-center space-x-8">
-                        {/* Regular menu items */}
-                        {mainNavItems.map((item) => (
-                            item.name === 'Pencarian' ? (
-                                <button
-                                    key={item.path}
-                                    onClick={handleSearchClick}
-                                    className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors touch-manipulation ${
-                                        isActivePath(item.path)
-                                            ? 'text-green-600 bg-green-50'
-                                            : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 active:bg-gray-100'
-                                    }`}
-                                    style={{ minHeight: '44px', minWidth: '100px' }}
-                                >
-                                    <item.icon className="w-4 h-4" />
-                                    <span>{item.name}</span>
-                                </button>
-                            ) : (
-                                <Link
-                                    key={item.path}
-                                    to={item.path}
-                                    className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors touch-manipulation ${
-                                        isActivePath(item.path)
-                                            ? 'text-green-600 bg-green-50'
-                                            : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 active:bg-gray-100'
-                                    }`}
-                                    style={{ minHeight: '44px', minWidth: '100px' }}
-                                >
-                                    <item.icon className="w-4 h-4" />
-                                    <span>{item.name}</span>
-                                </Link>
-                            )
-                        ))}
+                        {/* Main Navigation Dropdown */}
+                        <div className="relative main-nav-dropdown">
+                            <button
+                                className={`main-nav-dropdown-button flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors touch-manipulation ${
+                                    isMainNavDropdownActive 
+                                        ? 'text-green-600 bg-green-50' 
+                                        : 'text-gray-700 hover:text-green-600 hover:bg-gray-50'
+                                }`}
+                                onClick={() => setIsMainNavDropdownOpen(!isMainNavDropdownOpen)}
+                                style={{ minHeight: '44px', minWidth: '120px' }}
+                            >
+                                <BookOpenIcon className="w-4 h-4" />
+                                <span>Navigasi</span>
+                                <ChevronDownIcon className={`w-4 h-4 transition-transform ${isMainNavDropdownOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {isMainNavDropdownOpen && (
+                                <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                                    {mainNavItems.map((item) => (
+                                        item.name === 'Pencarian' ? (
+                                            <button
+                                                key={item.path}
+                                                onClick={handleSearchClick}
+                                                className={`flex items-start space-x-3 px-4 py-4 text-sm transition-colors touch-manipulation w-full ${
+                                                    isActivePath(item.path)
+                                                        ? 'bg-green-50 text-green-600'
+                                                        : 'text-gray-700 hover:bg-gray-50 hover:text-green-600 active:bg-gray-100'
+                                                }`}
+                                                style={{ minHeight: '56px' }}
+                                            >
+                                                <item.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                                                <div>
+                                                    <div className="font-medium">{item.name}</div>
+                                                    <div className="text-xs text-gray-500 mt-1">{item.description}</div>
+                                                </div>
+                                            </button>
+                                        ) : (
+                                            <Link
+                                                key={item.path}
+                                                to={item.path}
+                                                className={`flex items-start space-x-3 px-4 py-4 text-sm transition-colors touch-manipulation ${
+                                                    isActivePath(item.path)
+                                                        ? 'bg-green-50 text-green-600'
+                                                        : 'text-gray-700 hover:bg-gray-50 hover:text-green-600 active:bg-gray-100'
+                                                }`}
+                                                style={{ minHeight: '56px' }}
+                                            >
+                                                <item.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                                                <div>
+                                                    <div className="font-medium">{item.name}</div>
+                                                    <div className="text-xs text-gray-500 mt-1">{item.description}</div>
+                                                </div>
+                                            </Link>
+                                        )
+                                    ))}
+                                </div>
+                            )}
+                        </div>
 
                         {/* Al-Quran Dropdown */}
                         <div className="relative quran-dropdown">
@@ -260,36 +298,56 @@ function SimpleHeader() {
                         {user ? (
                             <div className="hidden md:block relative user-menu">
                                 <button
-                                    className="user-menu-button flex items-center space-x-2 p-2 rounded-md text-gray-700 hover:text-green-600 hover:bg-gray-50 transition-colors"
+                                    className={`user-menu-button flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors touch-manipulation ${
+                                        userNavItems.some(item => isActivePath(item.path))
+                                            ? 'text-green-600 bg-green-50' 
+                                            : 'text-gray-700 hover:text-green-600 hover:bg-gray-50'
+                                    }`}
                                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                                    style={{ minHeight: '44px', minWidth: '120px' }}
                                 >
-                                    <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
+                                    <div className="w-4 h-4 bg-green-600 rounded-full flex items-center justify-center">
                                         <span className="text-xs font-medium text-white">
                                             {user.name?.charAt(0).toUpperCase() || 'U'}
                                         </span>
                                     </div>
-                                    <span className="text-sm font-medium">{user.name}</span>
+                                    <span>{user.name}</span>
+                                    <ChevronDownIcon className={`w-4 h-4 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
                                 </button>
 
                                 {isUserMenuOpen && (
-                                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 py-1">
+                                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                                         {userNavItems.map((item) => (
                                             <Link
                                                 key={item.path}
                                                 to={item.path}
-                                                className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-green-600"
+                                                className={`flex items-start space-x-3 px-4 py-4 text-sm transition-colors touch-manipulation ${
+                                                    isActivePath(item.path)
+                                                        ? 'bg-green-50 text-green-600'
+                                                        : 'text-gray-700 hover:bg-gray-50 hover:text-green-600 active:bg-gray-100'
+                                                }`}
+                                                style={{ minHeight: '56px' }}
                                             >
-                                                <item.icon className="w-4 h-4" />
-                                                <span>{item.name}</span>
+                                                <item.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                                                <div>
+                                                    <div className="font-medium">{item.name}</div>
+                                                    <div className="text-xs text-gray-500 mt-1">
+                                                        {item.name === 'Penanda' ? 'Ayat yang telah ditandai' : 'Pengaturan akun'}
+                                                    </div>
+                                                </div>
                                             </Link>
                                         ))}
-                                        <hr className="my-1" />
+                                        <hr className="my-2 border-gray-200" />
                                         <button
                                             onClick={handleLogout}
-                                            className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-red-600"
+                                            className="flex items-start space-x-3 px-4 py-4 text-sm text-gray-700 hover:bg-gray-50 hover:text-red-600 active:bg-gray-100 transition-colors touch-manipulation w-full"
+                                            style={{ minHeight: '56px' }}
                                         >
-                                            <ArrowRightOnRectangleIcon className="w-4 h-4" />
-                                            <span>Keluar</span>
+                                            <ArrowRightOnRectangleIcon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                                            <div>
+                                                <div className="font-medium">Keluar</div>
+                                                <div className="text-xs text-gray-500 mt-1">Logout dari akun</div>
+                                            </div>
                                         </button>
                                     </div>
                                 )}
@@ -322,38 +380,59 @@ function SimpleHeader() {
                 {isMobileMenuOpen && (
                     <div className="mobile-menu md:hidden border-t border-gray-200 py-4">
                         <div className="space-y-1">
-                            {/* Regular menu items */}
-                            {mainNavItems.map((item) => (
-                                item.name === 'Pencarian' ? (
-                                    <button
-                                        key={item.path}
-                                        onClick={handleSearchClick}
-                                        className={`w-full text-left flex items-center space-x-3 px-4 py-4 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                                            isActivePath(item.path)
-                                                ? 'text-green-600 bg-green-50'
-                                                : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 active:bg-gray-100'
-                                        }`}
-                                        style={{ minHeight: '48px' }}
-                                    >
-                                        <item.icon className="w-5 h-5" />
-                                        <span>{item.name}</span>
-                                    </button>
-                                ) : (
-                                    <Link
-                                        key={item.path}
-                                        to={item.path}
-                                        className={`flex items-center space-x-3 px-4 py-4 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                                            isActivePath(item.path)
-                                                ? 'text-green-600 bg-green-50'
-                                                : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 active:bg-gray-100'
-                                        }`}
-                                        style={{ minHeight: '48px' }}
-                                    >
-                                        <item.icon className="w-5 h-5" />
-                                        <span>{item.name}</span>
-                                    </Link>
-                                )
-                            ))}
+                            {/* Main Navigation Section */}
+                            <div className="pt-4">
+                                <button
+                                    onClick={() => setIsMainNavMobileDropdownOpen(!isMainNavMobileDropdownOpen)}
+                                    className="w-full flex items-center justify-between px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-green-600 transition-colors touch-manipulation"
+                                    style={{ minHeight: '44px' }}
+                                >
+                                    <span>Navigasi</span>
+                                    <ChevronDownIcon className={`w-4 h-4 transition-transform ${isMainNavMobileDropdownOpen ? 'rotate-180' : ''}`} />
+                                </button>
+                                
+                                {isMainNavMobileDropdownOpen && (
+                                    <div className="space-y-1">
+                                        {mainNavItems.map((item) => (
+                                            item.name === 'Pencarian' ? (
+                                                <button
+                                                    key={item.path}
+                                                    onClick={handleSearchClick}
+                                                    className={`w-full text-left flex items-start space-x-3 px-6 py-4 ml-4 rounded-md text-base font-medium transition-colors touch-manipulation ${
+                                                        isActivePath(item.path)
+                                                            ? 'text-green-600 bg-green-50'
+                                                            : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 active:bg-gray-100'
+                                                    }`}
+                                                    style={{ minHeight: '56px' }}
+                                                >
+                                                    <item.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                                                    <div>
+                                                        <div className="font-medium">{item.name}</div>
+                                                        <div className="text-xs text-gray-500 mt-1">{item.description}</div>
+                                                    </div>
+                                                </button>
+                                            ) : (
+                                                <Link
+                                                    key={item.path}
+                                                    to={item.path}
+                                                    className={`flex items-start space-x-3 px-6 py-4 ml-4 rounded-md text-base font-medium transition-colors touch-manipulation ${
+                                                        isActivePath(item.path)
+                                                            ? 'text-green-600 bg-green-50'
+                                                            : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 active:bg-gray-100'
+                                                    }`}
+                                                    style={{ minHeight: '56px' }}
+                                                >
+                                                    <item.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                                                    <div>
+                                                        <div className="font-medium">{item.name}</div>
+                                                        <div className="text-xs text-gray-500 mt-1">{item.description}</div>
+                                                    </div>
+                                                </Link>
+                                            )
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
 
                             {/* Al-Quran Section */}
                             <div className="pt-4">
@@ -428,40 +507,62 @@ function SimpleHeader() {
                             {user ? (
                                 <>
                                     <hr className="my-4 border-gray-200" />
-                                    <div className="px-4 py-3">
-                                        <div className="flex items-center space-x-3 mb-3">
-                                            <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
-                                                <span className="text-sm font-medium text-white">
-                                                    {user.name?.charAt(0).toUpperCase() || 'U'}
-                                                </span>
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                                                <p className="text-sm text-gray-500">{user.email}</p>
-                                            </div>
-                                        </div>
-                                    </div>
                                     
-                                    {userNavItems.map((item) => (
-                                        <Link
-                                            key={item.path}
-                                            to={item.path}
-                                            className="flex items-center space-x-3 px-4 py-4 rounded-md text-base font-medium text-gray-700 hover:text-green-600 hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation"
-                                            style={{ minHeight: '48px' }}
+                                    {/* User Section */}
+                                    <div className="pt-4">
+                                        <button
+                                            onClick={() => setIsUserMobileDropdownOpen(!isUserMobileDropdownOpen)}
+                                            className="w-full flex items-center justify-between px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-green-600 transition-colors touch-manipulation"
+                                            style={{ minHeight: '44px' }}
                                         >
-                                            <item.icon className="w-5 h-5" />
-                                            <span>{item.name}</span>
-                                        </Link>
-                                    ))}
-                                    
-                                    <button
-                                        onClick={handleLogout}
-                                        className="flex items-center space-x-3 w-full px-4 py-4 rounded-md text-base font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation"
-                                        style={{ minHeight: '48px' }}
-                                    >
-                                        <ArrowRightOnRectangleIcon className="w-5 h-5" />
-                                        <span>Keluar</span>
-                                    </button>
+                                            <div className="flex items-center space-x-3">
+                                                <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
+                                                    <span className="text-xs font-medium text-white">
+                                                        {user.name?.charAt(0).toUpperCase() || 'U'}
+                                                    </span>
+                                                </div>
+                                                <span>{user.name}</span>
+                                            </div>
+                                            <ChevronDownIcon className={`w-4 h-4 transition-transform ${isUserMobileDropdownOpen ? 'rotate-180' : ''}`} />
+                                        </button>
+                                        
+                                        {isUserMobileDropdownOpen && (
+                                            <div className="space-y-1">
+                                                {userNavItems.map((item) => (
+                                                    <Link
+                                                        key={item.path}
+                                                        to={item.path}
+                                                        className={`flex items-start space-x-3 px-6 py-4 ml-4 rounded-md text-base font-medium transition-colors touch-manipulation ${
+                                                            isActivePath(item.path)
+                                                                ? 'text-green-600 bg-green-50'
+                                                                : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 active:bg-gray-100'
+                                                        }`}
+                                                        style={{ minHeight: '56px' }}
+                                                    >
+                                                        <item.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                                                        <div>
+                                                            <div className="font-medium">{item.name}</div>
+                                                            <div className="text-xs text-gray-500 mt-1">
+                                                                {item.name === 'Penanda' ? 'Ayat yang telah ditandai' : 'Pengaturan akun'}
+                                                            </div>
+                                                        </div>
+                                                    </Link>
+                                                ))}
+                                                
+                                                <button
+                                                    onClick={handleLogout}
+                                                    className="flex items-start space-x-3 px-6 py-4 ml-4 rounded-md text-base font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation w-full"
+                                                    style={{ minHeight: '56px' }}
+                                                >
+                                                    <ArrowRightOnRectangleIcon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                                                    <div>
+                                                        <div className="font-medium">Keluar</div>
+                                                        <div className="text-xs text-gray-500 mt-1">Logout dari akun</div>
+                                                    </div>
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                 </>
                             ) : (
                                 <>

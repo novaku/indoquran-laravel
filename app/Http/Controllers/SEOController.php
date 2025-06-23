@@ -68,7 +68,7 @@ class SEOController extends Controller
                 }
             }
         }
-        elseif (isset($segments[0]) && $segments[0] === 'search') {
+        elseif (isset($segments[0]) && $segments[0] === 'cari') {
             // Search page SEO
             $query = $request->get('q', '');
             if ($query) {
@@ -76,14 +76,14 @@ class SEOController extends Controller
                     'metaTitle' => "Hasil Pencarian \"{$query}\" - Al-Quran Digital - IndoQuran",
                     'metaDescription' => "Hasil pencarian Al-Quran untuk \"{$query}\". Temukan ayat dan surah yang sesuai dengan pencarian Anda dalam Al-Quran dengan terjemahan bahasa Indonesia.",
                     'metaKeywords' => "pencarian quran, cari ayat, {$query}, al quran indonesia, pencarian al quran, search al quran",
-                    'canonicalUrl' => url("/search?q=" . urlencode($query))
+                    'canonicalUrl' => url("/cari?q=" . urlencode($query))
                 ]);
             } else {
                 $seoData = array_merge($seoData, [
                     'metaTitle' => 'Pencarian Al-Quran - Cari Ayat dalam Al-Quran - IndoQuran',
                     'metaDescription' => 'Cari ayat dalam Al-Quran berdasarkan terjemahan Bahasa Indonesia dengan mudah dan cepat. Fitur pencarian canggih untuk menemukan ayat yang Anda butuhkan.',
                     'metaKeywords' => 'cari ayat quran, pencarian al quran, search al quran, al quran digital, cari terjemahan quran',
-                    'canonicalUrl' => url('/search')
+                    'canonicalUrl' => url('/cari')
                 ]);
             }
         }
@@ -105,26 +105,35 @@ class SEOController extends Controller
                     'metaTitle' => 'Daftar Juz Al-Quran - Teks Arab - IndoQuran',
                     'metaDescription' => 'Akses semua Juz (Para) Al-Quran dengan teks Arab lengkap. 30 Juz Al-Quran tersedia untuk dibaca dan dipelajari. Platform Al-Quran digital terlengkap di Indonesia.',
                     'metaKeywords' => 'juz al quran, para al quran, daftar juz, teks arab al quran, al quran digital, quran indonesia, juz lengkap',
-                    'canonicalUrl' => 'https://my.indoquran.web.id/juz'
+                    'canonicalUrl' => url('/juz')
                 ]);
             }
         }
-        elseif (isset($segments[0]) && $segments[0] === 'about') {
+        elseif (isset($segments[0]) && $segments[0] === 'tentang') {
             // About page SEO
             $seoData = array_merge($seoData, [
                 'metaTitle' => 'Tentang IndoQuran - Platform Al-Quran Digital Indonesia',
                 'metaDescription' => 'Pelajari lebih lanjut tentang IndoQuran, platform Al-Quran digital terdepan di Indonesia. Misi kami adalah memudahkan umat Islam dalam membaca dan mempelajari Al-Quran secara online.',
                 'metaKeywords' => 'tentang indoquran, al quran digital indonesia, platform quran, teknologi islam, aplikasi quran',
-                'canonicalUrl' => 'https://my.indoquran.web.id/about'
+                'canonicalUrl' => url('/tentang')
             ]);
         }
-        elseif (isset($segments[0]) && $segments[0] === 'contact') {
+        elseif (isset($segments[0]) && $segments[0] === 'kontak') {
             // Contact page SEO
             $seoData = array_merge($seoData, [
                 'metaTitle' => 'Kontak Kami - IndoQuran',
                 'metaDescription' => 'Hubungi tim IndoQuran untuk pertanyaan, saran, atau masukan mengenai platform Al-Quran digital kami. Kami siap membantu Anda.',
                 'metaKeywords' => 'kontak indoquran, hubungi kami, customer service, dukungan teknis',
-                'canonicalUrl' => 'https://my.indoquran.web.id/contact'
+                'canonicalUrl' => url('/kontak')
+            ]);
+        }
+        elseif (isset($segments[0]) && $segments[0] === 'donasi') {
+            // Donation page SEO
+            $seoData = array_merge($seoData, [
+                'metaTitle' => 'Donasi - Dukung IndoQuran',
+                'metaDescription' => 'Dukung pengembangan IndoQuran dengan berdonasi. Kontribusi Anda membantu kami menyediakan platform Al-Quran digital yang lebih baik untuk umat Islam Indonesia.',
+                'metaKeywords' => 'donasi indoquran, donasi platform islam, dukung pengembangan, kontribusi, sedekah jariyah',
+                'canonicalUrl' => url('/donasi')
             ]);
         }
         elseif (isset($segments[0]) && $segments[0] === 'penanda') {
@@ -133,7 +142,7 @@ class SEOController extends Controller
                 'metaTitle' => 'Penanda Ayat Favorit - IndoQuran',
                 'metaDescription' => 'Kelola dan akses penanda ayat Al-Quran favorit Anda. Simpan ayat-ayat penting untuk dibaca kembali dengan mudah di IndoQuran.',
                 'metaKeywords' => 'penanda quran, ayat favorit, simpan ayat, al quran penanda, indoquran penanda',
-                'canonicalUrl' => 'https://my.indoquran.web.id/penanda'
+                'canonicalUrl' => url('/penanda')
             ]);
         }
         elseif (isset($segments[0]) && $segments[0] === 'profil') {
@@ -142,7 +151,7 @@ class SEOController extends Controller
                 'metaTitle' => 'Profil Pengguna - IndoQuran',
                 'metaDescription' => 'Kelola profil dan pengaturan akun IndoQuran Anda.',
                 'metaKeywords' => 'profil indoquran, pengaturan akun, pengguna',
-                'canonicalUrl' => 'https://my.indoquran.web.id/profil'
+                'canonicalUrl' => url('/profil')
             ]);
         }
         elseif (isset($segments[0]) && $segments[0] === 'masuk') {
@@ -151,7 +160,7 @@ class SEOController extends Controller
                 'metaTitle' => 'Masuk - IndoQuran',
                 'metaDescription' => 'Masuk ke akun IndoQuran Anda untuk mengakses fitur penanda dan sinkronisasi bacaan.',
                 'metaKeywords' => 'masuk indoquran, login, akun pengguna',
-                'canonicalUrl' => 'https://my.indoquran.web.id/masuk'
+                'canonicalUrl' => url('/masuk')
             ]);
         }
         elseif (isset($segments[0]) && $segments[0] === 'daftar') {
@@ -160,7 +169,7 @@ class SEOController extends Controller
                 'metaTitle' => 'Daftar Akun - IndoQuran',
                 'metaDescription' => 'Buat akun IndoQuran untuk menyimpan penanda ayat dan sinkronisasi progres bacaan Anda.',
                 'metaKeywords' => 'daftar indoquran, buat akun, registrasi pengguna',
-                'canonicalUrl' => 'https://my.indoquran.web.id/daftar'
+                'canonicalUrl' => url('/daftar')
             ]);
         }
         elseif (isset($segments[0]) && $segments[0] === 'tafsir-maudhui') {
@@ -179,7 +188,7 @@ class SEOController extends Controller
                 'metaTitle' => 'Doa Bersama - Komunitas Doa Muslim - IndoQuran',
                 'metaDescription' => 'Bergabunglah dengan komunitas doa Muslim di IndoQuran. Buat dan bagikan doa, beri dukungan kepada sesama Muslim, serta temukan kekuatan dalam doa bersama.',
                 'metaKeywords' => 'doa bersama, komunitas doa, doa muslim, doa islam, permintaan doa, dukungan doa, indoquran doa',
-                'canonicalUrl' => 'https://my.indoquran.web.id/doa-bersama'
+                'canonicalUrl' => url('/doa-bersama')
             ]);
         }
         elseif (isset($segments[0]) && $segments[0] === 'kebijakan') {
@@ -188,7 +197,38 @@ class SEOController extends Controller
                 'metaTitle' => 'Kebijakan Privasi - IndoQuran',
                 'metaDescription' => 'Baca kebijakan privasi IndoQuran. Kami berkomitmen melindungi data pribadi dan privasi pengguna platform Al-Quran digital kami.',
                 'metaKeywords' => 'kebijakan privasi, privacy policy, perlindungan data, keamanan data',
-                'canonicalUrl' => 'https://my.indoquran.web.id/kebijakan'
+                'canonicalUrl' => url('/kebijakan')
+            ]);
+        }
+        elseif (isset($segments[0]) && $segments[0] === 'halaman') {
+            // Page detail SEO
+            if (isset($segments[1]) && is_numeric($segments[1])) {
+                $pageNumber = (int) $segments[1];
+                // Specific page SEO
+                $seoData = array_merge($seoData, [
+                    'metaTitle' => "Halaman {$pageNumber} - Al-Quran Digital - IndoQuran",
+                    'metaDescription' => "Baca Halaman {$pageNumber} Al-Quran dengan teks Arab lengkap. Navigasi mudah antar halaman Al-Quran di platform digital terlengkap Indonesia.",
+                    'metaKeywords' => "halaman {$pageNumber}, al quran halaman {$pageNumber}, teks arab halaman {$pageNumber}, quran digital, al quran indonesia",
+                    'canonicalUrl' => url("/halaman/{$pageNumber}"),
+                    'ogType' => 'article'
+                ]);
+            } else {
+                // Page list SEO
+                $seoData = array_merge($seoData, [
+                    'metaTitle' => 'Daftar Halaman Al-Quran - Teks Arab - IndoQuran',
+                    'metaDescription' => 'Akses semua halaman Al-Quran dengan teks Arab lengkap. 604 halaman Al-Quran tersedia untuk dibaca dan dipelajari. Platform Al-Quran digital terlengkap di Indonesia.',
+                    'metaKeywords' => 'halaman al quran, daftar halaman, teks arab al quran, al quran digital, quran indonesia, halaman lengkap',
+                    'canonicalUrl' => url('/halaman')
+                ]);
+            }
+        }
+        elseif (isset($segments[0]) && $segments[0] === 'riwayat-versi') {
+            // Riwayat Versi page SEO
+            $seoData = array_merge($seoData, [
+                'metaTitle' => 'Riwayat Versi - IndoQuran',
+                'metaDescription' => 'Catatan lengkap perubahan dan pembaruan versi platform Al-Quran digital IndoQuran. Lihat perkembangan fitur, perbaikan, dan peningkatan dari waktu ke waktu.',
+                'metaKeywords' => 'indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi, fitur baru',
+                'canonicalUrl' => url('/riwayat-versi')
             ]);
         }
 

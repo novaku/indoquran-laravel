@@ -157,66 +157,147 @@ export const getProfileSEO = () => ({
   title: 'Profil Pengguna - IndoQuran',
   description: 'Kelola profil dan pengaturan akun IndoQuran Anda. Atur preferensi bacaan, audio, dan personalisasi pengalaman Al-Quran digital Anda.',
   keywords: 'profil indoquran, pengaturan akun, preferensi quran, akun pengguna',
-  canonicalUrl: 'https://my.indoquran.web.id/profile',
+  canonicalUrl: 'https://my.indoquran.web.id/profil',
   noindex: true, // Private page
   pageType: 'profile'
 });
 
-// Helper for Prayer Times page SEO
-export const getPrayerTimesSEO = (location = 'Indonesia') => ({
-  title: `Jadwal Sholat ${location} - Waktu Sholat Akurat | IndoQuran`,
-  description: `Jadwal waktu sholat akurat untuk ${location}. Dapatkan waktu Subuh, Dzuhur, Ashar, Maghrib dan Isya yang tepat. Dilengkapi dengan arah kiblat dan notifikasi adzan.`,
-  keywords: `jadwal sholat ${location}, waktu sholat, jadwal sholat digital, adzan, kiblat, waktu subuh, waktu dzuhur, waktu ashar, waktu maghrib, waktu isya`,
-  canonicalUrl: `https://my.indoquran.web.id/prayer-times/${encodeURIComponent(location.toLowerCase())}`,
+// Helper for About page SEO
+export const getAboutSEO = () => ({
+  title: 'Tentang IndoQuran - Platform Al-Quran Digital Indonesia',
+  description: 'Pelajari lebih lanjut tentang IndoQuran, platform Al-Quran digital terdepan di Indonesia. Misi kami adalah memudahkan umat Islam dalam membaca dan mempelajari Al-Quran secara online.',
+  keywords: 'tentang indoquran, al quran digital indonesia, platform quran, teknologi islam, aplikasi quran',
+  canonicalUrl: 'https://my.indoquran.web.id/tentang',
   ogType: 'website',
-  structuredDataType: 'PrayerTime',
-  structuredData: {
-    title: `Jadwal Sholat ${location}`,
-    description: `Jadwal waktu sholat akurat untuk ${location}`,
-    date: new Date().toISOString().split('T')[0],
-    location: location,
-    region: location
-  },
-  pageType: 'prayer-times',
-  additionalMeta: {
-    'application-name': 'IndoQuran Prayer Times',
-    'revisit-after': '1 day'
-  }
+  pageType: 'about'
 });
 
-// Helper for FAQ page SEO
-export const getFAQSEO = () => ({
-  title: 'Pertanyaan Umum (FAQ) - IndoQuran | Al-Quran Digital Indonesia',
-  description: 'Temukan jawaban dari pertanyaan umum tentang IndoQuran, cara menggunakan fitur-fitur Al-Quran Digital, dan informasi lainnya.',
-  keywords: 'faq indoquran, pertanyaan umum al quran digital, bantuan indoquran, indoquran help, cara menggunakan indoquran',
-  canonicalUrl: 'https://my.indoquran.web.id/faq',
+// Helper for Contact page SEO
+export const getContactSEO = () => ({
+  title: 'Kontak Kami - IndoQuran',
+  description: 'Hubungi tim IndoQuran untuk pertanyaan, saran, atau masukan mengenai platform Al-Quran digital kami. Kami siap membantu Anda.',
+  keywords: 'kontak indoquran, hubungi kami, customer service, dukungan teknis',
+  canonicalUrl: 'https://my.indoquran.web.id/kontak',
   ogType: 'website',
-  structuredDataType: 'FAQ',
+  pageType: 'contact'
+});
+
+// Helper for Donation page SEO
+export const getDonationSEO = () => ({
+  title: 'Donasi - Dukung IndoQuran',
+  description: 'Dukung pengembangan IndoQuran dengan berdonasi. Kontribusi Anda membantu kami menyediakan platform Al-Quran digital yang lebih baik untuk umat Islam Indonesia.',
+  keywords: 'donasi indoquran, donasi platform islam, dukung pengembangan, kontribusi, sedekah jariyah',
+  canonicalUrl: 'https://my.indoquran.web.id/donasi',
+  ogType: 'website',
+  pageType: 'donation'
+});
+
+// Helper for Privacy page SEO
+export const getPrivacySEO = () => ({
+  title: 'Kebijakan Privasi - IndoQuran',
+  description: 'Baca kebijakan privasi IndoQuran. Kami berkomitmen melindungi data pribadi dan privasi pengguna platform Al-Quran digital kami.',
+  keywords: 'kebijakan privasi, privacy policy, perlindungan data, keamanan data',
+  canonicalUrl: 'https://my.indoquran.web.id/kebijakan',
+  ogType: 'website',
+  pageType: 'privacy'
+});
+
+// Helper for Juz page SEO
+export const getJuzSEO = (juzNumber) => ({
+  title: `Juz ${juzNumber} - Teks Arab Al-Quran - IndoQuran`,
+  description: `Baca Juz ${juzNumber} Al-Quran dengan teks Arab lengkap. Para ${juzNumber} Al-Quran tersedia untuk dibaca dan dipelajari. Platform Al-Quran digital terlengkap di Indonesia.`,
+  keywords: `juz ${juzNumber}, para ${juzNumber}, al quran juz ${juzNumber}, teks arab juz ${juzNumber}, quran digital, al quran indonesia`,
+  canonicalUrl: `https://my.indoquran.web.id/juz/${juzNumber}`,
+  ogType: 'article',
+  structuredDataType: 'juz',
   structuredData: {
-    questions: [
-      {
-        question: 'Apa itu IndoQuran?',
-        answer: 'IndoQuran adalah platform Al-Quran Digital terlengkap di Indonesia. Menyediakan Al-Quran dengan terjemahan bahasa Indonesia, fitur bookmark, pencarian ayat, dan audio murottal berkualitas tinggi.'
-      },
-      {
-        question: 'Apakah IndoQuran gratis?',
-        answer: 'Ya, IndoQuran dapat diakses secara gratis tanpa biaya. Kami berkomitmen untuk menyediakan akses Al-Quran untuk semua umat Muslim di Indonesia.'
-      },
-      {
-        question: 'Apakah saya bisa menggunakan IndoQuran secara offline?',
-        answer: 'Ya, IndoQuran memiliki fitur Progressive Web App (PWA) yang memungkinkan Anda mengakses platform secara offline setelah Anda membukanya untuk pertama kali.'
-      },
-      {
-        question: 'Bagaimana cara mendengarkan murottal di IndoQuran?',
-        answer: 'Pada halaman surah, Anda dapat menekan tombol play pada ayat yang ingin didengarkan, atau menggunakan fitur play all untuk mendengarkan seluruh surah.'
-      },
-      {
-        question: 'Bagaimana cara menggunakan fitur bookmark?',
-        answer: 'Anda dapat menyimpan ayat favorit dengan menekan ikon bookmark di samping ayat. Bookmarks dapat diakses melalui menu profil Anda.'
-      }
-    ]
+    juzNumber: juzNumber,
+    title: `Juz ${juzNumber}`,
+    description: `Juz ${juzNumber} Al-Quran dengan teks Arab lengkap`
   },
-  pageType: 'faq'
+  pageType: 'juz'
+});
+
+// Helper for Juz List page SEO
+export const getJuzListSEO = () => ({
+  title: 'Daftar Juz Al-Quran - Teks Arab - IndoQuran',
+  description: 'Akses semua Juz (Para) Al-Quran dengan teks Arab lengkap. 30 Juz Al-Quran tersedia untuk dibaca dan dipelajari. Platform Al-Quran digital terlengkap di Indonesia.',
+  keywords: 'juz al quran, para al quran, daftar juz, teks arab al quran, al quran digital, quran indonesia, juz lengkap',
+  canonicalUrl: 'https://my.indoquran.web.id/juz',
+  ogType: 'website',
+  pageType: 'juz-list'
+});
+
+// Helper for Page (Halaman) SEO
+export const getPageSEO = (pageNumber) => ({
+  title: `Halaman ${pageNumber} - Al-Quran Digital - IndoQuran`,
+  description: `Baca Halaman ${pageNumber} Al-Quran dengan teks Arab lengkap. Navigasi mudah antar halaman Al-Quran di platform digital terlengkap Indonesia.`,
+  keywords: `halaman ${pageNumber}, al quran halaman ${pageNumber}, teks arab halaman ${pageNumber}, quran digital, al quran indonesia`,
+  canonicalUrl: `https://my.indoquran.web.id/halaman/${pageNumber}`,
+  ogType: 'article',
+  structuredDataType: 'page',
+  structuredData: {
+    pageNumber: pageNumber,
+    title: `Halaman ${pageNumber}`,
+    description: `Halaman ${pageNumber} Al-Quran dengan teks Arab lengkap`
+  },
+  pageType: 'page'
+});
+
+// Helper for Page List SEO
+export const getPageListSEO = () => ({
+  title: 'Daftar Halaman Al-Quran - Teks Arab - IndoQuran',
+  description: 'Akses semua halaman Al-Quran dengan teks Arab lengkap. 604 halaman Al-Quran tersedia untuk dibaca dan dipelajari. Platform Al-Quran digital terlengkap di Indonesia.',
+  keywords: 'halaman al quran, daftar halaman, teks arab al quran, al quran digital, quran indonesia, halaman lengkap',
+  canonicalUrl: 'https://my.indoquran.web.id/halaman',
+  ogType: 'website',
+  pageType: 'page-list'
+});
+
+// Helper for Tafsir Maudhui page SEO
+export const getTafsirMaudhuiSEO = () => ({
+  title: 'Tafsir Maudhui - Topik-topik dalam Al-Quran | IndoQuran',
+  description: 'Jelajahi topik-topik penting dalam Al-Quran melalui pendekatan tafsir maudhui. Temukan ayat-ayat Al-Quran berdasarkan tema seperti akidah, ibadah, akhlak, muamalah, dan banyak lagi.',
+  keywords: 'tafsir maudhui, topik quran, tema al quran, tafsir tematik, akidah islam, ibadah islam, akhlak islam, muamalah islam, indoquran',
+  canonicalUrl: 'https://my.indoquran.web.id/tafsir-maudhui',
+  ogType: 'article',
+  structuredDataType: 'tafsir',
+  pageType: 'tafsir-maudhui'
+});
+
+// Helper for Prayer Together (Doa Bersama) page SEO
+export const getPrayerTogetherSEO = () => ({
+  title: 'Doa Bersama - Komunitas Doa Muslim - IndoQuran',
+  description: 'Bergabunglah dengan komunitas doa Muslim di IndoQuran. Buat dan bagikan doa, beri dukungan kepada sesama Muslim, serta temukan kekuatan dalam doa bersama.',
+  keywords: 'doa bersama, komunitas doa, doa muslim, doa islam, permintaan doa, dukungan doa, indoquran doa',
+  canonicalUrl: 'https://my.indoquran.web.id/doa-bersama',
+  ogType: 'website',
+  pageType: 'prayer-together'
+});
+
+// Helper for Riwayat Versi page SEO
+export const getRiwayatVersiSEO = () => ({
+  title: 'Riwayat Versi - IndoQuran',
+  description: 'Catatan lengkap perubahan dan pembaruan versi platform Al-Quran digital IndoQuran. Lihat perkembangan fitur, perbaikan, dan peningkatan dari waktu ke waktu.',
+  keywords: 'indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi, fitur baru',
+  canonicalUrl: 'https://my.indoquran.web.id/riwayat-versi',
+  ogType: 'website',
+  pageType: 'riwayat-versi'
+});
+
+// Helper for Surah List page SEO
+export const getSurahListSEO = () => ({
+  title: 'Daftar Surah Al-Quran - 114 Surah Lengkap - IndoQuran',
+  description: 'Akses semua 114 Surah Al-Quran dengan terjemahan bahasa Indonesia, audio murottal, dan tafsir lengkap. Platform Al-Quran digital terlengkap di Indonesia.',
+  keywords: 'daftar surah al quran, 114 surah quran, surah al quran lengkap, terjemahan surah, murottal surah, al quran digital indonesia',
+  canonicalUrl: 'https://my.indoquran.web.id/surah',
+  ogType: 'website',
+  structuredDataType: 'surahList',
+  pageType: 'surah-list',
+  additionalMeta: {
+    'application-name': 'IndoQuran Surah List',
+    'revisit-after': '7 days'
+  }
 });
 
 export default SEOHead;

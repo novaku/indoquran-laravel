@@ -3,7 +3,7 @@ import { CheckCircleIcon, CogIcon, BugAntIcon, SparklesIcon, ShieldCheckIcon, Ro
 import SEOHead from '../components/SEOHead';
 import StructuredData from '../components/StructuredData';
 
-function VersionHistoryPage() {
+function RiwayatVersiPage() {
     const versions = [
         {
             version: "2.1.1",
@@ -240,7 +240,7 @@ function VersionHistoryPage() {
         "@type": "WebPage",
         "name": "Riwayat Versi - IndoQuran",
         "description": "Catatan perubahan dan pembaruan versi platform Al-Quran digital IndoQuran",
-        "url": `${window.location.origin}/version-history`,
+        "url": `${window.location.origin}/riwayat-versi`,
         "mainEntity": {
             "@type": "SoftwareApplication",
             "name": "IndoQuran",
@@ -257,7 +257,7 @@ function VersionHistoryPage() {
                 title="Riwayat Versi - IndoQuran"
                 description="Catatan lengkap perubahan dan pembaruan versi platform Al-Quran digital IndoQuran. Lihat perkembangan fitur, perbaikan, dan peningkatan dari waktu ke waktu."
                 keywords="indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi"
-                canonicalUrl={`${window.location.origin}/version-history`}
+                canonicalUrl={`${window.location.origin}/riwayat-versi`}
             />
             <StructuredData data={structuredData} />
             
@@ -390,4 +390,4 @@ function VersionHistoryPage() {
     );
 }
 
-export default VersionHistoryPage;
+export default RiwayatVersiPage;

@@ -119,6 +119,7 @@ function SimpleFooter() {
         'Pelajari': [
             { name: 'Tentang Kami', path: '/tentang' },
             { name: 'Donasi', path: '/donasi' },
+            { name: 'Riwayat Versi', path: '/riwayat-versi' },
             { name: 'Kontak', path: '/kontak' },
             { name: 'Kebijakan Privasi', path: '/kebijakan' },
         ],
