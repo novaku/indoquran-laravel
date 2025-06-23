@@ -94,6 +94,60 @@ Route::middleware('auth')->group(function () {
     });
 });
 
+// Redis Test Route (only in development)
+if (app()->environment(['local', 'development'])) {
+    Route::get('/test-redis', function () {
+        try {
+            $results = [];
+            
+            // Test Redis connection
+            $pong = \Illuminate\Support\Facades\Redis::ping();
+            $results['connection'] = $pong === '+PONG' || $pong === 'PONG' ? 'Connected' : 'Failed';
+            
+            // Test basic operations
+            $testKey = 'web_test_' . time();
+            $testValue = 'Hello from IndoQuran Web Test!';
+            
+            \Illuminate\Support\Facades\Redis::set($testKey, $testValue);
+            $getValue = \Illuminate\Support\Facades\Redis::get($testKey);
+            $results['basic_ops'] = $getValue === $testValue ? 'Success' : 'Failed';
+            
+            // Test Laravel Cache
+            $cacheKey = 'web_cache_test_' . time();
+            $cacheValue = ['message' => 'Laravel Cache Test', 'timestamp' => now()];
+            
+            \Illuminate\Support\Facades\Cache::put($cacheKey, $cacheValue, 60);
+            $cachedValue = \Illuminate\Support\Facades\Cache::get($cacheKey);
+            $results['cache'] = $cachedValue && $cachedValue['message'] === 'Laravel Cache Test' ? 'Success' : 'Failed';
+            
+            // Get Redis info
+            $info = \Illuminate\Support\Facades\Redis::info();
+            $results['redis_version'] = $info['redis_version'] ?? 'Unknown';
+            $results['used_memory'] = $info['used_memory_human'] ?? 'Unknown';
+            
+            // Cleanup
+            \Illuminate\Support\Facades\Redis::del($testKey);
+            \Illuminate\Support\Facades\Cache::forget($cacheKey);
+            
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Redis tests completed',
+                'socket_path' => config('database.redis.default.socket'),
+                'cache_driver' => config('cache.default'),
+                'results' => $results,
+                'timestamp' => now()
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'timestamp' => now()
+            ], 500);
+        }
+    })->name('test.redis');
+}
+
 // React SPA routes with SEO optimization - serve the React app for any other routes, but don't catch /api or build routes
 // This MUST be after all other specific routes to avoid conflicts
 // Now /admin/* paths will be served by the React SPA
