@@ -49,14 +49,23 @@ export default defineConfig(({ command, mode }) => {
                             return `assets/fonts/[name]-[hash][extname]`;
                         }
                         // Ensure all font files go to assets/fonts directory
-                        if (assetInfo.name && /\.(woff2?|eot|ttf|otf)$/i.test(assetInfo.name)) {
+                        if (assetInfo.name && /\.(woff2?|eot|ttf)$/i.test(assetInfo.name)) {
                             return `assets/fonts/[name]-[hash][extname]`;
                         }
                         return `assets/[name]-[hash][extname]`;
                     },
                     format: 'es',
                     manualChunks: {
+                        // Core React dependencies
                         vendor: ['react', 'react-dom'],
+                        // Router and navigation
+                        router: ['react-router-dom'],
+                        // UI components and icons
+                        ui: ['@heroicons/react', 'react-icons', 'react-hot-toast'],
+                        // Motion and animations
+                        motion: ['framer-motion'],
+                        // Utilities
+                        utils: ['date-fns'],
                     },
                 },
                 // Handle external modules and warnings
@@ -78,10 +87,26 @@ export default defineConfig(({ command, mode }) => {
             cssCodeSplit: true,
             outDir: 'public/build',
             target: 'es2020',
+            // Performance optimizations
+            modulePreload: {
+                polyfill: false // Disable unnecessary polyfill for modern browsers
+            },
             // Additional options to handle React DevTools
             commonjsOptions: {
                 transformMixedEsModules: true,
             },
+            // Enable terser for better compression in production
+            ...(mode === 'production' && {
+                minify: 'terser',
+                terserOptions: {
+                    compress: {
+                        drop_console: true,
+                        drop_debugger: true,
+                        pure_funcs: ['console.log'],
+                    },
+                    mangle: true,
+                },
+            }),
         },
         base: '/build/',
         server: {

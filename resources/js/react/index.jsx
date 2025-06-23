@@ -7,6 +7,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import ErrorBoundary from './components/ErrorBoundary';
+import * as serviceWorker from './utils/serviceWorker';
 
 // Handle React DevTools in production
 if (typeof window !== 'undefined' && !window.__REACT_DEVTOOLS_GLOBAL_HOOK__) {
@@ -51,14 +52,20 @@ if (!container) {
     }
 }
 
-// Unregister any existing service workers (PWA functionality removed)
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        for (let registration of registrations) {
-            registration.unregister();
-            console.log('Service worker unregistered (PWA functionality removed)');
+// Register service worker for enhanced caching (production only)
+if (process.env.NODE_ENV === 'production') {
+    serviceWorker.register({
+        onSuccess: () => {
+            console.log('SW: Content cached for offline use');
+        },
+        onUpdate: () => {
+            console.log('SW: New content available, please refresh');
+            // You could show a toast notification here
         }
     });
+} else {
+    // Unregister service workers in development
+    serviceWorker.unregister();
 }
 
 // Enable hot module replacement
