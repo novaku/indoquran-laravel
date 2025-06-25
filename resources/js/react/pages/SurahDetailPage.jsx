@@ -1609,44 +1609,6 @@ function SurahDetailPage() {
                                     </span>
                                 </button>
 
-                                {/* Audio Toggle Button */}
-                                <button
-                                    onClick={() => 
-                                        isPlaying && currentPlayingAyah === currentAyahNumber 
-                                            ? pauseAudio() 
-                                            : playAyah(currentAyahNumber)
-                                    }
-                                    disabled={isAudioLoading}
-                                    className={`flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm sm:text-base ${
-                                        isAudioLoading 
-                                            ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                            : 'bg-green-100 text-green-700 hover:bg-green-200'
-                                    }`}
-                                    title={
-                                        isAudioLoading ? 'Memuat audio...' :
-                                        isPlaying && currentPlayingAyah === currentAyahNumber ? 'Pause audio' : 'Putar audio'
-                                    }
-                                >
-                                    {isAudioLoading ? (
-                                        <>
-                                            <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-                                            <span className="hidden sm:inline">Memuat...</span>
-                                            <span className="sm:hidden">⏳</span>
-                                        </>
-                                    ) : isPlaying && currentPlayingAyah === currentAyahNumber ? (
-                                        <>
-                                            <SpeakerXMarkIcon className="w-4 h-4" />
-                                            <span className="hidden sm:inline">Pause</span>
-                                            <span className="sm:hidden">⏸</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <SpeakerWaveIcon className="w-4 h-4" />
-                                            <span className="hidden sm:inline">Dengar</span>
-                                            <span className="sm:hidden">▶</span>
-                                        </>
-                                    )}
-                                </button>
                             </div>
 
                             {/* Navigation Controls */}

@@ -6,6 +6,31 @@ import StructuredData from '../components/StructuredData';
 function RiwayatVersiPage() {
     const versions = [
         {
+            version: "2.1.2",
+            date: "25 Juni 2025",
+            type: "patch",
+            title: "Pemeliharaan & Pembaruan Dokumentasi",
+            description: "Pembaruan riwayat versi dan pemeliharaan rutin untuk menjaga kualitas aplikasi.",
+            changes: [
+                {
+                    type: "improvement",
+                    text: "Pembaruan dokumentasi riwayat versi dengan perubahan terbaru"
+                },
+                {
+                    type: "improvement",
+                    text: "Optimisasi struktur data untuk performa yang lebih baik"
+                },
+                {
+                    type: "fix",
+                    text: "Perbaikan minor pada tampilan timeline versi"
+                },
+                {
+                    type: "improvement",
+                    text: "Peningkatan metadata SEO untuk halaman riwayat versi"
+                }
+            ]
+        },
+        {
             version: "2.1.1",
             date: "16 Juni 2025",
             type: "patch",
