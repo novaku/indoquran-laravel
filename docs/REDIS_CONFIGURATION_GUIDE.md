@@ -1,6 +1,6 @@
 # Laravel Redis Configuration Guide for IndoQuran
 
-This guide explains how to configure and test Redis with Laravel using Unix socket connections, based on the test file `test-redis.php`.
+This guide explains how to configure and test Redis with Laravel using Unix socket connections, based on the test files in `/tests/test-redis.php` and `/tests/test-laravel-redis.php`.
 
 ## Configuration
 
@@ -41,6 +41,7 @@ The Redis configuration in `config/database.php` has been simplified to use only
 
 Run the basic Redis test:
 ```bash
+cd tests/
 php test-redis.php
 ```
 
@@ -83,7 +84,7 @@ Cache::put('laravel_test', 'Laravel Cache Test', 60)
 Cache::get('laravel_test')
 
 // Run the complete test class
-require_once 'test-laravel-redis.php';
+require_once 'tests/test-laravel-redis.php';
 LaravelRedisTest::runTests()
 ```
 
@@ -278,8 +279,8 @@ Log::info('Cache Performance', [
 
 ## Files Created/Modified
 
-1. `test-redis.php` - Raw PHP Redis test
-2. `test-laravel-redis.php` - Laravel-specific Redis test class
+1. `tests/test-redis.php` - Raw PHP Redis test
+2. `tests/test-laravel-redis.php` - Laravel-specific Redis test class
 3. `app/Console/Commands/TestRedisConnection.php` - Artisan command
 4. `routes/web.php` - Added test route
 5. `.env` - Updated Redis configuration

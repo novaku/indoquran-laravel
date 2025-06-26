@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IoBookmark, IoSearchOutline, IoTrashOutline, IoChevronDown, IoChevronUp } from 'react-icons/io5';
-import { getUserBookmarks } from '../services/BookmarkService';
+import { IoBookmark, IoSearchOutline, IoTrashOutline, IoChevronDown, IoChevronUp, IoPencilOutline, IoCheckmarkOutline, IoCloseOutline } from 'react-icons/io5';
+import { getUserBookmarks, updateBookmarkNotesByNumbers } from '../services/BookmarkService';
 import { useAuth } from '../hooks/useAuth.jsx';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
@@ -14,6 +14,9 @@ function UserBookmarksPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [error, setError] = useState(null);
     const [expandedSurahs, setExpandedSurahs] = useState({});
+    const [editingNotes, setEditingNotes] = useState({}); // Track which bookmark is being edited
+    const [tempNotes, setTempNotes] = useState({}); // Temporary notes while editing
+    const [updatingNotes, setUpdatingNotes] = useState({}); // Track loading state for notes update
 
     useEffect(() => {
         if (!user) {
@@ -46,6 +49,64 @@ function UserBookmarksPage() {
             ...prev,
             [surahNumber]: !prev[surahNumber]
         }));
+    };
+
+    const startEditingNotes = (bookmarkId, currentNotes) => {
+        setEditingNotes(prev => ({ ...prev, [bookmarkId]: true }));
+        setTempNotes(prev => ({ ...prev, [bookmarkId]: currentNotes || '' }));
+    };
+
+    const cancelEditingNotes = (bookmarkId) => {
+        setEditingNotes(prev => ({ ...prev, [bookmarkId]: false }));
+        setTempNotes(prev => ({ ...prev, [bookmarkId]: '' }));
+    };
+
+    const saveNotes = async (bookmark) => {
+        const bookmarkId = bookmark.id;
+        const notes = tempNotes[bookmarkId];
+        
+        try {
+            setUpdatingNotes(prev => ({ ...prev, [bookmarkId]: true }));
+            
+            await updateBookmarkNotesByNumbers(
+                bookmark.surah_number,
+                bookmark.ayah_number,
+                notes
+            );
+            
+            // Update the bookmark in the local state
+            setBookmarks(prev => prev.map(b => 
+                b.id === bookmarkId 
+                    ? { ...b, pivot: { ...b.pivot, notes: notes } }
+                    : b
+            ));
+            
+            // Clear editing state
+            setEditingNotes(prev => ({ ...prev, [bookmarkId]: false }));
+            setTempNotes(prev => ({ ...prev, [bookmarkId]: '' }));
+            
+            // Show success message
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-all text-sm';
+            alertDiv.style.opacity = '1';
+            alertDiv.textContent = '✅ Catatan berhasil disimpan!';
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.style.opacity = '0';
+                setTimeout(() => {
+                    if (document.body.contains(alertDiv)) {
+                        document.body.removeChild(alertDiv);
+                    }
+                }, 300);
+            }, 2000);
+            
+        } catch (error) {
+            console.error('Error saving notes:', error);
+            setError('Gagal menyimpan catatan. Silakan coba lagi.');
+        } finally {
+            setUpdatingNotes(prev => ({ ...prev, [bookmarkId]: false }));
+        }
     };
 
     const filteredBookmarks = bookmarks.filter(bookmark => {
@@ -186,8 +247,7 @@ function UserBookmarksPage() {
                                             {surahGroup.ayahs.map((bookmark) => (
                                                 <div
                                                     key={bookmark.id}
-                                                    className="p-6 hover:bg-gray-50 transition-colors cursor-pointer"
-                                                    onClick={() => handleGoToAyah(bookmark.surah_number, bookmark.ayah_number)}
+                                                    className="p-6 hover:bg-gray-50 transition-colors"
                                                 >
                                                     {/* Ayah Number */}
                                                     <div className="flex items-center justify-between mb-4">
@@ -196,7 +256,15 @@ function UserBookmarksPage() {
                                                                 Ayat {bookmark.ayah_number}
                                                             </div>
                                                         </div>
-                                                        <IoBookmark className="w-5 h-5 text-green-600" />
+                                                        <div className="flex items-center gap-2">
+                                                            <button
+                                                                onClick={() => handleGoToAyah(bookmark.surah_number, bookmark.ayah_number)}
+                                                                className="text-green-600 hover:text-green-700 text-sm font-medium"
+                                                            >
+                                                                Buka Ayat
+                                                            </button>
+                                                            <IoBookmark className="w-5 h-5 text-green-600" />
+                                                        </div>
                                                     </div>
 
                                                     {/* Arabic Text */}
@@ -217,15 +285,83 @@ function UserBookmarksPage() {
                                                         </div>
                                                     )}
 
-                                                    {/* Notes */}
-                                                    {bookmark.pivot?.notes && (
-                                                        <div className="mt-4 p-3 bg-yellow-50 border-l-4 border-yellow-400">
-                                                            <p className="text-sm text-gray-700">
-                                                                <span className="font-medium">Catatan: </span>
-                                                                {bookmark.pivot.notes}
-                                                            </p>
+                                                    {/* Notes Section */}
+                                                    <div className="mt-4">
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <span className="text-sm font-medium text-gray-700">Catatan:</span>
+                                                            {!editingNotes[bookmark.id] && (
+                                                                <button
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        startEditingNotes(bookmark.id, bookmark.pivot?.notes);
+                                                                    }}
+                                                                    className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm"
+                                                                >
+                                                                    <IoPencilOutline className="w-4 h-4" />
+                                                                    {bookmark.pivot?.notes ? 'Edit' : 'Tambah'}
+                                                                </button>
+                                                            )}
                                                         </div>
-                                                    )}
+                                                        
+                                                        {editingNotes[bookmark.id] ? (
+                                                            <div className="space-y-2">
+                                                                <textarea
+                                                                    value={tempNotes[bookmark.id] || ''}
+                                                                    onChange={(e) => setTempNotes(prev => ({ ...prev, [bookmark.id]: e.target.value }))}
+                                                                    placeholder="Tambahkan catatan untuk ayat ini..."
+                                                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+                                                                    rows={3}
+                                                                    maxLength={1000}
+                                                                    onClick={(e) => e.stopPropagation()}
+                                                                />
+                                                                <div className="flex items-center justify-between">
+                                                                    <span className="text-xs text-gray-500">
+                                                                        {(tempNotes[bookmark.id] || '').length}/1000 karakter
+                                                                    </span>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <button
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                cancelEditingNotes(bookmark.id);
+                                                                            }}
+                                                                            className="flex items-center gap-1 px-3 py-1 text-sm text-gray-600 hover:text-gray-700"
+                                                                            disabled={updatingNotes[bookmark.id]}
+                                                                        >
+                                                                            <IoCloseOutline className="w-4 h-4" />
+                                                                            Batal
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                saveNotes(bookmark);
+                                                                            }}
+                                                                            className="flex items-center gap-1 px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 disabled:opacity-50"
+                                                                            disabled={updatingNotes[bookmark.id]}
+                                                                        >
+                                                                            {updatingNotes[bookmark.id] ? (
+                                                                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                                            ) : (
+                                                                                <IoCheckmarkOutline className="w-4 h-4" />
+                                                                            )}
+                                                                            Simpan
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                                                                {bookmark.pivot?.notes ? (
+                                                                    <p className="text-sm text-gray-700">
+                                                                        {bookmark.pivot.notes}
+                                                                    </p>
+                                                                ) : (
+                                                                    <p className="text-sm text-gray-500 italic">
+                                                                        Belum ada catatan untuk ayat ini
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
 
                                                     {/* Created Date */}
                                                     {bookmark.pivot?.created_at && (

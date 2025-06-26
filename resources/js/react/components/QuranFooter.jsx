@@ -5,16 +5,22 @@ import {
     HeartIcon,
     EnvelopeIcon,
     InformationCircleIcon,
-    ArrowPathIcon
+    ArrowPathIcon,
+    MapPinIcon
 } from '@heroicons/react/24/outline';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
+import { initializeGeolocation } from '../utils/geolocationUtils';
 
 function QuranFooter() {
     const currentYear = new Date().getFullYear();
     const [surahs, setSurahs] = useState([]);
     const [popularSurahs, setPopularSurahs] = useState([]);
     const [loadingPopular, setLoadingPopular] = useState(false);
+    // Location detection state
+    const [location, setLocation] = useState(null);
+    const [locationName, setLocationName] = useState('');
+    const [locationLoading, setLocationLoading] = useState(false);
 
     const scrollToTop = () => {
         window.scrollTo({
@@ -134,6 +140,34 @@ function QuranFooter() {
         ]
     };
 
+    // Initialize location detection
+    useEffect(() => {
+        const setupLocation = async () => {
+            setLocationLoading(true);
+            try {
+                const result = await initializeGeolocation({
+                    enableRetry: false, // Don't retry in footer to avoid delays
+                    maxRetries: 1,
+                    options: { 
+                        timeout: 5000, // Shorter timeout for footer
+                        maximumAge: 600000, // Accept cached position up to 10 minutes old
+                        enableHighAccuracy: false 
+                    }
+                });
+                
+                setLocation(result.location);
+                setLocationName(result.locationName);
+            } catch (error) {
+                console.log('Location detection failed in footer:', error);
+                // Silently fail - footer shouldn't show errors for location
+            } finally {
+                setLocationLoading(false);
+            }
+        };
+
+        setupLocation();
+    }, []);
+
     return (
         <footer className="bg-gray-900 text-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -252,6 +286,27 @@ function QuranFooter() {
                         )}
                     </div>
                 </div>
+
+                {/* Current Location */}
+                {(location || locationLoading) && (
+                    <div className="border-t border-gray-800 py-6">
+                        <div className="flex items-center justify-center">
+                            <div className="flex items-center space-x-2 text-gray-400">
+                                <MapPinIcon className="w-4 h-4" />
+                                {locationLoading ? (
+                                    <div className="flex items-center space-x-2">
+                                        <div className="animate-spin w-3 h-3 border border-gray-400 border-t-transparent rounded-full"></div>
+                                        <span className="text-sm">Mendeteksi lokasi...</span>
+                                    </div>
+                                ) : locationName ? (
+                                    <span className="text-sm">
+                                        Lokasi Anda: <span className="text-gray-300">{locationName}</span>
+                                    </span>
+                                ) : null}
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Bottom Footer */}
                 <div className="border-t border-gray-800 py-6">

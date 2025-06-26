@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SurahController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\QuranController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ProfileController;
@@ -71,6 +72,7 @@ Route::middleware(['simple.auth'])->group(function() {
         Route::post('/surah/{surahNumber}/ayah/{ayahNumber}/toggle', [BookmarkController::class, 'toggleByNumbers']);
         Route::post('/surah/ayah/{ayahId}/favorite', [BookmarkController::class, 'toggleFavorite']);
         Route::put('/surah/ayah/{ayahId}/notes', [BookmarkController::class, 'updateNotes']);
+        Route::put('/surah/{surahNumber}/ayah/{ayahNumber}/notes', [BookmarkController::class, 'updateNotesByNumbers']);
     });
     
     // Backward compatibility for old bookmark API routes

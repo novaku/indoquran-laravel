@@ -129,3 +129,25 @@ export const toggleBookmarkByNumbers = async (surahNumber, ayahNumber) => {
         throw error;
     }
 };
+
+/**
+ * Update notes for a bookmark using surah and ayah numbers
+ * @param {number} surahNumber - The number of the surah
+ * @param {number} ayahNumber - The number of the ayah within the surah
+ * @param {string} notes - The notes to save
+ * @returns {Promise<Object>} - The updated bookmark data
+ */
+export const updateBookmarkNotesByNumbers = async (surahNumber, ayahNumber, notes) => {
+    try {
+        const response = await putWithAuth(`/api/penanda/surah/${surahNumber}/ayah/${ayahNumber}/notes`, { notes });
+
+        if (!response.ok) {
+            throw new Error('Failed to update notes');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error updating notes:', error);
+        throw error;
+    }
+};

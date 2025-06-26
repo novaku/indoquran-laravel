@@ -33,9 +33,19 @@ const WhatsAppIcon = ({ className }) => (
 );
 
 function SurahDetailPage() {
+    console.log('🚀 SurahDetailPage component loading...');
+    // Add visible indicator that React is working
+    useEffect(() => {
+        document.title = 'IndoQuran - Loading...';
+        console.log('🔄 SurahDetailPage useEffect triggered');
+    }, []);
+    
     const { user } = useAuth();
     const { number, ayahNumber } = useParams();
     const navigate = useNavigate();
+    
+    console.log('📋 URL Params:', { number, ayahNumber });
+    console.log('🔧 User:', user ? 'Logged in' : 'Not logged in');
     
     const [surah, setSurah] = useState(null);
     const [ayahs, setAyahs] = useState([]);
@@ -142,8 +152,9 @@ function SurahDetailPage() {
         }, 500);
     }, [currentAyahNumber]);
 
-    // Get current ayah - simplified and reliable approach with type-safe comparison
-    const currentAyah = ayahs.find(ayah => parseInt(ayah.ayah_number) === parseInt(currentAyahNumber)) || null;
+    // Get current ayah - simplified and reliable approach with type-safe comparison and fallback
+    const currentAyah = ayahs.find(ayah => parseInt(ayah.ayah_number) === parseInt(currentAyahNumber)) || 
+                        (ayahs.length > 0 ? ayahs[0] : null); // Fallback to first ayah if current not found
     
     // Debug: Log current ayah finding result
     useEffect(() => {
@@ -164,7 +175,8 @@ function SurahDetailPage() {
                 number: ayahs[0].number,
                 verse_number: ayahs[0].verse_number,
                 id: ayahs[0].id
-            } : 'No ayahs available'
+            } : 'No ayahs available',
+            usingFallback: ayahs.length > 0 && !ayahs.find(ayah => parseInt(ayah.ayah_number) === parseInt(currentAyahNumber))
         });
     }, [currentAyahNumber, ayahs, currentAyah]);
     // Calculate total ayahs and available ayah numbers from actual data
@@ -207,6 +219,8 @@ function SurahDetailPage() {
                 const token = authUtils.getAuthToken();
                 
                 console.log(`🚀 Loading complete surah ${number} from API before rendering...`);
+                console.log(`🌐 Full API URL: ${window.location.origin}/api/surahs/${number}`);
+                console.log(`🔑 Token available: ${token ? 'Yes' : 'No'}`);
                 
                 // REQUIREMENT 1: Fetch complete surah details and ayahs in one call from API
                 const surahResponse = await fetchWithAuth(`/api/surahs/${number}`, {
@@ -217,8 +231,27 @@ function SurahDetailPage() {
                     }
                 });
                 
-                if (!surahResponse.ok) throw new Error('Failed to fetch surah');
+                console.log(`📡 API Response:`, {
+                    status: surahResponse.status,
+                    statusText: surahResponse.statusText,
+                    ok: surahResponse.ok,
+                    url: surahResponse.url
+                });
+                
+                if (!surahResponse.ok) {
+                    const errorText = await surahResponse.text();
+                    console.error(`📡 API Error Response:`, errorText);
+                    throw new Error(`Failed to fetch surah: ${surahResponse.status} ${surahResponse.statusText}`);
+                }
                 const surahResult = await surahResponse.json();
+                
+                console.log(`📊 API Response Data:`, {
+                    status: surahResult.status,
+                    hasData: !!surahResult.data,
+                    hasSurah: !!(surahResult.data && surahResult.data.surah),
+                    hasAyahs: !!(surahResult.data && surahResult.data.ayahs),
+                    ayahsCount: surahResult.data && surahResult.data.ayahs ? surahResult.data.ayahs.length : 0
+                });
                 
                 if (surahResult.status === 'success' && surahResult.data) {
                     const surahData = surahResult.data.surah || surahResult.data;
@@ -318,7 +351,13 @@ function SurahDetailPage() {
                     throw new Error(surahResult.message || 'Failed to load surah');
                 }
             } catch (error) {
-                console.error('Error fetching surah data:', error);
+                console.error('❌ Error fetching surah data:', error);
+                console.error('❌ Error details:', {
+                    message: error.message,
+                    stack: error.stack,
+                    surahNumber: number,
+                    url: `/api/surahs/${number}`
+                });
                 setError(error.message);
             } finally {
                 setLoading(false);
@@ -1179,15 +1218,14 @@ function SurahDetailPage() {
 
     // REQUIREMENT 1: Show loading state until complete surah API data is loaded
     // Only render content after surah and all ayahs are loaded from API
-    if (loading || !surah || ayahs.length === 0 || !currentAyah) {
+    if (loading || !surah || ayahs.length === 0) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
                     <LoadingSpinner size="lg" />
                     <p className="mt-4 text-gray-600">
                         {!surah ? 'Memuat data surah...' : 
-                         ayahs.length === 0 ? 'Memuat ayat-ayat...' :
-                         !currentAyah ? 'Menyiapkan ayat...' : 'Memuat...'}
+                         ayahs.length === 0 ? 'Memuat ayat-ayat...' : 'Memuat...'}
                     </p>
                     <p className="mt-2 text-sm text-gray-500">
                         Mengambil data lengkap dari API: /api/surahs/{number}
@@ -1215,7 +1253,8 @@ function SurahDetailPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
+        <>
+            <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
             {/* Add custom styles for animations */}
             <style jsx>{`
                 @keyframes fadeIn {
@@ -1701,6 +1740,7 @@ function SurahDetailPage() {
                 </div>
             </div>
         </div>
+        </>
     );
 }
 
