@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PrayerController;
+use App\Http\Controllers\Api\SecurityController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,6 +26,10 @@ use App\Http\Controllers\PrayerController;
 
 // Geocoding proxy
 Route::get('/geocode/reverse', [\App\Http\Controllers\Api\GeocodingController::class, 'reverseGeocode']);
+
+// Security endpoints
+Route::post('/csp-violation-report', [SecurityController::class, 'cspViolationReport']);
+Route::get('/security/stats', [SecurityController::class, 'getSecurityStats']);
 
 // Return authenticated user or null - simplified without session checks
 Route::get('/user', function (Request $request) {

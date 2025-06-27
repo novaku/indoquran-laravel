@@ -31,6 +31,7 @@ class ContentSecurityPolicy
                 "worker-src 'self' blob: data:",
                 "child-src 'self' blob: data:",
                 "manifest-src 'self'",
+                "report-uri /api/csp-violation-report"
             ]);
         } else {
             // Production CSP (more restrictive) - Allow external Quran APIs for data import
@@ -50,7 +51,8 @@ class ContentSecurityPolicy
                 "base-uri 'self'",
                 "form-action 'self'",
                 "upgrade-insecure-requests",
-                "block-all-mixed-content"
+                "block-all-mixed-content",
+                "report-uri /api/csp-violation-report"
             ]);
         }
         
