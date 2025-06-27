@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './hooks/useAuth.jsx';
 import useAdvancedPerformanceMonitor from './hooks/useAdvancedPerformanceMonitor.js';
 import { useIntelligentPreload } from './hooks/usePerformanceOptimization.js';
+import useScrollToTop from './hooks/useScrollToTop.js';
 import '../../css/app.css';
 
 // Import critical components (loaded immediately)
@@ -156,6 +157,9 @@ const AppContent = memo(() => {
     
     // Enable intelligent prefetching
     usePrefetchOptimization();
+    
+    // Auto scroll to top on route changes (except surah detail pages)
+    useScrollToTop();
     
     // Derived states for cleaner component logic - memoized for performance
     const isAuthenticated = useMemo(() => Boolean(user), [user]);
