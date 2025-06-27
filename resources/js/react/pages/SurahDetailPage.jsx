@@ -90,6 +90,7 @@ function SurahDetailPage() {
     const ayahRefs = useRef({});
     const currentAyahRef = useRef(null);
     const isNavigatingRef = useRef(false); // Track navigation state to prevent race conditions
+    const isAutoPlayingRef = useRef(false); // Track auto-playing state with ref for closures
 
     // Improved scroll function for better ayah targeting
     const scrollToCurrentAyah = useCallback((ayahNum = currentAyahNumber) => {
@@ -398,7 +399,7 @@ function SurahDetailPage() {
 
     // REQUIREMENT 2: Update current ayah when URL changes and track reading progress
     useEffect(() => {
-        console.log(`🔗 URL Change Detected - Surah: ${number}, Ayah: ${ayahNumber || 'undefined'}`);
+        console.log(`🔗 URL Change Detected - Surah: ${number}, Ayah: ${ayahNumber || 'undefined'}, isAutoPlayingSequence: ${isAutoPlayingSequence}`);
         
         if (ayahNumber) {
             const ayahNum = parseInt(ayahNumber);
@@ -410,10 +411,12 @@ function SurahDetailPage() {
                 setCurrentAyahNumber(ayahNum);
                 
                 // Auto-scroll to ayat when coming from external link (like Tafsir Maudhui)
-                // Wait for the component to update and then scroll
-                setTimeout(() => {
-                    scrollToCurrentAyah(ayahNum);
-                }, 100);
+                // Only scroll if not auto-playing (to avoid interference with sequential playback scrolling)
+                if (!isAutoPlayingSequence) {
+                    setTimeout(() => {
+                        scrollToCurrentAyah(ayahNum);
+                    }, 100);
+                }
                 
                 // Update reading progress if user is logged in and surah number is available
                 if (user && number) {
@@ -431,7 +434,7 @@ function SurahDetailPage() {
             console.log('🔄 No ayah in URL, defaulting to ayah 1');
             setCurrentAyahNumber(1);
         }
-    }, [ayahNumber, user, number, currentAyahNumber]);
+    }, [ayahNumber, user, number, currentAyahNumber, isAutoPlayingSequence]);
 
     // Handle URL validation only for invalid ayah numbers (not for navigation interference)
     useEffect(() => {
@@ -747,6 +750,7 @@ function SurahDetailPage() {
 
             setIsSurahAudioLoading(true);
             setIsAutoPlayingSequence(true);
+            isAutoPlayingRef.current = true; // Set ref for closure access
             
             // Always start from the first ayah (index 0) when playing full surah
             setCurrentPlayingAyahIndex(0);
@@ -769,18 +773,21 @@ function SurahDetailPage() {
             console.error('❌ Error starting full surah playback:', error);
             setIsSurahAudioLoading(false);
             setIsAutoPlayingSequence(false);
+            isAutoPlayingRef.current = false;
             alert('Gagal memutar surah lengkap. Silakan coba lagi.');
         }
     };
 
     const playAyahInSequence = async (ayahIndex) => {
-        console.log(`🎵 playAyahInSequence called with index: ${ayahIndex}, isAutoPlayingSequence: ${isAutoPlayingSequence}`);
+        console.log(`🎵 playAyahInSequence called with index: ${ayahIndex}/${ayahs.length}, isAutoPlayingSequence: ${isAutoPlayingSequence}`);
         
+        // Check if we should continue playing
         if (ayahIndex >= ayahs.length) {
             // End of surah reached
             console.log('✅ Full surah playback completed');
             setIsSurahPlaying(false);
             setIsAutoPlayingSequence(false);
+            isAutoPlayingRef.current = false;
             setCurrentPlayingAyahIndex(0);
             setSurahAudioElement(null);
             setIsSurahAudioLoading(false);
@@ -791,7 +798,10 @@ function SurahDetailPage() {
         if (!ayah) {
             console.error(`❌ Ayah at index ${ayahIndex} not found`);
             // Skip to next ayah
-            setTimeout(() => playAyahInSequence(ayahIndex + 1), 500);
+            const nextIndex = ayahIndex + 1;
+            if (nextIndex < ayahs.length) {
+                setTimeout(() => playAyahInSequence(nextIndex), 500);
+            }
             return;
         }
 
@@ -851,7 +861,17 @@ function SurahDetailPage() {
             if (!audioUrl) {
                 console.log(`⚠️ No audio URL found for ayah ${ayah.ayah_number}, skipping...`);
                 // Skip to next ayah after a short delay
-                setTimeout(() => playAyahInSequence(ayahIndex + 1), 500);
+                const nextIndex = ayahIndex + 1;
+                if (nextIndex < ayahs.length) {
+                    setTimeout(() => playAyahInSequence(nextIndex), 500);
+                } else {
+                    console.log('✅ Reached end of surah - no more ayahs to play');
+                    setIsSurahPlaying(false);
+                    setIsAutoPlayingSequence(false);
+                    isAutoPlayingRef.current = false;
+                    setCurrentPlayingAyahIndex(0);
+                    setIsSurahAudioLoading(false);
+                }
                 return;
             }
 
@@ -872,27 +892,58 @@ function SurahDetailPage() {
                 setCurrentPlayingAyahIndex(ayahIndex);
                 setIsSurahAudioLoading(false);
                 
-                // Scroll to current ayah being played
-                scrollToCurrentAyah(ayah.ayah_number);
+                // Update the current ayah number to activate the ayah card
+                const ayahNum = parseInt(ayah.ayah_number);
+                console.log(`🔄 Updating currentAyahNumber from ${currentAyahNumber} to ${ayahNum} during surah playback`);
                 
-                // Update URL to current ayah
-                if (isAutoPlayingSequence) {
-                    navigate(`/surah/${number}/${ayah.ayah_number}`, { replace: true });
-                }
+                // Set navigation flag to prevent interference from validation effects
+                isNavigatingRef.current = true;
+                
+                // Update both state and URL with immediate state update
+                setCurrentAyahNumber(ayahNum);
+                console.log(`🔗 Navigating to /surah/${number}/${ayahNum} during surah playback`);
+                navigate(`/surah/${number}/${ayahNum}`, { replace: true });
+                
+                // Force a second state update to ensure it takes effect (React batching workaround)
+                setTimeout(() => {
+                    console.log(`🔄 Force updating currentAyahNumber to ${ayahNum} (backup)`);
+                    setCurrentAyahNumber(ayahNum);
+                    isNavigatingRef.current = false;
+                }, 50);
+                
+                // Scroll to current ayah being played (after a small delay to ensure state is updated)
+                setTimeout(() => {
+                    scrollToCurrentAyah(ayahNum);
+                }, 150);
             };
             
             audio.onended = () => {
-                console.log(`✅ Ayah ${ayah.ayah_number} finished playing. Auto-continuing to next...`);
+                console.log(`✅ Ayah ${ayah.ayah_number} finished playing (index ${ayahIndex}). isAutoPlayingRef: ${isAutoPlayingRef.current}`);
                 
                 // Clear current audio element before moving to next
                 setSurahAudioElement(null);
                 
-                // Play next ayah in sequence
-                if (isAutoPlayingSequence) {
-                    console.log(`🔄 Auto-playing next ayah: ${ayahIndex + 1}`);
-                    setTimeout(() => playAyahInSequence(ayahIndex + 1), 300);
+                // Use ref to check if auto-playing should continue (more reliable than state in closure)
+                const nextIndex = ayahIndex + 1;
+                if (isAutoPlayingRef.current && nextIndex < ayahs.length) {
+                    console.log(`🔄 Auto-playing next ayah: ${nextIndex} (${ayahs[nextIndex]?.ayah_number})`);
+                    setTimeout(() => {
+                        console.log(`🔍 Double-checking before next ayah: isAutoPlayingRef=${isAutoPlayingRef.current}, nextIndex=${nextIndex}`);
+                        if (isAutoPlayingRef.current) {
+                            playAyahInSequence(nextIndex);
+                        } else {
+                            console.log('⚠️ Auto-playing was stopped, not continuing');
+                        }
+                    }, 300);
+                } else if (nextIndex >= ayahs.length) {
+                    console.log('✅ Full surah playback completed - no more ayahs');
+                    setIsSurahPlaying(false);
+                    setIsAutoPlayingSequence(false);
+                    isAutoPlayingRef.current = false;
+                    setCurrentPlayingAyahIndex(0);
+                    setIsSurahAudioLoading(false);
                 } else {
-                    console.log('⚠️ Auto-playing sequence stopped, not continuing');
+                    console.log('⚠️ Auto-playing was stopped during playback');
                 }
             };
             
@@ -902,8 +953,17 @@ function SurahDetailPage() {
                 setSurahAudioElement(null);
                 
                 // Skip to next ayah on error
-                if (isAutoPlayingSequence) {
-                    setTimeout(() => playAyahInSequence(ayahIndex + 1), 300);
+                const nextIndex = ayahIndex + 1;
+                if (nextIndex < ayahs.length) {
+                    console.log(`🔄 Skipping to next ayah due to audio error: ${nextIndex}`);
+                    setTimeout(() => playAyahInSequence(nextIndex), 300);
+                } else {
+                    console.log('✅ Reached end of surah after audio error');
+                    setIsSurahPlaying(false);
+                    setIsAutoPlayingSequence(false);
+                    isAutoPlayingRef.current = false;
+                    setCurrentPlayingAyahIndex(0);
+                    setIsSurahAudioLoading(false);
                 }
             };
             
@@ -920,17 +980,34 @@ function SurahDetailPage() {
                 // Clear audio element and continue to next
                 setSurahAudioElement(null);
                 // Continue to next ayah on playback error
-                if (isAutoPlayingSequence) {
-                    console.log(`🔄 Skipping to next ayah due to playback error`);
-                    setTimeout(() => playAyahInSequence(ayahIndex + 1), 300);
+                const nextIndex = ayahIndex + 1;
+                if (nextIndex < ayahs.length) {
+                    console.log(`🔄 Skipping to next ayah due to playback error: ${nextIndex}`);
+                    setTimeout(() => playAyahInSequence(nextIndex), 300);
+                } else {
+                    console.log('✅ Reached end of surah after playback error');
+                    setIsSurahPlaying(false);
+                    setIsAutoPlayingSequence(false);
+                    isAutoPlayingRef.current = false;
+                    setCurrentPlayingAyahIndex(0);
+                    setIsSurahAudioLoading(false);
                 }
             }
             
         } catch (error) {
             console.error(`❌ Error playing ayah ${ayah.ayah_number} in sequence:`, error);
             // Skip to next ayah on error
-            if (isAutoPlayingSequence) {
-                setTimeout(() => playAyahInSequence(ayahIndex + 1), 500);
+            const nextIndex = ayahIndex + 1;
+            if (nextIndex < ayahs.length) {
+                console.log(`🔄 Skipping to next ayah due to general error: ${nextIndex}`);
+                setTimeout(() => playAyahInSequence(nextIndex), 500);
+            } else {
+                console.log('✅ Reached end of surah after general error');
+                setIsSurahPlaying(false);
+                setIsAutoPlayingSequence(false);
+                isAutoPlayingRef.current = false;
+                setCurrentPlayingAyahIndex(0);
+                setIsSurahAudioLoading(false);
             }
         }
     };
@@ -938,6 +1015,7 @@ function SurahDetailPage() {
     const pauseFullSurah = () => {
         console.log('⏸️ Pausing full surah audio...');
         setIsAutoPlayingSequence(false);
+        isAutoPlayingRef.current = false; // Update ref
         
         if (surahAudioElement) {
             try {
@@ -959,6 +1037,7 @@ function SurahDetailPage() {
     const stopFullSurah = () => {
         console.log('⏹️ Stopping full surah audio...');
         setIsAutoPlayingSequence(false);
+        isAutoPlayingRef.current = false; // Update ref
         setIsSurahPlaying(false);
         setCurrentPlayingAyahIndex(0);
         setIsSurahAudioLoading(false);
