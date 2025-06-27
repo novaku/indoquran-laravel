@@ -6,6 +6,39 @@ import StructuredData from '../components/StructuredData';
 function RiwayatVersiPage() {
     const versions = [
         {
+            version: "2.1.3",
+            date: "28 Juni 2025",
+            type: "minor",
+            title: "Fitur Audio Player Auto-Play untuk Ayat",
+            description: "Penambahan fitur audio player dengan kemampuan auto-play berturut-turut untuk setiap ayat dalam surah hingga akhir.",
+            changes: [
+                {
+                    type: "feature",
+                    text: "Audio player dengan fitur auto-play otomatis untuk setiap ayat dalam surah"
+                },
+                {
+                    type: "feature",
+                    text: "Kontrol pemutaran berturut-turut dari ayat pertama hingga akhir surah"
+                },
+                {
+                    type: "feature",
+                    text: "Indikator visual ayat yang sedang diputar dengan highlight otomatis"
+                },
+                {
+                    type: "improvement",
+                    text: "Optimisasi loading audio untuk pengalaman pemutaran yang lancar"
+                },
+                {
+                    type: "improvement",
+                    text: "Kontrol kecepatan pemutaran dan jeda antar ayat yang dapat disesuaikan"
+                },
+                {
+                    type: "fix",
+                    text: "Perbaikan sinkronisasi audio dengan tampilan teks ayat"
+                }
+            ]
+        },
+        {
             version: "2.1.2",
             date: "25 Juni 2025",
             type: "patch",
