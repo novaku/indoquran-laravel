@@ -1638,6 +1638,15 @@ function SurahDetailPage() {
                     overflow: hidden;
                 }
                 
+                /* Enhanced Arabic text styling for better readability */
+                .font-arabic {
+                    font-feature-settings: "liga" 1, "dlig" 1, "kern" 1;
+                    font-variant-ligatures: contextual;
+                    text-rendering: optimizeLegibility;
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                }
+                
                 /* Custom grid columns for responsive navigation */
                 @media (min-width: 1024px) {
                     .grid-cols-15 {
@@ -1707,9 +1716,15 @@ function SurahDetailPage() {
                             <h1 className="text-3xl font-bold text-gray-800 mb-2">
                                 {surah.name_latin || surah.name_english}
                             </h1>
-                            <p className="text-6xl font-arabic text-green-700 mb-2 text-center" dir="rtl">
-                                {surah.name_arabic}
-                            </p>
+                            <div className="flex justify-center items-center mb-2">
+                                <p className="font-arabic text-gray-800 leading-loose" 
+                                   dir="rtl"
+                                   style={{ 
+                                       fontSize: `${fontSize + 20}px`
+                                   }}>
+                                    {surah.name_arabic}
+                                </p>
+                            </div>
                             <p className="text-lg text-gray-600">
                                 {surah.name_indonesian}
                             </p>
