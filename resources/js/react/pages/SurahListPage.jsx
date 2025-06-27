@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
     BookOpenIcon,
@@ -14,14 +14,32 @@ import authUtils from '../utils/auth';
 
 function SurahListPage() {
     const navigate = useNavigate();
+    const searchRef = useRef(null);
     const [surahs, setSurahs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterPlace, setFilterPlace] = useState('all'); // all, makkah, madinah
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [selectedSuggestion, setSelectedSuggestion] = useState(-1);
 
     useEffect(() => {
         loadSurahs();
+    }, []);
+
+    // Handle clicks outside search component
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (searchRef.current && !searchRef.current.contains(event.target)) {
+                setShowSuggestions(false);
+                setSelectedSuggestion(-1);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
     }, []);
 
     const loadSurahs = async () => {
@@ -56,6 +74,70 @@ function SurahListPage() {
 
     const handleSurahClick = (surahNumber) => {
         navigate(`/surah/${surahNumber}`);
+    };
+
+    // Get autocomplete suggestions based on search term
+    const getSuggestions = () => {
+        if (!searchTerm || searchTerm.length < 1) return [];
+        
+        return surahs.filter(surah => {
+            const matchesSearch = 
+                surah.name_latin?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                surah.name_indonesian?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                surah.name_arabic?.includes(searchTerm) ||
+                surah.number.toString().includes(searchTerm);
+            
+            const matchesPlace = filterPlace === 'all' || 
+                surah.revelation_place?.toLowerCase() === filterPlace.toLowerCase();
+            
+            return matchesSearch && matchesPlace;
+        }).slice(0, 8); // Limit to 8 suggestions
+    };
+
+    const handleSearchInputChange = (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+        setShowSuggestions(value.length > 0);
+        setSelectedSuggestion(-1);
+    };
+
+    const handleSuggestionClick = (surah) => {
+        setSearchTerm(surah.name_latin);
+        setShowSuggestions(false);
+        setSelectedSuggestion(-1);
+        // Optionally navigate directly to the surah
+        navigate(`/surah/${surah.number}`);
+    };
+
+    const handleKeyDown = (e) => {
+        const suggestions = getSuggestions();
+        
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setSelectedSuggestion(prev => 
+                prev < suggestions.length - 1 ? prev + 1 : prev
+            );
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setSelectedSuggestion(prev => prev > 0 ? prev - 1 : -1);
+        } else if (e.key === 'Enter' && selectedSuggestion >= 0) {
+            e.preventDefault();
+            const selectedSurah = suggestions[selectedSuggestion];
+            handleSuggestionClick(selectedSurah);
+        } else if (e.key === 'Escape') {
+            setShowSuggestions(false);
+            setSelectedSuggestion(-1);
+        }
+    };
+
+    const handleSearchBlur = () => {
+        // We'll handle this with the click outside effect instead
+    };
+
+    const handleSearchFocus = () => {
+        if (searchTerm.length > 0) {
+            setShowSuggestions(true);
+        }
     };
 
     // Filter surahs based on search and place
@@ -125,15 +207,59 @@ function SurahListPage() {
                         {/* Search and Filter */}
                         <div className="flex flex-col sm:flex-row gap-4">
                             {/* Search */}
-                            <div className="relative flex-1">
-                                <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                            <div ref={searchRef} className="relative flex-1">
+                                <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 z-10" />
                                 <input
                                     type="text"
                                     placeholder="Cari surah (nama, nomor, atau tempat turun)..."
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onChange={handleSearchInputChange}
+                                    onKeyDown={handleKeyDown}
+                                    onFocus={handleSearchFocus}
+                                    onBlur={handleSearchBlur}
                                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    autoComplete="off"
                                 />
+                                
+                                {/* Autocomplete Suggestions */}
+                                {showSuggestions && getSuggestions().length > 0 && (
+                                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
+                                        {getSuggestions().map((surah, index) => (
+                                            <div
+                                                key={surah.number}
+                                                onClick={() => handleSuggestionClick(surah)}
+                                                className={`flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 ${
+                                                    index === selectedSuggestion ? 'bg-green-50 border-green-200' : ''
+                                                }`}
+                                            >
+                                                <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center text-white text-sm font-bold">
+                                                    {surah.number}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center space-x-2">
+                                                        <p className="font-medium text-gray-900 truncate">
+                                                            {surah.name_latin}
+                                                        </p>
+                                                        <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                                                            surah.revelation_place?.toLowerCase() === 'makkah' 
+                                                                ? 'bg-orange-100 text-orange-700'
+                                                                : 'bg-blue-100 text-blue-700'
+                                                        }`}>
+                                                            {surah.revelation_place === 'makkah' ? 'Makkiyah' : 'Madaniyah'}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-sm text-gray-500 truncate">{surah.name_indonesian}</p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="text-lg font-arabic text-gray-800" dir="rtl">
+                                                        {surah.name_arabic}
+                                                    </p>
+                                                    <p className="text-xs text-gray-500">{surah.total_ayahs} ayat</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                             
                             {/* Filter by revelation place */}
