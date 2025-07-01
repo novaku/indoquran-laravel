@@ -234,8 +234,35 @@ class AdminController extends Controller
             'traffic_data' => [
                 'daily_traffic' => Visitor::getDailyTraffic(7),
                 'hourly_traffic' => Visitor::getHourlyTraffic(),
+                'popular_pages' => Visitor::getPopularPages(10),
+                'popular_surahs' => $this->getPopularSurahsWithNames(),
             ]
         ]);
+    }
+
+    /**
+     * Get popular surahs with their names from the database
+     */
+    private function getPopularSurahsWithNames()
+    {
+        try {
+            $popularSurahs = Visitor::getPopularSurahs(10);
+            
+            return $popularSurahs->map(function ($item) {
+                $surah = Surah::where('number', $item['surah_number'])->first();
+                
+                return [
+                    'surah_number' => $item['surah_number'],
+                    'surah_name' => $surah ? $surah->name : "Surah #{$item['surah_number']}",
+                    'surah_name_arabic' => $surah ? $surah->name_arabic : '',
+                    'visit_count' => $item['visit_count'],
+                    'url' => $item['url']
+                ];
+            })->values();
+        } catch (\Exception $e) {
+            \Log::error('Error getting popular surahs with names: ' . $e->getMessage());
+            return collect([]);
+        }
     }
 
     /**

@@ -46,7 +46,8 @@ class QuranDataSeeder extends Seeder
                         'sudais' => "https://download.quranicaudio.com/quran/abdurrahmaan_as-sudays/{$this->formatSurahNumber($surahData['id'])}.mp3",
                         'husary' => "https://download.quranicaudio.com/quran/mahmood_khaleel_al-husaree/{$this->formatSurahNumber($surahData['id'])}.mp3"
                     ]),
-                    'description' => $surahData['translated_name']['name'] . ' adalah surah ke-' . $surahData['id'] . ' dalam Al-Quran.'
+                    'description_short' => $surahData['translated_name']['name'],
+                    'description_long' => $surahData['translated_name']['name'] . ' adalah surah ke-' . $surahData['id'] . ' dalam Al-Quran.'
                 ]
             );
             

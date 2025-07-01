@@ -21,6 +21,8 @@ Tab khusus "Traffic Pengunjung" di dashboard yang berisi:
 - Summary cards dengan gradient background
 - Chart interaktif dengan tooltip
 - Data real-time yang diperbarui otomatis
+- **Halaman Populer**: Daftar URL yang paling sering dikunjungi dengan kategorisasi otomatis
+- **Surah Populer**: Ranking surah berdasarkan jumlah kunjungan dengan nama lengkap dalam bahasa Indonesia dan Arab
 
 ## Implementasi Teknis
 
@@ -44,6 +46,11 @@ File: `app/Models/Visitor.php`
 - `getWeeklyVisitors()`: Menghitung pengunjung minggu ini
 - `getMonthlyVisitors()`: Menghitung pengunjung bulan ini
 - `getTotalVisitors()`: Menghitung total pengunjung
+
+**Method tambahan v1.1**:
+- `getPopularPages($limit)`: Mendapatkan halaman yang paling populer
+- `getPopularSurahs($limit)`: Mendapatkan surah yang paling populer
+- `categorizeUrl($path, $query)`: Mengkategorikan URL berdasarkan pola
 
 ### 3. Middleware TrackVisitor
 File: `app/Http/Middleware/TrackVisitor.php`
@@ -161,6 +168,15 @@ php artisan db:seed --class=VisitorSeeder
 - API endpoints untuk external tools
 
 ## Changelog
+
+### Version 1.1 (July 2025)
+- **Added Popular Pages Analytics**: Menampilkan halaman yang paling sering dikunjungi
+- **Added Popular Surahs Analytics**: Menampilkan surah yang paling populer di kalangan pengunjung
+- **Enhanced URL Pattern Recognition**: Sistem kategorisasi otomatis untuk berbagai jenis halaman
+- **Improved Data Visualization**: Card design yang lebih menarik dengan gradient dan icons
+- **Realistic Data Distribution**: Weighted seeding untuk data yang lebih realistis
+- **Arabic Font Support**: Styling khusus untuk nama surah dalam bahasa Arab
+- **Enhanced Error Handling**: Validasi yang lebih baik untuk data surah
 
 ### Version 1.0 (July 2025)
 - Initial implementation

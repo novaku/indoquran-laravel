@@ -124,4 +124,115 @@ class Visitor extends Model
             return 0;
         }
     }
+
+    public static function getPopularPages($limit = 10)
+    {
+        try {
+            return self::select('page_url')
+                       ->selectRaw('COUNT(*) as visit_count')
+                       ->whereNotNull('page_url')
+                       ->groupBy('page_url')
+                       ->orderByDesc('visit_count')
+                       ->take($limit)
+                       ->get()
+                       ->map(function ($item) {
+                           // Extract meaningful page info
+                           $url = parse_url($item->page_url, PHP_URL_PATH);
+                           $query = parse_url($item->page_url, PHP_URL_QUERY);
+                           
+                           // Determine page type
+                           $pageInfo = self::categorizeUrl($url, $query);
+                           
+                           return [
+                               'url' => $item->page_url,
+                               'path' => $url,
+                               'visit_count' => $item->visit_count,
+                               'page_type' => $pageInfo['type'],
+                               'page_title' => $pageInfo['title'],
+                               'surah_number' => $pageInfo['surah_number'] ?? null
+                           ];
+                       });
+        } catch (\Exception $e) {
+            \Log::error('Error getting popular pages: ' . $e->getMessage());
+            return collect([]);
+        }
+    }
+
+    public static function getPopularSurahs($limit = 10)
+    {
+        try {
+            return self::select('page_url')
+                       ->selectRaw('COUNT(*) as visit_count')
+                       ->whereNotNull('page_url')
+                       ->where(function($query) {
+                           $query->where('page_url', 'LIKE', '%/surah/%')
+                                 ->orWhere('page_url', 'LIKE', '%/surat/%');
+                       })
+                       ->groupBy('page_url')
+                       ->orderByDesc('visit_count')
+                       ->take($limit)
+                       ->get()
+                       ->map(function ($item) {
+                           $path = parse_url($item->page_url, PHP_URL_PATH);
+                           preg_match('/\/(surah|surat)\/(\d+)/', $path, $matches);
+                           $surahNumber = $matches[2] ?? null;
+                           
+                           return [
+                               'surah_number' => $surahNumber,
+                               'visit_count' => $item->visit_count,
+                               'url' => $item->page_url
+                           ];
+                       })
+                       ->filter(function ($item) {
+                           return !is_null($item['surah_number']) && $item['surah_number'] >= 1 && $item['surah_number'] <= 114;
+                       });
+        } catch (\Exception $e) {
+            \Log::error('Error getting popular surahs: ' . $e->getMessage());
+            return collect([]);
+        }
+    }
+
+    private static function categorizeUrl($path, $query = null)
+    {
+        if (empty($path) || $path === '/') {
+            return ['type' => 'homepage', 'title' => 'Beranda'];
+        }
+
+        // Surah pages
+        if (preg_match('/\/surah\/(\d+)/', $path, $matches)) {
+            $surahNumber = $matches[1];
+            return [
+                'type' => 'surah',
+                'title' => "Surah #{$surahNumber}",
+                'surah_number' => $surahNumber
+            ];
+        }
+
+        // Prayer pages
+        if (str_contains($path, '/doa-bersama')) {
+            return ['type' => 'prayer', 'title' => 'Doa Bersama'];
+        }
+
+        // Search pages
+        if (str_contains($path, '/search') || str_contains($path, '/cari')) {
+            return ['type' => 'search', 'title' => 'Pencarian'];
+        }
+
+        // Contact page
+        if (str_contains($path, '/contact') || str_contains($path, '/kontak')) {
+            return ['type' => 'contact', 'title' => 'Kontak'];
+        }
+
+        // Juz pages
+        if (str_contains($path, '/juz')) {
+            return ['type' => 'juz', 'title' => 'Juz'];
+        }
+
+        // Page reading
+        if (str_contains($path, '/halaman')) {
+            return ['type' => 'page', 'title' => 'Halaman'];
+        }
+
+        return ['type' => 'other', 'title' => ucfirst(trim($path, '/'))];
+    }
 }

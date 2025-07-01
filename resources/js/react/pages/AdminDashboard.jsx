@@ -540,6 +540,86 @@ const AdminDashboard = () => {
                                         )}
                                     </div>
                                 </div>
+
+                                {/* Popular Pages & Surahs */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                                    {/* Popular Pages */}
+                                    <div className="bg-white border border-gray-200 rounded-lg p-4 lg:p-6">
+                                        <h4 className="text-lg font-medium text-gray-900 mb-4">Halaman Paling Populer</h4>
+                                        <div className="space-y-3">
+                                            {dashboardData?.traffic_data?.popular_pages?.length > 0 ? (
+                                                dashboardData.traffic_data.popular_pages.map((page, index) => (
+                                                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                                        <div className="flex-1">
+                                                            <div className="flex items-center space-x-2">
+                                                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                                                    page.page_type === 'surah' ? 'bg-emerald-100 text-emerald-800' :
+                                                                    page.page_type === 'homepage' ? 'bg-blue-100 text-blue-800' :
+                                                                    page.page_type === 'prayer' ? 'bg-pink-100 text-pink-800' :
+                                                                    page.page_type === 'search' ? 'bg-purple-100 text-purple-800' :
+                                                                    page.page_type === 'juz' ? 'bg-orange-100 text-orange-800' :
+                                                                    page.page_type === 'contact' ? 'bg-yellow-100 text-yellow-800' :
+                                                                    'bg-gray-100 text-gray-800'
+                                                                }`}>
+                                                                    <BookOpenIcon className="h-3 w-3 mr-1" />
+                                                                    {page.page_title}
+                                                                </span>
+                                                            </div>
+                                                            <p className="text-xs text-gray-500 mt-1 truncate" title={page.path}>
+                                                                {page.path}
+                                                            </p>
+                                                        </div>
+                                                        <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full ml-3">
+                                                            {page.visit_count} kunjungan
+                                                        </span>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div className="text-center py-8 text-gray-500">
+                                                    <BookOpenIcon className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                                                    <p>Belum ada data halaman populer</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Popular Surahs */}
+                                    <div className="bg-white border border-gray-200 rounded-lg p-4 lg:p-6">
+                                        <h4 className="text-lg font-medium text-gray-900 mb-4">Surah Paling Populer</h4>
+                                        <div className="space-y-3">
+                                            {dashboardData?.traffic_data?.popular_surahs?.length > 0 ? (
+                                                dashboardData.traffic_data.popular_surahs.map((surah, index) => (
+                                                    <div key={index} className="flex items-center justify-between p-3 bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg border border-emerald-100">
+                                                        <div className="flex-1">
+                                                            <div className="flex items-center space-x-3">
+                                                                <div className="bg-emerald-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                                                                    {surah.surah_number}
+                                                                </div>
+                                                                <div>
+                                                                    <p className="font-medium text-gray-900">{surah.surah_name}</p>
+                                                                    {surah.surah_name_arabic && (
+                                                                        <p className="text-sm text-gray-600" style={{ fontFamily: 'Amiri, Scheherazade, "Times New Roman", serif', direction: 'rtl' }}>{surah.surah_name_arabic}</p>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <span className="bg-emerald-100 text-emerald-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                                                {surah.visit_count} kunjungan
+                                                            </span>
+                                                            <p className="text-xs text-gray-500 mt-1">#{index + 1} populer</p>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div className="text-center py-8 text-gray-500">
+                                                    <BookOpenIcon className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                                                    <p>Belum ada data surah populer</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         )}
 

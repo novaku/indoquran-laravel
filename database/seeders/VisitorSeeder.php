@@ -24,13 +24,36 @@ class VisitorSeeder extends Seeder
         ];
 
         $pages = [
-            '/',
-            '/surah/1',
-            '/surah/2',
-            '/doa-bersama',
-            '/contact',
-            '/search?q=allah'
+            ['url' => '/', 'weight' => 25],
+            ['url' => '/surah/1', 'weight' => 20],   // Al-Fatihah - sangat populer
+            ['url' => '/surah/2', 'weight' => 15],   // Al-Baqarah - populer
+            ['url' => '/surah/18', 'weight' => 12],  // Al-Kahf - sering dibaca Jumat
+            ['url' => '/surah/36', 'weight' => 10],  // Ya-Sin - populer
+            ['url' => '/surah/55', 'weight' => 8],   // Ar-Rahman
+            ['url' => '/surah/67', 'weight' => 8],   // Al-Mulk
+            ['url' => '/surah/112', 'weight' => 12], // Al-Ikhlas - pendek, sering dibaca
+            ['url' => '/surah/113', 'weight' => 10], // Al-Falaq
+            ['url' => '/surah/114', 'weight' => 10], // An-Nas
+            ['url' => '/surah/3', 'weight' => 6],    // Ali 'Imran
+            ['url' => '/doa-bersama', 'weight' => 15],
+            ['url' => '/doa-bersama/random', 'weight' => 5],
+            ['url' => '/contact', 'weight' => 3],
+            ['url' => '/search?q=allah', 'weight' => 8],
+            ['url' => '/search?q=rahman', 'weight' => 5],
+            ['url' => '/cari?q=bismillah', 'weight' => 4],
+            ['url' => '/juz/1', 'weight' => 6],
+            ['url' => '/juz/30', 'weight' => 10],  // Juz Amma - populer
+            ['url' => '/halaman/1', 'weight' => 4],
+            ['url' => '/halaman/604', 'weight' => 3]
         ];
+
+        // Create weighted array for realistic distribution
+        $weightedPages = [];
+        foreach ($pages as $page) {
+            for ($i = 0; $i < $page['weight']; $i++) {
+                $weightedPages[] = $page['url'];
+            }
+        }
 
         // Generate data for last 7 days
         for ($days = 6; $days >= 0; $days--) {
@@ -50,7 +73,7 @@ class VisitorSeeder extends Seeder
                     'ip_address' => $this->generateRandomIp(),
                     'user_agent' => $userAgents[array_rand($userAgents)],
                     'visited_at' => $visitTime,
-                    'page_url' => 'https://indoquran.com' . $pages[array_rand($pages)],
+                    'page_url' => 'https://indoquran.com' . $weightedPages[array_rand($weightedPages)],
                     'referrer' => rand(0, 1) ? 'https://google.com' : null,
                     'session_id' => 'session_' . uniqid()
                 ]);
@@ -72,7 +95,7 @@ class VisitorSeeder extends Seeder
                     'ip_address' => $this->generateRandomIp(),
                     'user_agent' => $userAgents[array_rand($userAgents)],
                     'visited_at' => $visitTime,
-                    'page_url' => 'https://indoquran.com' . $pages[array_rand($pages)],
+                    'page_url' => 'https://indoquran.com' . $weightedPages[array_rand($weightedPages)],
                     'referrer' => rand(0, 1) ? 'https://google.com' : null,
                     'session_id' => 'session_' . uniqid()
                 ]);
