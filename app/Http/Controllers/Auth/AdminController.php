@@ -53,10 +53,12 @@ class AdminController extends Controller
             'email' => ['required', 'email'],
         ]);
 
-        // Check if the email is the admin email
-        if ($request->email !== 'kontak@indoquran.web.id') {
+        // Check if the email belongs to an admin user
+        $user = User::where('email', $request->email)->first();
+        
+        if (!$user || !$user->isAdmin()) {
             return response()->json([
-                'message' => 'Unauthorized. Only specific admin email can request OTP.'
+                'message' => 'Unauthorized. Only admin users can request OTP.'
             ], 403);
         }
 
@@ -73,6 +75,7 @@ class AdminController extends Controller
 
             \Log::info('Admin OTP sent successfully', [
                 'email' => $request->email,
+                'user_id' => $user->id,
                 'ip' => $request->ip(),
                 'expires_at' => $otpCode->expires_at,
             ]);
@@ -85,6 +88,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             \Log::error('Failed to send admin OTP', [
                 'email' => $request->email,
+                'user_id' => $user->id,
                 'error' => $e->getMessage(),
             ]);
 
@@ -107,10 +111,12 @@ class AdminController extends Controller
             'otp_code' => ['required', 'string', 'size:6'],
         ]);
 
-        // Check if the email is the admin email
-        if ($credentials['email'] !== 'kontak@indoquran.web.id') {
+        // Find admin user first
+        $user = User::where('email', $credentials['email'])->first();
+        
+        if (!$user || !$user->isAdmin()) {
             return response()->json([
-                'message' => 'Unauthorized. Only specific admin can access this area.'
+                'message' => 'Unauthorized. Only admin users can access this area.'
             ], 403);
         }
 
@@ -121,21 +127,13 @@ class AdminController extends Controller
             \Log::warning('Invalid admin OTP attempt', [
                 'email' => $credentials['email'],
                 'otp_code' => $credentials['otp_code'],
+                'user_id' => $user->id,
                 'ip' => $request->ip(),
             ]);
 
             return response()->json([
                 'message' => 'Kode OTP tidak valid atau sudah kadaluarsa.'
             ], 422);
-        }
-
-        // Find admin user
-        $user = User::where('email', $credentials['email'])->first();
-        
-        if (!$user || !$user->isAdmin()) {
-            return response()->json([
-                'message' => 'Admin user not found or not authorized.'
-            ], 403);
         }
 
         // Mark OTP as used
