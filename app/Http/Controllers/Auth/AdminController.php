@@ -13,6 +13,7 @@ use App\Models\SearchTerm;
 use App\Models\Surah;
 use App\Models\Ayah;
 use App\Models\AdminOtpCode;
+use App\Models\Visitor;
 use App\Mail\AdminOtpMail;
 
 class AdminController extends Controller
@@ -205,6 +206,10 @@ class AdminController extends Controller
             'total_search_terms' => SearchTerm::count(),
             'total_surahs' => Surah::count(),
             'total_ayahs' => Ayah::count(),
+            'daily_visitors' => Visitor::getTodayVisitors(),
+            'weekly_visitors' => Visitor::getWeeklyVisitors(),
+            'monthly_visitors' => Visitor::getMonthlyVisitors(),
+            'total_visitors' => Visitor::getTotalVisitors(),
         ];
 
         // Get recent activities
@@ -225,6 +230,10 @@ class AdminController extends Controller
                 'prayers' => $recent_prayers,
                 'users' => $recent_users,
                 'popular_searches' => $popular_searches,
+            ],
+            'traffic_data' => [
+                'daily_traffic' => Visitor::getDailyTraffic(7),
+                'hourly_traffic' => Visitor::getHourlyTraffic(),
             ]
         ]);
     }

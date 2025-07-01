@@ -9,7 +9,7 @@ import {
     BookOpenIcon,
     HeartIcon,
     Cog6ToothIcon,
-    ArrowRightOnRectangleIcon,
+    ArrowRightStartOnRectangleIcon,
     ChevronDownIcon,
     DocumentTextIcon,
     SparklesIcon,
@@ -175,7 +175,7 @@ function QuranHeader() {
                                             <button
                                                 key={item.path}
                                                 onClick={handleSearchClick}
-                                                className={`flex items-start space-x-3 px-4 py-4 text-sm transition-colors touch-manipulation w-full ${
+                                                className={`flex items-start space-x-3 px-4 py-4 text-sm transition-colors touch-manipulation w-full text-left border-none bg-transparent ${
                                                     isActivePath(item.path)
                                                         ? 'bg-green-50 text-green-600'
                                                         : 'text-gray-700 hover:bg-gray-50 hover:text-green-600 active:bg-gray-100'
@@ -340,10 +340,10 @@ function QuranHeader() {
                                         <hr className="my-2 border-gray-200" />
                                         <button
                                             onClick={handleLogout}
-                                            className="flex items-start space-x-3 px-4 py-4 text-sm text-gray-700 hover:bg-gray-50 hover:text-red-600 active:bg-gray-100 transition-colors touch-manipulation w-full"
+                                            className="flex items-start space-x-3 px-4 py-4 text-sm text-gray-700 hover:bg-gray-50 hover:text-red-600 active:bg-gray-100 transition-colors touch-manipulation w-full text-left border-none bg-transparent"
                                             style={{ minHeight: '56px' }}
                                         >
-                                            <ArrowRightOnRectangleIcon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                                            <ArrowRightStartOnRectangleIcon className="w-5 h-5 mt-0.5 flex-shrink-0" />
                                             <div>
                                                 <div className="font-medium">Keluar</div>
                                                 <div className="text-xs text-gray-500 mt-1">Logout dari akun</div>
@@ -398,7 +398,7 @@ function QuranHeader() {
                                                 <button
                                                     key={item.path}
                                                     onClick={handleSearchClick}
-                                                    className={`w-full text-left flex items-start space-x-3 px-6 py-4 ml-4 rounded-md text-base font-medium transition-colors touch-manipulation ${
+                                                    className={`w-full text-left flex items-start space-x-3 px-6 py-4 ml-4 rounded-md text-base font-medium transition-colors touch-manipulation border-none bg-transparent ${
                                                         isActivePath(item.path)
                                                             ? 'text-green-600 bg-green-50'
                                                             : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 active:bg-gray-100'
@@ -551,10 +551,10 @@ function QuranHeader() {
                                                 
                                                 <button
                                                     onClick={handleLogout}
-                                                    className="flex items-start space-x-3 px-6 py-4 ml-4 rounded-md text-base font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation w-full"
+                                                    className="flex items-start space-x-3 px-6 py-4 ml-4 rounded-md text-base font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation w-full text-left border-none bg-transparent"
                                                     style={{ minHeight: '56px' }}
                                                 >
-                                                    <ArrowRightOnRectangleIcon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                                                    <ArrowRightStartOnRectangleIcon className="w-5 h-5 mt-0.5 flex-shrink-0" />
                                                     <div>
                                                         <div className="font-medium">Keluar</div>
                                                         <div className="text-xs text-gray-500 mt-1">Logout dari akun</div>

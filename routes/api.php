@@ -160,3 +160,12 @@ Route::get('/kategori-doa', [PrayerController::class, 'getCategories']);
 
 // Prayer times API endpoint
 Route::get('/prayer-times', [PrayerController::class, 'getPrayerTimes']);
+
+// Admin routes
+Route::prefix('admin')->group(function() {
+    Route::post('/send-otp', [\App\Http\Controllers\Auth\AdminController::class, 'sendOtp']);
+    Route::post('/verify-otp', [\App\Http\Controllers\Auth\AdminController::class, 'verifyOtp']);
+    Route::get('/dashboard', [\App\Http\Controllers\Auth\AdminController::class, 'dashboard']);
+    Route::post('/contacts/{contact}/mark-read', [\App\Http\Controllers\Auth\AdminController::class, 'markContactAsRead']);
+    Route::post('/contacts/{contact}/reply', [\App\Http\Controllers\Auth\AdminController::class, 'replyToContact']);
+});

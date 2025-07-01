@@ -16,7 +16,9 @@ import {
     EnvelopeIcon,
     EnvelopeOpenIcon,
     PaperAirplaneIcon,
-    XMarkIcon
+    XMarkIcon,
+    ArrowTrendingUpIcon,
+    ClockIcon
 } from '@heroicons/react/24/outline';
 
 const AdminDashboard = () => {
@@ -306,6 +308,14 @@ const AdminDashboard = () => {
             icon: DocumentTextIcon,
             color: 'bg-orange-500',
             bgColor: 'bg-orange-50'
+        },
+        {
+            title: 'Pengunjung Hari Ini',
+            value: stats.daily_visitors || 0,
+            subtitle: `${stats.total_visitors || 0} total pengunjung`,
+            icon: ArrowTrendingUpIcon,
+            color: 'bg-indigo-500',
+            bgColor: 'bg-indigo-50'
         }
     ];
 
@@ -341,7 +351,7 @@ const AdminDashboard = () => {
             {/* Main Content */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Statistics Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 mb-8">
                     {statCards.map((stat, index) => {
                         const IconComponent = stat.icon;
                         return (
@@ -369,6 +379,7 @@ const AdminDashboard = () => {
                         <nav className="-mb-px flex space-x-8 px-6">
                             {[
                                 { id: 'overview', label: 'Ringkasan', icon: ChartBarIcon },
+                                { id: 'traffic', label: 'Traffic Pengunjung', icon: ArrowTrendingUpIcon },
                                 { id: 'users', label: 'Pengguna Terbaru', icon: UsersIcon },
                                 { id: 'contacts', label: 'Kontak Terbaru', icon: ChatBubbleLeftRightIcon },
                                 { id: 'prayers', label: 'Doa Terbaru', icon: HeartIcon },
@@ -402,6 +413,133 @@ const AdminDashboard = () => {
                                 <p className="text-gray-600">
                                     Selamat datang di panel administrasi. Gunakan tab di atas untuk melihat data terkini.
                                 </p>
+                            </div>
+                        )}
+
+                        {/* Traffic Tab */}
+                        {activeTab === 'traffic' && (
+                            <div>
+                                <h3 className="text-lg font-medium text-gray-900 mb-6">Traffic Pengunjung</h3>
+                                
+                                {/* Traffic Summary Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-4 text-white">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-blue-100 text-sm">Hari Ini</p>
+                                                <p className="text-2xl font-bold">{stats.daily_visitors || 0}</p>
+                                            </div>
+                                            <ArrowTrendingUpIcon className="h-8 w-8 text-blue-200" />
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-4 text-white">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-green-100 text-sm">Minggu Ini</p>
+                                                <p className="text-2xl font-bold">{stats.weekly_visitors || 0}</p>
+                                            </div>
+                                            <CalendarIcon className="h-8 w-8 text-green-200" />
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-4 text-white">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-purple-100 text-sm">Bulan Ini</p>
+                                                <p className="text-2xl font-bold">{stats.monthly_visitors || 0}</p>
+                                            </div>
+                                            <ChartBarIcon className="h-8 w-8 text-purple-200" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Daily Traffic Chart */}
+                                <div className="bg-white border border-gray-200 rounded-lg p-4 lg:p-6 mb-6">
+                                    <h4 className="text-lg font-medium text-gray-900 mb-4">Traffic 7 Hari Terakhir</h4>
+                                    <div className="h-48 lg:h-64">
+                                        {dashboardData?.traffic_data?.daily_traffic?.length > 0 ? (
+                                            <div className="flex items-end justify-between h-full space-x-2">
+                                                {dashboardData.traffic_data.daily_traffic.map((day, index) => {
+                                                    const maxVisitors = Math.max(...dashboardData.traffic_data.daily_traffic.map(d => d.visitors));
+                                                    const height = maxVisitors > 0 ? (day.visitors / maxVisitors) * 100 : 0;
+                                                    
+                                                    return (
+                                                        <div key={index} className="flex-1 flex flex-col items-center">
+                                                            <div className="w-full flex flex-col items-center">
+                                                                <div 
+                                                                    className="w-full bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-md transition-all duration-300 hover:from-emerald-600 hover:to-emerald-500 relative group"
+                                                                    style={{ height: `${height}%`, minHeight: '4px' }}
+                                                                >
+                                                                    {/* Tooltip */}
+                                                                    <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                                                        {day.visitors} pengunjung
+                                                                    </div>
+                                                                </div>
+                                                                <p className="text-xs text-gray-600 mt-2 font-medium">{day.visitors}</p>
+                                                            </div>
+                                                            <p className="text-xs text-gray-500 mt-1 text-center">
+                                                                {new Date(day.date).toLocaleDateString('id-ID', { 
+                                                                    weekday: 'short',
+                                                                    day: 'numeric',
+                                                                    month: 'short'
+                                                                })}
+                                                            </p>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center justify-center h-full text-gray-500">
+                                                <div className="text-center">
+                                                    <ChartBarIcon className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+                                                    <p>Data traffic tidak tersedia</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Hourly Traffic Today */}
+                                <div className="bg-white border border-gray-200 rounded-lg p-4 lg:p-6">
+                                    <h4 className="text-lg font-medium text-gray-900 mb-4">Traffic Per Jam Hari Ini</h4>
+                                    <div className="h-40 lg:h-48">
+                                        {dashboardData?.traffic_data?.hourly_traffic?.length > 0 ? (
+                                            <div className="flex items-end justify-between h-full space-x-0.5 lg:space-x-1">
+                                                {dashboardData.traffic_data.hourly_traffic.map((hour, index) => {
+                                                    const maxVisitors = Math.max(...dashboardData.traffic_data.hourly_traffic.map(h => h.visitors));
+                                                    const height = maxVisitors > 0 ? (hour.visitors / maxVisitors) * 100 : 0;
+                                                    
+                                                    return (
+                                                        <div key={index} className="flex-1 flex flex-col items-center">
+                                                            <div className="w-full flex flex-col items-center">
+                                                                <div 
+                                                                    className="w-full bg-gradient-to-t from-blue-500 to-blue-400 rounded-t-md transition-all duration-300 hover:from-blue-600 hover:to-blue-500 relative group"
+                                                                    style={{ height: `${height}%`, minHeight: '2px' }}
+                                                                >
+                                                                    {/* Tooltip */}
+                                                                    <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                                                        {hour.visitors} pengunjung
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <p className="text-xs text-gray-500 mt-1 text-center">
+                                                                {hour.hour}:00
+                                                            </p>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center justify-center h-full text-gray-500">
+                                                <div className="text-center">
+                                                    <ClockIcon className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+                                                    <p>Data traffic per jam tidak tersedia</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         )}
 
