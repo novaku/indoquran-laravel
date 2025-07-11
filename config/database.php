@@ -140,12 +140,16 @@ return [
 
         'default' => [
             'socket' => env('REDIS_SOCKET'),
+            'host' => env('REDIS_SOCKET') ? null : env('REDIS_HOST', '127.0.0.1'),
+            'port' => env('REDIS_SOCKET') ? null : env('REDIS_PORT', '6379'),
             'password' => env('REDIS_PASSWORD') === 'null' ? null : env('REDIS_PASSWORD'),
             'database' => env('REDIS_DB', '0'),
         ],
 
         'cache' => [
             'socket' => env('REDIS_SOCKET'),
+            'host' => env('REDIS_SOCKET') ? null : env('REDIS_HOST', '127.0.0.1'),
+            'port' => env('REDIS_SOCKET') ? null : env('REDIS_PORT', '6379'),
             'password' => env('REDIS_PASSWORD') === 'null' ? null : env('REDIS_PASSWORD'),
             'database' => env('REDIS_CACHE_DB', '1'),
         ],

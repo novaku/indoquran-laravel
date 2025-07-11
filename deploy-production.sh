@@ -115,6 +115,25 @@ EOF
         connection_details=$(echo "$redis_test_result" | cut -d':' -f3-)
         log_message "✓ Redis server is responding via $connection_type: $connection_details"
         redis_working=true
+        
+        # Ensure .env has the correct Redis socket configuration
+        if [[ "$connection_type" == "SOCKET" ]]; then
+            log_message "Configuring Laravel for Redis socket connection..."
+            
+            # Ensure REDIS_SOCKET is set in .env
+            if ! grep -q "REDIS_SOCKET=" .env; then
+                echo "REDIS_SOCKET=$connection_details" >> .env
+                log_message "✓ Added REDIS_SOCKET to .env"
+            else
+                # Update existing REDIS_SOCKET setting
+                sed -i "s|REDIS_SOCKET=.*|REDIS_SOCKET=$connection_details|" .env
+                log_message "✓ Updated REDIS_SOCKET in .env"
+            fi
+            
+            # Clear Laravel config cache to reload Redis configuration
+            log_message "Clearing Laravel config cache to reload Redis settings..."
+            php artisan config:clear >/dev/null 2>&1 || true
+        fi
     else
         log_warning "⚠ Redis server is not responding - attempting to start..."
         redis_working=false
@@ -172,6 +191,22 @@ EOF
                     connection_details=$(echo "$redis_test_result" | cut -d':' -f3-)
                     log_message "✓ User-space Redis started successfully ($connection_type: $connection_details)"
                     redis_working=true
+                    
+                    # Ensure .env has the correct Redis configuration
+                    if [[ "$connection_type" == "SOCKET" ]]; then
+                        log_message "Configuring Laravel for Redis socket connection..."
+                        
+                        if ! grep -q "REDIS_SOCKET=" .env; then
+                            echo "REDIS_SOCKET=$connection_details" >> .env
+                            log_message "✓ Added REDIS_SOCKET to .env"
+                        else
+                            sed -i "s|REDIS_SOCKET=.*|REDIS_SOCKET=$connection_details|" .env
+                            log_message "✓ Updated REDIS_SOCKET in .env"
+                        fi
+                        
+                        # Clear Laravel config cache
+                        php artisan config:clear >/dev/null 2>&1 || true
+                    fi
                 else
                     log_warning "⚠ User-space Redis failed to start or not responding"
                 fi
@@ -322,16 +357,47 @@ EOF
     
     if [ "$cache_available" = true ]; then
         log_message "Cache system is available, proceeding with cache operations..."
-        if php artisan quran:cache clear 2>/dev/null; then
-            log_message "✓ Quran cache cleared successfully"
-        else
-            log_warning "⚠ Failed to clear Quran cache"
-        fi
         
-        if php artisan quran:cache warm-up 2>/dev/null; then
-            log_message "✓ Quran cache warmed up successfully"
+        # Test Laravel's Redis connection before clearing cache
+        log_message "Testing Laravel's Redis connection..."
+        if php artisan tinker --execute="try { \$redis = app('redis'); \$redis->ping(); echo 'Laravel Redis: OK'; } catch (Exception \$e) { echo 'Laravel Redis: ERROR - ' . \$e->getMessage(); throw \$e; }" 2>/dev/null | grep -q "Laravel Redis: OK"; then
+            log_message "✓ Laravel Redis connection verified"
+            
+            if php artisan quran:cache clear 2>/dev/null; then
+                log_message "✓ Quran cache cleared successfully"
+            else
+                log_warning "⚠ Failed to clear Quran cache"
+            fi
+            
+            if php artisan quran:cache warm-up 2>/dev/null; then
+                log_message "✓ Quran cache warmed up successfully"
+            else
+                log_warning "⚠ Failed to warm up Quran cache"
+            fi
         else
-            log_warning "⚠ Failed to warm up Quran cache"
+            log_warning "⚠ Laravel cannot connect to Redis - checking configuration..."
+            log_warning "Redis connection test passed but Laravel config may be incorrect"
+            log_warning "Clearing Laravel config cache and retrying..."
+            
+            php artisan config:clear >/dev/null 2>&1 || true
+            php artisan config:cache >/dev/null 2>&1 || true
+            
+            # Retry once more
+            if php artisan tinker --execute="try { \$redis = app('redis'); \$redis->ping(); echo 'Laravel Redis: OK'; } catch (Exception \$e) { echo 'Laravel Redis: ERROR - ' . \$e->getMessage(); throw \$e; }" 2>/dev/null | grep -q "Laravel Redis: OK"; then
+                log_message "✓ Laravel Redis connection verified after config reload"
+                
+                if php artisan quran:cache clear 2>/dev/null; then
+                    log_message "✓ Quran cache cleared successfully"
+                fi
+                
+                if php artisan quran:cache warm-up 2>/dev/null; then
+                    log_message "✓ Quran cache warmed up successfully"
+                fi
+            else
+                log_warning "⚠ Laravel still cannot connect to Redis"
+                log_warning "Cache operations will be skipped"
+                log_warning "Check Redis configuration in .env and config/database.php"
+            fi
         fi
     else
         log_warning "⚠ Cache system not available, skipping cache operations"
