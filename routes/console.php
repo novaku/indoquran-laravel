@@ -14,17 +14,26 @@ Artisan::command('redis:quick-test', function () {
     $this->info("Testing Redis connection to: {$socketPath}");
     
     try {
+        // Force disconnect any existing connections
+        Redis::disconnect();
+        
+        // Create a fresh Predis client directly with socket configuration
+        $client = new \Predis\Client([
+            'scheme' => 'unix',
+            'path' => $socketPath,
+        ]);
+        
         // Test connection
-        $pong = Redis::ping();
+        $pong = $client->ping();
         
         if ($pong === '+PONG' || $pong === 'PONG') {
             $this->info('✅ Redis connection successful!');
             
             // Test basic operation
             $testKey = 'quick_test_' . time();
-            Redis::set($testKey, 'Hello IndoQuran!');
-            $value = Redis::get($testKey);
-            Redis::del($testKey);
+            $client->set($testKey, 'Hello IndoQuran!');
+            $value = $client->get($testKey);
+            $client->del($testKey);
             
             if ($value === 'Hello IndoQuran!') {
                 $this->info('✅ Basic Redis operations working!');
@@ -100,3 +109,43 @@ Artisan::command('redis:debug', function () {
     }
     
 })->purpose('Debug Redis configuration and connection');
+
+Artisan::command('redis:safe-clear', function () {
+    $this->info('=== Safe Redis Cache Clear ===');
+    
+    try {
+        // Clear caches without triggering Redis connections
+        $this->info('Clearing configuration cache...');
+        \Illuminate\Support\Facades\Artisan::call('config:clear');
+        
+        $this->info('Clearing route cache...');
+        \Illuminate\Support\Facades\Artisan::call('route:clear');
+        
+        $this->info('Clearing view cache...');
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
+        
+        // Manually clear Redis cache using direct connection
+        $socketPath = config('database.redis.default.socket');
+        if ($socketPath && file_exists($socketPath)) {
+            $this->info('Clearing Redis cache via socket...');
+            
+            $client = new \Predis\Client([
+                'scheme' => 'unix',
+                'path' => $socketPath,
+            ]);
+            
+            // Clear cache database (database 1)
+            $client->select(1);
+            $client->flushdb();
+            
+            $this->info('✅ Redis cache cleared successfully');
+        } else {
+            $this->warn('⚠️  Redis socket not available, skipping Redis cache clear');
+        }
+        
+        $this->info('✅ All caches cleared safely');
+        
+    } catch (\Exception $e) {
+        $this->error('❌ Cache clear failed: ' . $e->getMessage());
+    }
+})->purpose('Safely clear caches without triggering Redis connection issues');

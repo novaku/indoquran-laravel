@@ -37,7 +37,18 @@ if [ -S "$SOCKET_PATH" ]; then
     echo "Socket details:"
     ls -la "$SOCKET_PATH"
     echo "Socket owner: $(stat -c '%U:%G' $SOCKET_PATH)"
-    echo "Socket permissions: $(stat -c '%a' $SOCKET_PATH)"
+    CURRENT_PERMS=$(stat -c '%a' $SOCKET_PATH)
+    echo "Socket permissions: $CURRENT_PERMS"
+    
+    # Check if permissions need fixing
+    if [ "$CURRENT_PERMS" = "700" ]; then
+        echo "⚠️  Socket permissions are too restrictive (700)"
+        echo "Attempting to fix permissions to 660..."
+        chmod 660 "$SOCKET_PATH" 2>/dev/null && echo "✅ Permissions updated to 660" || echo "❌ Failed to update permissions"
+        ls -la "$SOCKET_PATH"
+    else
+        echo "✅ Socket permissions look good"
+    fi
 else
     echo "❌ Socket file issue:"
     if [ -e "$SOCKET_PATH" ]; then
