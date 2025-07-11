@@ -2,31 +2,20 @@ User-agent: *
 Allow: /
 
 # Disallow private pages
-Disallow: /masuk
-Disallow: /daftar
-Disallow: /profil
-Disallow: /penanda
+Disallow: /auth/
+Disallow: /profile
+Disallow: /bookmarks
 Disallow: /api/
 Disallow: /admin/
-Disallow: /test/
-Disallow: /*.json$
 
 # Allow important pages
-Allow: /
 Allow: /cari
-Allow: /search
 Allow: /surah/
 Allow: /juz/
 Allow: /halaman/
-Allow: /tafsir-maudhui/
-Allow: /doa-bersama/
-Allow: /donasi/
-Allow: /riwayat-versi
-Allow: /about
-Allow: /contact
-Allow: /privacy
-Allow: /faq
-Allow: /prayer-times/
+Allow: /tentang
+Allow: /kontak
+Allow: /kebijakan
 
 # Crawl delay for respectful crawling
 Crawl-delay: 1
@@ -47,10 +36,3 @@ Crawl-delay: 1
 User-agent: Slurp
 Allow: /
 Crawl-delay: 1
-
-# Optimize for mobile-first indexing
-User-agent: Googlebot-Mobile
-Allow: /
-Crawl-delay: 1
-
-# Last updated: June 23, 2025

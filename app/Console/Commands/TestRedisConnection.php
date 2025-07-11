@@ -76,6 +76,25 @@ class TestRedisConnection extends Command
         $this->line('Client: ' . config('database.redis.client'));
         $this->line('Socket: ' . config('database.redis.default.socket'));
         $this->line('Cache Driver: ' . config('cache.default'));
+        
+        // Check if socket file exists
+        $socketPath = config('database.redis.default.socket');
+        if (file_exists($socketPath)) {
+            $this->info('✅ Socket file exists');
+            
+            // Check if socket is readable/writable
+            if (is_readable($socketPath) && is_writable($socketPath)) {
+                $this->info('✅ Socket has proper permissions');
+            } else {
+                $this->warn('⚠️  Socket permissions may be incorrect');
+                $this->line('  Readable: ' . (is_readable($socketPath) ? 'Yes' : 'No'));
+                $this->line('  Writable: ' . (is_writable($socketPath) ? 'Yes' : 'No'));
+            }
+        } else {
+            $this->error('❌ Socket file does not exist: ' . $socketPath);
+            $this->warn('Please check if Redis server is running and configured correctly.');
+        }
+        
         $this->newLine();
     }
     

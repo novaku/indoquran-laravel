@@ -22,6 +22,7 @@ import SearchField from '../components/SearchField';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
+import QuranBookAnimation from '../components/QuranBookAnimation';
 import { fetchWithAuth } from '../utils/apiUtils';
 import { getReadingProgress } from '../services/ReadingProgressService';
 import authUtils from '../utils/auth';
@@ -214,6 +215,21 @@ function QuranHomePage() {
                             Nikmati Al-Quran dengan bacaan yang indah, terjemahan akurat, 
                             dan alat pembelajaran komprehensif yang dirancang untuk pembelajaran modern.
                         </p>
+
+                        {/* Book Animation */}
+                        <div className="flex justify-center mb-12">
+                            <div className="relative">
+                                <QuranBookAnimation 
+                                    size="lg" 
+                                    autoPlay={true}
+                                    className="animate-float"
+                                />
+                                {/* Decorative elements around the book */}
+                                <div className="absolute -top-2 -right-2 lg:-top-4 lg:-right-4 w-6 h-6 lg:w-8 lg:h-8 bg-yellow-400 rounded-full opacity-20 animate-pulse"></div>
+                                <div className="absolute -bottom-2 -left-2 lg:-bottom-4 lg:-left-4 w-4 h-4 lg:w-6 lg:h-6 bg-green-400 rounded-full opacity-30 animate-pulse" style={{ animationDelay: '1s' }}></div>
+                                <div className="absolute top-1/2 -right-4 lg:-right-8 w-3 h-3 lg:w-4 lg:h-4 bg-blue-400 rounded-full opacity-25 animate-pulse" style={{ animationDelay: '2s' }}></div>
+                            </div>
+                        </div>
                         
                         {/* Search Bar */}
                         <div className="max-w-2xl mx-auto mb-8">
