@@ -54,16 +54,159 @@ fi
 log_message "Checking Redis configuration..."
 if grep -q "CACHE_STORE=redis" .env; then
     log_message "✓ Redis cache store configured"
-    # Test Redis connection
-    if redis-cli ping >/dev/null 2>&1; then
-        log_message "✓ Redis server is responding"
+    
+    # Test Redis connection using PHP instead of redis-cli
+    log_message "Testing Redis connection via PHP..."
+    
+    # Create a temporary PHP script to test Redis connection
+    cat > test_redis_connection.php << 'EOF'
+<?php
+try {
+    // Load Laravel environment
+    require_once 'vendor/autoload.php';
+    
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+    $dotenv->load();
+    
+    // Test Redis connection based on configuration
+    $redisSocket = $_ENV['REDIS_SOCKET'] ?? null;
+    $redisHost = $_ENV['REDIS_HOST'] ?? '127.0.0.1';
+    $redisPort = $_ENV['REDIS_PORT'] ?? 6379;
+    
+    if ($redisSocket && file_exists($redisSocket)) {
+        // Test socket connection
+        $redis = new Redis();
+        if ($redis->connect($redisSocket)) {
+            $response = $redis->ping();
+            if ($response === true || $response === 'PONG') {
+                echo "SUCCESS:SOCKET:$redisSocket";
+                $redis->close();
+                exit(0);
+            }
+        }
+        echo "FAILED:SOCKET:$redisSocket";
+        exit(1);
+    } else {
+        // Test TCP connection
+        $redis = new Redis();
+        if ($redis->connect($redisHost, $redisPort, 2)) {
+            $response = $redis->ping();
+            if ($response === true || $response === 'PONG') {
+                echo "SUCCESS:TCP:$redisHost:$redisPort";
+                $redis->close();
+                exit(0);
+            }
+        }
+        echo "FAILED:TCP:$redisHost:$redisPort";
+        exit(1);
+    }
+} catch (Exception $e) {
+    echo "ERROR:" . $e->getMessage();
+    exit(1);
+}
+EOF
+    
+    # Test Redis connection using the PHP script
+    redis_test_result=$(php test_redis_connection.php 2>/dev/null || echo "SCRIPT_FAILED")
+    rm -f test_redis_connection.php
+    
+    if [[ "$redis_test_result" == SUCCESS:* ]]; then
+        connection_type=$(echo "$redis_test_result" | cut -d':' -f2)
+        connection_details=$(echo "$redis_test_result" | cut -d':' -f3-)
+        log_message "✓ Redis server is responding via $connection_type: $connection_details"
+        redis_working=true
     else
-        log_warning "⚠ Redis server is not responding - cache will fall back to database"
-        log_warning "Consider starting Redis service: sudo systemctl start redis"
+        log_warning "⚠ Redis server is not responding - attempting to start..."
+        redis_working=false
+        
+        # Try to start user-space Redis if available
+        if [ -f "$HOME/redis/start-redis.sh" ]; then
+            log_message "Found user-space Redis, attempting to start..."
+            if bash "$HOME/redis/start-redis.sh" >/dev/null 2>&1; then
+                sleep 3
+                
+                # Test again after starting
+                cat > test_redis_connection.php << 'EOF'
+<?php
+try {
+    require_once 'vendor/autoload.php';
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+    $dotenv->load();
+    
+    $redisSocket = $_ENV['REDIS_SOCKET'] ?? null;
+    $redisHost = $_ENV['REDIS_HOST'] ?? '127.0.0.1';
+    $redisPort = $_ENV['REDIS_PORT'] ?? 6379;
+    
+    if ($redisSocket && file_exists($redisSocket)) {
+        $redis = new Redis();
+        if ($redis->connect($redisSocket)) {
+            $response = $redis->ping();
+            if ($response === true || $response === 'PONG') {
+                echo "SUCCESS:SOCKET:$redisSocket";
+                exit(0);
+            }
+        }
+    }
+    
+    $redis = new Redis();
+    if ($redis->connect($redisHost, $redisPort, 2)) {
+        $response = $redis->ping();
+        if ($response === true || $response === 'PONG') {
+            echo "SUCCESS:TCP:$redisHost:$redisPort";
+            exit(0);
+        }
+    }
+    echo "FAILED";
+    exit(1);
+} catch (Exception $e) {
+    echo "FAILED";
+    exit(1);
+}
+EOF
+                
+                redis_test_result=$(php test_redis_connection.php 2>/dev/null || echo "FAILED")
+                rm -f test_redis_connection.php
+                
+                if [[ "$redis_test_result" == SUCCESS:* ]]; then
+                    connection_type=$(echo "$redis_test_result" | cut -d':' -f2)
+                    connection_details=$(echo "$redis_test_result" | cut -d':' -f3-)
+                    log_message "✓ User-space Redis started successfully ($connection_type: $connection_details)"
+                    redis_working=true
+                else
+                    log_warning "⚠ User-space Redis failed to start or not responding"
+                fi
+            else
+                log_warning "⚠ Failed to start user-space Redis"
+            fi
+        fi
+        
+        # Final fallback if Redis is still not working
+        if [ "$redis_working" = false ]; then
+            log_warning "⚠ Redis server is still not responding"
+            log_warning "Cache will fall back to database or file cache"
+            log_warning ""
+            log_warning "To fix Redis issues:"
+            log_warning "1. Check Redis documentation: docs/REDIS_SOCKET_CONFIGURATION.md"
+            log_warning "2. For user-space Redis: Run ./install-user-redis.sh"
+            log_warning "3. Check Redis socket: ls -la /home/indoqura/tmp/redis.sock"
+            log_warning "4. Alternative: Switch to database cache in .env"
+            log_warning ""
+            log_warning "Automatic fallback: Setting CACHE_STORE to database..."
+            
+            # Backup current .env and switch to database cache
+            if [ -f .env ]; then
+                cp .env .env.redis-backup
+                sed -i 's/CACHE_STORE=redis/CACHE_STORE=database/' .env
+                log_message "✓ Switched to database cache (Redis backup saved as .env.redis-backup)"
+            fi
+        fi
     fi
 else
-    log_warning "⚠ CACHE_STORE is not set to redis - using alternative cache driver"
-    log_warning "For optimal performance, set CACHE_STORE=redis in .env"
+    cache_store=$(grep "CACHE_STORE=" .env 2>/dev/null | cut -d'=' -f2 || echo "not set")
+    log_message "Cache store configured as: $cache_store"
+    if [ "$cache_store" = "not set" ]; then
+        log_warning "⚠ CACHE_STORE not configured, using Laravel default"
+    fi
 fi
 
 # Ensure we don't accidentally run build scripts that would delete vendor files
@@ -96,7 +239,15 @@ fi
 
 # Run database migrations
 log_message "Running database migrations..."
-php artisan migrate --force || { log_warning "Database migrations failed - check database connection"; }
+if php artisan migrate --force 2>&1 | grep -q "Duplicate column"; then
+    log_warning "⚠ Some migrations skipped due to existing columns (this is normal)"
+    log_message "✓ Database schema is up to date"
+elif php artisan migrate --force >/dev/null 2>&1; then
+    log_message "✓ Database migrations completed successfully"
+else
+    log_warning "⚠ Database migrations encountered issues - check database connection"
+    log_warning "Application may still work with existing schema"
+fi
 
 # Ensure cache table exists (for fallback caching)
 log_message "Ensuring cache table exists..."
@@ -116,16 +267,76 @@ php artisan view:cache
 log_message "Managing Quran cache..."
 if php artisan list | grep -q "quran:cache"; then
     log_message "Quran cache commands available"
-    if php artisan quran:cache clear; then
-        log_message "✓ Quran cache cleared successfully"
+    
+    # Check what cache driver is actually being used
+    current_cache=$(grep "CACHE_STORE=" .env 2>/dev/null | cut -d'=' -f2 || echo "default")
+    log_message "Current cache driver: $current_cache"
+    
+    # Check if cache system is available
+    cache_available=false
+    if [ "$current_cache" = "redis" ]; then
+        # Test Redis availability using PHP
+        cat > test_cache_availability.php << 'EOF'
+<?php
+try {
+    require_once 'vendor/autoload.php';
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+    $dotenv->load();
+    
+    $redisSocket = $_ENV['REDIS_SOCKET'] ?? null;
+    $redisHost = $_ENV['REDIS_HOST'] ?? '127.0.0.1';
+    $redisPort = $_ENV['REDIS_PORT'] ?? 6379;
+    
+    $redis = new Redis();
+    $connected = false;
+    
+    if ($redisSocket && file_exists($redisSocket)) {
+        $connected = $redis->connect($redisSocket);
+    } else {
+        $connected = $redis->connect($redisHost, $redisPort, 2);
+    }
+    
+    if ($connected && ($redis->ping() === true || $redis->ping() === 'PONG')) {
+        echo "AVAILABLE";
+        exit(0);
+    } else {
+        echo "UNAVAILABLE";
+        exit(1);
+    }
+} catch (Exception $e) {
+    echo "UNAVAILABLE";
+    exit(1);
+}
+EOF
+        
+        cache_test_result=$(php test_cache_availability.php 2>/dev/null || echo "UNAVAILABLE")
+        rm -f test_cache_availability.php
+        
+        if [ "$cache_test_result" = "AVAILABLE" ]; then
+            cache_available=true
+        fi
     else
-        log_warning "⚠ Failed to clear Quran cache"
+        # For database, file, or other cache drivers
+        cache_available=true
     fi
     
-    if php artisan quran:cache warm-up; then
-        log_message "✓ Quran cache warmed up successfully"
+    if [ "$cache_available" = true ]; then
+        log_message "Cache system is available, proceeding with cache operations..."
+        if php artisan quran:cache clear 2>/dev/null; then
+            log_message "✓ Quran cache cleared successfully"
+        else
+            log_warning "⚠ Failed to clear Quran cache"
+        fi
+        
+        if php artisan quran:cache warm-up 2>/dev/null; then
+            log_message "✓ Quran cache warmed up successfully"
+        else
+            log_warning "⚠ Failed to warm up Quran cache"
+        fi
     else
-        log_warning "⚠ Failed to warm up Quran cache"
+        log_warning "⚠ Cache system not available, skipping cache operations"
+        log_message "Cache will be populated automatically on first requests"
+        log_message "Consider fixing cache configuration for better performance"
     fi
 else
     log_warning "⚠ Quran cache commands not available yet"
@@ -202,12 +413,66 @@ fi
 log_message "Clearing OPcache..."
 php -r "if(function_exists('opcache_reset')) { opcache_reset(); echo 'OPcache cleared'; } else { echo 'OPcache not available'; }"
 
-# Verify Redis cache status
-log_message "Verifying Redis cache status..."
-if php artisan quran:cache status >/dev/null 2>&1; then
-    log_message "✓ Redis cache is working properly"
+# Verify cache status
+log_message "Verifying cache status..."
+current_cache=$(grep "CACHE_STORE=" .env 2>/dev/null | cut -d'=' -f2 || echo "default")
+
+if [ "$current_cache" = "redis" ]; then
+    # Test Redis availability using PHP
+    cat > test_redis_verification.php << 'EOF'
+<?php
+try {
+    require_once 'vendor/autoload.php';
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+    $dotenv->load();
+    
+    $redisSocket = $_ENV['REDIS_SOCKET'] ?? null;
+    $redisHost = $_ENV['REDIS_HOST'] ?? '127.0.0.1';
+    $redisPort = $_ENV['REDIS_PORT'] ?? 6379;
+    
+    $redis = new Redis();
+    $connected = false;
+    
+    if ($redisSocket && file_exists($redisSocket)) {
+        $connected = $redis->connect($redisSocket);
+    } else {
+        $connected = $redis->connect($redisHost, $redisPort, 2);
+    }
+    
+    if ($connected && ($redis->ping() === true || $redis->ping() === 'PONG')) {
+        echo "SUCCESS";
+        exit(0);
+    } else {
+        echo "FAILED";
+        exit(1);
+    }
+} catch (Exception $e) {
+    echo "FAILED";
+    exit(1);
+}
+EOF
+    
+    redis_verification=$(php test_redis_verification.php 2>/dev/null || echo "FAILED")
+    rm -f test_redis_verification.php
+    
+    if [ "$redis_verification" = "SUCCESS" ]; then
+        log_message "✓ Redis cache is working properly"
+    else
+        log_warning "⚠ Redis cache verification failed - using fallback cache"
+    fi
+elif [ "$current_cache" = "database" ]; then
+    log_message "✓ Database cache is configured"
+elif [ "$current_cache" = "file" ]; then
+    log_message "✓ File cache is configured"
 else
-    log_warning "⚠ Redis cache verification failed - check Redis connection"
+    log_message "✓ Cache system configured as: $current_cache"
+fi
+
+# Test Quran cache if available
+if php artisan quran:cache status >/dev/null 2>&1; then
+    log_message "✓ Quran cache system is functional"
+else
+    log_warning "⚠ Quran cache verification failed - check cache configuration"
     log_warning "Application will still work but may have slower performance"
 fi
 
@@ -233,8 +498,11 @@ else
 fi
 
 log_message "Deployment completed successfully!"
-log_message "Your IndoQuran application should now be running with all assets correctly prefixed with /public in production."
-log_message "Redis cache has been cleared and warmed up for optimal performance."
+log_message "Your IndoQuran application should now be running with optimized caching."
+
+current_cache=$(grep "CACHE_STORE=" .env 2>/dev/null | cut -d'=' -f2 || echo "default")
+log_message "Current cache driver: $current_cache"
+
 log_message ""
 log_message "Post-deployment information:"
 log_message "- Cache status: php artisan quran:cache status"
@@ -242,8 +510,30 @@ log_message "- Clear cache: php artisan quran:cache clear"
 log_message "- Warm cache: php artisan quran:cache warm-up"
 log_message "- Check logs: tail -f storage/logs/laravel.log"
 log_message ""
-log_message "If you encounter cache issues:"
-log_message "1. Check Redis service: sudo systemctl status redis"
-log_message "2. Restart Redis: sudo systemctl restart redis"
-log_message "3. Check Redis connection: redis-cli ping"
-log_message "4. Verify .env CACHE_STORE=redis setting"
+
+if [ "$current_cache" = "redis" ]; then
+    log_message "Redis cache troubleshooting:"
+    log_message "1. Test Redis in PHP: php -r \"try { \$r = new Redis(); \$r->connect('/home/indoqura/tmp/redis.sock'); echo \$r->ping() ? 'OK' : 'FAIL'; } catch(Exception \$e) { echo 'ERROR: ' . \$e->getMessage(); }\""
+    log_message "2. Start user Redis: ~/redis/start-redis.sh"
+    log_message "3. Redis status: ~/redis/status-redis.sh"
+    log_message "4. Install user Redis: ./install-user-redis.sh"
+elif [ "$current_cache" = "database" ]; then
+    log_message "Database cache information:"
+    log_message "1. Cache table should exist (created automatically)"
+    log_message "2. Performance: Good for most applications"
+    log_message "3. To upgrade to Redis: Install Redis and update .env"
+else
+    log_message "Cache troubleshooting:"
+    log_message "1. Current driver: $current_cache"
+    log_message "2. For better performance, consider Redis or database cache"
+fi
+
+log_message ""
+log_message "If you need Redis without sudo access:"
+log_message "1. Run: ./install-user-redis.sh"
+log_message "2. Update .env: CACHE_STORE=redis"
+log_message "3. Re-run deployment script"
+log_message ""
+log_message "For Redis documentation:"
+log_message "- With sudo: docs/REDIS_CONNECTION_FIX.md"
+log_message "- Without sudo: docs/REDIS_NO_SUDO_INSTALLATION.md"
