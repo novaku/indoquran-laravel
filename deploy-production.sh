@@ -50,6 +50,22 @@ else
     fi
 fi
 
+# Check Redis configuration
+log_message "Checking Redis configuration..."
+if grep -q "CACHE_STORE=redis" .env; then
+    log_message "✓ Redis cache store configured"
+    # Test Redis connection
+    if redis-cli ping >/dev/null 2>&1; then
+        log_message "✓ Redis server is responding"
+    else
+        log_warning "⚠ Redis server is not responding - cache will fall back to database"
+        log_warning "Consider starting Redis service: sudo systemctl start redis"
+    fi
+else
+    log_warning "⚠ CACHE_STORE is not set to redis - using alternative cache driver"
+    log_warning "For optimal performance, set CACHE_STORE=redis in .env"
+fi
+
 # Ensure we don't accidentally run build scripts that would delete vendor files
 log_message "Protecting build assets during deployment..."
 
@@ -71,6 +87,22 @@ git pull origin main || { log_error "Failed to pull from git"; exit 1; }
 log_message "Installing PHP dependencies..."
 composer install --no-dev --optimize-autoloader || { log_error "Failed to install PHP dependencies"; exit 1; }
 
+# Generate application key if not exists
+log_message "Ensuring application key exists..."
+if ! grep -q "APP_KEY=" .env || grep -q "APP_KEY=$" .env; then
+    log_message "Generating application key..."
+    php artisan key:generate
+fi
+
+# Run database migrations
+log_message "Running database migrations..."
+php artisan migrate --force || { log_warning "Database migrations failed - check database connection"; }
+
+# Ensure cache table exists (for fallback caching)
+log_message "Ensuring cache table exists..."
+php artisan cache:table >/dev/null 2>&1 || true
+php artisan migrate --force >/dev/null 2>&1 || true
+
 # Clear and recache Laravel configs
 log_message "Optimizing Laravel..."
 php artisan config:cache
@@ -79,6 +111,26 @@ php artisan route:clear
 php artisan route:cache
 php artisan view:clear
 php artisan view:cache
+
+# Clear and warm up Quran cache
+log_message "Managing Quran cache..."
+if php artisan list | grep -q "quran:cache"; then
+    log_message "Quran cache commands available"
+    if php artisan quran:cache clear; then
+        log_message "✓ Quran cache cleared successfully"
+    else
+        log_warning "⚠ Failed to clear Quran cache"
+    fi
+    
+    if php artisan quran:cache warm-up; then
+        log_message "✓ Quran cache warmed up successfully"
+    else
+        log_warning "⚠ Failed to warm up Quran cache"
+    fi
+else
+    log_warning "⚠ Quran cache commands not available yet"
+    log_warning "Cache will be populated on first request"
+fi
 
 # Set proper permissions
 log_message "Setting permissions..."
@@ -150,6 +202,15 @@ fi
 log_message "Clearing OPcache..."
 php -r "if(function_exists('opcache_reset')) { opcache_reset(); echo 'OPcache cleared'; } else { echo 'OPcache not available'; }"
 
+# Verify Redis cache status
+log_message "Verifying Redis cache status..."
+if php artisan quran:cache status >/dev/null 2>&1; then
+    log_message "✓ Redis cache is working properly"
+else
+    log_warning "⚠ Redis cache verification failed - check Redis connection"
+    log_warning "Application will still work but may have slower performance"
+fi
+
 # Final verification that vendor files are still present
 log_message "Final verification of critical assets..."
 if [ -d public/build/assets ]; then
@@ -173,3 +234,16 @@ fi
 
 log_message "Deployment completed successfully!"
 log_message "Your IndoQuran application should now be running with all assets correctly prefixed with /public in production."
+log_message "Redis cache has been cleared and warmed up for optimal performance."
+log_message ""
+log_message "Post-deployment information:"
+log_message "- Cache status: php artisan quran:cache status"
+log_message "- Clear cache: php artisan quran:cache clear"
+log_message "- Warm cache: php artisan quran:cache warm-up"
+log_message "- Check logs: tail -f storage/logs/laravel.log"
+log_message ""
+log_message "If you encounter cache issues:"
+log_message "1. Check Redis service: sudo systemctl status redis"
+log_message "2. Restart Redis: sudo systemctl restart redis"
+log_message "3. Check Redis connection: redis-cli ping"
+log_message "4. Verify .env CACHE_STORE=redis setting"
