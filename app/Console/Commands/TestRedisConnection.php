@@ -116,7 +116,15 @@ class TestRedisConnection extends Command
         $this->info('=== Testing Connection ===');
         
         try {
-            $pong = Redis::ping();
+            $socketPath = config('database.redis.default.socket');
+            
+            // Create direct Predis client
+            $client = new \Predis\Client([
+                'scheme' => 'unix',
+                'path' => $socketPath,
+            ]);
+            
+            $pong = $client->ping();
             if ($pong === '+PONG' || $pong === 'PONG') {
                 $this->info('✅ Redis connection successful');
                 return true;
@@ -138,33 +146,44 @@ class TestRedisConnection extends Command
     {
         $this->info('=== Testing Basic Operations ===');
         
-        $testKey = 'laravel_cmd_test_' . time();
-        $testValue = 'Hello from IndoQuran Laravel Command!';
-        
-        // Set
-        Redis::set($testKey, $testValue);
-        $this->info('✅ SET operation');
-        
-        // Get
-        $getValue = Redis::get($testKey);
-        if ($getValue === $testValue) {
-            $this->info('✅ GET operation');
-        } else {
-            $this->error('❌ GET operation failed');
+        try {
+            $socketPath = config('database.redis.default.socket');
+            $client = new \Predis\Client([
+                'scheme' => 'unix',
+                'path' => $socketPath,
+            ]);
+            
+            $testKey = 'laravel_cmd_test_' . time();
+            $testValue = 'Hello from IndoQuran Laravel Command!';
+            
+            // Set
+            $client->set($testKey, $testValue);
+            $this->info('✅ SET operation');
+            
+            // Get
+            $getValue = $client->get($testKey);
+            if ($getValue === $testValue) {
+                $this->info('✅ GET operation');
+            } else {
+                $this->error('❌ GET operation failed');
+            }
+            
+            // TTL
+            $client->expire($testKey, 300);
+            $ttl = $client->ttl($testKey);
+            if ($ttl > 0) {
+                $this->info("✅ TTL set to {$ttl} seconds");
+            } else {
+                $this->error('❌ TTL operation failed');
+            }
+            
+            // Delete
+            $client->del($testKey);
+            $this->info('✅ DELETE operation');
+            
+        } catch (\Exception $e) {
+            $this->error('❌ Basic operations failed: ' . $e->getMessage());
         }
-        
-        // TTL
-        Redis::expire($testKey, 300);
-        $ttl = Redis::ttl($testKey);
-        if ($ttl > 0) {
-            $this->info("✅ TTL set to {$ttl} seconds");
-        } else {
-            $this->error('❌ TTL operation failed');
-        }
-        
-        // Delete
-        Redis::del($testKey);
-        $this->info('✅ DELETE operation');
         
         $this->newLine();
     }

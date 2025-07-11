@@ -9,12 +9,9 @@ echo "Current Redis settings in .env:"
 grep "^REDIS_" .env || echo "No REDIS_ settings found in .env"
 echo ""
 
-echo "2. Clearing all Laravel caches..."
-php artisan config:clear
-php artisan cache:clear
-php artisan route:clear
-php artisan view:clear
-echo "✅ All caches cleared"
+echo "2. Clearing all Laravel caches safely..."
+php artisan redis:safe-clear
+echo "✅ All caches cleared safely"
 echo ""
 
 echo "3. Running Redis debug command..."
