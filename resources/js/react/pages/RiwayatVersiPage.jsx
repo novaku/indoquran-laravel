@@ -6,6 +6,35 @@ import StructuredData from '../components/StructuredData';
 function RiwayatVersiPage() {
     const versions = [
         {
+            version: "2.1.4",
+            date: "10 Juli 2025",
+            type: "patch",
+            title: "Peningkatan Performa & Perbaikan Navigasi",
+            description: "Pembaruan dengan fokus pada peningkatan performa aplikasi dan perbaikan sistem navigasi untuk pengalaman pengguna yang lebih baik.",
+            changes: [
+                {
+                    type: "improvement",
+                    text: "Optimisasi rendering komponen React untuk mempercepat loading halaman"
+                },
+                {
+                    type: "improvement",
+                    text: "Implementasi caching yang lebih efisien untuk data Al-Quran"
+                },
+                {
+                    type: "fix",
+                    text: "Perbaikan masalah navigasi pada tampilan mobile ketika mengganti surah"
+                },
+                {
+                    type: "fix",
+                    text: "Resolusi bug pada fitur pencarian dengan karakter khusus"
+                },
+                {
+                    type: "security",
+                    text: "Pembaruan dependensi untuk mengatasi potensi vulnerabilitas keamanan"
+                }
+            ]
+        },
+        {
             version: "2.1.3",
             date: "28 Juni 2025",
             type: "minor",
@@ -299,6 +328,7 @@ function RiwayatVersiPage() {
         "name": "Riwayat Versi - IndoQuran",
         "description": "Catatan perubahan dan pembaruan versi platform Al-Quran digital IndoQuran",
         "url": `${window.location.origin}/riwayat-versi`,
+        "dateModified": "2025-07-10",
         "mainEntity": {
             "@type": "SoftwareApplication",
             "name": "IndoQuran",
@@ -314,7 +344,7 @@ function RiwayatVersiPage() {
             <SEOHead 
                 title="Riwayat Versi - IndoQuran"
                 description="Catatan lengkap perubahan dan pembaruan versi platform Al-Quran digital IndoQuran. Lihat perkembangan fitur, perbaikan, dan peningkatan dari waktu ke waktu."
-                keywords="indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi"
+                keywords="indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi, indoquran 2.1.4"
                 canonicalUrl={`${window.location.origin}/riwayat-versi`}
             />
             <StructuredData data={structuredData} />
@@ -332,6 +362,9 @@ function RiwayatVersiPage() {
                         Ikuti perjalanan pengembangan IndoQuran dari waktu ke waktu. Setiap pembaruan membawa 
                         perbaikan dan fitur baru untuk memberikan pengalaman terbaik dalam membaca Al-Quran.
                     </p>
+                    <div className="mt-4 text-sm text-gray-500">
+                        Terakhir diperbarui: 10 Juli 2025
+                    </div>
                 </div>
 
                 {/* Current Version Highlight */}
