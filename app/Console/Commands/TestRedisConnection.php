@@ -75,24 +75,37 @@ class TestRedisConnection extends Command
         $this->info('=== Redis Configuration ===');
         $this->line('Client: ' . config('database.redis.client'));
         $this->line('Socket: ' . config('database.redis.default.socket'));
+        $this->line('Host: ' . (config('database.redis.default.host') ?: 'not set'));
+        $this->line('Port: ' . (config('database.redis.default.port') ?: 'not set'));
         $this->line('Cache Driver: ' . config('cache.default'));
         
         // Check if socket file exists
         $socketPath = config('database.redis.default.socket');
-        if (file_exists($socketPath)) {
-            $this->info('✅ Socket file exists');
-            
-            // Check if socket is readable/writable
-            if (is_readable($socketPath) && is_writable($socketPath)) {
-                $this->info('✅ Socket has proper permissions');
+        if ($socketPath) {
+            if (file_exists($socketPath)) {
+                $this->info('✅ Socket file exists');
+                
+                // Check if socket is readable/writable
+                if (is_readable($socketPath) && is_writable($socketPath)) {
+                    $this->info('✅ Socket has proper permissions');
+                } else {
+                    $this->warn('⚠️  Socket permissions may be incorrect');
+                    $this->line('  Readable: ' . (is_readable($socketPath) ? 'Yes' : 'No'));
+                    $this->line('  Writable: ' . (is_writable($socketPath) ? 'Yes' : 'No'));
+                }
+                
+                // Check file permissions
+                $perms = fileperms($socketPath);
+                $this->line('  Permissions: ' . substr(sprintf('%o', $perms), -4));
             } else {
-                $this->warn('⚠️  Socket permissions may be incorrect');
-                $this->line('  Readable: ' . (is_readable($socketPath) ? 'Yes' : 'No'));
-                $this->line('  Writable: ' . (is_writable($socketPath) ? 'Yes' : 'No'));
+                $this->error('❌ Socket file does not exist: ' . $socketPath);
+                $this->warn('Please check if Redis server is running and configured correctly.');
+                $this->warn('Redis should be configured with:');
+                $this->warn('  unixsocket ' . $socketPath);
+                $this->warn('  unixsocketperm 666');
             }
         } else {
-            $this->error('❌ Socket file does not exist: ' . $socketPath);
-            $this->warn('Please check if Redis server is running and configured correctly.');
+            $this->warn('⚠️  No socket configured - will use TCP connection');
         }
         
         $this->newLine();
