@@ -125,11 +125,27 @@ class TestRedisConnection extends Command
             ]);
             
             $pong = $client->ping();
-            if ($pong === '+PONG' || $pong === 'PONG') {
+            
+            // Handle different response types from Predis
+            $pingSuccess = false;
+            if ($pong === '+PONG' || $pong === 'PONG' || $pong === true) {
+                $pingSuccess = true;
+            } elseif (is_object($pong) && method_exists($pong, '__toString')) {
+                $stringResponse = (string) $pong;
+                if ($stringResponse === 'PONG') {
+                    $pingSuccess = true;
+                }
+            } elseif (is_object($pong) && isset($pong->payload)) {
+                if ($pong->payload === 'PONG') {
+                    $pingSuccess = true;
+                }
+            }
+            
+            if ($pingSuccess) {
                 $this->info('✅ Redis connection successful');
                 return true;
             } else {
-                $this->error('❌ Redis ping failed');
+                $this->error('❌ Redis ping failed - unexpected response: ' . var_export($pong, true));
                 return false;
             }
         } catch (\Exception $e) {

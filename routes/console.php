@@ -29,7 +29,22 @@ Artisan::command('redis:quick-test', function () {
         $pong = $client->ping();
         $this->line("Ping response: " . var_export($pong, true));
         
+        // Handle different response types from Predis
+        $pingSuccess = false;
         if ($pong === '+PONG' || $pong === 'PONG' || $pong === true) {
+            $pingSuccess = true;
+        } elseif (is_object($pong) && method_exists($pong, '__toString')) {
+            $stringResponse = (string) $pong;
+            if ($stringResponse === 'PONG') {
+                $pingSuccess = true;
+            }
+        } elseif (is_object($pong) && isset($pong->payload)) {
+            if ($pong->payload === 'PONG') {
+                $pingSuccess = true;
+            }
+        }
+        
+        if ($pingSuccess) {
             $this->info('✅ Redis connection successful!');
             
             // Test basic operation
