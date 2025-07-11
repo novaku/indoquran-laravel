@@ -4,11 +4,6 @@ echo "=== Production Redis Troubleshooting Script ==="
 echo "Date: $(date)"
 echo ""
 
-cd /home/indoqura/indoquran-laravel || {
-    echo "❌ Could not navigate to Laravel directory"
-    exit 1
-}
-
 echo "1. Checking .env file Redis configuration..."
 echo "Current Redis settings in .env:"
 grep "^REDIS_" .env || echo "No REDIS_ settings found in .env"
