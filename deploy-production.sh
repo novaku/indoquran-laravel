@@ -128,15 +128,15 @@ EOF
                             log_message "✓ Updated REDIS_SOCKET in .env"
                         fi
                         
-                        # For socket connections, clear REDIS_HOST and REDIS_PORT to avoid conflicts
-                        log_message "Clearing REDIS_HOST and REDIS_PORT for socket connection..."
+                        # For socket connections, remove REDIS_HOST and REDIS_PORT to avoid conflicts
+                        log_message "Removing REDIS_HOST and REDIS_PORT for socket connection..."
                         if grep -q "REDIS_HOST=" .env; then
-                            sed -i 's/REDIS_HOST=.*/REDIS_HOST=127.0.0.1/' .env
-                            log_message "✓ Set REDIS_HOST to localhost fallback"
+                            sed -i '/REDIS_HOST=/d' .env
+                            log_message "✓ Removed REDIS_HOST line from .env"
                         fi
                         if grep -q "REDIS_PORT=" .env; then
-                            sed -i 's/REDIS_PORT=.*/REDIS_PORT=6379/' .env
-                            log_message "✓ Set REDIS_PORT to default fallback"
+                            sed -i '/REDIS_PORT=/d' .env
+                            log_message "✓ Removed REDIS_PORT line from .env"
                         fi
                         
                         # Ensure REDIS_CLIENT is set to predis for better socket support
@@ -220,14 +220,14 @@ EOF
                                     log_message "✓ Updated REDIS_SOCKET in .env"
                                 fi
                                 
-                                # For socket connections, ensure REDIS_HOST and REDIS_PORT have fallback values
+                                # For socket connections, remove REDIS_HOST and REDIS_PORT to avoid conflicts
                                 if grep -q "REDIS_HOST=" .env; then
-                                    sed -i 's/REDIS_HOST=.*/REDIS_HOST=127.0.0.1/' .env
-                                    log_message "✓ Set REDIS_HOST to localhost fallback"
+                                    sed -i '/REDIS_HOST=/d' .env
+                                    log_message "✓ Removed REDIS_HOST line from .env"
                                 fi
                                 if grep -q "REDIS_PORT=" .env; then
-                                    sed -i 's/REDIS_PORT=.*/REDIS_PORT=6379/' .env
-                                    log_message "✓ Set REDIS_PORT to default fallback"
+                                    sed -i '/REDIS_PORT=/d' .env
+                                    log_message "✓ Removed REDIS_PORT line from .env"
                                 fi
                                 
                                 # Ensure REDIS_CLIENT is set to predis

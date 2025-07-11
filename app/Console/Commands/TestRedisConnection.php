@@ -118,11 +118,36 @@ class TestRedisConnection extends Command
         try {
             $socketPath = config('database.redis.default.socket');
             
+            if ($socketPath) {
+                // Socket connection parameters
+                $params = [
+                    'scheme' => 'unix',
+                    'path' => $socketPath,
+                ];
+                
+                $this->line('Testing UNIX socket connection with: ' . $socketPath);
+            } else {
+                // TCP connection parameters
+                $host = config('database.redis.default.host', '127.0.0.1');
+                $port = config('database.redis.default.port', 6379);
+                
+                $params = [
+                    'scheme' => 'tcp',
+                    'host' => $host,
+                    'port' => $port,
+                ];
+                
+                $this->line('Testing TCP connection with: ' . $host . ':' . $port);
+            }
+            
+            // Add password if set
+            $password = config('database.redis.default.password');
+            if ($password) {
+                $params['password'] = $password;
+            }
+            
             // Create direct Predis client
-            $client = new \Predis\Client([
-                'scheme' => 'unix',
-                'path' => $socketPath,
-            ]);
+            $client = new \Predis\Client($params);
             
             $pong = $client->ping();
             
