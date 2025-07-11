@@ -18,19 +18,23 @@ Artisan::command('redis:quick-test', function () {
         Redis::disconnect();
         
         // Create a fresh Predis client directly with socket configuration
+        $this->line("Creating Predis client with socket: {$socketPath}");
         $client = new \Predis\Client([
             'scheme' => 'unix',
             'path' => $socketPath,
         ]);
         
         // Test connection
+        $this->line("Attempting ping...");
         $pong = $client->ping();
+        $this->line("Ping response: " . var_export($pong, true));
         
-        if ($pong === '+PONG' || $pong === 'PONG') {
+        if ($pong === '+PONG' || $pong === 'PONG' || $pong === true) {
             $this->info('✅ Redis connection successful!');
             
             // Test basic operation
             $testKey = 'quick_test_' . time();
+            $this->line("Testing SET/GET with key: {$testKey}");
             $client->set($testKey, 'Hello IndoQuran!');
             $value = $client->get($testKey);
             $client->del($testKey);
@@ -38,13 +42,17 @@ Artisan::command('redis:quick-test', function () {
             if ($value === 'Hello IndoQuran!') {
                 $this->info('✅ Basic Redis operations working!');
             } else {
-                $this->error('❌ Basic operations failed');
+                $this->error('❌ Basic operations failed - got: ' . var_export($value, true));
             }
         } else {
-            $this->error('❌ Redis ping failed');
+            $this->error('❌ Redis ping failed - got: ' . var_export($pong, true));
         }
     } catch (\Exception $e) {
         $this->error('❌ Connection failed: ' . $e->getMessage());
+        $this->error('Exception class: ' . get_class($e));
+        if (method_exists($e, 'getTraceAsString')) {
+            $this->line('Stack trace: ' . $e->getTraceAsString());
+        }
         $this->warn('Troubleshooting tips:');
         $this->warn("1. Check if Redis server is running");
         $this->warn("2. Verify socket file exists: {$socketPath}");
@@ -149,3 +157,38 @@ Artisan::command('redis:safe-clear', function () {
         $this->error('❌ Cache clear failed: ' . $e->getMessage());
     }
 })->purpose('Safely clear caches without triggering Redis connection issues');
+
+Artisan::command('redis:version-check', function () {
+    $this->info('=== Redis Command Version Check ===');
+    $this->line('Command updated: ' . date('Y-m-d H:i:s'));
+    $this->line('Socket path from config: ' . config('database.redis.default.socket'));
+    
+    // Check if the commands file has been updated
+    $consoleFile = base_path('routes/console.php');
+    if (file_exists($consoleFile)) {
+        $lastModified = filemtime($consoleFile);
+        $this->line('Console file last modified: ' . date('Y-m-d H:i:s', $lastModified));
+        
+        // Check if the file contains our updated commands
+        $content = file_get_contents($consoleFile);
+        if (strpos($content, 'redis:safe-clear') !== false) {
+            $this->info('✅ redis:safe-clear command found in console.php');
+        } else {
+            $this->error('❌ redis:safe-clear command NOT found in console.php');
+        }
+        
+        if (strpos($content, 'Creating Predis client with socket') !== false) {
+            $this->info('✅ Updated redis:quick-test command found');
+        } else {
+            $this->error('❌ Updated redis:quick-test command NOT found');
+        }
+    }
+    
+    $this->line('Available Redis commands:');
+    $commands = \Artisan::all();
+    foreach ($commands as $name => $command) {
+        if (strpos($name, 'redis:') === 0) {
+            $this->line("  - {$name}");
+        }
+    }
+})->purpose('Check if Redis commands are properly updated');
