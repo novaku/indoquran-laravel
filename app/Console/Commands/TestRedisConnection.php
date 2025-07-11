@@ -208,30 +208,49 @@ class TestRedisConnection extends Command
     {
         $this->info('=== Testing Laravel Cache ===');
         
-        $cacheKey = 'laravel_cache_cmd_' . time();
-        $cacheValue = [
-            'app' => config('app.name'),
-            'env' => config('app.env'),
-            'timestamp' => now()->toISOString()
-        ];
-        
-        // Cache put
-        Cache::put($cacheKey, $cacheValue, 300);
-        $this->info('✅ Cache PUT operation');
-        
-        // Cache get
-        $cachedValue = Cache::get($cacheKey);
-        if ($cachedValue && is_array($cachedValue) && $cachedValue['app'] === config('app.name')) {
-            $this->info('✅ Cache GET operation');
-            $this->line('  App: ' . $cachedValue['app']);
-            $this->line('  Environment: ' . $cachedValue['env']);
-        } else {
-            $this->error('❌ Cache GET operation failed');
+        try {
+            $socketPath = config('database.redis.default.socket');
+            $cacheClient = new \Predis\Client([
+                'scheme' => 'unix',
+                'path' => $socketPath,
+            ]);
+            
+            // Switch to cache database (database 1)
+            $cacheClient->select(config('database.redis.cache.database', 1));
+            
+            $cacheKey = 'laravel_cache_cmd_' . time();
+            $cacheValue = json_encode([
+                'app' => config('app.name'),
+                'env' => config('app.env'),
+                'timestamp' => now()->toISOString()
+            ]);
+            
+            // Cache put
+            $cacheClient->setex($cacheKey, 300, $cacheValue);
+            $this->info('✅ Cache PUT operation');
+            
+            // Cache get
+            $cachedValue = $cacheClient->get($cacheKey);
+            if ($cachedValue) {
+                $decodedValue = json_decode($cachedValue, true);
+                if ($decodedValue && is_array($decodedValue) && $decodedValue['app'] === config('app.name')) {
+                    $this->info('✅ Cache GET operation');
+                    $this->line('  App: ' . $decodedValue['app']);
+                    $this->line('  Environment: ' . $decodedValue['env']);
+                } else {
+                    $this->error('❌ Cache GET operation failed - invalid data');
+                }
+            } else {
+                $this->error('❌ Cache GET operation failed - no data found');
+            }
+            
+            // Cache forget
+            $cacheClient->del($cacheKey);
+            $this->info('✅ Cache DELETE operation');
+            
+        } catch (\Exception $e) {
+            $this->error('❌ Laravel cache test failed: ' . $e->getMessage());
         }
-        
-        // Cache forget
-        Cache::forget($cacheKey);
-        $this->info('✅ Cache FORGET operation');
         
         $this->newLine();
     }
@@ -240,20 +259,31 @@ class TestRedisConnection extends Command
     {
         $this->info('=== Testing Hash Operations ===');
         
-        $hashKey = 'laravel_hash_cmd_' . time();
-        
-        Redis::hset($hashKey, 'app_name', config('app.name'));
-        Redis::hset($hashKey, 'app_url', config('app.url'));
-        Redis::hset($hashKey, 'timezone', config('app.timezone'));
-        
-        $appName = Redis::hget($hashKey, 'app_name');
-        if ($appName === config('app.name')) {
-            $this->info('✅ Hash operations successful');
-        } else {
-            $this->error('❌ Hash operations failed');
+        try {
+            $socketPath = config('database.redis.default.socket');
+            $client = new \Predis\Client([
+                'scheme' => 'unix',
+                'path' => $socketPath,
+            ]);
+            
+            $hashKey = 'laravel_hash_cmd_' . time();
+            
+            $client->hset($hashKey, 'app_name', config('app.name'));
+            $client->hset($hashKey, 'app_url', config('app.url'));
+            $client->hset($hashKey, 'timezone', config('app.timezone'));
+            
+            $appName = $client->hget($hashKey, 'app_name');
+            if ($appName === config('app.name')) {
+                $this->info('✅ Hash operations successful');
+            } else {
+                $this->error('❌ Hash operations failed');
+            }
+            
+            $client->del($hashKey);
+        } catch (\Exception $e) {
+            $this->error('❌ Hash operations failed: ' . $e->getMessage());
         }
         
-        Redis::del($hashKey);
         $this->newLine();
     }
     
@@ -261,18 +291,29 @@ class TestRedisConnection extends Command
     {
         $this->info('=== Testing List Operations ===');
         
-        $listKey = 'laravel_list_cmd_' . time();
-        
-        Redis::lpush($listKey, 'task1', 'task2', 'task3');
-        $length = Redis::llen($listKey);
-        
-        if ($length === 3) {
-            $this->info("✅ List operations successful ({$length} items)");
-        } else {
-            $this->error('❌ List operations failed');
+        try {
+            $socketPath = config('database.redis.default.socket');
+            $client = new \Predis\Client([
+                'scheme' => 'unix',
+                'path' => $socketPath,
+            ]);
+            
+            $listKey = 'laravel_list_cmd_' . time();
+            
+            $client->lpush($listKey, 'task1', 'task2', 'task3');
+            $length = $client->llen($listKey);
+            
+            if ($length === 3) {
+                $this->info("✅ List operations successful ({$length} items)");
+            } else {
+                $this->error('❌ List operations failed');
+            }
+            
+            $client->del($listKey);
+        } catch (\Exception $e) {
+            $this->error('❌ List operations failed: ' . $e->getMessage());
         }
         
-        Redis::del($listKey);
         $this->newLine();
     }
     
@@ -280,18 +321,29 @@ class TestRedisConnection extends Command
     {
         $this->info('=== Testing Set Operations ===');
         
-        $setKey = 'laravel_set_cmd_' . time();
-        
-        Redis::sadd($setKey, 'member1', 'member2', 'member3');
-        $size = Redis::scard($setKey);
-        
-        if ($size === 3) {
-            $this->info("✅ Set operations successful ({$size} members)");
-        } else {
-            $this->error('❌ Set operations failed');
+        try {
+            $socketPath = config('database.redis.default.socket');
+            $client = new \Predis\Client([
+                'scheme' => 'unix',
+                'path' => $socketPath,
+            ]);
+            
+            $setKey = 'laravel_set_cmd_' . time();
+            
+            $client->sadd($setKey, 'member1', 'member2', 'member3');
+            $size = $client->scard($setKey);
+            
+            if ($size === 3) {
+                $this->info("✅ Set operations successful ({$size} members)");
+            } else {
+                $this->error('❌ Set operations failed');
+            }
+            
+            $client->del($setKey);
+        } catch (\Exception $e) {
+            $this->error('❌ Set operations failed: ' . $e->getMessage());
         }
         
-        Redis::del($setKey);
         $this->newLine();
     }
     
@@ -299,21 +351,35 @@ class TestRedisConnection extends Command
     {
         $this->info('=== Performance Test ===');
         
-        $iterations = 100;
-        $startTime = microtime(true);
-        
-        for ($i = 0; $i < $iterations; $i++) {
-            Cache::put("perf_cmd_{$i}", "value_{$i}", 60);
-        }
-        
-        $endTime = microtime(true);
-        $duration = ($endTime - $startTime) * 1000;
-        
-        $this->info("✅ Cached {$iterations} items in " . number_format($duration, 2) . " ms");
-        
-        // Cleanup
-        for ($i = 0; $i < $iterations; $i++) {
-            Cache::forget("perf_cmd_{$i}");
+        try {
+            $socketPath = config('database.redis.default.socket');
+            $client = new \Predis\Client([
+                'scheme' => 'unix',
+                'path' => $socketPath,
+            ]);
+            
+            // Switch to cache database for performance test
+            $client->select(config('database.redis.cache.database', 1));
+            
+            $iterations = 100;
+            $startTime = microtime(true);
+            
+            for ($i = 0; $i < $iterations; $i++) {
+                $client->setex("perf_cmd_{$i}", 60, "value_{$i}");
+            }
+            
+            $endTime = microtime(true);
+            $duration = ($endTime - $startTime) * 1000;
+            
+            $this->info("✅ Cached {$iterations} items in " . number_format($duration, 2) . " ms");
+            
+            // Cleanup
+            for ($i = 0; $i < $iterations; $i++) {
+                $client->del("perf_cmd_{$i}");
+            }
+            
+        } catch (\Exception $e) {
+            $this->error('❌ Performance test failed: ' . $e->getMessage());
         }
         
         $this->newLine();
