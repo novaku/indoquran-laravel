@@ -24,6 +24,7 @@ import { useAuth } from '../hooks/useAuth.jsx';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
 import { updateReadingProgress } from '../services/ReadingProgressService';
+import { getPageSEOData, generateSurahSEOKeywords } from '../utils/seoUtils';
 
 // WhatsApp Icon Component
 const WhatsAppIcon = ({ className }) => (
@@ -1656,11 +1657,139 @@ function SurahDetailPage() {
             `}</style>
 
             <SEOHead 
-                title={`${surah.name_latin || surah.name_english} (${surah.name_arabic}) - IndoQuran`}
-                description={
-                    surah.description_short || 
-                    `Baca dan dengarkan Surah ${surah.name_latin || surah.name_english} dengan teks Arab, terjemahan, dan bacaan audio. Surah ke-${surah.number} dengan ${maxAyahNumber} ayat.`
-                }
+                {...getPageSEOData('surah', surah)}
+                additionalMeta={[
+                    { name: 'author', content: 'IndoQuran' },
+                    { name: 'robots', content: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1' },
+                    { name: 'googlebot', content: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1' },
+                    { property: 'article:section', content: 'Al-Quran' },
+                    { property: 'article:tag', content: generateSurahSEOKeywords(surah) },
+                    { property: 'article:published_time', content: '2025-01-01T00:00:00Z' },
+                    { property: 'article:modified_time', content: new Date().toISOString() },
+                    { name: 'twitter:label1', content: 'Ayat' },
+                    { name: 'twitter:data1', content: `${maxAyahNumber} ayat` },
+                    { name: 'twitter:label2', content: 'Juz' },
+                    { name: 'twitter:data2', content: surah.juz ? `Juz ${surah.juz}` : 'Berbagai Juz' },
+                    // Enhanced search engine hints
+                    { name: 'application-name', content: 'IndoQuran' },
+                    { name: 'apple-mobile-web-app-title', content: `Surah ${surah.name_latin}` },
+                    { name: 'msapplication-tooltip', content: `Baca Surah ${surah.name_latin} dengan terjemahan` },
+                    // Rich snippets data
+                    { name: 'book:author', content: 'Allah SWT' },
+                    { name: 'book:isbn', content: `978-indoquran-${surah.number}` },
+                    { name: 'book:release_date', content: `${surah.revelation_place === 'Mecca' ? '610' : '622'}-01-01` },
+                    // Geo-targeting for Indonesian users
+                    { name: 'geo.region', content: 'ID' },
+                    { name: 'geo.country', content: 'Indonesia' },
+                    { name: 'language', content: 'id,ar' },
+                    // Content classification
+                    { name: 'rating', content: 'General' },
+                    { name: 'audience', content: 'all' },
+                    { name: 'subject', content: 'Religion, Islam, Al-Quran, Surah' },
+                    // Mobile optimization
+                    { name: 'format-detection', content: 'telephone=no' },
+                    { name: 'apple-mobile-web-app-capable', content: 'yes' },
+                    { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
+                    // Security
+                    { httpEquiv: 'Content-Security-Policy', content: "default-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; media-src 'self' https:;" }
+                ]}
+                structuredData={[
+                    // Article structured data
+                    {
+                        "@context": "https://schema.org",
+                        "@type": "Article",
+                        "headline": `Surah ${surah.name_latin} (${surah.name_arabic}) - Terjemahan & Audio Murottal`,
+                        "description": `Baca dan dengarkan Surah ${surah.name_latin} lengkap dengan terjemahan bahasa Indonesia dan tafsir. Surah ke-${surah.number} dalam Al-Quran yang terdiri dari ${maxAyahNumber} ayat.`,
+                        "author": {
+                            "@type": "Organization",
+                            "name": "IndoQuran",
+                            "url": "https://my.indoquran.web.id"
+                        },
+                        "publisher": {
+                            "@type": "Organization",
+                            "name": "IndoQuran",
+                            "logo": {
+                                "@type": "ImageObject",
+                                "url": "https://my.indoquran.web.id/android-chrome-512x512.png"
+                            }
+                        },
+                        "datePublished": "2025-01-01T00:00:00Z",
+                        "dateModified": new Date().toISOString(),
+                        "mainEntityOfPage": {
+                            "@type": "WebPage",
+                            "@id": `https://my.indoquran.web.id/surah/${surah.number}`
+                        },
+                        "image": `https://my.indoquran.web.id/images/surah-${surah.number}-social.png`,
+                        "inLanguage": ["id", "ar"],
+                        "about": {
+                            "@type": "Thing",
+                            "name": `Surah ${surah.name_latin}`,
+                            "description": surah.description_short || `Surah ke-${surah.number} dalam Al-Quran`
+                        },
+                        "keywords": generateSurahSEOKeywords(surah)
+                    },
+                    // Book structured data
+                    {
+                        "@context": "https://schema.org",
+                        "@type": "Book",
+                        "name": `Surah ${surah.name_latin}`,
+                        "alternateName": [surah.name_arabic, `Surat ${surah.name_latin}`, `Surah ke-${surah.number}`],
+                        "author": {
+                            "@type": "Person",
+                            "name": "Allah SWT"
+                        },
+                        "inLanguage": ["ar", "id"],
+                        "numberOfPages": Math.ceil(maxAyahNumber / 15), // Approximate pages
+                        "bookFormat": "EBook",
+                        "genre": "Religious Text",
+                        "publisher": {
+                            "@type": "Organization",
+                            "name": "IndoQuran"
+                        },
+                        "url": `https://my.indoquran.web.id/surah/${surah.number}`,
+                        "description": surah.description_short || `Surah ke-${surah.number} dalam Al-Quran dengan ${maxAyahNumber} ayat`
+                    },
+                    // Audio object for murottal
+                    {
+                        "@context": "https://schema.org",
+                        "@type": "AudioObject",
+                        "name": `Murottal Surah ${surah.name_latin}`,
+                        "description": `Audio tilawah Surah ${surah.name_latin} dengan bacaan merdu`,
+                        "url": `https://my.indoquran.web.id/audio/surah/${surah.number}/full.mp3`,
+                        "encodingFormat": "audio/mpeg",
+                        "inLanguage": "ar",
+                        "duration": "PT5M", // Approximate duration
+                        "creator": {
+                            "@type": "Organization",
+                            "name": "IndoQuran"
+                        }
+                    },
+                    // Breadcrumb for navigation
+                    {
+                        "@context": "https://schema.org",
+                        "@type": "BreadcrumbList",
+                        "itemListElement": [
+                            {
+                                "@type": "ListItem",
+                                "position": 1,
+                                "name": "Beranda",
+                                "item": "https://my.indoquran.web.id"
+                            },
+                            {
+                                "@type": "ListItem",
+                                "position": 2,
+                                "name": "Daftar Surah",
+                                "item": "https://my.indoquran.web.id/surah"
+                            },
+                            {
+                                "@type": "ListItem",
+                                "position": 3,
+                                "name": `Surah ${surah.name_latin}`,
+                                "item": `https://my.indoquran.web.id/surah/${surah.number}`
+                            }
+                        ]
+                    }
+                ]}
             />
 
             {/* Floating Share Button for Selected Text */}

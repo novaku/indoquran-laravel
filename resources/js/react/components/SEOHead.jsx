@@ -1,6 +1,4 @@
 import React from 'react';
-import MetaTags from './MetaTags';
-import StructuredData from './StructuredData';
 
 /**
  * SEOHead component - combines MetaTags and StructuredData for comprehensive SEO
@@ -20,65 +18,129 @@ function SEOHead({
   // Additional SEO props
   noindex = false,
   nofollow = false,
-  additionalMeta = {}
+  additionalMeta = [],
+  robots,
+  viewport,
+  themeColor,
+  appleTouchIcon,
+  manifestUrl,
+  openGraph = {},
+  twitter = {}
 }) {
   const baseUrl = 'https://my.indoquran.web.id';
   
-  // Default SEO values (updated June 2025)
+  // Default SEO values (updated July 2025 for comprehensive optimization)
   const seoDefaults = {
     title: title || 'IndoQuran - Al-Quran Digital Indonesia | Baca & Dengar Al-Quran Online',
     description: description || 'Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia, fitur bookmark, pencarian ayat, audio murottal berkualitas tinggi, dan tafsir lengkap.',
     keywords: keywords || 'al quran indonesia, quran online, al quran digital, baca quran, terjemahan quran, murottal, quran indonesia, ayat al quran, surah quran, tafsir quran, hafalan quran, indoquran, quran dengan tajwid',
     canonicalUrl: canonicalUrl || window.location.href,
     ogImage: ogImage || `${baseUrl}/android-chrome-512x512.png`,
-    author: author
+    author: author,
+    robots: robots || (noindex || nofollow ? `${noindex ? 'noindex' : 'index'}, ${nofollow ? 'nofollow' : 'follow'}` : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'),
+    viewport: viewport || 'width=device-width, initial-scale=1.0',
+    themeColor: themeColor || '#2563eb'
   };
 
-  // Generate robots meta content
-  const robotsContent = () => {
-    let robots = [];
-    if (noindex) robots.push('noindex');
-    else robots.push('index');
+  // Generate comprehensive meta tags
+  const generateMetaTags = () => {
+    const metaTags = [];
     
-    if (nofollow) robots.push('nofollow');
-    else robots.push('follow');
+    // Basic meta tags
+    metaTags.push(<title key="title">{seoDefaults.title}</title>);
+    metaTags.push(<meta key="description" name="description" content={seoDefaults.description} />);
+    metaTags.push(<meta key="keywords" name="keywords" content={seoDefaults.keywords} />);
+    metaTags.push(<meta key="author" name="author" content={seoDefaults.author} />);
+    metaTags.push(<meta key="robots" name="robots" content={seoDefaults.robots} />);
+    metaTags.push(<meta key="viewport" name="viewport" content={seoDefaults.viewport} />);
+    metaTags.push(<meta key="theme-color" name="theme-color" content={seoDefaults.themeColor} />);
     
-    robots.push('max-snippet:-1', 'max-image-preview:large', 'max-video-preview:-1');
+    // Canonical URL
+    metaTags.push(<link key="canonical" rel="canonical" href={seoDefaults.canonicalUrl} />);
     
-    // Add additional directives for better crawling efficiency
-    robots.push('noarchive', 'notranslate');
+    // Open Graph tags
+    const ogTags = {
+      'og:title': seoDefaults.title,
+      'og:description': seoDefaults.description,
+      'og:url': seoDefaults.canonicalUrl,
+      'og:type': ogType,
+      'og:image': seoDefaults.ogImage,
+      'og:site_name': 'IndoQuran',
+      'og:locale': 'id_ID',
+      ...openGraph
+    };
     
-    return robots.join(', ');
+    Object.entries(ogTags).forEach(([property, content]) => {
+      if (content) {
+        metaTags.push(<meta key={property} property={property} content={content} />);
+      }
+    });
+    
+    // Twitter Card tags
+    const twitterTags = {
+      'twitter:card': 'summary_large_image',
+      'twitter:site': '@indoquran',
+      'twitter:creator': '@indoquran',
+      'twitter:title': seoDefaults.title,
+      'twitter:description': seoDefaults.description,
+      'twitter:image': seoDefaults.ogImage,
+      'twitter:url': seoDefaults.canonicalUrl,
+      ...twitter
+    };
+    
+    Object.entries(twitterTags).forEach(([name, content]) => {
+      if (content) {
+        metaTags.push(<meta key={name} name={name} content={content} />);
+      }
+    });
+    
+    // Apple touch icon and manifest
+    if (appleTouchIcon) {
+      metaTags.push(<link key="apple-touch-icon" rel="apple-touch-icon" href={appleTouchIcon} />);
+    }
+    if (manifestUrl) {
+      metaTags.push(<link key="manifest" rel="manifest" href={manifestUrl} />);
+    }
+    
+    // Additional meta tags
+    if (Array.isArray(additionalMeta)) {
+      additionalMeta.forEach((meta, index) => {
+        const key = `additional-${index}`;
+        if (meta.property) {
+          metaTags.push(<meta key={key} property={meta.property} content={meta.content} />);
+        } else if (meta.httpEquiv) {
+          metaTags.push(<meta key={key} httpEquiv={meta.httpEquiv} content={meta.content} />);
+        } else {
+          metaTags.push(<meta key={key} name={meta.name} content={meta.content} />);
+        }
+      });
+    }
+    
+    return metaTags;
   };
 
+  // Generate structured data JSON-LD
+  const generateStructuredData = () => {
+    if (!structuredData || (Array.isArray(structuredData) && structuredData.length === 0)) {
+      return null;
+    }
+    
+    const jsonLdContent = Array.isArray(structuredData) ? structuredData : [structuredData];
+    
+    return (
+      <script
+        key="structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLdContent, null, 0)
+        }}
+      />
+    );
+  };
   return (
     <>
-      <MetaTags
-        title={seoDefaults.title}
-        description={seoDefaults.description}
-        keywords={seoDefaults.keywords}
-        canonicalUrl={seoDefaults.canonicalUrl}
-        ogImage={seoDefaults.ogImage}
-        ogType={ogType}
-        author={seoDefaults.author}
-        structuredData={structuredData}
-      />
-      
-      {structuredDataType && (
-        <StructuredData
-          type={structuredDataType}
-          data={structuredData}
-          pageType={pageType}
-        />
-      )}
-      
-      {/* Additional meta tags for robots */}
-      <meta name="robots" content={robotsContent()} />
-      
-      {/* Additional custom meta tags */}
-      {Object.entries(additionalMeta).map(([name, content]) => (
-        <meta key={name} name={name} content={content} />
-      ))}
+      {generateMetaTags()}
+      {generateStructuredData()}
     </>
   );
 }

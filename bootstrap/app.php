@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\ContentSecurityPolicy::class,
             \App\Http\Middleware\TrackVisitor::class,
+            \App\Http\Middleware\SEOMiddleware::class,
         ]);
         
         $middleware->api(prepend: [
@@ -38,6 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'api.cache' => \App\Http\Middleware\ApiCacheMiddleware::class,
             'cors.proxy' => \App\Http\Middleware\CorsProxyMiddleware::class, // Add our CORS proxy middleware
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'seo' => \App\Http\Middleware\SEOMiddleware::class,
         ]);
         
         // Configure authentication redirects

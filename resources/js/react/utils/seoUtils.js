@@ -18,10 +18,10 @@
  * Google Search Guidelines Compliant
  */
 
-const BASE_URL = 'https://my.indoquran.web.id';
+export const BASE_URL = 'https://my.indoquran.web.id';
 
 // Google Search Console optimized priority scores
-const SEO_PRIORITIES = {
+export const SEO_PRIORITIES = {
   HOME: '1.0',
   SURAH: '0.95',
   SEARCH: '0.85',
@@ -471,7 +471,7 @@ export const getPageSEOData = (pageType, data = {}) => {
     case 'home':
       seoData.title = 'IndoQuran - Al-Quran Digital Indonesia Terlengkap | Baca & Dengar Online';
       seoData.description = 'Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia, fitur bookmark, pencarian ayat, audio murottal berkualitas tinggi dari 30+ qari terbaik dunia. Gratis dan mudah digunakan.';
-      seoData.keywords = 'al quran indonesia, quran online, al quran digital, baca quran, terjemahan quran indonesia, murottal online, quran mp3, ayat al quran, surah quran, indoquran, quran digital gratis, al quran lengkap, tajwid quran, tafsir quran indonesia';
+      seoData.keywords = generateHomeSEOKeywords();
       seoData.canonicalUrl = BASE_URL;
       break;
 
@@ -479,7 +479,7 @@ export const getPageSEOData = (pageType, data = {}) => {
       const surah = data;
       seoData.title = `Surah ${surah.name_latin} (${surah.name_arabic}) - Terjemahan & Audio Murottal | IndoQuran`;
       seoData.description = `Baca dan dengarkan Surah ${surah.name_latin} lengkap dengan terjemahan bahasa Indonesia dan tafsir. Surah ke-${surah.number} dalam Al-Quran yang terdiri dari ${surah.total_ayahs} ayat. Audio murottal berkualitas tinggi tersedia dengan berbagai pilihan qari. ${surah.revelation_place ? `Diturunkan di ${surah.revelation_place}.` : ''}`;
-      seoData.keywords = `Surah ${surah.name_latin}, ${surah.name_arabic}, al quran surah ${surah.number}, terjemahan surah ${surah.name_latin}, murottal ${surah.name_latin}, audio quran surah ${surah.number}, tafsir surah ${surah.name_latin}, ${surah.revelation_place || 'Mekah Madinah'}, quran indonesia`;
+      seoData.keywords = generateSurahSEOKeywords(surah);
       seoData.canonicalUrl = `${BASE_URL}/surah/${surah.number}`;
       break;
 
@@ -487,7 +487,7 @@ export const getPageSEOData = (pageType, data = {}) => {
       const ayahData = data;
       seoData.title = `${ayahData.surah.name_latin} Ayat ${ayahData.ayah_number} - Terjemahan & Audio | IndoQuran`;
       seoData.description = `Baca ${ayahData.surah.name_latin} ayat ${ayahData.ayah_number} dengan terjemahan bahasa Indonesia: "${ayahData.translation?.substring(0, 120)}...". Lengkap dengan audio murottal, tafsir, dan asbabun nuzul.`;
-      seoData.keywords = `${ayahData.surah.name_latin} ayat ${ayahData.ayah_number}, terjemahan ayat ${ayahData.ayah_number}, ${ayahData.surah.name_arabic}, quran ayat, murottal ayat, tafsir ayat al quran`;
+      seoData.keywords = generateSurahSEOKeywords(ayahData.surah) + `, ${ayahData.surah.name_latin} ayat ${ayahData.ayah_number}, terjemahan ayat ${ayahData.ayah_number}, murottal ayat, tafsir ayat al quran`;
       seoData.canonicalUrl = `${BASE_URL}/surah/${ayahData.surah.number}/${ayahData.ayah_number}`;
       break;
 
@@ -496,7 +496,7 @@ export const getPageSEOData = (pageType, data = {}) => {
       const resultsCount = data.results?.length || 0;
       seoData.title = `Hasil Pencarian "${searchQuery}" - ${resultsCount} Ayat Ditemukan | IndoQuran`;
       seoData.description = `Hasil pencarian Al-Quran untuk "${searchQuery}". Ditemukan ${resultsCount} ayat yang sesuai dengan pencarian Anda. Cari ayat, surah, dan terjemahan dalam Al-Quran dengan mudah di IndoQuran.`;
-      seoData.keywords = `pencarian quran, cari ayat al quran, ${searchQuery}, al quran indonesia, pencarian al quran online, search quran indonesia, temukan ayat quran`;
+      seoData.keywords = generateSearchSEOKeywords(searchQuery);
       seoData.canonicalUrl = `${BASE_URL}/cari?q=${encodeURIComponent(searchQuery)}`;
       break;
 
@@ -1143,6 +1143,83 @@ export const generateOptimalTitle = (title, siteName = 'IndoQuran', maxLength = 
   return title.substring(0, maxLength - 3) + '...';
 };
 
+// Comprehensive Surah names for SEO optimization
+export const ALL_SURAH_NAMES = [
+  'al fatihah', 'al baqarah', 'ali imran', 'an nisa', 'al maidah', 'al an\'am', 'al a\'raf', 'al anfal',
+  'at taubah', 'yunus', 'hud', 'yusuf', 'ar ra\'d', 'ibrahim', 'al hijr', 'an nahl', 'al isra', 'al kahf',
+  'maryam', 'taha', 'al anbiya', 'al hajj', 'al mu\'minun', 'an nur', 'al furqan', 'ash shu\'ara', 'an naml',
+  'al qasas', 'al ankabut', 'ar rum', 'luqman', 'as sajdah', 'al ahzab', 'saba', 'fatir', 'yasin', 'as saffat',
+  'sad', 'az zumar', 'ghafir', 'fussilat', 'ash shura', 'az zukhruf', 'ad dukhan', 'al jathiyah', 'al ahqaf',
+  'muhammad', 'al fath', 'al hujurat', 'qaf', 'adh dhariyat', 'at tur', 'an najm', 'al qamar', 'ar rahman',
+  'al waqi\'ah', 'al hadid', 'al mujadilah', 'al hashr', 'al mumtahanah', 'as saff', 'al jumu\'ah', 'al munafiqun',
+  'at taghabun', 'at talaq', 'at tahrim', 'al mulk', 'al qalam', 'al haqqah', 'al ma\'arij', 'nuh', 'al jinn',
+  'al muzzammil', 'al muddaththir', 'al qiyamah', 'al insan', 'al mursalat', 'an naba', 'an nazi\'at', 'abasa',
+  'at takwir', 'al infitar', 'al mutaffifin', 'al inshiqaq', 'al buruj', 'at tariq', 'al a\'la', 'al ghashiyah',
+  'al fajr', 'al balad', 'ash shams', 'al lail', 'ad duha', 'ash sharh', 'at tin', 'al alaq', 'al qadr', 'al bayyinah',
+  'az zalzalah', 'al adiyat', 'al qari\'ah', 'at takathur', 'al asr', 'al humazah', 'al fil', 'quraish', 'al ma\'un',
+  'al kawthar', 'al kafirun', 'an nasr', 'al masad', 'al ikhlas', 'al falaq', 'an nas'
+];
+
+// High-traffic Indonesian Quran search terms for SEO optimization
+export const HIGH_TRAFFIC_SEARCH_TERMS = [
+  'al quran indonesia', 'quran indonesia', 'quran digital', 'al quran online', 'quran online indonesia',
+  'al quran digital', 'al-quran indonesia', 'al-qur\'an online', 'qur\'an indonesia', 'quran terjemahan indonesia',
+  'quran web', 'quranweb', 'my quran indonesia', 'indonesia quran', 'alquran indonesia', 'quran.com indonesia',
+  'qur an indonesia', 'al qur an online', 'al qur an indonesia', 'koran indonesia', 'qur\'an web'
+];
+
+// Specific search terms from user request
+export const USER_REQUESTED_TERMS = [
+  'surat ibrahim', 'an naml', 'surah ibrahim', 'ar rum', 'surah an naml', 'surat at tariq', 'al anfal',
+  'surat as saffat', 'at thoriq', 'at tariq', 'surat ar rum', 'surat al-qasas', 'surah al qasas', 'surah at tariq',
+  'as saffat', 'al mu minun', 'at thariq', 'surah as-saffat', 'surah al-qasas', 'al qasas', 'surah ke 76',
+  'surat saba', 'as saaffat', 'surat shad', 'al mu\'minun', 'al mulk 21-30', 'surat ke 27', 'surat al qasas',
+  'surat ke 52', 'surat ar-rum', 'surat an-naml', 'surah tentang lebah', 'taha', 'surat annaml', 'quran 93 7',
+  'arti surah an naml', 'al mursalat', 'surat yunus ayat 4', 'at tur', 'surah lebah', 'surat ke 30',
+  'surat maryam ayat 34', 'ar rum artinya', 'surah saad', 'surah 86', 'al isra surat ke berapa', 'al infitar',
+  'yunus 91', 'surah at toriq', 'surat al torik', 'surah as saff', 'at tarik', 'ar rum ayat 3',
+  'surah al humazah termasuk golongan surah', 'surat ke 23', 'as saff', 'surat ar rum ayat 23',
+  'al mulk ayat 20-30', 'surat 61', 'surat al mulk ayat 20-30', 'ibrahim surat', 'surat sad ayat 35',
+  'surat alinsan', 'surah 30', 'quran surat 30', 'qs 27', 'ayat an naml', 'surah al fatih', 'al quran juz 23',
+  'surah sulaiman juz berapa', 'fussilat', 'surat ke 28 dalam al quran', 'annazi\'at', 'surat al balad diturunkan di kota',
+  'surah as saffat', 'qs 23 ayat 10', 'surat amayatasaalun', 'surat shod', 'doa nabi yunus ayat 4',
+  'bunyi surat ar ra\'d ayat 11', 'surah 12 ayat 15', 'surah 23 ayat 5', 'surat ke 90', 'al toriq', 'surat semut',
+  'al muminun', 'surat 23 ayat 10', '13 11 quran', 'al furqan 72', 'surat at-tariq', 'qs ar rum', 'surat 27',
+  'qs as saff', 'quran 22 46', 'arrum', 'surat 11 ayat 8', 'maryam', 'al tariq', 'surat 76',
+  'al quran digital dan terjemahan', 'al quran indonesia web', 'quran indo', 'al-quran digital', 'surah yunus ayat 91',
+  'ibrahim ayat', 'an naml artinya', 'surat ar rum artinya', '30 ayat 3', 'al hijr 99', 'surat arum ayat 30',
+  'amma yatasa alun', 'ar rum ayat 23', 'surat al balad diturunkan sesudah surat', 'surah al fil diturunkan sesudah surah',
+  'ar ruum', 'attariq', 'surat al kahfi ayat 51-110', 'surah ke 38', 'quran surah 38', 'surah 38', 'surah mu\'minun',
+  'surat shaffat', 'surah 28', 'surah al qashash', 'surat al hujurat diturunkan setelah surat', 'surah al naml',
+  'mu minun', 'surah 25 ayat 4', 'surat 69', 'surat ke 28', 'surah 25 ayat 3', 'al qasas surat ke', 'an nuur',
+  'surat ke 72', 'an-naml', 'assafat', 'surah as sad', 'surah ash shaffat', 'surat al qasas ayat', 'surat naml',
+  'alhadid', 'as safat', 'qs al qashash', 'surah as saf', 'surah at torik', 'surah attoriq', 'surat ke 23 dalam al quran',
+  'al insaan', 'arti surah ibrahim', 'fusilat', 'quraysh', 'surat ke 37', 'surat ke-76', 'quran surat ibrahim',
+  'surah an naml artinya', 'surah at-tariq', 'surah attorik', 'surat al minum', 'al qasash', 'quran surat ar-rum',
+  'surat attorik', 'surat ke-86', 'ayat ibrahim', 'surat an namal', 'surat at toriq', 'surat athoriq', 'surat sad',
+  'qs arrum', 'quran surat ar rum', 'surah ke 61', 'surat al qashas', 'surat ar rum 30', 'surat ath thur', 'al lail',
+  'al qashash', 'at tin diturunkan setelah surat', 'ath thariq', 'surat al kahfi ayat 83-110', 'al qashas',
+  'an nisa 50', 'qs as saffat', 'surat as shad', 'ayat al mu\'minun', 'qs 23', 'qs al mu\'minun', 'surah yusuf ayat 15',
+  'surat as shof', 'surat ke-61', 'at toriq', 'ath-thariq', 'qs 28', 'surah al quraisy diturunkan sesudah surah',
+  'ash shaffat', 'surah 14', 'surat al quraisy diturunkan sesudah surah', 'surat an naml ayat', 'surat ibrahim ayat 38',
+  'surat ke 13', 'al qashash ayat 88', 'at tin diturunkan di kota', 'at-thoriq', 'quran juz 23', 'surat al alaq terdiri dari',
+  'surat ar rum surat ke berapa', 'surat as saff', 'arti ar rum', 'surat al fal', 'al fath 28', 'arti al qasas',
+  'surah attin diturunkan setelah surah', 'surat ash shaffat', 'surah as shaff', 'surat lebah', 'al insan 22',
+  'al mutaffifin', 'ar rum surah ke berapa', 'arti surat an naml', 'surat as shaff', 'ar rad ayat 4', 'surat 25 ayat 3',
+  'surat ke 61', 'surat maryam tentang apa', 'surah 23 ayat 8', 'surah ibrahim ayat', 'ibrahim surah',
+  'surat ke 24 ayat 11', 'as shaf', 'surah ke 23 ayat 8', 'surah ke 24 ayat 11', 'surat al lail diturunkan sesudah surat',
+  'surat al mulk ayat 27-30', 'al fal', 'al insan berapa ayat', 'surat an nisa ayat 50', 'az zumar ayat 58',
+  'surah al falaq diturunkan sesudah surah', 'surah al mulk ayat 20-30', 'ar rum surat ke berapa', 'surat 83',
+  'surat as saf', 'surat as-saffat', 'surat ibrahim surat ke berapa', 'surat tentang lebah', 'surah al fatir ayat 35-37',
+  'yunus ayat 22', 'al mu\'minun ayat 100', 'an naba 20-40', 'ar rum juz berapa', 'al mulk 20-30',
+  'surat 28 ayat 3 alquran', 'al isa', 'surat luth', 'al had', 'al quran bahasa indonesia', 'surat an naba ayat 20',
+  'surat an nahl tentang lebah', 'surat saba artinya', 'al fajar', 'surat yusuf berapa ayat', 'al alaq ayat 17',
+  'al mulk ayat 21-30', 'qs 13', 'setelah surat al qalam', 'surat al furqan ayat 47', 'surat an nahl tentang madu',
+  'annisa ayat 50', 'ayat quran tentang lebah', 'surat amma yatasa alun', 'an nahl tentang lebah', 'at thalaq 4',
+  'al isra 17:25 artinya', 'shaff artinya', 'ar rum 23', 'azzumar 6', 'al kahfi 102-110', 'surat 23', 'qs 23',
+  'qs al mu\'minun', 'surat as shod', 'qs 28', 'surah al quraisy diturunkan sesudah surah', 'ash shaffat', 'surah 14'
+];
+
 // Enhanced keyword cleaning and optimization for Indonesian market
 export const cleanKeywords = (keywords) => {
   if (typeof keywords === 'string') {
@@ -1160,23 +1237,139 @@ export const cleanKeywords = (keywords) => {
         // Keep only meaningful keywords
         return keyword.length <= 50;
       })
-      .slice(0, 12) // Google recommends 10-12 keywords max
+      .slice(0, 15) // Allow more keywords for better SEO coverage
       .join(', ');
   }
   return '';
 };
 
-// Generate Indonesian-specific long-tail keywords
+// Generate Indonesian-specific long-tail keywords with comprehensive coverage
 export const generateLongTailKeywords = (baseKeyword, pageType) => {
   const indonesianModifiers = {
-    'surah': ['terjemahan', 'audio', 'murottal', 'lengkap', 'indonesia', 'bahasa indonesia'],
-    'search': ['pencarian', 'cari', 'temukan', 'hasil'],
-    'general': ['online', 'gratis', 'terbaik', 'lengkap', 'mudah']
+    'surah': ['terjemahan', 'audio', 'murottal', 'lengkap', 'indonesia', 'bahasa indonesia', 'artinya', 'tafsir', 'ayat', 'surat ke berapa', 'juz berapa', 'diturunkan di'],
+    'search': ['pencarian', 'cari', 'temukan', 'hasil', 'online', 'digital', 'gratis'],
+    'general': ['online', 'gratis', 'terbaik', 'lengkap', 'mudah', 'indonesia', 'digital', 'terjemahan']
   };
   
   const modifiers = indonesianModifiers[pageType] || indonesianModifiers.general;
   
-  return modifiers.map(modifier => `${baseKeyword} ${modifier}`).slice(0, 5);
+  return modifiers.map(modifier => `${baseKeyword} ${modifier}`).slice(0, 8);
+};
+
+// Generate comprehensive SEO keywords for Surah pages
+export const generateSurahSEOKeywords = (surah) => {
+  if (!surah) return '';
+  
+  const baseKeywords = [
+    // Primary keywords
+    `surah ${surah.name_latin}`,
+    `surat ${surah.name_latin}`,
+    `${surah.name_latin}`,
+    `surah ke ${surah.number}`,
+    `surat ke ${surah.number}`,
+    `qs ${surah.number}`,
+    
+    // Arabic variations
+    `${surah.name_arabic}`,
+    `surat ${surah.name_arabic}`,
+    
+    // Common search patterns
+    `${surah.name_latin} artinya`,
+    `arti surah ${surah.name_latin}`,
+    `surat ${surah.name_latin} terjemahan`,
+    `surah ${surah.name_latin} indonesia`,
+    `${surah.name_latin} ayat`,
+    `surat ${surah.name_latin} ayat`,
+    
+    // Audio/murottal keywords
+    `murottal ${surah.name_latin}`,
+    `audio ${surah.name_latin}`,
+    `tilawah ${surah.name_latin}`,
+    
+    // Context keywords
+    `${surah.name_latin} juz berapa`,
+    `surat ${surah.name_latin} surat ke berapa`,
+    `${surah.name_latin} diturunkan di`,
+    `${surah.name_latin} berapa ayat`,
+    
+    // High-traffic general terms
+    ...HIGH_TRAFFIC_SEARCH_TERMS,
+    
+    // User-specific requested terms that match this surah
+    ...USER_REQUESTED_TERMS.filter(term => 
+      term.includes(surah.name_latin.toLowerCase()) || 
+      term.includes(surah.number.toString()) ||
+      term.includes(`ke ${surah.number}`) ||
+      term.includes(`surat ${surah.number}`) ||
+      term.includes(`surah ${surah.number}`)
+    )
+  ];
+  
+  // Add specific ayah-based keywords if available
+  if (surah.total_ayahs) {
+    baseKeywords.push(
+      `${surah.name_latin} ${surah.total_ayahs} ayat`,
+      `surat ${surah.name_latin} ${surah.total_ayahs} ayat`
+    );
+  }
+  
+  // Remove duplicates and clean
+  const uniqueKeywords = [...new Set(baseKeywords)];
+  return cleanKeywords(uniqueKeywords.join(', '));
+};
+
+// Generate comprehensive SEO keywords for home page
+export const generateHomeSEOKeywords = () => {
+  const homeKeywords = [
+    ...HIGH_TRAFFIC_SEARCH_TERMS,
+    ...ALL_SURAH_NAMES.map(name => `surah ${name}`),
+    ...ALL_SURAH_NAMES.map(name => `surat ${name}`),
+    
+    // General Quran terms
+    'al quran 30 juz', 'al quran 114 surah', 'mushaf indonesia', 'quran mushaf utsmani',
+    'baca quran online', 'hafalan quran', 'menghafal al quran', 'tilawah quran',
+    'murottal quran', 'qori quran indonesia', 'tadarus quran', 'khatam quran',
+    
+    // Indonesian Islamic terms
+    'islam indonesia', 'muslim indonesia', 'kitab suci umat islam', 'wahyu allah',
+    'firman allah', 'kalamullah', 'al kitab', 'furqan',
+    
+    // Technology terms
+    'aplikasi quran', 'software quran', 'platform quran digital',
+    'website quran indonesia', 'situs al quran', 'portal islam indonesia'
+  ];
+  
+  return cleanKeywords(homeKeywords.join(', '));
+};
+
+// Generate SEO keywords for search page
+export const generateSearchSEOKeywords = (query = '') => {
+  const searchKeywords = [
+    // Base search terms
+    'pencarian al quran', 'cari ayat quran', 'search quran indonesia',
+    'temukan ayat', 'cari surat', 'pencarian surah',
+    
+    // Query-specific terms
+    ...(query ? [
+      `cari ${query}`,
+      `pencarian ${query}`,
+      `${query} al quran`,
+      `ayat tentang ${query}`,
+      `surah tentang ${query}`
+    ] : []),
+    
+    // High-traffic terms
+    ...HIGH_TRAFFIC_SEARCH_TERMS,
+    
+    // Specific search patterns from user request
+    ...USER_REQUESTED_TERMS.filter(term => 
+      term.includes('cari') || 
+      term.includes('pencarian') ||
+      term.includes('search')
+    )
+  ];
+  
+  return cleanKeywords(searchKeywords.join(', '));
 };
 
 // Generate canonical URL with proper formatting
@@ -1488,53 +1681,4 @@ export const generateEATSignals = () => {
   };
 };
 
-export default {
-  // Core SEO functions
-  generateSitemap,
-  generateRobotsTxt,
-  generateOpenGraphTags,
-  generateTwitterCardTags,
-  getPageSEOData,
-  generateStructuredData,
-  
-  // Enhanced structured data
-  generateEnhancedFAQStructuredData,
-  generateHowToStructuredData,
-  generateLocalBusinessStructuredData,
-  generateVideoStructuredData,
-  generateAudioStructuredData,
-  
-  // Breadcrumb and FAQ
-  generateBreadcrumbStructuredData,
-  generateFAQStructuredData,
-  
-  // Performance optimization
-  preloadCriticalResources,
-  preloadNextPageResources,
-  
-  // Content optimization
-  generateOptimalMetaDescription,
-  generateOptimalTitle,
-  cleanKeywords,
-  generateLongTailKeywords,
-  
-  // Advanced SEO features
-  generateVoiceSearchOptimization,
-  generateCoreWebVitalsOptimization,
-  generateMobileFirstOptimization,
-  generateEATSignals,
-  
-  // URL and internationalization
-  generateCanonicalUrl,
-  generateHreflangTags,
-  shouldIndexPage,
-  
-  // Security and technical
-  generateSecurityHeaders,
-  generateEnhancedSitemap,
-  generateNewsSitemap,
-  
-  // Constants
-  BASE_URL,
-  SEO_PRIORITIES
-};
+

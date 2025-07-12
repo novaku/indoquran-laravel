@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 
 // SEO Routes
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
 // Advanced sitemap routes for better organization
 Route::get('/sitemap-index.xml', [SitemapIndexController::class, 'index'])->name('sitemap.index');

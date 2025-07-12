@@ -15,7 +15,7 @@ import OptimizedErrorBoundary from './components/OptimizedErrorBoundary';
 import PageTransition from './components/PageTransition';
 import PerformanceDebugPanel from './components/PerformanceDebugPanel';
 import SEOHead from './components/SEOHead';
-import { preloadCriticalResources } from './utils/seoUtils';
+import { preloadCriticalResources, getPageSEOData, generateHomeSEOKeywords } from './utils/seoUtils';
 
 // Enhanced lazy loading with component-level prefetching and optimized chunk names
 const HomePage = lazy(() => 
@@ -82,6 +82,9 @@ const RiwayatVersiPage = lazy(() =>
 );
 const TafsirMaudhuiPage = lazy(() => 
   import(/* webpackChunkName: "special-features" */ './pages/TafsirMaudhuiPage')
+);
+const SEOLandingPage = lazy(() => 
+  import(/* webpackChunkName: "seo-features" */ './pages/SEOLandingPage')
 );
 
 // Admin pages (separate bundle)
@@ -221,7 +224,70 @@ const AppContent = memo(() => {
     return (
         <OptimizedErrorBoundary maxRetries={3}>
             <QuranLayout>
-                <SEOHead />
+                <SEOHead 
+                    {...getPageSEOData('home')}
+                    additionalMeta={[
+                        { name: 'application-name', content: 'IndoQuran' },
+                        { name: 'apple-mobile-web-app-title', content: 'IndoQuran' },
+                        { name: 'apple-mobile-web-app-capable', content: 'yes' },
+                        { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
+                        { name: 'mobile-web-app-capable', content: 'yes' },
+                        { name: 'format-detection', content: 'telephone=no' },
+                        { name: 'msapplication-TileColor', content: '#2563eb' },
+                        { name: 'msapplication-config', content: '/browserconfig.xml' },
+                        { name: 'google-site-verification', content: 'your-google-verification-code' },
+                        { name: 'google', content: 'notranslate' },
+                        { name: 'rating', content: 'General' },
+                        { name: 'audience', content: 'all' },
+                        { name: 'subject', content: 'Religion, Islam, Al-Quran, Indonesia' },
+                        { name: 'language', content: 'Indonesian' },
+                        { name: 'revisit-after', content: '1 days' },
+                        { name: 'distribution', content: 'global' },
+                        { name: 'geo.region', content: 'ID' },
+                        { name: 'geo.country', content: 'Indonesia' }
+                    ]}
+                    structuredData={[
+                        {
+                            "@context": "https://schema.org",
+                            "@type": "WebSite",
+                            "name": "IndoQuran",
+                            "alternateName": ["IndoQuran.web.id", "Al-Quran Digital Indonesia"],
+                            "url": "https://my.indoquran.web.id",
+                            "description": "Platform Al-Quran Digital terlengkap di Indonesia dengan terjemahan, audio murottal, dan fitur pembelajaran interaktif",
+                            "inLanguage": ["id", "ar"],
+                            "potentialAction": {
+                                "@type": "SearchAction",
+                                "target": {
+                                    "@type": "EntryPoint",
+                                    "urlTemplate": "https://my.indoquran.web.id/cari?q={search_term_string}"
+                                },
+                                "query-input": "required name=search_term_string"
+                            },
+                            "publisher": {
+                                "@type": "Organization",
+                                "name": "IndoQuran",
+                                "logo": {
+                                    "@type": "ImageObject",
+                                    "url": "https://my.indoquran.web.id/android-chrome-512x512.png"
+                                }
+                            },
+                            "mainEntity": {
+                                "@type": "Book",
+                                "name": "Al-Quran",
+                                "alternateName": ["القرآن", "Quran", "Koran"],
+                                "author": {
+                                    "@type": "Person",
+                                    "name": "Allah SWT"
+                                },
+                                "inLanguage": ["ar"],
+                                "numberOfPages": 604,
+                                "bookFormat": "EBook",
+                                "genre": "Religious Text",
+                                "description": "Kitab suci umat Islam yang berisi wahyu Allah SWT"
+                            }
+                        }
+                    ]}
+                />
                 
                 <Suspense fallback={SuspenseFallback}>
                     <Routes>
@@ -241,6 +307,8 @@ const AppContent = memo(() => {
                         <Route path="/donasi" element={<DonationPage />} />
                         <Route path="/kebijakan" element={<PrivacyPage />} />
                         <Route path="/riwayat-versi" element={<RiwayatVersiPage />} />
+                        <Route path="/semua-surah" element={<SEOLandingPage />} />
+                        <Route path="/daftar-lengkap" element={<SEOLandingPage />} />
                         
                         {/* Admin Routes */}
                         <Route path="/admin/login" element={<AdminLoginPage />} />

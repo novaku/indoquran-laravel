@@ -33,28 +33,82 @@ class SitemapController extends Controller
                 'priority' => '1.0'
             ],
             [
-                'url' => $baseUrl . '/search',
+                'url' => $baseUrl . '/cari',
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.85'
+            ],
+            [
+                'url' => $baseUrl . '/surah',
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.95'
+            ],
+            [
+                'url' => $baseUrl . '/juz',
                 'lastmod' => $currentDate,
                 'changefreq' => 'weekly',
                 'priority' => '0.8'
             ],
             [
-                'url' => $baseUrl . '/about',
+                'url' => $baseUrl . '/halaman',
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.75'
+            ],
+            [
+                'url' => $baseUrl . '/doa-bersama',
+                'lastmod' => $currentDate,
+                'changefreq' => 'daily',
+                'priority' => '0.8'
+            ],
+            [
+                'url' => $baseUrl . '/tafsir-maudhui',
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.8'
+            ],
+            [
+                'url' => $baseUrl . '/tentang',
                 'lastmod' => $currentDate,
                 'changefreq' => 'monthly',
                 'priority' => '0.6'
             ],
             [
-                'url' => $baseUrl . '/contact',
+                'url' => $baseUrl . '/kontak',
                 'lastmod' => $currentDate,
                 'changefreq' => 'monthly',
                 'priority' => '0.5'
             ],
             [
-                'url' => $baseUrl . '/privacy',
+                'url' => $baseUrl . '/donasi',
+                'lastmod' => $currentDate,
+                'changefreq' => 'monthly',
+                'priority' => '0.5'
+            ],
+            [
+                'url' => $baseUrl . '/kebijakan',
                 'lastmod' => $currentDate,
                 'changefreq' => 'yearly',
                 'priority' => '0.3'
+            ],
+            [
+                'url' => $baseUrl . '/riwayat-versi',
+                'lastmod' => $currentDate,
+                'changefreq' => 'monthly',
+                'priority' => '0.4'
+            ],
+            [
+                'url' => $baseUrl . '/semua-surah',
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.9'
+            ],
+            [
+                'url' => $baseUrl . '/daftar-lengkap',
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.9'
             ]
         ];
         
@@ -124,5 +178,121 @@ class SitemapController extends Controller
         $xml .= '</urlset>';
         
         return $xml;
+    }
+    
+    /**
+     * Generate robots.txt optimized for Indonesian Quran search terms
+     */
+    public function robots()
+    {
+        $baseUrl = app()->environment('production') 
+            ? 'https://my.indoquran.web.id' 
+            : config('app.url');
+            
+        $robotsTxt = "User-agent: *\n";
+        $robotsTxt .= "Allow: /\n\n";
+        
+        // Optimize crawl budget by disallowing low-value pages
+        $robotsTxt .= "# Disallow private and low-value pages\n";
+        $robotsTxt .= "Disallow: /masuk\n";
+        $robotsTxt .= "Disallow: /daftar\n";
+        $robotsTxt .= "Disallow: /profil\n";
+        $robotsTxt .= "Disallow: /penanda\n";
+        $robotsTxt .= "Disallow: /api/\n";
+        $robotsTxt .= "Disallow: /admin/\n";
+        $robotsTxt .= "Disallow: /dashboard/\n";
+        $robotsTxt .= "Disallow: /login\n";
+        $robotsTxt .= "Disallow: /register\n";
+        $robotsTxt .= "Disallow: /logout\n";
+        $robotsTxt .= "Disallow: /*?*utm_\n";
+        $robotsTxt .= "Disallow: /*?*fb_\n";
+        $robotsTxt .= "Disallow: /*?*gclid=\n";
+        $robotsTxt .= "Disallow: /*?*session=\n";
+        $robotsTxt .= "Disallow: /search?*\n";
+        $robotsTxt .= "Disallow: /cari?page=\n";
+        $robotsTxt .= "Disallow: /*?preview=\n\n";
+        
+        // Allow high-value content for better indexing
+        $robotsTxt .= "# Allow high-value content for Indonesian Quran searches\n";
+        $robotsTxt .= "Allow: /cari$\n";
+        $robotsTxt .= "Allow: /surah/\n";
+        $robotsTxt .= "Allow: /juz/\n";
+        $robotsTxt .= "Allow: /halaman/\n";
+        $robotsTxt .= "Allow: /doa-bersama\n";
+        $robotsTxt .= "Allow: /tafsir-maudhui\n";
+        $robotsTxt .= "Allow: /tentang\n";
+        $robotsTxt .= "Allow: /kontak\n";
+        $robotsTxt .= "Allow: /donasi\n";
+        $robotsTxt .= "Allow: /kebijakan\n";
+        $robotsTxt .= "Allow: /riwayat-versi\n\n";
+        
+        // Crawl delay optimized for server performance
+        $robotsTxt .= "# Crawl delay optimized for server performance\n";
+        $robotsTxt .= "Crawl-delay: 1\n\n";
+        
+        // Multiple sitemap references for better discovery
+        $robotsTxt .= "# Sitemap references for comprehensive indexing\n";
+        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap.xml\n";
+        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-index.xml\n";
+        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-main.xml\n\n";
+        
+        // Google-specific optimizations
+        $robotsTxt .= "# Google-specific optimizations for Indonesian content\n";
+        $robotsTxt .= "User-agent: Googlebot\n";
+        $robotsTxt .= "Allow: /\n";
+        $robotsTxt .= "Crawl-delay: 0.5\n\n";
+        
+        $robotsTxt .= "User-agent: Googlebot-Image\n";
+        $robotsTxt .= "Allow: /images/\n";
+        $robotsTxt .= "Allow: /android-chrome-*.png\n";
+        $robotsTxt .= "Allow: /apple-touch-icon.png\n";
+        $robotsTxt .= "Allow: /favicon.ico\n\n";
+        
+        $robotsTxt .= "User-agent: Googlebot-News\n";
+        $robotsTxt .= "Allow: /\n";
+        $robotsTxt .= "Disallow: /api/\n\n";
+        
+        // Bing optimization
+        $robotsTxt .= "# Bing optimization\n";
+        $robotsTxt .= "User-agent: Bingbot\n";
+        $robotsTxt .= "Allow: /\n";
+        $robotsTxt .= "Crawl-delay: 1\n\n";
+        
+        // Other search engines
+        $robotsTxt .= "# Other search engines\n";
+        $robotsTxt .= "User-agent: Slurp\n";
+        $robotsTxt .= "Allow: /\n";
+        $robotsTxt .= "Crawl-delay: 2\n\n";
+        
+        $robotsTxt .= "User-agent: DuckDuckBot\n";
+        $robotsTxt .= "Allow: /\n";
+        $robotsTxt .= "Crawl-delay: 1\n\n";
+        
+        // Social media crawlers
+        $robotsTxt .= "# Social media crawlers\n";
+        $robotsTxt .= "User-agent: facebookexternalhit\n";
+        $robotsTxt .= "Allow: /\n\n";
+        
+        $robotsTxt .= "User-agent: Twitterbot\n";
+        $robotsTxt .= "Allow: /\n\n";
+        
+        $robotsTxt .= "User-agent: LinkedInBot\n";
+        $robotsTxt .= "Allow: /\n\n";
+        
+        // Block unwanted bots to save crawl budget
+        $robotsTxt .= "# Block unwanted bots to preserve crawl budget\n";
+        $robotsTxt .= "User-agent: AhrefsBot\n";
+        $robotsTxt .= "Disallow: /\n\n";
+        
+        $robotsTxt .= "User-agent: MJ12bot\n";
+        $robotsTxt .= "Disallow: /\n\n";
+        
+        $robotsTxt .= "User-agent: SemrushBot\n";
+        $robotsTxt .= "Disallow: /\n";
+        
+        return response($robotsTxt, 200, [
+            'Content-Type' => 'text/plain',
+            'Cache-Control' => 'public, max-age=86400', // Cache for 24 hours
+        ]);
     }
 }
