@@ -114,44 +114,8 @@ EOF
         connection_type=$(echo "$redis_test_result" | cut -d':' -f2)
         connection_details=$(echo "$redis_test_result" | cut -d':' -f3-)
         log_message "✓ Redis server is responding via $connection_type: $connection_details"
-        redis_working=true                    # Ensure .env has the correct Redis socket configuration
-                    if [[ "$connection_type" == "SOCKET" ]]; then
-                        log_message "Configuring Laravel for Redis socket connection..."
-                        
-                        # Ensure REDIS_SOCKET is set in .env
-                        if ! grep -q "REDIS_SOCKET=" .env; then
-                            echo "REDIS_SOCKET=$connection_details" >> .env
-                            log_message "✓ Added REDIS_SOCKET to .env"
-                        else
-                            # Update existing REDIS_SOCKET setting
-                            sed -i "s|REDIS_SOCKET=.*|REDIS_SOCKET=$connection_details|" .env
-                            log_message "✓ Updated REDIS_SOCKET in .env"
-                        fi
-                        
-                        # For socket connections, remove REDIS_HOST and REDIS_PORT to avoid conflicts
-                        log_message "Removing REDIS_HOST and REDIS_PORT for socket connection..."
-                        if grep -q "REDIS_HOST=" .env; then
-                            sed -i '/REDIS_HOST=/d' .env
-                            log_message "✓ Removed REDIS_HOST line from .env"
-                        fi
-                        if grep -q "REDIS_PORT=" .env; then
-                            sed -i '/REDIS_PORT=/d' .env
-                            log_message "✓ Removed REDIS_PORT line from .env"
-                        fi
-                        
-                        # Ensure REDIS_CLIENT is set to predis for better socket support
-                        if ! grep -q "REDIS_CLIENT=" .env; then
-                            echo "REDIS_CLIENT=predis" >> .env
-                            log_message "✓ Added REDIS_CLIENT=predis to .env"
-                        else
-                            sed -i 's/REDIS_CLIENT=.*/REDIS_CLIENT=predis/' .env
-                            log_message "✓ Updated REDIS_CLIENT to predis in .env"
-                        fi
-                        
-                        # Clear Laravel config cache to reload Redis configuration
-                        log_message "Clearing Laravel config cache to reload Redis settings..."
-                        php artisan config:clear >/dev/null 2>&1 || true
-                    fi
+        redis_working=true
+        log_message "✓ Redis connection verified"
     else
         log_warning "⚠ Redis server is not responding - attempting to start..."
         redis_working=false
@@ -208,40 +172,7 @@ EOF
                     connection_type=$(echo "$redis_test_result" | cut -d':' -f2)
                     connection_details=$(echo "$redis_test_result" | cut -d':' -f3-)
                     log_message "✓ User-space Redis started successfully ($connection_type: $connection_details)"
-                    redis_working=true                            # Ensure .env has the correct Redis configuration
-                            if [[ "$connection_type" == "SOCKET" ]]; then
-                                log_message "Configuring Laravel for Redis socket connection..."
-                                
-                                if ! grep -q "REDIS_SOCKET=" .env; then
-                                    echo "REDIS_SOCKET=$connection_details" >> .env
-                                    log_message "✓ Added REDIS_SOCKET to .env"
-                                else
-                                    sed -i "s|REDIS_SOCKET=.*|REDIS_SOCKET=$connection_details|" .env
-                                    log_message "✓ Updated REDIS_SOCKET in .env"
-                                fi
-                                
-                                # For socket connections, remove REDIS_HOST and REDIS_PORT to avoid conflicts
-                                if grep -q "REDIS_HOST=" .env; then
-                                    sed -i '/REDIS_HOST=/d' .env
-                                    log_message "✓ Removed REDIS_HOST line from .env"
-                                fi
-                                if grep -q "REDIS_PORT=" .env; then
-                                    sed -i '/REDIS_PORT=/d' .env
-                                    log_message "✓ Removed REDIS_PORT line from .env"
-                                fi
-                                
-                                # Ensure REDIS_CLIENT is set to predis
-                                if ! grep -q "REDIS_CLIENT=" .env; then
-                                    echo "REDIS_CLIENT=predis" >> .env
-                                    log_message "✓ Added REDIS_CLIENT=predis to .env"
-                                else
-                                    sed -i 's/REDIS_CLIENT=.*/REDIS_CLIENT=predis/' .env
-                                    log_message "✓ Updated REDIS_CLIENT to predis in .env"
-                                fi
-                                
-                                # Clear Laravel config cache
-                                php artisan config:clear >/dev/null 2>&1 || true
-                            fi
+                    redis_working=true
                 else
                     log_warning "⚠ User-space Redis failed to start or not responding"
                 fi
@@ -259,16 +190,8 @@ EOF
             log_warning "1. Check Redis documentation: docs/REDIS_SOCKET_CONFIGURATION.md"
             log_warning "2. For user-space Redis: Run ./install-user-redis.sh"
             log_warning "3. Check Redis socket: ls -la /home/indoqura/tmp/redis.sock"
-            log_warning "4. Alternative: Switch to database cache in .env"
+            log_warning "4. Alternative: Configure CACHE_STORE manually in .env"
             log_warning ""
-            log_warning "Automatic fallback: Setting CACHE_STORE to database..."
-            
-            # Backup current .env and switch to database cache
-            if [ -f .env ]; then
-                cp .env .env.redis-backup
-                sed -i 's/CACHE_STORE=redis/CACHE_STORE=database/' .env
-                log_message "✓ Switched to database cache (Redis backup saved as .env.redis-backup)"
-            fi
         fi
     fi
 else
@@ -464,29 +387,8 @@ EOF
             log_message "Current .env Redis settings:"
             grep -E "REDIS_|CACHE_" .env || echo "No Redis settings found in .env"
             
-            # Fix empty REDIS_HOST and REDIS_PORT which cause ":" address error
-            log_message "Fixing empty Redis host/port configuration..."
-            if grep -q "REDIS_HOST=$" .env || grep -q "REDIS_HOST= *$" .env; then
-                sed -i 's/REDIS_HOST=.*/REDIS_HOST=127.0.0.1/' .env
-                log_message "✓ Fixed empty REDIS_HOST to 127.0.0.1"
-            fi
-            if grep -q "REDIS_PORT=$" .env || grep -q "REDIS_PORT= *$" .env; then
-                sed -i 's/REDIS_PORT=.*/REDIS_PORT=6379/' .env
-                log_message "✓ Fixed empty REDIS_PORT to 6379"
-            fi
-            
-            # Ensure Redis client is set to predis for socket support
-            if ! grep -q "REDIS_CLIENT=" .env; then
-                echo "REDIS_CLIENT=predis" >> .env
-                log_message "✓ Added REDIS_CLIENT=predis to .env"
-            else
-                sed -i 's/REDIS_CLIENT=.*/REDIS_CLIENT=predis/' .env
-                log_message "✓ Updated REDIS_CLIENT to predis in .env"
-            fi
-            
-            # Clear config again and retry
-            php artisan config:clear >/dev/null 2>&1 || true
-            sleep 1
+            log_warning "⚠ Please check your .env Redis configuration manually"
+            log_warning "Common issues: empty REDIS_HOST/PORT, wrong REDIS_CLIENT, missing REDIS_SOCKET"
             
             # Retry Laravel Redis test
             cat > test_laravel_redis_retry.php << 'EOF'
@@ -517,7 +419,7 @@ EOF
             rm -f test_laravel_redis_retry.php
             
             if [ $retry_status -eq 0 ]; then
-                log_message "✓ Laravel Redis connection verified after configuration fix"
+                log_message "✓ Laravel Redis connection verified after wait period"
                 
                 if php artisan quran:cache clear 2>/dev/null; then
                     log_message "✓ Quran cache cleared successfully"
