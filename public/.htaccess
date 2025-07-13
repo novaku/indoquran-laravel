@@ -1,161 +1,27 @@
 <IfModule mod_rewrite.c>
-    <IfModule mod_negotiation.c>
-        Options -MultiViews -Indexes
-    </IfModule>
-
-    # Add proper MIME types for fonts and JavaScript modules
-    <IfModule mod_mime.c>
-        AddType application/font-sfnt           otf ttf
-        AddType application/font-woff           woff
-        AddType application/font-woff2          woff2
-        AddType application/vnd.ms-fontobject   eot
-        AddType application/javascript          js
-        AddType application/javascript          mjs
-        AddType application/javascript          jsx
-        AddType text/css                        css
-        
-        # Force JavaScript MIME type for build assets with hashes
-        <FilesMatch "^[A-Za-z0-9]+-[A-Za-z0-9_]+\.js$">
-            ForceType application/javascript
-        </FilesMatch>
-    </IfModule>
-
-    # Add proper headers for font files
-    <FilesMatch "\.(ttf|otf|eot|woff|woff2)$">
-        <IfModule mod_headers.c>
-            Header set Access-Control-Allow-Origin "*"
-            Header set Cache-Control "max-age=31536000, public"
-        </IfModule>
-    </FilesMatch>
-
-    # Add proper headers for JS and CSS files
-    <FilesMatch "\.(js|mjs|css)$">
-        <IfModule mod_headers.c>
-            Header set Access-Control-Allow-Origin "*"
-            Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
-            Header set Access-Control-Allow-Headers "Content-Type, Authorization"
-        </IfModule>
-    </FilesMatch>
-    
-    # Set proper MIME types for specific file extensions
-    <FilesMatch "\.js$">
-        <IfModule mod_headers.c>
-            Header set Content-Type "application/javascript; charset=utf-8"
-        </IfModule>
-    </FilesMatch>
-    
-    <FilesMatch "\.mjs$">
-        <IfModule mod_headers.c>
-            Header set Content-Type "application/javascript; charset=utf-8"
-        </IfModule>
-    </FilesMatch>
-
-    # SEO and Security Headers
-    <IfModule mod_headers.c>
-        # Security Headers
-        Header always set X-Frame-Options "SAMEORIGIN"
-        Header always set X-Content-Type-Options "nosniff"
-        Header always set X-XSS-Protection "1; mode=block"
-        Header always set Referrer-Policy "strict-origin-when-cross-origin"
-        
-        # Remove Server Header for security
-        Header always unset Server
-        Header always unset X-Powered-By
-    </IfModule>
-
-    # Gzip Compression for Performance
-    <IfModule mod_deflate.c>
-        AddOutputFilterByType DEFLATE text/plain
-        AddOutputFilterByType DEFLATE text/html
-        AddOutputFilterByType DEFLATE text/xml
-        AddOutputFilterByType DEFLATE text/css
-        AddOutputFilterByType DEFLATE text/javascript
-        AddOutputFilterByType DEFLATE application/xml
-        AddOutputFilterByType DEFLATE application/xhtml+xml
-        AddOutputFilterByType DEFLATE application/rss+xml
-        AddOutputFilterByType DEFLATE application/javascript
-        AddOutputFilterByType DEFLATE application/x-javascript
-        AddOutputFilterByType DEFLATE application/json
-        AddOutputFilterByType DEFLATE application/ld+json
-        AddOutputFilterByType DEFLATE image/svg+xml
-    </IfModule>
-
-    # Browser Caching for Performance
-    <IfModule mod_expires.c>
-        ExpiresActive on
-        
-        # Images
-        ExpiresByType image/jpg "access plus 1 month"
-        ExpiresByType image/jpeg "access plus 1 month"
-        ExpiresByType image/gif "access plus 1 month"
-        ExpiresByType image/png "access plus 1 month"
-        ExpiresByType image/svg+xml "access plus 1 month"
-        ExpiresByType image/webp "access plus 1 month"
-        ExpiresByType image/x-icon "access plus 1 year"
-        
-        # CSS and JavaScript
-        ExpiresByType text/css "access plus 1 month"
-        ExpiresByType application/javascript "access plus 1 month"
-        ExpiresByType text/javascript "access plus 1 month"
-        
-        # Fonts
-        ExpiresByType font/woff "access plus 1 year"
-        ExpiresByType font/woff2 "access plus 1 year"
-        ExpiresByType application/font-woff "access plus 1 year"
-        ExpiresByType application/font-woff2 "access plus 1 year"
-        
-        # Audio
-        ExpiresByType audio/mpeg "access plus 1 month"
-        ExpiresByType audio/mp3 "access plus 1 month"
-        
-        # Manifest files
-        ExpiresByType application/manifest+json "access plus 1 week"
-        ExpiresByType text/cache-manifest "access plus 0 seconds"
-    </IfModule>
-
-    # Force HTTPS redirect for SEO
-    RewriteEngine On
-
-    # Handle JavaScript module MIME type issues
-    RewriteCond %{REQUEST_URI} \.(js|mjs)$ [OR]
-    RewriteCond %{REQUEST_URI} ^/build/assets/[A-Za-z0-9]+-[A-Za-z0-9_]+\.js$
-    RewriteRule .* - [E=CONTENT_TYPE:application/javascript]
-    Header always set Content-Type %{CONTENT_TYPE}e env=CONTENT_TYPE
-    
-    # Additional MIME type enforcement for build assets
-    <LocationMatch "^/build/assets/.*\.js$">
-        Header always set Content-Type "application/javascript; charset=utf-8"
-        Header always set Cache-Control "public, max-age=31536000"
-    </LocationMatch>
-    
-    RewriteCond %{HTTPS} off
-    RewriteCond %{HTTP_HOST} ^my\.indoquran\.web\.id$ [NC]
-    RewriteRule ^(.*)$ https://my.indoquran.web.id%{REQUEST_URI} [R=301,L]
-
-    # WWW to non-WWW redirect for SEO
-    RewriteCond %{HTTP_HOST} ^www\.my\.indoquran\.web\.id$ [NC]
-    RewriteRule ^(.*)$ https://my.indoquran.web.id/$1 [R=301,L]
-
-    # Handle Authorization Header
-    RewriteCond %{HTTP:Authorization} .
-    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-
-    # Handle X-XSRF-Token Header
-    RewriteCond %{HTTP:x-xsrf-token} .
-    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
-
-    # Redirect Trailing Slashes If Not A Folder...
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_URI} (.+)/$
-    RewriteRule ^ %1 [L,R=301]
-
-    # Send Requests To Front Controller...
-    # But first exclude static assets from being processed by Laravel
-    RewriteCond %{REQUEST_URI} !^/build/
-    RewriteCond %{REQUEST_URI} !^/assets/
-    RewriteCond %{REQUEST_URI} !^/fonts/
-    RewriteCond %{REQUEST_URI} !^/images/
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ index.php [L]
+<IfModule mod_negotiation.c>
+Options -MultiViews -Indexes
 </IfModule>
+
+RewriteEngine On
+
+# Redirect my.indoquran.web.id to indoquran.web.id
+RewriteCond %{HTTP_HOST} ^my\.indoquran\.web\.id$ [NC,OR]
+RewriteCond %{HTTP_HOST} ^www\.my\.indoquran\.web\.id$ [NC]
+RewriteRule ^(.*)$ https://indoquran.web.id/$1 [R=301,L]
+
+# Handle Authorization Header
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# Redirect Trailing Slashes If Not A Folder...
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} (.+)/$
+RewriteRule ^ %1 [L,R=301]
+
+# Handle Front Controller...
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.php [L]
+</IfModule>
+
