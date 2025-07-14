@@ -1,11 +1,4 @@
 RewriteEngine On
 
-# Redirect my.indoquran.web.id to indoquran.web.id
-RewriteCond %{HTTP_HOST} ^my\.indoquran\.web\.id$ [NC]
-RewriteRule ^(.*)$ https://indoquran.web.id/$1 [R=301,L]
-
-RewriteCond %{HTTPS} !=on
-RewriteRule ^(.*)$ https://indoquran.web.id%{REQUEST_URI} [R=301,L]
-
-RewriteCond %{HTTPS} =on
-RewriteRule ^(.*)$ https://indoquran.web.id%{REQUEST_URI} [R=301,L]
+# Redirect any access to /redirect folder to https://indoquran.web.id/
+RewriteRule ^(.*)$ https://indoquran.web.id/ [R=301,L]
