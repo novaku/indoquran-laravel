@@ -1,4 +1,0 @@
-RewriteEngine On
-
-# Redirect any access to /redirect folder to https://indoquran.web.id/
-RewriteRule ^(.*)$ https://indoquran.web.id/ [R=301,L]
