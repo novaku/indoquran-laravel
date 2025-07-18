@@ -26,14 +26,18 @@ const PWAInstallBanner = () => {
 
         // Check PWA status
         const checkStatus = () => {
-            if (window.pwaManager) {
-                const status = window.pwaManager.getInstallStatus();
-                setCanInstall(status.canInstall);
-                setIsInstalled(status.isInstalled);
-                
-                if (status.canInstall && !status.isInstalled) {
-                    setTimeout(() => setIsVisible(true), 5000); // Show after 5 seconds
-                }
+            // Wait for PWAManager to be ready
+            if (!window.pwaManager || !window._pwaManagerInitialized) {
+                setTimeout(checkStatus, 100);
+                return;
+            }
+
+            const status = window.pwaManager.getInstallStatus();
+            setCanInstall(status.canInstall);
+            setIsInstalled(status.isInstalled);
+            
+            if (status.canInstall && !status.isInstalled) {
+                setTimeout(() => setIsVisible(true), 5000); // Show after 5 seconds
             }
         };
 
@@ -61,8 +65,15 @@ const PWAInstallBanner = () => {
     }, []); // Empty dependency array
 
     const handleInstall = useCallback(async () => {
-        if (window.pwaManager) {
+        if (!window.pwaManager || !window._pwaManagerInitialized) {
+            console.warn('PWA: Manager not ready for install');
+            return;
+        }
+
+        try {
             await window.pwaManager.promptInstall();
+        } catch (error) {
+            console.error('PWA: Install failed', error);
         }
     }, []);
 

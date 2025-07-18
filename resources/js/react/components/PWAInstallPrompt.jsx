@@ -11,13 +11,20 @@ const PWAInstallPrompt = () => {
     useEffect(() => {
         // Check if it's iOS
         const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        setIsIOS(isIOSDevice);
-
+        
         // Check if app is already installed (running in standalone mode)
         const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches 
             || window.navigator.standalone 
             || document.referrer.includes('android-app://');
+        
+        // Set initial states
+        setIsIOS(isIOSDevice);
         setIsStandalone(isInStandaloneMode);
+
+        // Don't show prompt if already installed
+        if (isInStandaloneMode) {
+            return;
+        }
 
         // Listen for the beforeinstallprompt event
         const handleBeforeInstallPrompt = (e) => {
@@ -25,7 +32,7 @@ const PWAInstallPrompt = () => {
             e.preventDefault();
             // Stash the event so it can be triggered later
             setDeferredPrompt(e);
-            // Show install prompt to user
+            // Show install prompt to user only if not already shown
             setShowInstallPrompt(true);
         };
 
@@ -35,8 +42,26 @@ const PWAInstallPrompt = () => {
         if (isIOSDevice && !isInStandaloneMode) {
             // Check if user has dismissed the prompt before
             const hasSeenPrompt = localStorage.getItem('pwa-install-prompt-dismissed');
-            if (!hasSeenPrompt) {
-                setTimeout(() => setShowInstallPrompt(true), 3000);
+            const dismissedTime = localStorage.getItem('pwa-install-prompt-dismissed-time');
+            const lastShownTime = localStorage.getItem('pwa-install-prompt-last-shown');
+            const now = Date.now();
+            
+            // Don't show if permanently dismissed within last 7 days
+            if (hasSeenPrompt && dismissedTime && (now - parseInt(dismissedTime) < 7 * 24 * 60 * 60 * 1000)) {
+                return;
+            }
+            
+            // Only show prompt if not shown recently (24 hours)
+            if (!lastShownTime || now - parseInt(lastShownTime) > 24 * 60 * 60 * 1000) {
+                const timeoutId = setTimeout(() => {
+                    setShowInstallPrompt(true);
+                    localStorage.setItem('pwa-install-prompt-last-shown', now.toString());
+                }, 3000);
+                
+                return () => {
+                    clearTimeout(timeoutId);
+                    window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+                };
             }
         }
 
@@ -68,8 +93,13 @@ const PWAInstallPrompt = () => {
                     event_label: 'User Installed App'
                 });
             }
+            // Mark as permanently dismissed since user installed
+            localStorage.setItem('pwa-install-prompt-dismissed', 'true');
+            localStorage.setItem('pwa-install-prompt-dismissed-time', Date.now().toString());
         } else {
             console.log('User dismissed the install prompt');
+            // Set a cooldown period before showing again
+            localStorage.setItem('pwa-install-prompt-last-shown', Date.now().toString());
         }
 
         // Clear the deferredPrompt
@@ -80,14 +110,16 @@ const PWAInstallPrompt = () => {
     const handleDismiss = () => {
         setShowInstallPrompt(false);
         setShowIOSInstructions(false);
-        // Remember that user dismissed the prompt
+        // Remember that user dismissed the prompt with timestamp
         localStorage.setItem('pwa-install-prompt-dismissed', 'true');
+        localStorage.setItem('pwa-install-prompt-dismissed-time', Date.now().toString());
     };
 
     const handleTryAgainLater = () => {
         setShowInstallPrompt(false);
         setShowIOSInstructions(false);
-        // Don't save to localStorage so prompt can show again
+        // Set a shorter delay before showing again (1 hour)
+        localStorage.setItem('pwa-install-prompt-last-shown', Date.now().toString());
     };
 
     // Don't show anything if app is already installed
