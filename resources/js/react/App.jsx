@@ -17,6 +17,7 @@ import PerformanceDebugPanel from './components/PerformanceDebugPanel';
 import SEOHead from './components/SEOHead';
 import PWAInstallPromotion from './components/PWAInstallPromotion';
 import { preloadCriticalResources, getPageSEOData, generateHomeSEOKeywords } from './utils/seoUtils';
+import GoogleAnalytics from './components/GoogleAnalytics';
 
 // Enhanced lazy loading with component-level prefetching and optimized chunk names
 const HomePage = lazy(() => 
@@ -264,7 +265,25 @@ const AppContent = memo(() => {
                         { name: 'revisit-after', content: '1 days' },
                         { name: 'distribution', content: 'global' },
                         { name: 'geo.region', content: 'ID' },
-                        { name: 'geo.country', content: 'Indonesia' }
+                        { name: 'geo.country', content: 'Indonesia' },
+                        // Additional SEO improvements based on Google's guide
+                        { name: 'robots', content: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1' },
+                        { name: 'googlebot', content: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1' },
+                        { name: 'bingbot', content: 'index, follow' },
+                        { name: 'slurp', content: 'index, follow' },
+                        { property: 'og:site_name', content: 'IndoQuran' },
+                        { property: 'og:locale', content: 'id_ID' },
+                        { property: 'og:locale:alternate', content: 'ar_SA' },
+                        { name: 'twitter:site', content: '@indoquran' },
+                        { name: 'twitter:creator', content: '@indoquran' },
+                        { name: 'twitter:domain', content: 'indoquran.web.id' },
+                        { name: 'referrer', content: 'origin-when-cross-origin' },
+                        { httpEquiv: 'Content-Language', content: 'id, ar' },
+                        { name: 'coverage', content: 'Worldwide' },
+                        { name: 'target', content: 'all' },
+                        { name: 'HandheldFriendly', content: 'True' },
+                        { name: 'MobileOptimized', content: '320' },
+                        { name: 'apple-touch-fullscreen', content: 'yes' }
                     ]}
                     structuredData={[
                         {
@@ -286,9 +305,22 @@ const AppContent = memo(() => {
                             "publisher": {
                                 "@type": "Organization",
                                 "name": "IndoQuran",
+                                "url": "https://indoquran.web.id",
                                 "logo": {
                                     "@type": "ImageObject",
-                                    "url": "https://indoquran.web.id/android-chrome-512x512.png"
+                                    "url": "https://indoquran.web.id/android-chrome-512x512.png",
+                                    "width": 512,
+                                    "height": 512
+                                },
+                                "sameAs": [
+                                    "https://www.facebook.com/indoquran",
+                                    "https://www.instagram.com/indoquran",
+                                    "https://twitter.com/indoquran"
+                                ],
+                                "contactPoint": {
+                                    "@type": "ContactPoint",
+                                    "contactType": "customer support",
+                                    "url": "https://indoquran.web.id/kontak"
                                 }
                             },
                             "mainEntity": {
@@ -303,11 +335,68 @@ const AppContent = memo(() => {
                                 "numberOfPages": 604,
                                 "bookFormat": "EBook",
                                 "genre": "Religious Text",
-                                "description": "Kitab suci umat Islam yang berisi wahyu Allah SWT"
+                                "description": "Kitab suci umat Islam yang berisi wahyu Allah SWT",
+                                "workExample": [
+                                    {
+                                        "@type": "Book",
+                                        "name": "Surah Al-Fatihah",
+                                        "url": "https://indoquran.web.id/surah/1"
+                                    },
+                                    {
+                                        "@type": "Book", 
+                                        "name": "Surah Al-Baqarah",
+                                        "url": "https://indoquran.web.id/surah/2"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "@context": "https://schema.org",
+                            "@type": "Organization",
+                            "name": "IndoQuran",
+                            "url": "https://indoquran.web.id",
+                            "logo": "https://indoquran.web.id/android-chrome-512x512.png",
+                            "description": "Platform Al-Quran Digital terlengkap di Indonesia",
+                            "foundingDate": "2023",
+                            "areaServed": "Indonesia",
+                            "serviceType": "Educational Technology",
+                            "knowsAbout": ["Al-Quran", "Islam", "Pendidikan Agama", "Teknologi Pendidikan"],
+                            "hasOfferCatalog": {
+                                "@type": "OfferCatalog",
+                                "name": "Fitur IndoQuran",
+                                "itemListElement": [
+                                    {
+                                        "@type": "Offer",
+                                        "itemOffered": {
+                                            "@type": "Service",
+                                            "name": "Baca Al-Quran Online",
+                                            "description": "Membaca Al-Quran lengkap 30 Juz dengan terjemahan Indonesia"
+                                        }
+                                    },
+                                    {
+                                        "@type": "Offer",
+                                        "itemOffered": {
+                                            "@type": "Service",
+                                            "name": "Audio Murottal",
+                                            "description": "Mendengarkan tilawah Al-Quran dengan berbagai qari terkenal"
+                                        }
+                                    },
+                                    {
+                                        "@type": "Offer",
+                                        "itemOffered": {
+                                            "@type": "Service",
+                                            "name": "Pencarian Ayat",
+                                            "description": "Mencari ayat Al-Quran berdasarkan kata kunci"
+                                        }
+                                    }
+                                ]
                             }
                         }
                     ]}
                 />
+                
+                {/* Google Analytics Component */}
+                <GoogleAnalytics />
                 
                 <Suspense fallback={SuspenseFallback}>
                     <Routes>

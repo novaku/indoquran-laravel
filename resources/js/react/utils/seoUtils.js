@@ -13,9 +13,11 @@
  * - Voice search optimization
  * - Featured snippets optimization
  * - Google Discover optimization
+ * - Google SEO Starter Guide 2025 compliant
  * 
- * Updated: 2025-06-28
+ * Updated: 2025-07-18
  * Google Search Guidelines Compliant
+ * Based on: https://developers.google.com/search/docs/fundamentals/seo-starter-guide
  */
 
 export const BASE_URL = 'https://indoquran.web.id';
@@ -24,7 +26,7 @@ export const BASE_URL = 'https://indoquran.web.id';
 export const SEO_PRIORITIES = {
   HOME: '1.0',
   SURAH: '0.95',
-  SEARCH: '0.85',
+  SEARCH: '0.85', 
   JUZ: '0.8',
   HALAMAN: '0.75',
   DOA_BERSAMA: '0.8',
@@ -32,6 +34,182 @@ export const SEO_PRIORITIES = {
   ABOUT: '0.6',
   CONTACT: '0.5',
   PRIVACY: '0.3'
+};
+
+// SEO-optimized descriptive URL patterns
+export const generateSEOFriendlyURL = (type, data) => {
+  switch (type) {
+    case 'surah':
+      return `${BASE_URL}/surah/${data.number}/${encodeURIComponent(data.name_latin.toLowerCase().replace(/\s+/g, '-'))}`;
+    case 'ayah':
+      return `${BASE_URL}/surah/${data.surahNumber}/${data.ayahNumber}`;
+    case 'juz':
+      return `${BASE_URL}/juz/${data.number}`;
+    case 'halaman':
+      return `${BASE_URL}/halaman/${data.number}`;
+    case 'search':
+      return `${BASE_URL}/cari?q=${encodeURIComponent(data.query)}`;
+    default:
+      return BASE_URL;
+  }
+};
+
+// Generate high-quality, descriptive title tags
+export const generatePageTitle = (type, data = {}) => {
+  const siteName = 'IndoQuran';
+  
+  switch (type) {
+    case 'home':
+      return `${siteName} - Al-Quran Digital Indonesia | Baca & Dengar Al-Quran Online`;
+    case 'surah':
+      return `Surah ${data.name_latin} (${data.name_arabic}) - Terjemahan & Audio | ${siteName}`;
+    case 'ayah':
+      return `${data.surahName} Ayat ${data.ayahNumber} - Terjemahan & Tafsir | ${siteName}`;
+    case 'search':
+      return `Hasil Pencarian "${data.query}" - Cari Ayat Al-Quran | ${siteName}`;
+    case 'juz':
+      return `Juz ${data.number} - Al-Quran 30 Juz dengan Terjemahan | ${siteName}`;
+    case 'halaman':
+      return `Halaman ${data.number} - Mushaf Al-Quran Digital | ${siteName}`;
+    case 'about':
+      return `Tentang ${siteName} - Platform Al-Quran Digital Terpercaya Indonesia`;
+    case 'contact':
+      return `Kontak Kami - Hubungi Tim ${siteName} | Bantuan & Dukungan`;
+    case 'prayer':
+      return `Doa Bersama - Kumpulan Doa Islami & Waktu Sholat | ${siteName}`;
+    case 'tafsir':
+      return `Tafsir Maudhui - Penjelasan Tema Al-Quran | ${siteName}`;
+    default:
+      return `${siteName} - Al-Quran Digital Indonesia`;
+  }
+};
+
+// Generate descriptive meta descriptions (150-160 characters optimal)
+export const generateMetaDescription = (type, data = {}) => {
+  switch (type) {
+    case 'home':
+      return 'Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan Indonesia, audio murottal, bookmark, dan pencarian ayat.';
+    case 'surah':
+      return `Baca dan dengarkan Surah ${data.name_latin} lengkap dengan terjemahan bahasa Indonesia dan audio murottal. Surah ke-${data.number} dalam Al-Quran yang terdiri dari ${data.total_ayahs || 'beberapa'} ayat.`;
+    case 'search':
+      return `Temukan ayat Al-Quran dengan pencarian "${data.query}". Cari berdasarkan kata kunci dalam terjemahan Indonesia dan teks Arab dengan hasil yang akurat.`;
+    case 'juz':
+      return `Baca Juz ${data.number} Al-Quran lengkap dengan terjemahan Indonesia dan audio murottal. Pelajari Al-Quran secara bertahap dengan pembagian 30 Juz.`;
+    case 'halaman':
+      return `Halaman ${data.number} Mushaf Al-Quran digital dengan terjemahan Indonesia. Baca Al-Quran sesuai layout mushaf tradisional dengan fitur modern.`;
+    case 'about':
+      return 'IndoQuran adalah platform Al-Quran digital terpercaya di Indonesia. Menyediakan fitur baca, dengar, bookmark, dan pencarian ayat dengan teknologi modern.';
+    case 'contact':
+      return 'Hubungi tim IndoQuran untuk bantuan, saran, atau pertanyaan seputar platform Al-Quran digital. Kami siap membantu Anda 24/7.';
+    case 'prayer':
+      return 'Kumpulan doa-doa Islami pilihan dan jadwal waktu sholat akurat. Perkuat ibadah harian Anda dengan panduan doa yang lengkap dan mudah diakses.';
+    case 'tafsir':
+      return 'Pelajari tafsir maudhui Al-Quran berdasarkan tema. Memahami ajaran Islam melalui penjelasan komprehensif ayat-ayat Al-Quran.';
+    default:
+      return 'Platform Al-Quran Digital terlengkap di Indonesia dengan fitur baca, dengar, bookmark, dan pencarian ayat Al-Quran.';
+  }
+};
+
+// Generate SEO-optimized keywords for better search visibility
+export const generateSEOKeywords = (type, data = {}) => {
+  const baseKeywords = 'al quran indonesia, quran online, al quran digital, baca quran, terjemahan quran, murottal, indoquran';
+  
+  switch (type) {
+    case 'home':
+      return `${baseKeywords}, quran indonesia, ayat al quran, surah quran, tafsir quran, hafalan quran, islam indonesia, kitab suci, mushaf digital`;
+    case 'surah':
+      return `${baseKeywords}, surah ${data.name_latin?.toLowerCase()}, ${data.name_arabic}, surah ke ${data.number}, ${data.name_indonesian?.toLowerCase()}, ayat ${data.name_latin?.toLowerCase()}`;
+    case 'search':
+      return `${baseKeywords}, cari ayat, pencarian quran, ${data.query}, temukan ayat, search al quran`;
+    case 'juz':
+      return `${baseKeywords}, juz ${data.number}, para ${data.number}, 30 juz, pembagian quran, juz al quran`;
+    case 'halaman':
+      return `${baseKeywords}, halaman ${data.number}, mushaf quran, halaman al quran, layout mushaf, quran mushaf`;
+    case 'prayer':
+      return `${baseKeywords}, doa islam, waktu sholat, jadwal sholat, doa harian, doa pilihan, ibadah islam`;
+    case 'tafsir':
+      return `${baseKeywords}, tafsir al quran, penjelasan ayat, tafsir maudhui, makna al quran, pemahaman islam`;
+    case 'about':
+      return `${baseKeywords}, tentang indoquran, platform quran terbaik, teknologi islam, aplikasi quran indonesia`;
+    case 'contact':
+      return `${baseKeywords}, kontak indoquran, hubungi kami, customer service, dukungan teknis, bantuan pengguna`;
+    case 'ayah':
+      return `${baseKeywords}, ${data.surah?.name_latin?.toLowerCase()} ayat ${data.ayah_number}, terjemahan ayat, tafsir ayat, murottal ayat`;
+    default:
+      return baseKeywords;
+  }
+};
+
+// Generate descriptive alt text for images (Google SEO best practice)
+export const generateImageAltText = (type, data = {}) => {
+  switch (type) {
+    case 'surah-header':
+      return `Surah ${data.name_latin} (${data.name_arabic}) - Surah ke-${data.number} dalam Al-Quran`;
+    case 'ayah-number':
+      return `Nomor ayat ${data.ayahNumber} dari Surah ${data.surahName}`;
+    case 'app-logo':
+      return 'Logo IndoQuran - Platform Al-Quran Digital Indonesia';
+    case 'qari-avatar':
+      return `Foto profil Qari ${data.name} - Pembaca Al-Quran`;
+    case 'juz-cover':
+      return `Cover Juz ${data.number} Al-Quran - Para ${data.number}`;
+    case 'page-number':
+      return `Halaman ${data.number} Mushaf Al-Quran`;
+    case 'social-share':
+      return `Bagikan ${data.title} melalui media sosial`;
+    case 'bookmark-icon':
+      return data.isBookmarked ? 'Hapus dari bookmark' : 'Tambahkan ke bookmark';
+    case 'play-button':
+      return `Putar audio murottal ${data.content}`;
+    case 'search-icon':
+      return 'Ikon pencarian Al-Quran';
+    default:
+      return 'IndoQuran - Platform Al-Quran Digital Indonesia';
+  }
+};
+
+// Generate rich snippet-optimized content structure
+export const generateRichSnippetData = (type, data = {}) => {
+  switch (type) {
+    case 'surah':
+      return {
+        "@context": "https://schema.org",
+        "@type": "CreativeWork",
+        "name": `Surah ${data.name_latin}`,
+        "alternateName": data.name_arabic,
+        "description": `Surah ke-${data.number} dalam Al-Quran yang terdiri dari ${data.total_ayahs} ayat`,
+        "inLanguage": "ar",
+        "text": data.description_short,
+        "url": `${BASE_URL}/surah/${data.number}`,
+        "isPartOf": {
+          "@type": "Book",
+          "name": "Al-Quran",
+          "author": "Allah SWT"
+        },
+        "position": data.number,
+        "numberOfPages": Math.ceil(data.total_ayahs / 15),
+        "wordCount": data.total_ayahs * 15, // Approximate
+        "timeRequired": `PT${Math.ceil(data.total_ayahs * 0.5)}M` // Reading time estimate
+      };
+    case 'ayah':
+      return {
+        "@context": "https://schema.org",
+        "@type": "Quotation",
+        "text": data.text_arabic,
+        "translation": data.text_indonesian,
+        "spokenByCharacter": "Allah SWT",
+        "isPartOf": {
+          "@type": "CreativeWork",
+          "name": `Surah ${data.surah_name}`,
+          "position": data.ayah_number
+        },
+        "position": data.ayah_number,
+        "inLanguage": ["ar", "id"],
+        "url": `${BASE_URL}/surah/${data.surah_number}/${data.ayah_number}`
+      };
+    default:
+      return null;
+  }
 };
 
 // Generate Google Search Console optimized sitemap XML
@@ -459,88 +637,116 @@ export const getPageSEOData = (pageType, data = {}) => {
     openGraph: {},
     twitter: {},
     structuredData: null,
-    // New Google-specific optimizations
-    robots: 'index, follow',
+    // Google SEO Starter Guide optimizations
+    robots: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
     viewport: 'width=device-width, initial-scale=1.0',
-    themeColor: '#2563eb', // Brand color for mobile browsers
+    themeColor: '#2563eb',
     appleTouchIcon: `${BASE_URL}/apple-touch-icon.png`,
-    manifestUrl: `${BASE_URL}/site.webmanifest`
+    manifestUrl: `${BASE_URL}/site.webmanifest`,
+    // Additional Google-specific meta tags
+    googleSiteVerification: process.env.GOOGLE_SITE_VERIFICATION || '',
+    hreflang: 'id',
+    contentLanguage: 'id-ID',
+    // Rich snippets optimization
+    schemaMarkup: null,
+    // Page loading optimizations
+    preloadLinks: [],
+    prefetchLinks: []
   };
 
   switch (pageType) {
     case 'home':
-      seoData.title = 'IndoQuran - Al-Quran Digital Indonesia Terlengkap | Baca & Dengar Online';
-      seoData.description = 'Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia, fitur bookmark, pencarian ayat, audio murottal berkualitas tinggi dari 30+ qari terbaik dunia. Gratis dan mudah digunakan.';
-      seoData.keywords = generateHomeSEOKeywords();
+      seoData.title = generatePageTitle('home');
+      seoData.description = generateMetaDescription('home');
+      seoData.keywords = generateSEOKeywords('home');
       seoData.canonicalUrl = BASE_URL;
+      seoData.preloadLinks = [
+        '/css/app.css',
+        '/js/app.js',
+        '/android-chrome-512x512.png'
+      ];
+      seoData.prefetchLinks = [
+        '/surah',
+        '/cari',
+        '/juz'
+      ];
       break;
 
     case 'surah':
       const surah = data;
-      seoData.title = `Surah ${surah.name_latin} (${surah.name_arabic}) - Terjemahan & Audio Murottal | IndoQuran`;
-      seoData.description = `Baca dan dengarkan Surah ${surah.name_latin} lengkap dengan terjemahan bahasa Indonesia dan tafsir. Surah ke-${surah.number} dalam Al-Quran yang terdiri dari ${surah.total_ayahs} ayat. Audio murottal berkualitas tinggi tersedia dengan berbagai pilihan qari. ${surah.revelation_place ? `Diturunkan di ${surah.revelation_place}.` : ''}`;
-      seoData.keywords = generateSurahSEOKeywords(surah);
+      seoData.title = generatePageTitle('surah', surah);
+      seoData.description = generateMetaDescription('surah', surah);
+      seoData.keywords = generateSEOKeywords('surah', surah);
       seoData.canonicalUrl = `${BASE_URL}/surah/${surah.number}`;
+      seoData.hreflang = 'id';
+      seoData.preloadLinks = [
+        `/audio/surah/${surah.number}/full.mp3`,
+        `/images/surah-${surah.number}-social.png`
+      ];
       break;
 
     case 'ayah':
       const ayahData = data;
-      seoData.title = `${ayahData.surah.name_latin} Ayat ${ayahData.ayah_number} - Terjemahan & Audio | IndoQuran`;
-      seoData.description = `Baca ${ayahData.surah.name_latin} ayat ${ayahData.ayah_number} dengan terjemahan bahasa Indonesia: "${ayahData.translation?.substring(0, 120)}...". Lengkap dengan audio murottal, tafsir, dan asbabun nuzul.`;
-      seoData.keywords = generateSurahSEOKeywords(ayahData.surah) + `, ${ayahData.surah.name_latin} ayat ${ayahData.ayah_number}, terjemahan ayat ${ayahData.ayah_number}, murottal ayat, tafsir ayat al quran`;
+      seoData.title = generatePageTitle('ayah', ayahData);
+      seoData.description = generateMetaDescription('ayah', ayahData);
+      seoData.keywords = generateSEOKeywords('ayah', ayahData);
       seoData.canonicalUrl = `${BASE_URL}/surah/${ayahData.surah.number}/${ayahData.ayah_number}`;
       break;
 
     case 'search':
       const searchQuery = data.query || '';
       const resultsCount = data.results?.length || 0;
-      seoData.title = `Hasil Pencarian "${searchQuery}" - ${resultsCount} Ayat Ditemukan | IndoQuran`;
-      seoData.description = `Hasil pencarian Al-Quran untuk "${searchQuery}". Ditemukan ${resultsCount} ayat yang sesuai dengan pencarian Anda. Cari ayat, surah, dan terjemahan dalam Al-Quran dengan mudah di IndoQuran.`;
-      seoData.keywords = generateSearchSEOKeywords(searchQuery);
+      seoData.title = generatePageTitle('search', { query: searchQuery, resultsCount });
+      seoData.description = generateMetaDescription('search', { query: searchQuery, resultsCount });
+      seoData.keywords = generateSEOKeywords('search', { query: searchQuery });
       seoData.canonicalUrl = `${BASE_URL}/cari?q=${encodeURIComponent(searchQuery)}`;
+      // Prevent indexing of specific search result pages
+      if (searchQuery.length < 3) {
+        seoData.robots = 'noindex, follow';
+      }
       break;
 
     case 'juz':
       const juzNumber = data.juz_number || data.number;
-      seoData.title = `Juz ${juzNumber} (Para ${juzNumber}) - Teks Arab Al-Quran | IndoQuran`;
-      seoData.description = `Baca Juz ${juzNumber} Al-Quran dengan teks Arab lengkap dan terjemahan bahasa Indonesia. Para ${juzNumber} Al-Quran tersedia untuk dibaca dan dipelajari dengan mudah. Platform Al-Quran digital terlengkap di Indonesia.`;
-      seoData.keywords = `juz ${juzNumber}, para ${juzNumber}, al quran juz ${juzNumber}, teks arab juz ${juzNumber}, quran digital, al quran indonesia, juz lengkap`;
+      seoData.title = generatePageTitle('juz', { number: juzNumber });
+      seoData.description = generateMetaDescription('juz', { number: juzNumber });
+      seoData.keywords = generateSEOKeywords('juz', { number: juzNumber });
       seoData.canonicalUrl = `${BASE_URL}/juz/${juzNumber}`;
       break;
 
     case 'halaman':
       const pageNumber = data.page_number || data.number;
-      seoData.title = `Halaman ${pageNumber} - Al-Quran Digital Mushaf Utsmani | IndoQuran`;
-      seoData.description = `Baca Halaman ${pageNumber} Al-Quran dengan teks Arab lengkap sesuai Mushaf Utsmani. Navigasi mudah antar halaman Al-Quran di platform digital terlengkap Indonesia.`;
-      seoData.keywords = `halaman ${pageNumber}, al quran halaman ${pageNumber}, mushaf utsmani halaman ${pageNumber}, teks arab halaman ${pageNumber}, quran digital, al quran indonesia`;
+      seoData.title = generatePageTitle('halaman', { number: pageNumber });
+      seoData.description = generateMetaDescription('halaman', { number: pageNumber });
+      seoData.keywords = generateSEOKeywords('halaman', { number: pageNumber });
       seoData.canonicalUrl = `${BASE_URL}/halaman/${pageNumber}`;
       break;
 
     case 'about':
-      seoData.title = 'Tentang IndoQuran - Platform Al-Quran Digital Terdepan Indonesia';
-      seoData.description = 'Pelajari lebih lanjut tentang IndoQuran, platform Al-Quran digital terdepan di Indonesia. Misi kami adalah memudahkan umat Islam dalam membaca dan mempelajari Al-Quran secara online dengan teknologi terkini. Dipercaya oleh jutaan pengguna di Indonesia.';
-      seoData.keywords = 'tentang indoquran, al quran digital indonesia, platform quran terbaik, teknologi islam, aplikasi quran indonesia, sejarah indoquran, visi misi indoquran';
+      seoData.title = generatePageTitle('about');
+      seoData.description = generateMetaDescription('about');
+      seoData.keywords = generateSEOKeywords('about');
       seoData.canonicalUrl = `${BASE_URL}/tentang`;
       break;
 
     case 'contact':
-      seoData.title = 'Hubungi IndoQuran - Customer Service & Dukungan Teknis 24/7';
-      seoData.description = 'Hubungi tim IndoQuran untuk pertanyaan, saran, atau dukungan teknis. Customer service kami siap membantu Anda 24/7 dalam menggunakan platform Al-Quran digital terbaik di Indonesia. Respon cepat dan profesional.';
-      seoData.keywords = 'kontak indoquran, hubungi kami, customer service indoquran, dukungan teknis 24/7, bantuan pengguna, support indoquran, layanan pelanggan';
+      seoData.title = generatePageTitle('contact');
+      seoData.description = generateMetaDescription('contact');
+      seoData.keywords = generateSEOKeywords('contact');
       seoData.canonicalUrl = `${BASE_URL}/kontak`;
       break;
 
     case 'doa-bersama':
-      seoData.title = 'Doa Bersama - Komunitas Doa Muslim Real-time | IndoQuran';
-      seoData.description = 'Bergabunglah dengan komunitas doa Muslim terbesar di Indonesia. Fitur doa bersama real-time untuk memperkuat ukhuwah islamiyah dan silaturahmi. Buat permintaan doa, beri dukungan, dan rasakan kekuatan doa bersama jutaan Muslim Indonesia.';
-      seoData.keywords = 'doa bersama indonesia, komunitas doa muslim, doa online real-time, ukhuwah islamiyah, silaturahmi muslim, permintaan doa, doa islam, indoquran doa';
+      seoData.title = generatePageTitle('prayer');
+      seoData.description = generateMetaDescription('prayer');
+      seoData.keywords = generateSEOKeywords('prayer');
       seoData.canonicalUrl = `${BASE_URL}/doa-bersama`;
       break;
 
     case 'tafsir-maudhui':
-      seoData.title = 'Tafsir Maudhui - Tafsir Al-Quran Berdasarkan Tema Lengkap | IndoQuran';
-      seoData.description = 'Jelajahi topik-topik penting dalam Al-Quran melalui pendekatan tafsir maudhui. Temukan ayat-ayat Al-Quran berdasarkan tema seperti akidah, ibadah, akhlak, muamalah, dan banyak lagi. Tafsir tematik yang mudah dipahami.';
-      seoData.keywords = 'tafsir maudhui, topik quran, tema al quran, tafsir tematik indonesia, akidah islam, ibadah islam, akhlak islam, muamalah islam, tafsir lengkap, indoquran tafsir';
+      seoData.title = generatePageTitle('tafsir');
+      seoData.description = generateMetaDescription('tafsir');
+      seoData.keywords = generateSEOKeywords('tafsir');
       seoData.canonicalUrl = `${BASE_URL}/tafsir-maudhui`;
       break;
 

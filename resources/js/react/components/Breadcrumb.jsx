@@ -73,6 +73,9 @@ function Breadcrumb() {
                     } else {
                         displayName = `Halaman ${pathname}`;
                     }
+                } else if (prevPath === 'surah' && !isNaN(parseInt(pathnames[index - 2])) && /^\d+$/.test(pathname)) {
+                    // Handle ayah numbers in surah pages (e.g., /surah/1/5)
+                    displayName = `Ayat ${pathname}`;
                 } else if (prevPath === 'admin' && pathname === 'dashboard') {
                     displayName = 'Dashboard';
                 } else if (prevPath === 'admin' && pathname === 'login') {

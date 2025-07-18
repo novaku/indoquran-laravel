@@ -1758,11 +1758,29 @@ function SurahDetailPage() {
                         "url": `https://indoquran.web.id/audio/surah/${surah.number}/full.mp3`,
                         "encodingFormat": "audio/mpeg",
                         "inLanguage": "ar",
-                        "duration": "PT5M", // Approximate duration
+                        "duration": "PT5M",
+                        "contentUrl": `https://indoquran.web.id/audio/surah/${surah.number}/full.mp3`,
+                        "embedUrl": `https://indoquran.web.id/surah/${surah.number}`,
+                        "uploadDate": "2023-01-01T00:00:00Z",
+                        "thumbnailUrl": `https://indoquran.web.id/images/surah-${surah.number}-thumbnail.png`,
                         "creator": {
                             "@type": "Organization",
+                            "name": "IndoQuran",
+                            "url": "https://indoquran.web.id"
+                        },
+                        "publisher": {
+                            "@type": "Organization",
+                            "name": "IndoQuran",
+                            "url": "https://indoquran.web.id"
+                        },
+                        "copyrightHolder": {
+                            "@type": "Organization",
                             "name": "IndoQuran"
-                        }
+                        },
+                        "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+                        "accessibilityFeature": ["audioDescription", "captions"],
+                        "accessibilityHazard": "none",
+                        "accessibilityControl": ["fullKeyboardControl", "fullMouseControl"]
                     },
                     // Breadcrumb for navigation
                     {
@@ -1786,6 +1804,100 @@ function SurahDetailPage() {
                                 "position": 3,
                                 "name": `Surah ${surah.name_latin}`,
                                 "item": `https://indoquran.web.id/surah/${surah.number}`
+                            }
+                        ]
+                    },
+                    // WebPage schema for this specific page
+                    {
+                        "@context": "https://schema.org",
+                        "@type": "WebPage",
+                        "name": `Surah ${surah.name_latin} - ${surah.name_arabic}`,
+                        "description": `Baca dan dengarkan Surah ${surah.name_latin} lengkap dengan terjemahan bahasa Indonesia dan audio murottal. Surah ke-${surah.number} dalam Al-Quran yang terdiri dari ${maxAyahNumber} ayat.`,
+                        "url": `https://indoquran.web.id/surah/${surah.number}`,
+                        "inLanguage": ["id", "ar"],
+                        "isPartOf": {
+                            "@type": "WebSite",
+                            "name": "IndoQuran",
+                            "url": "https://indoquran.web.id"
+                        },
+                        "primaryImageOfPage": {
+                            "@type": "ImageObject",
+                            "url": `https://indoquran.web.id/images/surah-${surah.number}-social.png`,
+                            "width": 1200,
+                            "height": 630
+                        },
+                        "datePublished": "2023-01-01T00:00:00Z",
+                        "dateModified": new Date().toISOString(),
+                        "author": {
+                            "@type": "Organization",
+                            "name": "IndoQuran"
+                        },
+                        "publisher": {
+                            "@type": "Organization",
+                            "name": "IndoQuran",
+                            "logo": {
+                                "@type": "ImageObject",
+                                "url": "https://indoquran.web.id/android-chrome-512x512.png"
+                            }
+                        },
+                        "mainContentOfPage": {
+                            "@type": "Book",
+                            "name": `Surah ${surah.name_latin}`,
+                            "alternateName": surah.name_arabic,
+                            "numberOfPages": Math.ceil(maxAyahNumber / 15),
+                            "bookFormat": "EBook",
+                            "inLanguage": "ar",
+                            "author": {
+                                "@type": "Person",
+                                "name": "Allah SWT"
+                            }
+                        },
+                        "speakable": {
+                            "@type": "SpeakableSpecification",
+                            "cssSelector": [".font-arabic", "h1", "h2"]
+                        },
+                        "accessibilityFeature": [
+                            "audioDescription", 
+                            "largePrint", 
+                            "highContrast",
+                            "resizeText",
+                            "readingOrder"
+                        ],
+                        "accessibilityHazard": "none",
+                        "accessibilityControl": [
+                            "fullKeyboardControl",
+                            "fullMouseControl", 
+                            "fullTouchControl"
+                        ]
+                    },
+                    // FAQ schema for common questions about the surah
+                    {
+                        "@context": "https://schema.org",
+                        "@type": "FAQPage",
+                        "mainEntity": [
+                            {
+                                "@type": "Question",
+                                "name": `Berapa jumlah ayat dalam Surah ${surah.name_latin}?`,
+                                "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": `Surah ${surah.name_latin} terdiri dari ${maxAyahNumber} ayat.`
+                                }
+                            },
+                            {
+                                "@type": "Question",
+                                "name": `Di mana Surah ${surah.name_latin} diturunkan?`,
+                                "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": `Surah ${surah.name_latin} diturunkan di ${surah.revelation_place || 'tempat yang belum diketahui'}.`
+                                }
+                            },
+                            {
+                                "@type": "Question",
+                                "name": `Apa arti Surah ${surah.name_latin}?`,
+                                "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": `Surah ${surah.name_latin} berarti "${surah.name_indonesian || surah.name_latin}" dalam bahasa Indonesia.`
+                                }
                             }
                         ]
                     }
