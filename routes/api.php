@@ -29,6 +29,10 @@ Route::get('/geocode/reverse', [\App\Http\Controllers\Api\GeocodingController::c
 
 // Security endpoints
 Route::post('/csp-violation-report', [SecurityController::class, 'cspViolationReport']);
+
+// Performance Analytics endpoints
+Route::post('/analytics/performance', [\App\Http\Controllers\Api\PerformanceAnalyticsController::class, 'store']);
+Route::get('/analytics/performance/dashboard', [\App\Http\Controllers\Api\PerformanceAnalyticsController::class, 'dashboard']);
 Route::get('/security/stats', [SecurityController::class, 'getSecurityStats']);
 
 // Return authenticated user or null - simplified without session checks

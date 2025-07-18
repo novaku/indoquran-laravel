@@ -39,18 +39,39 @@ export default defineConfig(({ command, mode }) => {
                 compress: {
                     drop_console: true,
                     drop_debugger: true,
-                    pure_funcs: ['console.log', 'console.info', 'console.debug'],
-                    passes: 2,
+                    pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn'],
+                    passes: 3, // Increased passes for better compression
+                    unsafe: true,
+                    unsafe_comps: true,
+                    unsafe_math: true,
+                    unsafe_methods: true,
+                    // Remove dead code more aggressively
+                    dead_code: true,
+                    unused: true,
+                    // Inline small functions
+                    inline: 2,
+                    // Optimize conditionals
+                    conditionals: true,
+                    evaluate: true,
+                    // Reduce file size
+                    reduce_vars: true,
+                    reduce_funcs: true,
                 },
                 mangle: {
                     safari10: true,
+                    toplevel: true,
+                    properties: {
+                        regex: /^_/
+                    }
                 },
                 format: {
                     comments: false,
+                    semicolons: false,
+                    beautify: false,
                 },
             },
             // Reduce chunk size warning limit for mobile
-            chunkSizeWarningLimit: 500,
+            chunkSizeWarningLimit: 250, // Reduced from 500KB to 250KB
             // Disable source maps for production to reduce size
             sourcemap: false,
             rollupOptions: {
@@ -73,28 +94,48 @@ export default defineConfig(({ command, mode }) => {
                     format: 'es',
                     // Enhanced code splitting for better mobile caching
                     manualChunks: (id) => {
-                        // Core React dependencies
+                        // Core React dependencies (critical)
                         if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
                             return 'vendor-react';
                         }
-                        // Router and navigation
+                        // Router and navigation (high priority)
                         if (id.includes('react-router')) {
                             return 'vendor-router';
                         }
-                        // UI components and icons
-                        if (id.includes('@heroicons') || id.includes('react-icons') || id.includes('react-hot-toast')) {
-                            return 'vendor-ui';
+                        // UI components and icons (medium priority)
+                        if (id.includes('@heroicons') || id.includes('react-icons')) {
+                            return 'vendor-icons';
                         }
-                        // Motion and animations
+                        // Toast notifications (low priority - can be lazy loaded)
+                        if (id.includes('react-hot-toast')) {
+                            return 'vendor-toast';
+                        }
+                        // Motion and animations (low priority on mobile)
                         if (id.includes('framer-motion')) {
                             return 'vendor-motion';
                         }
-                        // Utilities and date libraries
-                        if (id.includes('date-fns') || id.includes('lodash')) {
+                        // Date and utility libraries
+                        if (id.includes('date-fns')) {
+                            return 'vendor-date';
+                        }
+                        if (id.includes('lodash')) {
                             return 'vendor-utils';
                         }
-                        // Separate chunk for large node_modules
+                        // Audio and media libraries
+                        if (id.includes('audio') || id.includes('media') || id.includes('video')) {
+                            return 'vendor-media';
+                        }
+                        // Prayer and Islamic libraries
+                        if (id.includes('prayer') || id.includes('hijri') || id.includes('islamic')) {
+                            return 'vendor-islamic';
+                        }
+                        // Separate chunk for other large node_modules
                         if (id.includes('node_modules')) {
+                            const packageName = id.split('node_modules/')[1].split('/')[0];
+                            // Group small packages together
+                            if (packageName.length < 10) {
+                                return 'vendor-small';
+                            }
                             return 'vendor-libs';
                         }
                     },
@@ -120,13 +161,17 @@ export default defineConfig(({ command, mode }) => {
             modulePreload: {
                 polyfill: false // Disable unnecessary polyfill for modern browsers
             },
-            // Enable asset inlining for small files
-            assetsInlineLimit: 4096,
+            // Enable asset inlining for small files (reduced threshold for mobile)
+            assetsInlineLimit: 2048, // Reduced from 4096 to 2048 for mobile
             // Additional options for React optimization
             commonjsOptions: {
                 transformMixedEsModules: true,
                 include: [/node_modules/],
             },
+            // Mobile-specific optimizations
+            reportCompressedSize: false, // Faster builds
+            write: true,
+            emptyOutDir: true,
         },
         base: '/build/',
         server: {

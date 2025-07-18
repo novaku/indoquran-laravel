@@ -1,17 +1,18 @@
-// Enhanced Service Worker for IndoQuran - Mobile Performance Optimized
+// Enhanced Service Worker for IndoQuran - Mobile Performance Optimized v2.0
 
-const CACHE_NAME = 'indoquran-v1.2.0';
+const CACHE_NAME = 'indoquran-v2.0.0';
 const STATIC_CACHE_NAME = `${CACHE_NAME}-static`;
 const DYNAMIC_CACHE_NAME = `${CACHE_NAME}-dynamic`;
 const API_CACHE_NAME = `${CACHE_NAME}-api`;
 const IMAGE_CACHE_NAME = `${CACHE_NAME}-images`;
 const FONT_CACHE_NAME = `${CACHE_NAME}-fonts`;
 
-// Critical resources to cache immediately (reduced for mobile)
+// Critical resources to cache immediately (optimized for mobile first load)
 const STATIC_ASSETS = [
     '/',
     '/build/assets/app.css',
     '/build/assets/app.js',
+    '/build/assets/vendor-react.js', // Prioritize React chunk
     '/favicon.ico',
     '/android-chrome-192x192.png',
     '/manifest.json',
@@ -25,7 +26,7 @@ const API_CACHE_PATTERNS = [
     /\/api\/prayer/,
 ];
 
-// Image patterns to cache
+// Image patterns to cache (with size limits for mobile)
 const IMAGE_PATTERNS = [
     /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
 ];
@@ -45,17 +46,25 @@ const CACHE_STRATEGIES = {
     STALE_WHILE_REVALIDATE: 'stale-while-revalidate'
 };
 
-// Cache duration settings (optimized for mobile data usage)
+// Cache duration settings (optimized for mobile data usage and storage)
 const CACHE_DURATIONS = {
     STATIC: 7 * 24 * 60 * 60 * 1000, // 7 days
-    DYNAMIC: 24 * 60 * 60 * 1000,     // 1 day
-    API: 60 * 60 * 1000,              // 1 hour
-    IMAGES: 30 * 24 * 60 * 60 * 1000, // 30 days
-    FONTS: 30 * 24 * 60 * 60 * 1000,  // 30 days
+    DYNAMIC: 12 * 60 * 60 * 1000,    // 12 hours (reduced from 24h)
+    API: 30 * 60 * 1000,             // 30 minutes (reduced from 1h)
+    IMAGES: 7 * 24 * 60 * 60 * 1000, // 7 days (reduced from 30 days)
+    FONTS: 30 * 24 * 60 * 60 * 1000, // 30 days
 };
 
-// Storage quota management for mobile devices
-const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50MB limit for mobile
+// Storage quota management for mobile devices (more aggressive)
+const MAX_CACHE_SIZE = 30 * 1024 * 1024; // 30MB limit for mobile (reduced from 50MB)
+const MAX_IMAGE_SIZE = 500 * 1024; // 500KB max per image
+const MAX_INDIVIDUAL_CACHE_SIZE = {
+    [STATIC_CACHE_NAME]: 10 * 1024 * 1024,  // 10MB
+    [DYNAMIC_CACHE_NAME]: 8 * 1024 * 1024,  // 8MB
+    [API_CACHE_NAME]: 5 * 1024 * 1024,      // 5MB
+    [IMAGE_CACHE_NAME]: 5 * 1024 * 1024,    // 5MB
+    [FONT_CACHE_NAME]: 2 * 1024 * 1024,     // 2MB
+};
 
 self.addEventListener('install', event => {
     console.log('SW: Installing enhanced service worker v1.2.0');

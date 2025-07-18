@@ -1,39 +1,68 @@
 #!/bin/bash
 
-# Enhanced Production Build Script for Mobile Performance
+# Enhanced Production Build Script for Mobile Performance v2.0
 # This script optimizes the build for mobile PageSpeed performance
 
-echo "🚀 Starting enhanced mobile performance build..."
+echo "🚀 Starting enhanced mobile performance build v2.0..."
 
 # Set production environment
 export NODE_ENV=production
+export VITE_MOBILE_OPTIMIZED=true
 
-# Clean previous builds
+# Clean previous builds more thoroughly
 echo "🧹 Cleaning previous builds..."
 rm -rf public/build
 rm -rf node_modules/.vite
+rm -rf node_modules/.cache
+rm -rf storage/app/cache/*
 
-# Install dependencies if needed
+# Install dependencies if needed with clean cache
 if [ ! -d "node_modules" ]; then
     echo "📦 Installing dependencies..."
-    npm ci --production=false
+    npm ci --production=false --cache-max=0
+else
+    echo "📦 Refreshing dependencies..."
+    npm ci --production=false --prefer-offline
 fi
 
 # Pre-build optimizations
 echo "⚡ Running pre-build optimizations..."
 
-# Optimize images for mobile
+# Clear Laravel caches
+echo "🧹 Clearing Laravel caches..."
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+
+# Optimize images for mobile with better compression
 echo "🖼️  Optimizing images for mobile..."
 if command -v cwebp >/dev/null 2>&1; then
-    # Convert images to WebP for better compression
-    find public -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" | while read img; do
-        if [ ! -f "${img%.*}.webp" ]; then
-            cwebp -q 85 "$img" -o "${img%.*}.webp"
-            echo "✅ Converted $img to WebP"
+    # Convert images to WebP with mobile-optimized settings
+    find public -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" \) | while read img; do
+        webp_file="${img%.*}.webp"
+        if [ ! -f "$webp_file" ] || [ "$img" -nt "$webp_file" ]; then
+            # Use higher compression for mobile
+            cwebp -q 75 -m 6 -pass 10 "$img" -o "$webp_file"
+            echo "✅ Converted $img to WebP (mobile optimized)"
         fi
     done
+    
+    # Also optimize existing WebP files
+    find public -name "*.webp" -size +200k | while read img; do
+        cwebp -q 70 -m 6 -pass 10 "$img" -o "${img}.tmp" && mv "${img}.tmp" "$img"
+        echo "✅ Re-optimized large WebP: $img"
+    done
 else
-    echo "⚠️  cwebp not found, skipping WebP conversion"
+    echo "⚠️  cwebp not found, skipping WebP optimization"
+fi
+
+# Optimize SVG files
+if command -v svgo >/dev/null 2>&1; then
+    echo "🎨 Optimizing SVG files..."
+    find public -name "*.svg" -exec svgo {} \;
+else
+    echo "⚠️  svgo not found, skipping SVG optimization"
 fi
 
 # Build with Vite optimizations

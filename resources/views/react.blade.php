@@ -63,19 +63,40 @@
     <!-- Preload critical CSS non-blocking - Let Vite handle this -->
     <!-- CSS will be loaded by Vite directive at the bottom -->
     
-    <!-- Optimized Font Loading - Reduced to essential fonts only -->
+    <!-- Optimized Font Loading - Essential fonts only with faster loading -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Naskh+Arabic:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Naskh+Arabic:wght@400;500;600&display=swap"></noscript>
     
-    <!-- Fallback system fonts for immediate rendering -->
+    <!-- Preload critical local fonts -->
+    <link rel="preload" href="{{ asset('fonts/arabic-font.woff2') }}" as="font" type="font/woff2" crossorigin="anonymous">
+    
+    <!-- Fallback system fonts for immediate rendering with font-display optimization -->
     <style>
+        /* Enhanced critical CSS with better font fallbacks */
         body { 
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             font-display: swap;
+            font-synthesis: none; /* Prevent synthetic bold/italic */
+            text-rendering: optimizeSpeed; /* Faster rendering on mobile */
         }
         .arabic-text { 
-            font-family: 'Noto Naskh Arabic', 'Arabic Typesetting', 'Traditional Arabic', serif;
+            font-family: 'Noto Naskh Arabic', 'Arabic Typesetting', 'Traditional Arabic', 'Times New Roman', serif;
             font-display: swap;
+            unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF; /* Arabic Unicode ranges */
+        }
+        /* Prevent invisible text during font swap */
+        .font-loading {
+            font-display: swap;
+            visibility: visible;
+        }
+        /* Optimize for mobile rendering */
+        @media (max-width: 768px) {
+            body {
+                -webkit-text-size-adjust: 100%;
+                text-size-adjust: 100%;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
         }
     </style>
 
@@ -101,7 +122,13 @@
     <script src="/pwa-manager.js"></script>
     
     <!-- Critical CSS for above-the-fold content -->
-    {!! App\Services\PerformanceOptimizationService::getCriticalCSS() !!}
+    {!! App\Services\CriticalCSSService::getCriticalCSS() !!}
+    
+    <!-- Mobile-optimized meta tags -->
+    {!! App\Services\CriticalCSSService::getMobileOptimizedMeta() !!}
+    
+    <!-- Critical resource preloads -->
+    {!! App\Services\CriticalCSSService::getCriticalResourcePreloads() !!}
     
     <!-- Module MIME Type Fix Script -->
     <script>
