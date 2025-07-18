@@ -20,15 +20,23 @@ function QuranHeader() {
     const navigate = useNavigate();
     const location = useLocation();
     const { user, logout } = useAuth();
+    // State for menu visibility with debug logging
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [isQuranDropdownOpen, setIsQuranDropdownOpen] = useState(false);
     const [isCommunityDropdownOpen, setIsCommunityDropdownOpen] = useState(false);
     const [isMainNavDropdownOpen, setIsMainNavDropdownOpen] = useState(false);
-    const [isQuranMobileDropdownOpen, setIsQuranMobileDropdownOpen] = useState(false);
-    const [isCommunityMobileDropdownOpen, setIsCommunityMobileDropdownOpen] = useState(false);
-    const [isUserMobileDropdownOpen, setIsUserMobileDropdownOpen] = useState(false);
-    const [isMainNavMobileDropdownOpen, setIsMainNavMobileDropdownOpen] = useState(false);
+    
+    // Debug the mobile menu state when it changes
+    useEffect(() => {
+        console.log('Mobile menu state:', isMobileMenuOpen);
+    }, [isMobileMenuOpen]);
+    
+    // Handler for mobile menu toggle
+    const handleMobileMenuToggle = () => {
+        console.log('Mobile menu toggle clicked, current state:', isMobileMenuOpen);
+        setIsMobileMenuOpen(!isMobileMenuOpen);
+    };
 
     // Close mobile menu when route changes
     useEffect(() => {
@@ -37,10 +45,6 @@ function QuranHeader() {
         setIsMainNavDropdownOpen(false);
         setIsQuranDropdownOpen(false);
         setIsCommunityDropdownOpen(false);
-        setIsQuranMobileDropdownOpen(false);
-        setIsCommunityMobileDropdownOpen(false);
-        setIsUserMobileDropdownOpen(false);
-        setIsMainNavMobileDropdownOpen(false);
     }, [location]);
 
     // Close menus when clicking outside
@@ -133,27 +137,27 @@ function QuranHeader() {
 
     return (
         <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center h-16">
+            <div className="header-container max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+                <div className="mobile-header-row flex justify-between items-center h-14 sm:h-16">
                     {/* Logo */}
                     <div className="flex items-center">
                         <Link 
                             to="/" 
                             className="flex items-center space-x-2 group"
                         >
-                            <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-                                <BookOpenIcon className="w-5 h-5 text-white" />
+                            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-green-600 rounded-lg flex items-center justify-center">
+                                <BookOpenIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                             </div>
-                            <span className="text-xl font-bold text-gray-900 group-hover:text-green-600 transition-colors">
+                            <span className="text-lg sm:text-xl font-bold text-gray-900 group-hover:text-green-600 transition-colors">
                                 IndoQuran
                             </span>
                         </Link>
                     </div>
 
-                    {/* Desktop Navigation */}
-                    <nav className="hidden md:flex items-center space-x-8">
-                        {/* Main Navigation Dropdown */}
-                        <div className="relative main-nav-dropdown">
+                    {/* Desktop Navigation - COMPLETELY HIDDEN on mobile devices */}
+                    <nav className="desktop-only-nav hidden md:flex items-center space-x-8">
+                        {/* Main Navigation Dropdown - HIDDEN on mobile */}
+                        <div className="relative main-nav-dropdown hidden md:block">
                             <button
                                 className={`main-nav-dropdown-button flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors touch-manipulation ${
                                     isMainNavDropdownActive 
@@ -169,7 +173,7 @@ function QuranHeader() {
                             </button>
 
                             {isMainNavDropdownOpen && (
-                                <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                                <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 hidden md:block">
                                     {mainNavItems.map((item) => (
                                         item.name === 'Pencarian' ? (
                                             <button
@@ -211,8 +215,8 @@ function QuranHeader() {
                             )}
                         </div>
 
-                        {/* Al-Quran Dropdown */}
-                        <div className="relative quran-dropdown">
+                        {/* Al-Quran Dropdown - HIDDEN on mobile */}
+                        <div className="relative quran-dropdown hidden md:block">
                             <button
                                 className={`quran-dropdown-button flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors touch-manipulation ${
                                     isQuranDropdownActive 
@@ -228,7 +232,7 @@ function QuranHeader() {
                             </button>
 
                             {isQuranDropdownOpen && (
-                                <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                                <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 hidden md:block">
                                     {quranDropdownItems.map((item) => (
                                         <Link
                                             key={item.path}
@@ -251,8 +255,8 @@ function QuranHeader() {
                             )}
                         </div>
 
-                        {/* Community Dropdown */}
-                        <div className="relative community-dropdown">
+                        {/* Community Dropdown - HIDDEN on mobile */}
+                        <div className="relative community-dropdown hidden md:block">
                             <button
                                 className={`community-dropdown-button flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors touch-manipulation ${
                                     isCommunityDropdownActive 
@@ -268,7 +272,7 @@ function QuranHeader() {
                             </button>
 
                             {isCommunityDropdownOpen && (
-                                <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                                <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 hidden md:block">
                                     {communityDropdownItems.map((item) => (
                                         <Link
                                             key={item.path}
@@ -316,7 +320,7 @@ function QuranHeader() {
                                 </button>
 
                                 {isUserMenuOpen && (
-                                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 hidden md:block">
                                         {userNavItems.map((item) => (
                                             <Link
                                                 key={item.path}
@@ -363,222 +367,165 @@ function QuranHeader() {
 
                         {/* Mobile menu button */}
                         <button
-                            className="mobile-menu-button md:hidden p-3 rounded-md text-gray-700 hover:text-green-600 hover:bg-gray-50 transition-colors touch-manipulation"
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="mobile-menu-button md:hidden p-2 sm:p-3 rounded-md text-gray-700 hover:text-green-600 hover:bg-gray-50 transition-colors touch-manipulation"
+                            onClick={handleMobileMenuToggle}
                             style={{ minHeight: '44px', minWidth: '44px' }} // iOS recommended touch target size
+                            aria-expanded={isMobileMenuOpen}
+                            aria-label="Toggle mobile menu"
                         >
                             {isMobileMenuOpen ? (
-                                <XMarkIcon className="w-6 h-6" />
+                                <XMarkIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                             ) : (
-                                <Bars3Icon className="w-6 h-6" />
+                                <Bars3Icon className="w-5 h-5 sm:w-6 sm:h-6" />
                             )}
                         </button>
                     </div>
                 </div>
 
-                {/* Mobile Navigation */}
-                {isMobileMenuOpen && (
-                    <div className="mobile-menu md:hidden border-t border-gray-200 py-4">
-                        <div className="space-y-1">
-                            {/* Main Navigation Section */}
-                            <div className="pt-4">
-                                <button
-                                    onClick={() => setIsMainNavMobileDropdownOpen(!isMainNavMobileDropdownOpen)}
-                                    className="w-full flex items-center justify-between px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-green-600 transition-colors touch-manipulation"
-                                    style={{ minHeight: '44px' }}
-                                >
-                                    <span>Navigasi</span>
-                                    <ChevronDownIcon className={`w-4 h-4 transition-transform ${isMainNavMobileDropdownOpen ? 'rotate-180' : ''}`} />
-                                </button>
-                                
-                                {isMainNavMobileDropdownOpen && (
-                                    <div className="space-y-1">
-                                        {mainNavItems.map((item) => (
-                                            item.name === 'Pencarian' ? (
-                                                <button
-                                                    key={item.path}
-                                                    onClick={handleSearchClick}
-                                                    className={`w-full text-left flex items-start space-x-3 px-6 py-4 ml-4 rounded-md text-base font-medium transition-colors touch-manipulation border-none bg-transparent ${
-                                                        isActivePath(item.path)
-                                                            ? 'text-green-600 bg-green-50'
-                                                            : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 active:bg-gray-100'
-                                                    }`}
-                                                    style={{ minHeight: '56px' }}
-                                                >
-                                                    <item.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                                                    <div>
-                                                        <div className="font-medium">{item.name}</div>
-                                                        <div className="text-xs text-gray-500 mt-1">{item.description}</div>
-                                                    </div>
-                                                </button>
-                                            ) : (
-                                                <Link
-                                                    key={item.path}
-                                                    to={item.path}
-                                                    className={`flex items-start space-x-3 px-6 py-4 ml-4 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                                                        isActivePath(item.path)
-                                                            ? 'text-green-600 bg-green-50'
-                                                            : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 active:bg-gray-100'
-                                                    }`}
-                                                    style={{ minHeight: '56px' }}
-                                                >
-                                                    <item.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                                                    <div>
-                                                        <div className="font-medium">{item.name}</div>
-                                                        <div className="text-xs text-gray-500 mt-1">{item.description}</div>
-                                                    </div>
-                                                </Link>
-                                            )
-                                        ))}
-                                    </div>
-                                )}
+                {/* Mobile Navigation - Simplified for reliability */}
+                <div id="mobile-menu" 
+                    className={`mobile-menu md:hidden border-t border-gray-200 py-4 bg-white ${isMobileMenuOpen ? 'block' : 'hidden'}`}
+                    style={{ display: isMobileMenuOpen ? 'block' : 'none' }}
+                >
+                    <div className="space-y-2 max-h-[80vh] overflow-y-auto">
+                            {/* Main Navigation Items - Direct Links */}
+                            <div className="space-y-1">
+                                {mainNavItems.map((item) => (
+                                    item.name === 'Pencarian' ? (
+                                        <button
+                                            key={item.path}
+                                            onClick={handleSearchClick}
+                                            className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-green-50 hover:text-green-600 active:bg-green-100 transition-colors touch-manipulation"
+                                            style={{ minHeight: '48px' }}
+                                        >
+                                            <item.icon className="w-5 h-5 flex-shrink-0" />
+                                            <span className="text-base font-medium">{item.name}</span>
+                                        </button>
+                                    ) : (
+                                        <Link
+                                            key={item.path}
+                                            to={item.path}
+                                            className={`flex items-center space-x-3 px-4 py-3 transition-colors touch-manipulation ${
+                                                isActivePath(item.path)
+                                                    ? 'text-green-600 bg-green-50 border-r-2 border-green-600'
+                                                    : 'text-gray-700 hover:bg-green-50 hover:text-green-600 active:bg-green-100'
+                                            }`}
+                                            style={{ minHeight: '48px' }}
+                                        >
+                                            <item.icon className="w-5 h-5 flex-shrink-0" />
+                                            <span className="text-base font-medium">{item.name}</span>
+                                        </Link>
+                                    )
+                                ))}
                             </div>
 
-                            {/* Al-Quran Section */}
-                            <div className="pt-4">
-                                <button
-                                    onClick={() => setIsQuranMobileDropdownOpen(!isQuranMobileDropdownOpen)}
-                                    className="w-full flex items-center justify-between px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-green-600 transition-colors touch-manipulation"
-                                    style={{ minHeight: '44px' }}
-                                >
-                                    <span>Al-Quran</span>
-                                    <ChevronDownIcon className={`w-4 h-4 transition-transform ${isQuranMobileDropdownOpen ? 'rotate-180' : ''}`} />
-                                </button>
-                                
-                                {isQuranMobileDropdownOpen && (
-                                    <div className="space-y-1">
-                                        {quranDropdownItems.map((item) => (
-                                            <Link
-                                                key={item.path}
-                                                to={item.path}
-                                                className={`flex items-start space-x-3 px-6 py-4 ml-4 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                                                    isActivePath(item.path)
-                                                        ? 'text-green-600 bg-green-50'
-                                                        : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 active:bg-gray-100'
-                                                }`}
-                                                style={{ minHeight: '56px' }}
-                                            >
-                                                <item.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                                                <div>
-                                                    <div className="font-medium">{item.name}</div>
-                                                    <div className="text-xs text-gray-500 mt-1">{item.description}</div>
-                                                </div>
-                                            </Link>
-                                        ))}
-                                    </div>
-                                )}
+                            {/* Divider */}
+                            <hr className="my-3 border-gray-200" />
+
+                            {/* Al-Quran Section - Direct Links */}
+                            <div className="space-y-1">
+                                <div className="px-4 py-2">
+                                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Al-Quran</h3>
+                                </div>
+                                {quranDropdownItems.map((item) => (
+                                    <Link
+                                        key={item.path}
+                                        to={item.path}
+                                        className={`flex items-center space-x-3 px-4 py-3 transition-colors touch-manipulation ${
+                                            isActivePath(item.path)
+                                                ? 'text-green-600 bg-green-50 border-r-2 border-green-600'
+                                                : 'text-gray-700 hover:bg-green-50 hover:text-green-600 active:bg-green-100'
+                                        }`}
+                                        style={{ minHeight: '48px' }}
+                                    >
+                                        <item.icon className="w-5 h-5 flex-shrink-0" />
+                                        <span className="text-base font-medium">{item.name}</span>
+                                    </Link>
+                                ))}
                             </div>
 
-                            {/* Community Section */}
-                            <div className="pt-4">
-                                <button
-                                    onClick={() => setIsCommunityMobileDropdownOpen(!isCommunityMobileDropdownOpen)}
-                                    className="w-full flex items-center justify-between px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-green-600 transition-colors touch-manipulation"
-                                    style={{ minHeight: '44px' }}
-                                >
-                                    <span>Komunitas</span>
-                                    <ChevronDownIcon className={`w-4 h-4 transition-transform ${isCommunityMobileDropdownOpen ? 'rotate-180' : ''}`} />
-                                </button>
-                                
-                                {isCommunityMobileDropdownOpen && (
-                                    <div className="space-y-1">
-                                        {communityDropdownItems.map((item) => (
-                                            <Link
-                                                key={item.path}
-                                                to={item.path}
-                                                className={`flex items-start space-x-3 px-6 py-4 ml-4 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                                                    isActivePath(item.path)
-                                                        ? 'text-green-600 bg-green-50'
-                                                        : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 active:bg-gray-100'
-                                                }`}
-                                                style={{ minHeight: '56px' }}
-                                            >
-                                                <item.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                                                <div>
-                                                    <div className="font-medium">{item.name}</div>
-                                                    <div className="text-xs text-gray-500 mt-1">{item.description}</div>
-                                                </div>
-                                            </Link>
-                                        ))}
-                                    </div>
-                                )}
+                            {/* Divider */}
+                            <hr className="my-3 border-gray-200" />
+
+                            {/* Community Section - Direct Links */}
+                            <div className="space-y-1">
+                                <div className="px-4 py-2">
+                                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Komunitas</h3>
+                                </div>
+                                {communityDropdownItems.map((item) => (
+                                    <Link
+                                        key={item.path}
+                                        to={item.path}
+                                        className={`flex items-center space-x-3 px-4 py-3 transition-colors touch-manipulation ${
+                                            isActivePath(item.path)
+                                                ? 'text-green-600 bg-green-50 border-r-2 border-green-600'
+                                                : 'text-gray-700 hover:bg-green-50 hover:text-green-600 active:bg-green-100'
+                                        }`}
+                                        style={{ minHeight: '48px' }}
+                                    >
+                                        <item.icon className="w-5 h-5 flex-shrink-0" />
+                                        <span className="text-base font-medium">{item.name}</span>
+                                    </Link>
+                                ))}
                             </div>
 
+                            {/* User Section */}
                             {user ? (
                                 <>
-                                    <hr className="my-4 border-gray-200" />
-                                    
-                                    {/* User Section */}
-                                    <div className="pt-4">
-                                        <button
-                                            onClick={() => setIsUserMobileDropdownOpen(!isUserMobileDropdownOpen)}
-                                            className="w-full flex items-center justify-between px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-green-600 transition-colors touch-manipulation"
-                                            style={{ minHeight: '44px' }}
-                                        >
+                                    <hr className="my-3 border-gray-200" />
+                                    <div className="space-y-1">
+                                        <div className="px-4 py-2">
                                             <div className="flex items-center space-x-3">
                                                 <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
                                                     <span className="text-xs font-medium text-white">
                                                         {user.name?.charAt(0).toUpperCase() || 'U'}
                                                     </span>
                                                 </div>
-                                                <span>{user.name}</span>
+                                                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{user.name}</h3>
                                             </div>
-                                            <ChevronDownIcon className={`w-4 h-4 transition-transform ${isUserMobileDropdownOpen ? 'rotate-180' : ''}`} />
-                                        </button>
+                                        </div>
+                                        {userNavItems.map((item) => (
+                                            <Link
+                                                key={item.path}
+                                                to={item.path}
+                                                className={`flex items-center space-x-3 px-4 py-3 transition-colors touch-manipulation ${
+                                                    isActivePath(item.path)
+                                                        ? 'text-green-600 bg-green-50 border-r-2 border-green-600'
+                                                        : 'text-gray-700 hover:bg-green-50 hover:text-green-600 active:bg-green-100'
+                                                }`}
+                                                style={{ minHeight: '48px' }}
+                                            >
+                                                <item.icon className="w-5 h-5 flex-shrink-0" />
+                                                <span className="text-base font-medium">{item.name}</span>
+                                            </Link>
+                                        ))}
                                         
-                                        {isUserMobileDropdownOpen && (
-                                            <div className="space-y-1">
-                                                {userNavItems.map((item) => (
-                                                    <Link
-                                                        key={item.path}
-                                                        to={item.path}
-                                                        className={`flex items-start space-x-3 px-6 py-4 ml-4 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                                                            isActivePath(item.path)
-                                                                ? 'text-green-600 bg-green-50'
-                                                                : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 active:bg-gray-100'
-                                                        }`}
-                                                        style={{ minHeight: '56px' }}
-                                                    >
-                                                        <item.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                                                        <div>
-                                                            <div className="font-medium">{item.name}</div>
-                                                            <div className="text-xs text-gray-500 mt-1">
-                                                                {item.name === 'Penanda' ? 'Ayat yang telah ditandai' : 'Pengaturan akun'}
-                                                            </div>
-                                                        </div>
-                                                    </Link>
-                                                ))}
-                                                
-                                                <button
-                                                    onClick={handleLogout}
-                                                    className="flex items-start space-x-3 px-6 py-4 ml-4 rounded-md text-base font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation w-full text-left border-none bg-transparent"
-                                                    style={{ minHeight: '56px' }}
-                                                >
-                                                    <ArrowRightStartOnRectangleIcon className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                                                    <div>
-                                                        <div className="font-medium">Keluar</div>
-                                                        <div className="text-xs text-gray-500 mt-1">Logout dari akun</div>
-                                                    </div>
-                                                </button>
-                                            </div>
-                                        )}
+                                        <button
+                                            onClick={handleLogout}
+                                            className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 active:bg-red-100 transition-colors touch-manipulation"
+                                            style={{ minHeight: '48px' }}
+                                        >
+                                            <ArrowRightStartOnRectangleIcon className="w-5 h-5 flex-shrink-0" />
+                                            <span className="text-base font-medium">Keluar</span>
+                                        </button>
                                     </div>
                                 </>
                             ) : (
                                 <>
-                                    <hr className="my-4 border-gray-200" />
-                                    <Link
-                                        to="/masuk"
-                                        className="block px-4 py-4 rounded-md text-base font-medium text-white bg-green-600 hover:bg-green-700 active:bg-green-800 transition-colors text-center touch-manipulation"
-                                        style={{ minHeight: '48px' }}
-                                    >
-                                        Masuk
-                                    </Link>
+                                    <hr className="my-3 border-gray-200" />
+                                    <div className="px-4 pb-2">
+                                        <Link
+                                            to="/masuk"
+                                            className="w-full flex items-center justify-center px-4 py-3 rounded-lg text-base font-medium text-white bg-green-600 hover:bg-green-700 active:bg-green-800 transition-colors touch-manipulation"
+                                            style={{ minHeight: '48px' }}
+                                        >
+                                            Masuk
+                                        </Link>
+                                    </div>
                                 </>
                             )}
                         </div>
                     </div>
-                )}
             </div>
         </header>
     );

@@ -2,6 +2,38 @@
 @import "./_fonts.css";
 @import "./simple-responsive.css";
 @import "./pwa-install.css";
+@import "./mobile-fixes.css";
+@import "./mobile-menu-fix.css";
+
+/* Mobile Navigation Fix - Ensure desktop navigation is completely hidden on mobile */
+@media (max-width: 767px) {
+    /* Hide all desktop navigation elements */
+    nav.hidden.md\\:flex,
+    .main-nav-dropdown,
+    .quran-dropdown,
+    .community-dropdown,
+    .user-menu,
+    .main-nav-dropdown-button,
+    .quran-dropdown-button,
+    .community-dropdown-button,
+    .user-menu-button {
+        display: none !important;
+    }
+    
+    /* Hide all desktop navigation dropdowns */
+    .main-nav-dropdown > div,
+    .quran-dropdown > div,
+    .community-dropdown > div,
+    .user-menu > div {
+        display: none !important;
+    }
+    
+    /* Ensure header is optimized for mobile */
+    .header-container {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+}
 
 /* Custom styling for Arabic Quran texts */
 .font-arabic {
@@ -308,16 +340,71 @@
 /* Responsive styles */
 @media (max-width: 768px) {
     .surah-card, .ayah-card {
-        padding: 1.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
     }
     
     .quran-header-container {
-        padding: 2rem 1rem;
+        padding: 1.5rem 1rem;
     }
     
     .arabic-title {
-        font-size: 2.5rem !important;
+        font-size: 2rem !important;
         line-height: 1.1;
+    }
+    
+    /* Improved mobile text sizing */
+    h1 {
+        font-size: 1.875rem !important; /* 30px */
+        line-height: 1.2;
+    }
+    
+    h2 {
+        font-size: 1.5rem !important; /* 24px */
+        line-height: 1.3;
+    }
+    
+    h3 {
+        font-size: 1.25rem !important; /* 20px */
+        line-height: 1.4;
+    }
+    
+    /* Better button sizing for mobile */
+    .mobile-button {
+        min-height: 48px;
+        font-size: 1rem;
+        padding: 12px 16px;
+    }
+    
+    /* Improved spacing for mobile cards */
+    .mobile-card {
+        padding: 1rem;
+        margin: 0.5rem 0;
+    }
+    
+    /* Better touch targets */
+    .mobile-touch-friendly {
+        min-height: 44px;
+        min-width: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Improve text readability on mobile */
+    body {
+        font-size: 16px;
+        line-height: 1.6;
+    }
+    
+    /* Better mobile navigation */
+    .mobile-nav-item {
+        padding: 12px 16px;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    
+    .mobile-nav-item:last-child {
+        border-bottom: none;
     }
 }
 
@@ -449,13 +536,130 @@
         user-select: none;
     }
     
-    /* Smoother animations on mobile */
-    .mobile-menu {
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
+    /* Better mobile scroll behavior */
+    .mobile-scroll {
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
     }
+    
+    /* Improved mobile dropdown positioning */
+    .mobile-dropdown-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 60;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+    }
+    
+    .mobile-dropdown-content {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        border-radius: 16px 16px 0 0;
+        max-height: 80vh;
+        overflow-y: auto;
+        padding: 16px;
+    }
+    
+    /* Better mobile search bar */
+    .mobile-search {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: white;
+        padding: 12px 16px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    /* Improved mobile grid layouts */
+    .mobile-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .mobile-grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    /* Better mobile typography */
+    .mobile-text-sm {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+    
+    .mobile-text-base {
+        font-size: 16px;
+        line-height: 1.5;
+    }
+    
+    .mobile-text-lg {
+        font-size: 18px;
+        line-height: 1.4;
+    }
+    
+    /* Mobile-specific margins and padding */
+    .mobile-p-4 {
+        padding: 16px;
+    }
+    
+    .mobile-px-4 {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+    
+    .mobile-py-3 {
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+    
+    .mobile-mb-4 {
+        margin-bottom: 16px;
+    }
+    
+    /* Better mobile animations */
+    .mobile-slide-up {
+        animation: mobileSlideUp 0.3s ease-out;
+    }
+    
+    @keyframes mobileSlideUp {
+        from {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    .mobile-fade-in {
+        animation: mobileFadeIn 0.2s ease-out;
+    }
+    
+    @keyframes mobileFadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+}
+    
+/* Smoother animations on mobile */
+.mobile-menu {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
 }
 
 /* iOS specific optimizations */

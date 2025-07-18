@@ -1,0 +1,19 @@
+/* Additional Mobile-specific styles */
+@media (max-width: 767px) {
+  /* Fix for header display on mobile */
+  .mobile-header-container {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+  
+  /* Hide all desktop navigation components completely */
+  .desktop-only-nav {
+    display: none !important;
+  }
+  
+  /* Optimize mobile menu toggle button */
+  .mobile-menu-button {
+    margin-left: auto !important;
+  }
+}
