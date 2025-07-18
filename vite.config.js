@@ -33,6 +33,18 @@ export default defineConfig(({ command, mode }) => {
             tailwindcss(),
         ],
         build: {
+            // Enable minification and optimization
+            minify: 'terser',
+            terserOptions: {
+                compress: {
+                    drop_console: true,
+                    drop_debugger: true,
+                },
+            },
+            // Increase chunk size warning limit
+            chunkSizeWarningLimit: 1000,
+            // Enable source maps for production debugging
+            sourcemap: false,
             rollupOptions: {
                 output: {
                     entryFileNames: 'assets/[name]-[hash].js',
@@ -55,6 +67,7 @@ export default defineConfig(({ command, mode }) => {
                         return `assets/[name]-[hash][extname]`;
                     },
                     format: 'es',
+                    // Code splitting for better caching
                     manualChunks: {
                         // Core React dependencies
                         vendor: ['react', 'react-dom'],
@@ -80,14 +93,11 @@ export default defineConfig(({ command, mode }) => {
                     warn(warning);
                 },
             },
-            minify: 'esbuild',
-            sourcemap: false,
+            // Performance optimizations
             assetsDir: 'assets',
-            chunkSizeWarningLimit: 1000,
+            target: ['es2020', 'chrome80', 'firefox78', 'safari14'],
             cssCodeSplit: true,
             outDir: 'public/build',
-            target: 'es2020',
-            // Performance optimizations
             modulePreload: {
                 polyfill: false // Disable unnecessary polyfill for modern browsers
             },
@@ -95,18 +105,6 @@ export default defineConfig(({ command, mode }) => {
             commonjsOptions: {
                 transformMixedEsModules: true,
             },
-            // Enable terser for better compression in production
-            ...(mode === 'production' && {
-                minify: 'terser',
-                terserOptions: {
-                    compress: {
-                        drop_console: true,
-                        drop_debugger: true,
-                        pure_funcs: ['console.log'],
-                    },
-                    mangle: true,
-                },
-            }),
         },
         base: '/build/',
         server: {

@@ -1,15 +1,21 @@
-// Service Worker for IndoQuran - Enhanced Caching Strategy
+// Service Worker for IndoQuran - Enhanced Caching Strategy for Mobile Performance
 
-const CACHE_NAME = 'indoquran-v1.0.0';
+const CACHE_NAME = 'indoquran-v1.1.0';
 const STATIC_CACHE_NAME = `${CACHE_NAME}-static`;
 const DYNAMIC_CACHE_NAME = `${CACHE_NAME}-dynamic`;
+const API_CACHE_NAME = `${CACHE_NAME}-api`;
+const IMAGE_CACHE_NAME = `${CACHE_NAME}-images`;
 
 // Resources to cache immediately
 const STATIC_ASSETS = [
     '/',
     '/build/assets/app.css',
     '/build/assets/app.js',
-    // Add other critical assets
+    '/favicon.ico',
+    '/android-chrome-192x192.png',
+    '/android-chrome-512x512.png',
+    '/apple-touch-icon.png',
+    '/manifest.json',
 ];
 
 // API endpoints to cache
@@ -17,6 +23,13 @@ const API_CACHE_PATTERNS = [
     /\/api\/surahs/,
     /\/api\/ayahs/,
     /\/api\/search/,
+    /\/api\/prayer/,
+    /\/api\/bookmarks/,
+];
+
+// Image patterns to cache
+const IMAGE_PATTERNS = [
+    /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
 ];
 
 // Cache strategies
@@ -26,8 +39,16 @@ const CACHE_STRATEGIES = {
     STALE_WHILE_REVALIDATE: 'stale-while-revalidate'
 };
 
+// Cache duration settings (in milliseconds)
+const CACHE_DURATIONS = {
+    STATIC: 7 * 24 * 60 * 60 * 1000, // 7 days
+    DYNAMIC: 24 * 60 * 60 * 1000,     // 1 day
+    API: 60 * 60 * 1000,              // 1 hour
+    IMAGES: 30 * 24 * 60 * 60 * 1000, // 30 days
+};
+
 self.addEventListener('install', event => {
-    console.log('SW: Installing service worker');
+    console.log('SW: Installing service worker v1.1.0');
     
     event.waitUntil(
         caches.open(STATIC_CACHE_NAME)

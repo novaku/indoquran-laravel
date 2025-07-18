@@ -49,23 +49,33 @@
     
     <title>{{ $metaTitle ?? 'IndoQuran - Al-Quran Digital Indonesia' }}</title>
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <!-- Critical Performance Optimizations -->
+    <!-- Preload critical resources -->
+    @vite(['resources/css/app.css'], 'build', ['rel' => 'preload', 'as' => 'style'])
     
-    <!-- Google Fonts for enhanced typography -->
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Optimized Font Loading with font-display: swap -->
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Lateef&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Noto+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Scheherazade+New:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Icons -->
+    <!-- Icons with optimized sizes -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
     <!-- Enhanced Anti-Injection Security -->
     <script src="/anti-injection-security.js"></script>
+    
+    <!-- Critical CSS for above-the-fold content -->
+    {!! App\Services\PerformanceOptimizationService::getCriticalCSS() !!}
     
     <!-- Module MIME Type Fix Script -->
     <script>
@@ -443,11 +453,29 @@
         })();
     </script>
     
-    <!-- CSS for loading animation -->
+    <!-- Performance Monitoring -->
+    {!! App\Services\PerformanceOptimizationService::getPerformanceMonitoringScript() !!}
+    
+    <!-- Optimized CSS for performance -->
     <style>
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        
+        /* Optimize font loading to prevent FOUT */
+        body { font-display: swap; }
+        
+        /* Prevent cumulative layout shift */
+        img { max-width: 100%; height: auto; }
+        
+        /* Optimize animations for performance */
+        * {
+            will-change: auto;
+        }
+        
+        .animate-spin {
+            will-change: transform;
         }
     </style>
     
