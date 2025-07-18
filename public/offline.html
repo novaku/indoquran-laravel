@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>IndoQuran - Offline</title>
+    <meta name="theme-color" content="#22c55e">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .icon {
+            width: 80px;
+            height: 80px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 36px;
+        }
+        
+        h1 {
+            color: #1f2937;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        
+        .subtitle {
+            color: #6b7280;
+            font-size: 18px;
+            margin-bottom: 32px;
+        }
+        
+        .message {
+            color: #374151;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-direction: column;
+            margin-bottom: 32px;
+        }
+        
+        @media (min-width: 400px) {
+            .actions {
+                flex-direction: row;
+            }
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #22c55e;
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: #16a34a;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+            transform: translateY(-1px);
+        }
+        
+        .features {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .features h3 {
+            color: #1f2937;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .feature-list {
+            display: grid;
+            gap: 12px;
+            text-align: left;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #374151;
+            font-size: 14px;
+        }
+        
+        .feature-icon {
+            width: 20px;
+            height: 20px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            color: #92400e;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .status.online {
+            background: #d1fae5;
+            border-color: #22c55e;
+            color: #065f46;
+        }
+        
+        .pulse {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .footer {
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        
+        .app-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📖</div>
+        
+        <h1>IndoQuran</h1>
+        <p class="subtitle">Mode Offline</p>
+        
+        <div id="connection-status" class="status">
+            <span class="pulse"></span>
+            Memeriksa koneksi...
+        </div>
+        
+        <p class="message">
+            Anda sedang offline, namun beberapa fitur IndoQuran masih dapat digunakan tanpa koneksi internet.
+        </p>
+        
+        <div class="actions">
+            <button class="btn btn-primary" onclick="window.location.reload()">
+                🔄 Coba Lagi
+            </button>
+            <button class="btn btn-secondary" onclick="goHome()">
+                🏠 Kembali ke Beranda
+            </button>
+        </div>
+        
+        <div class="features">
+            <h3>✨ Fitur Offline Tersedia</h3>
+            <div class="feature-list">
+                <div class="feature">
+                    <div class="feature-icon">✓</div>
+                    <span>Data surah dan ayat yang sudah dibaca</span>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">✓</div>
+                    <span>Bookmark dan catatan pribadi</span>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">✓</div>
+                    <span>Riwayat pencarian ayat</span>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">✓</div>
+                    <span>Interface aplikasi yang sudah di-cache</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="app-info">
+            <span>📱</span>
+            <span>Aplikasi PWA IndoQuran v1.2.0</span>
+        </div>
+        
+        <div class="footer">
+            Aplikasi akan otomatis menyinkronisasi data ketika koneksi internet tersedia kembali.
+        </div>
+    </div>
+
+    <script>
+        // Check online status
+        function updateConnectionStatus() {
+            const statusElement = document.getElementById('connection-status');
+            
+            if (navigator.onLine) {
+                statusElement.innerHTML = '<span class="pulse"></span> Anda online';
+                statusElement.className = 'status online';
+            } else {
+                statusElement.innerHTML = '<span class="pulse"></span> Tidak ada koneksi internet';
+                statusElement.className = 'status';
+            }
+        }
+        
+        // Go to home page
+        function goHome() {
+            try {
+                window.location.href = '/';
+            } catch (error) {
+                console.log('Cannot navigate to home');
+            }
+        }
+        
+        // Update status on page load
+        updateConnectionStatus();
+        
+        // Listen for online/offline events
+        window.addEventListener('online', () => {
+            updateConnectionStatus();
+            
+            // Show notification and auto-reload after 2 seconds
+            setTimeout(() => {
+                if (confirm('Koneksi internet tersedia! Apakah Anda ingin memuat ulang halaman?')) {
+                    window.location.reload();
+                }
+            }, 2000);
+        });
+        
+        window.addEventListener('offline', updateConnectionStatus);
+        
+        // Retry connection every 30 seconds
+        setInterval(() => {
+            if (navigator.onLine) {
+                updateConnectionStatus();
+            }
+        }, 30000);
+        
+        // Register service worker if available
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw-pwa.js')
+                .then(registration => {
+                    console.log('SW registered from offline page');
+                })
+                .catch(error => {
+                    console.log('SW registration failed from offline page');
+                });
+        }
+    </script>
+</body>
+</html>

@@ -71,8 +71,17 @@
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json">
     
+    <!-- PWA iOS Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="IndoQuran">
+    <meta name="mobile-web-app-capable" content="yes">
+    
     <!-- Enhanced Anti-Injection Security -->
     <script src="/anti-injection-security.js"></script>
+    
+    <!-- PWA Manager -->
+    <script src="/pwa-manager.js"></script>
     
     <!-- Critical CSS for above-the-fold content -->
     {!! App\Services\PerformanceOptimizationService::getCriticalCSS() !!}

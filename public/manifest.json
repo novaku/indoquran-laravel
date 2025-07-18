@@ -1,16 +1,36 @@
 {
   "name": "IndoQuran - Al-Quran Digital Indonesia",
   "short_name": "IndoQuran",
-  "description": "Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia.",
-  "start_url": "/",
+  "description": "Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia, fitur bookmark, jadwal sholat, dan audio murottal.",
+  "start_url": "/?utm_source=pwa",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#22c55e",
   "orientation": "portrait-primary",
   "scope": "/",
   "lang": "id",
-  "categories": ["books", "education", "lifestyle"],
+  "dir": "ltr",
+  "id": "indoquran-pwa",
+  "categories": ["books", "education", "lifestyle", "utilities"],
   "icons": [
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "/android-chrome-192x192.png",
       "sizes": "192x192",
@@ -22,24 +42,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    },
-    {
-      "src": "/apple-touch-icon.png",
-      "sizes": "180x180",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/favicon-32x32.png",
-      "sizes": "32x32",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/favicon-16x16.png",
-      "sizes": "16x16",
-      "type": "image/png",
-      "purpose": "any"
     }
   ],
   "shortcuts": [
@@ -47,7 +49,7 @@
       "name": "Baca Al-Quran",
       "short_name": "Baca",
       "description": "Langsung ke halaman baca Al-Quran",
-      "url": "/quran",
+      "url": "/quran?utm_source=pwa_shortcut",
       "icons": [
         {
           "src": "/android-chrome-192x192.png",
@@ -60,7 +62,7 @@
       "name": "Jadwal Sholat",
       "short_name": "Sholat",
       "description": "Cek jadwal sholat hari ini",
-      "url": "/prayer",
+      "url": "/prayer?utm_source=pwa_shortcut",
       "icons": [
         {
           "src": "/android-chrome-192x192.png",
@@ -73,7 +75,20 @@
       "name": "Pencarian Ayat",
       "short_name": "Cari",
       "description": "Cari ayat dalam Al-Quran",
-      "url": "/search",
+      "url": "/search?utm_source=pwa_shortcut",
+      "icons": [
+        {
+          "src": "/android-chrome-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Bookmark Saya",
+      "short_name": "Bookmark",
+      "description": "Akses bookmark ayat favorit",
+      "url": "/bookmarks?utm_source=pwa_shortcut",
       "icons": [
         {
           "src": "/android-chrome-192x192.png",
@@ -83,40 +98,76 @@
       ]
     }
   ],
-  "related_applications": [],
-  "prefer_related_applications": false,
-  "dir": "ltr",
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui", "browser"],
-  "edge_side_panel": {},
-  "file_handlers": [],
-  "handle_links": "preferred",
   "launch_handler": {
     "client_mode": "focus-existing"
   },
-  "protocol_handlers": [],
   "share_target": {
     "action": "/share",
     "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
     "params": {
       "title": "title",
       "text": "text",
       "url": "url"
     }
   },
+  "protocol_handlers": [
+    {
+      "protocol": "web+quran",
+      "url": "/surah/%s"
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "/bookmarks/import",
+      "accept": {
+        "application/json": [".json"],
+        "text/plain": [".txt"]
+      }
+    }
+  ],
   "screenshots": [
     {
       "src": "/screenshots/home-mobile.png",
       "sizes": "375x812",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Halaman Utama IndoQuran"
+      "label": "Halaman Utama IndoQuran dengan navigasi mudah"
     },
     {
       "src": "/screenshots/quran-mobile.png", 
       "sizes": "375x812",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Halaman Baca Al-Quran"
+      "label": "Halaman Baca Al-Quran dengan terjemahan Indonesia"
+    },
+    {
+      "src": "/screenshots/prayer-mobile.png",
+      "sizes": "375x812",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Jadwal Sholat dengan notifikasi otomatis"
+    },
+    {
+      "src": "/screenshots/search-mobile.png",
+      "sizes": "375x812",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Pencarian ayat Al-Quran yang powerful"
+    },
+    {
+      "src": "/screenshots/home-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Tampilan Desktop IndoQuran"
     }
-  ]
+  ],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "handle_links": "preferred",
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
 }
