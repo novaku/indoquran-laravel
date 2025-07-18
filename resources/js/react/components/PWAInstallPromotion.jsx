@@ -1,13 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PWAInstallAd from './PWAInstallAd';
 import PWAInstallBanner from './PWAInstallBanner';
 import PWAFloatingInstall from './PWAFloatingInstall';
 
 const PWAInstallPromotion = ({ strategy = 'auto' }) => {
+    // Temporarily disable all PWA install promotions to prevent reload issues
+    return null;
+    
     const [currentStrategy, setCurrentStrategy] = useState(strategy);
     const [deviceType, setDeviceType] = useState('desktop');
+    const hasInitialized = useRef(false);
 
     useEffect(() => {
+        // Prevent multiple initializations
+        if (hasInitialized.current) return;
+        hasInitialized.current = true;
+
         // Detect device type
         const userAgent = navigator.userAgent;
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
@@ -17,30 +25,35 @@ const PWAInstallPromotion = ({ strategy = 'auto' }) => {
 
         // Auto-select strategy based on device and context
         if (strategy === 'auto') {
-            const visitCount = parseInt(localStorage.getItem('visit-count') || '0') + 1;
-            localStorage.setItem('visit-count', visitCount.toString());
+            // Get visit count safely
+            let visitCount = 1;
+            try {
+                const stored = localStorage.getItem('pwa-visit-count');
+                visitCount = stored ? parseInt(stored, 10) + 1 : 1;
+                localStorage.setItem('pwa-visit-count', visitCount.toString());
+            } catch (error) {
+                console.warn('PWA: localStorage not available, using default strategy');
+            }
 
+            // Set strategy based on visit count (no page refresh)
             if (visitCount === 1) {
-                // First visit - show modal for impact
                 setCurrentStrategy('modal');
             } else if (visitCount <= 3) {
-                // Early visits - show banner
                 setCurrentStrategy('banner');
             } else {
-                // Regular users - subtle floating button
                 setCurrentStrategy('floating');
             }
         }
-    }, [strategy]);
+    }, []); // Empty dependency array to run only once
 
     const renderStrategy = () => {
         switch (currentStrategy) {
             case 'modal':
-                return <PWAInstallAd />;
+                return <PWAInstallAd key="modal" />;
             case 'banner':
-                return <PWAInstallBanner />;
+                return <PWAInstallBanner key="banner" />;
             case 'floating':
-                return <PWAFloatingInstall />;
+                return <PWAFloatingInstall key="floating" />;
             default:
                 return null;
         }

@@ -1,18 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const PWAInstallBanner = () => {
     const [isVisible, setIsVisible] = useState(false);
     const [canInstall, setCanInstall] = useState(false);
     const [isInstalled, setIsInstalled] = useState(false);
+    const hasInitialized = useRef(false);
 
     useEffect(() => {
+        // Prevent multiple initializations
+        if (hasInitialized.current) return;
+        hasInitialized.current = true;
+
         // Check if banner was dismissed today
-        const dismissed = localStorage.getItem('pwa-banner-dismissed');
-        const dismissedDate = localStorage.getItem('pwa-banner-dismissed-date');
-        const today = new Date().toDateString();
-        
-        if (dismissed && dismissedDate === today) {
-            return;
+        try {
+            const dismissed = localStorage.getItem('pwa-banner-dismissed');
+            const dismissedDate = localStorage.getItem('pwa-banner-dismissed-date');
+            const today = new Date().toDateString();
+            
+            if (dismissed === 'true' && dismissedDate === today) {
+                return;
+            }
+        } catch (error) {
+            console.warn('PWA: localStorage not available');
         }
 
         // Check PWA status
@@ -49,19 +58,23 @@ const PWAInstallBanner = () => {
             window.removeEventListener('pwa-install-available', handleInstallAvailable);
             window.removeEventListener('pwa-installed', handleInstalled);
         };
-    }, [isInstalled]);
+    }, []); // Empty dependency array
 
-    const handleInstall = async () => {
+    const handleInstall = useCallback(async () => {
         if (window.pwaManager) {
             await window.pwaManager.promptInstall();
         }
-    };
+    }, []);
 
-    const handleDismiss = () => {
+    const handleDismiss = useCallback(() => {
         setIsVisible(false);
-        localStorage.setItem('pwa-banner-dismissed', 'true');
-        localStorage.setItem('pwa-banner-dismissed-date', new Date().toDateString());
-    };
+        try {
+            localStorage.setItem('pwa-banner-dismissed', 'true');
+            localStorage.setItem('pwa-banner-dismissed-date', new Date().toDateString());
+        } catch (error) {
+            console.warn('PWA: Could not save dismissal state');
+        }
+    }, []);
 
     if (!isVisible || isInstalled || !canInstall) {
         return null;

@@ -394,8 +394,8 @@ const AppContent = memo(() => {
                 {/* Performance Debug Panel (Development Only) */}
                 <PerformanceDebugPanel />
                 
-                {/* PWA Install Promotion */}
-                <PWAInstallPromotion strategy="auto" />
+                {/* PWA Install Promotion - memoized to prevent re-renders */}
+                <PWAInstallPromotion strategy="auto" key="pwa-promotion" />
             </QuranLayout>
         </OptimizedErrorBoundary>
     );

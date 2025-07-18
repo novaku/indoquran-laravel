@@ -2,14 +2,26 @@
 
 class PWAManager {
     constructor() {
+        // Prevent multiple instances and reload loops
+        if (window._pwaManagerInitialized) {
+            console.warn('PWA: Manager already exists, skipping initialization');
+            return window.pwaManager;
+        }
+        
         this.deferredPrompt = null;
         this.isInstalled = false;
         this.registration = null;
+        this.hasReloaded = false;
+        
+        // Mark as initialized
+        window._pwaManagerInitialized = true;
         
         this.init();
     }
 
     async init() {
+        console.log('PWA: Initializing manager...');
+        
         // Check if app is already installed
         this.checkInstallStatus();
         
@@ -24,6 +36,8 @@ class PWAManager {
         
         // Setup offline detection
         this.setupOfflineDetection();
+        
+        console.log('PWA: Manager initialization complete');
     }
 
     checkInstallStatus() {
@@ -41,28 +55,40 @@ class PWAManager {
     async registerServiceWorker() {
         if ('serviceWorker' in navigator) {
             try {
-                this.registration = await navigator.serviceWorker.register('/sw-pwa.js', {
-                    scope: '/'
-                });
-
-                console.log('PWA: Service Worker registered successfully');
-
-                // Listen for updates
-                this.registration.addEventListener('updatefound', () => {
-                    const newWorker = this.registration.installing;
-                    
-                    newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            // Update available - auto-apply without notification
-                            console.log('PWA: Update available, will apply automatically');
-                        }
+                // Check if already registered to prevent multiple registrations
+                const existingRegistration = await navigator.serviceWorker.getRegistration('/');
+                if (existingRegistration) {
+                    this.registration = existingRegistration;
+                    console.log('PWA: Using existing service worker registration');
+                } else {
+                    this.registration = await navigator.serviceWorker.register('/sw-pwa.js', {
+                        scope: '/'
                     });
-                });
+                    console.log('PWA: Service Worker registered successfully');
+                }
 
-                // Check for updates periodically
-                setInterval(() => {
-                    this.registration.update();
-                }, 60000); // Check every minute
+                // Listen for updates (only once)
+                if (!this.registration._updateListenerAdded) {
+                    this.registration._updateListenerAdded = true;
+                    
+                    this.registration.addEventListener('updatefound', () => {
+                        const newWorker = this.registration.installing;
+                        
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // Update available - auto-apply without notification
+                                console.log('PWA: Update available, will apply automatically');
+                            }
+                        });
+                    });
+                }
+
+                // Check for updates periodically (but limit frequency)
+                if (!window._pwaUpdateInterval) {
+                    window._pwaUpdateInterval = setInterval(() => {
+                        this.registration.update();
+                    }, 60000); // Check every minute
+                }
 
             } catch (error) {
                 console.error('PWA: Service Worker registration failed:', error);
@@ -107,10 +133,21 @@ class PWAManager {
     }
 
     setupUpdateDetection() {
-        // Listen for service worker updates
+        // Listen for service worker updates - prevent multiple reloads
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.addEventListener('controllerchange', () => {
-                window.location.reload();
+                // Prevent multiple reloads with multiple safeguards
+                if (!this.hasReloaded && !window._pwaReloadInProgress) {
+                    this.hasReloaded = true;
+                    window._pwaReloadInProgress = true;
+                    
+                    console.log('PWA: Service worker updated, reloading page once');
+                    
+                    // Add small delay to prevent race conditions
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 100);
+                }
             });
         }
     }
@@ -279,8 +316,22 @@ class PWAManager {
     }
 }
 
-// Initialize PWA Manager
-window.pwaManager = new PWAManager();
+// Initialize PWA Manager - prevent multiple instances
+if (!window.pwaManager) {
+    console.log('PWA: Creating new manager instance');
+    window.pwaManager = new PWAManager();
+} else {
+    console.log('PWA: Manager already exists, reusing instance');
+}
+
+// Add page load tracking
+window.addEventListener('beforeunload', () => {
+    console.log('PWA: Page unloading...');
+});
+
+window.addEventListener('load', () => {
+    console.log('PWA: Page loaded');
+});
 
 // Export for ES6 modules
 if (typeof module !== 'undefined' && module.exports) {

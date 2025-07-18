@@ -1,17 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const PWAInstallAd = () => {
     const [isVisible, setIsVisible] = useState(false);
     const [canInstall, setCanInstall] = useState(false);
     const [isInstalled, setIsInstalled] = useState(false);
     const [isDismissed, setIsDismissed] = useState(false);
+    const hasInitialized = useRef(false);
 
     useEffect(() => {
-        // Check if ad was previously dismissed
-        const dismissed = localStorage.getItem('pwa-install-ad-dismissed');
-        if (dismissed) {
-            setIsDismissed(true);
-            return;
+        // Prevent multiple initializations
+        if (hasInitialized.current) return;
+        hasInitialized.current = true;
+
+        // Check if ad was previously dismissed or remind later is active
+        try {
+            const dismissed = localStorage.getItem('pwa-install-ad-dismissed');
+            if (dismissed === 'true') {
+                setIsDismissed(true);
+                return;
+            }
+
+            // Check remind later timestamp
+            const remindTime = localStorage.getItem('pwa-install-ad-remind-time');
+            if (remindTime && Date.now() < parseInt(remindTime, 10)) {
+                setIsDismissed(true);
+                return;
+            }
+        } catch (error) {
+            console.warn('PWA: localStorage not available');
         }
 
         // Check PWA install status
@@ -48,36 +64,42 @@ const PWAInstallAd = () => {
         // Initial check
         checkInstallStatus();
 
+        // Cleanup
         return () => {
             window.removeEventListener('pwa-install-available', handleInstallAvailable);
             window.removeEventListener('pwa-installed', handleInstalled);
         };
-    }, [isInstalled]);
+    }, []); // Empty dependency array
 
-    const handleInstall = async () => {
+    const handleInstall = useCallback(async () => {
         if (window.pwaManager) {
             const success = await window.pwaManager.promptInstall();
             if (success) {
                 setIsVisible(false);
             }
         }
-    };
+    }, []);
 
-    const handleDismiss = () => {
+    const handleDismiss = useCallback(() => {
         setIsVisible(false);
         setIsDismissed(true);
-        localStorage.setItem('pwa-install-ad-dismissed', 'true');
-    };
+        try {
+            localStorage.setItem('pwa-install-ad-dismissed', 'true');
+        } catch (error) {
+            console.warn('PWA: Could not save dismissal state');
+        }
+    }, []);
 
-    const handleRemindLater = () => {
+    const handleRemindLater = useCallback(() => {
         setIsVisible(false);
-        // Show again after 24 hours
-        setTimeout(() => {
-            if (!isInstalled) {
-                setIsVisible(true);
-            }
-        }, 24 * 60 * 60 * 1000);
-    };
+        // Store remind later timestamp instead of using setTimeout
+        try {
+            const remindTime = Date.now() + (24 * 60 * 60 * 1000); // 24 hours from now
+            localStorage.setItem('pwa-install-ad-remind-time', remindTime.toString());
+        } catch (error) {
+            console.warn('PWA: Could not save remind later state');
+        }
+    }, []);
 
     if (!isVisible || isDismissed || isInstalled || !canInstall) {
         return null;

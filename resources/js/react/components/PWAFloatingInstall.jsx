@@ -1,16 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const PWAFloatingInstall = () => {
     const [isVisible, setIsVisible] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
     const [canInstall, setCanInstall] = useState(false);
     const [isInstalled, setIsInstalled] = useState(false);
+    const hasInitialized = useRef(false);
 
     useEffect(() => {
+        // Prevent multiple initializations
+        if (hasInitialized.current) return;
+        hasInitialized.current = true;
+
         // Check if permanently dismissed
-        const dismissed = localStorage.getItem('pwa-floating-dismissed');
-        if (dismissed === 'true') {
-            return;
+        try {
+            const dismissed = localStorage.getItem('pwa-floating-dismissed');
+            if (dismissed === 'true') {
+                return;
+            }
+        } catch (error) {
+            console.warn('PWA: localStorage not available');
         }
 
         const checkStatus = () => {
@@ -46,25 +55,29 @@ const PWAFloatingInstall = () => {
             window.removeEventListener('pwa-install-available', handleInstallAvailable);
             window.removeEventListener('pwa-installed', handleInstalled);
         };
-    }, [isInstalled]);
+    }, []); // Empty dependency array
 
-    const handleInstall = async () => {
+    const handleInstall = useCallback(async () => {
         if (window.pwaManager) {
             const success = await window.pwaManager.promptInstall();
             if (success) {
                 setIsVisible(false);
             }
         }
-    };
+    }, []);
 
-    const handleDismiss = () => {
+    const handleDismiss = useCallback(() => {
         setIsVisible(false);
-        localStorage.setItem('pwa-floating-dismissed', 'true');
-    };
+        try {
+            localStorage.setItem('pwa-floating-dismissed', 'true');
+        } catch (error) {
+            console.warn('PWA: Could not save dismissal state');
+        }
+    }, []);
 
-    const toggleExpanded = () => {
+    const toggleExpanded = useCallback(() => {
         setIsExpanded(!isExpanded);
-    };
+    }, [isExpanded]);
 
     if (!isVisible || isInstalled || !canInstall) {
         return null;
