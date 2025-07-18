@@ -247,14 +247,35 @@ log_message "Ensuring cache table exists..."
 php artisan cache:table >/dev/null 2>&1 || true
 php artisan migrate --force >/dev/null 2>&1 || true
 
+# Function to refresh views
+refresh_views() {
+    log_message "Refreshing views..."
+    
+    # Clear all view caches
+    php artisan view:clear || log_warning "⚠ Failed to clear view cache"
+    
+    # Clear compiled views
+    if [ -d storage/framework/views ]; then
+        log_message "Clearing compiled views..."
+        find storage/framework/views -name "*.php" -delete 2>/dev/null || log_warning "⚠ Failed to clear compiled views"
+        log_message "✓ Compiled views cleared"
+    fi
+    
+    # Recreate view cache
+    php artisan view:cache || log_warning "⚠ Failed to cache views"
+    
+    log_message "✓ Views refreshed successfully"
+}
+
 # Clear and recache Laravel configs
 log_message "Optimizing Laravel..."
 php artisan config:cache
 php artisan config:clear
 php artisan route:clear
 php artisan route:cache
-php artisan view:clear
-php artisan view:cache
+
+# Refresh views using our new function
+refresh_views
 
 # Clear and warm up Quran cache
 log_message "Managing Quran cache..."
