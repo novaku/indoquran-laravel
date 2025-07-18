@@ -163,18 +163,29 @@ class PWAManager {
     }
 
     showUpdateAvailable() {
+        // Check if update notification already exists
+        if (document.querySelector('.pwa-update-bar')) {
+            return;
+        }
+
         // Create update notification
         const updateBar = document.createElement('div');
         updateBar.className = 'pwa-update-bar';
         updateBar.innerHTML = `
             <div class="pwa-update-content">
-                <span>🔄 Pembaruan tersedia!</span>
-                <button onclick="window.pwaManager.applyUpdate()" class="pwa-update-btn">
-                    Perbarui Sekarang
-                </button>
-                <button onclick="this.parentElement.parentElement.remove()" class="pwa-dismiss-btn">
-                    ✕
-                </button>
+                <div class="pwa-update-icon">🔄</div>
+                <div class="pwa-update-text">
+                    <span class="pwa-update-title">Pembaruan tersedia!</span>
+                    <span class="pwa-update-subtitle">Dapatkan fitur terbaru</span>
+                </div>
+                <div class="pwa-update-actions">
+                    <button onclick="window.pwaManager.applyUpdate()" class="pwa-update-btn">
+                        Perbarui
+                    </button>
+                    <button onclick="this.parentElement.parentElement.parentElement.remove()" class="pwa-dismiss-btn">
+                        ✕
+                    </button>
+                </div>
             </div>
         `;
         
@@ -183,46 +194,132 @@ class PWAManager {
         style.textContent = `
             .pwa-update-bar {
                 position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                background: #22c55e;
+                bottom: 20px;
+                left: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #22c55e, #16a34a);
                 color: white;
-                padding: 12px;
+                padding: 16px;
+                border-radius: 12px;
                 z-index: 9999;
-                text-align: center;
-                font-family: Arial, sans-serif;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+                backdrop-filter: blur(10px);
+                animation: slideUpIn 0.4s ease-out;
+                max-width: 420px;
+                margin: 0 auto;
             }
+            
+            @media (max-width: 640px) {
+                .pwa-update-bar {
+                    left: 16px;
+                    right: 16px;
+                    bottom: 16px;
+                }
+            }
+            
             .pwa-update-content {
                 display: flex;
                 align-items: center;
-                justify-content: center;
-                gap: 16px;
-                max-width: 600px;
-                margin: 0 auto;
+                gap: 12px;
             }
+            
+            .pwa-update-icon {
+                font-size: 24px;
+                animation: spin 2s linear infinite;
+            }
+            
+            .pwa-update-text {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+            }
+            
+            .pwa-update-title {
+                font-weight: 600;
+                font-size: 15px;
+            }
+            
+            .pwa-update-subtitle {
+                font-size: 13px;
+                opacity: 0.9;
+            }
+            
+            .pwa-update-actions {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+            }
+            
             .pwa-update-btn {
                 background: white;
                 color: #22c55e;
                 border: none;
-                padding: 6px 12px;
-                border-radius: 4px;
-                font-weight: 500;
+                padding: 8px 16px;
+                border-radius: 8px;
+                font-weight: 600;
+                font-size: 14px;
                 cursor: pointer;
+                transition: all 0.2s ease;
             }
+            
+            .pwa-update-btn:hover {
+                background: #f8fafc;
+                transform: translateY(-1px);
+            }
+            
             .pwa-dismiss-btn {
-                background: none;
+                background: rgba(255,255,255,0.1);
                 border: none;
                 color: white;
                 cursor: pointer;
-                font-size: 18px;
-                padding: 4px;
+                font-size: 16px;
+                padding: 6px;
+                border-radius: 6px;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 32px;
+                height: 32px;
+            }
+            
+            .pwa-dismiss-btn:hover {
+                background: rgba(255,255,255,0.2);
+            }
+            
+            @keyframes slideUpIn {
+                from { 
+                    transform: translateY(100%); 
+                    opacity: 0; 
+                }
+                to { 
+                    transform: translateY(0); 
+                    opacity: 1; 
+                }
+            }
+            
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
             }
         `;
         
         document.head.appendChild(style);
         document.body.appendChild(updateBar);
+
+        // Auto-dismiss after 10 seconds if user doesn't interact
+        setTimeout(() => {
+            if (document.querySelector('.pwa-update-bar')) {
+                updateBar.style.animation = 'slideUpIn 0.3s ease-out reverse';
+                setTimeout(() => {
+                    if (updateBar.parentNode) {
+                        updateBar.remove();
+                    }
+                }, 300);
+            }
+        }, 10000);
     }
 
     applyUpdate() {
