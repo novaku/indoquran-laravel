@@ -61,7 +61,7 @@
     <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
     
     <!-- Preload critical CSS non-blocking - Let Vite handle this -->
-    <!-- CSS will be loaded by @vite directive at the bottom -->
+    <!-- CSS will be loaded by Vite directive at the bottom -->
     
     <!-- Optimized Font Loading - Reduced to essential fonts only -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Naskh+Arabic:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
