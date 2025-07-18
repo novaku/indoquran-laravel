@@ -119,29 +119,29 @@ const usePrefetchOptimization = () => {
     useEffect(() => {
         if (!canPreload) return;
         
-        // Prefetch likely next pages on idle
+        // Defer prefetching to avoid blocking main thread
         const prefetchOnIdle = () => {
             if ('requestIdleCallback' in window) {
                 requestIdleCallback(() => {
-                    // Prefetch high-probability pages
+                    // Only prefetch critical pages to reduce initial bundle size
                     import(/* webpackChunkName: "surah-list" */ './pages/SurahListPage');
-                    import(/* webpackChunkName: "search" */ './pages/QuranSearchPage');
-                });
+                }, { timeout: 5000 });
             } else {
-                // Fallback for browsers without requestIdleCallback
+                // Longer delay for browsers without requestIdleCallback
                 setTimeout(() => {
                     import(/* webpackChunkName: "surah-list" */ './pages/SurahListPage');
-                    import(/* webpackChunkName: "search" */ './pages/QuranSearchPage');
-                }, 2000);
+                }, 5000);
             }
         };
 
-        // Start prefetching after initial page load
+        // Start prefetching only after page is fully loaded and stable
         if (document.readyState === 'complete') {
-            prefetchOnIdle();
+            // Additional delay to ensure first paint is complete
+            setTimeout(prefetchOnIdle, 2000);
         } else {
-            window.addEventListener('load', prefetchOnIdle);
-            return () => window.removeEventListener('load', prefetchOnIdle);
+            window.addEventListener('load', () => {
+                setTimeout(prefetchOnIdle, 2000);
+            });
         }
     }, [canPreload]);
 };
@@ -180,12 +180,31 @@ const AppContent = memo(() => {
     
     // SEO and performance monitoring initialization - optimized to run only once
     useEffect(() => {
-        // Preload critical SEO resources
-        preloadCriticalResources();
-        
-        // Performance monitoring in development (disabled to reduce console noise)
-        if (process.env.NODE_ENV === 'development') {
-            console.log('✅ Performance monitoring available via PerformanceDebugPanel');
+        // Defer non-critical initialization to avoid blocking first paint
+        const initializeApp = () => {
+            // Preload critical SEO resources only if not on slow connection
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            const isSlowConnection = connection && (
+                connection.effectiveType === 'slow-2g' || 
+                connection.effectiveType === '2g' || 
+                connection.saveData
+            );
+            
+            if (!isSlowConnection) {
+                preloadCriticalResources();
+            }
+            
+            // Performance monitoring in development only
+            if (process.env.NODE_ENV === 'development') {
+                console.log('✅ Performance monitoring available via PerformanceDebugPanel');
+            }
+        };
+
+        // Defer initialization to improve Time to First Byte
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(initializeApp, { timeout: 2000 });
+        } else {
+            setTimeout(initializeApp, 100);
         }
     }, []); // Removed dependencies to prevent unnecessary re-runs
 

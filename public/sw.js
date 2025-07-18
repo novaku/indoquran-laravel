@@ -1,30 +1,28 @@
-// Service Worker for IndoQuran - Enhanced Caching Strategy for Mobile Performance
+// Enhanced Service Worker for IndoQuran - Mobile Performance Optimized
 
-const CACHE_NAME = 'indoquran-v1.1.0';
+const CACHE_NAME = 'indoquran-v1.2.0';
 const STATIC_CACHE_NAME = `${CACHE_NAME}-static`;
 const DYNAMIC_CACHE_NAME = `${CACHE_NAME}-dynamic`;
 const API_CACHE_NAME = `${CACHE_NAME}-api`;
 const IMAGE_CACHE_NAME = `${CACHE_NAME}-images`;
+const FONT_CACHE_NAME = `${CACHE_NAME}-fonts`;
 
-// Resources to cache immediately
+// Critical resources to cache immediately (reduced for mobile)
 const STATIC_ASSETS = [
     '/',
     '/build/assets/app.css',
     '/build/assets/app.js',
     '/favicon.ico',
     '/android-chrome-192x192.png',
-    '/android-chrome-512x512.png',
-    '/apple-touch-icon.png',
     '/manifest.json',
 ];
 
-// API endpoints to cache
+// API endpoints to cache with different strategies
 const API_CACHE_PATTERNS = [
     /\/api\/surahs/,
     /\/api\/ayahs/,
     /\/api\/search/,
     /\/api\/prayer/,
-    /\/api\/bookmarks/,
 ];
 
 // Image patterns to cache
@@ -32,20 +30,32 @@ const IMAGE_PATTERNS = [
     /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
 ];
 
-// Cache strategies
+// Font patterns to cache
+const FONT_PATTERNS = [
+    /\.(?:woff|woff2|ttf|eot)$/,
+    /fonts\.googleapis\.com/,
+    /fonts\.gstatic\.com/,
+    /fonts\.bunny\.net/,
+];
+
+// Cache strategies optimized for mobile
 const CACHE_STRATEGIES = {
     CACHE_FIRST: 'cache-first',
     NETWORK_FIRST: 'network-first',
     STALE_WHILE_REVALIDATE: 'stale-while-revalidate'
 };
 
-// Cache duration settings (in milliseconds)
+// Cache duration settings (optimized for mobile data usage)
 const CACHE_DURATIONS = {
     STATIC: 7 * 24 * 60 * 60 * 1000, // 7 days
     DYNAMIC: 24 * 60 * 60 * 1000,     // 1 day
     API: 60 * 60 * 1000,              // 1 hour
     IMAGES: 30 * 24 * 60 * 60 * 1000, // 30 days
+    FONTS: 30 * 24 * 60 * 60 * 1000,  // 30 days
 };
+
+// Storage quota management for mobile devices
+const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50MB limit for mobile
 
 self.addEventListener('install', event => {
     console.log('SW: Installing service worker v1.1.0');

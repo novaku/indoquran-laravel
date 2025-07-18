@@ -1014,47 +1014,63 @@ export const generateAudioStructuredData = (audioData) => {
   };
 };
 
-// Function to preload critical resources optimized for Core Web Vitals
+// Function to preload critical resources optimized for Core Web Vitals and mobile
 export const preloadCriticalResources = () => {
+  // Check network conditions to avoid aggressive preloading on slow connections
+  const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  const isSlowConnection = connection && (
+    connection.effectiveType === 'slow-2g' || 
+    connection.effectiveType === '2g' || 
+    connection.saveData
+  );
+  
+  // Reduce preloading on slow connections
+  if (isSlowConnection) {
+    return;
+  }
+  
   const resources = [
-    // DNS prefetch for external domains
+    // DNS prefetch for external domains (highest priority)
     { rel: 'dns-prefetch', href: 'https://fonts.googleapis.com' },
     { rel: 'dns-prefetch', href: 'https://fonts.gstatic.com' },
-    { rel: 'dns-prefetch', href: 'https://api.quran.com' },
     
-    // Preconnect for critical external resources
+    // Preconnect only for critical external resources
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
     { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: 'anonymous' },
     
-    // Preload critical CSS and fonts
-    { rel: 'preload', href: '/css/critical.css', as: 'style' },
+    // Preload only the most critical fonts (reduced to improve LCP)
     { rel: 'preload', href: '/fonts/arabic-font.woff2', as: 'font', type: 'font/woff2', crossorigin: 'anonymous' },
     
-    // Prefetch likely navigation targets
-    { rel: 'prefetch', href: `${BASE_URL}/surah` },
-    { rel: 'prefetch', href: `${BASE_URL}/cari` }
+    // Prefetch only high-priority navigation targets
+    { rel: 'prefetch', href: `${BASE_URL}/surah` }
   ];
 
-  // Add domain-specific optimizations
-  if (process.env.NODE_ENV === 'development') {
-    resources.push({ rel: 'preconnect', href: 'https://my.indoquran.web.id' });
-  }
-
+  // Process resources with error handling and deduplication
   resources.forEach(resource => {
-    const link = document.createElement('link');
-    Object.keys(resource).forEach(key => {
-      if (key === 'crossorigin' && resource[key]) {
-        link.setAttribute(key, resource[key]);
-      } else if (key !== 'crossorigin') {
-        link.setAttribute(key, resource[key]);
-      }
-    });
-    
     // Avoid duplicate preload resources
     const selector = `link[href="${resource.href}"][rel="${resource.rel}"]`;
-    const existingLink = document.querySelector(selector);
-    if (!existingLink) {
+    if (document.querySelector(selector)) {
+      return;
+    }
+    
+    try {
+      const link = document.createElement('link');
+      Object.keys(resource).forEach(key => {
+        if (key === 'crossorigin' && resource[key]) {
+          link.setAttribute(key, resource[key]);
+        } else if (key !== 'crossorigin') {
+          link.setAttribute(key, resource[key]);
+        }
+      });
+      
+      // Add error handling to prevent blocking
+      link.onerror = () => {
+        console.warn(`Failed to load resource: ${resource.href}`);
+      };
+      
       document.head.appendChild(link);
+    } catch (error) {
+      console.warn('Error adding preload resource:', error);
     }
   });
 };

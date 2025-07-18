@@ -33,17 +33,25 @@ export default defineConfig(({ command, mode }) => {
             tailwindcss(),
         ],
         build: {
-            // Enable minification and optimization
+            // Enable more aggressive minification and optimization
             minify: 'terser',
             terserOptions: {
                 compress: {
                     drop_console: true,
                     drop_debugger: true,
+                    pure_funcs: ['console.log', 'console.info', 'console.debug'],
+                    passes: 2,
+                },
+                mangle: {
+                    safari10: true,
+                },
+                format: {
+                    comments: false,
                 },
             },
-            // Increase chunk size warning limit
-            chunkSizeWarningLimit: 1000,
-            // Enable source maps for production debugging
+            // Reduce chunk size warning limit for mobile
+            chunkSizeWarningLimit: 500,
+            // Disable source maps for production to reduce size
             sourcemap: false,
             rollupOptions: {
                 output: {
@@ -51,7 +59,7 @@ export default defineConfig(({ command, mode }) => {
                     chunkFileNames: 'assets/[name]-[hash].js',
                     assetFileNames: (assetInfo) => {
                         const extType = assetInfo.name.split('.').at(1);
-                        if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {
+                        if (/png|jpe?g|svg|gif|tiff|bmp|ico|webp/i.test(extType)) {
                             return `assets/img/[name]-[hash][extname]`;
                         }
                         if (/css/i.test(extType)) {
@@ -60,32 +68,43 @@ export default defineConfig(({ command, mode }) => {
                         if (/woff2?|eot|ttf|otf/i.test(extType)) {
                             return `assets/fonts/[name]-[hash][extname]`;
                         }
-                        // Ensure all font files go to assets/fonts directory
-                        if (assetInfo.name && /\.(woff2?|eot|ttf)$/i.test(assetInfo.name)) {
-                            return `assets/fonts/[name]-[hash][extname]`;
-                        }
                         return `assets/[name]-[hash][extname]`;
                     },
                     format: 'es',
-                    // Code splitting for better caching
-                    manualChunks: {
+                    // Enhanced code splitting for better mobile caching
+                    manualChunks: (id) => {
                         // Core React dependencies
-                        vendor: ['react', 'react-dom'],
+                        if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+                            return 'vendor-react';
+                        }
                         // Router and navigation
-                        router: ['react-router-dom'],
+                        if (id.includes('react-router')) {
+                            return 'vendor-router';
+                        }
                         // UI components and icons
-                        ui: ['@heroicons/react', 'react-icons', 'react-hot-toast'],
+                        if (id.includes('@heroicons') || id.includes('react-icons') || id.includes('react-hot-toast')) {
+                            return 'vendor-ui';
+                        }
                         // Motion and animations
-                        motion: ['framer-motion'],
-                        // Utilities
-                        utils: ['date-fns'],
+                        if (id.includes('framer-motion')) {
+                            return 'vendor-motion';
+                        }
+                        // Utilities and date libraries
+                        if (id.includes('date-fns') || id.includes('lodash')) {
+                            return 'vendor-utils';
+                        }
+                        // Separate chunk for large node_modules
+                        if (id.includes('node_modules')) {
+                            return 'vendor-libs';
+                        }
                     },
                 },
                 // Handle external modules and warnings
                 external: [],
                 onwarn: (warning, warn) => {
-                    // Suppress specific warnings
+                    // Suppress specific warnings to reduce noise
                     if (warning.code === 'EVAL' || 
+                        warning.code === 'CIRCULAR_DEPENDENCY' ||
                         warning.message.includes('React DevTools') ||
                         warning.message.includes('__REACT_DEVTOOLS_GLOBAL_HOOK__')) {
                         return;
@@ -93,17 +112,20 @@ export default defineConfig(({ command, mode }) => {
                     warn(warning);
                 },
             },
-            // Performance optimizations
+            // Performance optimizations for mobile
             assetsDir: 'assets',
-            target: ['es2020', 'chrome80', 'firefox78', 'safari14'],
+            target: ['es2020', 'chrome80', 'firefox78', 'safari14', 'edge88'],
             cssCodeSplit: true,
             outDir: 'public/build',
             modulePreload: {
                 polyfill: false // Disable unnecessary polyfill for modern browsers
             },
-            // Additional options to handle React DevTools
+            // Enable asset inlining for small files
+            assetsInlineLimit: 4096,
+            // Additional options for React optimization
             commonjsOptions: {
                 transformMixedEsModules: true,
+                include: [/node_modules/],
             },
         },
         base: '/build/',

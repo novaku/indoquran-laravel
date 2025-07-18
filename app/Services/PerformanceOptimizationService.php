@@ -11,8 +11,25 @@ class PerformanceOptimizationService
     {
         return '
         <style>
-        /* Critical CSS for above-the-fold content */
-        body { margin: 0; font-family: Inter, system-ui, sans-serif; }
+        /* Critical CSS for above-the-fold content - Optimized for Core Web Vitals */
+        * { box-sizing: border-box; }
+        
+        body { 
+            margin: 0; 
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-display: swap;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeSpeed;
+        }
+        
+        /* Prevent FOUT and layout shifts */
+        .font-arabic { font-display: swap; }
+        img { max-width: 100%; height: auto; }
+        
+        /* Critical loading screen - Optimized */
         .loading-screen { 
             position: fixed; 
             top: 0; 
@@ -23,25 +40,58 @@ class PerformanceOptimizationService
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            z-index: 9999; 
+            z-index: 9999;
+            contain: layout style paint;
         }
+        
         .loader { 
             width: 40px; 
             height: 40px; 
-            border: 4px solid #f3f3f3; 
-            border-top: 4px solid #22c55e; 
+            border: 3px solid #f3f4f6; 
+            border-top: 3px solid #22c55e; 
             border-radius: 50%; 
-            animation: spin 1s linear infinite; 
+            animation: spin 1s linear infinite;
+            will-change: transform;
         }
+        
         @keyframes spin { 
             0% { transform: rotate(0deg); } 
             100% { transform: rotate(360deg); } 
         }
-        /* Prevent layout shift */
-        .header-placeholder { height: 80px; }
-        .main-content { min-height: calc(100vh - 80px); }
-        /* Font loading optimization */
-        .font-arabic { font-display: swap; }
+        
+        /* Prevent layout shift for header and main content */
+        .header-placeholder { 
+            height: 64px; 
+            background: #ffffff;
+        }
+        
+        .main-content { 
+            min-height: calc(100vh - 64px);
+            contain: layout;
+        }
+        
+        /* Critical navigation styles */
+        .nav-container {
+            background: #ffffff;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Optimize animations for performance */
+        .animate-spin {
+            will-change: transform;
+        }
+        
+        /* Reduce paint complexity */
+        .gpu-accelerated {
+            transform: translateZ(0);
+            will-change: transform;
+        }
+        
+        /* Critical responsive breakpoints */
+        @media (max-width: 768px) {
+            .header-placeholder { height: 56px; }
+            .main-content { min-height: calc(100vh - 56px); }
+        }
         </style>';
     }
 
