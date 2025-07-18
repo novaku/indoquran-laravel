@@ -15,6 +15,7 @@ import OptimizedErrorBoundary from './components/OptimizedErrorBoundary';
 import PageTransition from './components/PageTransition';
 import PerformanceDebugPanel from './components/PerformanceDebugPanel';
 import SEOHead from './components/SEOHead';
+import PWAInstallPromotion from './components/PWAInstallPromotion';
 import { preloadCriticalResources, getPageSEOData, generateHomeSEOKeywords } from './utils/seoUtils';
 
 // Enhanced lazy loading with component-level prefetching and optimized chunk names
@@ -392,6 +393,9 @@ const AppContent = memo(() => {
                 
                 {/* Performance Debug Panel (Development Only) */}
                 <PerformanceDebugPanel />
+                
+                {/* PWA Install Promotion */}
+                <PWAInstallPromotion strategy="auto" />
             </QuranLayout>
         </OptimizedErrorBoundary>
     );

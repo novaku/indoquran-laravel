@@ -1,0 +1,172 @@
+/* PWA Install Advertisement Styles */
+
+/* Base animations for install promotions */
+@keyframes slideUpIn {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes bounce {
+    0%, 20%, 53%, 80%, 100% {
+        transform: translate3d(0, 0, 0);
+    }
+    40%, 43% {
+        transform: translate3d(0, -8px, 0);
+    }
+    70% {
+        transform: translate3d(0, -4px, 0);
+    }
+    90% {
+        transform: translate3d(0, -2px, 0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.7;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Utility classes for animations */
+.animate-slide-up {
+    animation: slideUpIn 0.4s ease-out;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+.animate-bounce {
+    animation: bounce 2s infinite;
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* PWA specific styles */
+.pwa-install-modal {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.pwa-install-banner {
+    box-shadow: 0 10px 25px rgba(34, 197, 94, 0.15);
+}
+
+.pwa-floating-button {
+    box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pwa-floating-button:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 12px 35px rgba(34, 197, 94, 0.4);
+}
+
+.pwa-floating-button .animate-ping {
+    animation: pulse 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .pwa-install-modal .modal-content {
+        margin: 1rem;
+        max-width: calc(100vw - 2rem);
+    }
+    
+    .pwa-install-banner {
+        margin: 0.75rem;
+        border-radius: 0.75rem;
+    }
+    
+    .pwa-floating-button {
+        bottom: 1rem;
+        right: 1rem;
+        padding: 0.75rem;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .pwa-install-modal {
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+    
+    .pwa-install-banner {
+        background: linear-gradient(135deg, #166534, #15803d);
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .animate-slide-up,
+    .animate-fade-in,
+    .animate-slide-in,
+    .animate-bounce,
+    .animate-pulse {
+        animation: none;
+    }
+    
+    .pwa-floating-button {
+        transition: none;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .pwa-install-banner,
+    .pwa-floating-button {
+        border: 2px solid currentColor;
+    }
+}
+
+/* Print styles - hide install promotions when printing */
+@media print {
+    .pwa-install-modal,
+    .pwa-install-banner,
+    .pwa-floating-button {
+        display: none !important;
+    }
+}
