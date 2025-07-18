@@ -2,11 +2,11 @@ import { useEffect } from 'react';
 
 /**
  * StructuredData component for managing JSON-LD structured data
- * Optimized for IndoQuran website with domain my.indoquran.web.id
+ * Optimized for IndoQuran website with domain indoquran.web.id
  * Updated June 2025 with enhanced Schema.org implementations
  */
 function StructuredData({ type, data, pageType }) {
-  const baseUrl = 'https://my.indoquran.web.id';
+  const baseUrl = 'https://indoquran.web.id';
   
   useEffect(() => {
     const generateStructuredData = () => {
@@ -265,7 +265,7 @@ function StructuredData({ type, data, pageType }) {
 
 // Helper function to generate structured data for different page types
 export const generatePageStructuredData = (pageType, pageData = {}) => {
-  const baseUrl = 'https://my.indoquran.web.id';
+  const baseUrl = 'https://indoquran.web.id';
   
   const commonData = {
     publisher: {

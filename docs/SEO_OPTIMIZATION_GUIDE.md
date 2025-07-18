@@ -225,7 +225,7 @@ npm run build
 
 ### Environment Variables
 Ensure production URLs are correctly set in:
-- `APP_URL=https://my.indoquran.web.id`
+- `APP_URL=https://indoquran.web.id`
 - SEO middleware configuration
 - Sitemap generation
 

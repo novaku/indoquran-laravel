@@ -133,7 +133,7 @@ export const getRiwayatVersiSEO = () => ({
   title: 'Riwayat Versi - IndoQuran',
   description: 'Catatan lengkap perubahan dan pembaruan versi platform Al-Quran digital IndoQuran...',
   keywords: 'indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi',
-  canonicalUrl: 'https://my.indoquran.web.id/riwayat-versi',
+  canonicalUrl: 'https://indoquran.web.id/riwayat-versi',
   ogType: 'website',
   pageType: 'riwayat-versi'
 });

@@ -32,12 +32,12 @@ IndoQuran now has a comprehensive sitemap implementation optimized for Google an
 ### 1. Homepage and Static Pages
 ```xml
 <url>
-  <loc>https://my.indoquran.web.id</loc>
+  <loc>https://indoquran.web.id</loc>
   <changefreq>daily</changefreq>
   <priority>1.0</priority>
 </url>
 <url>
-  <loc>https://my.indoquran.web.id/search</loc>
+  <loc>https://indoquran.web.id/search</loc>
   <changefreq>weekly</changefreq>
   <priority>0.8</priority>
 </url>
@@ -46,7 +46,7 @@ IndoQuran now has a comprehensive sitemap implementation optimized for Google an
 ### 2. Surah Overview Pages
 ```xml
 <url>
-  <loc>https://my.indoquran.web.id/surah/1</loc>
+  <loc>https://indoquran.web.id/surah/1</loc>
   <changefreq>weekly</changefreq>
   <priority>0.9</priority>
 </url>
@@ -55,7 +55,7 @@ IndoQuran now has a comprehensive sitemap implementation optimized for Google an
 ### 3. Individual Ayah Pages
 ```xml
 <url>
-  <loc>https://my.indoquran.web.id/surah/1/1</loc>
+  <loc>https://indoquran.web.id/surah/1/1</loc>
   <changefreq>monthly</changefreq>
   <priority>0.7</priority>
 </url>
@@ -64,7 +64,7 @@ IndoQuran now has a comprehensive sitemap implementation optimized for Google an
 ### 4. Juz Pages
 ```xml
 <url>
-  <loc>https://my.indoquran.web.id/juz/1</loc>
+  <loc>https://indoquran.web.id/juz/1</loc>
   <changefreq>monthly</changefreq>
   <priority>0.8</priority>
 </url>
@@ -73,7 +73,7 @@ IndoQuran now has a comprehensive sitemap implementation optimized for Google an
 ### 5. Mushaf Page Navigation
 ```xml
 <url>
-  <loc>https://my.indoquran.web.id/pages/1</loc>
+  <loc>https://indoquran.web.id/pages/1</loc>
   <changefreq>monthly</changefreq>
   <priority>0.6</priority>
 </url>
@@ -163,8 +163,8 @@ Allow: /privacy
 Crawl-delay: 1
 
 # Sitemaps
-Sitemap: https://my.indoquran.web.id/sitemap.xml
-Sitemap: https://my.indoquran.web.id/sitemap-index.xml
+Sitemap: https://indoquran.web.id/sitemap.xml
+Sitemap: https://indoquran.web.id/sitemap-index.xml
 ```
 
 ## Google Search Console Setup
@@ -176,11 +176,11 @@ Sitemap: https://my.indoquran.web.id/sitemap-index.xml
 
 ### 2. Sitemap Submission
 1. Go to Google Search Console > Sitemaps
-2. Submit the main sitemap URL: `https://my.indoquran.web.id/sitemap-index.xml`
+2. Submit the main sitemap URL: `https://indoquran.web.id/sitemap-index.xml`
 3. Alternatively, submit individual sitemaps:
-   - `https://my.indoquran.web.id/sitemap.xml`
-   - `https://my.indoquran.web.id/sitemap-main.xml`
-   - `https://my.indoquran.web.id/sitemap-juz.xml`
+   - `https://indoquran.web.id/sitemap.xml`
+   - `https://indoquran.web.id/sitemap-main.xml`
+   - `https://indoquran.web.id/sitemap-juz.xml`
 
 ### 3. Monitoring
 - Check indexing status regularly
@@ -273,13 +273,13 @@ Common fixes:
 ### 1. Bing Webmaster Tools
 Submit sitemaps to Bing using their ping service:
 ```bash
-curl "http://www.bing.com/ping?sitemap=https://my.indoquran.web.id/sitemap.xml"
+curl "http://www.bing.com/ping?sitemap=https://indoquran.web.id/sitemap.xml"
 ```
 
 ### 2. Yandex Webmaster
 Submit to Yandex Search:
 ```bash
-curl "http://ping.blogs.yandex.ru/ping?sitemap=https://my.indoquran.web.id/sitemap.xml"
+curl "http://ping.blogs.yandex.ru/ping?sitemap=https://indoquran.web.id/sitemap.xml"
 ```
 
 ### 3. Analytics Integration

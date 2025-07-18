@@ -1703,23 +1703,23 @@ function SurahDetailPage() {
                         "author": {
                             "@type": "Organization",
                             "name": "IndoQuran",
-                            "url": "https://my.indoquran.web.id"
+                            "url": "https://indoquran.web.id"
                         },
                         "publisher": {
                             "@type": "Organization",
                             "name": "IndoQuran",
                             "logo": {
                                 "@type": "ImageObject",
-                                "url": "https://my.indoquran.web.id/android-chrome-512x512.png"
+                                "url": "https://indoquran.web.id/android-chrome-512x512.png"
                             }
                         },
                         "datePublished": "2025-01-01T00:00:00Z",
                         "dateModified": new Date().toISOString(),
                         "mainEntityOfPage": {
                             "@type": "WebPage",
-                            "@id": `https://my.indoquran.web.id/surah/${surah.number}`
+                            "@id": `https://indoquran.web.id/surah/${surah.number}`
                         },
-                        "image": `https://my.indoquran.web.id/images/surah-${surah.number}-social.png`,
+                        "image": `https://indoquran.web.id/images/surah-${surah.number}-social.png`,
                         "inLanguage": ["id", "ar"],
                         "about": {
                             "@type": "Thing",
@@ -1746,7 +1746,7 @@ function SurahDetailPage() {
                             "@type": "Organization",
                             "name": "IndoQuran"
                         },
-                        "url": `https://my.indoquran.web.id/surah/${surah.number}`,
+                        "url": `https://indoquran.web.id/surah/${surah.number}`,
                         "description": surah.description_short || `Surah ke-${surah.number} dalam Al-Quran dengan ${maxAyahNumber} ayat`
                     },
                     // Audio object for murottal
@@ -1755,7 +1755,7 @@ function SurahDetailPage() {
                         "@type": "AudioObject",
                         "name": `Murottal Surah ${surah.name_latin}`,
                         "description": `Audio tilawah Surah ${surah.name_latin} dengan bacaan merdu`,
-                        "url": `https://my.indoquran.web.id/audio/surah/${surah.number}/full.mp3`,
+                        "url": `https://indoquran.web.id/audio/surah/${surah.number}/full.mp3`,
                         "encodingFormat": "audio/mpeg",
                         "inLanguage": "ar",
                         "duration": "PT5M", // Approximate duration
@@ -1773,19 +1773,19 @@ function SurahDetailPage() {
                                 "@type": "ListItem",
                                 "position": 1,
                                 "name": "Beranda",
-                                "item": "https://my.indoquran.web.id"
+                                "item": "https://indoquran.web.id"
                             },
                             {
                                 "@type": "ListItem",
                                 "position": 2,
                                 "name": "Daftar Surah",
-                                "item": "https://my.indoquran.web.id/surah"
+                                "item": "https://indoquran.web.id/surah"
                             },
                             {
                                 "@type": "ListItem",
                                 "position": 3,
                                 "name": `Surah ${surah.name_latin}`,
-                                "item": `https://my.indoquran.web.id/surah/${surah.number}`
+                                "item": `https://indoquran.web.id/surah/${surah.number}`
                             }
                         ]
                     }

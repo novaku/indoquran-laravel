@@ -33,7 +33,7 @@ class GenerateComprehensiveSitemap extends Command
         $this->info('Generating comprehensive sitemap files...');
         
         $isProduction = $this->option('production');
-        $baseUrl = $isProduction ? 'https://my.indoquran.web.id' : config('app.url');
+        $baseUrl = $isProduction ? 'https://indoquran.web.id' : config('app.url');
         
         $this->info("Base URL: {$baseUrl}");
         

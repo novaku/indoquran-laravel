@@ -2,7 +2,7 @@
 
 ## ✅ Complete - IndoQuran SEO Optimization
 
-The comprehensive SEO optimization for **my.indoquran.web.id** has been successfully implemented and built for production.
+The comprehensive SEO optimization for **indoquran.web.id** has been successfully implemented and built for production.
 
 ### 🎯 Achieved Objectives
 

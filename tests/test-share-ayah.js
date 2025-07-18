@@ -7,7 +7,7 @@
 console.log('Testing ShareAyah functionality...');
 
 // First, let's check the API data structure
-fetch('https://my.indoquran.web.id/api/surahs/16')
+fetch('https://indoquran.web.id/api/surahs/16')
     .then(response => response.json())
     .then(data => {
         console.log('API Response structure:', {
@@ -67,7 +67,7 @@ fetch('https://my.indoquran.web.id/api/surahs/16')
                 }
 
                 shareText += `� Surah ${data.surah.name_latin} (${data.surah.name_arabic}) - Ayat ${testAyahNumber}\n`;
-                shareText += `🔗 Baca selengkapnya: https://my.indoquran.web.id/surah/16/${testAyahNumber}\n\n`;
+                shareText += `🔗 Baca selengkapnya: https://indoquran.web.id/surah/16/${testAyahNumber}\n\n`;
                 shareText += `📱 IndoQuran - Baca Al-Qur'an dengan mudah`;
 
                 console.log('Generated share text (first 200 chars):', shareText.substring(0, 200) + '...');

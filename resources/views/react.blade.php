@@ -278,23 +278,23 @@
         "@type": "WebSite",
         "name": "IndoQuran",
         "alternateName": "Al-Quran Digital Indonesia",
-        "url": "https://my.indoquran.web.id",
+        "url": "https://indoquran.web.id",
         "description": "Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia.",
         "inLanguage": "id",
         "publisher": {
             "@type": "Organization",
             "name": "IndoQuran",
-            "url": "https://my.indoquran.web.id",
+            "url": "https://indoquran.web.id",
             "logo": {
                 "@type": "ImageObject",
-                "url": "https://my.indoquran.web.id/android-chrome-512x512.png",
+                "url": "https://indoquran.web.id/android-chrome-512x512.png",
                 "width": 512,
                 "height": 512
             }
         },
         "potentialAction": {
             "@type": "SearchAction",
-            "target": "https://my.indoquran.web.id/search?q={search_term_string}",
+            "target": "https://indoquran.web.id/search?q={search_term_string}",
             "query-input": "required name=search_term_string"
         }
     }

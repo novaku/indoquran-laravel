@@ -1,7 +1,7 @@
 # Audio Player Fix Documentation
 
 ## Issue Summary
-The audio player in SimpleSurahPage was not working on production (https://my.indoquran.web.id/surah/16/92). Users could not play ayah audio when clicking the play buttons.
+The audio player in SimpleSurahPage was not working on production (https://indoquran.web.id/surah/16/92). Users could not play ayah audio when clicking the play buttons.
 
 ## Root Cause
 The `playAyah` function was looking for specific qari names (`alafasy`, `sudais`, `husary`, `minshawi`, `abdulbasit`) in the `audio_urls` object, but the actual API data uses numbered keys:
@@ -89,7 +89,7 @@ if (!audioUrl) {
 ## Production Deployment
 - Built successfully with `npm run build`
 - Deployed using `./deploy-production.sh`
-- Audio player now working on https://my.indoquran.web.id/surah/16/92
+- Audio player now working on https://indoquran.web.id/surah/16/92
 
 ## Console Debugging
 The enhanced logging provides clear debugging information:

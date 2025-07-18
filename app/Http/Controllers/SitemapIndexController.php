@@ -16,7 +16,7 @@ class SitemapIndexController extends Controller
     {
         // Use production URL if in production, otherwise use configured URL
         $baseUrl = app()->environment('production') 
-            ? 'https://my.indoquran.web.id' 
+            ? 'https://indoquran.web.id' 
             : config('app.url');
             
         $currentDate = now()->format('Y-m-d\TH:i:s\Z');
@@ -62,7 +62,7 @@ class SitemapIndexController extends Controller
     public function mainSitemap()
     {
         $baseUrl = app()->environment('production') 
-            ? 'https://my.indoquran.web.id' 
+            ? 'https://indoquran.web.id' 
             : config('app.url');
             
         $currentDate = now()->format('Y-m-d');
@@ -123,7 +123,7 @@ class SitemapIndexController extends Controller
     public function surahGroupSitemap($groupNumber)
     {
         $baseUrl = app()->environment('production') 
-            ? 'https://my.indoquran.web.id' 
+            ? 'https://indoquran.web.id' 
             : config('app.url');
             
         $currentDate = now()->format('Y-m-d');
@@ -159,7 +159,7 @@ class SitemapIndexController extends Controller
     public function juzSitemap()
     {
         $baseUrl = app()->environment('production') 
-            ? 'https://my.indoquran.web.id' 
+            ? 'https://indoquran.web.id' 
             : config('app.url');
             
         $currentDate = now()->format('Y-m-d');

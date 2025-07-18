@@ -18,13 +18,13 @@ function MetaTags({
   description, 
   keywords, 
   canonicalUrl, 
-  ogImage = 'https://my.indoquran.web.id/android-chrome-512x512.png',
+  ogImage = 'https://indoquran.web.id/android-chrome-512x512.png',
   ogType = 'website',
   author = 'IndoQuran',
   structuredData
 }) {
   useEffect(() => {
-    const baseUrl = 'https://my.indoquran.web.id';
+    const baseUrl = 'https://indoquran.web.id';
     
     // Update document title
     if (title) {

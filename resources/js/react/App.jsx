@@ -272,14 +272,14 @@ const AppContent = memo(() => {
                             "@type": "WebSite",
                             "name": "IndoQuran",
                             "alternateName": ["IndoQuran.web.id", "Al-Quran Digital Indonesia"],
-                            "url": "https://my.indoquran.web.id",
+                            "url": "https://indoquran.web.id",
                             "description": "Platform Al-Quran Digital terlengkap di Indonesia dengan terjemahan, audio murottal, dan fitur pembelajaran interaktif",
                             "inLanguage": ["id", "ar"],
                             "potentialAction": {
                                 "@type": "SearchAction",
                                 "target": {
                                     "@type": "EntryPoint",
-                                    "urlTemplate": "https://my.indoquran.web.id/cari?q={search_term_string}"
+                                    "urlTemplate": "https://indoquran.web.id/cari?q={search_term_string}"
                                 },
                                 "query-input": "required name=search_term_string"
                             },
@@ -288,7 +288,7 @@ const AppContent = memo(() => {
                                 "name": "IndoQuran",
                                 "logo": {
                                     "@type": "ImageObject",
-                                    "url": "https://my.indoquran.web.id/android-chrome-512x512.png"
+                                    "url": "https://indoquran.web.id/android-chrome-512x512.png"
                                 }
                             },
                             "mainEntity": {

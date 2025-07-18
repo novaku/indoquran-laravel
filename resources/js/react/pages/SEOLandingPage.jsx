@@ -54,7 +54,7 @@ function SEOLandingPage() {
                             "position": index + 1,
                             "name": `Surah ${surah.name_latin}`,
                             "description": `Surah ke-${surah.number} dalam Al-Quran dengan ${surah.total_ayahs} ayat`,
-                            "url": `https://my.indoquran.web.id/surah/${surah.number}`
+                            "url": `https://indoquran.web.id/surah/${surah.number}`
                         }))
                     },
                     {

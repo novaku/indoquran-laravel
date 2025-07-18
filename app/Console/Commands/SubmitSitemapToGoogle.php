@@ -10,7 +10,7 @@ class SubmitSitemapToGoogle extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'sitemap:submit-to-google {--domain=my.indoquran.web.id}';
+    protected $signature = 'sitemap:submit-to-google {--domain=indoquran.web.id}';
 
     /**
      * The console command description.

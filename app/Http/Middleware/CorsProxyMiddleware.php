@@ -27,7 +27,7 @@ class CorsProxyMiddleware
             $targetPath = str_replace('proxy-assets/', '', $path);
             
             // Production domain - adjust as needed
-            $productionDomain = 'https://my.indoquran.web.id';
+            $productionDomain = 'https://indoquran.web.id';
             $targetUrl = $productionDomain . '/' . $targetPath;
             
             try {

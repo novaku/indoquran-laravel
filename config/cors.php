@@ -29,7 +29,7 @@ return [
         'http://localhost:8000',
         'http://127.0.0.1:8000',
         'https://indoquran.web.id',
-        'https://my.indoquran.web.id',
+        'https://indoquran.web.id',
     ],
 
     'allowed_origins_patterns' => [

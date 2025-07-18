@@ -91,7 +91,7 @@
         
         <div class="form-group">
             <label for="url">URL to test:</label>
-            <input type="text" id="url" placeholder="https://my.indoquran.web.id/assets/example.js" value="https://my.indoquran.web.id/assets/HomePage-BJrHYw8s.js">
+            <input type="text" id="url" placeholder="https://indoquran.web.id/assets/example.js" value="https://indoquran.web.id/assets/HomePage-BJrHYw8s.js">
         </div>
         
         <button id="test-btn">Test URL</button>

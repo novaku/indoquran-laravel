@@ -1,6 +1,6 @@
 /**
  * Comprehensive SEO Utility Functions for IndoQuran
- * Domain: my.indoquran.web.id
+ * Domain: indoquran.web.id
  * 
  * Features:
  * - Google Search Console optimized sitemap generation
@@ -18,7 +18,7 @@
  * Google Search Guidelines Compliant
  */
 
-export const BASE_URL = 'https://my.indoquran.web.id';
+export const BASE_URL = 'https://indoquran.web.id';
 
 // Google Search Console optimized priority scores
 export const SEO_PRIORITIES = {
@@ -433,7 +433,7 @@ export const generateTwitterCardTags = (page) => {
     'twitter:image': `${BASE_URL}/android-chrome-512x512.png`,
     'twitter:image:alt': 'IndoQuran - Platform Al-Quran Digital Indonesia',
     // Enhanced Twitter tags for better engagement
-    'twitter:domain': 'my.indoquran.web.id',
+    'twitter:domain': 'indoquran.web.id',
     'twitter:dnt': 'on' // Respect Do Not Track
   };
 

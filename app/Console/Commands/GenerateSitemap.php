@@ -50,7 +50,7 @@ class GenerateSitemap extends Command
     {
         // Use production URL if in production, otherwise use configured URL
         $baseUrl = app()->environment('production') 
-            ? 'https://my.indoquran.web.id' 
+            ? 'https://indoquran.web.id' 
             : config('app.url');
             
         $this->info("Using base URL: {$baseUrl}");

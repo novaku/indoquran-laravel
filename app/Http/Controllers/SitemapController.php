@@ -10,13 +10,13 @@ class SitemapController extends Controller
 {
     /**
      * Generate XML sitemap for the application
-     * Optimized for IndoQuran with domain my.indoquran.web.id
+     * Optimized for IndoQuran with domain indoquran.web.id
      */
     public function index()
     {
         // Use production URL if in production, otherwise use configured URL
         $baseUrl = app()->environment('production') 
-            ? 'https://my.indoquran.web.id' 
+            ? 'https://indoquran.web.id' 
             : config('app.url');
             
         $currentDate = now()->format('Y-m-d');
@@ -186,7 +186,7 @@ class SitemapController extends Controller
     public function robots()
     {
         $baseUrl = app()->environment('production') 
-            ? 'https://my.indoquran.web.id' 
+            ? 'https://indoquran.web.id' 
             : config('app.url');
             
         $robotsTxt = "User-agent: *\n";

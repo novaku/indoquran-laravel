@@ -39,7 +39,7 @@ because it violates the following Content Security Policy directive
 ```php
 // Production CSP Configuration
 "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' blob: data: 
-https://my.indoquran.web.id 
+https://indoquran.web.id 
 https://*.google-analytics.com 
 https://www.google-analytics.com"
 ```
