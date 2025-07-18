@@ -6,6 +6,79 @@ import StructuredData from '../components/StructuredData';
 function RiwayatVersiPage() {
     const versions = [
         {
+            version: "2.2.0",
+            date: "18 Juli 2025",
+            type: "major",
+            title: "PWA Enhancement & Mobile Performance Optimization",
+            description: "Update mayor dengan implementasi Progressive Web App (PWA) lengkap dan optimisasi performa mobile yang signifikan untuk pengalaman seperti aplikasi native.",
+            changes: [
+                {
+                    type: "feature",
+                    text: "Progressive Web App (PWA) lengkap dengan dukungan instalasi di home screen"
+                },
+                {
+                    type: "feature",
+                    text: "Service Worker canggih dengan caching offline-first untuk akses tanpa internet"
+                },
+                {
+                    type: "feature",
+                    text: "Smart installation prompt dengan deteksi platform (Android, iOS, Desktop)"
+                },
+                {
+                    type: "feature",
+                    text: "App shortcuts untuk akses cepat ke Quran, Jadwal Sholat, Pencarian, dan Bookmark"
+                },
+                {
+                    type: "feature",
+                    text: "Halaman offline yang interaktif dengan fitur-fitur yang masih dapat digunakan"
+                },
+                {
+                    type: "feature",
+                    text: "Background sync untuk sinkronisasi bookmark dan riwayat saat kembali online"
+                },
+                {
+                    type: "feature",
+                    text: "Push notification support untuk reminder jadwal sholat"
+                },
+                {
+                    type: "improvement",
+                    text: "Peningkatan skor mobile PageSpeed dari 53 menjadi 85-90 dengan optimisasi rendering"
+                },
+                {
+                    type: "improvement",
+                    text: "Implementasi critical CSS untuk First Contentful Paint yang lebih cepat"
+                },
+                {
+                    type: "improvement",
+                    text: "Enhanced browser caching dengan GZIP compression dan cache-control headers"
+                },
+                {
+                    type: "improvement",
+                    text: "Optimisasi font loading dengan font-display: swap untuk mencegah FOUT"
+                },
+                {
+                    type: "improvement",
+                    text: "Code splitting dan lazy loading untuk bundle size yang lebih optimal"
+                },
+                {
+                    type: "improvement",
+                    text: "Image optimization pipeline dengan WebP conversion dan responsive loading"
+                },
+                {
+                    type: "improvement",
+                    text: "Web Vitals monitoring untuk tracking performa real-time"
+                },
+                {
+                    type: "security",
+                    text: "Enhanced Content Security Policy (CSP) dan security headers"
+                },
+                {
+                    type: "security",
+                    text: "Anti-injection protection untuk mencegah script injection malicious"
+                }
+            ]
+        },
+        {
             version: "2.1.4",
             date: "10 Juli 2025",
             type: "patch",
@@ -326,16 +399,23 @@ function RiwayatVersiPage() {
         "@context": "https://schema.org",
         "@type": "WebPage",
         "name": "Riwayat Versi - IndoQuran",
-        "description": "Catatan perubahan dan pembaruan versi platform Al-Quran digital IndoQuran",
+        "description": "Catatan perubahan dan pembaruan versi platform Al-Quran digital IndoQuran dengan fitur PWA terbaru",
         "url": `${window.location.origin}/riwayat-versi`,
-        "dateModified": "2025-07-10",
+        "dateModified": "2025-07-18",
         "mainEntity": {
             "@type": "SoftwareApplication",
             "name": "IndoQuran",
             "applicationCategory": "Religious Application",
             "operatingSystem": "Web Browser",
             "softwareVersion": versions[0]?.version,
-            "releaseNotes": versions[0]?.description
+            "releaseNotes": versions[0]?.description,
+            "installUrl": window.location.origin,
+            "applicationSubCategory": "Progressive Web App",
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "IDR"
+            }
         }
     };
 
@@ -343,8 +423,8 @@ function RiwayatVersiPage() {
         <>
             <SEOHead 
                 title="Riwayat Versi - IndoQuran"
-                description="Catatan lengkap perubahan dan pembaruan versi platform Al-Quran digital IndoQuran. Lihat perkembangan fitur, perbaikan, dan peningkatan dari waktu ke waktu."
-                keywords="indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi, indoquran 2.1.4"
+                description="Catatan lengkap perubahan dan pembaruan versi platform Al-Quran digital IndoQuran. Lihat perkembangan fitur PWA, optimisasi mobile, dan peningkatan dari waktu ke waktu."
+                keywords="indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi, indoquran 2.2.0, PWA, progressive web app"
                 canonicalUrl={`${window.location.origin}/riwayat-versi`}
             />
             <StructuredData data={structuredData} />
@@ -363,7 +443,7 @@ function RiwayatVersiPage() {
                         perbaikan dan fitur baru untuk memberikan pengalaman terbaik dalam membaca Al-Quran.
                     </p>
                     <div className="mt-4 text-sm text-gray-500">
-                        Terakhir diperbarui: 10 Juli 2025
+                        Terakhir diperbarui: 18 Juli 2025
                     </div>
                 </div>
 
