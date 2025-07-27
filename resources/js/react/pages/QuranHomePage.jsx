@@ -23,6 +23,11 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import QuranBookAnimation from '../components/QuranBookAnimation';
+import StatsWidget from '../components/StatsWidget';
+import HeroStatsSection from '../components/HeroStatsSection';
+import MilestoneWidget from '../components/MilestoneWidget';
+import AchievementSystem from '../components/AchievementSystem';
+import StatsTickerBanner from '../components/StatsTickerBanner';
 import { fetchWithAuth } from '../utils/apiUtils';
 import { getReadingProgress } from '../services/ReadingProgressService';
 import authUtils from '../utils/auth';
@@ -37,6 +42,15 @@ const asmaulHusnaStyles = `
         text-rendering: optimizeLegibility;
         direction: rtl;
         font-weight: 400;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
     }
 `;
 
@@ -276,6 +290,12 @@ function QuranHomePage() {
                 description="Baca Al-Quran dengan terjemahan, dengarkan tilawah indah, dan perdalam pemahaman dengan alat pembelajaran yang komprehensif."
             />
 
+            {/* Achievement System */}
+            <AchievementSystem />
+
+            {/* Stats Ticker Banner */}
+            <StatsTickerBanner />
+
             {/* Hero Section */}
             <section className="bg-white border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
@@ -343,6 +363,9 @@ function QuranHomePage() {
                     </div>
                 </div>
             </section>
+
+            {/* Hero Statistics Section */}
+            <HeroStatsSection />
 
             {/* Main Content */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -664,6 +687,12 @@ function QuranHomePage() {
                                 </div>
                             ) : null}
                         </div>
+
+                        {/* Statistics Widget */}
+                        <StatsWidget />
+
+                        {/* Milestone Widget */}
+                        <MilestoneWidget />
 
                         {/* Prayer Times Widget */}
                         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">

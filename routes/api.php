@@ -161,6 +161,9 @@ Route::get('/kategori-doa', [PrayerController::class, 'getCategories']);
 // Prayer times API endpoint
 Route::get('/prayer-times', [PrayerController::class, 'getPrayerTimes']);
 
+// Statistics routes
+Route::get('/stats/public', [\App\Http\Controllers\Api\StatsController::class, 'getPublicStats']);
+
 // Admin routes
 Route::prefix('admin')->group(function() {
     Route::post('/send-otp', [\App\Http\Controllers\Auth\AdminController::class, 'sendOtp']);
@@ -168,4 +171,7 @@ Route::prefix('admin')->group(function() {
     Route::get('/dashboard', [\App\Http\Controllers\Auth\AdminController::class, 'dashboard']);
     Route::post('/contacts/{contact}/mark-read', [\App\Http\Controllers\Auth\AdminController::class, 'markContactAsRead']);
     Route::post('/contacts/{contact}/reply', [\App\Http\Controllers\Auth\AdminController::class, 'replyToContact']);
+    
+    // Detailed stats for admin
+    Route::get('/stats/detailed', [\App\Http\Controllers\Api\StatsController::class, 'getDetailedStats']);
 });

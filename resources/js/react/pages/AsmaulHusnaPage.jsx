@@ -4,7 +4,7 @@ import {
     PauseIcon,
     HeartIcon,
     ShareIcon,
-    VolumeUpIcon,
+    SpeakerWaveIcon,
     DocumentDuplicateIcon,
     BookOpenIcon,
     ChevronDownIcon,
