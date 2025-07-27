@@ -27,6 +27,19 @@ import { fetchWithAuth } from '../utils/apiUtils';
 import { getReadingProgress } from '../services/ReadingProgressService';
 import authUtils from '../utils/auth';
 
+// Add custom styles for Arabic calligraphy in Asmaul Husna card
+const asmaulHusnaStyles = `
+    @import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+    
+    .arabic-calligraphy-asmaul {
+        font-family: 'Amiri', 'Traditional Arabic', 'Arabic Typesetting', serif;
+        font-feature-settings: 'liga' on, 'dlig' on, 'calt' on;
+        text-rendering: optimizeLegibility;
+        direction: rtl;
+        font-weight: 400;
+    }
+`;
+
 function QuranHomePage() {
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -157,6 +170,20 @@ function QuranHomePage() {
     useEffect(() => {
         fetchRandomAsmaulHusna();
     }, [fetchRandomAsmaulHusna]);
+
+    // Inject styles for Asmaul Husna calligraphy
+    useEffect(() => {
+        const styleElement = document.createElement('style');
+        styleElement.textContent = asmaulHusnaStyles;
+        document.head.appendChild(styleElement);
+
+        // Cleanup function to remove styles when component unmounts
+        return () => {
+            if (styleElement.parentNode) {
+                styleElement.parentNode.removeChild(styleElement);
+            }
+        };
+    }, []);
 
     // Get user's real reading progress
     useEffect(() => {
@@ -614,7 +641,7 @@ function QuranHomePage() {
                             ) : randomAsmaulHusna ? (
                                 <div className="text-center">
                                     <div className="mb-4">
-                                        <p className="text-2xl font-arabic text-gray-900 mb-2" dir="rtl">
+                                        <p className="text-5xl arabic-calligraphy-asmaul text-gray-900 mb-3 leading-relaxed" dir="rtl">
                                             {randomAsmaulHusna.arabic}
                                         </p>
                                         <h4 className="text-lg font-semibold text-green-600 mb-1">
