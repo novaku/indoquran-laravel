@@ -643,6 +643,12 @@ function QuranHomePage() {
 
                     {/* Right Column - Sidebar */}
                     <div className="space-y-8">
+                        {/* Prayer Times Widget */}
+                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Waktu Shalat Hari Ini</h3>
+                            <PrayerTimesWidget />
+                        </div>
+
                         {/* Random Asmaul Husna Widget */}
                         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
                             <div className="flex items-center justify-between mb-4">
@@ -696,12 +702,6 @@ function QuranHomePage() {
 
                         {/* Milestone Widget */}
                         <MilestoneWidget />
-
-                        {/* Prayer Times Widget */}
-                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Waktu Shalat Hari Ini</h3>
-                            <PrayerTimesWidget />
-                        </div>
 
                         {/* Share Widget */}
                         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
