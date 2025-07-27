@@ -46,10 +46,10 @@ const HeroStatsSection = () => {
                 
                 // Fallback dengan data dummy yang menarik
                 setStats({
-                    totalUsers: 15420,
-                    totalVersesRead: 1247380,
-                    onlineUsers: 342,
-                    dailyReads: 2840
+                    totalUsers: 16850,
+                    totalVersesRead: 1387250,
+                    onlineUsers: 398,
+                    dailyReads: 3240
                 });
             } finally {
                 setLoading(false);

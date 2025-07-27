@@ -33,7 +33,7 @@ const MilestoneWidget = () => {
                                 title: 'Target Hari Ini',
                                 description: 'Bacaan Al-Quran',
                                 current: stats.dailyReads,
-                                target: 3000,
+                                target: 3500,
                                 icon: FireIcon,
                                 color: 'red',
                                 unit: 'sesi'
@@ -68,8 +68,8 @@ const MilestoneWidget = () => {
                     {
                         title: 'Target Hari Ini',
                         description: 'Bacaan Al-Quran',
-                        current: 2840,
-                        target: 3000,
+                        current: 3240,
+                        target: 3500,
                         icon: FireIcon,
                         color: 'red',
                         unit: 'sesi'
@@ -77,7 +77,7 @@ const MilestoneWidget = () => {
                     {
                         title: 'Komunitas Berkembang',
                         description: 'Pengguna terdaftar',
-                        current: 15420,
+                        current: 16850,
                         target: 20000,
                         icon: StarIcon,
                         color: 'blue',
@@ -86,7 +86,7 @@ const MilestoneWidget = () => {
                     {
                         title: 'Ayat Terbaca',
                         description: 'Total komunitas',
-                        current: 1247380,
+                        current: 1387250,
                         target: 2000000,
                         icon: TrophyIcon,
                         color: 'yellow',

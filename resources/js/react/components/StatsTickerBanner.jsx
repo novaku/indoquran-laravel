@@ -38,11 +38,11 @@ const StatsTickerBanner = () => {
                 console.error('Error fetching ticker stats:', error);
                 // Fallback data
                 setStats({
-                    totalUsers: 15420,
-                    totalVersesRead: 1247380,
-                    onlineUsers: 342,
-                    dailyReads: 2840,
-                    totalReadingSessions: 89650
+                    totalUsers: 16850,
+                    totalVersesRead: 1387250,
+                    onlineUsers: 398,
+                    dailyReads: 3240,
+                    totalReadingSessions: 98450
                 });
             }
         };

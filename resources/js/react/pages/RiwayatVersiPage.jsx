@@ -6,6 +6,39 @@ import StructuredData from '../components/StructuredData';
 function RiwayatVersiPage() {
     const versions = [
         {
+            version: "2.4.0",
+            date: "27 Juli 2025",
+            type: "major",
+            title: "Peningkatan UI/UX & Fitur Interaktif Terbaru",
+            description: "Update mayor dengan peningkatan antarmuka pengguna, fitur interaktif baru, dan optimisasi performa untuk pengalaman yang lebih baik.",
+            changes: [
+                {
+                    type: "feature",
+                    text: "Redesign halaman riwayat versi dengan timeline yang lebih interaktif"
+                },
+                {
+                    type: "feature",
+                    text: "Implementasi badge system untuk kategori perubahan yang lebih jelas"
+                },
+                {
+                    type: "improvement",
+                    text: "Peningkatan visual hierarchy dengan gradient dan shadows yang konsisten"
+                },
+                {
+                    type: "improvement",
+                    text: "Optimisasi responsive design untuk berbagai ukuran layar"
+                },
+                {
+                    type: "improvement",
+                    text: "Enhanced color scheme untuk better accessibility dan readability"
+                },
+                {
+                    type: "fix",
+                    text: "Perbaikan layout spacing dan typography consistency"
+                }
+            ]
+        },
+        {
             version: "2.3.0",
             date: "27 Juli 2025",
             type: "major",

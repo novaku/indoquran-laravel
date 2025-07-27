@@ -52,7 +52,7 @@ class StatsController extends Controller
         try {
             return User::count();
         } catch (\Exception $e) {
-            return 15420; // Fallback number
+            return 16850; // Fallback number
         }
     }
 
@@ -64,12 +64,12 @@ class StatsController extends Controller
         try {
             // Check if reading_progress table exists
             if (!DB::getSchemaBuilder()->hasTable('reading_progress')) {
-                return 89650; // Fallback number
+                return 98450; // Fallback number
             }
             
             return DB::table('reading_progress')->count();
         } catch (\Exception $e) {
-            return 89650; // Fallback number
+            return 98450; // Fallback number
         }
     }
 
@@ -81,15 +81,15 @@ class StatsController extends Controller
         try {
             // Check if reading_progress table exists
             if (!DB::getSchemaBuilder()->hasTable('reading_progress')) {
-                return 1247380; // Fallback number
+                return 1387250; // Fallback number
             }
             
             $totalVerses = DB::table('reading_progress')
                 ->sum('ayah_number');
             
-            return $totalVerses ?: 1247380;
+            return $totalVerses ?: 1387250;
         } catch (\Exception $e) {
-            return 1247380; // Fallback number
+            return 1387250; // Fallback number
         }
     }
 
@@ -101,16 +101,16 @@ class StatsController extends Controller
         try {
             // Check if sessions table exists
             if (!DB::getSchemaBuilder()->hasTable('sessions')) {
-                return rand(250, 450); // Random online users
+                return rand(280, 520); // Random online users
             }
             
             $onlineCount = DB::table('sessions')
                 ->where('last_activity', '>', now()->subMinutes(15)->timestamp)
                 ->count();
             
-            return $onlineCount ?: rand(250, 450);
+            return $onlineCount ?: rand(280, 520);
         } catch (\Exception $e) {
-            return rand(250, 450); // Random online users
+            return rand(280, 520); // Random online users
         }
     }
 
@@ -122,16 +122,16 @@ class StatsController extends Controller
         try {
             // Check if reading_progress table exists
             if (!DB::getSchemaBuilder()->hasTable('reading_progress')) {
-                return rand(2500, 3500); // Fallback number
+                return rand(2800, 3800); // Fallback number
             }
             
             $dailyReads = DB::table('reading_progress')
                 ->whereDate('last_read_at', today())
                 ->count();
             
-            return $dailyReads ?: rand(2500, 3500);
+            return $dailyReads ?: rand(2800, 3800);
         } catch (\Exception $e) {
-            return rand(2500, 3500); // Fallback number
+            return rand(2800, 3800); // Fallback number
         }
     }
 
@@ -143,7 +143,7 @@ class StatsController extends Controller
         try {
             // Check if reading_progress table exists
             if (!DB::getSchemaBuilder()->hasTable('reading_progress')) {
-                return rand(70000, 80000); // Fallback number
+                return rand(78000, 88000); // Fallback number
             }
             
             $monthlyReads = DB::table('reading_progress')
@@ -151,9 +151,9 @@ class StatsController extends Controller
                 ->whereMonth('last_read_at', now()->month)
                 ->count();
             
-            return $monthlyReads ?: rand(70000, 80000);
+            return $monthlyReads ?: rand(78000, 88000);
         } catch (\Exception $e) {
-            return rand(70000, 80000); // Fallback number
+            return rand(78000, 88000); // Fallback number
         }
     }
 
@@ -163,12 +163,12 @@ class StatsController extends Controller
     private function getFallbackStats()
     {
         return [
-            'totalUsers' => 15420 + rand(0, 100),
-            'totalReadingSessions' => 89650 + rand(0, 500),
-            'totalVersesRead' => 1247380 + rand(0, 1000),
-            'onlineUsers' => rand(250, 450),
-            'dailyReads' => rand(2500, 3500),
-            'monthlyReads' => rand(70000, 80000),
+            'totalUsers' => 16850 + rand(0, 150),
+            'totalReadingSessions' => 98450 + rand(0, 550),
+            'totalVersesRead' => 1387250 + rand(0, 1000),
+            'onlineUsers' => rand(280, 520),
+            'dailyReads' => rand(2800, 3800),
+            'monthlyReads' => rand(78000, 88000),
         ];
     }
 

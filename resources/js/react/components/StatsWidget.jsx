@@ -50,12 +50,12 @@ const StatsWidget = () => {
                 
                 // Fallback dengan data dummy yang menarik
                 setStats({
-                    totalUsers: 15420,
-                    totalReadingSessions: 89650,
-                    totalVersesRead: 1247380,
-                    onlineUsers: 342,
-                    dailyReads: 2840,
-                    monthlyReads: 74560
+                    totalUsers: 16850,
+                    totalReadingSessions: 98450,
+                    totalVersesRead: 1387250,
+                    onlineUsers: 398,
+                    dailyReads: 3240,
+                    monthlyReads: 82750
                 });
             } finally {
                 setLoading(false);
