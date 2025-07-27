@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>IndoQuran - Al-Quran Digital Indonesia</title>
+    <meta name="description" content="Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia.">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        #app-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #22c55e;
+            color: white;
+            text-align: center;
+        }
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div id="app-loading">
+            <div class="loading-spinner"></div>
+            <h1>IndoQuran</h1>
+            <p>Al-Quran Digital Indonesia</p>
+            <p>Sedang memuat aplikasi...</p>
+            <p>Jika halaman ini tidak berubah dalam beberapa detik, silakan refresh halaman.</p>
+        </div>
+    </div>
+    <script>
+        // Redirect to main app after a delay
+        setTimeout(function() {
+            window.location.href = '/?bypass_fallback=1';
+        }, 5000);
+    </script>
+</body>
+</html>

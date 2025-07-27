@@ -78,6 +78,9 @@ const PageDetailPage = lazy(() =>
 const PrayerPage = lazy(() => 
   import(/* webpackChunkName: "special-features" */ './pages/PrayerPage')
 );
+const AsmaulHusnaPage = lazy(() => 
+  import(/* webpackChunkName: "special-features" */ './pages/AsmaulHusnaPage')
+);
 const RiwayatVersiPage = lazy(() => 
   import(/* webpackChunkName: "special-features" */ './pages/RiwayatVersiPage')
 );
@@ -321,6 +324,7 @@ const AppContent = memo(() => {
                         <Route path="/halaman" element={<PageListPage />} />
                         <Route path="/halaman/:number" element={<PageDetailPage />} />
                         <Route path="/tafsir-maudhui" element={<TafsirMaudhuiPage />} />
+                        <Route path="/asmaul-husna" element={<AsmaulHusnaPage />} />
                         <Route path="/doa-bersama" element={<PrayerPage />} />
                         <Route path="/tentang" element={<AboutPage />} />
                         <Route path="/kontak" element={<ContactPage />} />

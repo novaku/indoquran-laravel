@@ -1,0 +1,1998 @@
+[
+  {
+    "id": 1,
+    "arabic": "ٱلرَّحْمَٰنُ",
+    "latin": "Ar-Rahman",
+    "meaning": "Yang Maha Pengasih",
+    "description": "Allah yang memberikan rahmat kepada semua makhluk tanpa memandang apakah mereka beriman atau tidak.",
+    "verses": [
+      {
+        "surah": 1,
+        "ayah": 3,
+        "text": "الرَّحْمَٰنِ الرَّحِيمِ"
+      },
+      {
+        "surah": 17,
+        "ayah": 110,
+        "text": "قُلِ ادْعُوا اللَّهَ أَوِ ادْعُوا الرَّحْمَٰنَ"
+      },
+      {
+        "surah": 25,
+        "ayah": 60,
+        "text": "وَإِذَا قِيلَ لَهُمُ اسْجُدُوا لِلرَّحْمَٰنِ"
+      },
+      {
+        "surah": 55,
+        "ayah": 1,
+        "text": "الرَّحْمَٰنُ"
+      },
+      {
+        "surah": 78,
+        "ayah": 38,
+        "text": "يَوْمَ يَقُومُ الرُّوحُ وَالْمَلَائِكَةُ صَفًّا ۖ لَّا يَتَكَلَّمُونَ إِلَّا مَنْ أَذِنَ لَهُ الرَّحْمَٰنُ"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "arabic": "ٱلرَّحِيمُ",
+    "latin": "Ar-Rahim",
+    "meaning": "Yang Maha Penyayang",
+    "description": "Allah yang memberikan rahmat khusus kepada orang-orang beriman di dunia dan akhirat.",
+    "verses": [
+      {
+        "surah": 1,
+        "ayah": 3,
+        "text": "الرَّحْمَٰنِ الرَّحِيمِ"
+      },
+      {
+        "surah": 2,
+        "ayah": 37,
+        "text": "إِنَّهُ هُوَ التَّوَّابُ الرَّحِيمُ"
+      },
+      {
+        "surah": 2,
+        "ayah": 128,
+        "text": "إِنَّكَ أَنتَ التَّوَّابُ الرَّحِيمُ"
+      },
+      {
+        "surah": 4,
+        "ayah": 16,
+        "text": "إِنَّ اللَّهَ كَانَ تَوَّابًا رَّحِيمًا"
+      },
+      {
+        "surah": 9,
+        "ayah": 117,
+        "text": "إِنَّهُ بِهِمْ رَءُوفٌ رَّحِيمٌ"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "arabic": "ٱلْمَلِكُ",
+    "latin": "Al-Malik",
+    "meaning": "Yang Maha Merajai",
+    "description": "Allah yang memiliki kekuasaan mutlak atas segala sesuatu di alam semesta.",
+    "verses": [
+      {
+        "surah": 20,
+        "ayah": 114,
+        "text": "فَتَعَالَى اللَّهُ الْمَلِكُ الْحَقُّ"
+      },
+      {
+        "surah": 23,
+        "ayah": 116,
+        "text": "فَتَعَالَى اللَّهُ الْمَلِكُ الْحَقُّ"
+      },
+      {
+        "surah": 59,
+        "ayah": 23,
+        "text": "هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ الْمَلِكُ"
+      },
+      {
+        "surah": 62,
+        "ayah": 1,
+        "text": "يُسَبِّحُ لِلَّهِ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ الْمَلِكِ"
+      },
+      {
+        "surah": 114,
+        "ayah": 2,
+        "text": "مَلِكِ النَّاسِ"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "arabic": "ٱلْقُدُّوسُ",
+    "latin": "Al-Quddus",
+    "meaning": "Yang Maha Suci",
+    "description": "Allah yang suci dari segala kekurangan dan cacat yang tidak layak bagi-Nya.",
+    "verses": [
+      {
+        "surah": 59,
+        "ayah": 23,
+        "text": "هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ الْمَلِكُ الْقُدُّوسُ"
+      },
+      {
+        "surah": 62,
+        "ayah": 1,
+        "text": "يُسَبِّحُ لِلَّهِ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ الْمَلِكِ الْقُدُّوسِ"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "arabic": "ٱلسَّلَامُ",
+    "latin": "As-Salam",
+    "meaning": "Yang Maha Memberi Keselamatan",
+    "description": "Allah yang memberikan keselamatan dan kedamaian kepada makhluk-Nya.",
+    "verses": [
+      {
+        "surah": 59,
+        "ayah": 23,
+        "text": "هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ الْمَلِكُ الْقُدُّوسُ السَّلَامُ"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "arabic": "ٱلْمُؤْمِنُ",
+    "latin": "Al-Mu'min",
+    "meaning": "Yang Maha Memberi Keamanan",
+    "description": "Allah yang memberikan keamanan dan perlindungan kepada hamba-hamba-Nya.",
+    "verses": [
+      {
+        "surah": 59,
+        "ayah": 23,
+        "text": "هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ الْمَلِكُ الْقُدُّوسُ السَّلَامُ الْمُؤْمِنُ"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "arabic": "ٱلْمُهَيْمِنُ",
+    "latin": "Al-Muhaymin",
+    "meaning": "Yang Maha Mengawasi",
+    "description": "Allah yang mengawasi dan menjaga segala sesuatu dengan pengetahuan dan kekuasaan-Nya.",
+    "verses": [
+      {
+        "surah": 5,
+        "ayah": 48,
+        "text": "وَمُهَيْمِنًا عَلَيْهِ"
+      },
+      {
+        "surah": 59,
+        "ayah": 23,
+        "text": "هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ الْمَلِكُ الْقُدُّوسُ السَّلَامُ الْمُؤْمِنُ الْمُهَيْمِنُ"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "arabic": "ٱلْعَزِيزُ",
+    "latin": "Al-Aziz",
+    "meaning": "Yang Maha Perkasa",
+    "description": "Allah yang memiliki kekuatan dan kekuasaan yang tidak dapat dikalahkan.",
+    "verses": [
+      {
+        "surah": 3,
+        "ayah": 6,
+        "text": "هُوَ الَّذِي يُصَوِّرُكُمْ فِي الْأَرْحَامِ كَيْفَ يَشَاءُ ۚ لَا إِلَٰهَ إِلَّا هُوَ الْعَزِيزُ الْحَكِيمُ"
+      },
+      {
+        "surah": 59,
+        "ayah": 23,
+        "text": "الْعَزِيزُ الْجَبَّارُ الْمُتَكَبِّرُ"
+      },
+      {
+        "surah": 2,
+        "ayah": 209,
+        "text": "فَإِنَّ اللَّهَ عَزِيزٌ حَكِيمٌ"
+      },
+      {
+        "surah": 8,
+        "ayah": 10,
+        "text": "وَاللَّهُ عَزِيزٌ حَكِيمٌ"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "arabic": "ٱلْجَبَّارُ",
+    "latin": "Al-Jabbar",
+    "meaning": "Yang Maha Memaksa",
+    "description": "Allah yang dapat memaksa kehendak-Nya dan tidak ada yang dapat menentang-Nya.",
+    "verses": [
+      {
+        "surah": 59,
+        "ayah": 23,
+        "text": "هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ الْمَلِكُ الْقُدُّوسُ السَّلَامُ الْمُؤْمِنُ الْمُهَيْمِنُ الْعَزِيزُ الْجَبَّارُ"
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "arabic": "ٱلْمُتَكَبِّرُ",
+    "latin": "Al-Mutakabbir",
+    "meaning": "Yang Maha Megah",
+    "description": "Allah yang memiliki kebesaran dan kemegahan yang hakiki.",
+    "verses": [
+      {
+        "surah": 59,
+        "ayah": 23,
+        "text": "هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ الْمَلِكُ الْقُدُّوسُ السَّلَامُ الْمُؤْمِنُ الْمُهَيْمِنُ الْعَزِيزُ الْجَبَّارُ الْمُتَكَبِّرُ"
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "arabic": "ٱلْخَالِقُ",
+    "latin": "Al-Khaliq",
+    "meaning": "Yang Maha Pencipta",
+    "description": "Allah yang menciptakan segala sesuatu dari yang tidak ada menjadi ada.",
+    "verses": [
+      {
+        "surah": 6,
+        "ayah": 102,
+        "text": "ذَٰلِكُمُ اللَّهُ رَبُّكُمْ ۖ لَا إِلَٰهَ إِلَّا هُوَ ۖ خَالِقُ كُلِّ شَيْءٍ"
+      },
+      {
+        "surah": 13,
+        "ayah": 16,
+        "text": "قُلِ اللَّهُ خَالِقُ كُلِّ شَيْءٍ"
+      },
+      {
+        "surah": 39,
+        "ayah": 62,
+        "text": "اللَّهُ خَالِقُ كُلِّ شَيْءٍ"
+      },
+      {
+        "surah": 59,
+        "ayah": 24,
+        "text": "هُوَ اللَّهُ الْخَالِقُ الْبَارِئُ الْمُصَوِّرُ"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "arabic": "ٱلْبَارِئُ",
+    "latin": "Al-Bari'",
+    "meaning": "Yang Maha Melepaskan",
+    "description": "Allah yang membebaskan ciptaan-Nya dari ketiadaan ke dalam wujud.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 54,
+        "text": "فَتُوبُوا إِلَىٰ بَارِئِكُمْ"
+      },
+      {
+        "surah": 59,
+        "ayah": 24,
+        "text": "هُوَ اللَّهُ الْخَالِقُ الْبَارِئُ الْمُصَوِّرُ"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "arabic": "ٱلْمُصَوِّرُ",
+    "latin": "Al-Musawwir",
+    "meaning": "Yang Maha Membentuk Rupa",
+    "description": "Allah yang memberikan bentuk dan rupa kepada semua makhluk-Nya.",
+    "verses": [
+      {
+        "surah": 3,
+        "ayah": 6,
+        "text": "هُوَ الَّذِي يُصَوِّرُكُمْ فِي الْأَرْحَامِ كَيْفَ يَشَاءُ"
+      },
+      {
+        "surah": 59,
+        "ayah": 24,
+        "text": "هُوَ اللَّهُ الْخَالِقُ الْبَارِئُ الْمُصَوِّرُ"
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "arabic": "ٱلْغَفَّارُ",
+    "latin": "Al-Ghafar",
+    "meaning": "Yang Maha Pengampun",
+    "description": "Allah yang senantiasa mengampuni dosa-dosa hamba-Nya yang bertaubat.",
+    "verses": [
+      {
+        "surah": 20,
+        "ayah": 82,
+        "text": "وَإِنِّي لَغَفَّارٌ لِّمَن تَابَ وَآمَنَ وَعَمِلَ صَالِحًا ثُمَّ اهْتَدَىٰ"
+      },
+      {
+        "surah": 71,
+        "ayah": 10,
+        "text": "فَقُلْتُ اسْتَغْفِرُوا رَبَّكُمْ إِنَّهُ كَانَ غَفَّارًا"
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "arabic": "ٱلْقَهَّارُ",
+    "latin": "Al-Qahhar",
+    "meaning": "Yang Maha Mengalahkan",
+    "description": "Allah yang menguasai dan mengalahkan segala sesuatu dengan kekuasaan-Nya.",
+    "verses": [
+      {
+        "surah": 12,
+        "ayah": 39,
+        "text": "أَأَرْبَابٌ مُّتَفَرِّقُونَ خَيْرٌ أَمِ اللَّهُ الْوَاحِدُ الْقَهَّارُ"
+      },
+      {
+        "surah": 13,
+        "ayah": 16,
+        "text": "قُلِ اللَّهُ خَالِقُ كُلِّ شَيْءٍ وَهُوَ الْوَاحِدُ الْقَهَّارُ"
+      },
+      {
+        "surah": 38,
+        "ayah": 65,
+        "text": "رَبُّ السَّمَاوَاتِ وَالْأَرْضِ وَمَا بَيْنَهُمَا الْعَزِيزُ الْغَفَّارُ"
+      },
+      {
+        "surah": 39,
+        "ayah": 4,
+        "text": "بَلْ هُوَ اللَّهُ الْعَزِيزُ الْحَكِيمُ"
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "arabic": "ٱلْوَهَّابُ",
+    "latin": "Al-Wahhab",
+    "meaning": "Yang Maha Pemberi Karunia",
+    "description": "Allah yang memberikan karunia tanpa diminta dan tanpa mengharapkan balasan.",
+    "verses": [
+      {
+        "surah": 3,
+        "ayah": 8,
+        "text": "رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِن لَّدُنكَ رَحْمَةً ۚ إِنَّكَ أَنتَ الْوَهَّابُ"
+      },
+      {
+        "surah": 38,
+        "ayah": 9,
+        "text": "أَمْ عِندَهُمْ خَزَائِنُ رَحْمَةِ رَبِّكَ الْعَزِيزِ الْوَهَّابِ"
+      },
+      {
+        "surah": 38,
+        "ayah": 35,
+        "text": "قَالَ رَبِّ اغْفِرْ لِي وَهَبْ لِي مُلْكًا لَّا يَنبَغِي لِأَحَدٍ مِّن بَعْدِي ۖ إِنَّكَ أَنتَ الْوَهَّابُ"
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "arabic": "ٱلرَّزَّاقُ",
+    "latin": "Ar-Razzaq",
+    "meaning": "Yang Maha Pemberi Rezeki",
+    "description": "Allah yang memberikan rezeki kepada semua makhluk hidup.",
+    "verses": [
+      {
+        "surah": 51,
+        "ayah": 58,
+        "text": "إِنَّ اللَّهَ هُوَ الرَّزَّاقُ ذُو الْقُوَّةِ الْمَتِينُ"
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "arabic": "ٱلْفَتَّاحُ",
+    "latin": "Al-Fattah",
+    "meaning": "Yang Maha Pembuka",
+    "description": "Allah yang membuka pintu rahmat, rezeki, dan solusi bagi hamba-Nya.",
+    "verses": [
+      {
+        "surah": 34,
+        "ayah": 26,
+        "text": "قُلْ يَجْمَعُ بَيْنَنَا رَبُّنَا ثُمَّ يَفْتَحُ بَيْنَنَا بِالْحَقِّ وَهُوَ الْفَتَّاحُ الْعَلِيمُ"
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "arabic": "ٱلْعَلِيمُ",
+    "latin": "Al-'Alim",
+    "meaning": "Yang Maha Mengetahui",
+    "description": "Allah yang mengetahui segala sesuatu baik yang tampak maupun yang tersembunyi.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 29,
+        "text": "وَهُوَ بِكُلِّ شَيْءٍ عَلِيمٌ"
+      },
+      {
+        "surah": 2,
+        "ayah": 115,
+        "text": "فَأَيْنَمَا تُوَلُّوا فَثَمَّ وَجْهُ اللَّهِ ۚ إِنَّ اللَّهَ وَاسِعٌ عَلِيمٌ"
+      },
+      {
+        "surah": 34,
+        "ayah": 26,
+        "text": "وَهُوَ الْفَتَّاحُ الْعَلِيمُ"
+      },
+      {
+        "surah": 4,
+        "ayah": 11,
+        "text": "وَاللَّهُ عَلِيمٌ حَكِيمٌ"
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "arabic": "ٱلْقَابِضُ",
+    "latin": "Al-Qabid",
+    "meaning": "Yang Maha Menyempitkan",
+    "description": "Allah yang dapat menyempitkan rezeki dan rahmat sesuai hikmah-Nya.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 245,
+        "text": "مَّن ذَا الَّذِي يُقْرِضُ اللَّهَ قَرْضًا حَسَنًا فَيُضَاعِفَهُ لَهُ أَضْعَافًا كَثِيرَةً ۚ وَاللَّهُ يَقْبِضُ وَيَبْسُطُ"
+      }
+    ]
+  },
+  {
+    "id": 21,
+    "arabic": "ٱلْبَاسِطُ",
+    "latin": "Al-Basit",
+    "meaning": "Yang Maha Melapangkan",
+    "description": "Allah yang melapangkan rezeki dan rahmat kepada hamba-Nya.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 245,
+        "text": "مَّن ذَا الَّذِي يُقْرِضُ اللَّهَ قَرْضًا حَسَنًا فَيُضَاعِفَهُ لَهُ أَضْعَافًا كَثِيرَةً ۚ وَاللَّهُ يَقْبِضُ وَيَبْسُطُ"
+      },
+      {
+        "surah": 13,
+        "ayah": 26,
+        "text": "اللَّهُ يَبْسُطُ الرِّزْقَ لِمَن يَشَاءُ وَيَقْدِرُ"
+      }
+    ]
+  },
+  {
+    "id": 22,
+    "arabic": "ٱلْخَافِضُ",
+    "latin": "Al-Khafid",
+    "meaning": "Yang Maha Merendahkan",
+    "description": "Allah yang dapat merendahkan derajat orang yang sombong dan zalim.",
+    "verses": [
+      {
+        "surah": 56,
+        "ayah": 3,
+        "text": "خَافِضَةٌ رَّافِعَةٌ"
+      }
+    ]
+  },
+  {
+    "id": 23,
+    "arabic": "ٱلرَّافِعُ",
+    "latin": "Ar-Rafi'",
+    "meaning": "Yang Maha Meninggikan",
+    "description": "Allah yang meninggikan derajat orang-orang yang beriman dan beramal saleh.",
+    "verses": [
+      {
+        "surah": 56,
+        "ayah": 3,
+        "text": "خَافِضَةٌ رَّافِعَةٌ"
+      },
+      {
+        "surah": 58,
+        "ayah": 11,
+        "text": "يَرْفَعِ اللَّهُ الَّذِينَ آمَنُوا مِنكُمْ وَالَّذِينَ أُوتُوا الْعِلْمَ دَرَجَاتٍ"
+      }
+    ]
+  },
+  {
+    "id": 24,
+    "arabic": "ٱلْمُعِزُّ",
+    "latin": "Al-Mu'izz",
+    "meaning": "Yang Maha Memuliakan",
+    "description": "Allah yang memberikan kemuliaan kepada siapa yang dikehendaki-Nya.",
+    "verses": [
+      {
+        "surah": 3,
+        "ayah": 26,
+        "text": "قُلِ اللَّهُمَّ مَالِكَ الْمُلْكِ تُؤْتِي الْمُلْكَ مَن تَشَاءُ وَتَنزِعُ الْمُلْكَ مِمَّن تَشَاءُ وَتُعِزُّ مَن تَشَاءُ وَتُذِلُّ مَن تَشَاءُ"
+      }
+    ]
+  },
+  {
+    "id": 25,
+    "arabic": "ٱلْمُذِلُّ",
+    "latin": "Al-Muzil",
+    "meaning": "Yang Maha Menghinakan",
+    "description": "Allah yang dapat menghinakan orang yang durhaka kepada-Nya.",
+    "verses": [
+      {
+        "surah": 3,
+        "ayah": 26,
+        "text": "قُلِ اللَّهُمَّ مَالِكَ الْمُلْكِ تُؤْتِي الْمُلْكَ مَن تَشَاءُ وَتَنزِعُ الْمُلْكَ مِمَّن تَشَاءُ وَتُعِزُّ مَن تَشَاءُ وَتُذِلُّ مَن تَشَاءُ"
+      }
+    ]
+  },
+  {
+    "id": 26,
+    "arabic": "ٱلسَّمِيعُ",
+    "latin": "As-Sami'",
+    "meaning": "Yang Maha Mendengar",
+    "description": "Allah yang mendengar segala suara dan perkataan makhluk-Nya.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 127,
+        "text": "رَبَّنَا تَقَبَّلْ مِنَّا ۖ إِنَّكَ أَنتَ السَّمِيعُ الْعَلِيمُ"
+      },
+      {
+        "surah": 2,
+        "ayah": 137,
+        "text": "إِنَّ اللَّهَ هُوَ السَّمِيعُ الْعَلِيمُ"
+      },
+      {
+        "surah": 8,
+        "ayah": 17,
+        "text": "وَاللَّهُ سَمِيعٌ عَلِيمٌ"
+      }
+    ]
+  },
+  {
+    "id": 27,
+    "arabic": "ٱلْبَصِيرُ",
+    "latin": "Al-Basir",
+    "meaning": "Yang Maha Melihat",
+    "description": "Allah yang melihat segala sesuatu tanpa terhalang oleh apapun.",
+    "verses": [
+      {
+        "surah": 3,
+        "ayah": 15,
+        "text": "وَاللَّهُ بَصِيرٌ بِالْعِبَادِ"
+      },
+      {
+        "surah": 17,
+        "ayah": 1,
+        "text": "سُبْحَانَ الَّذِي أَسْرَىٰ بِعَبْدِهِ لَيْلًا مِّنَ الْمَسْجِدِ الْحَرَامِ إِلَى الْمَسْجِدِ الْأَقْصَى الَّذِي بَارَكْنَا حَوْلَهُ لِنُرِيَهُ مِنْ آيَاتِنَا ۚ إِنَّهُ هُوَ السَّمِيعُ الْبَصِيرُ"
+      },
+      {
+        "surah": 40,
+        "ayah": 56,
+        "text": "إِنَّهُ هُوَ السَّمِيعُ الْبَصِيرُ"
+      }
+    ]
+  },
+  {
+    "id": 28,
+    "arabic": "ٱلْحَكَمُ",
+    "latin": "Al-Hakam",
+    "meaning": "Yang Maha Menetapkan",
+    "description": "Allah yang menetapkan hukum dan keputusan dengan adil.",
+    "verses": [
+      {
+        "surah": 6,
+        "ayah": 114,
+        "text": "أَفَغَيْرَ اللَّهِ أَبْتَغِي حَكَمًا وَهُوَ الَّذِي أَنزَلَ إِلَيْكُمُ الْكِتَابَ مُفَصَّلًا"
+      },
+      {
+        "surah": 22,
+        "ayah": 69,
+        "text": "اللَّهُ يَحْكُمُ بَيْنَكُمْ يَوْمَ الْقِيَامَةِ فِيمَا كُنتُمْ فِيهِ تَخْتَلِفُونَ"
+      }
+    ]
+  },
+  {
+    "id": 29,
+    "arabic": "ٱلْعَدْلُ",
+    "latin": "Al-'Adl",
+    "meaning": "Yang Maha Adil",
+    "description": "Allah yang berlaku adil kepada semua makhluk-Nya.",
+    "verses": [
+      {
+        "surah": 4,
+        "ayah": 40,
+        "text": "إِنَّ اللَّهَ لَا يَظْلِمُ مِثْقَالَ ذَرَّةٍ"
+      },
+      {
+        "surah": 16,
+        "ayah": 90,
+        "text": "إِنَّ اللَّهَ يَأْمُرُ بِالْعَدْلِ وَالْإِحْسَانِ"
+      },
+      {
+        "surah": 57,
+        "ayah": 25,
+        "text": "لِيَقُومَ النَّاسُ بِالْقِسْطِ"
+      }
+    ]
+  },
+  {
+    "id": 30,
+    "arabic": "ٱللَّطِيفُ",
+    "latin": "Al-Latif",
+    "meaning": "Yang Maha Halus",
+    "description": "Allah yang halus dalam memberikan pertolongan dan kebaikan kepada hamba-Nya.",
+    "verses": [
+      {
+        "surah": 12,
+        "ayah": 100,
+        "text": "إِنَّ رَبِّي لَطِيفٌ لِّمَا يَشَاءُ"
+      },
+      {
+        "surah": 22,
+        "ayah": 63,
+        "text": "إِنَّ اللَّهَ لَطِيفٌ خَبِيرٌ"
+      },
+      {
+        "surah": 67,
+        "ayah": 14,
+        "text": "أَلَا يَعْلَمُ مَنْ خَلَقَ وَهُوَ اللَّطِيفُ الْخَبِيرُ"
+      }
+    ]
+  },
+  {
+    "id": 31,
+    "arabic": "ٱلْخَبِيرُ",
+    "latin": "Al-Khabir",
+    "meaning": "Yang Maha Mengetahui",
+    "description": "Allah yang mengetahui hakikat dan detail segala sesuatu.",
+    "verses": [
+      {
+        "surah": 6,
+        "ayah": 18,
+        "text": "وَهُوَ الْحَكِيمُ الْخَبِيرُ"
+      },
+      {
+        "surah": 22,
+        "ayah": 63,
+        "text": "إِنَّ اللَّهَ لَطِيفٌ خَبِيرٌ"
+      },
+      {
+        "surah": 67,
+        "ayah": 14,
+        "text": "وَهُوَ اللَّطِيفُ الْخَبِيرُ"
+      }
+    ]
+  },
+  {
+    "id": 32,
+    "arabic": "ٱلْحَلِيمُ",
+    "latin": "Al-Halim",
+    "meaning": "Yang Maha Penyantun",
+    "description": "Allah yang penyantun dan tidak tergesa-gesa dalam memberikan hukuman.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 225,
+        "text": "وَاللَّهُ غَفُورٌ حَلِيمٌ"
+      },
+      {
+        "surah": 2,
+        "ayah": 235,
+        "text": "وَاللَّهُ غَفُورٌ حَلِيمٌ"
+      }
+    ]
+  },
+  {
+    "id": 33,
+    "arabic": "ٱلْعَظِيمُ",
+    "latin": "Al-'Azim",
+    "meaning": "Yang Maha Agung",
+    "description": "Allah yang memiliki keagungan yang tidak terbatas.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 255,
+        "text": "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ"
+      },
+      {
+        "surah": 42,
+        "ayah": 4,
+        "text": "لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۖ وَهُوَ الْعَلِيُّ الْعَظِيمُ"
+      }
+    ]
+  },
+  {
+    "id": 34,
+    "arabic": "ٱلْغَفُورُ",
+    "latin": "Al-Ghafur",
+    "meaning": "Yang Maha Pengampun",
+    "description": "Allah yang mengampuni dosa-dosa hamba-Nya dengan sempurna.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 173,
+        "text": "فَإِنَّ اللَّهَ غَفُورٌ رَّحِيمٌ"
+      },
+      {
+        "surah": 4,
+        "ayah": 23,
+        "text": "إِنَّ اللَّهَ كَانَ غَفُورًا رَّحِيمًا"
+      },
+      {
+        "surah": 35,
+        "ayah": 41,
+        "text": "إِنَّهُ كَانَ حَلِيمًا غَفُورًا"
+      }
+    ]
+  },
+  {
+    "id": 35,
+    "arabic": "ٱلشَّكُورُ",
+    "latin": "As-Shakur",
+    "meaning": "Yang Maha Pembalas Budi",
+    "description": "Allah yang membalas kebaikan hamba-Nya dengan berlipat ganda.",
+    "verses": [
+      {
+        "surah": 35,
+        "ayah": 30,
+        "text": "إِنَّهُ غَفُورٌ شَكُورٌ"
+      },
+      {
+        "surah": 42,
+        "ayah": 23,
+        "text": "وَمَن يَقْتَرِفْ حَسَنَةً نَّزِدْ لَهُ فِيهَا حُسْنًا ۚ إِنَّ اللَّهَ غَفُورٌ شَكُورٌ"
+      }
+    ]
+  },
+  {
+    "id": 36,
+    "arabic": "ٱلْعَلِيُّ",
+    "latin": "Al-'Ali",
+    "meaning": "Yang Maha Tinggi",
+    "description": "Allah yang tinggi dalam segala sifat dan kedudukan-Nya.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 255,
+        "text": "وَهُوَ الْعَلِيُّ الْعَظِيمُ"
+      },
+      {
+        "surah": 42,
+        "ayah": 4,
+        "text": "وَهُوَ الْعَلِيُّ الْعَظِيمُ"
+      }
+    ]
+  },
+  {
+    "id": 37,
+    "arabic": "ٱلْكَبِيرُ",
+    "latin": "Al-Kabir",
+    "meaning": "Yang Maha Besar",
+    "description": "Allah yang memiliki kebesaran mutlak dalam segala hal.",
+    "verses": [
+      {
+        "surah": 13,
+        "ayah": 9,
+        "text": "عَالِمُ الْغَيْبِ وَالشَّهَادَةِ الْكَبِيرُ الْمُتَعَالِ"
+      },
+      {
+        "surah": 22,
+        "ayah": 62,
+        "text": "ذَٰلِكَ بِأَنَّ اللَّهَ هُوَ الْحَقُّ وَأَنَّ مَا يَدْعُونَ مِن دُونِهِ هُوَ الْبَاطِلُ وَأَنَّ اللَّهَ هُوَ الْعَلِيُّ الْكَبِيرُ"
+      }
+    ]
+  },
+  {
+    "id": 38,
+    "arabic": "ٱلْحَفِيظُ",
+    "latin": "Al-Hafiz",
+    "meaning": "Yang Maha Memelihara",
+    "description": "Allah yang memelihara dan menjaga segala sesuatu.",
+    "verses": [
+      {
+        "surah": 11,
+        "ayah": 57,
+        "text": "إِنَّ رَبِّي عَلَىٰ كُلِّ شَيْءٍ حَفِيظٌ"
+      },
+      {
+        "surah": 12,
+        "ayah": 64,
+        "text": "وَاللَّهُ خَيْرٌ حَافِظًا"
+      }
+    ]
+  },
+  {
+    "id": 39,
+    "arabic": "ٱلْمُقِيتُ",
+    "latin": "Al-Muqit",
+    "meaning": "Yang Maha Pemberi Kecukupan",
+    "description": "Allah yang memberikan kecukupan kepada semua makhluk-Nya.",
+    "verses": [
+      {
+        "surah": 4,
+        "ayah": 85,
+        "text": "وَكَانَ اللَّهُ عَلَىٰ كُلِّ شَيْءٍ مُّقِيتًا"
+      }
+    ]
+  },
+  {
+    "id": 40,
+    "arabic": "ٱلْحَسِيبُ",
+    "latin": "Al-Hasib",
+    "meaning": "Yang Maha Penghitung",
+    "description": "Allah yang menghitung dan membalas semua amal perbuatan.",
+    "verses": [
+      {
+        "surah": 4,
+        "ayah": 6,
+        "text": "وَكَفَىٰ بِاللَّهِ حَسِيبًا"
+      },
+      {
+        "surah": 4,
+        "ayah": 86,
+        "text": "إِنَّ اللَّهَ كَانَ عَلَىٰ كُلِّ شَيْءٍ حَسِيبًا"
+      }
+    ]
+  },
+  {
+    "id": 41,
+    "arabic": "ٱلْجَلِيلُ",
+    "latin": "Al-Jalil",
+    "meaning": "Yang Maha Mulia",
+    "description": "Allah yang memiliki kemuliaan dan kemegahan yang hakiki.",
+    "verses": [
+      {
+        "surah": 55,
+        "ayah": 27,
+        "text": "وَيَبْقَىٰ وَجْهُ رَبِّكَ ذُو الْجَلَالِ وَالْإِكْرَامِ"
+      }
+    ]
+  },
+  {
+    "id": 42,
+    "arabic": "ٱلْكَرِيمُ",
+    "latin": "Al-Karim",
+    "meaning": "Yang Maha Mulia",
+    "description": "Allah yang mulia dan memberikan kemuliaan kepada hamba-Nya.",
+    "verses": [
+      {
+        "surah": 27,
+        "ayah": 40,
+        "text": "وَمَن شَكَرَ فَإِنَّمَا يَشْكُرُ لِنَفْسِهِ ۖ وَمَن كَفَرَ فَإِنَّ رَبِّي غَنِيٌّ كَرِيمٌ"
+      },
+      {
+        "surah": 82,
+        "ayah": 6,
+        "text": "يَا أَيُّهَا الْإِنسَانُ مَا غَرَّكَ بِرَبِّكَ الْكَرِيمِ"
+      }
+    ]
+  },
+  {
+    "id": 43,
+    "arabic": "ٱلرَّقِيبُ",
+    "latin": "Ar-Raqib",
+    "meaning": "Yang Maha Mengawasi",
+    "description": "Allah yang mengawasi segala perbuatan dan keadaan makhluk-Nya.",
+    "verses": [
+      {
+        "surah": 4,
+        "ayah": 1,
+        "text": "إِنَّ اللَّهَ كَانَ عَلَيْكُمْ رَقِيبًا"
+      },
+      {
+        "surah": 5,
+        "ayah": 117,
+        "text": "وَكُنتَ أَنتَ الرَّقِيبَ عَلَيْهِمْ"
+      }
+    ]
+  },
+  {
+    "id": 44,
+    "arabic": "ٱلْمُجِيبُ",
+    "latin": "Al-Mujib",
+    "meaning": "Yang Maha Mengabulkan",
+    "description": "Allah yang mengabulkan doa dan permohonan hamba-Nya.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 186,
+        "text": "وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ ۖ أُجِيبُ دَعْوَةَ الدَّاعِ إِذَا دَعَانِ"
+      },
+      {
+        "surah": 11,
+        "ayah": 61,
+        "text": "إِنَّ رَبِّي قَرِيبٌ مُّجِيبٌ"
+      }
+    ]
+  },
+  {
+    "id": 45,
+    "arabic": "ٱلْوَاسِعُ",
+    "latin": "Al-Wasi'",
+    "meaning": "Yang Maha Luas",
+    "description": "Allah yang luas rahmat, ilmu, dan kekuasaan-Nya.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 115,
+        "text": "فَأَيْنَمَا تُوَلُّوا فَثَمَّ وَجْهُ اللَّهِ ۚ إِنَّ اللَّهَ وَاسِعٌ عَلِيمٌ"
+      },
+      {
+        "surah": 2,
+        "ayah": 261,
+        "text": "وَاللَّهُ وَاسِعٌ عَلِيمٌ"
+      }
+    ]
+  },
+  {
+    "id": 46,
+    "arabic": "ٱلْحَكِيمُ",
+    "latin": "Al-Hakim",
+    "meaning": "Yang Maha Bijaksana",
+    "description": "Allah yang memiliki hikmah dalam segala perbuatan dan keputusan-Nya.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 32,
+        "text": "إِنَّكَ أَنتَ الْعَلِيمُ الْحَكِيمُ"
+      },
+      {
+        "surah": 3,
+        "ayah": 6,
+        "text": "لَا إِلَٰهَ إِلَّا هُوَ الْعَزِيزُ الْحَكِيمُ"
+      },
+      {
+        "surah": 31,
+        "ayah": 27,
+        "text": "إِنَّ اللَّهَ عَزِيزٌ حَكِيمٌ"
+      }
+    ]
+  },
+  {
+    "id": 47,
+    "arabic": "ٱلْوَدُودُ",
+    "latin": "Al-Wadud",
+    "meaning": "Yang Maha Pengasih",
+    "description": "Allah yang mengasihi hamba-Nya dan dicintai oleh mereka.",
+    "verses": [
+      {
+        "surah": 11,
+        "ayah": 90,
+        "text": "إِنَّ رَبِّي رَحِيمٌ وَدُودٌ"
+      },
+      {
+        "surah": 85,
+        "ayah": 14,
+        "text": "وَهُوَ الْغَفُورُ الْوَدُودُ"
+      }
+    ]
+  },
+  {
+    "id": 48,
+    "arabic": "ٱلْمَجِيدُ",
+    "latin": "Al-Majid",
+    "meaning": "Yang Maha Mulia",
+    "description": "Allah yang memiliki kemuliaan dan keagungan yang sempurna.",
+    "verses": [
+      {
+        "surah": 11,
+        "ayah": 73,
+        "text": "إِنَّهُ حَمِيدٌ مَّجِيدٌ"
+      },
+      {
+        "surah": 85,
+        "ayah": 15,
+        "text": "ذُو الْعَرْشِ الْمَجِيدُ"
+      }
+    ]
+  },
+  {
+    "id": 49,
+    "arabic": "ٱلْبَاعِثُ",
+    "latin": "Al-Ba'ith",
+    "meaning": "Yang Maha Membangkitkan",
+    "description": "Allah yang membangkitkan makhluk-Nya dari kematian di hari kiamat.",
+    "verses": [
+      {
+        "surah": 22,
+        "ayah": 7,
+        "text": "وَأَنَّ اللَّهَ يَبْعَثُ مَن فِي الْقُبُورِ"
+      },
+      {
+        "surah": 30,
+        "ayah": 40,
+        "text": "اللَّهُ الَّذِي خَلَقَكُمْ ثُمَّ رَزَقَكُمْ ثُمَّ يُمِيتُكُمْ ثُمَّ يُحْيِيكُمْ"
+      }
+    ]
+  },
+  {
+    "id": 50,
+    "arabic": "ٱلشَّهِيدُ",
+    "latin": "As-Shahid",
+    "meaning": "Yang Maha Menyaksikan",
+    "description": "Allah yang menyaksikan segala sesuatu yang terjadi.",
+    "verses": [
+      {
+        "surah": 4,
+        "ayah": 33,
+        "text": "وَكَانَ اللَّهُ عَلَىٰ كُلِّ شَيْءٍ شَهِيدًا"
+      },
+      {
+        "surah": 5,
+        "ayah": 117,
+        "text": "وَكُنتَ أَنتَ الرَّقِيبَ عَلَيْهِمْ ۚ وَأَنتَ عَلَىٰ كُلِّ شَيْءٍ شَهِيدٌ"
+      },
+      {
+        "surah": 41,
+        "ayah": 53,
+        "text": "أَوَلَمْ يَكْفِ بِرَبِّكَ أَنَّهُ عَلَىٰ كُلِّ شَيْءٍ شَهِيدٌ"
+      }
+    ]
+  },
+  {
+    "id": 51,
+    "arabic": "ٱلْحَقُّ",
+    "latin": "Al-Haqq",
+    "meaning": "Yang Maha Benar",
+    "description": "Allah yang benar dalam segala sifat dan perbuatan-Nya.",
+    "verses": [
+      {
+        "surah": 22,
+        "ayah": 6,
+        "text": "ذَٰلِكَ بِأَنَّ اللَّهَ هُوَ الْحَقُّ"
+      },
+      {
+        "surah": 31,
+        "ayah": 30,
+        "text": "ذَٰلِكَ بِأَنَّ اللَّهَ هُوَ الْحَقُّ وَأَنَّ مَا يَدْعُونَ مِن دُونِهِ الْبَاطِلُ"
+      },
+      {
+        "surah": 18,
+        "ayah": 44,
+        "text": "هُنَالِكَ الْوَلَايَةُ لِلَّهِ الْحَقِّ"
+      }
+    ]
+  },
+  {
+    "id": 52,
+    "arabic": "ٱلْوَكِيلُ",
+    "latin": "Al-Wakil",
+    "meaning": "Yang Maha Memelihara",
+    "description": "Allah yang dapat dipercaya untuk mengurus segala urusan hamba-Nya.",
+    "verses": [
+      {
+        "surah": 3,
+        "ayah": 173,
+        "text": "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ"
+      },
+      {
+        "surah": 4,
+        "ayah": 81,
+        "text": "وَكَفَىٰ بِاللَّهِ وَكِيلًا"
+      },
+      {
+        "surah": 17,
+        "ayah": 65,
+        "text": "وَكَفَىٰ بِرَبِّكَ وَكِيلًا"
+      }
+    ]
+  },
+  {
+    "id": 53,
+    "arabic": "ٱلْقَوِيُّ",
+    "latin": "Al-Qawi",
+    "meaning": "Yang Maha Kuat",
+    "description": "Allah yang memiliki kekuatan yang tidak terbatas.",
+    "verses": [
+      {
+        "surah": 22,
+        "ayah": 40,
+        "text": "إِنَّ اللَّهَ لَقَوِيٌّ عَزِيزٌ"
+      },
+      {
+        "surah": 22,
+        "ayah": 74,
+        "text": "إِنَّ اللَّهَ لَقَوِيٌّ عَزِيزٌ"
+      },
+      {
+        "surah": 51,
+        "ayah": 58,
+        "text": "إِنَّ اللَّهَ هُوَ الرَّزَّاقُ ذُو الْقُوَّةِ الْمَتِينُ"
+      }
+    ]
+  },
+  {
+    "id": 54,
+    "arabic": "ٱلْمَتِينُ",
+    "latin": "Al-Matin",
+    "meaning": "Yang Maha Kokoh",
+    "description": "Allah yang kokoh dan tidak dapat dikalahkan.",
+    "verses": [
+      {
+        "surah": 51,
+        "ayah": 58,
+        "text": "إِنَّ اللَّهَ هُوَ الرَّزَّاقُ ذُو الْقُوَّةِ الْمَتِينُ"
+      }
+    ]
+  },
+  {
+    "id": 55,
+    "arabic": "ٱلْوَلِيُّ",
+    "latin": "Al-Wali",
+    "meaning": "Yang Maha Melindungi",
+    "description": "Allah yang melindungi dan membantu hamba-hamba-Nya.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 257,
+        "text": "اللَّهُ وَلِيُّ الَّذِينَ آمَنُوا"
+      },
+      {
+        "surah": 3,
+        "ayah": 68,
+        "text": "وَاللَّهُ وَلِيُّ الْمُؤْمِنِينَ"
+      },
+      {
+        "surah": 45,
+        "ayah": 19,
+        "text": "وَاللَّهُ وَلِيُّ الْمُتَّقِينَ"
+      }
+    ]
+  },
+  {
+    "id": 56,
+    "arabic": "ٱلْحَمِيدُ",
+    "latin": "Al-Hamid",
+    "meaning": "Yang Maha Terpuji",
+    "description": "Allah yang terpuji dalam segala sifat dan perbuatan-Nya.",
+    "verses": [
+      {
+        "surah": 11,
+        "ayah": 73,
+        "text": "إِنَّهُ حَمِيدٌ مَّجِيدٌ"
+      },
+      {
+        "surah": 22,
+        "ayah": 24,
+        "text": "وَهُدُوا إِلَى الطَّيِّبِ مِنَ الْقَوْلِ وَهُدُوا إِلَىٰ صِرَاطِ الْحَمِيدِ"
+      },
+      {
+        "surah": 31,
+        "ayah": 12,
+        "text": "وَمَن كَفَرَ فَإِنَّ اللَّهَ غَنِيٌّ حَمِيدٌ"
+      }
+    ]
+  },
+  {
+    "id": 57,
+    "arabic": "ٱلْمُحْصِي",
+    "latin": "Al-Muhsi",
+    "meaning": "Yang Maha Menghitung",
+    "description": "Allah yang menghitung segala sesuatu dengan teliti.",
+    "verses": [
+      {
+        "surah": 19,
+        "ayah": 94,
+        "text": "لَّقَدْ أَحْصَاهُمْ وَعَدَّهُمْ عَدًّا"
+      },
+      {
+        "surah": 72,
+        "ayah": 28,
+        "text": "وَأَحْصَىٰ كُلَّ شَيْءٍ عَدَدًا"
+      }
+    ]
+  },
+  {
+    "id": 58,
+    "arabic": "ٱلْمُبْدِئُ",
+    "latin": "Al-Mubdi'",
+    "meaning": "Yang Maha Memulai",
+    "description": "Allah yang memulai penciptaan segala sesuatu.",
+    "verses": [
+      {
+        "surah": 10,
+        "ayah": 4,
+        "text": "إِنَّهُ يَبْدَأُ الْخَلْقَ ثُمَّ يُعِيدُهُ"
+      },
+      {
+        "surah": 10,
+        "ayah": 34,
+        "text": "قُلْ هَلْ مِن شُرَكَائِكُم مَّن يَبْدَأُ الْخَلْقَ ثُمَّ يُعِيدُهُ ۚ قُلِ اللَّهُ يَبْدَأُ الْخَلْقَ ثُمَّ يُعِيدُهُ"
+      },
+      {
+        "surah": 85,
+        "ayah": 13,
+        "text": "إِنَّهُ هُوَ يُبْدِئُ وَيُعِيدُ"
+      }
+    ]
+  },
+  {
+    "id": 59,
+    "arabic": "ٱلْمُعِيدُ",
+    "latin": "Al-Mu'id",
+    "meaning": "Yang Maha Mengembalikan",
+    "description": "Allah yang mengembalikan makhluk-Nya setelah kematian.",
+    "verses": [
+      {
+        "surah": 10,
+        "ayah": 4,
+        "text": "إِنَّهُ يَبْدَأُ الْخَلْقَ ثُمَّ يُعِيدُهُ"
+      },
+      {
+        "surah": 10,
+        "ayah": 34,
+        "text": "قُلِ اللَّهُ يَبْدَأُ الْخَلْقَ ثُمَّ يُعِيدُهُ"
+      },
+      {
+        "surah": 85,
+        "ayah": 13,
+        "text": "إِنَّهُ هُوَ يُبْدِئُ وَيُعِيدُ"
+      }
+    ]
+  },
+  {
+    "id": 60,
+    "arabic": "ٱلْمُحْيِي",
+    "latin": "Al-Muhyi",
+    "meaning": "Yang Maha Menghidupkan",
+    "description": "Allah yang menghidupkan makhluk yang mati.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 258,
+        "text": "أَنَا أُحْيِي وَأُمِيتُ"
+      },
+      {
+        "surah": 30,
+        "ayah": 50,
+        "text": "انظُرْ إِلَىٰ آثَارِ رَحْمَتِ اللَّهِ كَيْفَ يُحْيِي الْأَرْضَ بَعْدَ مَوْتِهَا ۚ إِنَّ ذَٰلِكَ لَمُحْيِي الْمَوْتَىٰ ۖ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ"
+      },
+      {
+        "surah": 41,
+        "ayah": 39,
+        "text": "فَإِذَا أَنزَلْنَا عَلَيْهَا الْمَاءَ اهْتَزَّتْ وَرَبَتْ ۚ إِنَّ الَّذِي أَحْيَاهَا لَمُحْيِي الْمَوْتَىٰ"
+      }
+    ]
+  },
+  {
+    "id": 61,
+    "arabic": "ٱلْمُمِيتُ",
+    "latin": "Al-Mumit",
+    "meaning": "Yang Maha Mematikan",
+    "description": "Allah yang mematikan makhluk hidup sesuai kehendak-Nya.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 258,
+        "text": "أَنَا أُحْيِي وَأُمِيتُ"
+      },
+      {
+        "surah": 15,
+        "ayah": 23,
+        "text": "وَإِنَّا لَنَحْنُ نُحْيِي وَنُمِيتُ وَنَحْنُ الْوَارِثُونَ"
+      },
+      {
+        "surah": 50,
+        "ayah": 43,
+        "text": "إِنَّا نَحْنُ نُحْيِي وَنُمِيتُ وَإِلَيْنَا الْمَصِيرُ"
+      }
+    ]
+  },
+  {
+    "id": 62,
+    "arabic": "ٱلْحَيُّ",
+    "latin": "Al-Hayy",
+    "meaning": "Yang Maha Hidup",
+    "description": "Allah yang hidup kekal dan tidak pernah mati.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 255,
+        "text": "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ"
+      },
+      {
+        "surah": 3,
+        "ayah": 2,
+        "text": "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ"
+      },
+      {
+        "surah": 20,
+        "ayah": 111,
+        "text": "وَعَنَتِ الْوُجُوهُ لِلْحَيِّ الْقَيُّومِ"
+      }
+    ]
+  },
+  {
+    "id": 63,
+    "arabic": "ٱلْقَيُّومُ",
+    "latin": "Al-Qayyum",
+    "meaning": "Yang Maha Berdiri Sendiri",
+    "description": "Allah yang berdiri sendiri dan mengurus segala sesuatu.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 255,
+        "text": "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ"
+      },
+      {
+        "surah": 3,
+        "ayah": 2,
+        "text": "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ"
+      },
+      {
+        "surah": 20,
+        "ayah": 111,
+        "text": "وَعَنَتِ الْوُجُوهُ لِلْحَيِّ الْقَيُّومِ"
+      }
+    ]
+  },
+  {
+    "id": 64,
+    "arabic": "ٱلْوَاجِدُ",
+    "latin": "Al-Wajid",
+    "meaning": "Yang Maha Menemukan",
+    "description": "Allah yang menemukan segala sesuatu yang dikehendaki-Nya.",
+    "verses": [
+      {
+        "surah": 12,
+        "ayah": 65,
+        "text": "فَلَمَّا فَتَحُوا مَتَاعَهُمْ وَجَدُوا بِضَاعَتَهُمْ رُدَّتْ إِلَيْهِمْ"
+      },
+      {
+        "surah": 93,
+        "ayah": 7,
+        "text": "وَوَجَدَكَ ضَالًّا فَهَدَىٰ"
+      },
+      {
+        "surah": 93,
+        "ayah": 8,
+        "text": "وَوَجَدَكَ عَائِلًا فَأَغْنَىٰ"
+      }
+    ]
+  },
+  {
+    "id": 65,
+    "arabic": "ٱلْمَاجِدُ",
+    "latin": "Al-Majid",
+    "meaning": "Yang Maha Mulia",
+    "description": "Allah yang memiliki kemuliaan dan kehormatan yang tinggi.",
+    "verses": [
+      {
+        "surah": 11,
+        "ayah": 73,
+        "text": "إِنَّهُ حَمِيدٌ مَّجِيدٌ"
+      },
+      {
+        "surah": 85,
+        "ayah": 15,
+        "text": "ذُو الْعَرْشِ الْمَجِيدُ"
+      }
+    ]
+  },
+  {
+    "id": 66,
+    "arabic": "ٱلْوَاحِدُ",
+    "latin": "Al-Wahid",
+    "meaning": "Yang Maha Esa",
+    "description": "Allah yang Esa, tidak ada sekutu bagi-Nya.",
+    "verses": [
+      {
+        "surah": 12,
+        "ayah": 39,
+        "text": "أَأَرْبَابٌ مُّتَفَرِّقُونَ خَيْرٌ أَمِ اللَّهُ الْوَاحِدُ الْقَهَّارُ"
+      },
+      {
+        "surah": 13,
+        "ayah": 16,
+        "text": "قُلِ اللَّهُ خَالِقُ كُلِّ شَيْءٍ وَهُوَ الْوَاحِدُ الْقَهَّارُ"
+      },
+      {
+        "surah": 14,
+        "ayah": 48,
+        "text": "يَوْمَ تُبَدَّلُ الْأَرْضُ غَيْرَ الْأَرْضِ وَالسَّمَاوَاتُ ۖ وَبَرَزُوا لِلَّهِ الْوَاحِدِ الْقَهَّارِ"
+      }
+    ]
+  },
+  {
+    "id": 67,
+    "arabic": "ٱلْأَحَدُ",
+    "latin": "Al-Ahad",
+    "meaning": "Yang Maha Tunggal",
+    "description": "Allah yang tunggal dalam zat, sifat, dan perbuatan-Nya.",
+    "verses": [
+      {
+        "surah": 112,
+        "ayah": 1,
+        "text": "قُلْ هُوَ اللَّهُ أَحَدٌ"
+      }
+    ]
+  },
+  {
+    "id": 68,
+    "arabic": "ٱلصَّمَدُ",
+    "latin": "As-Samad",
+    "meaning": "Yang Maha Dibutuhkan",
+    "description": "Allah yang dibutuhkan oleh semua makhluk dan tidak membutuhkan siapa pun.",
+    "verses": [
+      {
+        "surah": 112,
+        "ayah": 2,
+        "text": "اللَّهُ الصَّمَدُ"
+      }
+    ]
+  },
+  {
+    "id": 69,
+    "arabic": "ٱلْقَادِرُ",
+    "latin": "Al-Qadir",
+    "meaning": "Yang Maha Kuasa",
+    "description": "Allah yang berkuasa atas segala sesuatu.",
+    "verses": [
+      {
+        "surah": 6,
+        "ayah": 65,
+        "text": "قُلْ هُوَ الْقَادِرُ عَلَىٰ أَن يَبْعَثَ عَلَيْكُمْ عَذَابًا مِّن فَوْقِكُمْ"
+      },
+      {
+        "surah": 17,
+        "ayah": 99,
+        "text": "أَوَلَمْ يَرَوْا أَنَّ اللَّهَ الَّذِي خَلَقَ السَّمَاوَاتِ وَالْأَرْضَ قَادِرٌ عَلَىٰ أَن يَخْلُقَ مِثْلَهُمْ"
+      },
+      {
+        "surah": 75,
+        "ayah": 4,
+        "text": "بَلَىٰ قَادِرِينَ عَلَىٰ أَن نُّسَوِّيَ بَنَانَهُ"
+      }
+    ]
+  },
+  {
+    "id": 70,
+    "arabic": "ٱلْمُقْتَدِرُ",
+    "latin": "Al-Muqtadir",
+    "meaning": "Yang Maha Menentukan",
+    "description": "Allah yang dapat menentukan segala sesuatu sesuai kehendak-Nya.",
+    "verses": [
+      {
+        "surah": 18,
+        "ayah": 45,
+        "text": "وَاللَّهُ عَلَىٰ كُلِّ شَيْءٍ مُّقْتَدِرٌ"
+      },
+      {
+        "surah": 54,
+        "ayah": 42,
+        "text": "فَأَخَذْنَاهُمْ أَخْذَ عَزِيزٍ مُّقْتَدِرٍ"
+      },
+      {
+        "surah": 54,
+        "ayah": 55,
+        "text": "فِي مَقْعَدِ صِدْقٍ عِندَ مَلِيكٍ مُّقْتَدِرٍ"
+      }
+    ]
+  },
+  {
+    "id": 71,
+    "arabic": "ٱلْمُقَدِّمُ",
+    "latin": "Al-Muqaddim",
+    "meaning": "Yang Maha Mendahulukan",
+    "description": "Allah yang mendahulukan apa yang dikehendaki-Nya.",
+    "verses": [
+      {
+        "surah": 16,
+        "ayah": 61,
+        "text": "وَلَوْ يُؤَاخِذُ اللَّهُ النَّاسَ بِظُلْمِهِم مَّا تَرَكَ عَلَيْهَا مِن دَابَّةٍ وَلَٰكِن يُؤَخِّرُهُمْ إِلَىٰ أَجَلٍ مُّسَمًّى"
+      },
+      {
+        "surah": 71,
+        "ayah": 4,
+        "text": "يَغْفِرْ لَكُم مِّن ذُنُوبِكُمْ وَيُؤَخِّرْكُمْ إِلَىٰ أَجَلٍ مُّسَمًّى"
+      }
+    ]
+  },
+  {
+    "id": 72,
+    "arabic": "ٱلْمُؤَخِّرُ",
+    "latin": "Al-Mu'akhkhir",
+    "meaning": "Yang Maha Mengakhirkan",
+    "description": "Allah yang mengakhirkan apa yang dikehendaki-Nya.",
+    "verses": [
+      {
+        "surah": 16,
+        "ayah": 61,
+        "text": "وَلَوْ يُؤَاخِذُ اللَّهُ النَّاسَ بِظُلْمِهِم مَّا تَرَكَ عَلَيْهَا مِن دَابَّةٍ وَلَٰكِن يُؤَخِّرُهُمْ إِلَىٰ أَجَلٍ مُّسَمًّى"
+      },
+      {
+        "surah": 71,
+        "ayah": 4,
+        "text": "يَغْفِرْ لَكُم مِّن ذُنُوبِكُمْ وَيُؤَخِّرْكُمْ إِلَىٰ أَجَلٍ مُّسَمًّى"
+      }
+    ]
+  },
+  {
+    "id": 73,
+    "arabic": "ٱلْأَوَّلُ",
+    "latin": "Al-Awwal",
+    "meaning": "Yang Maha Awal",
+    "description": "Allah yang tidak berawal, ada sebelum segala sesuatu.",
+    "verses": [
+      {
+        "surah": 57,
+        "ayah": 3,
+        "text": "هُوَ الْأَوَّلُ وَالْآخِرُ وَالظَّاهِرُ وَالْبَاطِنُ ۖ وَهُوَ بِكُلِّ شَيْءٍ عَلِيمٌ"
+      }
+    ]
+  },
+  {
+    "id": 74,
+    "arabic": "ٱلْآخِرُ",
+    "latin": "Al-Akhir",
+    "meaning": "Yang Maha Akhir",
+    "description": "Allah yang tidak berakhir, akan tetap ada setelah segala sesuatu.",
+    "verses": [
+      {
+        "surah": 57,
+        "ayah": 3,
+        "text": "هُوَ الْأَوَّلُ وَالْآخِرُ وَالظَّاهِرُ وَالْبَاطِنُ ۖ وَهُوَ بِكُلِّ شَيْءٍ عَلِيمٌ"
+      }
+    ]
+  },
+  {
+    "id": 75,
+    "arabic": "ٱلظَّاهِرُ",
+    "latin": "Az-Zahir",
+    "meaning": "Yang Maha Nyata",
+    "description": "Allah yang nyata keberadaan-Nya melalui tanda-tanda-Nya.",
+    "verses": [
+      {
+        "surah": 57,
+        "ayah": 3,
+        "text": "هُوَ الْأَوَّلُ وَالْآخِرُ وَالظَّاهِرُ وَالْبَاطِنُ ۖ وَهُوَ بِكُلِّ شَيْءٍ عَلِيمٌ"
+      }
+    ]
+  },
+  {
+    "id": 76,
+    "arabic": "ٱلْبَاطِنُ",
+    "latin": "Al-Batin",
+    "meaning": "Yang Maha Ghaib",
+    "description": "Allah yang ghaib dari penglihatan makhluk-Nya.",
+    "verses": [
+      {
+        "surah": 57,
+        "ayah": 3,
+        "text": "هُوَ الْأَوَّلُ وَالْآخِرُ وَالظَّاهِرُ وَالْبَاطِنُ ۖ وَهُوَ بِكُلِّ شَيْءٍ عَلِيمٌ"
+      }
+    ]
+  },
+  {
+    "id": 77,
+    "arabic": "ٱلْوَالِي",
+    "latin": "Al-Wali",
+    "meaning": "Yang Maha Memerintah",
+    "description": "Allah yang memerintah dan menguasai segala sesuatu.",
+    "verses": [
+      {
+        "surah": 13,
+        "ayah": 11,
+        "text": "إِنَّ اللَّهَ لَا يُغَيِّرُ مَا بِقَوْمٍ حَتَّىٰ يُغَيِّرُوا مَا بِأَنفُسِهِمْ ۗ وَإِذَا أَرَادَ اللَّهُ بِقَوْمٍ سُوءًا فَلَا مَرَدَّ لَهُ ۚ وَمَا لَهُم مِّن دُونِهِ مِن وَالٍ"
+      }
+    ]
+  },
+  {
+    "id": 78,
+    "arabic": "ٱلْمُتَعَالِي",
+    "latin": "Al-Muta'ali",
+    "meaning": "Yang Maha Tinggi",
+    "description": "Allah yang tinggi dari segala sifat yang tidak layak bagi-Nya.",
+    "verses": [
+      {
+        "surah": 13,
+        "ayah": 9,
+        "text": "عَالِمُ الْغَيْبِ وَالشَّهَادَةِ الْكَبِيرُ الْمُتَعَالِ"
+      },
+      {
+        "surah": 40,
+        "ayah": 15,
+        "text": "رَفِيعُ الدَّرَجَاتِ ذُو الْعَرْشِ يُلْقِي الرُّوحَ مِنْ أَمْرِهِ عَلَىٰ مَن يَشَاءُ مِنْ عِبَادِهِ"
+      }
+    ]
+  },
+  {
+    "id": 79,
+    "arabic": "ٱلْبَرُّ",
+    "latin": "Al-Barr",
+    "meaning": "Yang Maha Penyantun",
+    "description": "Allah yang berbuat baik dan penyantun kepada hamba-Nya.",
+    "verses": [
+      {
+        "surah": 52,
+        "ayah": 28,
+        "text": "إِنَّا كُنَّا مِن قَبْلُ نَدْعُوهُ ۖ إِنَّهُ هُوَ الْبَرُّ الرَّحِيمُ"
+      }
+    ]
+  },
+  {
+    "id": 80,
+    "arabic": "ٱلتَّوَّابُ",
+    "latin": "At-Tawwab",
+    "meaning": "Yang Maha Penerima Taubat",
+    "description": "Allah yang menerima taubat hamba-Nya dan mengampuni dosa mereka.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 37,
+        "text": "فَتَلَقَّىٰ آدَمُ مِن رَّبِّهِ كَلِمَاتٍ فَتَابَ عَلَيْهِ ۚ إِنَّهُ هُوَ التَّوَّابُ الرَّحِيمُ"
+      },
+      {
+        "surah": 2,
+        "ayah": 128,
+        "text": "رَبَّنَا وَتَقَبَّلْ دُعَاءَنَا ۚ إِنَّكَ أَنتَ التَّوَّابُ الرَّحِيمُ"
+      },
+      {
+        "surah": 9,
+        "ayah": 104,
+        "text": "أَلَمْ يَعْلَمُوا أَنَّ اللَّهَ هُوَ يَقْبَلُ التَّوْبَةَ عَنْ عِبَادِهِ وَيَأْخُذُ الصَّدَقَاتِ وَأَنَّ اللَّهَ هُوَ التَّوَّابُ الرَّحِيمُ"
+      }
+    ]
+  },
+  {
+    "id": 81,
+    "arabic": "ٱلْمُنْتَقِمُ",
+    "latin": "Al-Muntaqim",
+    "meaning": "Yang Maha Pembalas",
+    "description": "Allah yang membalas orang-orang yang berbuat zalim.",
+    "verses": [
+      {
+        "surah": 32,
+        "ayah": 22,
+        "text": "وَمَنْ أَظْلَمُ مِمَّن ذُكِّرَ بِآيَاتِ رَبِّهِ ثُمَّ أَعْرَضَ عَنْهَا ۚ إِنَّا مِنَ الْمُجْرِمِينَ مُنتَقِمُونَ"
+      },
+      {
+        "surah": 44,
+        "ayah": 16,
+        "text": "يَوْمَ نَبْطِشُ الْبَطْشَةَ الْكُبْرَىٰ إِنَّا مُنتَقِمُونَ"
+      }
+    ]
+  },
+  {
+    "id": 82,
+    "arabic": "ٱلْعَفُوُّ",
+    "latin": "Al-'Afuww",
+    "meaning": "Yang Maha Pemaaf",
+    "description": "Allah yang memaafkan dosa-dosa hamba-Nya.",
+    "verses": [
+      {
+        "surah": 4,
+        "ayah": 43,
+        "text": "إِنَّ اللَّهَ كَانَ عَفُوًّا غَفُورًا"
+      },
+      {
+        "surah": 4,
+        "ayah": 99,
+        "text": "وَكَانَ اللَّهُ عَفُوًّا غَفُورًا"
+      },
+      {
+        "surah": 22,
+        "ayah": 60,
+        "text": "وَمَنْ عَاقَبَ بِمِثْلِ مَا عُوقِبَ بِهِ ثُمَّ بُغِيَ عَلَيْهِ لَيَنصُرَنَّهُ اللَّهُ ۗ إِنَّ اللَّهَ لَعَفُوٌّ غَفُورٌ"
+      }
+    ]
+  },
+  {
+    "id": 83,
+    "arabic": "ٱلرَّؤُوفُ",
+    "latin": "Ar-Ra'uf",
+    "meaning": "Yang Maha Pengasih",
+    "description": "Allah yang sangat pengasih kepada hamba-Nya.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 143,
+        "text": "إِنَّ اللَّهَ بِالنَّاسِ لَرَءُوفٌ رَّحِيمٌ"
+      },
+      {
+        "surah": 9,
+        "ayah": 117,
+        "text": "إِنَّهُ بِهِمْ رَءُوفٌ رَّحِيمٌ"
+      },
+      {
+        "surah": 22,
+        "ayah": 65,
+        "text": "إِنَّ اللَّهَ بِالنَّاسِ لَرَءُوفٌ رَّحِيمٌ"
+      }
+    ]
+  },
+  {
+    "id": 84,
+    "arabic": "مَالِكُ ٱلْمُلْكِ",
+    "latin": "Malik al-Mulk",
+    "meaning": "Yang Maha Menguasai Kerajaan",
+    "description": "Allah yang menguasai seluruh kerajaan alam semesta.",
+    "verses": [
+      {
+        "surah": 3,
+        "ayah": 26,
+        "text": "قُلِ اللَّهُمَّ مَالِكَ الْمُلْكِ تُؤْتِي الْمُلْكَ مَن تَشَاءُ وَتَنزِعُ الْمُلْكَ مِمَّن تَشَاءُ"
+      }
+    ]
+  },
+  {
+    "id": 85,
+    "arabic": "ذُو ٱلْجَلَالِ وَٱلْإِكْرَامِ",
+    "latin": "Zul-Jalali wal-Ikram",
+    "meaning": "Yang Memiliki Kebesaran dan Kemuliaan",
+    "description": "Allah yang memiliki kebesaran dan kemuliaan yang sempurna.",
+    "verses": [
+      {
+        "surah": 55,
+        "ayah": 27,
+        "text": "وَيَبْقَىٰ وَجْهُ رَبِّكَ ذُو الْجَلَالِ وَالْإِكْرَامِ"
+      },
+      {
+        "surah": 55,
+        "ayah": 78,
+        "text": "تَبَارَكَ اسْمُ رَبِّكَ ذِي الْجَلَالِ وَالْإِكْرَامِ"
+      }
+    ]
+  },
+  {
+    "id": 86,
+    "arabic": "ٱلْمُقْسِطُ",
+    "latin": "Al-Muqsit",
+    "meaning": "Yang Maha Adil",
+    "description": "Allah yang berlaku adil dalam semua keputusan-Nya.",
+    "verses": [
+      {
+        "surah": 7,
+        "ayah": 29,
+        "text": "قُلْ أَمَرَ رَبِّي بِالْقِسْطِ"
+      },
+      {
+        "surah": 5,
+        "ayah": 42,
+        "text": "إِنَّ اللَّهَ يُحِبُّ الْمُقْسِطِينَ"
+      },
+      {
+        "surah": 60,
+        "ayah": 8,
+        "text": "إِنَّ اللَّهَ يُحِبُّ الْمُقْسِطِينَ"
+      }
+    ]
+  },
+  {
+    "id": 87,
+    "arabic": "ٱلْجَامِعُ",
+    "latin": "Al-Jami'",
+    "meaning": "Yang Maha Mengumpulkan",
+    "description": "Allah yang mengumpulkan segala sesuatu pada hari kiamat.",
+    "verses": [
+      {
+        "surah": 3,
+        "ayah": 9,
+        "text": "رَبَّنَا إِنَّكَ جَامِعُ النَّاسِ لِيَوْمٍ لَّا رَيْبَ فِيهِ"
+      },
+      {
+        "surah": 4,
+        "ayah": 140,
+        "text": "إِنَّ اللَّهَ جَامِعُ الْمُنَافِقِينَ وَالْكَافِرِينَ فِي جَهَنَّمَ جَمِيعًا"
+      }
+    ]
+  },
+  {
+    "id": 88,
+    "arabic": "ٱلْغَنِيُّ",
+    "latin": "Al-Ghani",
+    "meaning": "Yang Maha Kaya",
+    "description": "Allah yang tidak membutuhkan siapa pun dan segala sesuatu membutuhkan-Nya.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 267,
+        "text": "وَاللَّهُ غَنِيٌّ حَمِيدٌ"
+      },
+      {
+        "surah": 31,
+        "ayah": 12,
+        "text": "وَمَن كَفَرَ فَإِنَّ اللَّهَ غَنِيٌّ حَمِيدٌ"
+      },
+      {
+        "surah": 35,
+        "ayah": 15,
+        "text": "يَا أَيُّهَا النَّاسُ أَنتُمُ الْفُقَرَاءُ إِلَى اللَّهِ ۖ وَاللَّهُ هُوَ الْغَنِيُّ الْحَمِيدُ"
+      }
+    ]
+  },
+  {
+    "id": 89,
+    "arabic": "ٱلْمُغْنِي",
+    "latin": "Al-Mughni",
+    "meaning": "Yang Maha Memberi Kekayaan",
+    "description": "Allah yang memberikan kekayaan kepada hamba-Nya.",
+    "verses": [
+      {
+        "surah": 9,
+        "ayah": 74,
+        "text": "وَإِن تَوَلَّوْا يُعَذِّبْهُمُ اللَّهُ عَذَابًا أَلِيمًا فِي الدُّنْيَا وَالْآخِرَةِ ۚ وَمَا لَهُمْ فِي الْأَرْضِ مِن وَلِيٍّ وَلَا نَصِيرٍ"
+      },
+      {
+        "surah": 93,
+        "ayah": 8,
+        "text": "وَوَجَدَكَ عَائِلًا فَأَغْنَىٰ"
+      }
+    ]
+  },
+  {
+    "id": 90,
+    "arabic": "ٱلْمَانِعُ",
+    "latin": "Al-Mani'",
+    "meaning": "Yang Maha Mencegah",
+    "description": "Allah yang mencegah apa yang dikehendaki-Nya untuk dicegah.",
+    "verses": [
+      {
+        "surah": 67,
+        "ayah": 20,
+        "text": "أَمَّنْ هَٰذَا الَّذِي هُوَ جُندٌ لَّكُمْ يَنصُرُكُم مِّن دُونِ الرَّحْمَٰنِ ۚ إِنِ الْكَافِرُونَ إِلَّا فِي غُرُورٍ"
+      }
+    ]
+  },
+  {
+    "id": 91,
+    "arabic": "ٱلضَّارُّ",
+    "latin": "Ad-Darr",
+    "meaning": "Yang Maha Pemberi Mudarat",
+    "description": "Allah yang dapat memberikan mudarat sesuai hikmah-Nya.",
+    "verses": [
+      {
+        "surah": 6,
+        "ayah": 17,
+        "text": "وَإِن يَمْسَسْكَ اللَّهُ بِضُرٍّ فَلَا كَاشِفَ لَهُ إِلَّا هُوَ ۖ وَإِن يَمْسَسْكَ بِخَيْرٍ فَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ"
+      }
+    ]
+  },
+  {
+    "id": 92,
+    "arabic": "ٱلنَّافِعُ",
+    "latin": "An-Nafi'",
+    "meaning": "Yang Maha Pemberi Manfaat",
+    "description": "Allah yang memberikan manfaat kepada makhluk-Nya.",
+    "verses": [
+      {
+        "surah": 6,
+        "ayah": 17,
+        "text": "وَإِن يَمْسَسْكَ اللَّهُ بِضُرٍّ فَلَا كَاشِفَ لَهُ إِلَّا هُوَ ۖ وَإِن يَمْسَسْكَ بِخَيْرٍ فَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ"
+      },
+      {
+        "surah": 20,
+        "ayah": 89,
+        "text": "أَفَلَا يَرَوْنَ أَلَّا يَرْجِعُ إِلَيْهِمْ قَوْلًا وَلَا يَمْلِكُ لَهُمْ ضَرًّا وَلَا نَفْعًا"
+      }
+    ]
+  },
+  {
+    "id": 93,
+    "arabic": "ٱلنُّورُ",
+    "latin": "An-Nur",
+    "meaning": "Yang Maha Bercahaya",
+    "description": "Allah yang memberikan cahaya hidayah kepada hamba-Nya.",
+    "verses": [
+      {
+        "surah": 24,
+        "ayah": 35,
+        "text": "اللَّهُ نُورُ السَّمَاوَاتِ وَالْأَرْضِ"
+      }
+    ]
+  },
+  {
+    "id": 94,
+    "arabic": "ٱلْهَادِي",
+    "latin": "Al-Hadi",
+    "meaning": "Yang Maha Pemberi Petunjuk",
+    "description": "Allah yang memberikan petunjuk kepada hamba-Nya.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 213,
+        "text": "وَاللَّهُ يَهْدِي مَن يَشَاءُ إِلَىٰ صِرَاطٍ مُّسْتَقِيمٍ"
+      },
+      {
+        "surah": 22,
+        "ayah": 54,
+        "text": "وَأَنَّ اللَّهَ هُوَ الْهَادِي الَّذِينَ آمَنُوا إِلَىٰ صِرَاطٍ مُّسْتَقِيمٍ"
+      }
+    ]
+  },
+  {
+    "id": 95,
+    "arabic": "ٱلْبَدِيعُ",
+    "latin": "Al-Badi'",
+    "meaning": "Yang Maha Pencipta",
+    "description": "Allah yang menciptakan segala sesuatu dengan cara yang mengagumkan.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 117,
+        "text": "بَدِيعُ السَّمَاوَاتِ وَالْأَرْضِ ۖ وَإِذَا قَضَىٰ أَمْرًا فَإِنَّمَا يَقُولُ لَهُ كُن فَيَكُونُ"
+      },
+      {
+        "surah": 6,
+        "ayah": 101,
+        "text": "بَدِيعُ السَّمَاوَاتِ وَالْأَرْضِ ۖ أَنَّىٰ يَكُونُ لَهُ وَلَدٌ وَلَمْ تَكُن لَّهُ صَاحِبَةٌ ۖ وَخَلَقَ كُلَّ شَيْءٍ ۖ وَهُوَ بِكُلِّ شَيْءٍ عَلِيمٌ"
+      }
+    ]
+  },
+  {
+    "id": 96,
+    "arabic": "ٱلْبَاقِي",
+    "latin": "Al-Baqi",
+    "meaning": "Yang Maha Kekal",
+    "description": "Allah yang kekal dan tidak akan binasa.",
+    "verses": [
+      {
+        "surah": 28,
+        "ayah": 88,
+        "text": "وَلَا تَدْعُ مَعَ اللَّهِ إِلَٰهًا آخَرَ ۘ لَا إِلَٰهَ إِلَّا هُوَ ۚ كُلُّ شَيْءٍ هَالِكٌ إِلَّا وَجْهَهُ ۚ لَهُ الْحُكْمُ وَإِلَيْهِ تُرْجَعُونَ"
+      },
+      {
+        "surah": 55,
+        "ayah": 26,
+        "text": "كُلُّ مَنْ عَلَيْهَا فَانٍ"
+      },
+      {
+        "surah": 55,
+        "ayah": 27,
+        "text": "وَيَبْقَىٰ وَجْهُ رَبِّكَ ذُو الْجَلَالِ وَالْإِكْرَامِ"
+      }
+    ]
+  },
+  {
+    "id": 97,
+    "arabic": "ٱلْوَارِثُ",
+    "latin": "Al-Warith",
+    "meaning": "Yang Maha Pewaris",
+    "description": "Allah yang akan mewarisi segala sesuatu setelah semuanya binasa.",
+    "verses": [
+      {
+        "surah": 15,
+        "ayah": 23,
+        "text": "وَإِنَّا لَنَحْنُ نُحْيِي وَنُمِيتُ وَنَحْنُ الْوَارِثُونَ"
+      },
+      {
+        "surah": 19,
+        "ayah": 40,
+        "text": "إِنَّا نَحْنُ نَرِثُ الْأَرْضَ وَمَنْ عَلَيْهَا"
+      }
+    ]
+  },
+  {
+    "id": 98,
+    "arabic": "ٱلرَّشِيدُ",
+    "latin": "Ar-Rashid",
+    "meaning": "Yang Maha Pandai",
+    "description": "Allah yang pandai dalam mengatur segala urusan makhluk-Nya.",
+    "verses": [
+      {
+        "surah": 11,
+        "ayah": 87,
+        "text": "قَالُوا يَا شُعَيْبُ أَصَلَاتُكَ تَأْمُرُكَ أَن نَّتْرُكَ مَا يَعْبُدُ آبَاؤُنَا أَوْ أَن نَّفْعَلَ فِي أَمْوَالِنَا مَا نَشَاءُ ۖ إِنَّكَ لَأَنتَ الْحَلِيمُ الرَّشِيدُ"
+      },
+      {
+        "surah": 72,
+        "ayah": 14,
+        "text": "وَأَنَّا مِنَّا الْمُسْلِمُونَ وَمِنَّا الْقَاسِطُونَ ۖ فَمَنْ أَسْلَمَ فَأُولَٰئِكَ تَحَرَّوْا رَشَدًا"
+      }
+    ]
+  },
+  {
+    "id": 99,
+    "arabic": "ٱلصَّبُورُ",
+    "latin": "As-Sabur",
+    "meaning": "Yang Maha Sabar",
+    "description": "Allah yang sabar dalam menghadapi kemaksiatan hamba-Nya dan tidak tergesa-gesa memberikan hukuman.",
+    "verses": [
+      {
+        "surah": 2,
+        "ayah": 153,
+        "text": "وَاسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ ۚ إِنَّ اللَّهَ مَعَ الصَّابِرِينَ"
+      },
+      {
+        "surah": 3,
+        "ayah": 146,
+        "text": "وَمَا كَانَ قَوْلَهُمْ إِلَّا أَن قَالُوا رَبَّنَا اغْفِرْ لَنَا ذُنُوبَنَا وَإِسْرَافَنَا فِي أَمْرِنَا وَثَبِّتْ أَقْدَامَنَا وَانصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ"
+      },
+      {
+        "surah": 103,
+        "ayah": 3,
+        "text": "إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ وَتَوَاصَوْا بِالْحَقِّ وَتَوَاصَوْا بِالصَّبْرِ"
+      }
+    ]
+  }
+]

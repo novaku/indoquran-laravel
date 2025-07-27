@@ -8,6 +8,7 @@ use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SitemapIndexController;
 use App\Http\Controllers\SEOController;
 use App\Http\Controllers\TafsirMaudhuiController;
+use App\Http\Controllers\AsmaulHusnaController;
 use Illuminate\Support\Facades\Route;
 
 // SEO Routes
@@ -73,6 +74,10 @@ Route::post('/admin/login', [AdminController::class, 'login']);
 // API routes for Tafsir Maudhui (to be consumed by React)
 Route::get('/api/tafsir-maudhui', [TafsirMaudhuiController::class, 'api'])->name('tafsir-maudhui.api');
 Route::get('/api/tafsir-maudhui/search', [TafsirMaudhuiController::class, 'search'])->name('tafsir-maudhui.search');
+
+// API routes for Asmaul Husna (to be consumed by React)
+Route::get('/api/asmaul-husna', [AsmaulHusnaController::class, 'api'])->name('asmaul-husna.api');
+Route::get('/api/asmaul-husna/search', [AsmaulHusnaController::class, 'search'])->name('asmaul-husna.search');
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');

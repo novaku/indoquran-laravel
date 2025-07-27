@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradient Backgrounds -->
+    <linearGradient id="mainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#065f46;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#047857;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    
+    <radialGradient id="overlayGradient" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.1" />
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+    </radialGradient>
+    
+    <!-- Arabic Font Style -->
+    <style>
+      .arabic-text {
+        font-family: 'Amiri', 'Traditional Arabic', 'Arabic Typesetting', serif;
+        font-weight: 700;
+        text-anchor: middle;
+        dominant-baseline: middle;
+        direction: rtl;
+      }
+      
+      .latin-text {
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        font-weight: 700;
+        text-anchor: middle;
+        dominant-baseline: middle;
+      }
+      
+      .body-text {
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        font-weight: 400;
+        text-anchor: middle;
+        dominant-baseline: middle;
+      }
+      
+      .logo-text {
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        font-weight: 600;
+        text-anchor: start;
+        dominant-baseline: middle;
+      }
+    </style>
+    
+    <!-- Decorative Pattern -->
+    <pattern id="islamicPattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+      <circle cx="50" cy="50" r="2" fill="#ffffff" opacity="0.1"/>
+      <circle cx="25" cy="25" r="1" fill="#ffffff" opacity="0.05"/>
+      <circle cx="75" cy="75" r="1" fill="#ffffff" opacity="0.05"/>
+      <circle cx="25" cy="75" r="1.5" fill="#ffffff" opacity="0.07"/>
+      <circle cx="75" cy="25" r="1.5" fill="#ffffff" opacity="0.07"/>
+    </pattern>
+    
+    <!-- Drop Shadow Filter -->
+    <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-opacity="0.3"/>
+    </filter>
+    
+    <!-- Glow Effect -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#mainGradient)"/>
+  
+  <!-- Decorative Pattern Overlay -->
+  <rect width="1200" height="630" fill="url(#islamicPattern)" opacity="0.3"/>
+  
+  <!-- Radial Overlay for depth -->
+  <rect width="1200" height="630" fill="url(#overlayGradient)"/>
+  
+  <!-- Decorative Elements -->
+  <!-- Top ornamental lines -->
+  <line x1="300" y1="100" x2="900" y2="100" stroke="#ffffff" stroke-width="2" opacity="0.3"/>
+  <line x1="350" y1="110" x2="850" y2="110" stroke="#ffffff" stroke-width="1" opacity="0.2"/>
+  
+  <!-- Bottom ornamental lines -->
+  <line x1="300" y1="530" x2="900" y2="530" stroke="#ffffff" stroke-width="2" opacity="0.3"/>
+  <line x1="350" y1="520" x2="850" y2="520" stroke="#ffffff" stroke-width="1" opacity="0.2"/>
+  
+  <!-- Central decorative elements -->
+  <circle cx="600" cy="315" r="3" fill="#ffffff" opacity="0.4"/>
+  <circle cx="580" cy="315" r="2" fill="#ffffff" opacity="0.3"/>
+  <circle cx="620" cy="315" r="2" fill="#ffffff" opacity="0.3"/>
+  
+  <!-- Main Content Area Background -->
+  <rect x="150" y="150" width="900" height="330" rx="20" ry="20" 
+        fill="#ffffff" opacity="0.1" filter="url(#dropShadow)"/>
+  
+  <!-- Arabic Title -->
+  <text x="600" y="220" class="arabic-text" font-size="72" fill="#ffffff" 
+        filter="url(#glow)">أَسْمَاءُ الْحُسْنَى</text>
+  
+  <!-- Decorative line under Arabic -->
+  <line x1="400" y1="250" x2="800" y2="250" stroke="#ffffff" stroke-width="3" opacity="0.6"/>
+  <line x1="450" y1="260" x2="750" y2="260" stroke="#ffffff" stroke-width="1" opacity="0.4"/>
+  
+  <!-- Main Title -->
+  <text x="600" y="310" class="latin-text" font-size="48" fill="#ffffff" 
+        filter="url(#dropShadow)">99 ASMAUL HUSNA</text>
+  
+  <!-- Subtitle -->
+  <text x="600" y="350" class="body-text" font-size="24" fill="#ffffff" opacity="0.9">
+    Nama-nama Indah Allah SWT
+  </text>
+  
+  <!-- Description -->
+  <text x="600" y="390" class="body-text" font-size="18" fill="#ffffff" opacity="0.8">
+    Dengan Makna, Audio, dan Ayat Al-Quran Terkait
+  </text>
+  
+  <!-- IndoQuran Logo/Brand -->
+  <g transform="translate(50, 550)">
+    <!-- Logo background -->
+    <rect x="0" y="0" width="200" height="60" rx="30" ry="30" 
+          fill="#ffffff" opacity="0.15"/>
+    
+    <!-- Crescent moon symbol -->
+    <path d="M 25 15 A 12 12 0 1 1 25 45 A 8 8 0 1 0 25 15" 
+          fill="#ffffff" opacity="0.9"/>
+    
+    <!-- IndoQuran text -->
+    <text x="50" y="35" class="logo-text" font-size="20" fill="#ffffff" opacity="0.9">
+      IndoQuran.web.id
+    </text>
+  </g>
+  
+  <!-- Corner Decorative Elements -->
+  <!-- Top Left -->
+  <g transform="translate(50, 50)" opacity="0.3">
+    <circle cx="0" cy="0" r="30" fill="none" stroke="#ffffff" stroke-width="2"/>
+    <circle cx="0" cy="0" r="20" fill="none" stroke="#ffffff" stroke-width="1"/>
+    <circle cx="0" cy="0" r="10" fill="none" stroke="#ffffff" stroke-width="1"/>
+  </g>
+  
+  <!-- Top Right -->
+  <g transform="translate(1150, 50)" opacity="0.3">
+    <circle cx="0" cy="0" r="30" fill="none" stroke="#ffffff" stroke-width="2"/>
+    <circle cx="0" cy="0" r="20" fill="none" stroke="#ffffff" stroke-width="1"/>
+    <circle cx="0" cy="0" r="10" fill="none" stroke="#ffffff" stroke-width="1"/>
+  </g>
+  
+  <!-- Bottom Right geometric pattern -->
+  <g transform="translate(1100, 550)" opacity="0.2">
+    <polygon points="0,0 30,0 30,30 0,30" fill="none" stroke="#ffffff" stroke-width="2"/>
+    <polygon points="10,10 20,10 20,20 10,20" fill="#ffffff"/>
+  </g>
+  
+  <!-- Islamic geometric star pattern (8-pointed) -->
+  <g transform="translate(600, 480)" opacity="0.3">
+    <polygon points="0,-15 11,-11 15,0 11,11 0,15 -11,11 -15,0 -11,-11" 
+             fill="none" stroke="#ffffff" stroke-width="1.5"/>
+    <polygon points="0,-10 7,-7 10,0 7,7 0,10 -7,7 -10,0 -7,-7" 
+             fill="#ffffff" opacity="0.5"/>
+  </g>
+  
+  <!-- Additional decorative flourishes -->
+  <g transform="translate(200, 315)" opacity="0.2">
+    <path d="M 0 0 Q 10 -10 20 0 Q 10 10 0 0" fill="#ffffff"/>
+  </g>
+  
+  <g transform="translate(1000, 315)" opacity="0.2">
+    <path d="M 0 0 Q -10 -10 -20 0 Q -10 10 0 0" fill="#ffffff"/>
+  </g>
+</svg>

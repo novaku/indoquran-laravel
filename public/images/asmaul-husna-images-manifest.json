@@ -1,0 +1,48 @@
+{
+  "name": "Asmaul Husna SEO Images",
+  "description": "Complete set of SEO optimized images for 99 Asmaul Husna page",
+  "generated": "2025-07-27T14:11:09Z",
+  "images": {
+    "openGraph": {
+      "url": "https://indoquran.web.id/images/asmaul-husna-cover.jpg",
+      "width": 1200,
+      "height": 630,
+      "alt": "99 Asmaul Husna - Kaligrafi Arab Nama-nama Allah SWT"
+    },
+    "twitter": {
+      "url": "https://indoquran.web.id/images/asmaul-husna-twitter.jpg",
+      "width": 1200,
+      "height": 600,
+      "alt": "99 Asmaul Husna - Nama-nama Indah Allah SWT"
+    },
+    "whatsapp": {
+      "url": "https://indoquran.web.id/images/asmaul-husna-whatsapp.jpg",
+      "width": 400,
+      "height": 400,
+      "alt": "99 Asmaul Husna - Nama Allah"
+    },
+    "instagram": {
+      "story": {
+        "url": "https://indoquran.web.id/images/asmaul-husna-instagram-story.jpg",
+        "width": 1080,
+        "height": 1920
+      },
+      "post": {
+        "url": "https://indoquran.web.id/images/asmaul-husna-instagram-post.jpg",
+        "width": 1080,
+        "height": 1080
+      }
+    },
+    "thumbnail": {
+      "url": "https://indoquran.web.id/images/asmaul-husna-thumb.jpg",
+      "width": 300,
+      "height": 157
+    }
+  },
+  "formats": [
+    "jpg",
+    "webp",
+    "avif",
+    "png"
+  ]
+}

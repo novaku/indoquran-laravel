@@ -362,4 +362,115 @@ export const getSurahListSEO = () => ({
   }
 });
 
+// Helper for Asmaul Husna page SEO
+export const getAsmaulHusnaSEO = (totalNames = 99, filteredCount = null) => ({
+  title: '99 Asmaul Husna - Nama-nama Indah Allah SWT Lengkap dengan Makna | IndoQuran',
+  description: 'Pelajari dan renungkan 99 Asmaul Husna (nama-nama indah Allah SWT) dengan makna mendalam, audio pronunciation, ayat Al-Quran terkait, dan penjelasan lengkap dalam bahasa Indonesia. Dekatkan diri kepada Allah melalui pemahaman sifat-sifat mulia-Nya.',
+  keywords: '99 asmaul husna, nama allah, nama indah allah, sifat allah, asmaul husna lengkap, makna asmaul husna, audio asmaul husna, doa asmaul husna, kaligrafi arab, al husna, nama allah 99, dzikir asmaul husna, islam, spiritualitas, indoquran',
+  canonicalUrl: 'https://indoquran.web.id/asmaul-husna',
+  ogType: 'article',
+  ogImage: 'https://indoquran.web.id/images/asmaul-husna-cover.jpg',
+  structuredDataType: 'asmaulHusna',
+  structuredData: {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    'headline': '99 Asmaul Husna - Nama-nama Indah Allah SWT',
+    'description': 'Koleksi lengkap 99 Asmaul Husna dengan makna, penjelasan, dan ayat Al-Quran terkait',
+    'author': {
+      '@type': 'Organization',
+      'name': 'IndoQuran',
+      'url': 'https://indoquran.web.id'
+    },
+    'publisher': {
+      '@type': 'Organization',
+      'name': 'IndoQuran',
+      'logo': {
+        '@type': 'ImageObject',
+        'url': 'https://indoquran.web.id/android-chrome-512x512.png'
+      }
+    },
+    'datePublished': '2025-01-01T00:00:00Z',
+    'dateModified': new Date().toISOString(),
+    'mainEntityOfPage': 'https://indoquran.web.id/asmaul-husna',
+    'image': 'https://indoquran.web.id/images/asmaul-husna-cover.jpg',
+    'articleSection': 'Islamic Education',
+    'wordCount': 2500,
+    'about': [
+      {
+        '@type': 'Thing',
+        'name': 'Asmaul Husna',
+        'description': '99 nama indah Allah SWT dalam Islam'
+      },
+      {
+        '@type': 'Thing',
+        'name': 'Islamic Names of God',
+        'description': 'Beautiful names and attributes of Allah in Islam'
+      }
+    ],
+    'mentions': [
+      {
+        '@type': 'Thing',
+        'name': 'Al-Quran',
+        'description': 'Holy book of Islam containing verses about Allah\'s names'
+      },
+      {
+        '@type': 'Thing',
+        'name': 'Islamic Prayer',
+        'description': 'Du\'a and dhikr using Allah\'s beautiful names'
+      }
+    ]
+  },
+  pageType: 'asmaul-husna',
+  additionalMeta: {
+    'application-name': 'IndoQuran Asmaul Husna',
+    'revisit-after': '30 days',
+    'article:published_time': '2025-01-01T00:00:00Z',
+    'article:modified_time': new Date().toISOString(),
+    'article:section': 'Islamic Education',
+    'article:tag': 'Asmaul Husna, Allah Names, Islamic Education, Spirituality',
+    'dc.title': '99 Asmaul Husna - Nama-nama Indah Allah SWT',
+    'dc.creator': 'IndoQuran',
+    'dc.subject': 'Islamic Education, Allah Names, Asmaul Husna',
+    'dc.description': 'Comprehensive collection of 99 beautiful names of Allah with meanings and explanations',
+    'dc.language': 'id-ID',
+    'geo.region': 'ID',
+    'geo.country': 'Indonesia'
+  },
+  openGraph: {
+    'og:title': '99 Asmaul Husna - Nama-nama Indah Allah SWT | IndoQuran',
+    'og:description': 'Pelajari 99 Asmaul Husna dengan makna mendalam, audio, dan ayat Al-Quran terkait. Dekatkan diri kepada Allah melalui nama-nama indah-Nya.',
+    'og:image': 'https://indoquran.web.id/images/asmaul-husna-cover.jpg',
+    'og:image:width': '1200',
+    'og:image:height': '630',
+    'og:image:alt': '99 Asmaul Husna - Kaligrafi Arab Nama-nama Allah',
+    'og:locale': 'id_ID',
+    'og:site_name': 'IndoQuran'
+  },
+  twitter: {
+    'twitter:card': 'summary_large_image',
+    'twitter:title': '99 Asmaul Husna - Nama-nama Indah Allah SWT',
+    'twitter:description': 'Pelajari 99 Asmaul Husna dengan makna mendalam, audio, dan ayat Al-Quran terkait.',
+    'twitter:image': 'https://indoquran.web.id/images/asmaul-husna-cover.jpg',
+    'twitter:image:alt': '99 Asmaul Husna - Kaligrafi Arab'
+  }
+});
+
+// Helper for individual Asmaul Husna name SEO (for detail pages if needed)
+export const getAsmaulHusnaNameSEO = (name) => ({
+  title: `${name.latin} (${name.arabic}) - Makna: ${name.meaning} | 99 Asmaul Husna | IndoQuran`,
+  description: `Pelajari makna mendalam dari nama Allah "${name.latin}" (${name.arabic}) yang berarti "${name.meaning}". ${name.description ? name.description.substring(0, 120) + '...' : 'Temukan penjelasan lengkap, ayat Al-Quran terkait, dan hikmah spiritual dari nama indah Allah ini.'}`,
+  keywords: `${name.latin}, ${name.arabic}, ${name.meaning}, asmaul husna ${name.latin}, makna ${name.latin}, nama allah ${name.latin}, sifat allah, 99 nama allah`,
+  canonicalUrl: `https://indoquran.web.id/asmaul-husna/${name.id}`,
+  ogType: 'article',
+  structuredDataType: 'asmaulHusnaName',
+  structuredData: {
+    name: name.latin,
+    arabic: name.arabic,
+    meaning: name.meaning,
+    description: name.description,
+    number: name.id
+  },
+  pageType: 'asmaul-husna-name'
+});
+
 export default SEOHead;

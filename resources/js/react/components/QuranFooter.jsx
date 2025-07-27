@@ -120,6 +120,7 @@ function QuranFooter() {
             { name: 'Jelajahi Juz', path: '/juz' },
             { name: 'Jelajahi Halaman', path: '/halaman' },
             { name: 'Tafsir Maudhui', path: '/tafsir-maudhui' },
+            { name: 'Asmaul Husna', path: '/asmaul-husna' },
             { name: 'Doa Bersama', path: '/doa-bersama' },
         ],
         'Pelajari': [

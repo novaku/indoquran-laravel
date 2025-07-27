@@ -36,6 +36,8 @@ function QuranHomePage() {
     const [recentReading, setRecentReading] = useState(null);
     const [popularSurahs, setPopularSurahs] = useState([]);
     const [loadingPopular, setLoadingPopular] = useState(false);
+    const [randomAsmaulHusna, setRandomAsmaulHusna] = useState(null);
+    const [loadingAsmaulHusna, setLoadingAsmaulHusna] = useState(false);
 
     // Fetch popular/random surahs
     const fetchPopularSurahs = useCallback(async () => {
@@ -77,6 +79,41 @@ function QuranHomePage() {
         }
     }, [surahs]);
 
+    // Fetch random Asmaul Husna
+    const fetchRandomAsmaulHusna = useCallback(async () => {
+        setLoadingAsmaulHusna(true);
+        try {
+            const response = await fetchWithAuth('/api/asmaul-husna', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                }
+            });
+            
+            if (!response.ok) throw new Error('Failed to fetch asmaul husna data');
+            const result = await response.json();
+            
+            if (Array.isArray(result) && result.length > 0) {
+                // Get a random name from the array
+                const randomIndex = Math.floor(Math.random() * result.length);
+                const randomName = result[randomIndex];
+                setRandomAsmaulHusna(randomName);
+            }
+        } catch (error) {
+            console.error('Error fetching asmaul husna:', error);
+            // Fallback to a static name if API fails
+            setRandomAsmaulHusna({
+                id: 1,
+                arabic: "الرَّحْمَٰنُ",
+                latin: "Ar-Rahman",
+                meaning: "Yang Maha Pengasih",
+                description: "Allah yang memberikan rahmat kepada semua makhluk tanpa memandang apakah mereka beriman atau tidak."
+            });
+        } finally {
+            setLoadingAsmaulHusna(false);
+        }
+    }, []);
+
     // Fetch surahs data
     useEffect(() => {
         const fetchSurahs = async () => {
@@ -115,6 +152,11 @@ function QuranHomePage() {
             fetchPopularSurahs();
         }
     }, [surahs, fetchPopularSurahs]);
+
+    // Fetch random Asmaul Husna on component mount
+    useEffect(() => {
+        fetchRandomAsmaulHusna();
+    }, [fetchRandomAsmaulHusna]);
 
     // Get user's real reading progress
     useEffect(() => {
@@ -163,6 +205,10 @@ function QuranHomePage() {
 
     const handleRefreshPopular = () => {
         fetchPopularSurahs();
+    };
+
+    const handleRefreshAsmaulHusna = () => {
+        fetchRandomAsmaulHusna();
     };
 
     const handleShareToWhatsApp = () => {
@@ -461,6 +507,25 @@ function QuranHomePage() {
                                 </Link>
 
                                 <Link
+                                    to="/asmaul-husna"
+                                    className="group p-6 rounded-xl border border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200"
+                                >
+                                    <div className="flex items-center space-x-4">
+                                        <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center group-hover:bg-yellow-200">
+                                            <StarIcon className="w-6 h-6 text-yellow-600" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold text-gray-900 group-hover:text-green-700">
+                                                Asmaul Husna
+                                            </h3>
+                                            <p className="text-sm text-gray-500">
+                                                99 nama indah Allah SWT
+                                            </p>
+                                        </div>
+                                    </div>
+                                </Link>
+
+                                <Link
                                     to="/tafsir-maudhui"
                                     className="group p-6 rounded-xl border border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200"
                                 >
@@ -522,33 +587,61 @@ function QuranHomePage() {
 
                     {/* Right Column - Sidebar */}
                     <div className="space-y-8">
+                        {/* Random Asmaul Husna Widget */}
+                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-semibold text-gray-900">Asmaul Husna</h3>
+                                <button
+                                    onClick={handleRefreshAsmaulHusna}
+                                    disabled={loadingAsmaulHusna}
+                                    className="flex items-center space-x-1 px-2 py-1 text-xs text-green-600 hover:text-green-700 hover:bg-green-50 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    title="Nama Allah lainnya"
+                                >
+                                    <ArrowPathIcon className={`w-3 h-3 ${loadingAsmaulHusna ? 'animate-spin' : ''}`} />
+                                    <span>Acak</span>
+                                </button>
+                            </div>
+                            
+                            {loadingAsmaulHusna ? (
+                                <div className="animate-pulse">
+                                    <div className="text-center mb-4">
+                                        <div className="h-8 bg-gray-200 rounded w-32 mx-auto mb-2"></div>
+                                        <div className="h-6 bg-gray-200 rounded w-24 mx-auto mb-1"></div>
+                                        <div className="h-4 bg-gray-200 rounded w-20 mx-auto"></div>
+                                    </div>
+                                    <div className="h-16 bg-gray-200 rounded"></div>
+                                </div>
+                            ) : randomAsmaulHusna ? (
+                                <div className="text-center">
+                                    <div className="mb-4">
+                                        <p className="text-2xl font-arabic text-gray-900 mb-2" dir="rtl">
+                                            {randomAsmaulHusna.arabic}
+                                        </p>
+                                        <h4 className="text-lg font-semibold text-green-600 mb-1">
+                                            {randomAsmaulHusna.latin}
+                                        </h4>
+                                        <p className="text-sm font-medium text-gray-700">
+                                            {randomAsmaulHusna.meaning}
+                                        </p>
+                                    </div>
+                                    <p className="text-xs text-gray-600 leading-relaxed mb-4">
+                                        {randomAsmaulHusna.description}
+                                    </p>
+                                    <Link
+                                        to="/asmaul-husna"
+                                        className="inline-flex items-center space-x-1 text-xs text-green-600 hover:text-green-700 hover:underline"
+                                    >
+                                        <span>Lihat semua 99 nama</span>
+                                        <ChevronRightIcon className="w-3 h-3" />
+                                    </Link>
+                                </div>
+                            ) : null}
+                        </div>
+
                         {/* Prayer Times Widget */}
                         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
                             <h3 className="text-lg font-semibold text-gray-900 mb-4">Waktu Shalat Hari Ini</h3>
                             <PrayerTimesWidget />
-                        </div>
-
-                        {/* Quick Stats */}
-                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Fakta Singkat</h3>
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-600">Total Surah</span>
-                                    <span className="font-semibold text-gray-900">114</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-600">Total Ayat</span>
-                                    <span className="font-semibold text-gray-900">6,236</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-600">Total Juz</span>
-                                    <span className="font-semibold text-gray-900">30</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-600">Total Halaman</span>
-                                    <span className="font-semibold text-gray-900">604</span>
-                                </div>
-                            </div>
                         </div>
 
                         {/* Share Widget */}
