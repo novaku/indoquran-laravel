@@ -13,7 +13,11 @@ import {
     ChevronDownIcon,
     DocumentTextIcon,
     SparklesIcon,
-    ClockIcon
+    ClockIcon,
+    StarIcon,
+    AcademicCapIcon,
+    Squares2X2Icon,
+    DocumentIcon
 } from '@heroicons/react/24/outline';
 
 function QuranHeader() {
@@ -104,10 +108,10 @@ function QuranHeader() {
 
     const quranDropdownItems = [
         { name: 'Daftar Surah', path: '/surah', icon: BookOpenIcon, description: 'Jelajahi 114 surah Al-Quran' },
-        { name: 'Juz', path: '/juz', icon: DocumentTextIcon, description: 'Baca berdasarkan juz (para)' },
-        { name: 'Halaman', path: '/halaman', icon: DocumentTextIcon, description: 'Baca berdasarkan halaman mushaf' },
-        { name: 'Asmaul Husna', path: '/asmaul-husna', icon: SparklesIcon, description: '99 nama indah Allah SWT' },
-        { name: 'Tafsir Maudhui', path: '/tafsir-maudhui', icon: SparklesIcon, description: 'Topik-topik tematik dalam Al-Quran' },
+        { name: 'Juz', path: '/juz', icon: Squares2X2Icon, description: 'Baca berdasarkan juz (para)' },
+        { name: 'Halaman', path: '/halaman', icon: DocumentIcon, description: 'Baca berdasarkan halaman mushaf' },
+        { name: 'Asmaul Husna', path: '/asmaul-husna', icon: StarIcon, description: '99 nama indah Allah SWT' },
+        { name: 'Tafsir Maudhui', path: '/tafsir-maudhui', icon: AcademicCapIcon, description: 'Topik-topik tematik dalam Al-Quran' },
     ];
 
     const communityDropdownItems = [
