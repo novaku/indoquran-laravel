@@ -494,6 +494,12 @@ function QuranHomePage() {
                             </div>
                         </section>
 
+                        {/* Statistics Widget */}
+                        <section className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+                            <h2 className="text-2xl font-bold text-gray-900 mb-6">Statistik Komunitas</h2>
+                            <StatsWidget />
+                        </section>
+
                         {/* Quick Navigation */}
                         <section className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
                             <h2 className="text-2xl font-bold text-gray-900 mb-6">Jelajahi</h2>
@@ -687,9 +693,6 @@ function QuranHomePage() {
                                 </div>
                             ) : null}
                         </div>
-
-                        {/* Statistics Widget */}
-                        <StatsWidget />
 
                         {/* Milestone Widget */}
                         <MilestoneWidget />
