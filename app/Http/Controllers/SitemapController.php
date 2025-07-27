@@ -69,6 +69,12 @@ class SitemapController extends Controller
                 'priority' => '0.8'
             ],
             [
+                'url' => $baseUrl . '/asmaul-husna',
+                'lastmod' => $currentDate,
+                'changefreq' => 'monthly',
+                'priority' => '0.7'
+            ],
+            [
                 'url' => $baseUrl . '/tentang',
                 'lastmod' => $currentDate,
                 'changefreq' => 'monthly',

@@ -55,7 +55,7 @@ class GenerateSitemap extends Command
             
         $this->info("Using base URL: {$baseUrl}");
         
-        $lastMod = Carbon::now()->toIso8601String();
+        $lastMod = Carbon::now()->format('Y-m-d');
         
         // Start XML
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
@@ -63,10 +63,19 @@ class GenerateSitemap extends Command
         
         // Add static pages with appropriate frequencies and priorities
         $staticPages = [
-            '' => ['priority' => '1.0', 'changefreq' => 'daily'],                 // Homepage
-            'cari' => ['priority' => '0.8', 'changefreq' => 'weekly'],          // Search page
+            '' => ['priority' => '1.0', 'changefreq' => 'daily'],                    // Homepage
+            'cari' => ['priority' => '0.8', 'changefreq' => 'weekly'],              // Search page
+            'semua-surah' => ['priority' => '0.9', 'changefreq' => 'weekly'],       // Surah list page
+            'daftar-lengkap' => ['priority' => '0.9', 'changefreq' => 'weekly'],    // Surah list page (alias)
+            'juz' => ['priority' => '0.8', 'changefreq' => 'weekly'],               // Juz index page
+            'halaman' => ['priority' => '0.8', 'changefreq' => 'weekly'],           // Page index page
+            'asmaul-husna' => ['priority' => '0.7', 'changefreq' => 'monthly'],     // Asmaul Husna page
+            'tafsir-maudhui' => ['priority' => '0.7', 'changefreq' => 'monthly'],   // Tafsir Maudhui page
+            'doa-bersama' => ['priority' => '0.6', 'changefreq' => 'weekly'],       // Prayer together page
             'tentang' => ['priority' => '0.6', 'changefreq' => 'monthly'],          // About page
-            'kontak' => ['priority' => '0.5', 'changefreq' => 'monthly'],        // Contact page
+            'kontak' => ['priority' => '0.5', 'changefreq' => 'monthly'],           // Contact page
+            'donasi' => ['priority' => '0.4', 'changefreq' => 'monthly'],           // Donation page
+            'riwayat-versi' => ['priority' => '0.4', 'changefreq' => 'monthly'],    // Version history page
             'kebijakan' => ['priority' => '0.3', 'changefreq' => 'yearly'],         // Privacy page
         ];
         
@@ -87,7 +96,7 @@ class GenerateSitemap extends Command
             // Main surah page
             $xml .= $this->createUrlEntry(
                 $baseUrl . '/surah/' . $surah->number,
-                $surah->updated_at ? $surah->updated_at->toIso8601String() : $lastMod,
+                $surah->updated_at ? $surah->updated_at->format('Y-m-d') : $lastMod,
                 'weekly',
                 '0.9'
             );
@@ -98,7 +107,7 @@ class GenerateSitemap extends Command
                 for ($i = 1; $i <= $ayahCount; $i++) {
                     $xml .= $this->createUrlEntry(
                         $baseUrl . '/surah/' . $surah->number . '/' . $i,
-                        $surah->updated_at ? $surah->updated_at->toIso8601String() : $lastMod,
+                        $surah->updated_at ? $surah->updated_at->format('Y-m-d') : $lastMod,
                         'monthly',
                         '0.7'
                     );
@@ -119,7 +128,7 @@ class GenerateSitemap extends Command
         // Add page-based navigation (if it exists)
         for ($page = 1; $page <= 604; $page++) {
             $xml .= $this->createUrlEntry(
-                $baseUrl . '/pages/' . $page,
+                $baseUrl . '/halaman/' . $page,
                 $lastMod,
                 'monthly',
                 '0.6'

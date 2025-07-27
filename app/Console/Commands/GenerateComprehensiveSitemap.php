@@ -71,8 +71,17 @@ class GenerateComprehensiveSitemap extends Command
         $staticPages = [
             '' => ['priority' => '1.0', 'changefreq' => 'daily'],
             'cari' => ['priority' => '0.8', 'changefreq' => 'weekly'],
+            'semua-surah' => ['priority' => '0.9', 'changefreq' => 'weekly'],
+            'daftar-lengkap' => ['priority' => '0.9', 'changefreq' => 'weekly'],
+            'juz' => ['priority' => '0.8', 'changefreq' => 'weekly'],
+            'halaman' => ['priority' => '0.8', 'changefreq' => 'weekly'],
+            'asmaul-husna' => ['priority' => '0.7', 'changefreq' => 'monthly'],
+            'tafsir-maudhui' => ['priority' => '0.7', 'changefreq' => 'monthly'],
+            'doa-bersama' => ['priority' => '0.6', 'changefreq' => 'weekly'],
             'tentang' => ['priority' => '0.6', 'changefreq' => 'monthly'],
             'kontak' => ['priority' => '0.5', 'changefreq' => 'monthly'],
+            'donasi' => ['priority' => '0.4', 'changefreq' => 'monthly'],
+            'riwayat-versi' => ['priority' => '0.4', 'changefreq' => 'monthly'],
             'kebijakan' => ['priority' => '0.3', 'changefreq' => 'yearly'],
         ];
         
@@ -146,8 +155,17 @@ class GenerateComprehensiveSitemap extends Command
         $staticPages = [
             '' => ['priority' => '1.0', 'changefreq' => 'daily'],
             'cari' => ['priority' => '0.8', 'changefreq' => 'weekly'],
+            'semua-surah' => ['priority' => '0.9', 'changefreq' => 'weekly'],
+            'daftar-lengkap' => ['priority' => '0.9', 'changefreq' => 'weekly'],
+            'juz' => ['priority' => '0.8', 'changefreq' => 'weekly'],
+            'halaman' => ['priority' => '0.8', 'changefreq' => 'weekly'],
+            'asmaul-husna' => ['priority' => '0.7', 'changefreq' => 'monthly'],
+            'tafsir-maudhui' => ['priority' => '0.7', 'changefreq' => 'monthly'],
+            'doa-bersama' => ['priority' => '0.6', 'changefreq' => 'weekly'],
             'tentang' => ['priority' => '0.6', 'changefreq' => 'monthly'],
             'kontak' => ['priority' => '0.5', 'changefreq' => 'monthly'],
+            'donasi' => ['priority' => '0.4', 'changefreq' => 'monthly'],
+            'riwayat-versi' => ['priority' => '0.4', 'changefreq' => 'monthly'],
             'kebijakan' => ['priority' => '0.3', 'changefreq' => 'yearly'],
         ];
         
@@ -240,10 +258,10 @@ class GenerateComprehensiveSitemap extends Command
         }
         
         // Add Mushaf page navigation (sample pages to avoid overwhelming)
-        $samplePages = [1, 2, 3, 4, 5, 10, 20, 30, 50, 100, 200, 300, 400, 500, 600, 604];
+        $samplePages = [1, 2, 3, 4, 5, 10, 20, 30, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 604];
         foreach ($samplePages as $page) {
             $xml .= $this->createUrlEntry(
-                $baseUrl . '/pages/' . $page,
+                $baseUrl . '/halaman/' . $page,
                 $currentDate,
                 'monthly',
                 '0.6'
@@ -271,11 +289,18 @@ class GenerateComprehensiveSitemap extends Command
         $robotsTxt .= "Disallow: /admin/\n\n";
         $robotsTxt .= "# Allow important pages\n";
         $robotsTxt .= "Allow: /cari\n";
+        $robotsTxt .= "Allow: /semua-surah\n";
+        $robotsTxt .= "Allow: /daftar-lengkap\n";
         $robotsTxt .= "Allow: /surah/\n";
         $robotsTxt .= "Allow: /juz/\n";
         $robotsTxt .= "Allow: /halaman/\n";
+        $robotsTxt .= "Allow: /asmaul-husna\n";
+        $robotsTxt .= "Allow: /tafsir-maudhui\n";
+        $robotsTxt .= "Allow: /doa-bersama\n";
         $robotsTxt .= "Allow: /tentang\n";
         $robotsTxt .= "Allow: /kontak\n";
+        $robotsTxt .= "Allow: /donasi\n";
+        $robotsTxt .= "Allow: /riwayat-versi\n";
         $robotsTxt .= "Allow: /kebijakan\n\n";
         $robotsTxt .= "# Crawl delay for respectful crawling\n";
         $robotsTxt .= "Crawl-delay: 1\n\n";

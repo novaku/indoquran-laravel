@@ -10,11 +10,18 @@ Disallow: /admin/
 
 # Allow important pages
 Allow: /cari
+Allow: /semua-surah
+Allow: /daftar-lengkap
 Allow: /surah/
 Allow: /juz/
 Allow: /halaman/
+Allow: /asmaul-husna
+Allow: /tafsir-maudhui
+Allow: /doa-bersama
 Allow: /tentang
 Allow: /kontak
+Allow: /donasi
+Allow: /riwayat-versi
 Allow: /kebijakan
 
 # Crawl delay for respectful crawling
