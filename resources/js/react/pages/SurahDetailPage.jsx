@@ -43,26 +43,15 @@ const convertToArabicNumerals = (num) => {
 
 function SurahDetailPage() {
     console.log('🚀 SurahDetailPage component loading...');
+    // Add visible indicator that React is working
+    useEffect(() => {
+        document.title = 'IndoQuran - Loading...';
+        console.log('🔄 SurahDetailPage useEffect triggered');
+    }, []);
     
     const { user } = useAuth();
     const { number, ayahNumber } = useParams();
     const navigate = useNavigate();
-    
-    // Set initial loading title and update when surah data is available
-    useEffect(() => {
-        if (surah) {
-            // Update title when surah data is loaded
-            if (ayahNumber) {
-                document.title = `${surah.name_latin} Ayat ${ayahNumber} - Terjemahan & Audio | IndoQuran`;
-            } else {
-                document.title = `Surah ${surah.name_latin} (${surah.name_arabic}) - Terjemahan & Audio Murottal | IndoQuran`;
-            }
-            console.log(`🔄 Document title updated for surah ${surah.name_latin}`);
-        } else {
-            document.title = 'IndoQuran - Loading...';
-            console.log('🔄 SurahDetailPage loading state');
-        }
-    }, [surah, ayahNumber]);
     
     console.log('📋 URL Params:', { number, ayahNumber });
     console.log('🔧 User:', user ? 'Logged in' : 'Not logged in');
@@ -1668,18 +1657,7 @@ function SurahDetailPage() {
             `}</style>
 
             <SEOHead 
-                {...(() => {
-                    // Use specific ayah SEO data if viewing a specific ayah, otherwise use surah SEO data
-                    if (ayahNumber && currentAyah && (currentAyah.text_indonesian || currentAyah.translation_id)) {
-                        return getPageSEOData('ayah', {
-                            surah: surah,
-                            ayah_number: parseInt(ayahNumber),
-                            translation: currentAyah.text_indonesian || currentAyah.translation_id,
-                        });
-                    } else {
-                        return getPageSEOData('surah', surah);
-                    }
-                })()}
+                {...getPageSEOData('surah', surah)}
                 additionalMeta={[
                     { name: 'author', content: 'IndoQuran' },
                     { name: 'robots', content: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1' },
