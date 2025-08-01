@@ -48,14 +48,11 @@ if (app()->environment('local', 'development')) {
     })->where('path', '.*');
 }
 
-// Indonesian language routes
-Route::get('/masuk', [LoginController::class, 'showLoginForm'])->name('masuk');
+// Indonesian language routes - POST routes only (GET routes handled by React SPA)
 Route::post('/masuk', [LoginController::class, 'login']);
-Route::get('/daftar', [RegisterController::class, 'showRegistrationForm'])->name('daftar');
 Route::post('/daftar', [RegisterController::class, 'register']);
 
-// Authentication routes
-Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+// Authentication routes - POST route only (GET route handled by React SPA)
 Route::post('/login', [LoginController::class, 'login']);
 
 // Admin routes

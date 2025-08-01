@@ -28,7 +28,13 @@ export default defineConfig(({ command, mode }) => {
             react({
                 include: '**/*.{js,jsx,tsx}',
                 jsxRuntime: 'automatic',
-                fastRefresh: true
+                fastRefresh: true,
+                babel: {
+                    plugins: [
+                        // Remove console logs in production
+                        ...(!isDev ? [['babel-plugin-transform-remove-console', { exclude: ['error', 'warn'] }]] : [])
+                    ]
+                }
             }),
             tailwindcss(),
         ],
@@ -53,13 +59,14 @@ export default defineConfig(({ command, mode }) => {
             chunkSizeWarningLimit: 500,
             // Disable source maps for production to reduce size
             sourcemap: false,
+            // Enhanced code splitting for better mobile caching
             rollupOptions: {
                 output: {
                     entryFileNames: 'assets/[name]-[hash].js',
                     chunkFileNames: 'assets/[name]-[hash].js',
                     assetFileNames: (assetInfo) => {
                         const extType = assetInfo.name.split('.').at(1);
-                        if (/png|jpe?g|svg|gif|tiff|bmp|ico|webp/i.test(extType)) {
+                        if (/png|jpe?g|svg|gif|tiff|bmp|ico|webp|avif/i.test(extType)) {
                             return `assets/img/[name]-[hash][extname]`;
                         }
                         if (/css/i.test(extType)) {
@@ -73,28 +80,34 @@ export default defineConfig(({ command, mode }) => {
                     format: 'es',
                     // Enhanced code splitting for better mobile caching
                     manualChunks: (id) => {
-                        // Core React dependencies
+                        // Core React dependencies (highest priority)
                         if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
                             return 'vendor-react';
                         }
-                        // Router and navigation
+                        // Router and navigation (high priority)
                         if (id.includes('react-router')) {
                             return 'vendor-router';
                         }
-                        // UI components and icons
+                        // UI components and icons (medium priority)
                         if (id.includes('@heroicons') || id.includes('react-icons') || id.includes('react-hot-toast')) {
                             return 'vendor-ui';
                         }
-                        // Motion and animations
+                        // Motion and animations (lower priority)
                         if (id.includes('framer-motion')) {
                             return 'vendor-motion';
                         }
-                        // Utilities and date libraries
+                        // Utilities and date libraries (lower priority)
                         if (id.includes('date-fns') || id.includes('lodash')) {
                             return 'vendor-utils';
                         }
-                        // Separate chunk for large node_modules
+                        // Separate chunk for other large node_modules
                         if (id.includes('node_modules')) {
+                            const chunks = ['axios', 'moment', 'chart.js'];
+                            for (const chunk of chunks) {
+                                if (id.includes(chunk)) {
+                                    return `vendor-${chunk}`;
+                                }
+                            }
                             return 'vendor-libs';
                         }
                     },
@@ -120,13 +133,15 @@ export default defineConfig(({ command, mode }) => {
             modulePreload: {
                 polyfill: false // Disable unnecessary polyfill for modern browsers
             },
-            // Enable asset inlining for small files
+            // Enable asset inlining for small files (4KB threshold)
             assetsInlineLimit: 4096,
             // Additional options for React optimization
             commonjsOptions: {
                 transformMixedEsModules: true,
                 include: [/node_modules/],
             },
+            // Enable experimental features for better optimization
+            experimentalMinChunkSize: 1000,
         },
         base: '/build/',
         server: {

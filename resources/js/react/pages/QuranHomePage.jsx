@@ -447,6 +447,56 @@ function QuranHomePage() {
             {/* Hero Statistics Section */}
             <HeroStatsSection />
 
+            {/* Registration Highlight Banner */}
+            {!user && (
+                <section className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 py-12">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="text-center">
+                            <div className="inline-flex items-center px-4 py-2 bg-white/20 rounded-full text-white text-sm font-medium mb-4">
+                                <StarIcon className="w-5 h-5 mr-2" />
+                                Bergabung Gratis
+                            </div>
+                            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                                Mulai Perjalanan Spiritual Anda
+                            </h2>
+                            <p className="text-xl text-green-100 mb-8 max-w-3xl mx-auto">
+                                Daftar sekarang dan nikmati fitur lengkap: simpan progres bacaan, 
+                                bookmark ayat favorit, dan dapatkan pengalaman Al-Quran yang personal.
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                                <Link
+                                    to="/daftar"
+                                    className="inline-flex items-center space-x-2 px-8 py-4 bg-white text-green-600 rounded-xl hover:bg-gray-50 transition-colors font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                                >
+                                    <UserGroupIcon className="w-6 h-6" />
+                                    <span>Daftar Sekarang</span>
+                                </Link>
+                                <Link
+                                    to="/masuk"
+                                    className="inline-flex items-center space-x-2 px-8 py-4 border-2 border-white text-white rounded-xl hover:bg-white/10 transition-colors font-semibold text-lg"
+                                >
+                                    <span>Sudah Punya Akun?</span>
+                                </Link>
+                            </div>
+                            <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                                <div className="flex items-center justify-center space-x-3 text-white">
+                                    <BookmarkIcon className="w-6 h-6 text-green-200" />
+                                    <span className="text-sm">Simpan Bookmark</span>
+                                </div>
+                                <div className="flex items-center justify-center space-x-3 text-white">
+                                    <ChartBarIcon className="w-6 h-6 text-green-200" />
+                                    <span className="text-sm">Lacak Progres</span>
+                                </div>
+                                <div className="flex items-center justify-center space-x-3 text-white">
+                                    <HeartIcon className="w-6 h-6 text-green-200" />
+                                    <span className="text-sm">Pengalaman Personal</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            )}
+
             {/* Main Content */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -884,22 +934,45 @@ function QuranHomePage() {
                         {/* Community Section */}
                         {!user && (
                             <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-100">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">Bergabunglah dengan Komunitas Kami</h3>
-                                <p className="text-gray-600 mb-4">
-                                    Daftar untuk menyimpan progres bacaan Anda, menandai ayat, dan mengakses fitur yang dipersonalisasi.
+                                <div className="flex items-center mb-3">
+                                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                        <UserGroupIcon className="w-6 h-6 text-green-600" />
+                                    </div>
+                                    <h3 className="text-lg font-semibold text-gray-900">Bergabunglah dengan Komunitas</h3>
+                                </div>
+                                <p className="text-gray-600 mb-4 text-sm">
+                                    Daftar sekarang untuk menyimpan progres bacaan, menandai ayat favorit, dan mengakses fitur personal lainnya.
                                 </p>
-                                <Link
-                                    to="/auth/register"
-                                    className="block w-full text-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
-                                >
-                                    Buat Akun
-                                </Link>
-                                <Link
-                                    to="/masuk"
-                                    className="block w-full text-center px-4 py-2 mt-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors font-medium"
-                                >
-                                    Masuk
-                                </Link>
+                                <div className="space-y-3">
+                                    <Link
+                                        to="/daftar"
+                                        className="block w-full text-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold shadow-sm hover:shadow-md"
+                                    >
+                                        🎉 Daftar Gratis
+                                    </Link>
+                                    <Link
+                                        to="/masuk"
+                                        className="block w-full text-center px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors font-medium"
+                                    >
+                                        Sudah Punya Akun? Masuk
+                                    </Link>
+                                </div>
+                                <div className="mt-4 pt-4 border-t border-green-200">
+                                    <div className="flex items-center text-xs text-gray-500 space-x-4">
+                                        <div className="flex items-center">
+                                            <BookmarkIcon className="w-4 h-4 mr-1" />
+                                            <span>Bookmark</span>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <ChartBarIcon className="w-4 h-4 mr-1" />
+                                            <span>Progres</span>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <HeartIcon className="w-4 h-4 mr-1" />
+                                            <span>Personal</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </div>

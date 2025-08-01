@@ -5,6 +5,12 @@ import { AuthProvider, useAuth } from './hooks/useAuth.jsx';
 import useAdvancedPerformanceMonitor from './hooks/useAdvancedPerformanceMonitor.js';
 import { useIntelligentPreload } from './hooks/usePerformanceOptimization.js';
 import useScrollToTop from './hooks/useScrollToTop.js';
+
+// Import performance utilities
+import { initializeCSSOptimizations } from './utils/criticalCSS.js';
+import { initializeImageOptimizations } from './utils/imageOptimization.jsx';
+import { initializeResourcePreloading } from './utils/resourcePreloading.js';
+
 import '../../css/app.css';
 
 // Import critical components (loaded immediately)
@@ -186,8 +192,19 @@ const AppContent = memo(() => {
     
     // SEO and performance monitoring initialization - optimized to run only once
     useEffect(() => {
+        // Initialize critical performance optimizations immediately
+        initializeCSSOptimizations();
+        initializeResourcePreloading();
+        
         // Defer non-critical initialization to avoid blocking first paint
         const initializeApp = () => {
+            // Initialize image optimizations
+            initializeImageOptimizations({
+                enableLazyLoading: true,
+                enableResponsive: true,
+                optimizeFormat: true
+            });
+            
             // Preload critical SEO resources only if not on slow connection
             const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
             const isSlowConnection = connection && (
