@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('contacts', function (Blueprint $table) {
-            $table->string('attachment_path')->nullable()->after('message');
-            $table->string('attachment_original_name')->nullable()->after('attachment_path');
+            if (!Schema::hasColumn('contacts', 'attachment_path')) {
+                $table->string('attachment_path')->nullable()->after('message');
+            }
+            if (!Schema::hasColumn('contacts', 'attachment_original_name')) {
+                $table->string('attachment_original_name')->nullable()->after('attachment_path');
+            }
         });
     }
 
@@ -23,7 +27,12 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('contacts', function (Blueprint $table) {
-            $table->dropColumn(['attachment_path', 'attachment_original_name']);
+            if (Schema::hasColumn('contacts', 'attachment_path')) {
+                $table->dropColumn('attachment_path');
+            }
+            if (Schema::hasColumn('contacts', 'attachment_original_name')) {
+                $table->dropColumn('attachment_original_name');
+            }
         });
     }
 };

@@ -17,7 +17,8 @@ import {
     StarIcon,
     AcademicCapIcon,
     Squares2X2Icon,
-    DocumentIcon
+    DocumentIcon,
+    ChartBarIcon
 } from '@heroicons/react/24/outline';
 
 function QuranHeader() {
@@ -103,6 +104,7 @@ function QuranHeader() {
     const mainNavItems = [
         { name: 'Beranda', path: '/', icon: BookOpenIcon, description: 'Halaman utama IndoQuran' },
         { name: 'Pencarian', path: '/cari', icon: MagnifyingGlassIcon, description: 'Cari ayat dan surah' },
+        { name: 'Statistik', path: '/statistik', icon: ChartBarIcon, description: 'Statistik komunitas dan aktivitas' },
         { name: 'Riwayat Versi', path: '/riwayat-versi', icon: ClockIcon, description: 'Catatan perubahan aplikasi' },
     ];
 

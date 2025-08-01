@@ -6,6 +6,63 @@ import StructuredData from '../components/StructuredData';
 function RiwayatVersiPage() {
     const versions = [
         {
+            version: "2.5.0",
+            date: "1 Agustus 2025",
+            type: "major",
+            title: "Halaman Statistik & Analytics Dashboard",
+            description: "Update mayor dengan penambahan halaman statistik komprehensif yang menampilkan data penggunaan Al-Quran, progress membaca, dan insights personal untuk pengalaman yang lebih personal.",
+            changes: [
+                {
+                    type: "feature",
+                    text: "Halaman statistik lengkap dengan dashboard analytics penggunaan Al-Quran"
+                },
+                {
+                    type: "feature",
+                    text: "Progress tracker membaca Al-Quran dengan visualisasi heatmap per hari"
+                },
+                {
+                    type: "feature",
+                    text: "Statistik bookmark dengan kategori dan trend penggunaan"
+                },
+                {
+                    type: "feature",
+                    text: "Analytics pencarian dengan kata kunci populer dan frekuensi"
+                },
+                {
+                    type: "feature",
+                    text: "Laporan aktivitas harian, mingguan, dan bulanan dengan grafik interaktif"
+                },
+                {
+                    type: "feature",
+                    text: "Personal insights dengan rekomendasi surah berdasarkan pola baca"
+                },
+                {
+                    type: "feature",
+                    text: "Goal setting untuk target membaca Al-Quran dengan progress tracking"
+                },
+                {
+                    type: "feature",
+                    text: "Export data statistik dalam format PDF dan CSV"
+                },
+                {
+                    type: "improvement",
+                    text: "Integrasi Chart.js untuk visualisasi data yang interaktif dan responsif"
+                },
+                {
+                    type: "improvement",
+                    text: "Local storage optimization untuk menyimpan data aktivitas pengguna"
+                },
+                {
+                    type: "improvement",
+                    text: "Responsive design khusus untuk dashboard statistik di semua perangkat"
+                },
+                {
+                    type: "improvement",
+                    text: "SEO optimization untuk halaman statistik dengan meta tags dinamis"
+                }
+            ]
+        },
+        {
             version: "2.4.0",
             date: "27 Juli 2025",
             type: "major",
@@ -511,7 +568,7 @@ function RiwayatVersiPage() {
         "name": "Riwayat Versi - IndoQuran",
         "description": "Catatan perubahan dan pembaruan versi platform Al-Quran digital IndoQuran dengan fitur Asmaul Husna dan PWA terbaru",
         "url": `${window.location.origin}/riwayat-versi`,
-        "dateModified": "2025-07-27",
+        "dateModified": "2025-08-01",
         "mainEntity": {
             "@type": "SoftwareApplication",
             "name": "IndoQuran",
@@ -533,8 +590,8 @@ function RiwayatVersiPage() {
         <>
             <SEOHead 
                 title="Riwayat Versi - IndoQuran"
-                description="Catatan lengkap perubahan dan pembaruan versi platform Al-Quran digital IndoQuran. Lihat perkembangan fitur Asmaul Husna, PWA, optimisasi mobile, dan peningkatan dari waktu ke waktu."
-                keywords="indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi, indoquran 2.3.0, asmaul husna, 99 nama allah, PWA, progressive web app"
+                description="Catatan lengkap perubahan dan pembaruan versi platform Al-Quran digital IndoQuran. Lihat perkembangan fitur statistik, Asmaul Husna, PWA, optimisasi mobile, dan peningkatan dari waktu ke waktu."
+                keywords="indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi, indoquran 2.5.0, statistik quran, dashboard analytics, asmaul husna, 99 nama allah, PWA, progressive web app"
                 canonicalUrl={`${window.location.origin}/riwayat-versi`}
             />
             <StructuredData data={structuredData} />
@@ -553,7 +610,7 @@ function RiwayatVersiPage() {
                         perbaikan dan fitur baru untuk memberikan pengalaman terbaik dalam membaca Al-Quran.
                     </p>
                     <div className="mt-4 text-sm text-gray-500">
-                        Terakhir diperbarui: 27 Juli 2025
+                        Terakhir diperbarui: 1 Agustus 2025
                     </div>
                 </div>
 

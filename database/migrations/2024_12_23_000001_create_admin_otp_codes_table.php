@@ -11,17 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('admin_otp_codes', function (Blueprint $table) {
-            $table->id();
-            $table->string('email')->index();
-            $table->string('otp_code', 6);
-            $table->timestamp('expires_at');
-            $table->boolean('is_used')->default(false);
-            $table->timestamp('used_at')->nullable();
-            $table->string('ip_address')->nullable();
-            $table->text('user_agent')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('admin_otp_codes')) {
+            Schema::create('admin_otp_codes', function (Blueprint $table) {
+                $table->id();
+                $table->string('email')->index();
+                $table->string('otp_code', 6);
+                $table->timestamp('expires_at');
+                $table->boolean('is_used')->default(false);
+                $table->timestamp('used_at')->nullable();
+                $table->string('ip_address')->nullable();
+                $table->text('user_agent')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

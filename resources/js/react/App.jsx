@@ -98,6 +98,9 @@ const AdminLoginPage = lazy(() =>
 const AdminDashboard = lazy(() => 
   import(/* webpackChunkName: "admin" */ './pages/AdminDashboard')
 );
+const StatistikPage = lazy(() => 
+  import(/* webpackChunkName: "stats" */ './pages/StatistikPage')
+);
 
 // Enhanced redirect components with performance optimizations
 const PagesRedirect = memo(() => {
@@ -333,6 +336,7 @@ const AppContent = memo(() => {
                         <Route path="/riwayat-versi" element={<RiwayatVersiPage />} />
                         <Route path="/semua-surah" element={<SEOLandingPage />} />
                         <Route path="/daftar-lengkap" element={<SEOLandingPage />} />
+                        <Route path="/statistik" element={<StatistikPage />} />
                         
                         {/* Admin Routes */}
                         <Route path="/admin/login" element={<AdminLoginPage />} />

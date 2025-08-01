@@ -12,11 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('surahs', function (Blueprint $table) {
-            // Rename description to description_long
-            $table->renameColumn('description', 'description_long');
+            // Only rename if description exists and description_long doesn't
+            if (Schema::hasColumn('surahs', 'description') && !Schema::hasColumn('surahs', 'description_long')) {
+                $table->renameColumn('description', 'description_long');
+            }
+            // If description doesn't exist but we need description_long, create it
+            else if (!Schema::hasColumn('surahs', 'description') && !Schema::hasColumn('surahs', 'description_long')) {
+                $table->text('description_long')->nullable();
+            }
             
-            // Add description_short field after revelation_place
-            $table->text('description_short')->nullable()->after('audio_urls');
+            // Add description_short field after audio_urls if it doesn't exist
+            if (!Schema::hasColumn('surahs', 'description_short')) {
+                $table->text('description_short')->nullable()->after('audio_urls');
+            }
         });
     }
 
@@ -26,8 +34,16 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('surahs', function (Blueprint $table) {
-            $table->renameColumn('description_long', 'description');
-            $table->dropColumn('description_short');
+            // Only rename if description_long exists and description doesn't
+            if (Schema::hasColumn('surahs', 'description_long') && !Schema::hasColumn('surahs', 'description')) {
+                $table->renameColumn('description_long', 'description');
+            } 
+            // If both exist or neither exist, do nothing for this part
+            
+            // Drop description_short if it exists
+            if (Schema::hasColumn('surahs', 'description_short')) {
+                $table->dropColumn('description_short');
+            }
         });
     }
 };

@@ -11,16 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('prayer_amins', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('prayer_id')->constrained()->onDelete('cascade');
-            $table->timestamps();
-            
-            // Prevent duplicate amins from same user
-            $table->unique(['user_id', 'prayer_id']);
-            $table->index('prayer_id');
-        });
+        if (!Schema::hasTable('prayer_amins')) {
+            Schema::create('prayer_amins', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('user_id')->constrained()->onDelete('cascade');
+                $table->foreignId('prayer_id')->constrained()->onDelete('cascade');
+                $table->timestamps();
+                
+                // Prevent duplicate amins from same user
+                $table->unique(['user_id', 'prayer_id']);
+                $table->index('prayer_id');
+            });
+        }
     }
 
     /**

@@ -235,4 +235,115 @@ class Visitor extends Model
 
         return ['type' => 'other', 'title' => ucfirst(trim($path, '/'))];
     }
+
+    public static function getYearlyVisitors($year = null)
+    {
+        try {
+            $year = $year ?? now()->year;
+            return self::whereYear('visited_at', $year)
+                       ->distinct('ip_address')
+                       ->count('ip_address');
+        } catch (\Exception $e) {
+            \Log::error('Error getting yearly visitors: ' . $e->getMessage());
+            return 0;
+        }
+    }
+
+    public static function getTopReferrers($limit = 10)
+    {
+        try {
+            return self::select('referrer')
+                       ->selectRaw('COUNT(*) as visit_count')
+                       ->whereNotNull('referrer')
+                       ->where('referrer', '!=', '')
+                       ->groupBy('referrer')
+                       ->orderByDesc('visit_count')
+                       ->take($limit)
+                       ->get()
+                       ->map(function ($item) {
+                           $domain = parse_url($item->referrer, PHP_URL_HOST);
+                           return [
+                               'referrer' => $item->referrer,
+                               'domain' => $domain,
+                               'visit_count' => $item->visit_count
+                           ];
+                       });
+        } catch (\Exception $e) {
+            \Log::error('Error getting top referrers: ' . $e->getMessage());
+            return collect([]);
+        }
+    }
+
+    public static function getBrowserStats()
+    {
+        try {
+            return self::selectRaw('
+                    CASE 
+                        WHEN user_agent LIKE "%Chrome%" AND user_agent NOT LIKE "%Edge%" THEN "Chrome"
+                        WHEN user_agent LIKE "%Firefox%" THEN "Firefox"
+                        WHEN user_agent LIKE "%Safari%" AND user_agent NOT LIKE "%Chrome%" THEN "Safari"
+                        WHEN user_agent LIKE "%Edge%" THEN "Edge"
+                        WHEN user_agent LIKE "%Opera%" THEN "Opera"
+                        ELSE "Other"
+                    END as browser,
+                    COUNT(*) as count
+                ')
+                ->groupBy('browser')
+                ->orderByDesc('count')
+                ->get();
+        } catch (\Exception $e) {
+            \Log::error('Error getting browser stats: ' . $e->getMessage());
+            return collect([]);
+        }
+    }
+
+    public static function getDeviceStats()
+    {
+        try {
+            return self::selectRaw('
+                    CASE 
+                        WHEN user_agent LIKE "%Mobile%" OR user_agent LIKE "%Android%" OR user_agent LIKE "%iPhone%" THEN "Mobile"
+                        WHEN user_agent LIKE "%Tablet%" OR user_agent LIKE "%iPad%" THEN "Tablet"
+                        ELSE "Desktop"
+                    END as device_type,
+                    COUNT(*) as count
+                ')
+                ->groupBy('device_type')
+                ->orderByDesc('count')
+                ->get();
+        } catch (\Exception $e) {
+            \Log::error('Error getting device stats: ' . $e->getMessage());
+            return collect([]);
+        }
+    }
+
+    public static function getUniqueVisitorsLast($days = 7)
+    {
+        try {
+            $data = [];
+            
+            for ($i = $days - 1; $i >= 0; $i--) {
+                $date = now()->subDays($i);
+                $visitors = self::whereDate('visited_at', $date->format('Y-m-d'))
+                               ->distinct('ip_address')
+                               ->count('ip_address');
+                
+                $pageViews = self::whereDate('visited_at', $date->format('Y-m-d'))
+                               ->count();
+                
+                $data[] = [
+                    'date' => $date->format('Y-m-d'),
+                    'date_formatted' => $date->format('d M Y'),
+                    'visitors' => $visitors,
+                    'page_views' => $pageViews,
+                    'avg_pages_per_visitor' => $visitors > 0 ? round($pageViews / $visitors, 2) : 0
+                ];
+            }
+            
+            return $data;
+        } catch (\Exception $e) {
+            \Log::error('Error getting unique visitors data: ' . $e->getMessage());
+            return [];
+        }
+    }
 }

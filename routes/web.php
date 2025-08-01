@@ -79,6 +79,13 @@ Route::get('/api/tafsir-maudhui/search', [TafsirMaudhuiController::class, 'searc
 Route::get('/api/asmaul-husna', [AsmaulHusnaController::class, 'api'])->name('asmaul-husna.api');
 Route::get('/api/asmaul-husna/search', [AsmaulHusnaController::class, 'search'])->name('asmaul-husna.search');
 
+// Visitor Statistics API Routes
+Route::prefix('api/visitor-stats')->group(function () {
+    Route::get('/', [App\Http\Controllers\VisitorStatsController::class, 'index'])->name('visitor-stats.index');
+    Route::get('/realtime', [App\Http\Controllers\VisitorStatsController::class, 'realtime'])->name('visitor-stats.realtime');
+    Route::get('/export', [App\Http\Controllers\VisitorStatsController::class, 'export'])->name('visitor-stats.export');
+});
+
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
     
@@ -156,5 +163,5 @@ if (app()->environment(['local', 'development'])) {
 
 // React SPA routes with SEO optimization - serve the React app for any other routes, but don't catch /api or build routes
 // This MUST be after all other specific routes to avoid conflicts
-// Now /admin/* paths will be served by the React SPA
+// Now /admin/* paths will be served by the React SPA, and /statistik added
 Route::get('/{path?}', [SEOController::class, 'handleReactRoute'])->where('path', '^(?!api|build|assets|fonts|images|storage).*');

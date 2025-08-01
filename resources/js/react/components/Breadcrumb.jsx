@@ -25,7 +25,8 @@ function Breadcrumb() {
         'doa-bersama': 'Doa Bersama',
         'masuk': 'Masuk',
         'daftar': 'Daftar',
-        'admin': 'Admin'
+        'admin': 'Admin',
+        'statistik': 'Statistik'
     };
 
     // Don't show breadcrumb on home page
