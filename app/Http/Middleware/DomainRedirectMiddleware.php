@@ -15,14 +15,15 @@ class DomainRedirectMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Ambil full URL saat ini
-        $currentUrl = $request->fullUrl();
         $host = $request->getHost();
         
         // Cek apakah domain adalah my.indoquran.web.id
         if ($host === 'my.indoquran.web.id') {
             // Bangun URL baru dengan domain indoquran.web.id
-            $newUrl = str_replace('://my.indoquran.web.id', '://indoquran.web.id', $currentUrl);
+            // Gunakan scheme yang sama, ganti hanya domain, pertahankan path dan query
+            $scheme = $request->getScheme();
+            $path = $request->getRequestUri(); // Sudah termasuk query string
+            $newUrl = $scheme . '://indoquran.web.id' . $path;
             
             // Redirect dengan status 301 (permanent redirect)
             return redirect($newUrl, 301);
