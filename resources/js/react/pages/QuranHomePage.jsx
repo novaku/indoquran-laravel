@@ -15,7 +15,8 @@ import {
     ArrowPathIcon,
     BookmarkIcon,
     DocumentTextIcon,
-    ShareIcon
+    ShareIcon,
+    ChartBarIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../hooks/useAuth.jsx';
 import SearchField from '../components/SearchField';
@@ -65,6 +66,15 @@ function QuranHomePage() {
     const [loadingPopular, setLoadingPopular] = useState(false);
     const [randomAsmaulHusna, setRandomAsmaulHusna] = useState(null);
     const [loadingAsmaulHusna, setLoadingAsmaulHusna] = useState(false);
+    const [exploreStats, setExploreStats] = useState({
+        totalSurahs: 114,
+        totalJuz: 30,
+        totalPages: 604,
+        totalAsmaulHusna: 99,
+        totalTopics: 0,
+        totalDuas: 0,
+        totalBookmarks: 0
+    });
 
     // Fetch popular/random surahs
     const fetchPopularSurahs = useCallback(async () => {
@@ -141,6 +151,71 @@ function QuranHomePage() {
         }
     }, []);
 
+    // Fetch explore statistics
+    const fetchExploreStats = useCallback(async () => {
+        try {
+            const token = authUtils.getAuthToken();
+            
+            // Fetch various statistics in parallel
+            const requests = [
+                fetchWithAuth('/api/tafsir-maudhui/count', {
+                    headers: {
+                        'Authorization': token ? `Bearer ${token}` : '',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    }
+                }).catch(() => ({ ok: false })),
+                fetchWithAuth('/api/dua-bersama/count', {
+                    headers: {
+                        'Authorization': token ? `Bearer ${token}` : '',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    }
+                }).catch(() => ({ ok: false })),
+                user ? fetchWithAuth('/api/bookmarks/count', {
+                    headers: {
+                        'Authorization': token ? `Bearer ${token}` : '',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    }
+                }).catch(() => ({ ok: false })) : Promise.resolve({ ok: false })
+            ];
+
+            const [topicsResponse, duasResponse, bookmarksResponse] = await Promise.all(requests);
+
+            const newStats = { ...exploreStats };
+
+            // Update topics count
+            if (topicsResponse.ok) {
+                const topicsData = await topicsResponse.json();
+                if (topicsData.status === 'success') {
+                    newStats.totalTopics = topicsData.data.count || 0;
+                }
+            }
+
+            // Update duas count
+            if (duasResponse.ok) {
+                const duasData = await duasResponse.json();
+                if (duasData.status === 'success') {
+                    newStats.totalDuas = duasData.data.count || 0;
+                }
+            }
+
+            // Update bookmarks count (only if user is logged in)
+            if (user && bookmarksResponse.ok) {
+                const bookmarksData = await bookmarksResponse.json();
+                if (bookmarksData.status === 'success') {
+                    newStats.totalBookmarks = bookmarksData.data.count || 0;
+                }
+            }
+
+            setExploreStats(newStats);
+        } catch (error) {
+            console.error('Error fetching explore statistics:', error);
+            // Keep default values if API fails
+        }
+    }, [user]); // Re-fetch when user changes (for bookmarks count)
+
     // Fetch surahs data
     useEffect(() => {
         const fetchSurahs = async () => {
@@ -184,6 +259,11 @@ function QuranHomePage() {
     useEffect(() => {
         fetchRandomAsmaulHusna();
     }, [fetchRandomAsmaulHusna]);
+
+    // Fetch explore statistics on component mount
+    useEffect(() => {
+        fetchExploreStats();
+    }, [user]); // Re-fetch when user changes (for bookmarks count)
 
     // Inject styles for Asmaul Husna calligraphy
     useEffect(() => {
@@ -509,17 +589,25 @@ function QuranHomePage() {
                                     to="/surah"
                                     className="group p-6 rounded-xl border border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200"
                                 >
-                                    <div className="flex items-center space-x-4">
-                                        <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200">
-                                            <BookOpenIcon className="w-6 h-6 text-green-600" />
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200">
+                                                <BookOpenIcon className="w-6 h-6 text-green-600" />
+                                            </div>
+                                            <div>
+                                                <h3 className="font-semibold text-gray-900 group-hover:text-green-700">
+                                                    Daftar Surah
+                                                </h3>
+                                                <p className="text-sm text-gray-500">
+                                                    Semua {exploreStats.totalSurahs} surah Al-Quran
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h3 className="font-semibold text-gray-900 group-hover:text-green-700">
-                                                Daftar Surah
-                                            </h3>
-                                            <p className="text-sm text-gray-500">
-                                                Semua 114 surah Al-Quran
-                                            </p>
+                                        <div className="text-right">
+                                            <div className="text-2xl font-bold text-green-600">
+                                                {exploreStats.totalSurahs}
+                                            </div>
+                                            <div className="text-xs text-gray-500">surah</div>
                                         </div>
                                     </div>
                                 </Link>
@@ -528,17 +616,25 @@ function QuranHomePage() {
                                     to="/juz"
                                     className="group p-6 rounded-xl border border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200"
                                 >
-                                    <div className="flex items-center space-x-4">
-                                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200">
-                                            <BookOpenIcon className="w-6 h-6 text-blue-600" />
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200">
+                                                <BookOpenIcon className="w-6 h-6 text-blue-600" />
+                                            </div>
+                                            <div>
+                                                <h3 className="font-semibold text-gray-900 group-hover:text-green-700">
+                                                    Telusuri berdasarkan Juz
+                                                </h3>
+                                                <p className="text-sm text-gray-500">
+                                                    Baca Al-Quran dalam {exploreStats.totalJuz} bagian
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h3 className="font-semibold text-gray-900 group-hover:text-green-700">
-                                                Telusuri berdasarkan Juz
-                                            </h3>
-                                            <p className="text-sm text-gray-500">
-                                                Baca Al-Quran dalam 30 bagian
-                                            </p>
+                                        <div className="text-right">
+                                            <div className="text-2xl font-bold text-blue-600">
+                                                {exploreStats.totalJuz}
+                                            </div>
+                                            <div className="text-xs text-gray-500">juz</div>
                                         </div>
                                     </div>
                                 </Link>
@@ -547,17 +643,25 @@ function QuranHomePage() {
                                     to="/halaman"
                                     className="group p-6 rounded-xl border border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200"
                                 >
-                                    <div className="flex items-center space-x-4">
-                                        <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200">
-                                            <DocumentTextIcon className="w-6 h-6 text-purple-600" />
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200">
+                                                <DocumentTextIcon className="w-6 h-6 text-purple-600" />
+                                            </div>
+                                            <div>
+                                                <h3 className="font-semibold text-gray-900 group-hover:text-green-700">
+                                                    Telusuri berdasarkan Halaman
+                                                </h3>
+                                                <p className="text-sm text-gray-500">
+                                                    Baca seperti dalam Mushaf tradisional
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h3 className="font-semibold text-gray-900 group-hover:text-green-700">
-                                                Telusuri berdasarkan Halaman
-                                            </h3>
-                                            <p className="text-sm text-gray-500">
-                                                Baca seperti dalam Mushaf tradisional
-                                            </p>
+                                        <div className="text-right">
+                                            <div className="text-2xl font-bold text-purple-600">
+                                                {exploreStats.totalPages}
+                                            </div>
+                                            <div className="text-xs text-gray-500">halaman</div>
                                         </div>
                                     </div>
                                 </Link>
@@ -566,17 +670,25 @@ function QuranHomePage() {
                                     to="/asmaul-husna"
                                     className="group p-6 rounded-xl border border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200"
                                 >
-                                    <div className="flex items-center space-x-4">
-                                        <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center group-hover:bg-yellow-200">
-                                            <StarIcon className="w-6 h-6 text-yellow-600" />
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center group-hover:bg-yellow-200">
+                                                <StarIcon className="w-6 h-6 text-yellow-600" />
+                                            </div>
+                                            <div>
+                                                <h3 className="font-semibold text-gray-900 group-hover:text-green-700">
+                                                    Asmaul Husna
+                                                </h3>
+                                                <p className="text-sm text-gray-500">
+                                                    {exploreStats.totalAsmaulHusna} nama indah Allah SWT
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h3 className="font-semibold text-gray-900 group-hover:text-green-700">
-                                                Asmaul Husna
-                                            </h3>
-                                            <p className="text-sm text-gray-500">
-                                                99 nama indah Allah SWT
-                                            </p>
+                                        <div className="text-right">
+                                            <div className="text-2xl font-bold text-yellow-600">
+                                                {exploreStats.totalAsmaulHusna}
+                                            </div>
+                                            <div className="text-xs text-gray-500">nama</div>
                                         </div>
                                     </div>
                                 </Link>
@@ -585,17 +697,25 @@ function QuranHomePage() {
                                     to="/tafsir-maudhui"
                                     className="group p-6 rounded-xl border border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200"
                                 >
-                                    <div className="flex items-center space-x-4">
-                                        <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200">
-                                            <AcademicCapIcon className="w-6 h-6 text-orange-600" />
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200">
+                                                <AcademicCapIcon className="w-6 h-6 text-orange-600" />
+                                            </div>
+                                            <div>
+                                                <h3 className="font-semibold text-gray-900 group-hover:text-green-700">
+                                                    Tafsir Maudhui
+                                                </h3>
+                                                <p className="text-sm text-gray-500">
+                                                    Topik-topik tematik dalam Al-Quran
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h3 className="font-semibold text-gray-900 group-hover:text-green-700">
-                                                Tafsir Maudhui
-                                            </h3>
-                                            <p className="text-sm text-gray-500">
-                                                Topik-topik tematik dalam Al-Quran
-                                            </p>
+                                        <div className="text-right">
+                                            <div className="text-2xl font-bold text-orange-600">
+                                                {exploreStats.totalTopics || '-'}
+                                            </div>
+                                            <div className="text-xs text-gray-500">topik</div>
                                         </div>
                                     </div>
                                 </Link>
@@ -604,17 +724,25 @@ function QuranHomePage() {
                                     to="/doa-bersama"
                                     className="group p-6 rounded-xl border border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200"
                                 >
-                                    <div className="flex items-center space-x-4">
-                                        <div className="w-12 h-12 bg-rose-100 rounded-lg flex items-center justify-center group-hover:bg-rose-200">
-                                            <UserGroupIcon className="w-6 h-6 text-rose-600" />
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="w-12 h-12 bg-rose-100 rounded-lg flex items-center justify-center group-hover:bg-rose-200">
+                                                <UserGroupIcon className="w-6 h-6 text-rose-600" />
+                                            </div>
+                                            <div>
+                                                <h3 className="font-semibold text-gray-900 group-hover:text-green-700">
+                                                    Doa Bersama
+                                                </h3>
+                                                <p className="text-sm text-gray-500">
+                                                    Kumpulan doa harian dan wirid
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h3 className="font-semibold text-gray-900 group-hover:text-green-700">
-                                                Doa Bersama
-                                            </h3>
-                                            <p className="text-sm text-gray-500">
-                                                Kumpulan doa harian dan wirid
-                                            </p>
+                                        <div className="text-right">
+                                            <div className="text-2xl font-bold text-rose-600">
+                                                {exploreStats.totalDuas || '-'}
+                                            </div>
+                                            <div className="text-xs text-gray-500">doa</div>
                                         </div>
                                     </div>
                                 </Link>
@@ -623,17 +751,52 @@ function QuranHomePage() {
                                     to="/penanda"
                                     className="group p-6 rounded-xl border border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200"
                                 >
-                                    <div className="flex items-center space-x-4">
-                                        <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center group-hover:bg-amber-200">
-                                            <BookmarkIcon className="w-6 h-6 text-amber-600" />
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center group-hover:bg-amber-200">
+                                                <BookmarkIcon className="w-6 h-6 text-amber-600" />
+                                            </div>
+                                            <div>
+                                                <h3 className="font-semibold text-gray-900 group-hover:text-green-700">
+                                                    Bookmark
+                                                </h3>
+                                                <p className="text-sm text-gray-500">
+                                                    Ayat dan surah yang disimpan
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h3 className="font-semibold text-gray-900 group-hover:text-green-700">
-                                                Bookmark
-                                            </h3>
-                                            <p className="text-sm text-gray-500">
-                                                Ayat dan surah yang disimpan
-                                            </p>
+                                        <div className="text-right">
+                                            <div className="text-2xl font-bold text-amber-600">
+                                                {user ? (exploreStats.totalBookmarks || '0') : '-'}
+                                            </div>
+                                            <div className="text-xs text-gray-500">bookmark</div>
+                                        </div>
+                                    </div>
+                                </Link>
+
+                                <Link
+                                    to="/statistik"
+                                    className="group p-6 rounded-xl border border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200"
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200">
+                                                <ChartBarIcon className="w-6 h-6 text-indigo-600" />
+                                            </div>
+                                            <div>
+                                                <h3 className="font-semibold text-gray-900 group-hover:text-green-700">
+                                                    Statistik
+                                                </h3>
+                                                <p className="text-sm text-gray-500">
+                                                    Data dan analisis penggunaan
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="text-2xl font-bold text-indigo-600">
+                                                📊
+                                            </div>
+                                            <div className="text-xs text-gray-500">data</div>
                                         </div>
                                     </div>
                                 </Link>
