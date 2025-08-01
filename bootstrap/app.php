@@ -12,8 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up'
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Add CORS middleware globally
+        // Add domain redirect middleware globally (first priority)
         $middleware->web(prepend: [
+            \App\Http\Middleware\DomainRedirectMiddleware::class,
             \Illuminate\Http\Middleware\HandleCors::class,
         ]);
         
@@ -34,6 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
         
         // Register the InternalAccessOnly middleware
         $middleware->alias([
+            'domain.redirect' => \App\Http\Middleware\DomainRedirectMiddleware::class,
             'internal.only' => \App\Http\Middleware\InternalAccessOnly::class,
             'simple.auth' => \App\Http\Middleware\SimpleAuthMiddleware::class,
             'api.cache' => \App\Http\Middleware\ApiCacheMiddleware::class,
