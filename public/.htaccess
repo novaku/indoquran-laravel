@@ -80,11 +80,6 @@ Options -MultiViews -Indexes
 
 RewriteEngine On
 
-# Redirect my.indoquran.web.id to indoquran.web.id
-RewriteCond %{HTTP_HOST} ^my\.indoquran\.web\.id$ [NC,OR]
-RewriteCond %{HTTP_HOST} ^www\.my\.indoquran\.web\.id$ [NC]
-RewriteRule ^(.*)$ https://indoquran.web.id/$1 [R=301,L]
-
 # Handle Authorization Header
 RewriteCond %{HTTP:Authorization} .
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
