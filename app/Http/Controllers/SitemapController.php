@@ -15,7 +15,7 @@ class SitemapController extends Controller
     public function index()
     {
         // Use production URL if in production, otherwise use configured URL
-        $baseUrl = app()->environment('production') 
+        $baseUrl = (app()->environment('production') && !app()->environment(['local', 'development', 'testing']))
             ? 'https://indoquran.web.id' 
             : config('app.url');
             
@@ -105,7 +105,7 @@ class SitemapController extends Controller
                 'priority' => '0.4'
             ],
             [
-                'url' => $baseUrl . '/semua-surah',
+                'url' => $baseUrl . '/surah',
                 'lastmod' => $currentDate,
                 'changefreq' => 'weekly',
                 'priority' => '0.9'
@@ -191,7 +191,7 @@ class SitemapController extends Controller
      */
     public function robots()
     {
-        $baseUrl = app()->environment('production') 
+        $baseUrl = (app()->environment('production') && !app()->environment(['local', 'development', 'testing']))
             ? 'https://indoquran.web.id' 
             : config('app.url');
             

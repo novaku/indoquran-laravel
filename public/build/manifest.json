@@ -1,13 +1,13 @@
 {
-  "_ReadingProgressService-Bic-ONaV.js": {
-    "file": "assets/ReadingProgressService-Bic-ONaV.js",
+  "_ReadingProgressService-CkeTQcRs.js": {
+    "file": "assets/ReadingProgressService-CkeTQcRs.js",
     "name": "ReadingProgressService",
     "imports": [
       "resources/js/react/index.jsx"
     ]
   },
-  "_SearchField-TQQdkFJL.js": {
-    "file": "assets/SearchField-TQQdkFJL.js",
+  "_SearchField-IenlQGhD.js": {
+    "file": "assets/SearchField-IenlQGhD.js",
     "name": "SearchField",
     "imports": [
       "_vendor-react-DXy-V91w.js",
@@ -49,7 +49,7 @@
     "name": "vendor-utils"
   },
   "resources/css/app.css": {
-    "file": "assets/css/app-CcM_Fcu_.css",
+    "file": "assets/css/app-M1rxINF_.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
@@ -74,7 +74,7 @@
     "src": "resources/fonts/Scheherazade_New/ScheherazadeNew-SemiBold.ttf"
   },
   "resources/js/react/index.jsx": {
-    "file": "assets/index-MUCfGCgu.js",
+    "file": "assets/index-Cou0rHfK.js",
     "name": "index",
     "src": "resources/js/react/index.jsx",
     "isEntry": true,
@@ -123,7 +123,7 @@
       "resources/js/react/pages/SurahListPage.jsx"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
@@ -134,7 +134,7 @@
     ]
   },
   "resources/js/react/pages/AboutProjectPage.jsx": {
-    "file": "assets/AboutProjectPage-Cl8JETTR.js",
+    "file": "assets/AboutProjectPage-VAAwwVxx.js",
     "name": "AboutProjectPage",
     "src": "resources/js/react/pages/AboutProjectPage.jsx",
     "isDynamicEntry": true,
@@ -146,7 +146,7 @@
       "_vendor-ui-C-fd-rKZ.js"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
@@ -157,7 +157,7 @@
     ]
   },
   "resources/js/react/pages/AdminDashboard.jsx": {
-    "file": "assets/AdminDashboard-BxTVVxHL.js",
+    "file": "assets/AdminDashboard-DxYocP6p.js",
     "name": "AdminDashboard",
     "src": "resources/js/react/pages/AdminDashboard.jsx",
     "isDynamicEntry": true,
@@ -169,7 +169,7 @@
       "_vendor-chart.js-i7a8kaSp.js"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
@@ -180,7 +180,7 @@
     ]
   },
   "resources/js/react/pages/AdminLoginPage.jsx": {
-    "file": "assets/AdminLoginPage-BAizWb-D.js",
+    "file": "assets/AdminLoginPage-D5yhpuqq.js",
     "name": "AdminLoginPage",
     "src": "resources/js/react/pages/AdminLoginPage.jsx",
     "isDynamicEntry": true,
@@ -192,7 +192,7 @@
       "_vendor-chart.js-i7a8kaSp.js"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
@@ -203,7 +203,7 @@
     ]
   },
   "resources/js/react/pages/AsmaulHusnaPage.jsx": {
-    "file": "assets/AsmaulHusnaPage-BnuWgrD2.js",
+    "file": "assets/AsmaulHusnaPage-Ba56HlNp.js",
     "name": "AsmaulHusnaPage",
     "src": "resources/js/react/pages/AsmaulHusnaPage.jsx",
     "isDynamicEntry": true,
@@ -215,7 +215,7 @@
       "_vendor-chart.js-i7a8kaSp.js"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
@@ -226,7 +226,7 @@
     ]
   },
   "resources/js/react/pages/ContactSupportPage.jsx": {
-    "file": "assets/ContactSupportPage-Dey3_Jzq.js",
+    "file": "assets/ContactSupportPage-ChN1bnrW.js",
     "name": "ContactSupportPage",
     "src": "resources/js/react/pages/ContactSupportPage.jsx",
     "isDynamicEntry": true,
@@ -238,7 +238,7 @@
       "_vendor-ui-C-fd-rKZ.js"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
@@ -249,7 +249,7 @@
     ]
   },
   "resources/js/react/pages/DonationSupportPage.jsx": {
-    "file": "assets/DonationSupportPage-DPoDV-a6.js",
+    "file": "assets/DonationSupportPage-CDuxfAt6.js",
     "name": "DonationSupportPage",
     "src": "resources/js/react/pages/DonationSupportPage.jsx",
     "isDynamicEntry": true,
@@ -261,7 +261,7 @@
       "_vendor-ui-C-fd-rKZ.js"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
@@ -272,7 +272,7 @@
     ]
   },
   "resources/js/react/pages/JuzIndexPage.jsx": {
-    "file": "assets/JuzIndexPage-BzgcKBWf.js",
+    "file": "assets/JuzIndexPage-Dz1YXNy7.js",
     "name": "JuzIndexPage",
     "src": "resources/js/react/pages/JuzIndexPage.jsx",
     "isDynamicEntry": true,
@@ -284,7 +284,7 @@
       "_vendor-chart.js-i7a8kaSp.js"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
@@ -295,7 +295,7 @@
     ]
   },
   "resources/js/react/pages/JuzPage.jsx": {
-    "file": "assets/JuzPage-BqReXhXf.js",
+    "file": "assets/JuzPage-BHiIZFsU.js",
     "name": "JuzPage",
     "src": "resources/js/react/pages/JuzPage.jsx",
     "isDynamicEntry": true,
@@ -307,7 +307,7 @@
       "_vendor-ui-C-fd-rKZ.js"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
@@ -318,7 +318,7 @@
     ]
   },
   "resources/js/react/pages/PageDetailPage.jsx": {
-    "file": "assets/PageDetailPage-CuFqNKzd.js",
+    "file": "assets/PageDetailPage-CC-KLBYl.js",
     "name": "PageDetailPage",
     "src": "resources/js/react/pages/PageDetailPage.jsx",
     "isDynamicEntry": true,
@@ -330,7 +330,7 @@
       "_vendor-ui-C-fd-rKZ.js"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
@@ -341,7 +341,7 @@
     ]
   },
   "resources/js/react/pages/PageListPage.jsx": {
-    "file": "assets/PageListPage-Cr96huZi.js",
+    "file": "assets/PageListPage-CxQliY3x.js",
     "name": "PageListPage",
     "src": "resources/js/react/pages/PageListPage.jsx",
     "isDynamicEntry": true,
@@ -353,7 +353,7 @@
       "_vendor-chart.js-i7a8kaSp.js"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
@@ -364,7 +364,7 @@
     ]
   },
   "resources/js/react/pages/PrayerPage.jsx": {
-    "file": "assets/PrayerPage-0eaeFViU.js",
+    "file": "assets/PrayerPage-CaT_ZmFP.js",
     "name": "PrayerPage",
     "src": "resources/js/react/pages/PrayerPage.jsx",
     "isDynamicEntry": true,
@@ -378,7 +378,7 @@
       "_vendor-ui-C-fd-rKZ.js"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
@@ -400,21 +400,21 @@
     ]
   },
   "resources/js/react/pages/QuranHomePage.jsx": {
-    "file": "assets/QuranHomePage-BuLxNpST.js",
+    "file": "assets/QuranHomePage-Bicely78.js",
     "name": "QuranHomePage",
     "src": "resources/js/react/pages/QuranHomePage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_vendor-react-DXy-V91w.js",
       "resources/js/react/index.jsx",
-      "_SearchField-TQQdkFJL.js",
+      "_SearchField-IenlQGhD.js",
       "_vendor-ui-C-fd-rKZ.js",
-      "_ReadingProgressService-Bic-ONaV.js",
+      "_ReadingProgressService-CkeTQcRs.js",
       "_vendor-libs-BZkObKRn.js",
       "_vendor-chart.js-i7a8kaSp.js"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
@@ -425,20 +425,20 @@
     ]
   },
   "resources/js/react/pages/QuranSearchPage.jsx": {
-    "file": "assets/QuranSearchPage-Da1aKoBT.js",
+    "file": "assets/QuranSearchPage-EWyaSb_s.js",
     "name": "QuranSearchPage",
     "src": "resources/js/react/pages/QuranSearchPage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_vendor-react-DXy-V91w.js",
-      "_SearchField-TQQdkFJL.js",
+      "_SearchField-IenlQGhD.js",
       "resources/js/react/index.jsx",
       "_vendor-ui-C-fd-rKZ.js",
       "_vendor-libs-BZkObKRn.js",
       "_vendor-chart.js-i7a8kaSp.js"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
@@ -449,7 +449,7 @@
     ]
   },
   "resources/js/react/pages/RiwayatVersiPage.jsx": {
-    "file": "assets/RiwayatVersiPage-DMN_wIxX.js",
+    "file": "assets/RiwayatVersiPage-B3eRaMjy.js",
     "name": "RiwayatVersiPage",
     "src": "resources/js/react/pages/RiwayatVersiPage.jsx",
     "isDynamicEntry": true,
@@ -461,7 +461,7 @@
       "_vendor-chart.js-i7a8kaSp.js"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
@@ -472,7 +472,7 @@
     ]
   },
   "resources/js/react/pages/SEOLandingPage.jsx": {
-    "file": "assets/SEOLandingPage-C9RIYW0G.js",
+    "file": "assets/SEOLandingPage-BRxCUoHH.js",
     "name": "SEOLandingPage",
     "src": "resources/js/react/pages/SEOLandingPage.jsx",
     "isDynamicEntry": true,
@@ -484,7 +484,7 @@
       "_vendor-ui-C-fd-rKZ.js"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
@@ -495,7 +495,7 @@
     ]
   },
   "resources/js/react/pages/StatistikPage.jsx": {
-    "file": "assets/StatistikPage-B3QdITdF.js",
+    "file": "assets/StatistikPage-C8SxdHUB.js",
     "name": "StatistikPage",
     "src": "resources/js/react/pages/StatistikPage.jsx",
     "isDynamicEntry": true,
@@ -507,7 +507,7 @@
       "_vendor-ui-C-fd-rKZ.js"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
@@ -518,20 +518,20 @@
     ]
   },
   "resources/js/react/pages/SurahDetailPage.jsx": {
-    "file": "assets/SurahDetailPage-CWtQDrzY.js",
+    "file": "assets/SurahDetailPage-CoXs2iNm.js",
     "name": "SurahDetailPage",
     "src": "resources/js/react/pages/SurahDetailPage.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_vendor-react-DXy-V91w.js",
       "resources/js/react/index.jsx",
-      "_ReadingProgressService-Bic-ONaV.js",
+      "_ReadingProgressService-CkeTQcRs.js",
       "_vendor-ui-C-fd-rKZ.js",
       "_vendor-libs-BZkObKRn.js",
       "_vendor-chart.js-i7a8kaSp.js"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
@@ -542,7 +542,7 @@
     ]
   },
   "resources/js/react/pages/SurahListPage.jsx": {
-    "file": "assets/SurahListPage-dOAOQfUB.js",
+    "file": "assets/SurahListPage-EVPF_BAd.js",
     "name": "SurahListPage",
     "src": "resources/js/react/pages/SurahListPage.jsx",
     "isDynamicEntry": true,
@@ -554,7 +554,7 @@
       "_vendor-chart.js-i7a8kaSp.js"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
@@ -565,7 +565,7 @@
     ]
   },
   "resources/js/react/pages/TafsirMaudhuiPage.jsx": {
-    "file": "assets/TafsirMaudhuiPage-DugW3wgb.js",
+    "file": "assets/TafsirMaudhuiPage-BKDDcAP2.js",
     "name": "TafsirMaudhuiPage",
     "src": "resources/js/react/pages/TafsirMaudhuiPage.jsx",
     "isDynamicEntry": true,
@@ -577,7 +577,7 @@
       "_vendor-chart.js-i7a8kaSp.js"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
@@ -588,7 +588,7 @@
     ]
   },
   "resources/js/react/pages/UserAuthPage.jsx": {
-    "file": "assets/UserAuthPage-CfaITujl.js",
+    "file": "assets/UserAuthPage-DAaCME9N.js",
     "name": "UserAuthPage",
     "src": "resources/js/react/pages/UserAuthPage.jsx",
     "isDynamicEntry": true,
@@ -600,7 +600,7 @@
       "_vendor-chart.js-i7a8kaSp.js"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
@@ -611,7 +611,7 @@
     ]
   },
   "resources/js/react/pages/UserBookmarksPage.jsx": {
-    "file": "assets/UserBookmarksPage-CZq2p-XX.js",
+    "file": "assets/UserBookmarksPage-DAeXjhjV.js",
     "name": "UserBookmarksPage",
     "src": "resources/js/react/pages/UserBookmarksPage.jsx",
     "isDynamicEntry": true,
@@ -623,7 +623,7 @@
       "_vendor-ui-C-fd-rKZ.js"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",
@@ -634,7 +634,7 @@
     ]
   },
   "resources/js/react/pages/UserProfilePage.jsx": {
-    "file": "assets/UserProfilePage-C3TqpFvE.js",
+    "file": "assets/UserProfilePage-nT8r08Hi.js",
     "name": "UserProfilePage",
     "src": "resources/js/react/pages/UserProfilePage.jsx",
     "isDynamicEntry": true,
@@ -646,7 +646,7 @@
       "_vendor-ui-C-fd-rKZ.js"
     ],
     "css": [
-      "assets/css/app-CcM_Fcu_.css"
+      "assets/css/app-M1rxINF_.css"
     ],
     "assets": [
       "assets/fonts/ScheherazadeNew-Regular-BuXAUzja.ttf",

@@ -49,7 +49,7 @@ class GenerateSitemap extends Command
     protected function generateSitemap()
     {
         // Use production URL if in production, otherwise use configured URL
-        $baseUrl = app()->environment('production') 
+        $baseUrl = (app()->environment('production') && !app()->environment(['local', 'development', 'testing']))
             ? 'https://indoquran.web.id' 
             : config('app.url');
             
@@ -65,7 +65,7 @@ class GenerateSitemap extends Command
         $staticPages = [
             '' => ['priority' => '1.0', 'changefreq' => 'daily'],                    // Homepage
             'cari' => ['priority' => '0.8', 'changefreq' => 'weekly'],              // Search page
-            'semua-surah' => ['priority' => '0.9', 'changefreq' => 'weekly'],       // Surah list page
+            'surah' => ['priority' => '0.9', 'changefreq' => 'weekly'],       // Surah list page
             'daftar-lengkap' => ['priority' => '0.9', 'changefreq' => 'weekly'],    // Surah list page (alias)
             'juz' => ['priority' => '0.8', 'changefreq' => 'weekly'],               // Juz index page
             'halaman' => ['priority' => '0.8', 'changefreq' => 'weekly'],           // Page index page

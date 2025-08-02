@@ -6,7 +6,7 @@ The sitemap generator has been updated to include all current features and pages
 ## New Pages Added to Sitemap
 
 ### Main Navigation Pages
-- `/semua-surah` - Complete list of all surahs
+- `/surah` - Complete list of all surahs
 - `/daftar-lengkap` - Alternative URL for surah list 
 - `/juz` - Index page for all 30 Juz
 - `/halaman` - Index page for Mushaf page navigation

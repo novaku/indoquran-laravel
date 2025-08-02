@@ -92,7 +92,7 @@ const StatistikPage = () => {
                                 📝 Daftar Sekarang
                             </a>
                             <a 
-                                href="/semua-surah" 
+                                href="/surah" 
                                 className="bg-transparent border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-green-600 transition-colors"
                             >
                                 📖 Mulai Membaca

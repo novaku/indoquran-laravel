@@ -12,8 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up'
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Add domain redirect middleware globally (first priority)
+        // Add SSL error filtering for local development (highest priority)
         $middleware->web(prepend: [
+            \App\Http\Middleware\ExcludeSSLErrorsMiddleware::class,
             \App\Http\Middleware\DomainRedirectMiddleware::class,
             \Illuminate\Http\Middleware\HandleCors::class,
         ]);

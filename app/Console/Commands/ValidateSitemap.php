@@ -27,7 +27,9 @@ class ValidateSitemap extends Command
         $this->newLine();
         
         $isProduction = $this->option('production');
-        $baseUrl = $isProduction ? 'https://indoquran.web.id' : config('app.url');
+        $baseUrl = ($isProduction && !app()->environment(['local', 'development', 'testing'])) 
+            ? 'https://indoquran.web.id' 
+            : config('app.url');
         
         $errors = [];
         $warnings = [];

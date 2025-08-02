@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
     BookOpenIcon, 
@@ -183,33 +183,49 @@ function QuranHomePage() {
 
             const [topicsResponse, duasResponse, bookmarksResponse] = await Promise.all(requests);
 
-            const newStats = { ...exploreStats };
+            // Prepare updates object
+            const updates = {};
 
-            // Update topics count
+            // Process topics count
             if (topicsResponse.ok) {
-                const topicsData = await topicsResponse.json();
-                if (topicsData.status === 'success') {
-                    newStats.totalTopics = topicsData.data.count || 0;
+                try {
+                    const topicsData = await topicsResponse.json();
+                    if (topicsData.status === 'success') {
+                        updates.totalTopics = topicsData.data.count || 0;
+                    }
+                } catch (error) {
+                    console.error('Error parsing topics response:', error);
                 }
             }
 
-            // Update duas count
+            // Process duas count
             if (duasResponse.ok) {
-                const duasData = await duasResponse.json();
-                if (duasData.status === 'success') {
-                    newStats.totalDuas = duasData.data.count || 0;
+                try {
+                    const duasData = await duasResponse.json();
+                    if (duasData.status === 'success') {
+                        updates.totalDuas = duasData.data.count || 0;
+                    }
+                } catch (error) {
+                    console.error('Error parsing duas response:', error);
                 }
             }
 
-            // Update bookmarks count (only if user is logged in)
+            // Process bookmarks count (only if user is logged in)
             if (user && bookmarksResponse.ok) {
-                const bookmarksData = await bookmarksResponse.json();
-                if (bookmarksData.status === 'success') {
-                    newStats.totalBookmarks = bookmarksData.data.count || 0;
+                try {
+                    const bookmarksData = await bookmarksResponse.json();
+                    if (bookmarksData.status === 'success') {
+                        updates.totalBookmarks = bookmarksData.data.count || 0;
+                    }
+                } catch (error) {
+                    console.error('Error parsing bookmarks response:', error);
                 }
             }
 
-            setExploreStats(newStats);
+            // Update state with all changes at once
+            if (Object.keys(updates).length > 0) {
+                setExploreStats(prev => ({ ...prev, ...updates }));
+            }
         } catch (error) {
             console.error('Error fetching explore statistics:', error);
             // Keep default values if API fails
@@ -263,7 +279,7 @@ function QuranHomePage() {
     // Fetch explore statistics on component mount
     useEffect(() => {
         fetchExploreStats();
-    }, [user]); // Re-fetch when user changes (for bookmarks count)
+    }, [user, fetchExploreStats]); // Re-fetch when user changes (for bookmarks count)
 
     // Inject styles for Asmaul Husna calligraphy
     useEffect(() => {

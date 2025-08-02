@@ -10,7 +10,7 @@ Disallow: /admin/
 
 # Allow important pages
 Allow: /cari
-Allow: /semua-surah
+Allow: /surah
 Allow: /daftar-lengkap
 Allow: /surah/
 Allow: /juz/

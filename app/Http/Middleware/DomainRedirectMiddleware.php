@@ -15,6 +15,11 @@ class DomainRedirectMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Skip redirect dalam environment local/development
+        if (app()->environment(['local', 'development', 'testing'])) {
+            return $next($request);
+        }
+        
         $host = $request->getHost();
         
         // Cek apakah domain adalah my.indoquran.web.id

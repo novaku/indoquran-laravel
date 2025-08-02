@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from './hooks/useAuth.jsx';
 import useAdvancedPerformanceMonitor from './hooks/useAdvancedPerformanceMonitor.js';
 import { useIntelligentPreload } from './hooks/usePerformanceOptimization.js';
 import useScrollToTop from './hooks/useScrollToTop.js';
+import useCanonicalURL from './hooks/useCanonicalURL.js';
 
 // Import performance utilities
 import { initializeCSSOptimizations } from './utils/criticalCSS.js';
@@ -176,6 +177,9 @@ const AppContent = memo(() => {
     
     // Auto scroll to top on route changes (except surah detail pages)
     useScrollToTop();
+    
+    // Ensure canonical URL consistency for SEO
+    const { canonicalUrl } = useCanonicalURL();
     
     // Derived states for cleaner component logic - memoized for performance
     const isAuthenticated = useMemo(() => Boolean(user), [user]);
@@ -351,7 +355,7 @@ const AppContent = memo(() => {
                         <Route path="/donasi" element={<DonationPage />} />
                         <Route path="/kebijakan" element={<PrivacyPage />} />
                         <Route path="/riwayat-versi" element={<RiwayatVersiPage />} />
-                        <Route path="/semua-surah" element={<SEOLandingPage />} />
+                        <Route path="/surah" element={<SEOLandingPage />} />
                         <Route path="/daftar-lengkap" element={<SEOLandingPage />} />
                         <Route path="/statistik" element={<StatistikPage />} />
                         

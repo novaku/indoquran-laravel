@@ -23,13 +23,14 @@ function Breadcrumb() {
         'riwayat-versi': 'Riwayat Versi',
         'tafsir-maudhui': 'Tafsir Maudhui',
         'doa-bersama': 'Doa Bersama',
+        'asmaul-husna': '99 Asmaul Husna',
         'masuk': 'Masuk',
         'daftar': 'Daftar',
         'admin': 'Admin',
         'statistik': 'Statistik'
     };
 
-    // Don't show breadcrumb on home page
+    // Don't show breadcrumb on home page only
     if (location.pathname === '/') {
         return null;
     }
@@ -109,7 +110,7 @@ function Breadcrumb() {
     return (
         <div className="breadcrumb-transparent breadcrumb-auto-hide sticky top-16 z-40 border-b border-white/20 backdrop-blur-md">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-center py-3">
+                <div className="flex items-center justify-start py-3">
                     <nav className="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm overflow-x-auto scrollbar-hide" aria-label="Breadcrumb">
                         {breadcrumbItems.map((item, index) => (
                             <React.Fragment key={item.path}>

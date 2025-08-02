@@ -33,7 +33,9 @@ class GenerateComprehensiveSitemap extends Command
         $this->info('Generating comprehensive sitemap files...');
         
         $isProduction = $this->option('production');
-        $baseUrl = $isProduction ? 'https://indoquran.web.id' : config('app.url');
+        $baseUrl = ($isProduction && !app()->environment(['local', 'development', 'testing'])) 
+            ? 'https://indoquran.web.id' 
+            : config('app.url');
         
         $this->info("Base URL: {$baseUrl}");
         
@@ -71,7 +73,7 @@ class GenerateComprehensiveSitemap extends Command
         $staticPages = [
             '' => ['priority' => '1.0', 'changefreq' => 'daily'],
             'cari' => ['priority' => '0.8', 'changefreq' => 'weekly'],
-            'semua-surah' => ['priority' => '0.9', 'changefreq' => 'weekly'],
+            'surah' => ['priority' => '0.9', 'changefreq' => 'weekly'],
             'daftar-lengkap' => ['priority' => '0.9', 'changefreq' => 'weekly'],
             'juz' => ['priority' => '0.8', 'changefreq' => 'weekly'],
             'halaman' => ['priority' => '0.8', 'changefreq' => 'weekly'],
@@ -155,7 +157,7 @@ class GenerateComprehensiveSitemap extends Command
         $staticPages = [
             '' => ['priority' => '1.0', 'changefreq' => 'daily'],
             'cari' => ['priority' => '0.8', 'changefreq' => 'weekly'],
-            'semua-surah' => ['priority' => '0.9', 'changefreq' => 'weekly'],
+            'surah' => ['priority' => '0.9', 'changefreq' => 'weekly'],
             'daftar-lengkap' => ['priority' => '0.9', 'changefreq' => 'weekly'],
             'juz' => ['priority' => '0.8', 'changefreq' => 'weekly'],
             'halaman' => ['priority' => '0.8', 'changefreq' => 'weekly'],
@@ -289,7 +291,7 @@ class GenerateComprehensiveSitemap extends Command
         $robotsTxt .= "Disallow: /admin/\n\n";
         $robotsTxt .= "# Allow important pages\n";
         $robotsTxt .= "Allow: /cari\n";
-        $robotsTxt .= "Allow: /semua-surah\n";
+        $robotsTxt .= "Allow: /surah\n";
         $robotsTxt .= "Allow: /daftar-lengkap\n";
         $robotsTxt .= "Allow: /surah/\n";
         $robotsTxt .= "Allow: /juz/\n";

@@ -29,12 +29,13 @@ function SEOHead({
 }) {
   const baseUrl = 'https://indoquran.web.id';
   
-  // Default SEO values (updated July 2025 for comprehensive optimization)
+  // Default SEO values (updated August 2025 for canonical URL consistency)
   const seoDefaults = {
     title: title || 'IndoQuran - Al-Quran Digital Indonesia | Baca & Dengar Al-Quran Online',
     description: description || 'Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia, fitur bookmark, pencarian ayat, audio murottal berkualitas tinggi, dan tafsir lengkap.',
     keywords: keywords || 'al quran indonesia, quran online, al quran digital, baca quran, terjemahan quran, murottal, quran indonesia, ayat al quran, surah quran, tafsir quran, hafalan quran, indoquran, quran dengan tajwid',
-    canonicalUrl: canonicalUrl || window.location.href,
+    canonicalUrl: canonicalUrl || (typeof window !== 'undefined' ? 
+      baseUrl + window.location.pathname + window.location.search : baseUrl),
     ogImage: ogImage || `${baseUrl}/android-chrome-512x512.png`,
     author: author,
     robots: robots || (noindex || nofollow ? `${noindex ? 'noindex' : 'index'}, ${nofollow ? 'nofollow' : 'follow'}` : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'),

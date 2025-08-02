@@ -51,11 +51,14 @@ class AppServiceProvider extends ServiceProvider
             config(['database.redis.default.host' => null]);
             config(['database.redis.cache.host' => null]);
         } else {
-            // Development environment
-            // If ASSET_URL is set, use it for all assets
-            if (config('app.asset_url')) {
-                $assetUrl = config('app.asset_url');
-                // Parse the URL to get the full URL including port
+            // Development environment - DON'T force any URL schemes
+            // Let Laravel use the default APP_URL for local development
+            // Only force asset URL if it's different from app URL and needed for CDN
+            $appUrl = config('app.url');
+            $assetUrl = config('app.asset_url');
+            
+            // Only force asset URL if it's specifically set and different from app URL
+            if ($assetUrl && $assetUrl !== $appUrl && !str_contains($assetUrl, 'localhost') && !str_contains($assetUrl, '127.0.0.1')) {
                 $parsedUrl = parse_url($assetUrl);
                 $scheme = $parsedUrl['scheme'] ?? 'http';
                 $host = $parsedUrl['host'] ?? null;

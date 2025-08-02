@@ -107,7 +107,7 @@ Enhanced with comprehensive SEO data:
 - Fast loading performance
 
 Available at:
-- `/semua-surah`
+- `/surah`
 - `/daftar-lengkap`
 
 ### 6. Performance Optimizations

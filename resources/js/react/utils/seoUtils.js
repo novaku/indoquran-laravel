@@ -18,7 +18,10 @@
  * Google Search Guidelines Compliant
  */
 
-export const BASE_URL = 'https://indoquran.web.id';
+// Environment-aware BASE_URL
+export const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? window.location.origin 
+  : 'https://indoquran.web.id';
 
 // Google Search Console optimized priority scores
 export const SEO_PRIORITIES = {
@@ -472,7 +475,7 @@ export const getPageSEOData = (pageType, data = {}) => {
       seoData.title = 'IndoQuran - Al-Quran Digital Indonesia Terlengkap | Baca & Dengar Online';
       seoData.description = 'Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia, fitur bookmark, pencarian ayat, audio murottal berkualitas tinggi dari 30+ qari terbaik dunia. Gratis dan mudah digunakan.';
       seoData.keywords = generateHomeSEOKeywords();
-      seoData.canonicalUrl = BASE_URL;
+      seoData.canonicalUrl = generateCanonicalUrl('/');
       break;
 
     case 'surah':
@@ -480,7 +483,7 @@ export const getPageSEOData = (pageType, data = {}) => {
       seoData.title = `Surah ${surah.name_latin} (${surah.name_arabic}) - Terjemahan & Audio Murottal | IndoQuran`;
       seoData.description = `Baca dan dengarkan Surah ${surah.name_latin} lengkap dengan terjemahan bahasa Indonesia dan tafsir. Surah ke-${surah.number} dalam Al-Quran yang terdiri dari ${surah.total_ayahs} ayat. Audio murottal berkualitas tinggi tersedia dengan berbagai pilihan qari. ${surah.revelation_place ? `Diturunkan di ${surah.revelation_place}.` : ''}`;
       seoData.keywords = generateSurahSEOKeywords(surah);
-      seoData.canonicalUrl = `${BASE_URL}/surah/${surah.number}`;
+      seoData.canonicalUrl = generateCanonicalUrl(`/surah/${surah.number}`);
       break;
 
     case 'ayah':
@@ -488,7 +491,7 @@ export const getPageSEOData = (pageType, data = {}) => {
       seoData.title = `${ayahData.surah.name_latin} Ayat ${ayahData.ayah_number} - Terjemahan & Audio | IndoQuran`;
       seoData.description = `Baca ${ayahData.surah.name_latin} ayat ${ayahData.ayah_number} dengan terjemahan bahasa Indonesia: "${ayahData.translation?.substring(0, 120)}...". Lengkap dengan audio murottal, tafsir, dan asbabun nuzul.`;
       seoData.keywords = generateSurahSEOKeywords(ayahData.surah) + `, ${ayahData.surah.name_latin} ayat ${ayahData.ayah_number}, terjemahan ayat ${ayahData.ayah_number}, murottal ayat, tafsir ayat al quran`;
-      seoData.canonicalUrl = `${BASE_URL}/surah/${ayahData.surah.number}/${ayahData.ayah_number}`;
+      seoData.canonicalUrl = generateCanonicalUrl(`/surah/${ayahData.surah.number}/${ayahData.ayah_number}`);
       break;
 
     case 'search':
@@ -497,7 +500,7 @@ export const getPageSEOData = (pageType, data = {}) => {
       seoData.title = `Hasil Pencarian "${searchQuery}" - ${resultsCount} Ayat Ditemukan | IndoQuran`;
       seoData.description = `Hasil pencarian Al-Quran untuk "${searchQuery}". Ditemukan ${resultsCount} ayat yang sesuai dengan pencarian Anda. Cari ayat, surah, dan terjemahan dalam Al-Quran dengan mudah di IndoQuran.`;
       seoData.keywords = generateSearchSEOKeywords(searchQuery);
-      seoData.canonicalUrl = `${BASE_URL}/cari?q=${encodeURIComponent(searchQuery)}`;
+      seoData.canonicalUrl = generateCanonicalUrl(`/cari?q=${encodeURIComponent(searchQuery)}`);
       break;
 
     case 'juz':
@@ -505,7 +508,7 @@ export const getPageSEOData = (pageType, data = {}) => {
       seoData.title = `Juz ${juzNumber} (Para ${juzNumber}) - Teks Arab Al-Quran | IndoQuran`;
       seoData.description = `Baca Juz ${juzNumber} Al-Quran dengan teks Arab lengkap dan terjemahan bahasa Indonesia. Para ${juzNumber} Al-Quran tersedia untuk dibaca dan dipelajari dengan mudah. Platform Al-Quran digital terlengkap di Indonesia.`;
       seoData.keywords = `juz ${juzNumber}, para ${juzNumber}, al quran juz ${juzNumber}, teks arab juz ${juzNumber}, quran digital, al quran indonesia, juz lengkap`;
-      seoData.canonicalUrl = `${BASE_URL}/juz/${juzNumber}`;
+      seoData.canonicalUrl = generateCanonicalUrl(`/juz/${juzNumber}`);
       break;
 
     case 'halaman':
@@ -513,49 +516,49 @@ export const getPageSEOData = (pageType, data = {}) => {
       seoData.title = `Halaman ${pageNumber} - Al-Quran Digital Mushaf Utsmani | IndoQuran`;
       seoData.description = `Baca Halaman ${pageNumber} Al-Quran dengan teks Arab lengkap sesuai Mushaf Utsmani. Navigasi mudah antar halaman Al-Quran di platform digital terlengkap Indonesia.`;
       seoData.keywords = `halaman ${pageNumber}, al quran halaman ${pageNumber}, mushaf utsmani halaman ${pageNumber}, teks arab halaman ${pageNumber}, quran digital, al quran indonesia`;
-      seoData.canonicalUrl = `${BASE_URL}/halaman/${pageNumber}`;
+      seoData.canonicalUrl = generateCanonicalUrl(`/halaman/${pageNumber}`);
       break;
 
     case 'about':
       seoData.title = 'Tentang IndoQuran - Platform Al-Quran Digital Terdepan Indonesia';
       seoData.description = 'Pelajari lebih lanjut tentang IndoQuran, platform Al-Quran digital terdepan di Indonesia. Misi kami adalah memudahkan umat Islam dalam membaca dan mempelajari Al-Quran secara online dengan teknologi terkini. Dipercaya oleh jutaan pengguna di Indonesia.';
       seoData.keywords = 'tentang indoquran, al quran digital indonesia, platform quran terbaik, teknologi islam, aplikasi quran indonesia, sejarah indoquran, visi misi indoquran';
-      seoData.canonicalUrl = `${BASE_URL}/tentang`;
+      seoData.canonicalUrl = generateCanonicalUrl('/tentang');
       break;
 
     case 'contact':
       seoData.title = 'Hubungi IndoQuran - Customer Service & Dukungan Teknis 24/7';
       seoData.description = 'Hubungi tim IndoQuran untuk pertanyaan, saran, atau dukungan teknis. Customer service kami siap membantu Anda 24/7 dalam menggunakan platform Al-Quran digital terbaik di Indonesia. Respon cepat dan profesional.';
       seoData.keywords = 'kontak indoquran, hubungi kami, customer service indoquran, dukungan teknis 24/7, bantuan pengguna, support indoquran, layanan pelanggan';
-      seoData.canonicalUrl = `${BASE_URL}/kontak`;
+      seoData.canonicalUrl = generateCanonicalUrl('/kontak');
       break;
 
     case 'doa-bersama':
       seoData.title = 'Doa Bersama - Komunitas Doa Muslim Real-time | IndoQuran';
       seoData.description = 'Bergabunglah dengan komunitas doa Muslim terbesar di Indonesia. Fitur doa bersama real-time untuk memperkuat ukhuwah islamiyah dan silaturahmi. Buat permintaan doa, beri dukungan, dan rasakan kekuatan doa bersama jutaan Muslim Indonesia.';
       seoData.keywords = 'doa bersama indonesia, komunitas doa muslim, doa online real-time, ukhuwah islamiyah, silaturahmi muslim, permintaan doa, doa islam, indoquran doa';
-      seoData.canonicalUrl = `${BASE_URL}/doa-bersama`;
+      seoData.canonicalUrl = generateCanonicalUrl('/doa-bersama');
       break;
 
     case 'tafsir-maudhui':
       seoData.title = 'Tafsir Maudhui - Tafsir Al-Quran Berdasarkan Tema Lengkap | IndoQuran';
       seoData.description = 'Jelajahi topik-topik penting dalam Al-Quran melalui pendekatan tafsir maudhui. Temukan ayat-ayat Al-Quran berdasarkan tema seperti akidah, ibadah, akhlak, muamalah, dan banyak lagi. Tafsir tematik yang mudah dipahami.';
       seoData.keywords = 'tafsir maudhui, topik quran, tema al quran, tafsir tematik indonesia, akidah islam, ibadah islam, akhlak islam, muamalah islam, tafsir lengkap, indoquran tafsir';
-      seoData.canonicalUrl = `${BASE_URL}/tafsir-maudhui`;
+      seoData.canonicalUrl = generateCanonicalUrl('/tafsir-maudhui');
       break;
 
     case 'donation':
       seoData.title = 'Donasi untuk IndoQuran - Dukung Platform Al-Quran Digital Indonesia';
       seoData.description = 'Dukung pengembangan IndoQuran dengan berdonasi. Kontribusi Anda membantu kami menyediakan platform Al-Quran digital yang lebih baik untuk umat Islam Indonesia. Sedekah jariyah yang terus mengalir pahalanya.';
       seoData.keywords = 'donasi indoquran, donasi platform islam indonesia, dukung pengembangan al quran digital, kontribusi islam, sedekah jariyah teknologi, donasi aplikasi quran';
-      seoData.canonicalUrl = `${BASE_URL}/donasi`;
+      seoData.canonicalUrl = generateCanonicalUrl('/donasi');
       break;
 
     case 'bookmarks':
       seoData.title = 'Penanda Ayat Favorit - Simpan Ayat Al-Quran | IndoQuran';
       seoData.description = 'Kelola dan akses penanda ayat Al-Quran favorit Anda. Simpan ayat-ayat penting untuk dibaca kembali dengan mudah. Fitur sinkronisasi lintas perangkat tersedia.';
       seoData.keywords = 'penanda quran, ayat favorit, simpan ayat al quran, bookmark quran, al quran penanda, indoquran penanda, favorit ayat';
-      seoData.canonicalUrl = `${BASE_URL}/penanda`;
+      seoData.canonicalUrl = generateCanonicalUrl('/penanda');
       seoData.robots = 'noindex, nofollow'; // Private content
       break;
 
@@ -563,14 +566,14 @@ export const getPageSEOData = (pageType, data = {}) => {
       seoData.title = 'Kebijakan Privasi IndoQuran - Perlindungan Data Pengguna';
       seoData.description = 'Baca kebijakan privasi IndoQuran. Kami berkomitmen melindungi data pribadi dan privasi pengguna platform Al-Quran digital kami sesuai standar keamanan internasional dan peraturan yang berlaku.';
       seoData.keywords = 'kebijakan privasi indoquran, privacy policy, perlindungan data pengguna, keamanan data, GDPR compliance, privasi indonesia';
-      seoData.canonicalUrl = `${BASE_URL}/kebijakan`;
+      seoData.canonicalUrl = generateCanonicalUrl('/kebijakan');
       break;
 
     default:
       seoData.title = 'IndoQuran - Al-Quran Digital Indonesia Terlengkap';
       seoData.description = 'Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online gratis.';
       seoData.keywords = 'al quran indonesia, quran online, indoquran, al quran digital';
-      seoData.canonicalUrl = BASE_URL;
+      seoData.canonicalUrl = generateCanonicalUrl('/');
   }
 
   // Optimize title and description length for Google
@@ -1388,10 +1391,55 @@ export const generateSearchSEOKeywords = (query = '') => {
   return cleanKeywords(searchKeywords.join(', '));
 };
 
-// Generate canonical URL with proper formatting
+// Generate canonical URL with proper formatting and validation
 export const generateCanonicalUrl = (path) => {
+  // Ensure path starts with /
   const cleanPath = path.startsWith('/') ? path : '/' + path;
-  return BASE_URL + cleanPath;
+  
+  // Remove trailing slash except for root
+  const normalizedPath = cleanPath === '/' ? cleanPath : cleanPath.replace(/\/$/, '');
+  
+  // Build canonical URL with consistent domain
+  const canonicalUrl = BASE_URL + normalizedPath;
+  
+  // Validate URL format
+  try {
+    new URL(canonicalUrl);
+    return canonicalUrl;
+  } catch (error) {
+    console.warn('Invalid canonical URL generated:', canonicalUrl, 'falling back to base URL');
+    return BASE_URL;
+  }
+};
+
+// Ensure canonical URL consistency for current page
+export const ensureCanonicalConsistency = () => {
+  // Skip canonical redirect in development environment
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return true;
+  }
+
+  const currentUrl = window.location.href;
+  const currentPath = window.location.pathname;
+  const expectedCanonical = generateCanonicalUrl(currentPath);
+  
+  // Check if current URL matches canonical format
+  const currentUrlObj = new URL(currentUrl);
+  const expectedUrlObj = new URL(expectedCanonical);
+  
+  const isCanonicalMismatch = 
+    currentUrlObj.hostname !== expectedUrlObj.hostname ||
+    currentUrlObj.protocol !== expectedUrlObj.protocol ||
+    currentUrlObj.pathname !== expectedUrlObj.pathname;
+  
+  if (isCanonicalMismatch) {
+    // Redirect to canonical URL if not already canonical
+    console.log('Redirecting to canonical URL:', expectedCanonical);
+    window.location.replace(expectedCanonical);
+    return false;
+  }
+  
+  return true;
 };
 
 // Generate hreflang tags for internationalization

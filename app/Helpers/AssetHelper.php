@@ -10,12 +10,13 @@ if (!function_exists('asset_url')) {
      */
     function asset_url($path)
     {
-        if (app()->environment('production')) {
+        // Only add /public prefix in production environment
+        if (app()->environment('production') && !app()->environment(['local', 'development', 'testing'])) {
             $path = ltrim($path, '/');
             return url("/public/{$path}");
         }
         
-        return url($path);
+        return asset($path);
     }
 }
 
@@ -29,7 +30,8 @@ if (!function_exists('route_url')) {
      */
     function route_url($path)
     {
-        if (app()->environment('production')) {
+        // Only add /public prefix in production environment
+        if (app()->environment('production') && !app()->environment(['local', 'development', 'testing'])) {
             $path = ltrim($path, '/');
             return url("/public/{$path}");
         }

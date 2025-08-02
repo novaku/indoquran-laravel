@@ -58,6 +58,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | SSL/HTTPS Configuration
+    |--------------------------------------------------------------------------
+    |
+    | These settings control SSL behavior in the application.
+    | In local development, these should be set to false to prevent SSL errors.
+    |
+    */
+
+    'force_https' => env('FORCE_HTTPS', false),
+    'https_only' => env('HTTPS_ONLY', false),
+    'ssl_verify' => env('SSL_VERIFY', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |
