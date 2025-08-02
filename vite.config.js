@@ -55,11 +55,11 @@ export default defineConfig(({ command, mode }) => {
                     comments: false,
                 },
             },
-            // Reduce chunk size warning limit for mobile
-            chunkSizeWarningLimit: 500,
-            // Disable source maps for production to reduce size
+            // Reduce chunk size warning limit for mobile optimization
+            chunkSizeWarningLimit: 300,
+            // Disable source maps for production to reduce size significantly
             sourcemap: false,
-            // Enhanced code splitting for better mobile caching
+            // Enhanced code splitting for aggressive bundle size reduction
             rollupOptions: {
                 output: {
                     entryFileNames: 'assets/[name]-[hash].js',
@@ -78,37 +78,51 @@ export default defineConfig(({ command, mode }) => {
                         return `assets/[name]-[hash][extname]`;
                     },
                     format: 'es',
-                    // Enhanced code splitting for better mobile caching
+                    // Aggressive code splitting to minimize initial bundle
                     manualChunks: (id) => {
-                        // Core React dependencies (highest priority)
-                        if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
-                            return 'vendor-react';
+                        // Core React dependencies (critical chunk)
+                        if (id.includes('node_modules/react/') && !id.includes('react-dom')) {
+                            return 'vendor-react-core';
                         }
-                        // Router and navigation (high priority)
+                        if (id.includes('node_modules/react-dom')) {
+                            return 'vendor-react-dom';
+                        }
+                        // Router (separate chunk)
                         if (id.includes('react-router')) {
                             return 'vendor-router';
                         }
-                        // UI components and icons (medium priority)
-                        if (id.includes('@heroicons') || id.includes('react-icons') || id.includes('react-hot-toast')) {
-                            return 'vendor-ui';
+                        // UI components (separate chunks)
+                        if (id.includes('@heroicons')) {
+                            return 'vendor-icons';
                         }
-                        // Motion and animations (lower priority)
+                        if (id.includes('react-hot-toast')) {
+                            return 'vendor-toast';
+                        }
+                        if (id.includes('react-icons')) {
+                            return 'vendor-react-icons';
+                        }
+                        // Heavy libraries (separate chunks)
                         if (id.includes('framer-motion')) {
                             return 'vendor-motion';
                         }
-                        // Utilities and date libraries (lower priority)
-                        if (id.includes('date-fns') || id.includes('lodash')) {
-                            return 'vendor-utils';
+                        if (id.includes('date-fns')) {
+                            return 'vendor-date';
                         }
-                        // Separate chunk for other large node_modules
+                        if (id.includes('lodash')) {
+                            return 'vendor-lodash';
+                        }
+                        if (id.includes('axios')) {
+                            return 'vendor-axios';
+                        }
+                        if (id.includes('moment')) {
+                            return 'vendor-moment';
+                        }
+                        if (id.includes('chart.js')) {
+                            return 'vendor-charts';
+                        }
+                        // Small vendor libs (grouped)
                         if (id.includes('node_modules')) {
-                            const chunks = ['axios', 'moment', 'chart.js'];
-                            for (const chunk of chunks) {
-                                if (id.includes(chunk)) {
-                                    return `vendor-${chunk}`;
-                                }
-                            }
-                            return 'vendor-libs';
+                            return 'vendor-utils';
                         }
                     },
                 },
@@ -125,7 +139,7 @@ export default defineConfig(({ command, mode }) => {
                     warn(warning);
                 },
             },
-            // Performance optimizations for mobile
+            // Performance optimizations for mobile with strict limits
             assetsDir: 'assets',
             target: ['es2020', 'chrome80', 'firefox78', 'safari14', 'edge88'],
             cssCodeSplit: true,
@@ -133,15 +147,15 @@ export default defineConfig(({ command, mode }) => {
             modulePreload: {
                 polyfill: false // Disable unnecessary polyfill for modern browsers
             },
-            // Enable asset inlining for small files (4KB threshold)
-            assetsInlineLimit: 4096,
+            // Aggressive asset inlining for smallest possible files
+            assetsInlineLimit: 2048, // Reduced from 4096 to minimize HTTP requests
             // Additional options for React optimization
             commonjsOptions: {
                 transformMixedEsModules: true,
                 include: [/node_modules/],
             },
-            // Enable experimental features for better optimization
-            experimentalMinChunkSize: 1000,
+            // Aggressive chunk size optimization
+            experimentalMinChunkSize: 500, // Reduced to force smaller chunks
         },
         base: '/build/',
         server: {

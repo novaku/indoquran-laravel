@@ -23,20 +23,20 @@ import PageTransition from './components/PageTransition';
 import PerformanceDebugPanel from './components/PerformanceDebugPanel';
 import SEOHead from './components/SEOHead';
 import PWAInstallPromotion from './components/PWAInstallPromotion';
+import PerformanceOptimizer from './components/PerformanceOptimizer';
 import { preloadCriticalResources, getPageSEOData, generateHomeSEOKeywords } from './utils/seoUtils';
 
-// Enhanced lazy loading with component-level prefetching and optimized chunk names
+// Enhanced lazy loading with aggressive code splitting for minimal initial bundle
 const HomePage = lazy(() => 
-  import(/* webpackChunkName: "home" */ './pages/QuranHomePage')
-    .then(module => ({ default: module.default }))
+  import(/* webpackChunkName: "home", webpackPreload: true */ './pages/QuranHomePage')
 );
 
-// Core pages (high priority)
+// Core pages (high priority) - preload after main bundle
 const AuthPage = lazy(() => 
   import(/* webpackChunkName: "auth" */ './pages/UserAuthPage')
 );
 const SurahListPage = lazy(() => 
-  import(/* webpackChunkName: "surah-list" */ './pages/SurahListPage')
+  import(/* webpackChunkName: "surah-list", webpackPrefetch: true */ './pages/SurahListPage')
 );
 const SurahPage = lazy(() => 
   import(/* webpackChunkName: "surah" */ './pages/SurahDetailPage')
@@ -45,7 +45,7 @@ const SearchPage = lazy(() =>
   import(/* webpackChunkName: "search" */ './pages/QuranSearchPage')
 );
 
-// User pages (medium priority)
+// User pages (lower priority) - load on demand only
 const BookmarksPage = lazy(() => 
   import(/* webpackChunkName: "user-features" */ './pages/UserBookmarksPage')
 );
@@ -53,7 +53,7 @@ const ProfilePage = lazy(() =>
   import(/* webpackChunkName: "user-features" */ './pages/UserProfilePage')
 );
 
-// Content pages (lower priority, grouped together)
+// Content pages (lowest priority) - highly deferred
 const AboutPage = lazy(() => 
   import(/* webpackChunkName: "content-pages" */ './pages/AboutProjectPage')
 );
@@ -81,21 +81,21 @@ const PageDetailPage = lazy(() =>
   import(/* webpackChunkName: "page-features" */ './pages/PageDetailPage')
 );
 
-// Special features (least priority)
+// Special features (deferred loading only when needed)
 const PrayerPage = lazy(() => 
-  import(/* webpackChunkName: "special-features" */ './pages/PrayerPage')
+  import(/* webpackChunkName: "prayer" */ './pages/PrayerPage')
 );
 const AsmaulHusnaPage = lazy(() => 
-  import(/* webpackChunkName: "special-features" */ './pages/AsmaulHusnaPage')
+  import(/* webpackChunkName: "asmaul-husna" */ './pages/AsmaulHusnaPage')
 );
 const RiwayatVersiPage = lazy(() => 
-  import(/* webpackChunkName: "special-features" */ './pages/RiwayatVersiPage')
+  import(/* webpackChunkName: "version-history" */ './pages/RiwayatVersiPage')
 );
 const TafsirMaudhuiPage = lazy(() => 
-  import(/* webpackChunkName: "special-features" */ './pages/TafsirMaudhuiPage')
+  import(/* webpackChunkName: "tafsir" */ './pages/TafsirMaudhuiPage')
 );
 const SEOLandingPage = lazy(() => 
-  import(/* webpackChunkName: "seo-features" */ './pages/SEOLandingPage')
+  import(/* webpackChunkName: "seo-landing" */ './pages/SEOLandingPage')
 );
 
 // Admin pages (separate bundle)
@@ -122,38 +122,47 @@ const SearchRedirect = memo(() => {
     return <Navigate to={redirectPath} replace />;
 });
 
-// Intelligent prefetching based on user navigation patterns
+// Intelligent prefetching with strict conditions to minimize unused JS
 const usePrefetchOptimization = () => {
     const { canPreload } = useIntelligentPreload({
         enableRoutePreload: true,
-        enableHoverPreloadOption: true
+        enableHoverPreloadOption: false // Disable hover preload to reduce unused JS
     });
     
     useEffect(() => {
         if (!canPreload) return;
         
-        // Defer prefetching to avoid blocking main thread
-        const prefetchOnIdle = () => {
+        // Only prefetch critical components with strict conditions
+        const prefetchCritical = () => {
+            // Check connection quality and data saver preference
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            const isSlowConnection = connection && (
+                connection.effectiveType === 'slow-2g' || 
+                connection.effectiveType === '2g' || 
+                connection.saveData ||
+                connection.downlink < 1.5
+            );
+            
+            // Skip prefetching on slow connections or low memory devices
+            if (isSlowConnection || (navigator.deviceMemory && navigator.deviceMemory < 4)) {
+                return;
+            }
+            
+            // Only prefetch most critical pages with intelligent delays
             if ('requestIdleCallback' in window) {
                 requestIdleCallback(() => {
-                    // Only prefetch critical pages to reduce initial bundle size
+                    // Prefetch only SurahListPage as it's most likely to be visited
                     import(/* webpackChunkName: "surah-list" */ './pages/SurahListPage');
-                }, { timeout: 5000 });
-            } else {
-                // Longer delay for browsers without requestIdleCallback
-                setTimeout(() => {
-                    import(/* webpackChunkName: "surah-list" */ './pages/SurahListPage');
-                }, 5000);
+                }, { timeout: 10000 });
             }
         };
 
-        // Start prefetching only after page is fully loaded and stable
+        // Aggressive delay to ensure main content is fully loaded first
         if (document.readyState === 'complete') {
-            // Additional delay to ensure first paint is complete
-            setTimeout(prefetchOnIdle, 2000);
+            setTimeout(prefetchCritical, 5000);
         } else {
             window.addEventListener('load', () => {
-                setTimeout(prefetchOnIdle, 2000);
+                setTimeout(prefetchCritical, 5000);
             });
         }
     }, [canPreload]);
@@ -194,22 +203,17 @@ const AppContent = memo(() => {
         logToConsole: false // Disable console logging to reduce noise
     });
     
-    // SEO and performance monitoring initialization - optimized to run only once
+    // Optimized initialization for faster FCP/LCP
     useEffect(() => {
-        // Initialize critical performance optimizations immediately
-        initializeCSSOptimizations();
-        initializeResourcePreloading();
+        // Prioritize critical CSS and defer everything else
+        const initializeCriticalPath = () => {
+            // Initialize only critical CSS immediately
+            initializeCSSOptimizations();
+        };
         
-        // Defer non-critical initialization to avoid blocking first paint
-        const initializeApp = () => {
-            // Initialize image optimizations
-            initializeImageOptimizations({
-                enableLazyLoading: true,
-                enableResponsive: true,
-                optimizeFormat: true
-            });
-            
-            // Preload critical SEO resources only if not on slow connection
+        // Defer all non-critical initialization
+        const initializeNonCritical = () => {
+            // Check connection quality before loading heavy features
             const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
             const isSlowConnection = connection && (
                 connection.effectiveType === 'slow-2g' || 
@@ -218,22 +222,40 @@ const AppContent = memo(() => {
             );
             
             if (!isSlowConnection) {
-                preloadCriticalResources();
+                // Initialize resource preloading only on fast connections
+                initializeResourcePreloading();
+                
+                // Initialize image optimizations with delay
+                setTimeout(() => {
+                    initializeImageOptimizations({
+                        enableLazyLoading: true,
+                        enableResponsive: true,
+                        optimizeFormat: true
+                    });
+                }, 1000);
+                
+                // Preload critical SEO resources only if performance budget allows
+                setTimeout(() => {
+                    preloadCriticalResources();
+                }, 2000);
             }
             
-            // Performance monitoring in development only
+            // Performance monitoring only in development
             if (process.env.NODE_ENV === 'development') {
                 console.log('✅ Performance monitoring available via PerformanceDebugPanel');
             }
         };
 
-        // Defer initialization to improve Time to First Byte
+        // Execute critical path immediately
+        initializeCriticalPath();
+        
+        // Defer non-critical initialization with longer delays
         if ('requestIdleCallback' in window) {
-            requestIdleCallback(initializeApp, { timeout: 2000 });
+            requestIdleCallback(initializeNonCritical, { timeout: 5000 });
         } else {
-            setTimeout(initializeApp, 100);
+            setTimeout(initializeNonCritical, 1000);
         }
-    }, []); // Removed dependencies to prevent unnecessary re-runs
+    }, []); // Keep empty dependency array to prevent re-initialization
 
     // Legacy setUser function for backward compatibility - memoized
     const setUser = useCallback((userData) => {
@@ -244,12 +266,34 @@ const AppContent = memo(() => {
         }
     }, [updateUser, logout]);
 
-    // Optimized loading component
+    // Ultra-optimized loading component for fastest FCP
     const LoadingComponent = useMemo(() => (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50" style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 9999
+        }}>
             <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600 mx-auto mb-4"></div>
-                <p className="text-gray-600">Loading application...</p>
+                <div 
+                    className="rounded-full border-t-2 border-b-2 border-green-600 mx-auto mb-4"
+                    style={{
+                        width: '3rem',
+                        height: '3rem',
+                        animation: 'spin 1s linear infinite'
+                    }}
+                ></div>
+                <p className="text-gray-600 text-sm">Loading...</p>
+                <style dangerouslySetInnerHTML={{
+                    __html: `
+                        @keyframes spin {
+                            from { transform: rotate(0deg); }
+                            to { transform: rotate(360deg); }
+                        }
+                    `
+                }} />
             </div>
         </div>
     ), []);
@@ -441,6 +485,9 @@ const AppContent = memo(() => {
                 
                 {/* Performance Debug Panel (Development Only) */}
                 <PerformanceDebugPanel />
+                
+                {/* Performance Optimizer - Critical for Core Web Vitals */}
+                <PerformanceOptimizer />
                 
                 {/* PWA Install Promotion - memoized to prevent re-renders */}
                 <PWAInstallPromotion strategy="auto" key="pwa-promotion" />

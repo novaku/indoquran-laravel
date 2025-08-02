@@ -1,25 +1,41 @@
 /**
  * Critical CSS extraction and optimization utilities
- * For PageSpeed Insights optimization
+ * Optimized for PageSpeed Insights and Core Web Vitals
  */
 
-// Critical CSS for above-the-fold content
+// Enhanced critical CSS for faster FCP and reduced CLS
 export const CRITICAL_CSS = `
 /* Critical layout styles - inline for FCP optimization */
-* {
+*, *::before, *::after {
   box-sizing: border-box;
 }
 
-html, body {
+html {
+  line-height: 1.15;
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
   margin: 0;
   padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-display: swap;
   line-height: 1.6;
-  scroll-behavior: smooth;
+  color: #1f2937;
+  background-color: #ffffff;
 }
 
-/* Critical loading state */
+/* Prevent layout shift during font loading */
+.fonts-loading {
+  visibility: hidden;
+}
+
+.fonts-loaded .fonts-loading {
+  visibility: visible;
+}
+
+/* Critical loading state - optimized for CLS */
 .loading-container {
   position: fixed;
   top: 0;
@@ -31,6 +47,7 @@ html, body {
   align-items: center;
   justify-content: center;
   z-index: 9999;
+  contain: layout style paint;
 }
 
 .loading-spinner {
@@ -40,11 +57,28 @@ html, body {
   border-top: 3px solid #10b981;
   border-radius: 50%;
   animation: spin 1s linear infinite;
+  will-change: transform;
 }
 
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Image optimization to prevent CLS */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+img:not([src]):not([srcset]) {
+  visibility: hidden;
+}
+
+img[data-critical="true"] {
+  loading: eager;
+  fetchpriority: high;
 }
 
 /* Critical header styles */
