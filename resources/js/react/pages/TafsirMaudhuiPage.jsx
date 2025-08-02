@@ -101,6 +101,68 @@ function TreeNode({ topic, index, isExpanded, onToggle, level = 0 }) {
     );
 }
 
+// Letter Group Component
+function LetterGroup({ letter, topics, expandedTopics, toggleExpanded, expandedGroups, toggleGroupExpanded }) {
+    const isGroupExpanded = expandedGroups.has(letter);
+    
+    return (
+        <div className="mb-4">
+            {/* Letter Group Header */}
+            <div 
+                className="flex items-center py-3 px-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg cursor-pointer group hover:from-blue-100 hover:to-indigo-100 transition-all duration-200"
+                onClick={() => toggleGroupExpanded(letter)}
+            >
+                <div className="flex items-center flex-1">
+                    {/* Group Expand/Collapse Icon */}
+                    <div className="flex-shrink-0 mr-3">
+                        {isGroupExpanded ? (
+                            <ChevronDownIcon className="w-5 h-5 text-blue-600" />
+                        ) : (
+                            <ChevronRightIcon className="w-5 h-5 text-blue-600" />
+                        )}
+                    </div>
+                    
+                    {/* Letter Icon */}
+                    <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm mr-3 shadow-sm">
+                        {letter}
+                    </div>
+                    
+                    {/* Group Info */}
+                    <div>
+                        <h3 className="font-semibold text-gray-900 text-lg">
+                            Huruf {letter}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                            {topics.length} topik
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            {/* Group Content */}
+            {isGroupExpanded && (
+                <div className="mt-3 ml-4 space-y-1 border-l-2 border-blue-100 pl-4">
+                    {topics.map((topic, topicIndex) => {
+                        // Calculate the real index for this topic in the filteredTopics array
+                        const globalIndex = `${letter}-${topicIndex}`;
+                        
+                        return (
+                            <TreeNode
+                                key={globalIndex}
+                                topic={topic}
+                                index={globalIndex}
+                                isExpanded={expandedTopics.has(globalIndex)}
+                                onToggle={() => toggleExpanded(globalIndex)}
+                                level={1}
+                            />
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+    );
+}
+
 // Verse Node Component
 function VerseNode({ verse, level = 0 }) {
     const indentStyle = {
@@ -130,6 +192,7 @@ function TafsirMaudhuiPage() {
     const [error, setError] = useState(null);
     const [searchKeyword, setSearchKeyword] = useState('');
     const [expandedTopics, setExpandedTopics] = useState(new Set());
+    const [expandedGroups, setExpandedGroups] = useState(new Set());
 
     // Fetch tafsir data
     useEffect(() => {
@@ -156,9 +219,9 @@ function TafsirMaudhuiPage() {
         fetchTafsirData();
     }, []);
 
-    // Filter topics based on search keyword
-    const filteredTopics = useMemo(() => {
-        if (!tafsirData?.topics) return [];
+    // Filter and group topics based on search keyword
+    const { filteredTopics, groupedTopics } = useMemo(() => {
+        if (!tafsirData?.topics) return { filteredTopics: [], groupedTopics: {} };
         
         let topics = tafsirData.topics;
         
@@ -171,7 +234,22 @@ function TafsirMaudhuiPage() {
         }
         
         // Sort topics alphabetically by topic name (ascending A-Z)
-        return topics.sort((a, b) => a.topic.localeCompare(b.topic, 'id', { sensitivity: 'base' }));
+        const sortedTopics = topics.sort((a, b) => a.topic.localeCompare(b.topic, 'id', { sensitivity: 'base' }));
+        
+        // Group topics by first letter
+        const grouped = {};
+        sortedTopics.forEach(topic => {
+            const firstLetter = topic.topic.charAt(0).toUpperCase();
+            if (!grouped[firstLetter]) {
+                grouped[firstLetter] = [];
+            }
+            grouped[firstLetter].push(topic);
+        });
+        
+        return { 
+            filteredTopics: sortedTopics, 
+            groupedTopics: grouped 
+        };
     }, [tafsirData, searchKeyword]);
 
     // Toggle expanded state for a topic
@@ -184,6 +262,68 @@ function TafsirMaudhuiPage() {
         }
         setExpandedTopics(newExpanded);
     };
+
+    // Toggle expanded state for a letter group
+    const toggleGroupExpanded = (letter) => {
+        const newExpandedGroups = new Set(expandedGroups);
+        if (newExpandedGroups.has(letter)) {
+            newExpandedGroups.delete(letter);
+        } else {
+            newExpandedGroups.add(letter);
+        }
+        setExpandedGroups(newExpandedGroups);
+    };
+
+    // Toggle all groups
+    const toggleAllGroups = () => {
+        const allLetters = Object.keys(groupedTopics);
+        const allGroupsExpanded = allLetters.every(letter => expandedGroups.has(letter));
+        
+        if (allGroupsExpanded) {
+            // If all groups are expanded, collapse them and all topics
+            setExpandedGroups(new Set());
+            setExpandedTopics(new Set());
+        } else {
+            // If not all groups are expanded, expand them all
+            setExpandedGroups(new Set(allLetters));
+        }
+    };
+
+    // Toggle all topics
+    const toggleAllTopics = () => {
+        const allLetters = Object.keys(groupedTopics);
+        const allTopicIndices = [];
+        Object.entries(groupedTopics).forEach(([letter, topics]) => {
+            topics.forEach((_, topicIndex) => {
+                allTopicIndices.push(`${letter}-${topicIndex}`);
+            });
+        });
+        
+        const allTopicsExpanded = allTopicIndices.every(index => expandedTopics.has(index));
+        
+        if (allTopicsExpanded) {
+            // If all topics are expanded, collapse only topics (keep groups open)
+            setExpandedTopics(new Set());
+        } else {
+            // If not all topics are expanded, expand groups and all topics
+            setExpandedGroups(new Set(allLetters));
+            setExpandedTopics(new Set(allTopicIndices));
+        }
+    };
+
+    // Check if all groups are expanded
+    const allGroupsExpanded = Object.keys(groupedTopics).every(letter => expandedGroups.has(letter));
+    
+    // Check if all topics are expanded
+    const allTopicsExpanded = useMemo(() => {
+        const allTopicIndices = [];
+        Object.entries(groupedTopics).forEach(([letter, topics]) => {
+            topics.forEach((_, topicIndex) => {
+                allTopicIndices.push(`${letter}-${topicIndex}`);
+            });
+        });
+        return allTopicIndices.length > 0 && allTopicIndices.every(index => expandedTopics.has(index));
+    }, [groupedTopics, expandedTopics]);
 
     // SEO Data
     const seoData = {
@@ -287,21 +427,74 @@ function TafsirMaudhuiPage() {
                 {filteredTopics.length > 0 ? (
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200">
                         <div className="p-6">
-                            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                                <FolderOpenIcon className="w-5 h-5 mr-2 text-blue-600" />
-                                Topik-topik Al-Quran
-                            </h2>
-                            <div className="space-y-1">
-                                {filteredTopics.map((topic, index) => (
-                                    <TreeNode
-                                        key={index}
-                                        topic={topic}
-                                        index={index}
-                                        isExpanded={expandedTopics.has(index)}
-                                        onToggle={() => toggleExpanded(index)}
-                                        level={0}
-                                    />
-                                ))}
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+                                    <FolderOpenIcon className="w-5 h-5 mr-2 text-blue-600" />
+                                    Topik-topik Al-Quran
+                                    <span className="ml-2 text-sm font-normal text-gray-500">
+                                        ({Object.keys(groupedTopics).length} grup huruf)
+                                    </span>
+                                </h2>
+                                
+                                {/* Expand/Collapse Controls */}
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={toggleAllGroups}
+                                        className={`inline-flex items-center px-3 py-1.5 text-xs font-medium border rounded-md transition-colors ${
+                                            allGroupsExpanded 
+                                                ? 'text-blue-700 bg-blue-100 border-blue-300 hover:bg-blue-200' 
+                                                : 'text-blue-700 bg-blue-50 border-blue-200 hover:bg-blue-100'
+                                        }`}
+                                    >
+                                        {allGroupsExpanded ? (
+                                            <>
+                                                <ChevronUpIcon className="w-3 h-3 mr-1" />
+                                                Tutup Semua Grup
+                                            </>
+                                        ) : (
+                                            <>
+                                                <ChevronDownIcon className="w-3 h-3 mr-1" />
+                                                Buka Semua Grup
+                                            </>
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={toggleAllTopics}
+                                        className={`inline-flex items-center px-3 py-1.5 text-xs font-medium border rounded-md transition-colors ${
+                                            allTopicsExpanded 
+                                                ? 'text-green-700 bg-green-100 border-green-300 hover:bg-green-200' 
+                                                : 'text-green-700 bg-green-50 border-green-200 hover:bg-green-100'
+                                        }`}
+                                    >
+                                        {allTopicsExpanded ? (
+                                            <>
+                                                <ChevronUpIcon className="w-3 h-3 mr-1" />
+                                                Tutup Semua Topik
+                                            </>
+                                        ) : (
+                                            <>
+                                                <ChevronDownIcon className="w-3 h-3 mr-1" />
+                                                Buka Semua Topik
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                {Object.entries(groupedTopics)
+                                    .sort(([a], [b]) => a.localeCompare(b))
+                                    .map(([letter, topics]) => (
+                                        <LetterGroup
+                                            key={letter}
+                                            letter={letter}
+                                            topics={topics}
+                                            expandedTopics={expandedTopics}
+                                            toggleExpanded={toggleExpanded}
+                                            expandedGroups={expandedGroups}
+                                            toggleGroupExpanded={toggleGroupExpanded}
+                                        />
+                                    ))
+                                }
                             </div>
                         </div>
                     </div>
