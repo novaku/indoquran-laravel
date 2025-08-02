@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Cache;
+use App\Models\AsmaulHusnaName;
 
 class AsmaulHusnaController extends Controller
 {
@@ -12,20 +13,31 @@ class AsmaulHusnaController extends Controller
      */
     public function index()
     {
-        // Load the JSON file
-        $jsonPath = resource_path('js/asmaul_husna.json');
-        
-        if (!File::exists($jsonPath)) {
-            abort(404, 'File asmaul husna tidak ditemukan');
-        }
-        
-        $jsonContent = File::get($jsonPath);
-        $asmaulHusnaData = json_decode($jsonContent, true);
-        
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            abort(500, 'Error parsing JSON file: ' . json_last_error_msg());
-        }
-        
+        // Get all active names with verses from database
+        $asmaulHusnaData = Cache::remember('asmaul_husna_all_names', 3600, function () {
+            return AsmaulHusnaName::active()
+                ->with('verses')
+                ->ordered()
+                ->get()
+                ->map(function ($name) {
+                    return [
+                        'id' => $name->original_id,
+                        'arabic' => $name->arabic,
+                        'latin' => $name->latin,
+                        'meaning' => $name->meaning,
+                        'description' => $name->description,
+                        'verses' => $name->verses->map(function ($verse) {
+                            return [
+                                'surah' => $verse->surah_number,
+                                'ayah' => $verse->ayah_number,
+                                'text' => $verse->text
+                            ];
+                        })->toArray()
+                    ];
+                })
+                ->toArray();
+        });
+
         // SEO data for this page
         $seoData = [
             'metaTitle' => '99 Asmaul Husna - Nama-nama Indah Allah SWT | IndoQuran',
@@ -44,22 +56,41 @@ class AsmaulHusnaController extends Controller
      */
     public function api()
     {
-        $jsonPath = resource_path('js/asmaul_husna.json');
-        
-        if (!File::exists($jsonPath)) {
-            return response()->json(['error' => 'File not found'], 404);
+        try {
+            $asmaulHusnaData = Cache::remember('asmaul_husna_api_data', 3600, function () {
+                return AsmaulHusnaName::active()
+                    ->with('verses')
+                    ->ordered()
+                    ->get()
+                    ->map(function ($name) {
+                        return [
+                            'id' => $name->original_id,
+                            'arabic' => $name->arabic,
+                            'latin' => $name->latin,
+                            'meaning' => $name->meaning,
+                            'description' => $name->description,
+                            'verses' => $name->verses->map(function ($verse) {
+                                return [
+                                    'surah' => $verse->surah_number,
+                                    'ayah' => $verse->ayah_number,
+                                    'text' => $verse->text
+                                ];
+                            })->toArray()
+                        ];
+                    })
+                    ->toArray();
+            });
+
+            return response()->json($asmaulHusnaData);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error fetching Asmaul Husna data',
+                'message' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+            ], 500);
         }
-        
-        $jsonContent = File::get($jsonPath);
-        $asmaulHusnaData = json_decode($jsonContent, true);
-        
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            return response()->json(['error' => 'Invalid JSON'], 500);
-        }
-        
-        return response()->json($asmaulHusnaData);
     }
-    
+
     /**
      * Search names by keyword
      */
@@ -68,33 +99,130 @@ class AsmaulHusnaController extends Controller
         $keyword = $request->get('q', '');
         
         if (empty($keyword)) {
-            return response()->json([]);
+            return response()->json([
+                'names' => [],
+                'total' => 0
+            ]);
         }
-        
-        $jsonPath = resource_path('js/asmaul_husna.json');
-        
-        if (!File::exists($jsonPath)) {
-            return response()->json(['error' => 'File not found'], 404);
+
+        try {
+            $cacheKey = 'asmaul_husna_search_' . md5(strtolower($keyword));
+            
+            $searchResults = Cache::remember($cacheKey, 1800, function () use ($keyword) {
+                return AsmaulHusnaName::active()
+                    ->with('verses')
+                    ->search($keyword)
+                    ->ordered()
+                    ->get()
+                    ->map(function ($name) {
+                        return [
+                            'id' => $name->original_id,
+                            'arabic' => $name->arabic,
+                            'latin' => $name->latin,
+                            'meaning' => $name->meaning,
+                            'description' => $name->description,
+                            'verses' => $name->verses->map(function ($verse) {
+                                return [
+                                    'surah' => $verse->surah_number,
+                                    'ayah' => $verse->ayah_number,
+                                    'text' => $verse->text
+                                ];
+                            })->toArray()
+                        ];
+                    })
+                    ->toArray();
+            });
+
+            return response()->json([
+                'names' => $searchResults,
+                'total' => count($searchResults)
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error searching Asmaul Husna data',
+                'message' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+            ], 500);
         }
-        
-        $jsonContent = File::get($jsonPath);
-        $asmaulHusnaData = json_decode($jsonContent, true);
-        
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            return response()->json(['error' => 'Invalid JSON'], 500);
+    }
+
+    /**
+     * Get single name by slug
+     */
+    public function show($slug)
+    {
+        try {
+            $cacheKey = 'asmaul_husna_name_' . $slug;
+            
+            $name = Cache::remember($cacheKey, 3600, function () use ($slug) {
+                $name = AsmaulHusnaName::active()
+                    ->with('verses')
+                    ->where('slug', $slug)
+                    ->first();
+
+                if (!$name) {
+                    return null;
+                }
+
+                return [
+                    'id' => $name->original_id,
+                    'arabic' => $name->arabic,
+                    'latin' => $name->latin,
+                    'meaning' => $name->meaning,
+                    'description' => $name->description,
+                    'verses' => $name->verses->map(function ($verse) {
+                        return [
+                            'surah' => $verse->surah_number,
+                            'ayah' => $verse->ayah_number,
+                            'text' => $verse->text
+                        ];
+                    })->toArray()
+                ];
+            });
+
+            if (!$name) {
+                return response()->json(['error' => 'Name not found'], 404);
+            }
+
+            return response()->json($name);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error fetching name data',
+                'message' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+            ], 500);
         }
-        
-        // Filter names based on keyword
-        $filteredNames = array_filter($asmaulHusnaData, function($name) use ($keyword) {
-            return isset($name['latin']) && stripos($name['latin'], $keyword) !== false || 
-                   isset($name['meaning']) && stripos($name['meaning'], $keyword) !== false || 
-                   isset($name['arabic']) && stripos($name['arabic'], $keyword) !== false ||
-                   isset($name['description']) && stripos($name['description'], $keyword) !== false;
-        });
-        
-        return response()->json([
-            'names' => array_values($filteredNames),
-            'total' => count($filteredNames)
-        ]);
+    }
+
+    /**
+     * Clear asmaul husna cache
+     */
+    public function clearCache()
+    {
+        try {
+            $cacheKeys = [
+                'asmaul_husna_all_names',
+                'asmaul_husna_api_data'
+            ];
+
+            foreach ($cacheKeys as $key) {
+                Cache::forget($key);
+            }
+
+            // Clear search cache (pattern-based)
+            // Note: This is a simple implementation. For better cache management,
+            // consider using cache tags if available in your cache driver
+            
+            return response()->json([
+                'message' => 'Asmaul Husna cache cleared successfully',
+                'cleared_keys' => $cacheKeys
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error clearing cache',
+                'message' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+            ], 500);
+        }
     }
 }

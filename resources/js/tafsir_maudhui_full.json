@@ -2469,32 +2469,6 @@
       ]
     },
     {
-      "topic": "Larangan Riba",
-      "description": "Peringatan terhadap praktik riba dan larangan keras dalam Islam terhadapnya.",
-      "verses": [
-        {
-          "surah": 2,
-          "ayah": 275
-        },
-        {
-          "surah": 2,
-          "ayah": 276
-        },
-        {
-          "surah": 2,
-          "ayah": 278
-        },
-        {
-          "surah": 3,
-          "ayah": 130
-        },
-        {
-          "surah": 4,
-          "ayah": 161
-        }
-      ]
-    },
-    {
       "topic": "Pentingnya Shalat",
       "description": "Pentingnya mendirikan shalat sebagai tiang agama dan wujud kepatuhan kepada Allah.",
       "verses": [
@@ -3549,8 +3523,24 @@
           "ayah": 153
         },
         {
+          "surah": 2,
+          "ayah": 155
+        },
+        {
           "surah": 3,
           "ayah": 146
+        },
+        {
+          "surah": 8,
+          "ayah": 46
+        },
+        {
+          "surah": 16,
+          "ayah": 126
+        },
+        {
+          "surah": 39,
+          "ayah": 10
         },
         {
           "surah": 3,
@@ -5079,6 +5069,648 @@
         {
           "surah": 57,
           "ayah": 18
+        }
+      ]
+    },
+    {
+      "topic": "Hak-hak Wanita dalam Islam",
+      "description": "Islam memberikan hak-hak yang mulia kepada wanita dalam berbagai aspek kehidupan.",
+      "verses": [
+        {
+          "surah": 2,
+          "ayah": 228
+        },
+        {
+          "surah": 4,
+          "ayah": 19
+        },
+        {
+          "surah": 4,
+          "ayah": 32
+        },
+        {
+          "surah": 16,
+          "ayah": 97
+        },
+        {
+          "surah": 33,
+          "ayah": 35
+        }
+      ]
+    },
+    {
+      "topic": "Hikmah Musibah dan Cobaan",
+      "description": "Islam mengajarkan bahwa setiap musibah dan cobaan memiliki hikmah dan dapat meningkatkan derajat hamba.",
+      "verses": [
+        {
+          "surah": 2,
+          "ayah": 155
+        },
+        {
+          "surah": 2,
+          "ayah": 156
+        },
+        {
+          "surah": 3,
+          "ayah": 186
+        },
+        {
+          "surah": 29,
+          "ayah": 2
+        },
+        {
+          "surah": 67,
+          "ayah": 2
+        }
+      ]
+    },
+    {
+      "topic": "Pentingnya Istighfar",
+      "description": "Istighfar adalah pintu ampunan Allah dan cara untuk mendapatkan rizki yang barakah.",
+      "verses": [
+        {
+          "surah": 4,
+          "ayah": 106
+        },
+        {
+          "surah": 11,
+          "ayah": 3
+        },
+        {
+          "surah": 71,
+          "ayah": 10
+        },
+        {
+          "surah": 71,
+          "ayah": 11
+        },
+        {
+          "surah": 71,
+          "ayah": 12
+        }
+      ]
+    },
+    {
+      "topic": "Larangan Boros dan Konsumtif",
+      "description": "Islam mengajarkan untuk hidup sederhana dan tidak berlebihan dalam menggunakan nikmat Allah.",
+      "verses": [
+        {
+          "surah": 7,
+          "ayah": 31
+        },
+        {
+          "surah": 17,
+          "ayah": 26
+        },
+        {
+          "surah": 17,
+          "ayah": 27
+        },
+        {
+          "surah": 25,
+          "ayah": 67
+        }
+      ]
+    },
+    {
+      "topic": "Pentingnya Menjaga Lingkungan",
+      "description": "Islam mengajarkan untuk menjaga kelestarian alam dan lingkungan sebagai khalifah di muka bumi.",
+      "verses": [
+        {
+          "surah": 2,
+          "ayah": 30
+        },
+        {
+          "surah": 7,
+          "ayah": 56
+        },
+        {
+          "surah": 30,
+          "ayah": 41
+        },
+        {
+          "surah": 55,
+          "ayah": 7
+        },
+        {
+          "surah": 55,
+          "ayah": 8
+        },
+        {
+          "surah": 55,
+          "ayah": 9
+        }
+      ]
+    },
+    {
+      "topic": "Hukum Jihad dalam Islam",
+      "description": "Jihad dalam Islam memiliki aturan dan etika yang jelas, bukan sekadar perang, tetapi perjuangan di jalan Allah.",
+      "verses": [
+        {
+          "surah": 2,
+          "ayah": 190
+        },
+        {
+          "surah": 2,
+          "ayah": 191
+        },
+        {
+          "surah": 2,
+          "ayah": 192
+        },
+        {
+          "surah": 2,
+          "ayah": 193
+        },
+        {
+          "surah": 2,
+          "ayah": 194
+        },
+        {
+          "surah": 22,
+          "ayah": 39
+        },
+        {
+          "surah": 22,
+          "ayah": 40
+        }
+      ]
+    },
+    {
+      "topic": "Konsep Halal dan Haram",
+      "description": "Islam memberikan batasan yang jelas antara yang halal dan haram dalam segala aspek kehidupan.",
+      "verses": [
+        {
+          "surah": 2,
+          "ayah": 168
+        },
+        {
+          "surah": 2,
+          "ayah": 173
+        },
+        {
+          "surah": 5,
+          "ayah": 3
+        },
+        {
+          "surah": 5,
+          "ayah": 88
+        },
+        {
+          "surah": 16,
+          "ayah": 114
+        },
+        {
+          "surah": 16,
+          "ayah": 115
+        }
+      ]
+    },
+    {
+      "topic": "Pentingnya Musyawarah",
+      "description": "Islam mengajarkan untuk menyelesaikan masalah melalui musyawarah dan mufakat.",
+      "verses": [
+        {
+          "surah": 3,
+          "ayah": 159
+        },
+        {
+          "surah": 42,
+          "ayah": 38
+        }
+      ]
+    },
+    {
+      "topic": "Etika Berperang dalam Islam",
+      "description": "Islam memiliki etika yang sangat mulia dalam berperang, melarang membunuh yang tidak bersalah.",
+      "verses": [
+        {
+          "surah": 2,
+          "ayah": 190
+        },
+        {
+          "surah": 2,
+          "ayah": 191
+        },
+        {
+          "surah": 2,
+          "ayah": 192
+        },
+        {
+          "surah": 8,
+          "ayah": 61
+        }
+      ]
+    },
+    {
+      "topic": "Hukum Pernikahan dalam Islam",
+      "description": "Islam mengatur pernikahan dengan aturan yang jelas untuk menciptakan keluarga yang sakinah mawaddah warahmah.",
+      "verses": [
+        {
+          "surah": 2,
+          "ayah": 221
+        },
+        {
+          "surah": 4,
+          "ayah": 3
+        },
+        {
+          "surah": 24,
+          "ayah": 32
+        },
+        {
+          "surah": 30,
+          "ayah": 21
+        }
+      ]
+    },
+    {
+      "topic": "Keutamaan Berbakti kepada Guru",
+      "description": "Islam mengajarkan untuk menghormati dan berbakti kepada guru yang telah mengajarkan ilmu.",
+      "verses": [
+        {
+          "surah": 4,
+          "ayah": 36
+        },
+        {
+          "surah": 17,
+          "ayah": 23
+        },
+        {
+          "surah": 58,
+          "ayah": 11
+        }
+      ]
+    },
+    {
+      "topic": "Larangan Riba",
+      "description": "Islam dengan tegas melarang riba dalam segala bentuknya karena merugikan dan tidak adil.",
+      "verses": [
+        {
+          "surah": 2,
+          "ayah": 275
+        },
+        {
+          "surah": 2,
+          "ayah": 276
+        },
+        {
+          "surah": 2,
+          "ayah": 278
+        },
+        {
+          "surah": 2,
+          "ayah": 279
+        },
+        {
+          "surah": 3,
+          "ayah": 130
+        },
+        {
+          "surah": 4,
+          "ayah": 161
+        },
+        {
+          "surah": 30,
+          "ayah": 39
+        }
+      ]
+    },
+    {
+      "topic": "Pentingnya Menjaga Silaturahmi",
+      "description": "Silaturahmi adalah ikatan persaudaraan yang sangat ditekankan dalam Islam untuk memperkuat hubungan sesama.",
+      "verses": [
+        {
+          "surah": 4,
+          "ayah": 1
+        },
+        {
+          "surah": 8,
+          "ayah": 75
+        },
+        {
+          "surah": 33,
+          "ayah": 6
+        },
+        {
+          "surah": 47,
+          "ayah": 22
+        }
+      ]
+    },
+    {
+      "topic": "Keutamaan Membaca Al-Qur'an",
+      "description": "Membaca Al-Qur'an adalah ibadah yang sangat mulia dan mendapat pahala yang besar.",
+      "verses": [
+        {
+          "surah": 2,
+          "ayah": 121
+        },
+        {
+          "surah": 17,
+          "ayah": 9
+        },
+        {
+          "surah": 17,
+          "ayah": 82
+        },
+        {
+          "surah": 29,
+          "ayah": 45
+        },
+        {
+          "surah": 35,
+          "ayah": 29
+        }
+      ]
+    },
+    {
+      "topic": "Konsep Khilafah dan Kepemimpinan",
+      "description": "Islam mengajarkan konsep kepemimpinan yang adil dan bertanggung jawab sebagai khalifah di muka bumi.",
+      "verses": [
+        {
+          "surah": 2,
+          "ayah": 30
+        },
+        {
+          "surah": 4,
+          "ayah": 58
+        },
+        {
+          "surah": 4,
+          "ayah": 59
+        },
+        {
+          "surah": 38,
+          "ayah": 26
+        }
+      ]
+    },
+    {
+      "topic": "Pentingnya Berdoa kepada Allah",
+      "description": "Doa adalah ibadah dan merupakan cara berkomunikasi langsung dengan Allah SWT.",
+      "verses": [
+        {
+          "surah": 2,
+          "ayah": 186
+        },
+        {
+          "surah": 7,
+          "ayah": 55
+        },
+        {
+          "surah": 7,
+          "ayah": 56
+        },
+        {
+          "surah": 40,
+          "ayah": 60
+        }
+      ]
+    },
+    {
+      "topic": "Hukum Waris dalam Islam",
+      "description": "Islam mengatur pembagian harta waris dengan sangat detail dan adil untuk semua ahli waris.",
+      "verses": [
+        {
+          "surah": 4,
+          "ayah": 7
+        },
+        {
+          "surah": 4,
+          "ayah": 11
+        },
+        {
+          "surah": 4,
+          "ayah": 12
+        },
+        {
+          "surah": 4,
+          "ayah": 176
+        }
+      ]
+    },
+    {
+      "topic": "Keutamaan Malam Lailatul Qadr",
+      "description": "Lailatul Qadr adalah malam yang sangat mulia yang lebih baik dari seribu bulan.",
+      "verses": [
+        {
+          "surah": 97,
+          "ayah": 1
+        },
+        {
+          "surah": 97,
+          "ayah": 2
+        },
+        {
+          "surah": 97,
+          "ayah": 3
+        },
+        {
+          "surah": 97,
+          "ayah": 4
+        },
+        {
+          "surah": 97,
+          "ayah": 5
+        }
+      ]
+    },
+    {
+      "topic": "Pentingnya Berfikir dan Merenungi Ciptaan Allah",
+      "description": "Islam mendorong umatnya untuk berfikir dan merenungi ciptaan Allah sebagai tanda kebesaran-Nya.",
+      "verses": [
+        {
+          "surah": 3,
+          "ayah": 190
+        },
+        {
+          "surah": 3,
+          "ayah": 191
+        },
+        {
+          "surah": 51,
+          "ayah": 20
+        },
+        {
+          "surah": 51,
+          "ayah": 21
+        },
+        {
+          "surah": 88,
+          "ayah": 17
+        },
+        {
+          "surah": 88,
+          "ayah": 18
+        },
+        {
+          "surah": 88,
+          "ayah": 19
+        },
+        {
+          "surah": 88,
+          "ayah": 20
+        }
+      ]
+    },
+    {
+      "topic": "Larangan Berjudi dan Minum Khamar",
+      "description": "Islam dengan tegas melarang judi dan minum khamar karena mudaratnya lebih besar dari manfaatnya.",
+      "verses": [
+        {
+          "surah": 2,
+          "ayah": 219
+        },
+        {
+          "surah": 5,
+          "ayah": 90
+        },
+        {
+          "surah": 5,
+          "ayah": 91
+        }
+      ]
+    },
+    {
+      "topic": "Keutamaan Bulan Ramadhan",
+      "description": "Bulan Ramadhan adalah bulan yang penuh berkah dengan banyak keutamaan dan pahala yang berlipat.",
+      "verses": [
+        {
+          "surah": 2,
+          "ayah": 185
+        },
+        {
+          "surah": 44,
+          "ayah": 3
+        },
+        {
+          "surah": 97,
+          "ayah": 1
+        }
+      ]
+    },
+    {
+      "topic": "Pentingnya Menepati Janji",
+      "description": "Islam sangat menekankan pentingnya menepati janji dan memenuhi perjanjian yang telah dibuat.",
+      "verses": [
+        {
+          "surah": 5,
+          "ayah": 1
+        },
+        {
+          "surah": 16,
+          "ayah": 91
+        },
+        {
+          "surah": 17,
+          "ayah": 34
+        },
+        {
+          "surah": 23,
+          "ayah": 8
+        }
+      ]
+    },
+    {
+      "topic": "Larangan Zina dan Perbuatan Keji",
+      "description": "Islam dengan tegas melarang zina dan perbuatan keji lainnya karena merusak moral dan masyarakat.",
+      "verses": [
+        {
+          "surah": 17,
+          "ayah": 32
+        },
+        {
+          "surah": 24,
+          "ayah": 2
+        },
+        {
+          "surah": 25,
+          "ayah": 68
+        }
+      ]
+    },
+    {
+      "topic": "Keutamaan Hari Jumat",
+      "description": "Hari Jumat adalah hari yang mulia dalam Islam dengan shalat Jumat yang wajib bagi laki-laki.",
+      "verses": [
+        {
+          "surah": 62,
+          "ayah": 9
+        },
+        {
+          "surah": 62,
+          "ayah": 10
+        },
+        {
+          "surah": 62,
+          "ayah": 11
+        }
+      ]
+    },
+    {
+      "topic": "Pentingnya Berkata Baik",
+      "description": "Islam mengajarkan untuk selalu berkata baik dan menghindari perkataan yang menyakiti.",
+      "verses": [
+        {
+          "surah": 2,
+          "ayah": 83
+        },
+        {
+          "surah": 4,
+          "ayah": 148
+        },
+        {
+          "surah": 17,
+          "ayah": 53
+        }
+      ]
+    },
+    {
+      "topic": "Larangan Membunuh Jiwa yang Tidak Bersalah",
+      "description": "Islam sangat melarang membunuh jiwa yang tidak bersalah dan menganggapnya sebagai dosa besar.",
+      "verses": [
+        {
+          "surah": 5,
+          "ayah": 32
+        },
+        {
+          "surah": 6,
+          "ayah": 151
+        },
+        {
+          "surah": 17,
+          "ayah": 33
+        },
+        {
+          "surah": 25,
+          "ayah": 68
+        }
+      ]
+    },
+    {
+      "topic": "Pentingnya Berbuat Adil",
+      "description": "Keadilan adalah pilar utama dalam ajaran Islam yang harus ditegakkan dalam semua aspek kehidupan.",
+      "verses": [
+        {
+          "surah": 4,
+          "ayah": 58
+        },
+        {
+          "surah": 4,
+          "ayah": 135
+        },
+        {
+          "surah": 5,
+          "ayah": 8
+        },
+        {
+          "surah": 16,
+          "ayah": 90
+        },
+        {
+          "surah": 57,
+          "ayah": 25
         }
       ]
     }

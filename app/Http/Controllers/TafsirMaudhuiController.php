@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
+use App\Models\TafsirMaudhuiTopic;
+use Illuminate\Support\Facades\Cache;
 
 class TafsirMaudhuiController extends Controller
 {
@@ -12,19 +13,30 @@ class TafsirMaudhuiController extends Controller
      */
     public function index()
     {
-        // Load the JSON file
-        $jsonPath = resource_path('js/tafsir_maudhui_full.json');
-        
-        if (!File::exists($jsonPath)) {
-            abort(404, 'File tafsir maudhui tidak ditemukan');
-        }
-        
-        $jsonContent = File::get($jsonPath);
-        $tafsirData = json_decode($jsonContent, true);
-        
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            abort(500, 'Error parsing JSON file: ' . json_last_error_msg());
-        }
+        // Get all active topics with their verses from database
+        $topics = Cache::remember('tafsir_maudhui_all_topics', 3600, function () {
+            return TafsirMaudhuiTopic::active()
+                ->ordered()
+                ->with(['verses' => function ($query) {
+                    $query->ordered();
+                }])
+                ->get()
+                ->map(function ($topic) {
+                    return [
+                        'topic' => $topic->topic,
+                        'description' => $topic->description,
+                        'verses' => $topic->verses->map(function ($verse) {
+                            return [
+                                'surah' => $verse->surah_number,
+                                'ayah' => $verse->ayah_number
+                            ];
+                        })->toArray()
+                    ];
+                })
+                ->toArray();
+        });
+
+        $tafsirData = ['topics' => $topics];
         
         // SEO data for this page
         $seoData = [
@@ -44,20 +56,39 @@ class TafsirMaudhuiController extends Controller
      */
     public function api()
     {
-        $jsonPath = resource_path('js/tafsir_maudhui_full.json');
-        
-        if (!File::exists($jsonPath)) {
-            return response()->json(['error' => 'File not found'], 404);
+        try {
+            // Get all active topics with their verses from database with caching
+            $topics = Cache::remember('tafsir_maudhui_api_topics', 3600, function () {
+                return TafsirMaudhuiTopic::active()
+                    ->ordered()
+                    ->with(['verses' => function ($query) {
+                        $query->ordered();
+                    }])
+                    ->get()
+                    ->map(function ($topic) {
+                        return [
+                            'topic' => $topic->topic,
+                            'description' => $topic->description,
+                            'slug' => $topic->slug,
+                            'verses' => $topic->verses->map(function ($verse) {
+                                return [
+                                    'surah' => $verse->surah_number,
+                                    'ayah' => $verse->ayah_number
+                                ];
+                            })->toArray()
+                        ];
+                    })
+                    ->toArray();
+            });
+
+            return response()->json(['topics' => $topics]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to fetch tafsir data',
+                'message' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+            ], 500);
         }
-        
-        $jsonContent = File::get($jsonPath);
-        $tafsirData = json_decode($jsonContent, true);
-        
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            return response()->json(['error' => 'Invalid JSON'], 500);
-        }
-        
-        return response()->json($tafsirData);
     }
     
     /**
@@ -68,31 +99,108 @@ class TafsirMaudhuiController extends Controller
         $keyword = $request->get('q', '');
         
         if (empty($keyword)) {
-            return response()->json(['topics' => []]);
+            return response()->json(['topics' => [], 'total' => 0]);
         }
-        
-        $jsonPath = resource_path('js/tafsir_maudhui_full.json');
-        
-        if (!File::exists($jsonPath)) {
-            return response()->json(['error' => 'File not found'], 404);
+
+        try {
+            // Search in database with caching
+            $cacheKey = 'tafsir_maudhui_search_' . md5($keyword);
+            
+            $results = Cache::remember($cacheKey, 1800, function () use ($keyword) {
+                return TafsirMaudhuiTopic::active()
+                    ->search($keyword)
+                    ->ordered()
+                    ->with(['verses' => function ($query) {
+                        $query->ordered();
+                    }])
+                    ->get()
+                    ->map(function ($topic) {
+                        return [
+                            'topic' => $topic->topic,
+                            'description' => $topic->description,
+                            'slug' => $topic->slug,
+                            'verses' => $topic->verses->map(function ($verse) {
+                                return [
+                                    'surah' => $verse->surah_number,
+                                    'ayah' => $verse->ayah_number
+                                ];
+                            })->toArray()
+                        ];
+                    })
+                    ->toArray();
+            });
+
+            return response()->json([
+                'topics' => $results,
+                'total' => count($results)
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Search failed',
+                'message' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+            ], 500);
         }
-        
-        $jsonContent = File::get($jsonPath);
-        $tafsirData = json_decode($jsonContent, true);
-        
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            return response()->json(['error' => 'Invalid JSON'], 500);
+    }
+
+    /**
+     * Get single topic by slug
+     */
+    public function show($slug)
+    {
+        try {
+            $topic = Cache::remember("tafsir_maudhui_topic_{$slug}", 3600, function () use ($slug) {
+                return TafsirMaudhuiTopic::active()
+                    ->where('slug', $slug)
+                    ->with(['verses' => function ($query) {
+                        $query->ordered();
+                    }])
+                    ->first();
+            });
+
+            if (!$topic) {
+                return response()->json(['error' => 'Topic not found'], 404);
+            }
+
+            $topicData = [
+                'topic' => $topic->topic,
+                'description' => $topic->description,
+                'slug' => $topic->slug,
+                'verses' => $topic->verses->map(function ($verse) {
+                    return [
+                        'surah' => $verse->surah_number,
+                        'ayah' => $verse->ayah_number
+                    ];
+                })->toArray()
+            ];
+
+            return response()->json($topicData);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to fetch topic',
+                'message' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+            ], 500);
         }
-        
-        // Filter topics based on keyword
-        $filteredTopics = array_filter($tafsirData['topics'], function($topic) use ($keyword) {
-            return stripos($topic['topic'], $keyword) !== false || 
-                   stripos($topic['description'], $keyword) !== false;
-        });
-        
-        return response()->json([
-            'topics' => array_values($filteredTopics),
-            'total' => count($filteredTopics)
-        ]);
+    }
+
+    /**
+     * Clear cache (for admin use)
+     */
+    public function clearCache()
+    {
+        $keys = [
+            'tafsir_maudhui_all_topics',
+            'tafsir_maudhui_api_topics'
+        ];
+
+        foreach ($keys as $key) {
+            Cache::forget($key);
+        }
+
+        // Clear search cache with pattern
+        Cache::flush(); // Note: This clears all cache. In production, you might want to be more selective.
+
+        return response()->json(['message' => 'Cache cleared successfully']);
     }
 }
