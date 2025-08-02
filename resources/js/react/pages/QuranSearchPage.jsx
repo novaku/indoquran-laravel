@@ -832,7 +832,7 @@ function QuranSearchPage() {
                                     Jelajahi Al-Quran lengkap dengan semua 114 surah
                                 </p>
                                 <Link
-                                    to="/"
+                                    to="/surah"
                                     className="inline-flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                                 >
                                     <BookOpenIcon className="w-5 h-5" />
