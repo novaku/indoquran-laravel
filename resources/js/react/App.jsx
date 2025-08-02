@@ -35,6 +35,12 @@ const HomePage = lazy(() =>
 const AuthPage = lazy(() => 
   import(/* webpackChunkName: "auth" */ './pages/UserAuthPage')
 );
+const PasswordResetPage = lazy(() => 
+  import(/* webpackChunkName: "auth" */ './pages/PasswordResetPage')
+);
+const NewPasswordPage = lazy(() => 
+  import(/* webpackChunkName: "auth" */ './pages/NewPasswordPage')
+);
 const SurahListPage = lazy(() => 
   import(/* webpackChunkName: "surah-list", webpackPrefetch: true */ './pages/SurahListPage')
 );
@@ -51,6 +57,9 @@ const BookmarksPage = lazy(() =>
 );
 const ProfilePage = lazy(() => 
   import(/* webpackChunkName: "user-features" */ './pages/UserProfilePage')
+);
+const MemberBenefitsPage = lazy(() => 
+  import(/* webpackChunkName: "content-pages" */ './pages/MemberBenefitsPage')
 );
 
 // Content pages (lowest priority) - highly deferred
@@ -397,6 +406,8 @@ const AppContent = memo(() => {
                         <Route path="/tentang" element={<AboutPage />} />
                         <Route path="/kontak" element={<ContactPage />} />
                         <Route path="/donasi" element={<DonationPage />} />
+                        <Route path="/member" element={<MemberBenefitsPage />} />
+                        <Route path="/keuntungan-member" element={<MemberBenefitsPage />} />
                         <Route path="/kebijakan" element={<PrivacyPage />} />
                         <Route path="/riwayat-versi" element={<RiwayatVersiPage />} />
                         <Route path="/surah" element={<SEOLandingPage />} />
@@ -448,6 +459,18 @@ const AppContent = memo(() => {
                             path="/daftar" 
                             element={
                                 isAuthenticated ? <Navigate to="/" replace /> : <AuthPage />
+                            } 
+                        />
+                        <Route 
+                            path="/reset-password" 
+                            element={
+                                isAuthenticated ? <Navigate to="/" replace /> : <PasswordResetPage />
+                            } 
+                        />
+                        <Route 
+                            path="/password/reset" 
+                            element={
+                                isAuthenticated ? <Navigate to="/" replace /> : <NewPasswordPage />
                             } 
                         />
                         

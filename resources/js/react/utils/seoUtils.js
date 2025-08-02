@@ -13,28 +13,32 @@
  * - Voice search optimization
  * - Featured snippets optimization
  * - Google Discover optimization
+ * - AI Search optimization (Google SGE, Bing Chat)
+ * - Member benefits and community features SEO
  * 
- * Updated: 2025-06-28
+ * Updated: 2025-08-02
  * Google Search Guidelines Compliant
  */
 
-// Environment-aware BASE_URL
+// Environment-aware BASE_URL with enhanced mobile detection
 export const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? window.location.origin 
   : 'https://indoquran.web.id';
 
-// Google Search Console optimized priority scores
+// Google Search Console optimized priority scores (Updated Aug 2025)
 export const SEO_PRIORITIES = {
   HOME: '1.0',
   SURAH: '0.95',
+  MEMBER_BENEFITS: '0.9', // High priority for conversion pages
   SEARCH: '0.85',
   JUZ: '0.8',
+  DOA_BERSAMA: '0.85', // Increased priority for community features
   HALAMAN: '0.75',
-  DOA_BERSAMA: '0.8',
   TAFSIR: '0.8',
   ABOUT: '0.6',
   CONTACT: '0.5',
-  PRIVACY: '0.3'
+  PRIVACY: '0.3',
+  USER_FEATURES: '0.7' // Bookmarks, Profile, etc.
 };
 
 // Generate Google Search Console optimized sitemap XML
@@ -91,6 +95,44 @@ export const generateSitemap = (surahs = []) => {
       priority: SEO_PRIORITIES.DOA_BERSAMA,
       // Interactive content gets daily updates
       contentType: 'interactive'
+    },
+    {
+      url: `${BASE_URL}/member`,
+      lastmod: currentDate,
+      changefreq: 'weekly',
+      priority: SEO_PRIORITIES.MEMBER_BENEFITS,
+      // High-value conversion page
+      contentType: 'marketing',
+      images: [
+        {
+          loc: `${BASE_URL}/android-chrome-512x512.png`,
+          caption: 'Keuntungan Menjadi Member IndoQuran - Fitur Premium Al-Quran Digital',
+          title: 'Member Benefits IndoQuran'
+        }
+      ]
+    },
+    {
+      url: `${BASE_URL}/keuntungan-member`,
+      lastmod: currentDate,
+      changefreq: 'weekly',
+      priority: SEO_PRIORITIES.MEMBER_BENEFITS,
+      // Alternative URL for member benefits
+      contentType: 'marketing'
+    },
+    {
+      url: `${BASE_URL}/asmaul-husna`,
+      lastmod: currentDate,
+      changefreq: 'weekly',
+      priority: '0.8',
+      // Islamic educational content
+      contentType: 'educational',
+      images: [
+        {
+          loc: `${BASE_URL}/android-chrome-512x512.png`,
+          caption: '99 Asmaul Husna - Nama Indah Allah SWT dengan Audio dan Arti',
+          title: 'Asmaul Husna Lengkap'
+        }
+      ]
     },
     {
       url: `${BASE_URL}/tafsir-maudhui`,
@@ -547,6 +589,22 @@ export const getPageSEOData = (pageType, data = {}) => {
       seoData.canonicalUrl = generateCanonicalUrl('/tafsir-maudhui');
       break;
 
+    case 'member':
+    case 'member-benefits':
+      seoData.title = 'Keuntungan Menjadi Member IndoQuran - Fitur Premium Al-Quran Digital Gratis';
+      seoData.description = 'Dapatkan akses ke fitur-fitur eksklusif IndoQuran: bookmark ayat tanpa batas, catatan pribadi untuk setiap ayat, tracking progress baca Al-Quran, komunitas doa bersama, sinkronisasi cloud, dan pengalaman premium tanpa iklan. Daftar gratis sekarang!';
+      seoData.keywords = generateMemberBenefitsKeywords();
+      seoData.canonicalUrl = generateCanonicalUrl('/member');
+      seoData.structuredData = generateStructuredData('member-benefits', data);
+      break;
+
+    case 'asmaul-husna':
+      seoData.title = '99 Asmaul Husna - Nama Indah Allah SWT dengan Audio dan Arti | IndoQuran';
+      seoData.description = 'Pelajari 99 Asmaul Husna (nama-nama indah Allah SWT) lengkap dengan teks Arab, latin, arti dalam bahasa Indonesia, dan audio berkualitas tinggi. Tingkatkan keimanan dan ketakwaan melalui dzikir Asmaul Husna.';
+      seoData.keywords = '99 asmaul husna, nama allah swt, asmaul husna lengkap, dzikir asmaul husna, audio asmaul husna, arti asmaul husna indonesia, nama indah allah, asma allah husna';
+      seoData.canonicalUrl = generateCanonicalUrl('/asmaul-husna');
+      break;
+
     case 'donation':
       seoData.title = 'Donasi untuk IndoQuran - Dukung Platform Al-Quran Digital Indonesia';
       seoData.description = 'Dukung pengembangan IndoQuran dengan berdonasi. Kontribusi Anda membantu kami menyediakan platform Al-Quran digital yang lebih baik untuk umat Islam Indonesia. Sedekah jariyah yang terus mengalir pahalanya.';
@@ -817,6 +875,86 @@ export const generateStructuredData = (pageType, data = {}) => {
         "articleSection": "Islamic Education",
         "educationalLevel": "All Levels",
         "learningResourceType": "Educational Material"
+      };
+
+    case 'member-benefits':
+      return {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "Keuntungan Member IndoQuran",
+        "description": "Dapatkan fitur premium gratis: bookmark ayat, catatan pribadi, progress tracking, dan akses komunitas muslim Indonesia",
+        "url": `${BASE_URL}/member`,
+        "provider": baseOrganization,
+        "serviceType": "Digital Islamic Platform Membership",
+        "areaServed": {
+          "@type": "Country",
+          "name": "Indonesia"
+        },
+        "audience": {
+          "@type": "Audience",
+          "audienceType": "Muslim Community Indonesia"
+        },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Fitur Member Premium",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "name": "Bookmark Ayat Favorit",
+              "description": "Simpan dan kelola ayat-ayat favorit dengan mudah untuk dibaca kembali",
+              "price": "0",
+              "priceCurrency": "IDR",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Personal Bookmark System"
+              }
+            },
+            {
+              "@type": "Offer", 
+              "name": "Catatan Pribadi",
+              "description": "Tulis refleksi dan catatan personal untuk setiap ayat Al-Quran",
+              "price": "0",
+              "priceCurrency": "IDR",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Personal Notes Feature"
+              }
+            },
+            {
+              "@type": "Offer",
+              "name": "Progress Tracking",
+              "description": "Pantau kemajuan bacaan Al-Qur'an dan statistik ibadah harian",
+              "price": "0",
+              "priceCurrency": "IDR",
+              "itemOffered": {
+                "@type": "Service", 
+                "name": "Reading Progress Analytics"
+              }
+            },
+            {
+              "@type": "Offer",
+              "name": "Komunitas Doa",
+              "description": "Bergabung dengan komunitas muslim untuk doa bersama dan sharing",
+              "price": "0",
+              "priceCurrency": "IDR",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Prayer Community Access"
+              }
+            }
+          ]
+        },
+        "potentialAction": {
+          "@type": "JoinAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": `${BASE_URL}/auth?register=true`
+          },
+          "object": {
+            "@type": "Organization",
+            "name": "IndoQuran Member Community"
+          }
+        }
       };
 
     default:
@@ -1337,7 +1475,7 @@ export const generateSurahSEOKeywords = (surah) => {
   return cleanKeywords(uniqueKeywords.join(', '));
 };
 
-// Generate comprehensive SEO keywords for home page
+// Generate comprehensive SEO keywords for home page (Updated Aug 2025)
 export const generateHomeSEOKeywords = () => {
   const homeKeywords = [
     ...HIGH_TRAFFIC_SEARCH_TERMS,
@@ -1349,16 +1487,51 @@ export const generateHomeSEOKeywords = () => {
     'baca quran online', 'hafalan quran', 'menghafal al quran', 'tilawah quran',
     'murottal quran', 'qori quran indonesia', 'tadarus quran', 'khatam quran',
     
+    // Member benefits & premium features (New)
+    'bookmark ayat quran', 'catatan pribadi quran', 'progress baca quran',
+    'komunitas muslim online', 'doa bersama indonesia', 'fitur premium quran',
+    'al quran gratis indonesia', 'member indoquran', 'aplikasi quran lengkap',
+    
     // Indonesian Islamic terms
     'islam indonesia', 'muslim indonesia', 'kitab suci umat islam', 'wahyu allah',
-    'firman allah', 'kalamullah', 'al kitab', 'furqan',
+    'firman allah', 'kalamullah', 'al kitab', 'furqan', 'umat islam indonesia',
     
     // Technology terms
     'aplikasi quran', 'software quran', 'platform quran digital',
-    'website quran indonesia', 'situs al quran', 'portal islam indonesia'
+    'website quran indonesia', 'situs al quran', 'portal islam indonesia',
+    'quran digital terbaik', 'al quran cloud sync'
   ];
   
   return cleanKeywords(homeKeywords.join(', '));
+};
+
+// Generate SEO keywords for member benefits page (New Function)
+export const generateMemberBenefitsKeywords = () => {
+  const memberKeywords = [
+    // Primary member benefits
+    'keuntungan member indoquran', 'fitur premium al quran', 'member benefits quran',
+    'bookmark ayat favorit', 'simpan ayat quran', 'penanda ayat al quran',
+    'catatan pribadi ayat', 'notes ayat quran', 'refleksi ayat al quran',
+    'progress baca quran', 'tracking bacaan al quran', 'statistik baca quran',
+    
+    // Community features
+    'komunitas muslim indonesia', 'doa bersama online', 'ukhuwah islamiyah',
+    'silaturahmi muslim', 'sharing doa muslim', 'dukungan sesama muslim',
+    
+    // Premium features
+    'al quran premium gratis', 'fitur eksklusif quran', 'quran tanpa iklan',
+    'sinkronisasi cloud quran', 'backup data quran', 'akses multi device quran',
+    
+    // Registration & access
+    'daftar member quran gratis', 'registrasi indoquran', 'akun premium quran',
+    'login member quran', 'create account quran', 'sign up al quran',
+    
+    // Indonesian Islamic community
+    'platform islam indonesia', 'aplikasi muslim indonesia', 'teknologi islam',
+    'digitalisasi al quran', 'modernisasi baca quran', 'inovasi platform quran'
+  ];
+  
+  return cleanKeywords(memberKeywords.join(', '));
 };
 
 // Generate SEO keywords for search page

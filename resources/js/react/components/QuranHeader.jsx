@@ -118,6 +118,7 @@ function QuranHeader() {
 
     const communityDropdownItems = [
         { name: 'Doa Bersama', path: '/doa-bersama', icon: HeartIcon, description: 'Berbagi dan berdoa bersama' },
+        { name: 'Keuntungan Member', path: '/member', icon: UserIcon, description: 'Fitur eksklusif untuk member' },
         { name: 'Donasi', path: '/donasi', icon: SparklesIcon, description: 'Dukung pengembangan IndoQuran' },
     ];
 

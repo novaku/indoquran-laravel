@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Mail\UserRegistrationNotification;
+use App\Mail\WelcomeNewUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -63,6 +64,24 @@ class RegisterController extends Controller
 
         Auth::login($user);
 
+        // Send welcome email to the new user
+        try {
+            Mail::to($user->email)->send(new WelcomeNewUser($user));
+            Log::info('Welcome email sent successfully to new user', [
+                'user_id' => $user->id,
+                'user_email' => $user->email,
+                'user_name' => $user->name
+            ]);
+        } catch (\Exception $e) {
+            // Log the error but don't fail the registration process
+            Log::error('Failed to send welcome email to new user', [
+                'user_id' => $user->id,
+                'user_email' => $user->email,
+                'user_name' => $user->name,
+                'error' => $e->getMessage()
+            ]);
+        }
+
         // Send email notification to admin about new user registration
         try {
             Mail::to('kontak@indoquran.web.id')->send(new UserRegistrationNotification($user));
@@ -83,8 +102,9 @@ class RegisterController extends Controller
 
         return response()->json([
             'user' => $user,
-            'message' => 'Registration successful. Please check your email to verify your account.',
-            'email_verification_sent' => true
+            'message' => 'Registration successful. Please check your email to verify your account and get started with IndoQuran.',
+            'email_verification_sent' => true,
+            'welcome_email_sent' => true
         ]);
     }
 }

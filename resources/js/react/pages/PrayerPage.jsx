@@ -1,6 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IoHandRightOutline, IoAddOutline, IoHeartOutline } from 'react-icons/io5';
+import { 
+    IoHandRightOutline, 
+    IoAddOutline, 
+    IoHeartOutline,
+    IoPeopleOutline,
+    IoTimeOutline,
+    IoTrendingUpOutline,
+    IoStarOutline,
+    IoCheckmarkCircleOutline,
+    IoEyeOutline
+} from 'react-icons/io5';
 import { useAuth } from '../hooks/useAuth';
 import { fetchWithAuth, postWithAuth } from '../utils/apiUtils';
 import { toast } from 'react-hot-toast';
@@ -28,6 +38,42 @@ const PrayerPage = () => {
         per_page: 10,
         total: 0
     });
+
+    // Categories untuk quick access
+    const prayerCategories = [
+        {
+            icon: IoHeartOutline,
+            title: "Kesehatan",
+            description: "Doa untuk kesehatan diri dan keluarga",
+            bgColor: "bg-red-100",
+            iconColor: "text-red-600",
+            category: "kesehatan"
+        },
+        {
+            icon: IoStarOutline,
+            title: "Rezeki",
+            description: "Doa untuk kelancaran rezeki dan pekerjaan",
+            bgColor: "bg-yellow-100",
+            iconColor: "text-yellow-600",
+            category: "rezeki"
+        },
+        {
+            icon: IoPeopleOutline,
+            title: "Keluarga",
+            description: "Doa untuk keharmonisan keluarga",
+            bgColor: "bg-blue-100",
+            iconColor: "text-blue-600",
+            category: "keluarga"
+        },
+        {
+            icon: IoCheckmarkCircleOutline,
+            title: "Umum",
+            description: "Doa-doa umum dan berbagai keperluan",
+            bgColor: "bg-green-100",
+            iconColor: "text-green-600",
+            category: "umum"
+        }
+    ];
 
     // Fetch prayers
     const fetchPrayers = useCallback(async (page = 1) => {
@@ -185,150 +231,224 @@ const PrayerPage = () => {
     return (
         <>
             <SEOHead 
-                title="Doa Bersama - IndoQuran"
-                description="Bergabunglah dalam doa bersama umat Islam. Posting doa, berikan amin, dan saling mendukung dalam spiritualitas."
-                keywords="doa bersama, doa islam, amin, komunitas muslim, spiritual"
+                title="Doa Bersama - Komunitas Muslim Real-time | IndoQuran"
+                description="Bergabunglah dalam doa bersama umat Islam. Posting doa, berikan amin, dan saling mendukung dalam spiritualitas. Komunitas muslim 24/7 siap berdoa bersama Anda."
+                keywords="doa bersama, doa islam, amin, komunitas muslim, spiritual, doa real-time, komunitas doa online"
             />
             
-            <div className="min-h-screen bg-gray-50 pt-16">
-                {/* Header */}
-                <div className="bg-white shadow-sm border-b">
-                    <div className="max-w-4xl mx-auto px-4 py-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <IoHandRightOutline className="w-6 h-6 text-green-600" />
-                                <h1 className="text-2xl font-bold text-gray-900">Doa Bersama</h1>
-                            </div>
-                            
-                            {user && (
-                                <button
-                                    onClick={() => setShowForm(!showForm)}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                                        showForm 
-                                            ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                            : 'bg-green-600 text-white hover:bg-green-700'
-                                    }`}
-                                >
-                                    <IoAddOutline className="w-5 h-5" />
-                                    {showForm ? 'Batal' : 'Kirim Doa'}
-                                </button>
-                            )}
+            <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-white pt-16">
+                {/* Hero Header */}
+                <div className="relative bg-gradient-to-r from-green-600 to-green-700 overflow-hidden">
+                    <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+                    <div className="relative max-w-6xl mx-auto px-4 py-16 text-center">
+                        <div className="inline-flex items-center justify-center w-20 h-20 bg-white bg-opacity-20 rounded-full mb-6">
+                            <IoHandRightOutline className="w-10 h-10 text-white" />
+                        </div>
+                        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                            Doa Bersama
+                        </h1>
+                        <p className="text-xl text-green-100 max-w-3xl mx-auto leading-relaxed mb-8">
+                            Bergabunglah dengan komunitas muslim untuk berdoa bersama, saling mendukung, 
+                            dan memperkuat ikatan spiritual
+                        </p>
+                        
+                        {/* Action Button */}
+                        {user && (
+                            <button
+                                onClick={() => setShowForm(!showForm)}
+                                className={`inline-flex items-center gap-2 px-8 py-3 rounded-full font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 ${
+                                    showForm 
+                                        ? 'bg-white bg-opacity-20 text-white hover:bg-opacity-30'
+                                        : 'bg-white text-green-600 hover:bg-gray-100'
+                                }`}
+                            >
+                                <IoAddOutline className="w-6 h-6" />
+                                {showForm ? 'Batal' : 'Kirim Doa Baru'}
+                            </button>
+                        )}
+                        
+                        {/* Decorative Elements */}
+                        <div className="absolute top-0 right-0 w-64 h-64 opacity-10">
+                            <div className="w-full h-full bg-white rounded-full transform rotate-45"></div>
+                        </div>
+                        <div className="absolute bottom-0 left-0 w-48 h-48 opacity-10">
+                            <div className="w-full h-full bg-white rounded-full transform -rotate-12"></div>
                         </div>
                     </div>
                 </div>
 
-                {/* Content */}
-                <div className="max-w-4xl mx-auto px-4 py-6">
-                    {/* Login Notice */}
-                    {!user && (
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                            <div className="flex items-center gap-3">
-                                <div className="flex-shrink-0">
-                                    <IoHeartOutline className="w-5 h-5 text-blue-600" />
+                {/* Prayer Categories */}
+                <div className="max-w-6xl mx-auto px-4 py-16">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl font-bold text-gray-900 mb-4">Kategori Doa</h2>
+                        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                            Pilih kategori doa sesuai kebutuhan atau jelajahi semua doa dari komunitas
+                        </p>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+                        {prayerCategories.map((category, index) => (
+                            <button
+                                key={index}
+                                onClick={() => setFilters(prev => ({ ...prev, category: category.category }))}
+                                className={`text-left bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300 transform hover:scale-105 ${
+                                    filters.category === category.category ? 'ring-2 ring-green-500 bg-green-50' : ''
+                                }`}
+                            >
+                                <div className={`w-12 h-12 ${category.bgColor} rounded-full flex items-center justify-center mb-4`}>
+                                    <category.icon className={`w-6 h-6 ${category.iconColor}`} />
                                 </div>
-                                <div className="flex-1">
-                                    <p className="text-sm text-blue-800">
-                                        Untuk dapat mengirim doa, memberikan amin, dan berkomentar, silakan{' '}
-                                        <a href="/masuk" className="font-medium underline hover:no-underline">
-                                            login
-                                        </a>{' '}
-                                        atau{' '}
-                                        <a href="/auth/register" className="font-medium underline hover:no-underline">
-                                            daftar
-                                        </a>{' '}
-                                        terlebih dahulu.
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">{category.title}</h3>
+                                <p className="text-gray-600 text-sm">{category.description}</p>
+                            </button>
+                        ))}
+                    </div>
+                    {/* Main Content Area */}
+                    <div className="max-w-4xl mx-auto">
+                        {/* Login Notice */}
+                        {!user && (
+                            <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-8 text-white mb-8">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <IoHeartOutline className="w-8 h-8 text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="text-xl font-bold mb-2">Bergabung dengan Komunitas Doa</h3>
+                                        <p className="text-blue-100 mb-4">
+                                            Untuk dapat mengirim doa, memberikan amin, dan berkomentar, bergabunglah dengan 
+                                            komunitas muslim IndoQuran
+                                        </p>
+                                        <div className="flex flex-col sm:flex-row gap-3">
+                                            <button 
+                                                onClick={() => navigate('/masuk')}
+                                                className="bg-white text-blue-600 px-6 py-2 rounded-full hover:bg-gray-100 transition-colors font-medium"
+                                            >
+                                                Masuk Sekarang
+                                            </button>
+                                            <button 
+                                                onClick={() => navigate('/auth/register')}
+                                                className="bg-blue-800 text-white px-6 py-2 rounded-full hover:bg-blue-900 transition-colors font-medium"
+                                            >
+                                                Daftar Gratis
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Prayer Form */}
+                        {showForm && user && (
+                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8">
+                                <div className="mb-6">
+                                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Kirim Doa Baru</h2>
+                                    <p className="text-gray-600">
+                                        Bagikan doa Anda dengan komunitas muslim dan mari berdoa bersama
                                     </p>
                                 </div>
+                                <PrayerForm 
+                                    onSubmit={handleSubmitPrayer}
+                                    loading={submitting}
+                                    onCancel={() => setShowForm(false)}
+                                />
                             </div>
-                        </div>
-                    )}
+                        )}
 
-                    {/* Prayer Form */}
-                    {showForm && user && (
-                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-                            <PrayerForm 
-                                onSubmit={handleSubmitPrayer}
-                                loading={submitting}
-                                onCancel={() => setShowForm(false)}
+                        {/* Filters */}
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+                            <PrayerFilters 
+                                filters={filters}
+                                onFiltersChange={setFilters}
+                                totalPrayers={pagination.total}
                             />
                         </div>
-                    )}
 
-                    {/* Filters */}
-                    <div className="mb-6">
-                        <PrayerFilters 
-                            filters={filters}
-                            onFiltersChange={setFilters}
-                            totalPrayers={pagination.total}
-                        />
-                    </div>
-
-                    {/* Prayer List */}
-                    <div className="space-y-4">
-                        {loading && prayers.length === 0 ? (
-                            <div className="flex justify-center py-12">
-                                <LoadingSpinner size="lg" />
-                            </div>
-                        ) : prayers.length === 0 ? (
-                            <div className="text-center py-12">
-                                <div className="text-gray-400 mb-4">
-                                    <IoHandRightOutline className="w-16 h-16 mx-auto" />
+                        {/* Prayer List */}
+                        <div className="space-y-6">
+                            {loading && prayers.length === 0 ? (
+                                <div className="flex justify-center py-12">
+                                    <LoadingSpinner size="lg" />
                                 </div>
-                                <h3 className="text-lg font-medium text-gray-500 mb-2">
-                                    Belum ada doa
-                                </h3>
-                                <p className="text-gray-400">
-                                    {filters.search || filters.category !== 'all' 
-                                        ? 'Tidak ada doa yang sesuai dengan filter' 
-                                        : 'Jadilah yang pertama mengirim doa'
-                                    }
-                                </p>
+                            ) : prayers.length === 0 ? (
+                                <div className="text-center py-16">
+                                    <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                        <IoHandRightOutline className="w-12 h-12 text-gray-400" />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-gray-500 mb-4">
+                                        {filters.search || filters.category !== 'all' 
+                                            ? 'Tidak Ada Doa Ditemukan' 
+                                            : 'Belum Ada Doa'
+                                        }
+                                    </h3>
+                                    <p className="text-gray-400 text-lg mb-6">
+                                        {filters.search || filters.category !== 'all' 
+                                            ? 'Coba ubah filter atau kata kunci pencarian' 
+                                            : 'Jadilah yang pertama mengirim doa untuk komunitas'
+                                        }
+                                    </p>
+                                    {user && !showForm && (
+                                        <button
+                                            onClick={() => setShowForm(true)}
+                                            className="bg-green-600 text-white px-8 py-3 rounded-full hover:bg-green-700 transition-colors font-medium shadow-md hover:shadow-lg"
+                                        >
+                                            Kirim Doa Pertama
+                                        </button>
+                                    )}
+                                </div>
+                            ) : (
+                                prayers.map((prayer) => (
+                                    <PrayerCard
+                                        key={prayer.id}
+                                        prayer={prayer}
+                                        user={user}
+                                        onAminToggle={handleAminToggle}
+                                        onCommentSubmit={handleCommentSubmit}
+                                    />
+                                ))
+                            )}
+                        </div>
+
+                        {/* Enhanced Pagination */}
+                        {pagination.last_page > 1 && !loading && prayers.length > 0 && (
+                            <div className="mt-12 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                                <div className="flex items-center justify-between">
+                                    <div className="text-sm text-gray-600">
+                                        Menampilkan {((pagination.current_page - 1) * pagination.per_page) + 1} - {Math.min(pagination.current_page * pagination.per_page, pagination.total)} dari {pagination.total} doa
+                                    </div>
+                                    
+                                    <div className="flex items-center gap-4">
+                                        <button
+                                            onClick={() => handlePageChange(pagination.current_page - 1)}
+                                            disabled={pagination.current_page === 1}
+                                            className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${
+                                                pagination.current_page === 1
+                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                    : 'bg-green-600 text-white hover:bg-green-700 shadow-md hover:shadow-lg'
+                                            }`}
+                                        >
+                                            Sebelumnya
+                                        </button>
+                                        
+                                        <span className="text-sm text-gray-600 px-4">
+                                            Halaman {pagination.current_page} dari {pagination.last_page}
+                                        </span>
+                                        
+                                        <button
+                                            onClick={() => handlePageChange(pagination.current_page + 1)}
+                                            disabled={pagination.current_page === pagination.last_page}
+                                            className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${
+                                                pagination.current_page === pagination.last_page
+                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                    : 'bg-green-600 text-white hover:bg-green-700 shadow-md hover:shadow-lg'
+                                            }`}
+                                        >
+                                            Selanjutnya
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                        ) : (
-                            prayers.map((prayer) => (
-                                <PrayerCard
-                                    key={prayer.id}
-                                    prayer={prayer}
-                                    user={user}
-                                    onAminToggle={handleAminToggle}
-                                    onCommentSubmit={handleCommentSubmit}
-                                />
-                            ))
                         )}
                     </div>
-
-                    {/* Simple Pagination */}
-                    {pagination.last_page > 1 && !loading && prayers.length > 0 && (
-                        <div className="mt-8 flex items-center justify-center gap-4">
-                            <button
-                                onClick={() => handlePageChange(pagination.current_page - 1)}
-                                disabled={pagination.current_page === 1}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                                    pagination.current_page === 1
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
-                                }`}
-                            >
-                                Sebelumnya
-                            </button>
-                            
-                            <span className="text-sm text-gray-600">
-                                Halaman {pagination.current_page} dari {pagination.last_page}
-                            </span>
-                            
-                            <button
-                                onClick={() => handlePageChange(pagination.current_page + 1)}
-                                disabled={pagination.current_page === pagination.last_page}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                                    pagination.current_page === pagination.last_page
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
-                                }`}
-                            >
-                                Selanjutnya
-                            </button>
-                        </div>
-                    )}
                 </div>
             </div>
         </>

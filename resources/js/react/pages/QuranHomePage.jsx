@@ -463,6 +463,40 @@ function QuranHomePage() {
             {/* Hero Statistics Section */}
             <HeroStatsSection />
 
+            {/* Member Benefits Promotion Banner */}
+            <section className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 py-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center">
+                        <div className="inline-flex items-center px-4 py-2 bg-white/20 rounded-full text-white text-sm font-medium mb-4">
+                            <HeartIcon className="w-5 h-5 mr-2" />
+                            Fitur Member Eksklusif
+                        </div>
+                        <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+                            Dapatkan Pengalaman Premium
+                        </h2>
+                        <p className="text-lg text-blue-100 mb-6 max-w-2xl mx-auto">
+                            Bookmark ayat, catat refleksi pribadi, tracking progress baca, dan bergabung dengan komunitas muslim
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                            <Link
+                                to="/member"
+                                className="bg-white text-blue-600 font-semibold py-3 px-6 rounded-full hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                            >
+                                Lihat Semua Keuntungan
+                            </Link>
+                            {!user && (
+                                <Link
+                                    to="/daftar"
+                                    className="border-2 border-white text-white hover:bg-white hover:text-blue-600 font-semibold py-3 px-6 rounded-full transition-all duration-300"
+                                >
+                                    Daftar Gratis
+                                </Link>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* Registration Highlight Banner */}
             {!user && (
                 <section className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 py-12">

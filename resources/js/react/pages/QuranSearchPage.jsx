@@ -10,6 +10,16 @@ import {
     ChevronDoubleLeftIcon,
     ChevronDoubleRightIcon
 } from '@heroicons/react/24/outline';
+import {
+    IoSearchOutline,
+    IoBookOutline,
+    IoSparklesOutline,
+    IoTrendingUpOutline,
+    IoLibraryOutline,
+    IoEyeOutline,
+    IoTimeOutline,
+    IoStarOutline
+} from 'react-icons/io5';
 import SearchField from '../components/SearchField';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
@@ -96,6 +106,42 @@ function QuranSearchPage() {
     const [popularSearches, setPopularSearches] = useState([
         'Al-Fatihah', 'Al-Baqarah', 'Ya-Sin', 'Ar-Rahman', 'Al-Kahf', 'Al-Mulk'
     ]);
+
+    // Search categories untuk quick access
+    const searchCategories = [
+        {
+            icon: IoStarOutline,
+            title: "Surah Populer",
+            description: "Al-Fatihah, Ya-Sin, Ar-Rahman, Al-Kahf",
+            bgColor: "bg-blue-100",
+            iconColor: "text-blue-600",
+            searches: ["Al-Fatihah", "Ya-Sin", "Ar-Rahman", "Al-Kahf"]
+        },
+        {
+            icon: IoTrendingUpOutline,
+            title: "Pencarian Trending",
+            description: "Ayat-ayat yang sering dicari minggu ini",
+            bgColor: "bg-green-100",
+            iconColor: "text-green-600",
+            searches: ["Al-Baqarah", "Al-Mulk", "Al-Waqiah", "At-Taubah"]
+        },
+        {
+            icon: IoTimeOutline,
+            title: "Surah Pendek",
+            description: "Surah-surah pendek untuk hafalan",
+            bgColor: "bg-purple-100",
+            iconColor: "text-purple-600",
+            searches: ["Al-Ikhlas", "Al-Falaq", "An-Nas", "Al-Lahab"]
+        },
+        {
+            icon: IoEyeOutline,
+            title: "Surah Pilihan",
+            description: "Rekomendasi surah untuk dibaca",
+            bgColor: "bg-orange-100",
+            iconColor: "text-orange-600",
+            searches: ["Al-Fajr", "Ad-Duha", "Ash-Sharh", "At-Tin"]
+        }
+    ];
 
     // Function to fetch popular searches from API
     const fetchPopularSearches = useCallback(async () => {
@@ -485,142 +531,176 @@ function QuranSearchPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-green-50 to-white pt-16">
             <SEOHead 
                 title="Cari Al-Quran - IndoQuran"
                 description="Cari Al-Quran berdasarkan nama surah, nomor, atau konten. Temukan ayat dan surah dengan mudah menggunakan pencarian lanjutan kami."
+                keywords="cari al-quran, pencarian ayat, surah, al-quran digital, pencarian quran indonesia"
             />
 
-            {/* Header */}
-            <div className="bg-white border-b border-gray-200">
-                <div className="max-w-4xl mx-auto px-4 py-6">
+            {/* Hero Header */}
+            <div className="relative bg-gradient-to-r from-blue-600 to-green-600 overflow-hidden">
+                <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+                <div className="relative max-w-6xl mx-auto px-4 py-16 text-center">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-white bg-opacity-20 rounded-full mb-6">
+                        <IoSearchOutline className="w-10 h-10 text-white" />
+                    </div>
                     <h1 
-                        className="text-2xl md:text-3xl font-bold text-gray-900 mb-6 text-center cursor-pointer hover:text-green-600 transition-colors"
+                        className="text-4xl md:text-5xl font-bold text-white mb-4 cursor-pointer hover:text-blue-100 transition-colors"
                         onClick={reloadSearchPage}
                         title="Klik untuk me-reset halaman pencarian"
                     >
                         Cari Al-Quran
                     </h1>
+                    <p className="text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed mb-8">
+                        Temukan ayat, surah, dan hikmah Al-Quran dengan mudah. Pencarian cerdas dengan 
+                        teknologi terdepan untuk pengalaman spiritual yang lebih mendalam.
+                    </p>
                     
-                    {/* Search Bar */}
-                    <div className="relative max-w-2xl mx-auto">
-                        <SearchField
-                            placeholder="Cari berdasarkan nama surah, nomor, atau konten..."
-                            className="w-full"
-                            surahs={surahs || []}
-                            value={query || ''}
-                            onChange={handleSearch}
-                            disableAutocomplete={true}
-                        />
-                        {query && (
-                            <button
-                                onClick={clearSearch}
-                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                            >
-                                <XMarkIcon className="w-5 h-5" />
-                            </button>
-                        )}
-                    </div>
-
-                    {/* Filters */}
-                    <div className="mt-4 flex items-center justify-between">
-                        <button
-                            onClick={() => setShowFilters(!showFilters)}
-                            className="flex items-center space-x-2 px-3 py-2 text-gray-600 hover:text-gray-900 rounded-md"
-                        >
-                            <FunnelIcon className="w-4 h-4" />
-                            <span>Filter</span>
-                        </button>
-
-                        {totalResults > 0 && (
-                            <span className="text-sm text-gray-600">
-                                {totalResults} hasil ditemukan • Halaman {currentPage} dari {totalPages}
-                            </span>
-                        )}
-                    </div>
-
-                    {/* Filter Options */}
-                    {showFilters && (
-                        <div className="mt-4 p-4 bg-gray-50 rounded-lg space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Urutkan berdasarkan
-                                    </label>
-                                    <select
-                                        value={sortBy}
-                                        onChange={(e) => setSortBy(e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                                    >
-                                        <option value="surah">Nomor Surah</option>
-                                        <option value="name">Nama (A-Z)</option>
-                                        <option value="verses">Jumlah Ayat</option>
-                                        <option value="revelation">Urutan Turun</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Tempat Turun
-                                    </label>
-                                    <select
-                                        value={revelationType}
-                                        onChange={(e) => setRevelationType(e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                                    >
-                                        <option value="all">Semua</option>
-                                        <option value="meccan">Makkiyyah</option>
-                                        <option value="medinan">Madaniyyah</option>
-                                    </select>
-                                </div>
-                            </div>
+                    {/* Search Bar dalam Hero */}
+                    <div className="max-w-2xl mx-auto relative">
+                        <div className="relative">
+                            <SearchField
+                                placeholder="Cari berdasarkan nama surah, nomor, atau konten..."
+                                className="w-full bg-white bg-opacity-95 backdrop-blur-sm border-0 shadow-lg"
+                                surahs={surahs || []}
+                                value={query || ''}
+                                onChange={handleSearch}
+                                disableAutocomplete={true}
+                            />
+                            {query && (
+                                <button
+                                    onClick={clearSearch}
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 bg-white rounded-full p-1"
+                                >
+                                    <XMarkIcon className="w-5 h-5" />
+                                </button>
+                            )}
                         </div>
-                    )}
+                    </div>
+                    
+                    {/* Decorative Elements */}
+                    <div className="absolute top-0 right-0 w-64 h-64 opacity-10">
+                        <div className="w-full h-full bg-white rounded-full transform rotate-45"></div>
+                    </div>
+                    <div className="absolute bottom-0 left-0 w-48 h-48 opacity-10">
+                        <div className="w-full h-full bg-white rounded-full transform -rotate-12"></div>
+                    </div>
                 </div>
             </div>
 
-            {/* Content */}
-            <div className="max-w-4xl mx-auto px-4 py-6">
+            {/* Main Content */}
+            <div className="max-w-6xl mx-auto px-4 py-16">
+                {/* Filters - hanya tampil jika ada query */}
+                {query && (
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+                        <div className="flex items-center justify-between mb-4">
+                            <button
+                                onClick={() => setShowFilters(!showFilters)}
+                                className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-colors"
+                            >
+                                <FunnelIcon className="w-5 h-5" />
+                                <span className="font-medium">Filter & Urutkan</span>
+                            </button>
+
+                            {totalResults > 0 && (
+                                <span className="text-gray-600 bg-gray-100 px-4 py-2 rounded-full text-sm font-medium">
+                                    {totalResults} hasil • Halaman {currentPage}/{totalPages}
+                                </span>
+                            )}
+                        </div>
+
+                        {/* Filter Options */}
+                        {showFilters && (
+                            <div className="border-t border-gray-200 pt-4 mt-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-3">
+                                            Urutkan berdasarkan
+                                        </label>
+                                        <select
+                                            value={sortBy}
+                                            onChange={(e) => setSortBy(e.target.value)}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                        >
+                                            <option value="surah">Nomor Surah</option>
+                                            <option value="name">Nama (A-Z)</option>
+                                            <option value="verses">Jumlah Ayat</option>
+                                            <option value="revelation">Urutan Turun</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-3">
+                                            Tempat Turun
+                                        </label>
+                                        <select
+                                            value={revelationType}
+                                            onChange={(e) => setRevelationType(e.target.value)}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                        >
+                                            <option value="all">Semua</option>
+                                            <option value="meccan">Makkiyyah</option>
+                                            <option value="medinan">Madaniyyah</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
                 {loading ? (
                     <div className="flex justify-center py-12">
                         <LoadingSpinner size="md" />
                     </div>
                 ) : error ? (
                     <div className="text-center py-12">
+                        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <XMarkIcon className="w-8 h-8 text-red-500" />
+                        </div>
+                        <h3 className="text-xl font-semibold text-gray-900 mb-2">Terjadi Kesalahan</h3>
                         <p className="text-red-600 mb-4">{error}</p>
                         <button 
                             onClick={() => performSearch(query)}
-                            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                            className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium shadow-md hover:shadow-lg"
                         >
                             Coba Lagi
                         </button>
                     </div>
                 ) : query && searchResults.length === 0 && totalResults === 0 ? (
-                    <div className="text-center py-12">
-                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <MagnifyingGlassIcon className="w-8 h-8 text-gray-400" />
+                    <div className="text-center py-16">
+                        <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <MagnifyingGlassIcon className="w-12 h-12 text-gray-400" />
                         </div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">Tidak ada hasil ditemukan</h3>
-                        <p className="text-gray-600 mb-4">
-                            Coba sesuaikan kata kunci atau filter pencarian Anda
+                        <h3 className="text-2xl font-bold text-gray-900 mb-4">Tidak ada hasil ditemukan</h3>
+                        <p className="text-gray-600 mb-6 text-lg max-w-md mx-auto">
+                            Coba sesuaikan kata kunci atau gunakan filter pencarian yang berbeda
                         </p>
-                        <button
-                            onClick={clearSearch}
-                            className="text-green-600 hover:text-green-700 font-medium"
-                        >
-                            Hapus pencarian
-                        </button>
+                        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                            <button
+                                onClick={clearSearch}
+                                className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium shadow-md hover:shadow-lg"
+                            >
+                                Hapus Pencarian
+                            </button>
+                            <button
+                                onClick={() => setShowFilters(!showFilters)}
+                                className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium"
+                            >
+                                Ubah Filter
+                            </button>
+                        </div>
                     </div>
                 ) : query && searchResults.length === 0 && totalResults > 0 ? (
-                    <div className="text-center py-12">
-                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <MagnifyingGlassIcon className="w-8 h-8 text-gray-400" />
+                    <div className="text-center py-16">
+                        <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <MagnifyingGlassIcon className="w-12 h-12 text-blue-500" />
                         </div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">Halaman ini kosong</h3>
-                        <p className="text-gray-600 mb-4">
+                        <h3 className="text-2xl font-bold text-gray-900 mb-4">Halaman ini kosong</h3>
+                        <p className="text-gray-600 mb-6 text-lg max-w-md mx-auto">
                             Halaman ini tidak memiliki hasil, tetapi ada {totalResults} hasil di halaman lain.
                         </p>
-                        <div className="flex items-center justify-center space-x-4">
+                        <div className="flex flex-col sm:flex-row gap-3 justify-center">
                             <button
                                 onClick={() => {
                                     setCurrentPage(1);
@@ -628,70 +708,68 @@ function QuranSearchPage() {
                                         performSearch(debouncedQuery.trim(), 1);
                                     }
                                 }}
-                                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                                className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium shadow-md hover:shadow-lg"
                             >
                                 Kembali ke Halaman 1
                             </button>
                             <button
                                 onClick={clearSearch}
-                                className="text-green-600 hover:text-green-700 font-medium"
+                                className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium"
                             >
-                                Hapus pencarian
+                                Hapus Pencarian
                             </button>
                         </div>
                     </div>
                 ) : searchResults.length > 0 ? (
                     /* Search Results */
-                    <div className="space-y-6 overflow-hidden">
+                    <div className="space-y-8">
                         <div className="flex items-center justify-between">
-                            <h2 className="text-lg font-semibold text-gray-900">
+                            <h2 className="text-2xl font-bold text-gray-900">
                                 Hasil Pencarian
                             </h2>
-                            <span className="text-sm text-gray-500">
-                                Menampilkan {((currentPage - 1) * resultsPerPage) + 1}-{Math.min(currentPage * resultsPerPage, totalResults)} dari {totalResults} hasil
+                            <span className="text-gray-500 bg-gray-100 px-4 py-2 rounded-full text-sm font-medium">
+                                {((currentPage - 1) * resultsPerPage) + 1}-{Math.min(currentPage * resultsPerPage, totalResults)} dari {totalResults}
                             </span>
                         </div>
                         
-                        <div className="space-y-4 mb-8">
+                        <div className="grid gap-6">
                             {paginatedResults.map((result, index) => (
-                                /* Ayah Result */
+                                /* Enhanced Ayah Result */
                                 <Link
                                     key={`ayah-${result.surah_number}-${result.ayah_number || result.number}`}
                                     to={`/surah/${result.surah_number}/${result.ayah_number || result.number}`}
-                                    className="block bg-white rounded-lg p-4 md:p-6 shadow-sm border border-gray-200 hover:border-green-300 hover:shadow-md transition-all overflow-hidden"
+                                    className="block bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02]"
                                 >
-                                    <div className="space-y-3">
+                                    <div className="space-y-4">
                                         <div className="flex items-center justify-between">
-                                            <div className="flex items-center space-x-3">
-                                                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                                    <span className="font-bold text-blue-700 text-sm">
+                                            <div className="flex items-center space-x-4">
+                                                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
+                                                    <span className="font-bold text-white text-sm">
                                                         {result.surah_number}:{result.ayah_number || result.number}
                                                     </span>
                                                 </div>
                                                 <div>
-                                                    <h3 className="font-semibold text-gray-900 text-sm">
+                                                    <h3 className="font-bold text-gray-900 text-lg">
                                                         {highlightText(result.surah_info?.name_latin, debouncedQuery)} • Ayat {result.ayah_number || result.number}
                                                     </h3>
-                                                    <p className="text-gray-500 text-xs">
+                                                    <p className="text-gray-500">
                                                         {highlightText(result.surah_info?.name_indonesian, debouncedQuery)}
                                                     </p>
                                                     {debouncedQuery && (
-                                                        <p className="text-blue-600 text-xs mt-1 font-medium">
+                                                        <p className="text-blue-600 text-sm mt-1 font-medium bg-blue-50 px-2 py-1 rounded-full inline-block">
                                                             {getSearchContext(result, debouncedQuery)}
                                                         </p>
                                                     )}
                                                 </div>
                                             </div>
-                                            <ChevronRightIcon className="w-5 h-5 text-gray-400" />
+                                            <ChevronRightIcon className="w-6 h-6 text-gray-400" />
                                         </div>
-                                        <div className="text-gray-700 text-sm leading-relaxed">
-                                            <div className="overflow-hidden" style={{
-                                                display: '-webkit-box',
-                                                WebkitLineClamp: 3,
-                                                WebkitBoxOrient: 'vertical',
-                                                wordBreak: 'break-word'
-                                            }}>
-                                                <span className="font-medium text-green-600">Terjemahan:</span> "{highlightText(result.text_indonesian, debouncedQuery)}"
+                                        <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-4">
+                                            <div className="text-gray-700 leading-relaxed">
+                                                <span className="font-semibold text-blue-600 text-sm uppercase tracking-wide">Terjemahan:</span>
+                                                <p className="mt-2 text-gray-800">
+                                                    "{highlightText(result.text_indonesian, debouncedQuery)}"
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
@@ -699,143 +777,204 @@ function QuranSearchPage() {
                             ))}
                         </div>
                         
-                        {/* Pagination Controls */}
+                        {/* Enhanced Pagination */}
                         {totalPages > 1 && (
-                            <div className="flex items-center justify-center space-x-2 mt-12 pt-6 border-t border-gray-200">
-                                <button
-                                    onClick={goToFirstPage}
-                                    disabled={currentPage === 1}
-                                    className="p-2 rounded-lg border border-gray-300 text-gray-500 hover:text-gray-700 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                >
-                                    <ChevronDoubleLeftIcon className="w-4 h-4" />
-                                </button>
-                                
-                                <button
-                                    onClick={goToPrevPage}
-                                    disabled={currentPage === 1}
-                                    className="p-2 rounded-lg border border-gray-300 text-gray-500 hover:text-gray-700 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                >
-                                    <ChevronLeftIcon className="w-4 h-4" />
-                                </button>
-                                
-                                <div className="flex items-center space-x-1">
-                                    {/* Page Numbers */}
-                                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                                        let pageNum;
-                                        if (totalPages <= 5) {
-                                            pageNum = i + 1;
-                                        } else if (currentPage <= 3) {
-                                            pageNum = i + 1;
-                                        } else if (currentPage >= totalPages - 2) {
-                                            pageNum = totalPages - 4 + i;
-                                        } else {
-                                            pageNum = currentPage - 2 + i;
-                                        }
-                                        
-                                        return (
-                                            <button
-                                                key={pageNum}
-                                                onClick={() => goToPage(pageNum)}
-                                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                                    currentPage === pageNum
-                                                        ? 'bg-green-600 text-white'
-                                                        : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
-                                                }`}
-                                            >
-                                                {pageNum}
-                                            </button>
-                                        );
-                                    })}
+                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="text-sm text-gray-600">
+                                        Menampilkan {((currentPage - 1) * resultsPerPage) + 1} - {Math.min(currentPage * resultsPerPage, totalResults)} dari {totalResults} hasil
+                                    </div>
+                                    <div className="text-sm text-gray-600">
+                                        Halaman {currentPage} dari {totalPages}
+                                    </div>
                                 </div>
                                 
-                                <button
-                                    onClick={goToNextPage}
-                                    disabled={currentPage === totalPages}
-                                    className="p-2 rounded-lg border border-gray-300 text-gray-500 hover:text-gray-700 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                >
-                                    <ChevronRightIcon className="w-4 h-4" />
-                                </button>
-                                
-                                <button
-                                    onClick={goToLastPage}
-                                    disabled={currentPage === totalPages}
-                                    className="p-2 rounded-lg border border-gray-300 text-gray-500 hover:text-gray-700 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                >
-                                    <ChevronDoubleRightIcon className="w-4 h-4" />
-                                </button>
+                                <div className="flex items-center justify-center space-x-2">
+                                    <button
+                                        onClick={goToFirstPage}
+                                        disabled={currentPage === 1}
+                                        className="p-3 rounded-xl border border-gray-300 text-gray-500 hover:text-gray-700 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-md"
+                                    >
+                                        <ChevronDoubleLeftIcon className="w-5 h-5" />
+                                    </button>
+                                    
+                                    <button
+                                        onClick={goToPrevPage}
+                                        disabled={currentPage === 1}
+                                        className="p-3 rounded-xl border border-gray-300 text-gray-500 hover:text-gray-700 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-md"
+                                    >
+                                        <ChevronLeftIcon className="w-5 h-5" />
+                                    </button>
+                                    
+                                    <div className="flex items-center space-x-1">
+                                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                            let pageNum;
+                                            if (totalPages <= 5) {
+                                                pageNum = i + 1;
+                                            } else if (currentPage <= 3) {
+                                                pageNum = i + 1;
+                                            } else if (currentPage >= totalPages - 2) {
+                                                pageNum = totalPages - 4 + i;
+                                            } else {
+                                                pageNum = currentPage - 2 + i;
+                                            }
+                                            
+                                            return (
+                                                <button
+                                                    key={pageNum}
+                                                    onClick={() => goToPage(pageNum)}
+                                                    className={`px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                                                        currentPage === pageNum
+                                                            ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md'
+                                                            : 'border border-gray-300 text-gray-700 hover:bg-gray-50 hover:shadow-md'
+                                                    }`}
+                                                >
+                                                    {pageNum}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    
+                                    <button
+                                        onClick={goToNextPage}
+                                        disabled={currentPage === totalPages}
+                                        className="p-3 rounded-xl border border-gray-300 text-gray-500 hover:text-gray-700 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-md"
+                                    >
+                                        <ChevronRightIcon className="w-5 h-5" />
+                                    </button>
+                                    
+                                    <button
+                                        onClick={goToLastPage}
+                                        disabled={currentPage === totalPages}
+                                        className="p-3 rounded-xl border border-gray-300 text-gray-500 hover:text-gray-700 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-md"
+                                    >
+                                        <ChevronDoubleRightIcon className="w-5 h-5" />
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>
                 ) : (
                     /* Default Content - Popular Searches and Featured Surahs */
-                    <div className="space-y-8">
+                    <div className="space-y-12">
+                        {/* Search Categories */}
+                        <section>
+                            <div className="text-center mb-8">
+                                <h2 className="text-3xl font-bold text-gray-900 mb-4">Kategori Pencarian</h2>
+                                <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                                    Temukan Al-Quran berdasarkan kategori yang Anda minati
+                                </p>
+                            </div>
+
+                            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                                {searchCategories.map((category, index) => (
+                                    <div key={index} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300 transform hover:scale-105">
+                                        <div className={`w-16 h-16 ${category.bgColor} rounded-full flex items-center justify-center mx-auto mb-4`}>
+                                            <category.icon className={`w-8 h-8 ${category.iconColor}`} />
+                                        </div>
+                                        <h3 className="text-lg font-semibold text-gray-900 mb-2 text-center">{category.title}</h3>
+                                        <p className="text-gray-600 text-sm text-center mb-4">{category.description}</p>
+                                        <div className="flex flex-wrap gap-2 justify-center">
+                                            {category.searches.slice(0, 2).map((search) => (
+                                                <button
+                                                    key={search}
+                                                    onClick={() => handleSearch(search)}
+                                                    className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs hover:bg-gray-200 transition-colors"
+                                                >
+                                                    {search}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+
                         {/* Popular Searches */}
                         <section>
-                            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                                Pencarian Populer
-                            </h2>
-                            <div className="flex flex-wrap gap-2">
-                                {popularSearches.map((search) => (
-                                    <button
-                                        key={search}
-                                        onClick={() => handleSearch(search)}
-                                        className="px-4 py-2 bg-white border border-gray-300 rounded-full text-sm text-gray-700 hover:border-green-500 hover:text-green-600 transition-colors"
-                                    >
-                                        {search}
-                                    </button>
-                                ))}
+                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+                                <div className="text-center mb-6">
+                                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                                        Pencarian Populer
+                                    </h2>
+                                    <p className="text-gray-600">
+                                        Surah dan ayat yang paling sering dicari pengguna
+                                    </p>
+                                </div>
+                                <div className="flex flex-wrap gap-3 justify-center">
+                                    {popularSearches.map((search) => (
+                                        <button
+                                            key={search}
+                                            onClick={() => handleSearch(search)}
+                                            className="px-6 py-3 bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-full text-gray-700 hover:from-blue-100 hover:to-green-100 hover:border-blue-300 transition-all duration-300 font-medium shadow-sm hover:shadow-md"
+                                        >
+                                            {search}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
                         </section>
 
                         {/* Featured Surahs */}
                         <section>
-                            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                                Surah Pilihan
-                            </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="text-center mb-8">
+                                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                                    Surah Pilihan
+                                </h2>
+                                <p className="text-gray-600">
+                                    Surah-surah yang direkomendasikan untuk dibaca dan dipelajari
+                                </p>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {featuredSurahs.map((surah) => (
                                     <Link
                                         key={surah.number}
                                         to={`/surah/${surah.number}`}
-                                        className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:border-green-300 hover:shadow-md transition-all"
+                                        className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:border-blue-300 hover:shadow-lg transition-all duration-300 transform hover:scale-105"
                                     >
                                         <div className="flex items-center space-x-4">
-                                            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                                                <span className="font-bold text-green-700 text-sm">
+                                            <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-md">
+                                                <span className="font-bold text-white">
                                                     {surah.number}
                                                 </span>
                                             </div>
                                             <div className="flex-1">
-                                                <h3 className="font-semibold text-gray-900">
+                                                <h3 className="font-bold text-gray-900 text-lg">
                                                     {surah.name_latin || surah.name_indonesian}
                                                 </h3>
-                                                <p className="text-gray-500 text-sm">
+                                                <p className="text-gray-500">
                                                     {surah.total_ayahs} ayat
                                                 </p>
                                             </div>
-                                            <p className="font-arabic text-lg text-gray-700">
-                                                {surah.name_arabic}
-                                            </p>
+                                            <div className="text-right">
+                                                <p className="font-arabic text-xl text-gray-700">
+                                                    {surah.name_arabic}
+                                                </p>
+                                            </div>
                                         </div>
                                     </Link>
                                 ))}
                             </div>
                         </section>
 
-                        {/* Browse All */}
+                        {/* Browse All Surahs */}
                         <section>
-                            <div className="text-center">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            <div className="text-center bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-2xl p-8">
+                                <div className="inline-flex items-center justify-center w-16 h-16 bg-white bg-opacity-20 rounded-full mb-6">
+                                    <BookOpenIcon className="w-8 h-8 text-white" />
+                                </div>
+                                <h3 className="text-2xl font-bold mb-4">
                                     Jelajahi Semua Surah
                                 </h3>
-                                <p className="text-gray-600 mb-4">
-                                    Jelajahi Al-Quran lengkap dengan semua 114 surah
+                                <p className="text-blue-100 mb-6 text-lg max-w-2xl mx-auto">
+                                    Jelajahi Al-Quran lengkap dengan semua 114 surah. Baca, pelajari, dan renungkan 
+                                    firman Allah SWT dengan fitur lengkap kami.
                                 </p>
                                 <Link
                                     to="/surah"
-                                    className="inline-flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                                    className="inline-flex items-center space-x-2 px-8 py-4 bg-white text-blue-600 rounded-full hover:bg-gray-100 transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
                                 >
-                                    <BookOpenIcon className="w-5 h-5" />
+                                    <BookOpenIcon className="w-6 h-6" />
                                     <span>Lihat Semua Surah</span>
                                 </Link>
                             </div>

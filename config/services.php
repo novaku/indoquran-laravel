@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'whatsapp' => [
+        'api_url' => env('WHATSAPP_API_URL', 'https://api.whatsapp.com/v1'),
+        'api_key' => env('WHATSAPP_API_KEY'),
+        'from_number' => env('WHATSAPP_FROM_NUMBER', '+6281234567890'),
+    ],
+
 ];

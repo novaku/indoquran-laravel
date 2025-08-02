@@ -125,6 +125,7 @@ function QuranFooter() {
         ],
         'Pelajari': [
             { name: 'Tentang Kami', path: '/tentang' },
+            { name: 'Keuntungan Member', path: '/member' },
             { name: 'Statistik', path: '/statistik' },
             { name: 'Donasi', path: '/donasi' },
             { name: 'Riwayat Versi', path: '/riwayat-versi' },

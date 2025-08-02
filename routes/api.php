@@ -60,6 +60,11 @@ Route::get('/user', function (Request $request) {
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
 
+// Password reset routes (public, no auth required)
+Route::post('/password/reset', [\App\Http\Controllers\Auth\PasswordResetController::class, 'sendResetLink']);
+Route::post('/password/validate-token', [\App\Http\Controllers\Auth\PasswordResetController::class, 'validateToken']);
+Route::post('/password/reset/confirm', [\App\Http\Controllers\Auth\PasswordResetController::class, 'resetPassword']);
+
 // Contact route (public, no auth required)
 Route::post('/contact', [ContactController::class, 'store']);
 

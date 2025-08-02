@@ -104,11 +104,6 @@ function UserAuthPage() {
             const result = await login(formData, isRegister);
             
             if (result.success) {
-                // Show success message for registration
-                if (isRegister) {
-                    // You could show a success toast here if you have a toast system
-                    console.log('Registration successful! Welcome email sent.');
-                }
                 navigate('/', { replace: true });
             } else {
                 setErrors({ submit: result.message || 'Autentikasi gagal' });
@@ -124,33 +119,69 @@ function UserAuthPage() {
     };
     
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+            {/* Background Decorations */}
+            <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute -top-40 -right-40 w-80 h-80 bg-green-100 rounded-full opacity-50 blur-3xl"></div>
+                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-emerald-100 rounded-full opacity-50 blur-3xl"></div>
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-green-50 rounded-full opacity-30 blur-3xl"></div>
+            </div>
+            
             <SEOHead 
                 title={`${isLogin ? 'Masuk' : 'Buat Akun'} - IndoQuran`}
                 description={`${isLogin ? 'Masuk ke akun Anda' : 'Buat akun baru'} untuk menyimpan progres baca dan bookmark Anda.`}
             />
             
-            <div className="sm:mx-auto sm:w-full sm:max-w-md">
+            <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
                 {/* Logo */}
                 <div className="flex justify-center">
-                    <Link to="/" className="flex items-center space-x-2">
-                        <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
-                            <BookOpenIcon className="w-7 h-7 text-white" />
+                    <Link to="/" className="flex items-center space-x-3 group">
+                        <div className="w-14 h-14 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                            <BookOpenIcon className="w-8 h-8 text-white" />
                         </div>
-                        <span className="text-2xl font-bold text-gray-900">IndoQuran</span>
+                        <span className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                            IndoQuran
+                        </span>
                     </Link>
                 </div>
                 
-                <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
-                    {isLogin ? 'Masuk ke akun Anda' : 'Buat akun Anda'}
-                </h2>
-                <p className="mt-2 text-center text-sm text-gray-600">
+                <div className="text-center mt-8">
+                    <h2 className="text-4xl font-bold text-gray-900 mb-3">
+                        {isLogin ? 'Selamat Datang Kembali' : 'Mulai Perjalanan Anda'}
+                    </h2>
+                    <p className="text-lg text-gray-600 mb-6">
+                        {isLogin ? 
+                            'Masuk untuk melanjutkan perjalanan spiritual Anda' : 
+                            'Bergabung dengan komunitas pembaca Al-Quran'
+                        }
+                    </p>
+                    
+                    {/* Quick Benefits */}
+                    {isLogin && (
+                        <div className="flex justify-center space-x-6 mb-6">
+                            <div className="flex items-center space-x-1 text-green-600">
+                                <BookmarkIcon className="w-4 h-4" />
+                                <span className="text-sm">Bookmark</span>
+                            </div>
+                            <div className="flex items-center space-x-1 text-green-600">
+                                <HeartIcon className="w-4 h-4" />
+                                <span className="text-sm">Favorit</span>
+                            </div>
+                            <div className="flex items-center space-x-1 text-green-600">
+                                <SparklesIcon className="w-4 h-4" />
+                                <span className="text-sm">Progress</span>
+                            </div>
+                        </div>
+                    )}
+                </div>
+                
+                <p className="mt-4 text-center text-sm text-gray-600">
                     {isLogin ? (
                         <>
                             Belum punya akun?{' '}
                             <Link 
                                 to="/daftar" 
-                                className="font-medium text-green-600 hover:text-green-500"
+                                className="font-semibold text-green-600 hover:text-green-500 transition-colors"
                             >
                                 Buat di sini
                             </Link>
@@ -160,7 +191,7 @@ function UserAuthPage() {
                             Sudah punya akun?{' '}
                             <Link 
                                 to="/masuk" 
-                                className="font-medium text-green-600 hover:text-green-500"
+                                className="font-semibold text-green-600 hover:text-green-500 transition-colors"
                             >
                                 Masuk
                             </Link>
@@ -169,11 +200,11 @@ function UserAuthPage() {
                 </p>
             </div>
 
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="bg-white py-8 px-4 shadow-lg rounded-lg sm:px-10">
+            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+                <div className="bg-white/80 backdrop-blur-sm py-10 px-6 shadow-2xl rounded-2xl border border-white/20 sm:px-12">
                     {/* Error Message */}
                     {errors.submit && (
-                        <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+                        <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
                             <div className="flex">
                                 <ExclamationCircleIcon className="h-5 w-5 text-red-400" />
                                 <div className="ml-3">
@@ -187,7 +218,7 @@ function UserAuthPage() {
                         {/* Name Field (Register only) */}
                         {isRegister && (
                             <div>
-                                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                                <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
                                     Nama Lengkap
                                 </label>
                                 <div className="mt-1">
@@ -199,13 +230,13 @@ function UserAuthPage() {
                                         required={isRegister}
                                         value={formData.name}
                                         onChange={handleChange}
-                                        className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm ${
-                                            errors.name ? 'border-red-300' : 'border-gray-300'
+                                        className={`appearance-none block w-full px-4 py-3 border rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 ${
+                                            errors.name ? 'border-red-300 bg-red-50' : 'border-gray-200 bg-gray-50 focus:bg-white'
                                         }`}
                                         placeholder="Masukkan nama lengkap Anda"
                                     />
                                     {errors.name && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+                                        <p className="mt-2 text-sm text-red-600">{errors.name}</p>
                                     )}
                                 </div>
                             </div>
@@ -213,7 +244,7 @@ function UserAuthPage() {
 
                         {/* Email Field */}
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                            <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
                                 Alamat Email
                             </label>
                             <div className="mt-1">
@@ -225,20 +256,20 @@ function UserAuthPage() {
                                     required
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm ${
-                                        errors.email ? 'border-red-300' : 'border-gray-300'
+                                    className={`appearance-none block w-full px-4 py-3 border rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 ${
+                                        errors.email ? 'border-red-300 bg-red-50' : 'border-gray-200 bg-gray-50 focus:bg-white'
                                     }`}
                                     placeholder="Masukkan email Anda"
                                 />
                                 {errors.email && (
-                                    <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                                    <p className="mt-2 text-sm text-red-600">{errors.email}</p>
                                 )}
                             </div>
                         </div>
 
                         {/* Password Field */}
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                            <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
                                 Password
                             </label>
                             <div className="mt-1 relative">
@@ -250,28 +281,28 @@ function UserAuthPage() {
                                     required
                                     value={formData.password}
                                     onChange={handleChange}
-                                    className={`appearance-none block w-full px-3 py-2 pr-10 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm ${
-                                        errors.password ? 'border-red-300' : 'border-gray-300'
+                                    className={`appearance-none block w-full px-4 py-3 pr-12 border rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 ${
+                                        errors.password ? 'border-red-300 bg-red-50' : 'border-gray-200 bg-gray-50 focus:bg-white'
                                     }`}
                                     placeholder={isLogin ? "Masukkan password Anda" : "Buat password"}
                                 />
                                 <button
                                     type="button"
-                                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                    className="absolute inset-y-0 right-0 pr-4 flex items-center"
                                     onClick={() => setShowPassword(!showPassword)}
                                 >
                                     {showPassword ? (
-                                        <EyeSlashIcon className="h-5 w-5 text-gray-400" />
+                                        <EyeSlashIcon className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
                                     ) : (
-                                        <EyeIcon className="h-5 w-5 text-gray-400" />
+                                        <EyeIcon className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
                                     )}
                                 </button>
                             </div>
                             {errors.password && (
-                                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                                <p className="mt-2 text-sm text-red-600">{errors.password}</p>
                             )}
                             {isRegister && (
-                                <p className="mt-1 text-sm text-gray-500">
+                                <p className="mt-2 text-sm text-gray-500">
                                     Minimal 6 karakter
                                 </p>
                             )}
@@ -280,7 +311,7 @@ function UserAuthPage() {
                         {/* Confirm Password Field (Register only) */}
                         {isRegister && (
                             <div>
-                                <label htmlFor="password_confirmation" className="block text-sm font-medium text-gray-700">
+                                <label htmlFor="password_confirmation" className="block text-sm font-semibold text-gray-700 mb-2">
                                     Konfirmasi Password
                                 </label>
                                 <div className="mt-1 relative">
@@ -292,26 +323,38 @@ function UserAuthPage() {
                                         required={isRegister}
                                         value={formData.password_confirmation}
                                         onChange={handleChange}
-                                        className={`appearance-none block w-full px-3 py-2 pr-10 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm ${
-                                            errors.password_confirmation ? 'border-red-300' : 'border-gray-300'
+                                        className={`appearance-none block w-full px-4 py-3 pr-12 border rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 ${
+                                            errors.password_confirmation ? 'border-red-300 bg-red-50' : 'border-gray-200 bg-gray-50 focus:bg-white'
                                         }`}
                                         placeholder="Konfirmasi password Anda"
                                     />
                                     <button
                                         type="button"
-                                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                        className="absolute inset-y-0 right-0 pr-4 flex items-center"
                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                     >
                                         {showConfirmPassword ? (
-                                            <EyeSlashIcon className="h-5 w-5 text-gray-400" />
+                                            <EyeSlashIcon className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
                                         ) : (
-                                            <EyeIcon className="h-5 w-5 text-gray-400" />
+                                            <EyeIcon className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
                                         )}
                                     </button>
                                 </div>
                                 {errors.password_confirmation && (
-                                    <p className="mt-1 text-sm text-red-600">{errors.password_confirmation}</p>
+                                    <p className="mt-2 text-sm text-red-600">{errors.password_confirmation}</p>
                                 )}
+                            </div>
+                        )}
+
+                        {/* Forgot Password Link (Login only) */}
+                        {isLogin && (
+                            <div className="flex justify-end">
+                                <Link
+                                    to="/reset-password"
+                                    className="text-sm text-green-600 hover:text-green-500 font-medium transition-colors"
+                                >
+                                    Lupa password?
+                                </Link>
                             </div>
                         )}
 
@@ -320,48 +363,74 @@ function UserAuthPage() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
                             >
                                 {loading ? (
                                     <LoadingSpinner size="sm" />
                                 ) : (
-                                    isLogin ? 'Masuk' : 'Buat Akun'
+                                    <>
+                                        <ShieldCheckIcon className="w-5 h-5 mr-2" />
+                                        {isLogin ? 'Masuk' : 'Buat Akun'}
+                                    </>
                                 )}
                             </button>
                         </div>
-
-                        {/* Forgot Password Link - Only for Login */}
-                        {isLogin && (
-                            <div className="mt-4 text-center">
-                                <Link
-                                    to="/reset-password"
-                                    className="text-sm text-green-600 hover:text-green-700 hover:underline"
-                                >
-                                    Lupa password?
-                                </Link>
-                            </div>
-                        )}
                     </form>
 
                     {/* Additional Links */}
-                    <div className="mt-6">
+                    <div className="mt-8">
                         <div className="relative">
                             <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-gray-300" />
+                                <div className="w-full border-t border-gray-200" />
                             </div>
                             <div className="relative flex justify-center text-sm">
-                                <span className="px-2 bg-white text-gray-500">Atau</span>
+                                <span className="px-3 bg-white text-gray-500 font-medium">Atau</span>
                             </div>
                         </div>
 
                         <div className="mt-6 text-center">
                             <Link
                                 to="/"
-                                className="text-green-600 hover:text-green-700 font-medium"
+                                className="inline-flex items-center text-green-600 hover:text-green-700 font-medium transition-colors"
                             >
+                                <BookOpenIcon className="w-4 h-4 mr-2" />
                                 Lanjutkan tanpa akun
                             </Link>
                         </div>
+
+                        {/* Member Benefits Info */}
+                        {isRegister && (
+                            <div className="mt-8 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border border-green-100">
+                                <h3 className="text-sm font-semibold text-green-800 mb-3 flex items-center">
+                                    <SparklesIcon className="w-4 h-4 mr-1" />
+                                    Keuntungan Jadi Member
+                                </h3>
+                                <ul className="text-xs text-green-700 space-y-2">
+                                    <li className="flex items-center">
+                                        <BookmarkIcon className="w-3 h-3 mr-2" />
+                                        Bookmark ayat favorit
+                                    </li>
+                                    <li className="flex items-center">
+                                        <HeartIcon className="w-3 h-3 mr-2" />
+                                        Catatan pribadi untuk setiap ayat
+                                    </li>
+                                    <li className="flex items-center">
+                                        <SparklesIcon className="w-3 h-3 mr-2" />
+                                        Tracking progress baca Al-Quran
+                                    </li>
+                                    <li className="flex items-center">
+                                        <ShieldCheckIcon className="w-3 h-3 mr-2" />
+                                        Bergabung komunitas doa bersama
+                                    </li>
+                                </ul>
+                                <Link 
+                                    to="/member" 
+                                    className="text-xs text-green-600 hover:text-green-700 underline mt-3 inline-block font-medium"
+                                >
+                                    Lihat semua keuntungan →
+                                </Link>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
