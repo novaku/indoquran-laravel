@@ -5,10 +5,124 @@ import {
     MagnifyingGlassIcon,
     AcademicCapIcon,
     ChevronDownIcon,
-    ChevronUpIcon
+    ChevronUpIcon,
+    ChevronRightIcon,
+    FolderIcon,
+    FolderOpenIcon,
+    DocumentTextIcon
 } from '@heroicons/react/24/outline';
 import SEOHead from '../components/SEOHead';
 import LoadingSpinner from '../components/LoadingSpinner';
+
+// Tree Node Component
+function TreeNode({ topic, index, isExpanded, onToggle, level = 0 }) {
+    const indentStyle = {
+        paddingLeft: `${level * 20 + 12}px`
+    };
+
+    return (
+        <div className="select-none">
+            {/* Topic Header */}
+            <div 
+                className="flex items-center py-2 px-3 rounded-lg hover:bg-gray-50 cursor-pointer group transition-colors"
+                style={indentStyle}
+                onClick={onToggle}
+            >
+                <div className="flex items-center min-w-0 flex-1">
+                    {/* Expand/Collapse Icon */}
+                    <div className="flex-shrink-0 mr-2">
+                        {topic.verses?.length > 0 ? (
+                            isExpanded ? (
+                                <ChevronDownIcon className="w-4 h-4 text-gray-500" />
+                            ) : (
+                                <ChevronRightIcon className="w-4 h-4 text-gray-500" />
+                            )
+                        ) : (
+                            <div className="w-4 h-4" />
+                        )}
+                    </div>
+                    
+                    {/* Folder/Document Icon */}
+                    <div className="flex-shrink-0 mr-2">
+                        {topic.verses?.length > 0 ? (
+                            isExpanded ? (
+                                <FolderOpenIcon className="w-4 h-4 text-blue-600" />
+                            ) : (
+                                <FolderIcon className="w-4 h-4 text-blue-600" />
+                            )
+                        ) : (
+                            <DocumentTextIcon className="w-4 h-4 text-gray-400" />
+                        )}
+                    </div>
+                    
+                    {/* Topic Name */}
+                    <span className="font-medium text-gray-900 truncate mr-2">
+                        {topic.topic}
+                    </span>
+                    
+                    {/* Verse Count Badge */}
+                    {topic.verses?.length > 0 && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-700 flex-shrink-0">
+                            {topic.verses.length} ayat
+                        </span>
+                    )}
+                </div>
+            </div>
+            
+            {/* Topic Description */}
+            {isExpanded && (
+                <div className="ml-8 mb-2" style={{ paddingLeft: `${level * 20}px` }}>
+                    <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                        <p className="text-sm text-gray-600 leading-relaxed">
+                            {topic.description}
+                        </p>
+                    </div>
+                    
+                    {/* Verses List */}
+                    {topic.verses?.length > 0 && (
+                        <div className="space-y-1">
+                            <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                                Ayat-ayat ({topic.verses.length})
+                            </div>
+                            <div className="pl-4 border-l-2 border-gray-200 space-y-1">
+                                {topic.verses.map((verse, verseIndex) => (
+                                    <VerseNode 
+                                        key={verseIndex}
+                                        verse={verse}
+                                        level={level + 1}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+}
+
+// Verse Node Component
+function VerseNode({ verse, level = 0 }) {
+    const indentStyle = {
+        paddingLeft: `${level * 12}px`
+    };
+
+    return (
+        <Link 
+            to={`/surah/${verse.surah}/${verse.ayah}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center py-1.5 px-3 rounded-md hover:bg-blue-50 group transition-colors"
+            style={indentStyle}
+        >
+            <DocumentTextIcon className="w-3 h-3 text-gray-400 mr-2 flex-shrink-0" />
+            <span className="text-sm text-gray-700 group-hover:text-blue-700 transition-colors">
+                Surah {verse.surah}, Ayat {verse.ayah}
+            </span>
+            <ChevronRightIcon className="w-3 h-3 text-gray-300 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+        </Link>
+    );
+}
 
 function TafsirMaudhuiPage() {
     const [tafsirData, setTafsirData] = useState(null);
@@ -46,15 +160,18 @@ function TafsirMaudhuiPage() {
     const filteredTopics = useMemo(() => {
         if (!tafsirData?.topics) return [];
         
-        if (!searchKeyword.trim()) {
-            return tafsirData.topics;
+        let topics = tafsirData.topics;
+        
+        if (searchKeyword.trim()) {
+            const keyword = searchKeyword.toLowerCase();
+            topics = topics.filter(topic => 
+                topic.topic.toLowerCase().includes(keyword) || 
+                topic.description.toLowerCase().includes(keyword)
+            );
         }
         
-        const keyword = searchKeyword.toLowerCase();
-        return tafsirData.topics.filter(topic => 
-            topic.topic.toLowerCase().includes(keyword) || 
-            topic.description.toLowerCase().includes(keyword)
-        );
+        // Sort topics alphabetically by topic name (ascending A-Z)
+        return topics.sort((a, b) => a.topic.localeCompare(b.topic, 'id', { sensitivity: 'base' }));
     }, [tafsirData, searchKeyword]);
 
     // Toggle expanded state for a topic
@@ -123,7 +240,7 @@ function TafsirMaudhuiPage() {
                             Tafsir Maudhui
                         </h1>
                         <p className="text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
-                            Jelajahi topik-topik penting dalam Al-Quran melalui pendekatan tafsir maudhui. 
+                            Jelajahi topik-topik penting dalam Al-Quran melalui struktur hierarkis yang terorganisir. 
                             Temukan ayat-ayat berdasarkan tema dan pelajari pesan-pesan Al-Quran secara tematik.
                         </p>
                     </div>
@@ -166,83 +283,27 @@ function TafsirMaudhuiPage() {
                     </div>
                 </div>
 
-                {/* Topics Grid */}
+                {/* Topics Tree */}
                 {filteredTopics.length > 0 ? (
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        {filteredTopics.map((topic, index) => (
-                            <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
-                                <div className="p-6">
-                                    <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                                        {topic.topic}
-                                    </h3>
-                                    <p className="text-gray-600 mb-4 leading-relaxed">
-                                        {topic.description}
-                                    </p>
-                                    
-                                    <div className="mb-4">
-                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-50 text-blue-700">
-                                            <BookOpenIcon className="w-4 h-4 mr-1" />
-                                            {topic.verses?.length || 0} ayat
-                                        </span>
-                                    </div>
-                                    
-                                    {/* Preview verses */}
-                                    <div className="flex flex-wrap gap-2 mb-4">
-                                        {topic.verses?.slice(0, 6).map((verse, verseIndex) => (
-                                            <Link 
-                                                key={verseIndex}
-                                                to={`/surah/${verse.surah}/${verse.ayah}`}
-                                                className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-md hover:bg-blue-100 hover:text-blue-700 transition-colors"
-                                            >
-                                                {verse.surah}:{verse.ayah}
-                                            </Link>
-                                        ))}
-                                        {topic.verses?.length > 6 && (
-                                            <span className="text-xs text-gray-500 px-2 py-1">
-                                                +{topic.verses.length - 6} lainnya
-                                            </span>
-                                        )}
-                                    </div>
-                                    
-                                    {/* Toggle button */}
-                                    {topic.verses?.length > 0 && (
-                                        <button 
-                                            onClick={() => toggleExpanded(index)}
-                                            className="flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
-                                        >
-                                            {expandedTopics.has(index) ? (
-                                                <>
-                                                    <ChevronUpIcon className="w-4 h-4 mr-1" />
-                                                    Sembunyikan Ayat
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <ChevronDownIcon className="w-4 h-4 mr-1" />
-                                                    Lihat Semua Ayat
-                                                </>
-                                            )}
-                                        </button>
-                                    )}
-                                    
-                                    {/* Expanded verses */}
-                                    {expandedTopics.has(index) && topic.verses?.length > 0 && (
-                                        <div className="mt-4 pt-4 border-t border-gray-200">
-                                            <div className="flex flex-wrap gap-2">
-                                                {topic.verses.map((verse, verseIndex) => (
-                                                    <Link 
-                                                        key={verseIndex}
-                                                        to={`/surah/${verse.surah}/${verse.ayah}`}
-                                                        className="inline-block bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded-md hover:bg-blue-100 transition-colors"
-                                                    >
-                                                        {verse.surah}:{verse.ayah}
-                                                    </Link>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+                        <div className="p-6">
+                            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <FolderOpenIcon className="w-5 h-5 mr-2 text-blue-600" />
+                                Topik-topik Al-Quran
+                            </h2>
+                            <div className="space-y-1">
+                                {filteredTopics.map((topic, index) => (
+                                    <TreeNode
+                                        key={index}
+                                        topic={topic}
+                                        index={index}
+                                        isExpanded={expandedTopics.has(index)}
+                                        onToggle={() => toggleExpanded(index)}
+                                        level={0}
+                                    />
+                                ))}
                             </div>
-                        ))}
+                        </div>
                     </div>
                 ) : (
                     <div className="text-center py-16">
@@ -265,8 +326,8 @@ function TafsirMaudhuiPage() {
                 )}
 
                 {/* Back to top button */}
-                {filteredTopics.length > 9 && (
-                    <div className="mt-12 text-center">
+                {filteredTopics.length > 10 && (
+                    <div className="mt-8 text-center">
                         <button 
                             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                             className="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"

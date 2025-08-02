@@ -6,6 +6,91 @@ import StructuredData from '../components/StructuredData';
 function RiwayatVersiPage() {
     const versions = [
         {
+            version: "2.6.0",
+            date: "2 Agustus 2025",
+            type: "major",
+            title: "Migrasi Database Asmaul Husna & Tafsir Maudhui Tree Layout",
+            description: "Update mayor dengan migrasi database Asmaul Husna ke sistem yang lebih robust dan implementasi Tafsir Maudhui dengan tree layout hierarkis untuk navigasi topik Al-Quran yang lebih intuitif dan terorganisir.",
+            changes: [
+                {
+                    type: "feature",
+                    text: "Migrasi lengkap database Asmaul Husna dengan struktur data yang lebih optimal"
+                },
+                {
+                    type: "feature",
+                    text: "Implementasi Tafsir Maudhui (Tafsir Tematik) dengan tree layout hierarkis untuk navigasi yang intuitif"
+                },
+                {
+                    type: "feature",
+                    text: "Tree view interaktif untuk topik-topik Al-Quran dengan expand/collapse functionality"
+                },
+                {
+                    type: "feature",
+                    text: "Pengurutan alfabetis (A-Z) untuk topik-topik dalam Tafsir Maudhui"
+                },
+                {
+                    type: "feature",
+                    text: "Link ayat yang terbuka di tab baru untuk mempertahankan konteks halaman utama"
+                },
+                {
+                    type: "feature",
+                    text: "Database migration tools untuk Asmaul Husna dengan backup dan restore otomatis"
+                },
+                {
+                    type: "feature",
+                    text: "Sistem kategorisasi tema dalam Tafsir Maudhui dengan visual folder dan document icons"
+                },
+                {
+                    type: "feature",
+                    text: "Search engine untuk Tafsir Maudhui berdasarkan keyword dengan filter real-time"
+                },
+                {
+                    type: "feature",
+                    text: "Integrasi Tafsir Maudhui dengan ayat-ayat terkait dalam struktur tree yang organized"
+                },
+                {
+                    type: "feature",
+                    text: "Export dan import data Asmaul Husna dalam format JSON dan CSV"
+                },
+                {
+                    type: "improvement",
+                    text: "Optimisasi performa database Asmaul Husna dengan indexing yang lebih baik"
+                },
+                {
+                    type: "improvement",
+                    text: "Enhanced caching system untuk Tafsir Maudhui dan Asmaul Husna"
+                },
+                {
+                    type: "improvement",
+                    text: "API endpoint yang lebih efficient untuk akses data Asmaul Husna"
+                },
+                {
+                    type: "improvement",
+                    text: "Responsive design untuk halaman Tafsir Maudhui dengan tree layout yang optimal di semua perangkat"
+                },
+                {
+                    type: "improvement",
+                    text: "Enhanced user experience dengan hover effects dan smooth transitions pada tree nodes"
+                },
+                {
+                    type: "improvement",
+                    text: "Visual hierarchy yang jelas menggunakan indentasi dan color coding untuk tree structure"
+                },
+                {
+                    type: "improvement",
+                    text: "SEO optimization untuk halaman Tafsir Maudhui dengan meta tags dinamis dan structured data"
+                },
+                {
+                    type: "security",
+                    text: "Enhanced data validation untuk migrasi database Asmaul Husna"
+                },
+                {
+                    type: "security",
+                    text: "Secure backup system untuk data Asmaul Husna dan Tafsir Maudhui"
+                }
+            ]
+        },
+        {
             version: "2.5.0",
             date: "1 Agustus 2025",
             type: "major",
@@ -568,7 +653,7 @@ function RiwayatVersiPage() {
         "name": "Riwayat Versi - IndoQuran",
         "description": "Catatan perubahan dan pembaruan versi platform Al-Quran digital IndoQuran dengan fitur Asmaul Husna dan PWA terbaru",
         "url": `${window.location.origin}/riwayat-versi`,
-        "dateModified": "2025-08-01",
+        "dateModified": "2025-08-02",
         "mainEntity": {
             "@type": "SoftwareApplication",
             "name": "IndoQuran",
@@ -590,8 +675,8 @@ function RiwayatVersiPage() {
         <>
             <SEOHead 
                 title="Riwayat Versi - IndoQuran"
-                description="Catatan lengkap perubahan dan pembaruan versi platform Al-Quran digital IndoQuran. Lihat perkembangan fitur statistik, Asmaul Husna, PWA, optimisasi mobile, dan peningkatan dari waktu ke waktu."
-                keywords="indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi, indoquran 2.5.0, statistik quran, dashboard analytics, asmaul husna, 99 nama allah, PWA, progressive web app"
+                description="Catatan lengkap perubahan dan pembaruan versi platform Al-Quran digital IndoQuran. Lihat perkembangan fitur migrasi database Asmaul Husna, Tafsir Maudhui, statistik, PWA, optimisasi mobile, dan peningkatan dari waktu ke waktu."
+                keywords="indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi, indoquran 2.6.0, migrasi database asmaul husna, tafsir maudhui, tafsir tematik, statistik quran, dashboard analytics, 99 nama allah, PWA, progressive web app"
                 canonicalUrl={`${window.location.origin}/riwayat-versi`}
             />
             <StructuredData data={structuredData} />
@@ -610,7 +695,7 @@ function RiwayatVersiPage() {
                         perbaikan dan fitur baru untuk memberikan pengalaman terbaik dalam membaca Al-Quran.
                     </p>
                     <div className="mt-4 text-sm text-gray-500">
-                        Terakhir diperbarui: 1 Agustus 2025
+                        Terakhir diperbarui: 2 Agustus 2025
                     </div>
                 </div>
 
