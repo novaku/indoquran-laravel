@@ -85,13 +85,22 @@ function TreeNode({ topic, index, isExpanded, onToggle, level = 0 }) {
                                 Ayat-ayat ({topic.verses.length})
                             </div>
                             <div className="pl-4 border-l-2 border-gray-200 space-y-1">
-                                {topic.verses.map((verse, verseIndex) => (
-                                    <VerseNode 
-                                        key={verseIndex}
-                                        verse={verse}
-                                        level={level + 1}
-                                    />
-                                ))}
+                                {topic.verses
+                                    .sort((a, b) => {
+                                        // Sort by surah number first, then by ayah number
+                                        if (a.surah !== b.surah) {
+                                            return a.surah - b.surah;
+                                        }
+                                        return a.ayah - b.ayah;
+                                    })
+                                    .map((verse, verseIndex) => (
+                                        <VerseNode 
+                                            key={verseIndex}
+                                            verse={verse}
+                                            level={level + 1}
+                                        />
+                                    ))
+                                }
                             </div>
                         </div>
                     )}
