@@ -493,4 +493,66 @@ class PrayerController extends Controller
             ]);
         }
     }
+
+    /**
+     * Get prayer images dynamically from public folder
+     */
+    public function getPrayerImages(): JsonResponse
+    {
+        try {
+            $prayerImagesPath = public_path('images/prayer');
+            
+            // Check if the directory exists
+            if (!is_dir($prayerImagesPath)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Prayer images directory not found',
+                    'data' => []
+                ]);
+            }
+
+            // Get all image files from the directory
+            $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+            $images = [];
+
+            $files = scandir($prayerImagesPath);
+            foreach ($files as $file) {
+                if ($file === '.' || $file === '..') {
+                    continue;
+                }
+
+                $filePath = $prayerImagesPath . '/' . $file;
+                if (is_file($filePath)) {
+                    $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                    if (in_array($extension, $imageExtensions)) {
+                        $images[] = [
+                            'filename' => $file,
+                            'url' => '/images/prayer/' . $file,
+                            'size' => filesize($filePath),
+                            'modified' => filemtime($filePath)
+                        ];
+                    }
+                }
+            }
+
+            // Sort by modification time (newest first) to prioritize recently added images
+            usort($images, function($a, $b) {
+                return $b['modified'] - $a['modified'];
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Prayer images retrieved successfully',
+                'data' => $images,
+                'count' => count($images)
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve prayer images: ' . $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
+    }
 }
