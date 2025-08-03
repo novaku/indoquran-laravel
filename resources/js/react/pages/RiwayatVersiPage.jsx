@@ -6,6 +6,91 @@ import StructuredData from '../components/StructuredData';
 function RiwayatVersiPage() {
     const versions = [
         {
+            version: "2.7.0",
+            date: "3 Agustus 2025",
+            type: "major",
+            title: "Komunitas Doa Bersama dengan Background Slideshow Interaktif",
+            description: "Update mayor dengan implementasi fitur Komunitas Doa Bersama yang memungkinkan umat Muslim untuk berbagi doa, saling memberikan amin, dan berkomentar. Dilengkapi dengan background slideshow gambar doa yang indah dan sistem autentikasi terintegrasi.",
+            changes: [
+                {
+                    type: "feature",
+                    text: "Halaman Komunitas Doa Bersama untuk berbagi dan berdoa bersama secara real-time"
+                },
+                {
+                    type: "feature",
+                    text: "Sistem posting doa dengan kategori dan fitur pencarian advanced"
+                },
+                {
+                    type: "feature",
+                    text: "Fitur 'Amin' untuk memberikan dukungan pada doa komunitas"
+                },
+                {
+                    type: "feature",
+                    text: "Sistem komentar untuk saling mendukung dan berbagi pengalaman spiritual"
+                },
+                {
+                    type: "feature",
+                    text: "Background slideshow dinamis dengan 11 gambar doa yang indah dan inspiratif"
+                },
+                {
+                    type: "feature",
+                    text: "Auto-advance slideshow dengan navigasi manual dan indikator visual"
+                },
+                {
+                    type: "feature",
+                    text: "API endpoint /api/prayer-images untuk manajemen gambar doa"
+                },
+                {
+                    type: "feature",
+                    text: "Sistem filter dan sorting untuk doa berdasarkan kategori, waktu, dan popularitas"
+                },
+                {
+                    type: "feature",
+                    text: "Pagination advanced dengan informasi detail dan navigasi smooth"
+                },
+                {
+                    type: "feature",
+                    text: "Integrasi autentikasi untuk posting doa dan interaksi komunitas"
+                },
+                {
+                    type: "improvement",
+                    text: "Glass morphism UI design dengan backdrop blur untuk estetika modern"
+                },
+                {
+                    type: "improvement",
+                    text: "Background slideshow dengan sistem layering dual-blur untuk readability optimal"
+                },
+                {
+                    type: "improvement",
+                    text: "Responsive design khusus untuk fitur komunitas di semua perangkat"
+                },
+                {
+                    type: "improvement",
+                    text: "Enhanced text shadows dan contrast untuk readability di atas background dinamis"
+                },
+                {
+                    type: "improvement",
+                    text: "Optimisasi z-index hierarchy untuk perfect layering antara background dan content"
+                },
+                {
+                    type: "improvement",
+                    text: "Toast notifications untuk feedback interaksi real-time"
+                },
+                {
+                    type: "improvement",
+                    text: "SEO optimization untuk halaman komunitas doa dengan meta tags dinamis"
+                },
+                {
+                    type: "security",
+                    text: "CSRF protection untuk semua form submission dalam komunitas doa"
+                },
+                {
+                    type: "security",
+                    text: "Input validation dan sanitization untuk konten doa yang aman"
+                }
+            ]
+        },
+        {
             version: "2.6.0",
             date: "2 Agustus 2025",
             type: "major",
@@ -653,7 +738,7 @@ function RiwayatVersiPage() {
         "name": "Riwayat Versi - IndoQuran",
         "description": "Catatan perubahan dan pembaruan versi platform Al-Quran digital IndoQuran dengan fitur Asmaul Husna dan PWA terbaru",
         "url": `${window.location.origin}/riwayat-versi`,
-        "dateModified": "2025-08-02",
+        "dateModified": "2025-08-03",
         "mainEntity": {
             "@type": "SoftwareApplication",
             "name": "IndoQuran",
@@ -695,7 +780,7 @@ function RiwayatVersiPage() {
                         perbaikan dan fitur baru untuk memberikan pengalaman terbaik dalam membaca Al-Quran.
                     </p>
                     <div className="mt-4 text-sm text-gray-500">
-                        Terakhir diperbarui: 2 Agustus 2025
+                        Terakhir diperbarui: 3 Agustus 2025
                     </div>
                 </div>
 
