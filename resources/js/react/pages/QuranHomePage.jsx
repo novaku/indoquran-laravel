@@ -81,11 +81,15 @@ function QuranHomePage() {
         setLoadingPopular(true);
         try {
             const token = authUtils.getAuthToken();
-            const response = await fetchWithAuth('/api/surahs/random?count=6', {
+            // Add cache-busting parameter to ensure fresh random results
+            const timestamp = Date.now();
+            const response = await fetchWithAuth(`/api/surahs/random?count=6&_t=${timestamp}`, {
                 headers: {
                     'Authorization': token ? `Bearer ${token}` : '',
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
                 }
             });
             

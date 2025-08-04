@@ -81,10 +81,18 @@ class QuranController extends Controller
         // Shuffle the final result
         shuffle($randomSurahs);
         
-        return response()->json([
+        // Create response with no-cache headers to ensure fresh random data
+        $response = response()->json([
             'status' => 'success',
             'data' => $randomSurahs
         ]);
+        
+        // Add headers to prevent caching of random results
+        $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        $response->headers->set('Pragma', 'no-cache');
+        $response->headers->set('Expires', '0');
+        
+        return $response;
     }
 
     /**
