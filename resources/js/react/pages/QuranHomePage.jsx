@@ -553,9 +553,9 @@ function QuranHomePage() {
 
             {/* Main Content */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Left Column - Main Content */}
-                    <div className="lg:col-span-2 space-y-12">
+                <div className="grid grid-cols-1 gap-8">
+                    {/* Main Content */}
+                    <div className="space-y-12">
                         {/* Continue Reading Section */}
                         {user && recentReading && (
                             <section className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
@@ -906,129 +906,6 @@ function QuranHomePage() {
                                 </Link>
                             </div>
                         </section>
-                    </div>
-
-                    {/* Right Column - Sidebar */}
-                    <div className="space-y-8">
-                        {/* Prayer Times Widget */}
-                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Waktu Shalat Hari Ini</h3>
-                            <PrayerTimesWidget />
-                        </div>
-
-                        {/* Random Asmaul Husna Widget */}
-                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-semibold text-gray-900">Asmaul Husna</h3>
-                                <button
-                                    onClick={handleRefreshAsmaulHusna}
-                                    disabled={loadingAsmaulHusna}
-                                    className="flex items-center space-x-1 px-2 py-1 text-xs text-green-600 hover:text-green-700 hover:bg-green-50 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                    title="Nama Allah lainnya"
-                                >
-                                    <ArrowPathIcon className={`w-3 h-3 ${loadingAsmaulHusna ? 'animate-spin' : ''}`} />
-                                    <span>Acak</span>
-                                </button>
-                            </div>
-                            
-                            {loadingAsmaulHusna ? (
-                                <div className="animate-pulse">
-                                    <div className="text-center mb-4">
-                                        <div className="h-8 bg-gray-200 rounded w-32 mx-auto mb-2"></div>
-                                        <div className="h-6 bg-gray-200 rounded w-24 mx-auto mb-1"></div>
-                                        <div className="h-4 bg-gray-200 rounded w-20 mx-auto"></div>
-                                    </div>
-                                    <div className="h-16 bg-gray-200 rounded"></div>
-                                </div>
-                            ) : randomAsmaulHusna ? (
-                                <div className="text-center">
-                                    <div className="mb-4">
-                                        <p className="text-5xl arabic-calligraphy-asmaul text-gray-900 mb-3 leading-relaxed" dir="rtl">
-                                            {randomAsmaulHusna.arabic}
-                                        </p>
-                                        <h4 className="text-lg font-semibold text-green-600 mb-1">
-                                            {randomAsmaulHusna.latin}
-                                        </h4>
-                                        <p className="text-sm font-medium text-gray-700">
-                                            {randomAsmaulHusna.meaning}
-                                        </p>
-                                    </div>
-                                    <p className="text-xs text-gray-600 leading-relaxed mb-4">
-                                        {randomAsmaulHusna.description}
-                                    </p>
-                                    <Link
-                                        to="/asmaul-husna"
-                                        className="inline-flex items-center space-x-1 text-xs text-green-600 hover:text-green-700 hover:underline"
-                                    >
-                                        <span>Lihat semua 99 nama</span>
-                                        <ChevronRightIcon className="w-3 h-3" />
-                                    </Link>
-                                </div>
-                            ) : null}
-                        </div>
-
-                        {/* Milestone Widget */}
-                        <MilestoneWidget />
-
-                        {/* Share Widget */}
-                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Bagikan</h3>
-                            <p className="text-gray-600 mb-4 text-sm">
-                                Ajak teman dan keluarga untuk membaca Al-Quran bersama
-                            </p>
-                            <button
-                                onClick={handleShareToWhatsApp}
-                                className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium"
-                            >
-                                <ShareIcon className="w-5 h-5" />
-                                <span>Bagikan ke WhatsApp</span>
-                            </button>
-                        </div>
-
-                        {/* Community Section */}
-                        {!user && (
-                            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-100">
-                                <div className="flex items-center mb-3">
-                                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                                        <UserGroupIcon className="w-6 h-6 text-green-600" />
-                                    </div>
-                                    <h3 className="text-lg font-semibold text-gray-900">Bergabunglah dengan Komunitas</h3>
-                                </div>
-                                <p className="text-gray-600 mb-4 text-sm">
-                                    Daftar sekarang untuk menyimpan progres bacaan, menandai ayat favorit, dan mengakses fitur personal lainnya.
-                                </p>
-                                <div className="space-y-3">
-                                    <Link
-                                        to="/daftar"
-                                        className="block w-full text-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold shadow-sm hover:shadow-md"
-                                    >
-                                        🎉 Daftar Gratis
-                                    </Link>
-                                    <Link
-                                        to="/masuk"
-                                        className="block w-full text-center px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors font-medium"
-                                    >
-                                        Sudah Punya Akun? Masuk
-                                    </Link>
-                                </div>
-                                <div className="mt-4 pt-4 border-t border-green-200">
-                                    <div className="flex items-center text-xs text-gray-500 space-x-4">
-                                        <div className="flex items-center">
-                                            <BookmarkIcon className="w-4 h-4 mr-1" />
-                                            <span>Bookmark</span>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <ChartBarIcon className="w-4 h-4 mr-1" />
-                                            <span>Progres</span>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <HeartIcon className="w-4 h-4 mr-1" />
-                                            <span>Personal</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>
