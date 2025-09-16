@@ -9,9 +9,8 @@
 #
 # This script only:
 # 1. Pulls latest code from git (including pre-built assets)
-# 2. Installs PHP dependencies
-# 3. Optimizes Laravel caches
-# 4. Verifies that vendor assets are present and protects them
+# 2. Optimizes Laravel caches
+# 3. Verifies that vendor assets are present and protects them
 
 # Enable strict error handling
 set -e
@@ -218,10 +217,6 @@ log_message "Starting deployment process..."
 # Pull the latest changes from the repository
 log_message "Pulling latest changes from git..."
 git pull origin main || { log_error "Failed to pull from git"; exit 1; }
-
-# Install PHP dependencies
-log_message "Installing PHP dependencies..."
-composer install --no-dev --optimize-autoloader || { log_error "Failed to install PHP dependencies"; exit 1; }
 
 # Generate application key if not exists
 log_message "Ensuring application key exists..."

@@ -1,11 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
     BookOpenIcon, 
     MagnifyingGlassIcon,
-    CalendarIcon,
-    ClockIcon,
-    MapPinIcon,
     AcademicCapIcon,
     UserGroupIcon,
     HeartIcon,
@@ -22,12 +19,9 @@ import { useAuth } from '../hooks/useAuth.jsx';
 import SearchField from '../components/SearchField';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
-import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import QuranBookAnimation from '../components/QuranBookAnimation';
 import StatsWidget from '../components/StatsWidget';
 import HeroStatsSection from '../components/HeroStatsSection';
-import MilestoneWidget from '../components/MilestoneWidget';
-import AchievementSystem from '../components/AchievementSystem';
 import StatsTickerBanner from '../components/StatsTickerBanner';
 import { fetchWithAuth } from '../utils/apiUtils';
 import { getReadingProgress } from '../services/ReadingProgressService';
@@ -389,9 +383,6 @@ function QuranHomePage() {
                 title="Baca, Dengarkan, dan Pelajari Al-Quran Online - IndoQuran"
                 description="Baca Al-Quran dengan terjemahan, dengarkan tilawah indah, dan perdalam pemahaman dengan alat pembelajaran yang komprehensif."
             />
-
-            {/* Achievement System */}
-            <AchievementSystem />
 
             {/* Stats Ticker Banner */}
             <StatsTickerBanner />
