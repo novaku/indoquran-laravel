@@ -37,6 +37,40 @@ log_warning() {
     echo -e "${YELLOW}[$(date '+%Y-%m-%d %H:%M:%S')] WARNING:${NC} $1"
 }
 
+# Emergency cache clear function for ParseError fix
+emergency_cache_clear() {
+    log_message "🚨 EMERGENCY: Clearing all Laravel caches to fix ParseError..."
+    
+    # Clear view cache (most critical for ParseError)
+    log_message "Clearing view cache..."
+    php artisan view:clear 2>/dev/null || log_warning "⚠ Failed to clear view cache"
+    
+    # Clear application cache
+    log_message "Clearing application cache..."
+    php artisan cache:clear 2>/dev/null || log_warning "⚠ Failed to clear application cache"
+    
+    # Clear config cache
+    log_message "Clearing config cache..."
+    php artisan config:clear 2>/dev/null || log_warning "⚠ Failed to clear config cache"
+    
+    # Clear route cache
+    log_message "Clearing route cache..."
+    php artisan route:clear 2>/dev/null || log_warning "⚠ Failed to clear route cache"
+    
+    # Clear compiled views manually
+    log_message "Clearing compiled view files..."
+    if [ -d "storage/framework/views" ]; then
+        find storage/framework/views -name "*.php" -delete 2>/dev/null || log_warning "⚠ Some compiled views could not be deleted"
+        log_message "✓ Compiled view files cleared"
+    fi
+    
+    # Rebuild essential caches
+    log_message "Rebuilding essential caches..."
+    php artisan config:cache 2>/dev/null || log_warning "⚠ Failed to cache config"
+    
+    log_message "🎉 Emergency cache clear completed! ParseError should be resolved."
+}
+
 # Check if we're in production environment
 if grep -q "APP_ENV=production" .env; then
     log_message "Verified production environment"
@@ -48,6 +82,15 @@ else
         log_message "Deployment aborted"
         exit 1
     fi
+fi
+
+# Emergency check for ParseError - run cache clear if needed
+log_message "Checking for ParseError conditions..."
+if php artisan route:list >/dev/null 2>&1; then
+    log_message "✓ Laravel is running normally"
+else
+    log_warning "⚠ Laravel appears to have issues - running emergency cache clear"
+    emergency_cache_clear
 fi
 
 # Ensure we don't accidentally run build scripts that would delete vendor files
