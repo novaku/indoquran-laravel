@@ -133,13 +133,13 @@ class PerformanceOptimizationService
      */
     public static function getPerformanceMonitoringScript()
     {
-        return "
+        return '
         <script>
         // Web Vitals monitoring
         (function() {
             // Monitor Core Web Vitals
             function getCLS(onPerfEntry) {
-                if (onPerfEntry && onPerfEntry instanceof Function && 'PerformanceObserver' in window) {
+                if (onPerfEntry && onPerfEntry instanceof Function && "PerformanceObserver" in window) {
                     let clsValue = 0;
                     let clsEntries = [];
                     let sessionValue = 0;
@@ -162,44 +162,44 @@ class PerformanceOptimizationService
                                 if (sessionValue > clsValue) {
                                     clsValue = sessionValue;
                                     clsEntries = [...sessionEntries];
-                                    onPerfEntry({ name: 'CLS', value: clsValue, entries: clsEntries });
+                                    onPerfEntry({ name: "CLS", value: clsValue, entries: clsEntries });
                                 }
                             }
                         }
-                    }).observe({ type: 'layout-shift', buffered: true });
+                    }).observe({ type: "layout-shift", buffered: true });
                 }
             }
             
             function getFCP(onPerfEntry) {
-                if (onPerfEntry && onPerfEntry instanceof Function && 'PerformanceObserver' in window) {
+                if (onPerfEntry && onPerfEntry instanceof Function && "PerformanceObserver" in window) {
                     new PerformanceObserver((entryList) => {
                         for (const entry of entryList.getEntries()) {
-                            if (entry.name === 'first-contentful-paint') {
-                                onPerfEntry({ name: 'FCP', value: entry.startTime, entry });
+                            if (entry.name === "first-contentful-paint") {
+                                onPerfEntry({ name: "FCP", value: entry.startTime, entry });
                             }
                         }
-                    }).observe({ type: 'paint', buffered: true });
+                    }).observe({ type: "paint", buffered: true });
                 }
             }
             
             function getLCP(onPerfEntry) {
-                if (onPerfEntry && onPerfEntry instanceof Function && 'PerformanceObserver' in window) {
+                if (onPerfEntry && onPerfEntry instanceof Function && "PerformanceObserver" in window) {
                     new PerformanceObserver((entryList) => {
                         const entries = entryList.getEntries();
                         const lastEntry = entries[entries.length - 1];
-                        onPerfEntry({ name: 'LCP', value: lastEntry.startTime, entry: lastEntry });
-                    }).observe({ type: 'largest-contentful-paint', buffered: true });
+                        onPerfEntry({ name: "LCP", value: lastEntry.startTime, entry: lastEntry });
+                    }).observe({ type: "largest-contentful-paint", buffered: true });
                 }
             }
             
             // Log performance metrics
             const logMetric = (metric) => {
-                console.log(\`Performance metric - \${metric.name}: \${metric.value}\`);
+                console.log(`Performance metric - ${metric.name}: ${metric.value}`);
                 
                 // Send to analytics if needed
                 if (window.gtag) {
-                    gtag('event', metric.name, {
-                        event_category: 'Web Vitals',
+                    gtag("event", metric.name, {
+                        event_category: "Web Vitals",
                         value: Math.round(metric.value),
                         non_interaction: true,
                     });
@@ -212,12 +212,12 @@ class PerformanceOptimizationService
             getLCP(logMetric);
             
             // Monitor page load
-            window.addEventListener('load', () => {
+            window.addEventListener("load", () => {
                 const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
-                console.log(\`Page load time: \${loadTime}ms\`);
+                console.log(`Page load time: ${loadTime}ms`);
             });
         })();
-        </script>";
+        </script>';
     }
 
     /**
