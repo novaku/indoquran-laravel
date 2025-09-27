@@ -504,9 +504,9 @@
             will-change: transform;
         }
     </style>
-    
+
     @if(app()->environment('local'))
-    <!-- Development helpers: Hot reload is handled by Vite in the React components -->
+        <!-- Development helpers: Hot reload is handled by Vite in the React components -->
     @endif
 </body>
 </html>
