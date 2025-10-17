@@ -148,38 +148,62 @@ function SEOHead({
 
 // Helper functions for common page types
 export const getHomeSEO = () => ({
-  title: 'IndoQuran - Al-Quran Digital Indonesia | Baca & Dengar Al-Quran Online',
-  description: 'Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia, fitur bookmark, pencarian ayat, audio murottal berkualitas tinggi, dan tafsir lengkap.',
-  keywords: 'al quran indonesia, quran online, al quran digital, baca quran, terjemahan quran, murottal, quran indonesia, ayat al quran, surah quran, indoquran, quran digital terlengkap, quran dengan tajwid',
+  title: 'Al-Quran Online Indonesia - Baca, Dengar & Terjemahan Gratis | IndoQuran',
+  description: '✅ Al-Quran Digital GRATIS ✅ Teks Arab & Terjemahan ✅ Audio Murottal HD ✅ Tafsir Lengkap ✅ Bookmark Ayat. Platform Al-Quran online terpercaya untuk belajar Islam. 114 Surah lengkap dengan fitur pencarian ayat.',
+  keywords: 'al quran online, quran online, al quran indonesia, al quran digital, baca quran online, terjemahan quran indonesia, murottal quran, quran indonesia, ayat al quran, surah quran, indoquran, quran digital gratis, alquran online, quran digital terlengkap',
   canonicalUrl: 'https://indoquran.web.id',
   structuredDataType: 'website',
   pageType: 'home',
   additionalMeta: {
     'application-name': 'IndoQuran',
-    'revisit-after': '7 days'
+    'revisit-after': '3 days'
   }
 });
 
-export const getSurahSEO = (surah) => ({
-  title: `Surah ${surah.name_latin} (${surah.name_arabic}) - Terjemahan & Audio | IndoQuran`,
-  description: `Baca dan dengarkan Surah ${surah.name_latin} (${surah.name_arabic}) lengkap dengan terjemahan bahasa Indonesia dan tafsir. Surah ke-${surah.number} dalam Al-Quran yang terdiri dari ${surah.total_ayahs} ayat. Audio murottal berkualitas tinggi tersedia dengan berbagai qari.`,
-  keywords: `Surah ${surah.name_latin}, ${surah.name_arabic}, al quran surah ${surah.number}, terjemahan surah ${surah.name_latin}, murottal ${surah.name_latin}, quran indonesia, tafsir surah ${surah.name_latin}, ${surah.revelation_place || 'Mekah/Madinah'}`,
-  canonicalUrl: `https://indoquran.web.id/surah/${surah.number}`,
-  ogType: 'article',
-  structuredDataType: 'surah',
-  structuredData: {
-    ...surah,
-    dateModified: new Date().toISOString(),
-    datePublished: "2025-06-15T00:00:00Z"
-  },
-  pageType: 'surah',
-  additionalMeta: {
-    'article:published_time': '2025-06-15T00:00:00Z',
-    'article:modified_time': new Date().toISOString(),
-    'article:section': 'Surah',
-    'article:tag': `Surah ${surah.name_latin}, Al-Quran, terjemahan`
+export const getSurahSEO = (surah) => {
+  // Generate optimized title based on popular search patterns
+  const surahVariations = surah.name_latin.toLowerCase().replace(/[- ]/g, '');
+  const isSurahAlaq = surah.number === 96;
+  const isSurahBaqarah = surah.number === 2;
+  const isSurahYasin = surah.number === 36;
+  
+  let optimizedTitle, optimizedDescription;
+  
+  if (isSurahAlaq) {
+    optimizedTitle = `Surat Al Alaq Arab, Latin & Arti - Lengkap ${surah.total_ayahs} Ayat | IndoQuran`;
+    optimizedDescription = `📖 Surat Al Alaq Lengkap ${surah.total_ayahs} Ayat ✅ Teks Arab & Latin ✅ Arti Per Ayat ✅ Audio MP3 ✅ Tafsir. Surah ke-${surah.number}, diturunkan di ${surah.revelation_place || 'Mekah'}. Surah pertama turun (wahyu pertama). Baca online GRATIS!`;
+  } else if (isSurahBaqarah) {
+    optimizedTitle = `Surat Al Baqarah - ${surah.total_ayahs} Ayat Teks Arab & Terjemahan | IndoQuran`;
+    optimizedDescription = `📖 Surat Al Baqarah Lengkap ${surah.total_ayahs} Ayat (Surah Terpanjang) ✅ Teks Arab ✅ Terjemahan Indonesia ✅ Audio Murottal ✅ Tafsir. Surah ke-${surah.number} Al-Quran. Baca & dengar online GRATIS!`;
+  } else if (isSurahYasin) {
+    optimizedTitle = `Surat Yasin Arab Latin & Artinya - ${surah.total_ayahs} Ayat Lengkap | IndoQuran`;
+    optimizedDescription = `📖 Surat Yasin Lengkap ${surah.total_ayahs} Ayat ✅ Arab & Latin ✅ Terjemahan Indonesia ✅ Audio Murottal ✅ Tafsir. Jantung Al-Quran, dibaca untuk orang yang meninggal. Baca online GRATIS!`;
+  } else {
+    optimizedTitle = `Surat ${surah.name_latin} Arab Latin & Arti - ${surah.total_ayahs} Ayat | IndoQuran`;
+    optimizedDescription = `📖 Surat ${surah.name_latin} (${surah.name_arabic}) Lengkap ${surah.total_ayahs} Ayat ✅ Teks Arab & Latin ✅ Terjemahan Indonesia ✅ Audio Murottal ✅ Tafsir. Surah ke-${surah.number}, ${surah.revelation_place || 'Mekah/Madinah'}. Baca online GRATIS!`;
   }
-});
+  
+  return {
+    title: optimizedTitle,
+    description: optimizedDescription,
+    keywords: `surat ${surah.name_latin.toLowerCase()}, surah ${surah.name_latin.toLowerCase()}, ${surah.name_latin.toLowerCase()} arab latin, ${surah.name_latin.toLowerCase()} artinya, ${surah.name_latin.toLowerCase()} terjemahan, ${surah.name_latin.toLowerCase()} audio, ${surah.name_arabic}, al quran surah ${surah.number}, quran surat ${surah.name_latin.toLowerCase()}, tafsir ${surah.name_latin.toLowerCase()}, ${surah.revelation_place || 'makkiyah'}`,
+    canonicalUrl: `https://indoquran.web.id/surah/${surah.number}`,
+    ogType: 'article',
+    structuredDataType: 'surah',
+    structuredData: {
+      ...surah,
+      dateModified: new Date().toISOString(),
+      datePublished: "2025-06-15T00:00:00Z"
+    },
+    pageType: 'surah',
+    additionalMeta: {
+      'article:published_time': '2025-06-15T00:00:00Z',
+      'article:modified_time': new Date().toISOString(),
+      'article:section': 'Surah',
+      'article:tag': `Surat ${surah.name_latin}, Al-Quran, terjemahan, ${surah.total_ayahs} ayat`
+    }
+  };
+};
 
 export const getAyahSEO = (surah, ayahNumber, ayahText, translation) => ({
   title: `${surah.name_latin} Ayat ${ayahNumber} - Terjemahan dan Audio - IndoQuran`,

@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\SurahController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\QuranController;
@@ -30,11 +31,10 @@ Route::get('/geocode/reverse', [\App\Http\Controllers\Api\GeocodingController::c
 // Security endpoints
 Route::post('/csp-violation-report', [SecurityController::class, 'cspViolationReport']);
 Route::get('/security/stats', [SecurityController::class, 'getSecurityStats']);
-
 // Return authenticated user or null - simplified without session checks
 Route::get('/user', function (Request $request) {
     // First attempt with regular auth check
-    $user = auth()->user();
+    $user = Auth::user();
     
     // If not found, try with token-based auth (fallback)
     if (!$user && $request->bearerToken()) {
@@ -169,6 +169,14 @@ Route::get('/prayer-times', [PrayerController::class, 'getPrayerTimes']);
 
 // Statistics routes
 Route::get('/stats/public', [\App\Http\Controllers\Api\StatsController::class, 'getPublicStats']);
+
+// SEO API routes
+Route::prefix('seo')->group(function() {
+    Route::get('/popular-surahs', [\App\Http\Controllers\Api\SeoApiController::class, 'getPopularSurahs']);
+    Route::get('/surah-faq/{number}', [\App\Http\Controllers\Api\SeoApiController::class, 'getSurahFaq']);
+    Route::get('/page-seo', [\App\Http\Controllers\Api\SeoApiController::class, 'getPageSeo']);
+    Route::get('/search-trends', [\App\Http\Controllers\Api\SeoApiController::class, 'getSearchTrends']);
+});
 
 // Admin routes
 Route::prefix('admin')->group(function() {

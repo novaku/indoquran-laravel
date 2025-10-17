@@ -29,11 +29,11 @@ class SEOController extends Controller
 
         // Handle different routes
         if ($path === '/' || $path === '') {
-            // Homepage SEO
+            // Homepage SEO - OPTIMIZED for CTR (Based on Google Search Console data Oct 2025)
             $seoData = array_merge($seoData, [
-                'metaTitle' => 'IndoQuran - Al-Quran Digital Indonesia',
-                'metaDescription' => 'Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia, fitur bookmark, pencarian ayat, dan audio murottal berkualitas tinggi.',
-                'metaKeywords' => 'al quran indonesia, quran online, al quran digital, baca quran, terjemahan quran, murottal, quran indonesia, ayat al quran, surah quran, indoquran',
+                'metaTitle' => 'Al-Quran Online Indonesia - Baca, Dengar & Terjemahan Gratis | IndoQuran',
+                'metaDescription' => '✅ Al-Quran Digital GRATIS ✅ Teks Arab & Terjemahan ✅ Audio Murottal HD ✅ Tafsir Lengkap ✅ Bookmark Ayat. Platform Al-Quran online terpercaya untuk belajar Islam. 114 Surah lengkap dengan fitur pencarian ayat.',
+                'metaKeywords' => 'al quran online, quran online, al quran indonesia, al quran digital, baca quran online, terjemahan quran indonesia, murottal quran, quran indonesia, ayat al quran, surah quran, indoquran, alquran online, quran digital gratis, quran digital terlengkap',
                 'canonicalUrl' => url('/')
             ]);
         } 
@@ -56,11 +56,11 @@ class SEOController extends Controller
                             'ogType' => 'article'
                         ]);
                     } else {
-                        // Surah page SEO
+                        // Surah page SEO - OPTIMIZED using Surah model methods
                         $seoData = array_merge($seoData, [
-                            'metaTitle' => "Surah {$surah->name_latin} ({$surah->name_arabic}) - Terjemahan Indonesia - IndoQuran",
-                            'metaDescription' => "Baca dan dengarkan Surah {$surah->name_latin} lengkap dengan terjemahan bahasa Indonesia. Surah ke-{$surah->number} dalam Al-Quran yang terdiri dari {$surah->total_ayahs} ayat. Audio murottal berkualitas tinggi tersedia.",
-                            'metaKeywords' => "Surah {$surah->name_latin}, {$surah->name_arabic}, al quran surah {$surah->number}, terjemahan surah {$surah->name_latin}, murottal {$surah->name_latin}, quran indonesia",
+                            'metaTitle' => $surah->getSeoTitle(),
+                            'metaDescription' => $surah->getSeoDescription(),
+                            'metaKeywords' => $surah->getSeoKeywords(),
                             'canonicalUrl' => url("/surah/{$surahNumber}"),
                             'ogType' => 'article'
                         ]);
@@ -69,20 +69,20 @@ class SEOController extends Controller
             }
         }
         elseif (isset($segments[0]) && $segments[0] === 'cari') {
-            // Search page SEO
+            // Search page SEO - OPTIMIZED
             $query = $request->get('q', '');
             if ($query) {
                 $seoData = array_merge($seoData, [
-                    'metaTitle' => "Hasil Pencarian \"{$query}\" - Al-Quran Digital - IndoQuran",
-                    'metaDescription' => "Hasil pencarian Al-Quran untuk \"{$query}\". Temukan ayat dan surah yang sesuai dengan pencarian Anda dalam Al-Quran dengan terjemahan bahasa Indonesia.",
-                    'metaKeywords' => "pencarian quran, cari ayat, {$query}, al quran indonesia, pencarian al quran, search al quran",
+                    'metaTitle' => "Hasil Pencarian \"{$query}\" - Al-Quran Digital | IndoQuran",
+                    'metaDescription' => "🔍 Hasil pencarian Al-Quran untuk \"{$query}\". Temukan ayat dan surah yang sesuai dengan mudah. Platform pencarian Al-Quran terlengkap dengan terjemahan Indonesia.",
+                    'metaKeywords' => "pencarian quran, cari ayat, {$query}, al quran indonesia, pencarian al quran, search quran, cari al quran",
                     'canonicalUrl' => url("/cari?q=" . urlencode($query))
                 ]);
             } else {
                 $seoData = array_merge($seoData, [
-                    'metaTitle' => 'Pencarian Al-Quran - Cari Ayat dalam Al-Quran - IndoQuran',
-                    'metaDescription' => 'Cari ayat dalam Al-Quran berdasarkan terjemahan Bahasa Indonesia dengan mudah dan cepat. Fitur pencarian canggih untuk menemukan ayat yang Anda butuhkan.',
-                    'metaKeywords' => 'cari ayat quran, pencarian al quran, search al quran, al quran digital, cari terjemahan quran',
+                    'metaTitle' => 'Pencarian Al-Quran - Cari Ayat & Terjemahan | IndoQuran',
+                    'metaDescription' => '🔍 Cari ayat dalam Al-Quran dengan mudah dan cepat ✅ Pencarian Teks Arab ✅ Pencarian Terjemahan Indonesia ✅ Hasil Akurat. Temukan ayat yang Anda butuhkan sekarang!',
+                    'metaKeywords' => 'cari ayat quran, pencarian al quran, search quran, al quran digital, cari terjemahan quran, pencarian ayat',
                     'canonicalUrl' => url('/cari')
                 ]);
             }
@@ -189,6 +189,24 @@ class SEOController extends Controller
                 'metaDescription' => 'Bergabunglah dengan komunitas doa Muslim di IndoQuran. Buat dan bagikan doa, beri dukungan kepada sesama Muslim, serta temukan kekuatan dalam doa bersama.',
                 'metaKeywords' => 'doa bersama, komunitas doa, doa muslim, doa islam, permintaan doa, dukungan doa, indoquran doa',
                 'canonicalUrl' => url('/doa-bersama')
+            ]);
+        }
+        elseif (isset($segments[0]) && $segments[0] === 'asmaul-husna') {
+            // Asmaul Husna page SEO - NEW (Based on search queries)
+            $seoData = array_merge($seoData, [
+                'metaTitle' => '99 Asmaul Husna - Nama-nama Indah Allah SWT Lengkap | IndoQuran',
+                'metaDescription' => '📿 99 Asmaul Husna Lengkap ✅ Teks Arab & Latin ✅ Arti Indonesia ✅ Audio MP3 ✅ Penjelasan Makna. Pelajari nama-nama indah Allah SWT dengan dzikir dan doa. Baca online GRATIS!',
+                'metaKeywords' => '99 asmaul husna, asmaul husna lengkap, nama allah swt, asmaul husna arab latin, asmaul husna dan artinya, dzikir asmaul husna, audio asmaul husna, nama indah allah, asma allah husna',
+                'canonicalUrl' => url('/asmaul-husna')
+            ]);
+        }
+        elseif (isset($segments[0]) && $segments[0] === 'member') {
+            // Member benefits page SEO - NEW
+            $seoData = array_merge($seoData, [
+                'metaTitle' => 'Keuntungan Member IndoQuran - Fitur Premium Gratis | IndoQuran',
+                'metaDescription' => '🌟 Daftar GRATIS & Nikmati Fitur Premium ✅ Simpan Bookmark Unlimited ✅ Sinkronisasi Multi-Device ✅ Catatan Pribadi ✅ Riwayat Bacaan. Tingkatkan pengalaman belajar Al-Quran Anda!',
+                'metaKeywords' => 'member indoquran, fitur premium, bookmark quran, sinkronisasi bacaan, catatan quran, daftar gratis',
+                'canonicalUrl' => url('/member')
             ]);
         }
         elseif (isset($segments[0]) && $segments[0] === 'kebijakan') {

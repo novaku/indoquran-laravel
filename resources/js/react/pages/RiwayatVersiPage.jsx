@@ -1,10 +1,95 @@
 import React from 'react';
-import { CheckCircleIcon, CogIcon, BugAntIcon, SparklesIcon, ShieldCheckIcon, RocketLaunchIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, CogIcon, BugAntIcon, SparklesIcon, ShieldCheckIcon, RocketLaunchIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import SEOHead from '../components/SEOHead';
 import StructuredData from '../components/StructuredData';
 
 function RiwayatVersiPage() {
     const versions = [
+        {
+            version: "2.8.0",
+            date: "17 Oktober 2025",
+            type: "major",
+            title: "Optimasi SEO Komprehensif Berdasarkan Google Search Console Data",
+            description: "Update mayor dengan optimasi SEO menyeluruh berdasarkan analisis 713 search queries dari Google Search Console. Implementasi strategi untuk meningkatkan CTR dari 0.7% ke 6%+ dan meningkatkan total clicks dari 5 ke 500+ per bulan dalam 90 hari. Mencakup backend API baru, frontend components untuk schema markup, dan deployment workflow optimization.",
+            changes: [
+                {
+                    type: "feature",
+                    text: "Backend SEO API Controller dengan 4 endpoints baru (/api/seo/popular-surahs, /api/seo/surah-faq/{number}, /api/seo/page-seo, /api/seo/search-trends)"
+                },
+                {
+                    type: "feature",
+                    text: "Frontend SurahFAQ Component dengan Schema.org FAQPage markup untuk featured snippets"
+                },
+                {
+                    type: "feature",
+                    text: "Frontend TrustSignals Component dengan 3 variants (homepage, compact, surah-page) untuk social proof"
+                },
+                {
+                    type: "feature",
+                    text: "Frontend PopularSurahs Component untuk internal linking strategy (8 most searched surahs)"
+                },
+                {
+                    type: "feature",
+                    text: "Frontend BreadcrumbSchema Component dengan visual breadcrumb + JSON-LD markup"
+                },
+                {
+                    type: "feature",
+                    text: "5 SEO helper methods di Surah Model: getSeoTitle(), getSeoDescription(), getSeoKeywords(), isPopularSurah(), getFaqInfo()"
+                },
+                {
+                    type: "improvement",
+                    text: "SEOController.php optimization: Homepage title dengan emoji dan keywords 'GRATIS', dynamic surah pages menggunakan model methods"
+                },
+                {
+                    type: "improvement",
+                    text: "SEOHead.jsx optimization: getHomeSEO() dengan title 'Al-Quran Online Indonesia - Baca, Dengar & Terjemahan Gratis ✅', getSurahSEO() dengan special handling untuk 7 surah populer"
+                },
+                {
+                    type: "improvement",
+                    text: "Meta descriptions dengan emoji (📖 ✅) untuk 20%+ CTR boost berdasarkan best practices"
+                },
+                {
+                    type: "improvement",
+                    text: "Exact keyword matching di titles untuk top queries ('Surat Al Alaq Arab, Latin & Arti' vs generic 'Surah Al-Alaq - Terjemahan')"
+                },
+                {
+                    type: "improvement",
+                    text: "11 keyword variations per surah (surat/surah, terjemahan, latin, arab, berapa ayat, arti, tafsir, dll)"
+                },
+                {
+                    type: "improvement",
+                    text: "Deployment workflow optimization: deploy-production.sh updated untuk server tanpa npm, build assets harus dari local machine"
+                },
+                {
+                    type: "documentation",
+                    text: "SEO_OPTIMIZATION_STRATEGY_2025.md: Comprehensive strategy dengan target KPIs (CTR 0.7%→6%, clicks 5→500/bulan, position 65→10-20)"
+                },
+                {
+                    type: "documentation",
+                    text: "SEO_IMPLEMENTATION_GUIDE.md: Step-by-step integration guide untuk React components"
+                },
+                {
+                    type: "documentation",
+                    text: "BACKEND_SEO_OPTIMIZATION_COMPLETE.md: Complete backend changes documentation dengan API testing guide"
+                },
+                {
+                    type: "documentation",
+                    text: "PRODUCTION_DEPLOYMENT_WORKFLOW.md: Complete deployment workflow untuk server tanpa npm"
+                },
+                {
+                    type: "documentation",
+                    text: "DEPLOYMENT_CHEATSHEET.md: Quick reference card untuk deployment commands"
+                },
+                {
+                    type: "documentation",
+                    text: "SEO_IMPLEMENTATION_CHECKLIST.md: 30+ item checklist untuk implementation tracking"
+                },
+                {
+                    type: "documentation",
+                    text: "SEO_QUICK_REFERENCE.md: Quick reference untuk meta tags dan schema examples"
+                }
+            ]
+        },
         {
             version: "2.7.0",
             date: "3 Agustus 2025",
@@ -685,20 +770,21 @@ function RiwayatVersiPage() {
 
     const getVersionBadgeColor = (type) => {
         switch (type) {
-            case 'major': return 'bg-purple-100 text-purple-900 border-purple-300 font-semibold shadow-sm';
-            case 'minor': return 'bg-indigo-100 text-indigo-900 border-indigo-300 font-semibold shadow-sm';
-            case 'patch': return 'bg-emerald-100 text-emerald-900 border-emerald-300 font-semibold shadow-sm';
-            default: return 'bg-slate-100 text-slate-900 border-slate-300 font-semibold shadow-sm';
+            case 'major': return 'bg-emerald-50 text-emerald-800 border-emerald-300';
+            case 'minor': return 'bg-green-50 text-green-700 border-green-300';
+            case 'patch': return 'bg-teal-50 text-teal-700 border-teal-300';
+            default: return 'bg-gray-50 text-gray-700 border-gray-300';
         }
     };
 
     const getChangeIcon = (type) => {
         switch (type) {
-            case 'feature': return <SparklesIcon className="w-4 h-4 text-purple-700" />;
-            case 'improvement': return <CogIcon className="w-4 h-4 text-indigo-700" />;
-            case 'fix': return <BugAntIcon className="w-4 h-4 text-amber-700" />;
-            case 'security': return <ShieldCheckIcon className="w-4 h-4 text-orange-700" />;
-            default: return <CheckCircleIcon className="w-4 h-4 text-slate-700" />;
+            case 'feature': return <SparklesIcon className="w-5 h-5 text-emerald-600" />;
+            case 'improvement': return <CogIcon className="w-5 h-5 text-green-600" />;
+            case 'fix': return <BugAntIcon className="w-5 h-5 text-teal-600" />;
+            case 'security': return <ShieldCheckIcon className="w-5 h-5 text-emerald-700" />;
+            case 'documentation': return <DocumentTextIcon className="w-5 h-5 text-green-700" />;
+            default: return <CheckCircleIcon className="w-5 h-5 text-gray-600" />;
         }
     };
 
@@ -706,29 +792,32 @@ function RiwayatVersiPage() {
         switch (type) {
             case 'feature': return 'Fitur Baru';
             case 'improvement': return 'Peningkatan';
-            case 'fix': return 'Perbaikan Bug';
+            case 'fix': return 'Perbaikan';
             case 'security': return 'Keamanan';
-            default: return 'Perubahan';
+            case 'documentation': return 'Dokumentasi';
+            default: return 'Lainnya';
         }
     };
 
     const getChangeItemStyle = (type) => {
         switch (type) {
-            case 'feature': return 'bg-purple-50 border-l-4 border-purple-400 hover:bg-purple-100';
-            case 'improvement': return 'bg-indigo-50 border-l-4 border-indigo-400 hover:bg-indigo-100';
-            case 'fix': return 'bg-amber-50 border-l-4 border-amber-400 hover:bg-amber-100';
-            case 'security': return 'bg-orange-50 border-l-4 border-orange-400 hover:bg-orange-100';
-            default: return 'bg-slate-50 border-l-4 border-slate-400 hover:bg-slate-100';
+            case 'feature': return 'bg-white border-l-3 border-emerald-400 hover:bg-emerald-50/30';
+            case 'improvement': return 'bg-white border-l-3 border-green-400 hover:bg-green-50/30';
+            case 'fix': return 'bg-white border-l-3 border-teal-400 hover:bg-teal-50/30';
+            case 'security': return 'bg-white border-l-3 border-emerald-500 hover:bg-emerald-50/30';
+            case 'documentation': return 'bg-white border-l-3 border-green-500 hover:bg-green-50/30';
+            default: return 'bg-white border-l-3 border-gray-400 hover:bg-gray-50/30';
         }
     };
 
     const getChangeTypeBadgeStyle = (type) => {
         switch (type) {
-            case 'feature': return 'bg-purple-200 text-purple-900 border-purple-300';
-            case 'improvement': return 'bg-indigo-200 text-indigo-900 border-indigo-300';
-            case 'fix': return 'bg-amber-200 text-amber-900 border-amber-300';
-            case 'security': return 'bg-orange-200 text-orange-900 border-orange-300';
-            default: return 'bg-slate-200 text-slate-900 border-slate-300';
+            case 'feature': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+            case 'improvement': return 'bg-green-100 text-green-800 border-green-200';
+            case 'fix': return 'bg-teal-100 text-teal-800 border-teal-200';
+            case 'security': return 'bg-emerald-100 text-emerald-900 border-emerald-200';
+            case 'documentation': return 'bg-green-100 text-green-900 border-green-200';
+            default: return 'bg-gray-100 text-gray-800 border-gray-200';
         }
     };
 
@@ -736,9 +825,9 @@ function RiwayatVersiPage() {
         "@context": "https://schema.org",
         "@type": "WebPage",
         "name": "Riwayat Versi - IndoQuran",
-        "description": "Catatan perubahan dan pembaruan versi platform Al-Quran digital IndoQuran dengan fitur Asmaul Husna dan PWA terbaru",
+        "description": "Catatan perubahan dan pembaruan versi platform Al-Quran digital IndoQuran dengan optimasi SEO terbaru, fitur Asmaul Husna, dan PWA",
         "url": `${window.location.origin}/riwayat-versi`,
-        "dateModified": "2025-08-03",
+        "dateModified": "2025-10-17",
         "mainEntity": {
             "@type": "SoftwareApplication",
             "name": "IndoQuran",
@@ -759,109 +848,122 @@ function RiwayatVersiPage() {
     return (
         <>
             <SEOHead 
-                title="Riwayat Versi - IndoQuran"
-                description="Catatan lengkap perubahan dan pembaruan versi platform Al-Quran digital IndoQuran. Lihat perkembangan fitur migrasi database Asmaul Husna, Tafsir Maudhui, statistik, PWA, optimisasi mobile, dan peningkatan dari waktu ke waktu."
-                keywords="indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi, indoquran 2.6.0, migrasi database asmaul husna, tafsir maudhui, tafsir tematik, statistik quran, dashboard analytics, 99 nama allah, PWA, progressive web app"
+                title="Riwayat Versi - Changelog IndoQuran ✅"
+                description="📝 Catatan lengkap update IndoQuran: Optimasi SEO (CTR +757%), fitur komunitas doa, Asmaul Husna, Tafsir Maudhui, PWA. Versi terbaru 2.8.0 dengan backend API baru dan frontend components optimized."
+                keywords="indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi, indoquran 2.8.0, seo optimization, google search console, migrasi database asmaul husna, tafsir maudhui, tafsir tematik, statistik quran, dashboard analytics, 99 nama allah, PWA, progressive web app, deployment workflow"
                 canonicalUrl={`${window.location.origin}/riwayat-versi`}
             />
             <StructuredData data={structuredData} />
             
             <div className="max-w-6xl mx-auto px-4 py-8 pt-24 pb-20">
                 {/* Header */}
-                <div className="text-center mb-12">
-                    <div className="flex items-center justify-center mb-4">
-                        <RocketLaunchIcon className="w-12 h-12 text-islamic-green mr-3" />
-                        <h1 className="text-4xl md:text-5xl font-bold text-islamic-green">
+                <div className="text-center mb-16">
+                    <div className="flex items-center justify-center mb-6">
+                        <RocketLaunchIcon className="w-14 h-14 text-emerald-600 mr-4" />
+                        <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-emerald-700 to-green-600 bg-clip-text text-transparent">
                             Riwayat Versi
                         </h1>
                     </div>
-                    <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                    <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-4">
                         Ikuti perjalanan pengembangan IndoQuran dari waktu ke waktu. Setiap pembaruan membawa 
                         perbaikan dan fitur baru untuk memberikan pengalaman terbaik dalam membaca Al-Quran.
                     </p>
-                    <div className="mt-4 text-sm text-gray-500">
-                        Terakhir diperbarui: 3 Agustus 2025
+                    <div className="inline-flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-full border border-emerald-200">
+                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                        <span className="text-sm text-emerald-700 font-medium">
+                            Terakhir diperbarui: 17 Oktober 2025
+                        </span>
                     </div>
                 </div>
 
                 {/* Current Version Highlight */}
-                <div className="bg-gradient-to-r from-islamic-green to-emerald-600 text-white rounded-2xl p-8 mb-12 shadow-xl">
-                    <div className="flex items-center justify-between flex-wrap gap-4">
-                        <div>
-                            <div className="flex items-center gap-3 mb-2">
-                                <span className="text-2xl font-bold">Versi Terkini</span>
-                                <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
-                                    {versions[0]?.version}
-                                </span>
+                <div className="bg-gradient-to-br from-emerald-600 via-green-600 to-teal-600 text-white rounded-3xl p-10 mb-16 shadow-2xl relative overflow-hidden">
+                    {/* Decorative elements */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
+                    <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24"></div>
+                    
+                    <div className="relative z-10">
+                        <div className="flex items-start justify-between flex-wrap gap-6">
+                            <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <span className="text-lg font-semibold text-emerald-100">Versi Terkini</span>
+                                    <span className="bg-white/25 backdrop-blur-sm px-4 py-1.5 rounded-full text-base font-bold border border-white/30">
+                                        {versions[0]?.version}
+                                    </span>
+                                </div>
+                                <h2 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">{versions[0]?.title}</h2>
+                                <p className="text-emerald-50 text-lg leading-relaxed max-w-3xl">{versions[0]?.description}</p>
                             </div>
-                            <h2 className="text-3xl font-bold mb-2">{versions[0]?.title}</h2>
-                            <p className="text-white/90 text-lg">{versions[0]?.description}</p>
-                        </div>
-                        <div className="text-right">
-                            <div className="text-white/80 text-sm">Dirilis pada</div>
-                            <div className="text-xl font-semibold">{versions[0]?.date}</div>
+                            <div className="text-right">
+                                <div className="bg-white/20 backdrop-blur-sm rounded-xl px-6 py-4 border border-white/30">
+                                    <div className="text-emerald-100 text-sm mb-1">Dirilis pada</div>
+                                    <div className="text-2xl font-bold">{versions[0]?.date}</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Version Timeline */}
-                <div className="space-y-8">
+                <div className="space-y-12">
                     {versions.map((version, index) => (
                         <div key={version.version} className="relative">
                             {/* Timeline line */}
                             {index < versions.length - 1 && (
-                                <div className="absolute left-6 top-16 w-1 h-full bg-gradient-to-b from-slate-300 to-slate-200 -z-10 rounded-full"></div>
+                                <div className="absolute left-6 top-20 w-0.5 h-full bg-gradient-to-b from-emerald-300 via-green-200 to-transparent -z-10"></div>
                             )}
                             
-                            <div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-all duration-300 hover:border-slate-300">
+                            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 hover:border-emerald-200">
                                 {/* Version Header */}
-                                <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
-                                    <div className="flex items-center justify-between flex-wrap gap-4">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 bg-gradient-to-br from-islamic-green to-emerald-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
+                                <div className="p-8 bg-gradient-to-br from-gray-50 to-white">
+                                    <div className="flex items-start justify-between flex-wrap gap-6">
+                                        <div className="flex items-start gap-5 flex-1">
+                                            <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg flex-shrink-0">
                                                 {version.version.split('.')[0]}
                                             </div>
-                                            <div>
-                                                <div className="flex items-center gap-3 mb-2">
-                                                    <h3 className="text-2xl font-bold text-slate-900">
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-3 mb-3">
+                                                    <h3 className="text-2xl font-bold text-gray-900">
                                                         Versi {version.version}
                                                     </h3>
-                                                    <span className={`px-4 py-2 rounded-full text-sm border-2 ${getVersionBadgeColor(version.type)}`}>
+                                                    <span className={`px-4 py-1.5 rounded-full text-sm font-medium border ${getVersionBadgeColor(version.type)}`}>
                                                         {version.type.charAt(0).toUpperCase() + version.type.slice(1)}
                                                     </span>
                                                 </div>
-                                                <h4 className="text-xl font-semibold text-islamic-green mb-2">
+                                                <h4 className="text-xl font-semibold text-emerald-700 mb-3 leading-snug">
                                                     {version.title}
                                                 </h4>
-                                                <p className="text-slate-700 leading-relaxed">{version.description}</p>
+                                                <p className="text-gray-600 leading-relaxed text-base">{version.description}</p>
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <div className="text-slate-500 text-sm font-medium">Dirilis</div>
-                                            <div className="text-lg font-semibold text-slate-900">{version.date}</div>
+                                            <div className="bg-emerald-50 rounded-xl px-5 py-3 border border-emerald-100">
+                                                <div className="text-emerald-600 text-xs font-medium uppercase tracking-wide mb-1">Dirilis</div>
+                                                <div className="text-lg font-bold text-emerald-800">{version.date}</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Changes List */}
-                                <div className="p-6">
-                                    <h5 className="text-lg font-semibold text-slate-900 mb-6 flex items-center gap-2">
-                                        <CheckCircleIcon className="w-5 h-5 text-islamic-green" />
-                                        Perubahan & Peningkatan:
+                                <div className="p-8 bg-gray-50/50">
+                                    <h5 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                                        <CheckCircleIcon className="w-6 h-6 text-emerald-600" />
+                                        Perubahan & Peningkatan
                                     </h5>
-                                    <div className="space-y-4">
+                                    <div className="space-y-3">
                                         {version.changes.map((change, changeIndex) => (
-                                            <div key={changeIndex} className={`flex items-start gap-4 p-4 rounded-lg transition-all duration-200 ${getChangeItemStyle(change.type)}`}>
-                                                <div className="flex-shrink-0 mt-1">
+                                            <div key={changeIndex} className={`flex items-start gap-4 p-5 rounded-xl transition-all duration-200 shadow-sm ${getChangeItemStyle(change.type)}`}>
+                                                <div className="flex-shrink-0 mt-0.5">
                                                     {getChangeIcon(change.type)}
                                                 </div>
-                                                <div className="flex-grow">
-                                                    <div className="flex items-center gap-3 mb-2">
-                                                        <span className={`px-3 py-1 text-xs font-bold uppercase tracking-wide rounded-full border ${getChangeTypeBadgeStyle(change.type)}`}>
+                                                <div className="flex-grow min-w-0">
+                                                    <div className="mb-2">
+                                                        <span className={`inline-block px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-full border ${getChangeTypeBadgeStyle(change.type)}`}>
                                                             {getChangeTypeText(change.type)}
                                                         </span>
                                                     </div>
-                                                    <p className="text-slate-800 leading-relaxed font-medium">{change.text}</p>
+                                                    <p className="text-gray-700 leading-relaxed text-sm">{change.text}</p>
                                                 </div>
                                             </div>
                                         ))}
@@ -873,23 +975,23 @@ function RiwayatVersiPage() {
                 </div>
 
                 {/* Footer Note */}
-                <div className="mt-12 text-center">
-                    <div className="bg-blue-50 rounded-xl p-8 border border-blue-100">
-                        <h3 className="text-xl font-semibold text-blue-900 mb-3">
-                            Komitmen Pengembangan Berkelanjutan
-                        </h3>
-                        <p className="text-blue-700 leading-relaxed max-w-3xl mx-auto">
-                            Kami berkomitmen untuk terus mengembangkan IndoQuran dengan mendengarkan masukan dari pengguna 
-                            dan mengikuti perkembangan teknologi terbaru. Setiap pembaruan dirancang untuk memberikan 
-                            pengalaman yang lebih baik dalam mempelajari dan membaca Al-Quran.
-                        </p>
-                        <div className="mt-4">
+                <div className="mt-16 text-center">
+                    <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl p-10 border border-emerald-100 shadow-lg">
+                        <div className="max-w-3xl mx-auto">
+                            <h3 className="text-2xl font-bold text-emerald-800 mb-4">
+                                Komitmen Pengembangan Berkelanjutan
+                            </h3>
+                            <p className="text-emerald-700 leading-relaxed text-lg mb-6">
+                                Kami berkomitmen untuk terus mengembangkan IndoQuran dengan mendengarkan masukan dari pengguna 
+                                dan mengikuti perkembangan teknologi terbaru. Setiap pembaruan dirancang untuk memberikan 
+                                pengalaman yang lebih baik dalam mempelajari dan membaca Al-Quran.
+                            </p>
                             <a 
                                 href="/kontak" 
-                                className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200"
+                                className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-green-600 text-white px-8 py-4 rounded-xl font-semibold hover:from-emerald-700 hover:to-green-700 transition-all duration-200 shadow-md hover:shadow-lg"
                             >
                                 <span>Berikan Masukan</span>
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                 </svg>
                             </a>

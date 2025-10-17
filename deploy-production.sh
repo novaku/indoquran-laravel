@@ -3,15 +3,21 @@
 # Production deployment script for IndoQuran Laravel + React app
 # This script should be run on the production server
 #
-# IMPORTANT: This script does NOT build assets or delete existing build files!
-# Frontend assets must be built locally using ./build-for-production.sh
-# and committed to git before running this deployment script.
+# ⚠️  IMPORTANT: Production server does NOT have Node.js/npm installed!
+# ⚠️  Frontend assets MUST be built locally and committed to git first!
 #
-# This script only:
+# Pre-deployment (on LOCAL machine):
+# 1. Build assets: npm run build (or use build-production.sh)
+# 2. Commit build files: git add public/build && git commit -m "Build assets"
+# 3. Push to repository: git push origin main
+#
+# This deployment script:
 # 1. Pulls latest code from git (including pre-built assets)
-# 2. Installs PHP dependencies
-# 3. Optimizes Laravel caches
-# 4. Verifies that vendor assets are present and protects them
+# 2. Installs PHP dependencies via Composer
+# 3. Runs database migrations
+# 4. Optimizes Laravel caches
+# 5. Verifies build assets are present
+# 6. Sets proper permissions
 
 # Enable strict error handling
 set -e
@@ -84,6 +90,19 @@ else
     fi
 fi
 
+# Check that Node.js/npm are NOT installed (production server should not have them)
+log_message "Verifying production server environment..."
+if command -v npm >/dev/null 2>&1 || command -v node >/dev/null 2>&1; then
+    log_error "⚠️  WARNING: Node.js/npm detected on production server!"
+    log_error "This is unusual for a shared hosting production environment."
+    log_error "Make sure you're NOT running build commands on this server."
+    log_warning "Continuing deployment in 5 seconds... (Ctrl+C to abort)"
+    sleep 5
+else
+    log_message "✓ Confirmed: Node.js/npm not available (correct for production)"
+    log_message "✓ Frontend assets must come from git (pre-built locally)"
+fi
+
 # Emergency check for ParseError - run cache clear if needed
 log_message "Checking for ParseError conditions..."
 if php artisan route:list >/dev/null 2>&1; then
@@ -91,17 +110,6 @@ if php artisan route:list >/dev/null 2>&1; then
 else
     log_warning "⚠ Laravel appears to have issues - running emergency cache clear"
     emergency_cache_clear
-fi
-
-# Ensure we don't accidentally run build scripts that would delete vendor files
-log_message "Protecting build assets during deployment..."
-
-# Check if any build-related commands are attempting to run
-if pgrep -f "npm\|node\|vite" > /dev/null; then
-    log_error "Node.js/npm processes detected running on production server!"
-    log_error "This server should NOT run build processes."
-    log_error "Build assets should be generated locally and committed to git."
-    exit 1
 fi
 
 log_message "Starting deployment process..."
@@ -402,17 +410,31 @@ if [ -d public/build ]; then
         log_message "✓ Vite manifest file found"
     else
         log_error "✗ Vite manifest.json not found in public/build/"
-        log_warning "This will cause Vite manifest errors in Laravel"
-        log_warning ""
-        log_warning "PRODUCTION SERVER DOES NOT HAVE NODE.JS/NPM"
-        log_warning "Frontend assets must be built on your local machine and committed to git"
-        log_warning ""
-        log_warning "To fix this issue:"
-        log_warning "1. On your LOCAL machine (not server), run: ./build-for-production.sh"
-        log_warning "2. Commit the generated build files: git add public/build && git commit -m 'Add production build files'"
-        log_warning "3. Push to repository: git push origin main"
-        log_warning "4. On this server, pull the changes: git pull origin main"
-        log_warning "5. Re-run this deployment script"
+        log_error ""
+        log_error "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        log_error "  FRONTEND BUILD FILES MISSING!"
+        log_error "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        log_error ""
+        log_error "⚠️  Production server does NOT have Node.js/npm"
+        log_error "⚠️  Assets must be built locally and committed to git"
+        log_error ""
+        log_error "How to fix:"
+        log_error ""
+        log_error "📌 On your LOCAL machine (not on this server):"
+        log_error "   1. cd /path/to/indoquran-laravel"
+        log_error "   2. npm run build"
+        log_error "      (or run: ./build-production.sh)"
+        log_error ""
+        log_error "📌 Commit and push the build files:"
+        log_error "   3. git add public/build"
+        log_error "   4. git commit -m 'Add production build files'"
+        log_error "   5. git push origin main"
+        log_error ""
+        log_error "📌 Then on this production server:"
+        log_error "   6. git pull origin main"
+        log_error "   7. ./deploy-production.sh"
+        log_error ""
+        log_error "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         exit 1
     fi
     
@@ -440,16 +462,32 @@ if [ -d public/build ]; then
     fi
 else
     log_error "public/build directory not found!"
-    log_warning ""
-    log_warning "PRODUCTION SERVER DOES NOT HAVE NODE.JS/NPM"
-    log_warning "Frontend assets must be built on your local machine and committed to git"
-    log_warning ""
-    log_warning "To fix this issue:"
-    log_warning "1. On your LOCAL machine (not server), run: ./build-for-production.sh"
-    log_warning "2. Commit the generated build files: git add public/build && git commit -m 'Add production build files'"
-    log_warning "3. Push to repository: git push origin main"
-    log_warning "4. On this server, pull the changes: git pull origin main"
-    log_warning "5. Re-run this deployment script"
+    log_error ""
+    log_error "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    log_error "  BUILD DIRECTORY MISSING!"
+    log_error "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    log_error ""
+    log_error "⚠️  Production server does NOT have Node.js/npm"
+    log_error "⚠️  Assets must be built locally and committed to git"
+    log_error ""
+    log_error "How to fix:"
+    log_error ""
+    log_error "📌 On your LOCAL machine (not on this server):"
+    log_error "   1. cd /path/to/indoquran-laravel"
+    log_error "   2. npm install                    # Install dependencies"
+    log_error "   3. npm run build                  # Build for production"
+    log_error "      (or run: ./build-production.sh)"
+    log_error ""
+    log_error "📌 Commit and push the build files:"
+    log_error "   4. git add public/build"
+    log_error "   5. git commit -m 'Add production build files'"
+    log_error "   6. git push origin main"
+    log_error ""
+    log_error "📌 Then on this production server:"
+    log_error "   7. git pull origin main"
+    log_error "   8. ./deploy-production.sh"
+    log_error ""
+    log_error "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     exit 1
 fi
 
@@ -543,41 +581,54 @@ fi
 
 log_message "Deployment completed successfully!"
 log_message "Your IndoQuran application should now be running with optimized caching."
+log_message ""
+log_message "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+log_message "  ✅ DEPLOYMENT SUCCESSFUL"
+log_message "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+log_message ""
 
 current_cache=$(grep "CACHE_STORE=" .env 2>/dev/null | cut -d'=' -f2 || echo "default")
-log_message "Current cache driver: $current_cache"
-
+log_message "📊 Current cache driver: $current_cache"
 log_message ""
-log_message "Post-deployment information:"
-log_message "- Cache status: php artisan quran:cache status"
-log_message "- Clear cache: php artisan quran:cache clear"
-log_message "- Warm cache: php artisan quran:cache warm-up"
-log_message "- Check logs: tail -f storage/logs/laravel.log"
+log_message "🔍 Post-deployment commands:"
+log_message "   - Check cache status:  php artisan quran:cache status"
+log_message "   - Clear cache:         php artisan quran:cache clear"
+log_message "   - Warm up cache:       php artisan quran:cache warm-up"
+log_message "   - Monitor logs:        tail -f storage/logs/laravel.log"
 log_message ""
 
 if [ "$current_cache" = "redis" ]; then
-    log_message "Redis cache troubleshooting:"
-    log_message "1. Test Redis in PHP: php -r \"try { \$r = new Redis(); \$r->connect('/home/indoqura/tmp/redis.sock'); echo \$r->ping() ? 'OK' : 'FAIL'; } catch(Exception \$e) { echo 'ERROR: ' . \$e->getMessage(); }\""
-    log_message "2. Start user Redis: ~/redis/start-redis.sh"
-    log_message "3. Redis status: ~/redis/status-redis.sh"
-    log_message "4. Install user Redis: ./install-user-redis.sh"
+    log_message "🔴 Redis Cache Configuration:"
+    log_message "   - Test Redis:      php -r \"try { \$r = new Redis(); \$r->connect('/home/indoqura/tmp/redis.sock'); echo \$r->ping() ? 'OK' : 'FAIL'; } catch(Exception \$e) { echo 'ERROR: ' . \$e->getMessage(); }\""
+    log_message "   - Start Redis:     ~/redis/start-redis.sh"
+    log_message "   - Check status:    ~/redis/status-redis.sh"
+    log_message "   - Documentation:   docs/REDIS_NO_SUDO_INSTALLATION.md"
 elif [ "$current_cache" = "database" ]; then
-    log_message "Database cache information:"
-    log_message "1. Cache table should exist (created automatically)"
-    log_message "2. Performance: Good for most applications"
-    log_message "3. To upgrade to Redis: Install Redis and update .env"
+    log_message "💾 Database Cache Configuration:"
+    log_message "   - Cache table created automatically"
+    log_message "   - Performance: Good for most applications"
+    log_message "   - To upgrade to Redis: Install Redis and update .env"
 else
-    log_message "Cache troubleshooting:"
-    log_message "1. Current driver: $current_cache"
-    log_message "2. For better performance, consider Redis or database cache"
+    log_message "📁 Cache Configuration: $current_cache"
+    log_message "   - For better performance, consider Redis or database cache"
 fi
 
 log_message ""
-log_message "If you need Redis without sudo access:"
-log_message "1. Run: ./install-user-redis.sh"
-log_message "2. Update .env: CACHE_STORE=redis"
-log_message "3. Re-run deployment script"
+log_message "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 log_message ""
-log_message "For Redis documentation:"
-log_message "- With sudo: docs/REDIS_CONNECTION_FIX.md"
-log_message "- Without sudo: docs/REDIS_NO_SUDO_INSTALLATION.md"
+log_message "⚠️  IMPORTANT REMINDERS:"
+log_message ""
+log_message "1. 🚫 This server does NOT have Node.js/npm"
+log_message "   → Always build assets on your LOCAL machine"
+log_message "   → Run: npm run build (locally)"
+log_message "   → Then commit and push: git add public/build && git push"
+log_message ""
+log_message "2. 🔄 To deploy future updates:"
+log_message "   → Build locally → Commit → Push → Pull here → Run this script"
+log_message ""
+log_message "3. 📚 For Redis without sudo:"
+log_message "   → Run: ./install-user-redis.sh"
+log_message "   → Update .env: CACHE_STORE=redis"
+log_message "   → Re-run: ./deploy-production.sh"
+log_message ""
+log_message "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
