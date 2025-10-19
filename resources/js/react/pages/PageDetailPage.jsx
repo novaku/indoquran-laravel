@@ -18,7 +18,9 @@ function PageDetailPage() {
     const [totalPages, setTotalPages] = useState(604);
     
     // Audio state
-    const [selectedQari, setSelectedQari] = useState('');
+    const [selectedQari, setSelectedQari] = useState('15'); // Default to Alafasy 128kbps
+    const [availableReciters, setAvailableReciters] = useState([]);
+    const [recitersLoading, setRecitersLoading] = useState(true);
     const [isAudioPlaying, setIsAudioPlaying] = useState(false);
     const [audioElement, setAudioElement] = useState(null);
     const [playingAyahId, setPlayingAyahId] = useState(null);
@@ -56,29 +58,37 @@ function PageDetailPage() {
         }
     };
     
-    // Auto-select first available qari when page changes
+    // Load available reciters from API
     useEffect(() => {
-        if (pageData?.surahs?.length > 0) {
-            const firstAyah = pageData.surahs[0].ayahs[0];
-            if (firstAyah?.audio_urls) {
-                const audioUrls = typeof firstAyah.audio_urls === 'string' 
-                    ? JSON.parse(firstAyah.audio_urls) 
-                    : firstAyah.audio_urls;
+        const loadReciters = async () => {
+            try {
+                const response = await fetchWithAuth('/api/reciters/recommended');
+                const data = await response.json();
                 
-                let availableQaris;
-                if (Array.isArray(audioUrls)) {
-                    const defaultQaris = ['alafasy', 'sudais', 'husary', 'minshawi', 'abdulbasit', 'maher', 'ghamdi', 'shuraim', 'ajmy', 'walk'];
-                    availableQaris = audioUrls.map((_, index) => defaultQaris[index] || `qari_${index + 1}`);
+                if (data.status === 'success') {
+                    setAvailableReciters(data.data || []);
                 } else {
-                    availableQaris = Object.keys(audioUrls);
+                    console.warn('Failed to load reciters, using defaults');
+                    setAvailableReciters([
+                        { id: '15', name: 'Alafasy', bitrate: '128kbps', subfolder: 'Alafasy_128kbps' },
+                        { id: '2', name: 'Abdul Basit Murattal', bitrate: '192kbps', subfolder: 'Abdul_Basit_Murattal_192kbps' },
+                        { id: '8', name: 'Abdurrahmaan As-Sudais', bitrate: '192kbps', subfolder: 'Abdurrahmaan_As-Sudais_192kbps' }
+                    ]);
                 }
-                
-                if (availableQaris.length > 0 && !selectedQari) {
-                    setSelectedQari(availableQaris[0]);
-                }
+            } catch (error) {
+                console.error('Error loading reciters:', error);
+                setAvailableReciters([
+                    { id: '15', name: 'Alafasy', bitrate: '128kbps', subfolder: 'Alafasy_128kbps' },
+                    { id: '2', name: 'Abdul Basit Murattal', bitrate: '192kbps', subfolder: 'Abdul_Basit_Murattal_192kbps' },
+                    { id: '8', name: 'Abdurrahmaan As-Sudais', bitrate: '192kbps', subfolder: 'Abdurrahmaan_As-Sudais_192kbps' }
+                ]);
+            } finally {
+                setRecitersLoading(false);
             }
-        }
-    }, [pageData, selectedQari]);
+        };
+        
+        loadReciters();
+    }, []);
     
     // Cleanup audio when component unmounts
     useEffect(() => {
@@ -156,20 +166,28 @@ function PageDetailPage() {
         }
     };
     
-    const getAudioUrl = (ayah) => {
-        if (!ayah.audio_urls) return null;
+    // Helper function to get audio URL from EveryAyah API
+    const getEveryAyahAudioUrl = (surahNumber, ayahNumber, reciterId) => {
+        const reciter = availableReciters.find(r => r.id === reciterId);
         
-        const audioUrls = typeof ayah.audio_urls === 'string' 
-            ? JSON.parse(ayah.audio_urls) 
-            : ayah.audio_urls;
-        
-        if (Array.isArray(audioUrls)) {
-            return audioUrls[0];
-        } else if (typeof audioUrls === 'object') {
-            return audioUrls[selectedQari] || Object.values(audioUrls)[0];
+        if (!reciter) {
+            console.warn('⚠️ Reciter not found, using default');
+            // Default to Alafasy 128kbps
+            const defaultReciter = availableReciters.find(r => r.id === '15') || availableReciters[0];
+            if (!defaultReciter) return null;
+            
+            const surahStr = String(surahNumber).padStart(3, '0');
+            const ayahStr = String(ayahNumber).padStart(3, '0');
+            return `https://everyayah.com/data/${defaultReciter.subfolder}/${surahStr}${ayahStr}.mp3`;
         }
         
-        return null;
+        const surahStr = String(surahNumber).padStart(3, '0');
+        const ayahStr = String(ayahNumber).padStart(3, '0');
+        return `https://everyayah.com/data/${reciter.subfolder}/${surahStr}${ayahStr}.mp3`;
+    };
+    
+    const getAudioUrl = (ayah, surahNumber) => {
+        return getEveryAyahAudioUrl(surahNumber, ayah.ayah_number, selectedQari);
     };
     
     const currentPageNum = parseInt(number);
@@ -239,11 +257,44 @@ function PageDetailPage() {
                             </div>
                         </div>
 
-                        {/* Arabic Text Zoom Controls */}
-                        <div className="flex items-center justify-between">
+                        {/* Arabic Text Zoom Controls & Qari Selector */}
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                             <div className="text-sm text-gray-600">
                                 Menampilkan teks Arab dari Halaman {number}
                             </div>
+                            
+                            {/* Qari Selector */}
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                                    🎙️ Pilih Qari:
+                                </label>
+                                {recitersLoading ? (
+                                    <div className="text-sm text-gray-500">Memuat daftar qari...</div>
+                                ) : (
+                                    <select 
+                                        value={selectedQari}
+                                        onChange={(e) => {
+                                            setSelectedQari(e.target.value);
+                                            // Stop current audio when changing qari
+                                            if (audioElement) {
+                                                audioElement.pause();
+                                                setIsAudioPlaying(false);
+                                                setAudioElement(null);
+                                                setPlayingAyahId(null);
+                                            }
+                                        }}
+                                        className="w-full sm:w-auto px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-green-400 transition-colors bg-white text-gray-800"
+                                    >
+                                        {availableReciters.map(reciter => (
+                                            <option key={reciter.id} value={reciter.id}>
+                                                {reciter.name} ({reciter.bitrate})
+                                            </option>
+                                        ))}
+                                    </select>
+                                )}
+                            </div>
+                            
+                            {/* Zoom Controls */}
                             <div className="flex items-center gap-2">
                                 <span className="text-sm text-gray-600 mr-2">Ukuran Teks:</span>
                                 <button 
@@ -336,32 +387,30 @@ function PageDetailPage() {
                                                 {/* Action Buttons - Only shown on hover */}
                                                 <div className="mt-4 flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                     {/* Audio Controls */}
-                                                    {ayah.audio_urls && (
-                                                        <>
-                                                            {isAudioPlaying && playingAyahId === ayah.id ? (
-                                                                <button
-                                                                    onClick={stopAudio}
-                                                                    className="p-2 rounded-md bg-green-50 text-green-700 hover:bg-green-100 transition-colors border border-green-200"
-                                                                    title="Jeda Audio"
-                                                                >
-                                                                    <IoPauseCircleOutline className="w-5 h-5" />
-                                                                </button>
-                                                            ) : (
-                                                                <button
-                                                                    onClick={() => {
-                                                                        const audioUrl = getAudioUrl(ayah);
-                                                                        if (audioUrl) {
-                                                                            playAudio(audioUrl, ayah.id);
-                                                                        }
-                                                                    }}
-                                                                    className="p-2 rounded-md bg-green-50 text-green-700 hover:bg-green-100 transition-colors border border-green-200"
-                                                                    title="Putar Audio"
-                                                                >
-                                                                    <IoPlayCircleOutline className="w-5 h-5" />
-                                                                </button>
-                                                            )}
-                                                        </>
-                                                    )}
+                                                    <>
+                                                        {isAudioPlaying && playingAyahId === ayah.id ? (
+                                                            <button
+                                                                onClick={stopAudio}
+                                                                className="p-2 rounded-md bg-green-50 text-green-700 hover:bg-green-100 transition-colors border border-green-200"
+                                                                title="Jeda Audio"
+                                                            >
+                                                                <IoPauseCircleOutline className="w-5 h-5" />
+                                                            </button>
+                                                        ) : (
+                                                            <button
+                                                                onClick={() => {
+                                                                    const audioUrl = getAudioUrl(ayah, surahData.surah.number);
+                                                                    if (audioUrl) {
+                                                                        playAudio(audioUrl, ayah.id);
+                                                                    }
+                                                                }}
+                                                                className="p-2 rounded-md bg-green-50 text-green-700 hover:bg-green-100 transition-colors border border-green-200"
+                                                                title="Putar Audio"
+                                                            >
+                                                                <IoPlayCircleOutline className="w-5 h-5" />
+                                                            </button>
+                                                        )}
+                                                    </>
                                                 </div>
                                             </div>
                                         ))}
