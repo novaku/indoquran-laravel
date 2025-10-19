@@ -6,6 +6,99 @@ import StructuredData from '../components/StructuredData';
 function RiwayatVersiPage() {
     const versions = [
         {
+            version: "2.10.0",
+            date: "19 Oktober 2025",
+            type: "major",
+            title: "Integrasi Audio Murottal EveryAyah.com - 79+ Qari Dunia",
+            description: "Update mayor dengan integrasi lengkap audio murottal dari EveryAyah.com. Menyediakan 79+ pilihan qari (pembaca Al-Quran) terbaik dunia dengan berbagai kualitas audio (16kbps-192kbps) dan gaya tilawah (Murattal, Mujawwad, Muallim, Warsh). Sistem dropdown dinamis dengan API backend yang lengkap untuk kemudahan switching antar qari.",
+            changes: [
+                {
+                    type: "feature",
+                    text: "Dynamic Qari Dropdown - Pilihan 79+ qari yang dimuat dari API dengan nama dan bitrate lengkap"
+                },
+                {
+                    type: "feature",
+                    text: "8 Qari Rekomendasi - Abdul Basit Murattal 192kbps, Abdurrahmaan As-Sudais 192kbps, Alafasy 128kbps, Husary 128kbps, Minshawy Murattal 128kbps, Maher Al Muaiqly 128kbps, Saood Ash-Shuraym 128kbps, Muhsin Al Qasim 192kbps"
+                },
+                {
+                    type: "feature",
+                    text: "EveryAyah.com Integration - Audio URL format: https://everyayah.com/data/{subfolder}/{SSSAAA}.mp3 untuk setiap ayat"
+                },
+                {
+                    type: "feature",
+                    text: "Backend MurottalService - Service layer untuk operasi audio dengan 7 methods (getAllReciters, getRecommendedReciters, getReciterById, getAyahAudioUrl, getSurahAudioUrls, dll)"
+                },
+                {
+                    type: "feature",
+                    text: "7 API Endpoints Baru - /api/reciters, /api/reciters/recommended, /api/reciters/by-style, /api/reciters/search, /api/audio/ayah/{surah}/{ayah}, /api/audio/ayah/{surah}/{ayah}/all-reciters, /api/audio/surah/{surah}"
+                },
+                {
+                    type: "feature",
+                    text: "Reciters Configuration File (config/reciters.php) - 79+ qari dengan detail id, name, subfolder, bitrate, dan style"
+                },
+                {
+                    type: "feature",
+                    text: "Interactive Demo Page (murottal-list.html) - Halaman demo dengan UI cantik untuk explore semua 79+ qari dengan sample audio playback"
+                },
+                {
+                    type: "feature",
+                    text: "Multi-Quality Audio Support - 8 tingkat kualitas: 16kbps, 32kbps, 40kbps, 48kbps, 64kbps, 128kbps, 192kbps"
+                },
+                {
+                    type: "feature",
+                    text: "Multiple Recitation Styles - Murattal (bacaan bertajwid), Mujawwad (bacaan indah), Muallim (pembelajaran), Warsh (riwayat Warsh), Translation (terjemahan Inggris)"
+                },
+                {
+                    type: "improvement",
+                    text: "SurahDetailPage Enhanced - Dropdown qari dengan auto-fetch dari API, loading states, error handling dengan fallback reciters"
+                },
+                {
+                    type: "improvement",
+                    text: "Smart Audio URL Generation - Helper function getEveryAyahAudioUrl() dengan automatic reciter lookup dan URL formatting (SSSAAA pattern)"
+                },
+                {
+                    type: "improvement",
+                    text: "Auto-Stop on Qari Change - Otomatis menghentikan playback saat user mengganti qari untuk pengalaman yang lebih baik"
+                },
+                {
+                    type: "improvement",
+                    text: "Enhanced Dropdown UI - Styling modern dengan emoji icon 🎙️, hover effects, focus rings, info text showing total reciters"
+                },
+                {
+                    type: "improvement",
+                    text: "API Caching Strategy - 30-day cache untuk reciters API endpoints untuk performa optimal"
+                },
+                {
+                    type: "improvement",
+                    text: "Responsive Design - Dropdown full-width di mobile, max-width di desktop untuk readability"
+                },
+                {
+                    type: "improvement",
+                    text: "Consistent Playback - Both full surah player dan individual ayah player menggunakan selected qari"
+                },
+                {
+                    type: "documentation",
+                    text: "EVERYAYAH_AUDIO_INTEGRATION.md - Dokumentasi lengkap 500+ baris dengan API usage, examples, React integration code"
+                },
+                {
+                    type: "documentation",
+                    text: "DROPDOWN_QARI_UPDATE.md - Complete update changelog dengan technical details, migration notes, testing checklist"
+                },
+                {
+                    type: "documentation",
+                    text: "DROPDOWN_QARI_VISUAL_GUIDE.md - Visual guide dengan ASCII diagrams, UI states, CSS classes, interaction flows"
+                },
+                {
+                    type: "fix",
+                    text: "Replaced Old Hardcoded Qari IDs - Migrasi dari hardcoded IDs ('03', '05') ke dynamic system dengan proper ID mapping"
+                },
+                {
+                    type: "fix",
+                    text: "Audio Format Consistency - Semua audio menggunakan EveryAyah.com format untuk reliability dan konsistensi"
+                }
+            ]
+        },
+        {
             version: "2.9.0",
             date: "19 Oktober 2025",
             type: "major",

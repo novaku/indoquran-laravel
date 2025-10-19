@@ -143,6 +143,22 @@ Route::middleware(['api.cache:30d'])->group(function() {
     Route::get('/halaman/{number}', [App\Http\Controllers\QuranController::class, 'getPage'])->where('number', '[0-9]+');
 });
 
+// Murottal/Reciter routes with caching
+Route::middleware(['api.cache:30d'])->group(function() {
+    Route::get('/reciters', [App\Http\Controllers\QuranController::class, 'getAllReciters']);
+    Route::get('/reciters/recommended', [App\Http\Controllers\QuranController::class, 'getRecommendedReciters']);
+    Route::get('/reciters/by-style', [App\Http\Controllers\QuranController::class, 'getRecitersByStyle']);
+    Route::get('/reciters/search', [App\Http\Controllers\QuranController::class, 'searchReciters']);
+    
+    // Audio URL routes
+    Route::get('/audio/ayah/{surahNumber}/{ayahNumber}', [App\Http\Controllers\QuranController::class, 'getAyahAudioUrl'])
+        ->where(['surahNumber' => '[0-9]+', 'ayahNumber' => '[0-9]+']);
+    Route::get('/audio/ayah/{surahNumber}/{ayahNumber}/all-reciters', [App\Http\Controllers\QuranController::class, 'getAyahAudioUrlsAllReciters'])
+        ->where(['surahNumber' => '[0-9]+', 'ayahNumber' => '[0-9]+']);
+    Route::get('/audio/surah/{surahNumber}', [App\Http\Controllers\QuranController::class, 'getSurahAudioUrls'])
+        ->where('surahNumber', '[0-9]+');
+});
+
 // Search routes with caching - Indonesian URLs
 Route::middleware(['api.cache:7d'])->group(function() {
     Route::get('/cari', [App\Http\Controllers\QuranController::class, 'searchAyahs']);

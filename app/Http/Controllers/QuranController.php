@@ -5,16 +5,21 @@ namespace App\Http\Controllers;
 use App\Models\Ayah;
 use App\Models\Surah;
 use App\Services\QuranCacheService;
+use App\Services\MurottalService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class QuranController extends Controller
 {
     protected $quranCache;
+    protected $murottalService;
 
-    public function __construct(QuranCacheService $quranCache)
+    public function __construct(QuranCacheService $quranCache, MurottalService $murottalService)
     {
         $this->quranCache = $quranCache;
+        $this->murottalService = $murottalService;
     }
 
     /**
@@ -222,19 +227,18 @@ class QuranController extends Controller
         }
         
         $ayah = $this->quranCache->getAyah($surahNum, $ayahNum);
-        
         if (!$ayah) {
-            \Log::warning('Ayah not found', ['surah' => $surahNumber, 'ayah' => $ayahNumber]);
+            Log::warning('Ayah not found', ['surah' => $surahNumber, 'ayah' => $ayahNumber]);
             return response()->json([
                 'status' => 'error',
                 'message' => 'Ayah not found'
             ], 404);
         }
-        
         // Get user-specific bookmark data if user is authenticated
         $bookmarkData = null;
-        if (auth()->check()) {
-            $user = auth()->user();
+        if (Auth::check()) {
+            $user = Auth::user();
+            $bookmark = $user->ayahBookmarks()->where('ayah_id', $ayah->id)->first();
             $bookmark = $user->ayahBookmarks()->where('ayah_id', $ayah->id)->first();
             if ($bookmark) {
                 $bookmarkData = [
@@ -493,7 +497,7 @@ class QuranController extends Controller
      */
     public function getAllPages(): JsonResponse
     {
-        // Get distinct page numbers from ayahs table
+                // Get distinct page numbers from ayahs table
         $pageNumbers = Ayah::select('page')
             ->distinct()
             ->orderBy('page')
@@ -504,6 +508,159 @@ class QuranController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $pageNumbers
+        ]);
+    }
+
+    /**
+     * Get all available reciters (murottal)
+     * 
+     * @return JsonResponse
+     */
+    public function getAllReciters(): JsonResponse
+    {
+        $reciters = $this->murottalService->getAllReciters();
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => $reciters,
+            'total' => count($reciters)
+        ]);
+    }
+
+    /**
+     * Get recommended reciters
+     * 
+     * @return JsonResponse
+     */
+    public function getRecommendedReciters(): JsonResponse
+    {
+        $reciters = $this->murottalService->getRecommendedReciters();
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => array_values($reciters)
+        ]);
+    }
+
+    /**
+     * Get reciters grouped by style
+     * 
+     * @return JsonResponse
+     */
+    public function getRecitersByStyle(): JsonResponse
+    {
+        $grouped = $this->murottalService->getRecitersByStyle();
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => $grouped
+        ]);
+    }
+
+    /**
+     * Get audio URL for a specific ayah with a specific reciter
+     * 
+     * @param Request $request
+     * @param int $surahNumber
+     * @param int $ayahNumber
+     * @return JsonResponse
+     */
+    public function getAyahAudioUrl(Request $request, $surahNumber, $ayahNumber): JsonResponse
+    {
+        $reciterId = $request->query('reciter', '2'); // Default: Abdul Basit 192kbps
+        
+        $audioUrl = $this->murottalService->getAyahAudioUrl($surahNumber, $ayahNumber, $reciterId);
+        $reciter = $this->murottalService->getReciterById($reciterId);
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'surah_number' => (int)$surahNumber,
+                'ayah_number' => (int)$ayahNumber,
+                'reciter' => $reciter,
+                'audio_url' => $audioUrl
+            ]
+        ]);
+    }
+
+    /**
+     * Get all audio URLs for an ayah from all reciters
+     * 
+     * @param int $surahNumber
+     * @param int $ayahNumber
+     * @return JsonResponse
+     */
+    public function getAyahAudioUrlsAllReciters($surahNumber, $ayahNumber): JsonResponse
+    {
+        $audioUrls = $this->murottalService->getAyahAudioUrlsAllReciters($surahNumber, $ayahNumber);
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'surah_number' => (int)$surahNumber,
+                'ayah_number' => (int)$ayahNumber,
+                'reciters' => array_values($audioUrls)
+            ]
+        ]);
+    }
+
+    /**
+     * Get audio URLs for all ayahs in a surah with a specific reciter
+     * 
+     * @param Request $request
+     * @param int $surahNumber
+     * @return JsonResponse
+     */
+    public function getSurahAudioUrls(Request $request, $surahNumber): JsonResponse
+    {
+        $reciterId = $request->query('reciter', '2'); // Default: Abdul Basit 192kbps
+        
+        // Get surah info to know the ayah count
+        $surah = $this->quranCache->getSurah($surahNumber);
+        
+        if (!$surah) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Surah not found'
+            ], 404);
+        }
+        
+        $audioUrls = $this->murottalService->getSurahAudioUrls($surahNumber, $surah->ayah_count, $reciterId);
+        $reciter = $this->murottalService->getReciterById($reciterId);
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'surah' => $surah,
+                'reciter' => $reciter,
+                'audio_urls' => $audioUrls
+            ]
+        ]);
+    }
+
+    /**
+     * Search reciters by name
+     * 
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function searchReciters(Request $request): JsonResponse
+    {
+        $query = $request->query('q', '');
+        
+        if (empty($query)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Search query is required'
+            ], 400);
+        }
+        
+        $reciters = $this->murottalService->searchReciters($query);
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => array_values($reciters),
+            'total' => count($reciters)
         ]);
     }
 }

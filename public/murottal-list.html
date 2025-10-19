@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Qari Murottal - EveryAyah.com</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 15px;
+            text-align: center;
+            min-width: 150px;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .filter-section {
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .filter-btn {
+            padding: 0.7rem 1.5rem;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .search-box {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 2rem;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: 2px solid #ddd;
+            border-radius: 50px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .reciters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .reciter-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+        
+        .reciter-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        
+        .reciter-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .reciter-details {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .badge-bitrate {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .badge-style {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        
+        .badge-murattal { background: #e8f5e9; color: #388e3c; }
+        .badge-mujawwad { background: #fff3e0; color: #f57c00; }
+        .badge-muallim { background: #e1f5fe; color: #0277bd; }
+        .badge-warsh { background: #fce4ec; color: #c2185b; }
+        .badge-translation { background: #f3e5f5; color: #6a1b9a; }
+        
+        .play-btn {
+            margin-top: 1rem;
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .play-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .audio-sample {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            color: #667eea;
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .recommended-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #ff9800;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(255, 152, 0, 0.3);
+        }
+        
+        .reciter-card {
+            position: relative;
+        }
+        
+        .audio-player {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            min-width: 300px;
+            display: none;
+        }
+        
+        .audio-player.active {
+            display: block;
+        }
+        
+        .player-info {
+            margin-bottom: 1rem;
+        }
+        
+        .player-reciter {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .close-player {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8rem; }
+            .reciters-grid {
+                grid-template-columns: 1fr;
+            }
+            .stats {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎙️ Daftar Qari Murottal</h1>
+        <p class="subtitle">Dari EveryAyah.com - Pilih dari 79+ Qari Terbaik Dunia</p>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <span class="stat-number" id="total-reciters">79</span>
+                <span class="stat-label">Total Qari</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">8</span>
+                <span class="stat-label">Kualitas Audio</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">5</span>
+                <span class="stat-label">Gaya Tilawah</span>
+            </div>
+        </div>
+        
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="🔍 Cari nama qari...">
+        </div>
+        
+        <div class="filter-section">
+            <button class="filter-btn active" data-filter="all">Semua</button>
+            <button class="filter-btn" data-filter="murattal">Murattal</button>
+            <button class="filter-btn" data-filter="mujawwad">Mujawwad</button>
+            <button class="filter-btn" data-filter="muallim">Muallim</button>
+            <button class="filter-btn" data-filter="warsh">Warsh</button>
+            <button class="filter-btn" data-filter="recommended">⭐ Rekomendasi</button>
+        </div>
+        
+        <h2 class="section-title">⭐ Qari Rekomendasi</h2>
+        <div class="reciters-grid" id="recommended-reciters"></div>
+        
+        <h2 class="section-title">📋 Semua Qari</h2>
+        <div class="reciters-grid" id="all-reciters"></div>
+    </div>
+    
+    <div class="audio-player" id="audio-player">
+        <button class="close-player" onclick="closePlayer()">×</button>
+        <div class="player-info">
+            <div class="player-reciter" id="player-reciter"></div>
+            <div id="player-ayah">Al-Fatihah Ayat 1</div>
+        </div>
+        <audio id="audio-element" controls style="width: 100%;"></audio>
+    </div>
+
+    <script>
+        const baseUrl = 'https://everyayah.com/data/';
+        const recommendedIds = ['2', '8', '15', '20', '34', '29', '44', '52'];
+        
+        const reciters = [
+            { id: '1', name: 'Abdul Basit Murattal', subfolder: 'Abdul_Basit_Murattal_64kbps', bitrate: '64kbps', style: 'murattal' },
+            { id: '2', name: 'Abdul Basit Murattal', subfolder: 'Abdul_Basit_Murattal_192kbps', bitrate: '192kbps', style: 'murattal' },
+            { id: '3', name: 'Abdul Basit Mujawwad', subfolder: 'Abdul_Basit_Mujawwad_128kbps', bitrate: '128kbps', style: 'mujawwad' },
+            { id: '4', name: 'Abdullah Basfar', subfolder: 'Abdullah_Basfar_32kbps', bitrate: '32kbps', style: 'murattal' },
+            { id: '5', name: 'Abdullah Basfar', subfolder: 'Abdullah_Basfar_64kbps', bitrate: '64kbps', style: 'murattal' },
+            { id: '6', name: 'Abdullah Basfar', subfolder: 'Abdullah_Basfar_192kbps', bitrate: '192kbps', style: 'murattal' },
+            { id: '7', name: 'Abdurrahmaan As-Sudais', subfolder: 'Abdurrahmaan_As-Sudais_64kbps', bitrate: '64kbps', style: 'murattal' },
+            { id: '8', name: 'Abdurrahmaan As-Sudais', subfolder: 'Abdurrahmaan_As-Sudais_192kbps', bitrate: '192kbps', style: 'murattal' },
+            { id: '9', name: 'AbdulSamad QuranExplorer.Com', subfolder: 'AbdulSamad_64kbps_QuranExplorer.Com', bitrate: '64kbps', style: 'murattal' },
+            { id: '10', name: 'Abu Bakr Ash-Shaatree', subfolder: 'Abu_Bakr_Ash-Shaatree_64kbps', bitrate: '64kbps', style: 'murattal' },
+            { id: '11', name: 'Abu Bakr Ash-Shaatree', subfolder: 'Abu_Bakr_Ash-Shaatree_128kbps', bitrate: '128kbps', style: 'murattal' },
+            { id: '14', name: 'Alafasy', subfolder: 'Alafasy_64kbps', bitrate: '64kbps', style: 'murattal' },
+            { id: '15', name: 'Alafasy', subfolder: 'Alafasy_128kbps', bitrate: '128kbps', style: 'murattal' },
+            { id: '16', name: 'Ghamadi', subfolder: 'Ghamadi_40kbps', bitrate: '40kbps', style: 'murattal' },
+            { id: '17', name: 'Hani Rifai', subfolder: 'Hani_Rifai_64kbps', bitrate: '64kbps', style: 'murattal' },
+            { id: '18', name: 'Hani Rifai', subfolder: 'Hani_Rifai_192kbps', bitrate: '192kbps', style: 'murattal' },
+            { id: '19', name: 'Husary', subfolder: 'Husary_64kbps', bitrate: '64kbps', style: 'murattal' },
+            { id: '20', name: 'Husary', subfolder: 'Husary_128kbps', bitrate: '128kbps', style: 'murattal' },
+            { id: '21', name: 'Husary Mujawwad', subfolder: 'Husary_Mujawwad_64kbps', bitrate: '64kbps', style: 'mujawwad' },
+            { id: '22', name: 'Husary Mujawwad', subfolder: 'Husary_128kbps_Mujawwad', bitrate: '128kbps', style: 'mujawwad' },
+            { id: '65', name: 'Husary (Muallim)', subfolder: 'Husary_Muallim_128kbps', bitrate: '128kbps', style: 'muallim' },
+            { id: '23', name: 'Hudhaify', subfolder: 'Hudhaify_32kbps', bitrate: '32kbps', style: 'murattal' },
+            { id: '24', name: 'Hudhaify', subfolder: 'Hudhaify_64kbps', bitrate: '64kbps', style: 'murattal' },
+            { id: '25', name: 'Hudhaify', subfolder: 'Hudhaify_128kbps', bitrate: '128kbps', style: 'murattal' },
+            { id: '28', name: 'Maher Al Muaiqly', subfolder: 'Maher_AlMuaiqly_64kbps', bitrate: '64kbps', style: 'murattal' },
+            { id: '29', name: 'Maher Al Muaiqly', subfolder: 'MaherAlMuaiqly128kbps', bitrate: '128kbps', style: 'murattal' },
+            { id: '32', name: 'Minshawy Mujawwad', subfolder: 'Minshawy_Mujawwad_64kbps', bitrate: '64kbps', style: 'mujawwad' },
+            { id: '33', name: 'Minshawy Mujawwad', subfolder: 'Minshawy_Mujawwad_192kbps', bitrate: '192kbps', style: 'mujawwad' },
+            { id: '34', name: 'Minshawy Murattal', subfolder: 'Minshawy_Murattal_128kbps', bitrate: '128kbps', style: 'murattal' },
+            { id: '37', name: 'Muhammad Ayyoub', subfolder: 'Muhammad_Ayyoub_128kbps', bitrate: '128kbps', style: 'murattal' },
+            { id: '40', name: 'Muhammad Jibreel', subfolder: 'Muhammad_Jibreel_64kbps', bitrate: '64kbps', style: 'murattal' },
+            { id: '41', name: 'Muhammad Jibreel', subfolder: 'Muhammad_Jibreel_128kbps', bitrate: '128kbps', style: 'murattal' },
+            { id: '43', name: 'Saood Ash-Shuraym', subfolder: 'Saood_ash-Shuraym_64kbps', bitrate: '64kbps', style: 'murattal' },
+            { id: '44', name: 'Saood Ash-Shuraym', subfolder: 'Saood_ash-Shuraym_128kbps', bitrate: '128kbps', style: 'murattal' },
+            { id: '52', name: 'Muhsin Al Qasim', subfolder: 'Muhsin_Al_Qasim_192kbps', bitrate: '192kbps', style: 'murattal' },
+            { id: '53', name: 'Abdullaah 3awwaad Al-Juhaynee', subfolder: 'Abdullaah_3awwaad_Al-Juhaynee_128kbps', bitrate: '128kbps', style: 'murattal' },
+            { id: '54', name: 'Salah Al Budair', subfolder: 'Salah_Al_Budair_128kbps', bitrate: '128kbps', style: 'murattal' },
+            { id: '55', name: 'Abdullah Matroud', subfolder: 'Abdullah_Matroud_128kbps', bitrate: '128kbps', style: 'murattal' },
+            { id: '67', name: 'Yasser Ad-Dussary', subfolder: 'Yasser_Ad-Dussary_128kbps', bitrate: '128kbps', style: 'murattal' },
+            { id: '68', name: 'Nasser Alqatami', subfolder: 'Nasser_Alqatami_128kbps', bitrate: '128kbps', style: 'murattal' },
+            { id: '60', name: '(Warsh) Ibrahim Al-Dosary', subfolder: 'warsh/warsh_ibrahim_aldosary_128kbps', bitrate: '128kbps', style: 'warsh' },
+        ];
+        
+        function createReciterCard(reciter) {
+            const isRecommended = recommendedIds.includes(reciter.id);
+            const audioUrl = `${baseUrl}${reciter.subfolder}/001001.mp3`;
+            
+            return `
+                <div class="reciter-card" data-style="${reciter.style}">
+                    ${isRecommended ? '<span class="recommended-badge">⭐ Rekomendasi</span>' : ''}
+                    <div class="reciter-name">${reciter.name}</div>
+                    <div class="reciter-details">
+                        <span class="badge badge-bitrate">${reciter.bitrate}</span>
+                        <span class="badge badge-${reciter.style}">${reciter.style}</span>
+                    </div>
+                    <button class="play-btn" onclick="playAudio('${audioUrl}', '${reciter.name}')">
+                        ▶ Putar Sample (Al-Fatihah 1)
+                    </button>
+                    <div class="audio-sample">
+                        <small>📁 ${reciter.subfolder}</small>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderReciters() {
+            const recommendedContainer = document.getElementById('recommended-reciters');
+            const allContainer = document.getElementById('all-reciters');
+            
+            // Recommended reciters
+            const recommended = reciters.filter(r => recommendedIds.includes(r.id));
+            recommendedContainer.innerHTML = recommended.map(createReciterCard).join('');
+            
+            // All reciters
+            allContainer.innerHTML = reciters.map(createReciterCard).join('');
+            
+            document.getElementById('total-reciters').textContent = reciters.length;
+        }
+        
+        function playAudio(url, reciterName) {
+            const player = document.getElementById('audio-player');
+            const audio = document.getElementById('audio-element');
+            const reciterEl = document.getElementById('player-reciter');
+            
+            audio.src = url;
+            reciterEl.textContent = reciterName;
+            player.classList.add('active');
+            
+            audio.play().catch(err => {
+                alert('Gagal memutar audio. Pastikan koneksi internet Anda stabil.');
+            });
+        }
+        
+        function closePlayer() {
+            const player = document.getElementById('audio-player');
+            const audio = document.getElementById('audio-element');
+            audio.pause();
+            player.classList.remove('active');
+        }
+        
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const filter = btn.dataset.filter;
+                const cards = document.querySelectorAll('.reciter-card');
+                
+                cards.forEach(card => {
+                    if (filter === 'all') {
+                        card.style.display = 'block';
+                    } else if (filter === 'recommended') {
+                        const isRecommended = card.querySelector('.recommended-badge');
+                        card.style.display = isRecommended ? 'block' : 'none';
+                    } else {
+                        card.style.display = card.dataset.style === filter ? 'block' : 'none';
+                    }
+                });
+            });
+        });
+        
+        // Search
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('.reciter-card');
+            
+            cards.forEach(card => {
+                const name = card.querySelector('.reciter-name').textContent.toLowerCase();
+                card.style.display = name.includes(query) ? 'block' : 'none';
+            });
+        });
+        
+        // Initial render
+        renderReciters();
+    </script>
+</body>
+</html>

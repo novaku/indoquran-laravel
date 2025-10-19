@@ -1,3 +1,210 @@
+# 📝 IndoQuran Changelog
+
+## 🎙️ Version 2.10.0 - EveryAyah Audio Integration
+**Release Date:** October 19, 2025  
+**Type:** Major Release  
+**Impact:** High - Complete audio murottal system overhaul
+
+---
+
+## 📊 Overview
+
+Major update dengan integrasi lengkap audio murottal dari **EveryAyah.com**. Menyediakan **79+ pilihan qari** (pembaca Al-Quran) terbaik dunia dengan berbagai kualitas audio (16kbps-192kbps) dan gaya tilawah (Murattal, Mujawwad, Muallim, Warsh). Sistem dropdown dinamis dengan API backend yang lengkap untuk kemudahan switching antar qari.
+
+### Key Achievements
+- **79+ Qari** dari berbagai negara tersedia
+- **8 Kualitas Audio** dari 16kbps hingga 192kbps
+- **5 Gaya Tilawah** (Murattal, Mujawwad, Muallim, Warsh, Translation)
+- **100% API-driven** dengan caching optimal
+- **Seamless Integration** dengan existing audio player
+
+---
+
+## ✨ New Features
+
+### Backend API
+- **MurottalService** - Service layer baru untuk operasi audio
+  - `getAllReciters()` - 79+ qari
+  - `getRecommendedReciters()` - 8 qari terbaik
+  - `getReciterById($id)` - Detail qari
+  - `getAyahAudioUrl()` - Generate URL audio ayat
+  - `getSurahAudioUrls()` - Generate URL seluruh surah
+  - `getRecitersByStyle()` - Filter by Murattal/Mujawwad/etc
+
+- **7 API Endpoints Baru**:
+  - `GET /api/reciters` - All reciters
+  - `GET /api/reciters/recommended` - Top 8 reciters
+  - `GET /api/reciters/by-style` - Group by tilawah style
+  - `GET /api/reciters/search?q={query}` - Search reciters
+  - `GET /api/audio/ayah/{surah}/{ayah}?reciter={id}` - Audio URL
+  - `GET /api/audio/ayah/{surah}/{ayah}/all-reciters` - All reciter URLs
+  - `GET /api/audio/surah/{surah}?reciter={id}` - Full surah URLs
+
+- **Config File** - `config/reciters.php`
+  - 79+ qari dengan detail lengkap
+  - Base URL: `https://everyayah.com/data/`
+  - Recommended qari IDs: [2, 8, 15, 20, 34, 29, 44, 52]
+
+### Frontend Components
+- **Dynamic Qari Dropdown** di SurahDetailPage
+  - Auto-load dari API `/api/reciters/recommended`
+  - Loading state dengan spinner
+  - Error handling dengan fallback
+  - Beautiful UI: emoji 🎙️, hover effects, focus rings
+  - Info text: "{count} qari terbaik dunia tersedia"
+
+- **React State Management**:
+  ```javascript
+  const [availableReciters, setAvailableReciters] = useState([]);
+  const [selectedQari, setSelectedQari] = useState('2'); // Abdul Basit 192kbps
+  const [recitersLoading, setRecitersLoading] = useState(true);
+  ```
+
+- **Helper Function** - `getEveryAyahAudioUrl()`
+  ```javascript
+  // Generate: https://everyayah.com/data/{subfolder}/{SSSAAA}.mp3
+  getEveryAyahAudioUrl(surahNumber, ayahNumber, reciterId)
+  ```
+
+### Demo & Documentation
+- **murottal-list.html** - Interactive demo page
+  - 79+ qari dengan beautiful UI
+  - Filter by style (Murattal, Mujawwad, etc.)
+  - Search by name
+  - Sample audio playback
+  - Responsive design
+
+- **Complete Documentation**:
+  - `EVERYAYAH_AUDIO_INTEGRATION.md` (500+ lines)
+  - `DROPDOWN_QARI_UPDATE.md` (Technical changelog)
+  - `DROPDOWN_QARI_VISUAL_GUIDE.md` (UI/UX guide)
+
+---
+
+## 🔧 Changes
+
+### SurahDetailPage Improvements
+- ✅ Dropdown qari sekarang **dinamis dari API** (was: hardcoded)
+- ✅ Default qari: **Abdul Basit Murattal 192kbps** (ID: '2')
+- ✅ **Auto-stop playback** saat mengganti qari
+- ✅ Consistent qari untuk full surah & individual ayah player
+
+### Audio System Overhaul
+- ✅ All audio URLs dari **EveryAyah.com**
+- ✅ Format: `https://everyayah.com/data/{subfolder}/{SSSAAA}.mp3`
+- ✅ **8 kualitas audio**: 16, 32, 40, 48, 64, 128, 192 kbps
+- ✅ **5 gaya tilawah**: Murattal, Mujawwad, Muallim, Warsh, Translation
+
+### UI/UX Enhancements
+- 🎨 Enhanced dropdown styling
+  - Border: `border-2 border-gray-300`
+  - Focus: `ring-2 ring-green-500`
+  - Hover: `border-green-400`
+  - Padding: `px-4 py-3`
+  - Max width: `max-w-md`
+- 🎨 Responsive: full-width mobile, centered desktop
+- 🎨 Loading state: "Memuat daftar qari..."
+
+---
+
+## 🐛 Bug Fixes
+
+- ✅ **Fixed:** Replaced old hardcoded qari IDs ('03', '05') → new system ('2', '8')
+- ✅ **Fixed:** Audio format consistency - all use EveryAyah.com
+- ✅ **Fixed:** Race condition when changing qari during playback
+
+---
+
+## 📋 8 Recommended Reciters
+
+| ID | Name | Bitrate | Subfolder |
+|----|------|---------|-----------|
+| 2 | Abdul Basit Murattal | 192kbps | Abdul_Basit_Murattal_192kbps |
+| 8 | Abdurrahmaan As-Sudais | 192kbps | Abdurrahmaan_As-Sudais_192kbps |
+| 15 | Alafasy | 128kbps | Alafasy_128kbps |
+| 20 | Husary | 128kbps | Husary_128kbps |
+| 34 | Minshawy Murattal | 128kbps | Minshawy_Murattal_128kbps |
+| 29 | Maher Al Muaiqly | 128kbps | MaherAlMuaiqly128kbps |
+| 44 | Saood Ash-Shuraym | 128kbps | Saood_ash-Shuraym_128kbps |
+| 52 | Muhsin Al Qasim | 192kbps | Muhsin_Al_Qasim_192kbps |
+
+---
+
+## 🚀 Performance
+
+- **API Caching:** 30 days for `/api/reciters/*` endpoints
+- **Lazy Loading:** Reciters fetched after page load (non-blocking)
+- **Optimized:** Audio URLs generated on-demand
+- **Fallback:** Default 3 reciters if API fails
+
+---
+
+## 📁 Files Modified
+
+### Backend
+- `app/Http/Controllers/QuranController.php` - 7 new methods
+- `routes/api.php` - 8 new routes with caching
+
+### Frontend
+- `resources/js/react/pages/SurahDetailPage.jsx` - Dropdown implementation
+
+---
+
+## 📁 Files Created
+
+### Backend
+- `app/Services/MurottalService.php` - Service layer (153 lines)
+- `config/reciters.php` - Configuration (500+ lines)
+
+### Frontend
+- `public/murottal-list.html` - Demo page (600+ lines)
+
+### Documentation
+- `docs/EVERYAYAH_AUDIO_INTEGRATION.md` (500+ lines)
+- `docs/DROPDOWN_QARI_UPDATE.md` (300+ lines)
+- `docs/DROPDOWN_QARI_VISUAL_GUIDE.md` (400+ lines)
+
+---
+
+## 🧪 Testing
+
+### Test Commands
+```bash
+# API Testing
+curl http://localhost:8000/api/reciters/recommended
+
+# Demo Page
+open http://localhost:8000/murottal-list.html
+
+# Frontend Testing
+# 1. Open http://localhost:8000/surah/1
+# 2. Check dropdown loads 8 reciters
+# 3. Select different qari
+# 4. Play audio - verify correct qari voice
+```
+
+### Browser Compatibility
+- ✅ Chrome/Edge
+- ✅ Firefox
+- ✅ Safari
+- ✅ Mobile Safari
+- ✅ Chrome Mobile
+
+---
+
+## 📈 Future Enhancements
+
+### Planned Features
+1. **All Reciters View** - Toggle untuk show all 79+ qari
+2. **Filter by Style** - Murattal, Mujawwad, Muallim tabs
+3. **Search Functionality** - Real-time qari search
+4. **Reciter Preview** - Sample audio before selecting
+5. **Favorites** - Save favorite qaris to profile
+6. **Quality Selector** - User bitrate preference
+7. **Offline Mode** - Download for offline playback
+
+---
+
 # 📝 IndoQuran Changelog - Version 2.8.0
 
 ## 🎯 Version 2.8.0 - SEO Optimization Comprehensive Update

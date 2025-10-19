@@ -86,7 +86,9 @@ function SurahDetailPage() {
     const [surahAudioElement, setSurahAudioElement] = useState(null);
     const [currentPlayingAyahIndex, setCurrentPlayingAyahIndex] = useState(0);
     const [isAutoPlayingSequence, setIsAutoPlayingSequence] = useState(false);
-    const [selectedQari, setSelectedQari] = useState('03'); // Default to Sudais
+    const [selectedQari, setSelectedQari] = useState('2'); // Default to Abdul Basit 192kbps
+    const [availableReciters, setAvailableReciters] = useState([]);
+    const [recitersLoading, setRecitersLoading] = useState(true);
 
     const ayahRefs = useRef({});
     const currentAyahRef = useRef(null);
@@ -405,6 +407,44 @@ function SurahDetailPage() {
         }
     }, [number, user]);
 
+    // Fetch available reciters from API
+    useEffect(() => {
+        const fetchReciters = async () => {
+            try {
+                setRecitersLoading(true);
+                console.log('🎙️ Fetching available reciters from API...');
+                
+                const response = await fetch('/api/reciters/recommended');
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    console.log('✅ Reciters loaded:', result.data.length);
+                    setAvailableReciters(result.data);
+                } else {
+                    console.error('❌ Failed to load reciters:', result.message);
+                    // Set default reciters if API fails
+                    setAvailableReciters([
+                        { id: '2', name: 'Abdul Basit Murattal', bitrate: '192kbps' },
+                        { id: '8', name: 'Abdurrahmaan As-Sudais', bitrate: '192kbps' },
+                        { id: '15', name: 'Alafasy', bitrate: '128kbps' },
+                    ]);
+                }
+            } catch (error) {
+                console.error('❌ Error fetching reciters:', error);
+                // Set default reciters if API fails
+                setAvailableReciters([
+                    { id: '2', name: 'Abdul Basit Murattal', bitrate: '192kbps' },
+                    { id: '8', name: 'Abdurrahmaan As-Sudais', bitrate: '192kbps' },
+                    { id: '15', name: 'Alafasy', bitrate: '128kbps' },
+                ]);
+            } finally {
+                setRecitersLoading(false);
+            }
+        };
+
+        fetchReciters();
+    }, []);
+
     // REQUIREMENT 2: Ensure URL is properly initialized when page loads
     useEffect(() => {
         // If we have ayahs loaded but no ayah number in URL, redirect to first ayah
@@ -582,6 +622,26 @@ function SurahDetailPage() {
         }
     };
 
+    // Helper function to get audio URL from EveryAyah API
+    const getEveryAyahAudioUrl = (surahNumber, ayahNumber, reciterId) => {
+        const reciter = availableReciters.find(r => r.id === reciterId);
+        
+        if (!reciter) {
+            console.warn('⚠️ Reciter not found, using default');
+            // Default to Abdul Basit 192kbps
+            const defaultReciter = availableReciters.find(r => r.id === '2') || availableReciters[0];
+            if (!defaultReciter) return null;
+            
+            const surahStr = String(surahNumber).padStart(3, '0');
+            const ayahStr = String(ayahNumber).padStart(3, '0');
+            return `https://everyayah.com/data/${defaultReciter.subfolder}/${surahStr}${ayahStr}.mp3`;
+        }
+        
+        const surahStr = String(surahNumber).padStart(3, '0');
+        const ayahStr = String(ayahNumber).padStart(3, '0');
+        return `https://everyayah.com/data/${reciter.subfolder}/${surahStr}${ayahStr}.mp3`;
+    };
+
     const playAyah = async (ayahNum) => {
         try {
             setIsAudioLoading(true);
@@ -609,51 +669,17 @@ function SurahDetailPage() {
                 return;
             }
 
-            let audioUrl = null;
-            
-            // Handle different audio URL formats - Use selected Qari from full surah player
-            if (ayah.audio_url) {
-                audioUrl = ayah.audio_url;
-            } else if (ayah.audio_urls) {
-                const audioUrls = typeof ayah.audio_urls === 'string' 
-                    ? JSON.parse(ayah.audio_urls) 
-                    : ayah.audio_urls;
-                
-                if (Array.isArray(audioUrls) && audioUrls.length > 0) {
-                    audioUrl = audioUrls[0];
-                } else if (typeof audioUrls === 'object' && audioUrls !== null) {
-                    // Use selected Qari first, then fallback to other options
-                    if (audioUrls[selectedQari]) {
-                        audioUrl = audioUrls[selectedQari];
-                    } else {
-                        // Fallback to other qaris if selected one is not available
-                        const fallbackQaris = ['03', '05', '01', '02', '04', 'alafasy', 'sudais', 'husary', 'minshawi', 'abdulbasit'];
-                        
-                        for (const qari of fallbackQaris) {
-                            if (qari !== selectedQari && audioUrls[qari]) {
-                                audioUrl = audioUrls[qari];
-                                break;
-                            }
-                        }
-                        
-                        // If still no URL found, get first available
-                        if (!audioUrl) {
-                            const firstKey = Object.keys(audioUrls)[0];
-                            if (firstKey) {
-                                audioUrl = audioUrls[firstKey];
-                            }
-                        }
-                    }
-                }
-            }
+            // Get audio URL from EveryAyah API based on selected qari
+            const audioUrl = getEveryAyahAudioUrl(surah.number, ayah.ayah_number, selectedQari);
             
             if (!audioUrl) {
-                console.error('❌ No audio URL found for ayah', ayahNum);
+                console.error('❌ No audio URL generated for ayah', ayahNum);
                 setIsAudioLoading(false);
                 alert('Audio tidak tersedia untuk ayat ini');
                 return;
             }
             
+            console.log(`🎵 Playing individual ayah ${ayah.ayah_number} with URL:`, audioUrl);
             const audio = new Audio(audioUrl);
             
             // Set up event listeners
@@ -838,43 +864,8 @@ function SurahDetailPage() {
                 }
             }
             
-            let audioUrl = null;
-            
-            // Handle different audio URL formats
-            if (ayah.audio_url) {
-                audioUrl = ayah.audio_url;
-            } else if (ayah.audio_urls) {
-                const audioUrls = typeof ayah.audio_urls === 'string' 
-                    ? JSON.parse(ayah.audio_urls) 
-                    : ayah.audio_urls;
-                
-                if (Array.isArray(audioUrls) && audioUrls.length > 0) {
-                    audioUrl = audioUrls[0];
-                } else if (typeof audioUrls === 'object' && audioUrls !== null) {
-                    // Use selected Qari first, then fallback to other options
-                    if (audioUrls[selectedQari]) {
-                        audioUrl = audioUrls[selectedQari];
-                    } else {
-                        // Fallback to other qaris if selected one is not available
-                        const fallbackQaris = ['03', '05', '01', '02', '04', 'alafasy', 'sudais', 'husary', 'minshawi', 'abdulbasit'];
-                        
-                        for (const qari of fallbackQaris) {
-                            if (qari !== selectedQari && audioUrls[qari]) {
-                                audioUrl = audioUrls[qari];
-                                break;
-                            }
-                        }
-                        
-                        // If still no URL found, get first available
-                        if (!audioUrl) {
-                            const firstKey = Object.keys(audioUrls)[0];
-                            if (firstKey) {
-                                audioUrl = audioUrls[firstKey];
-                            }
-                        }
-                    }
-                }
-            }
+            // Get audio URL from EveryAyah API based on selected qari
+            const audioUrl = getEveryAyahAudioUrl(surah.number, ayah.ayah_number, selectedQari);
             
             if (!audioUrl) {
                 console.log(`⚠️ No audio URL found for ayah ${ayah.ayah_number}, skipping...`);
@@ -893,6 +884,7 @@ function SurahDetailPage() {
                 return;
             }
 
+            console.log(`🎵 Playing ayah ${ayah.ayah_number} with URL:`, audioUrl);
             const audio = new Audio(audioUrl);
             
             // Set up event listeners for sequence playback
@@ -2043,23 +2035,36 @@ function SurahDetailPage() {
                         
                         {/* Qari Selection */}
                         <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Pilih Qari:
+                            <label className="block text-sm font-medium text-gray-700 mb-2 text-center">
+                                🎙️ Pilih Qari (Pembaca):
                             </label>
-                            <select
-                                value={selectedQari}
-                                onChange={(e) => setSelectedQari(e.target.value)}
-                                className="mx-auto block bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                            >
-                                <option value="03">Abdul Rahman As-Sudais</option>
-                                <option value="05">Mishary Rashid Alafasy</option>
-                                <option value="01">Abdullah Basfar</option>
-                                <option value="02">Abdul Muhsin Al-Qasim</option>
-                                <option value="04">Ibrahim Al-Dossari</option>
-                                <option value="husary">Mahmoud Khalil Al-Husary</option>
-                                <option value="minshawi">Mohamed Siddiq El-Minshawi</option>
-                                <option value="abdulbasit">Abdul Basit</option>
-                            </select>
+                            {recitersLoading ? (
+                                <div className="text-center text-gray-500 text-sm">
+                                    Memuat daftar qari...
+                                </div>
+                            ) : (
+                                <select
+                                    value={selectedQari}
+                                    onChange={(e) => {
+                                        console.log('🎙️ Qari changed to:', e.target.value);
+                                        setSelectedQari(e.target.value);
+                                        // Stop current playback when changing qari
+                                        if (isSurahPlaying || isAutoPlayingSequence) {
+                                            pauseFullSurah();
+                                        }
+                                    }}
+                                    className="w-full max-w-md mx-auto block bg-white border-2 border-gray-300 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all hover:border-green-400 cursor-pointer shadow-sm"
+                                >
+                                    {availableReciters.map((reciter) => (
+                                        <option key={reciter.id} value={reciter.id}>
+                                            {reciter.name} ({reciter.bitrate})
+                                        </option>
+                                    ))}
+                                </select>
+                            )}
+                            <p className="text-xs text-gray-500 text-center mt-2">
+                                {availableReciters.length} qari terbaik dunia tersedia
+                            </p>
                         </div>
 
                         {/* Current Playing Info */}
