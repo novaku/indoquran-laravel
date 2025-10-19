@@ -56,7 +56,7 @@ export default defineConfig(({ command, mode }) => {
                 },
             },
             // Reduce chunk size warning limit for mobile optimization
-            chunkSizeWarningLimit: 300,
+            chunkSizeWarningLimit: 250,
             // Disable source maps for production to reduce size significantly
             sourcemap: false,
             // Enhanced code splitting for aggressive bundle size reduction

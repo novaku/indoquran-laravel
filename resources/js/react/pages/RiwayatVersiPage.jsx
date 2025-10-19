@@ -6,6 +6,103 @@ import StructuredData from '../components/StructuredData';
 function RiwayatVersiPage() {
     const versions = [
         {
+            version: "2.9.0",
+            date: "19 Oktober 2025",
+            type: "major",
+            title: "Implementasi Core Web Vitals Sesuai Google Search Console Standards",
+            description: "Update mayor dengan implementasi lengkap Core Web Vitals monitoring sesuai dokumentasi Google Search Console. Mengganti FID dengan INP (Interaction to Next Paint) sebagai metrik baru sejak Maret 2024, implementasi 75th percentile reporting, Google Analytics 4 integration, dan backend API untuk data collection. Semua threshold diupdate sesuai standar Google untuk LCP, INP, dan CLS.",
+            changes: [
+                {
+                    type: "feature",
+                    text: "INP (Interaction to Next Paint) monitoring menggantikan FID - metrik responsivitas terbaru dari Google yang melacak SEMUA interaksi pengguna"
+                },
+                {
+                    type: "feature",
+                    text: "Core Web Vitals Reporter utility (coreWebVitalsReporter.js) dengan automatic reporting ke Google Analytics 4 dan custom endpoint"
+                },
+                {
+                    type: "feature",
+                    text: "Backend API Controller (CoreWebVitalsController.php) dengan 3 endpoints: POST /api/web-vitals, GET /api/web-vitals/stats, GET /api/web-vitals/url"
+                },
+                {
+                    type: "feature",
+                    text: "75th percentile calculation dan local storage untuk metric history sesuai standar Google (75% kunjungan harus meet threshold)"
+                },
+                {
+                    type: "feature",
+                    text: "Real-time monitoring di browser dengan PerformanceObserver API untuk LCP, INP, CLS, FCP, dan TTFB"
+                },
+                {
+                    type: "feature",
+                    text: "Device info collection (viewport, connection type, memory) untuk analisis mendalam"
+                },
+                {
+                    type: "feature",
+                    text: "Browser console utility: window.getCoreWebVitalsSummary() untuk debugging dan monitoring"
+                },
+                {
+                    type: "improvement",
+                    text: "Update threshold sesuai Google Standards: LCP ≤2.5s/≤4s, INP ≤200ms/≤500ms, CLS ≤0.1/≤0.25 (good/needs improvement)"
+                },
+                {
+                    type: "improvement",
+                    text: "useAdvancedPerformanceMonitor hook updated dengan INP tracking dan correct rating thresholds"
+                },
+                {
+                    type: "improvement",
+                    text: "mobilePerformance.js config updated: INP thresholds, same standards untuk mobile dan desktop sesuai Google"
+                },
+                {
+                    type: "improvement",
+                    text: "PerformanceOptimizer.jsx updated: Menggunakan web-vitals@4 dengan onINP(), onLCP(), onCLS() untuk monitoring"
+                },
+                {
+                    type: "improvement",
+                    text: "performance-monitor.js: measureINP() function dengan interaction tracking dan 75th percentile calculation"
+                },
+                {
+                    type: "improvement",
+                    text: "app.js: Auto-initialization Core Web Vitals reporting saat aplikasi start"
+                },
+                {
+                    type: "improvement",
+                    text: "package.json: Added web-vitals@4.2.4 dependency untuk official Google library"
+                },
+                {
+                    type: "improvement",
+                    text: "Backend statistics dengan p50, p75, p90, p95 percentiles dan rating breakdown (good/needs-improvement/poor)"
+                },
+                {
+                    type: "improvement",
+                    text: "Cache-based storage dengan 7 days TTL, automatic cleanup, dan support untuk 1000 entries per metric"
+                },
+                {
+                    type: "documentation",
+                    text: "CORE_WEB_VITALS_IMPLEMENTATION.md: Dokumentasi lengkap 500+ baris dengan cara kerja, thresholds, monitoring, debugging"
+                },
+                {
+                    type: "documentation",
+                    text: "CORE_WEB_VITALS_QUICKSTART.md: Quick start guide 5 menit untuk setup dan testing"
+                },
+                {
+                    type: "documentation",
+                    text: "CORE_WEB_VITALS_SUMMARY.md: Implementation summary dengan deployment steps dan monitoring checklist"
+                },
+                {
+                    type: "documentation",
+                    text: "CORE_WEB_VITALS_COMPLETED.md: Completion status dengan success criteria dan next actions"
+                },
+                {
+                    type: "documentation",
+                    text: "CORE_WEB_VITALS_README.md: Quick reference card untuk daily use"
+                },
+                {
+                    type: "documentation",
+                    text: "test-core-web-vitals.sh: Automated testing script untuk validasi implementation (all tests passing ✅)"
+                }
+            ]
+        },
+        {
             version: "2.8.0",
             date: "17 Oktober 2025",
             type: "major",

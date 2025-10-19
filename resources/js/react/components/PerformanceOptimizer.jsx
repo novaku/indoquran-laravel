@@ -107,16 +107,21 @@ const PerformanceOptimizer = () => {
         setTimeout(optimizeLCP, 100);
 
         // Monitor and report Core Web Vitals (development only)
+        // Using web-vitals library v4+ which includes INP
+        // Reference: https://support.google.com/webmasters/answer/9205520
         if (process.env.NODE_ENV === 'development') {
-            import('web-vitals').then(({ getCLS, getFCP, getLCP, getFID, getTTFB }) => {
-                getCLS(console.log);
-                getFCP(console.log);
-                getLCP(console.log);
-                getFID(console.log);
-                getTTFB(console.log);
+            import('web-vitals').then(({ onCLS, onFCP, onLCP, onINP, onTTFB }) => {
+                // Core Web Vitals: LCP, INP, CLS
+                onLCP(console.log);  // Target: <=2.5s (good), <=4s (needs improvement)
+                onINP(console.log);  // Target: <=200ms (good), <=500ms (needs improvement) - Replaces FID
+                onCLS(console.log);  // Target: <=0.1 (good), <=0.25 (needs improvement)
+                
+                // Supporting metrics
+                onFCP(console.log);  // First Contentful Paint
+                onTTFB(console.log); // Time to First Byte
             }).catch(() => {
                 // Fallback if web-vitals is not available
-                console.log('Web Vitals monitoring not available');
+                console.log('Web Vitals monitoring not available - install web-vitals@4+');
             });
         }
 

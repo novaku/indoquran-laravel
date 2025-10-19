@@ -2,14 +2,16 @@
 (function() {
   'use strict';
   
-  // Performance metrics collection
+  // Performance metrics collection for Core Web Vitals
+  // Reference: https://support.google.com/webmasters/answer/9205520
   const metrics = {
     fcp: null,
     lcp: null,
-    fid: null,
+    inp: null,  // INP replaces FID as of March 2024
     cls: null,
     ttfb: null,
-    navigationTiming: null
+    navigationTiming: null,
+    interactions: []  // Track all interactions for INP calculation
   };
   
   // Measure Time to First Byte (TTFB)
@@ -59,18 +61,35 @@
     });
   }
   
-  // Measure First Input Delay (FID)
-  function measureFID() {
+  // Measure Interaction to Next Paint (INP) - Replaces FID
+  // INP measures responsiveness of page to all user interactions
+  // Google thresholds: <=200ms (good), <=500ms (needs improvement), >500ms (poor)
+  function measureINP() {
     const observer = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
-        if (entry.processingStart > entry.startTime) {
-          metrics.fid = entry.processingStart - entry.startTime;
-          observer.disconnect();
-          break;
-        }
+        const interactionTime = entry.processingStart 
+          ? entry.processingStart - entry.startTime 
+          : entry.duration;
+        
+        metrics.interactions.push(interactionTime);
+        
+        // Calculate INP: worst interaction (75th percentile)
+        const sorted = [...metrics.interactions].sort((a, b) => b - a);
+        const p75Index = Math.max(0, Math.ceil(sorted.length * 0.75) - 1);
+        metrics.inp = sorted[p75Index] || sorted[0] || 0;
       }
     });
-    observer.observe({ entryTypes: ['first-input'] });
+    
+    try {
+      observer.observe({ entryTypes: ['event', 'first-input'], buffered: true });
+    } catch (e) {
+      // Fallback for older browsers
+      try {
+        observer.observe({ entryTypes: ['first-input'] });
+      } catch (err) {
+        console.warn('INP measurement not supported');
+      }
+    }
   }
   
   // Measure Cumulative Layout Shift (CLS)
@@ -155,7 +174,7 @@
     measureTTFB();
     measureFCP();
     measureLCP();
-    measureFID();
+    measureINP();  // Updated from FID to INP
     measureCLS();
     
     // Send metrics after page is fully loaded

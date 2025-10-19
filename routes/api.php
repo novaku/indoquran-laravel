@@ -31,6 +31,11 @@ Route::get('/geocode/reverse', [\App\Http\Controllers\Api\GeocodingController::c
 // Security endpoints
 Route::post('/csp-violation-report', [SecurityController::class, 'cspViolationReport']);
 Route::get('/security/stats', [SecurityController::class, 'getSecurityStats']);
+
+// Core Web Vitals endpoints (for Google Search Console monitoring)
+Route::post('/web-vitals', [\App\Http\Controllers\Api\CoreWebVitalsController::class, 'store']);
+Route::get('/web-vitals/stats', [\App\Http\Controllers\Api\CoreWebVitalsController::class, 'getStats']);
+Route::get('/web-vitals/url', [\App\Http\Controllers\Api\CoreWebVitalsController::class, 'getUrlStats']);
 // Return authenticated user or null - simplified without session checks
 Route::get('/user', function (Request $request) {
     // First attempt with regular auth check

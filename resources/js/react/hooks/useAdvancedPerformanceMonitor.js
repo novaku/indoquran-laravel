@@ -7,7 +7,7 @@ import { useEffect, useCallback, useRef } from 'react';
 export const useAdvancedPerformanceMonitor = (config = {}) => {
   const {
     trackLCP = true,
-    trackFID = true,
+    trackINP = true, // INP replaces FID as of March 2024
     trackCLS = true,
     trackTTFB = true,
     trackCustomMetrics = true,
@@ -48,10 +48,11 @@ export const useAdvancedPerformanceMonitor = (config = {}) => {
     }
   }, [logToConsole, onMetric]);
 
-  // Get rating based on thresholds
-  const getRating = useCallback((value, goodThreshold, poorThreshold) => {
+  // Get rating based on Google's Core Web Vitals thresholds
+  // https://support.google.com/webmasters/answer/9205520
+  const getRating = useCallback((value, goodThreshold, needsImprovementThreshold) => {
     if (value <= goodThreshold) return 'good';
-    if (value <= poorThreshold) return 'needs-improvement';
+    if (value <= needsImprovementThreshold) return 'needs-improvement';
     return 'poor';
   }, []);
 
@@ -81,29 +82,55 @@ export const useAdvancedPerformanceMonitor = (config = {}) => {
     return () => observer.disconnect();
   }, [trackLCP, logMetric, getRating]);
 
-  // Track First Input Delay (FID)
+  // Track Interaction to Next Paint (INP) - Replaces FID
+  // INP measures responsiveness by observing all interactions during page visit
   useEffect(() => {
-    if (!trackFID || !('PerformanceObserver' in window)) return;
+    if (!trackINP || !('PerformanceObserver' in window)) return;
+
+    let worstInp = 0;
+    const interactions = [];
 
     const observer = new PerformanceObserver((list) => {
       const entries = list.getEntries();
       entries.forEach((entry) => {
-        if (entry.entryType === 'first-input') {
-          const fidValue = entry.processingStart - entry.startTime;
-          const rating = getRating(fidValue, 100, 300);
-          logMetric('FID', Math.round(fidValue), rating);
+        // INP tracks all interactions (click, tap, keyboard)
+        if (entry.entryType === 'event' || entry.entryType === 'first-input') {
+          const interactionTime = entry.processingStart 
+            ? entry.processingStart - entry.startTime 
+            : entry.duration;
+          
+          interactions.push(interactionTime);
+          
+          // INP reports the longest interaction (excluding outliers)
+          // Sort and get 75th percentile (or highest value)
+          const sortedInteractions = [...interactions].sort((a, b) => b - a);
+          const p75Index = Math.max(0, Math.ceil(sortedInteractions.length * 0.75) - 1);
+          worstInp = sortedInteractions[p75Index] || worstInp;
+          
+          // Google thresholds for INP: <=200ms (good), <=500ms (needs improvement), >500ms (poor)
+          const rating = getRating(worstInp, 200, 500);
+          logMetric('INP', Math.round(worstInp), rating);
         }
       });
     });
 
     try {
-      observer.observe({ entryTypes: ['first-input'] });
+      // Observe all interaction events
+      observer.observe({ 
+        entryTypes: ['event', 'first-input'],
+        buffered: true 
+      });
     } catch (e) {
-      console.warn('FID observation not supported');
+      // Fallback to first-input for older browsers
+      try {
+        observer.observe({ entryTypes: ['first-input'], buffered: true });
+      } catch (err) {
+        console.warn('INP/FID observation not supported');
+      }
     }
 
     return () => observer.disconnect();
-  }, [trackFID, logMetric, getRating]);
+  }, [trackINP, logMetric, getRating]);
 
   // Track Cumulative Layout Shift (CLS)
   useEffect(() => {
@@ -234,10 +261,10 @@ export const useAdvancedPerformanceMonitor = (config = {}) => {
       });
     }
 
-    if (metrics.FID?.rating !== 'good') {
+    if (metrics.INP?.rating !== 'good') {
       suggestions.push({
-        metric: 'FID',
-        suggestion: 'Reduce first input delay by optimizing JavaScript execution, using code splitting, and deferring non-critical scripts.'
+        metric: 'INP',
+        suggestion: 'Improve interaction responsiveness by optimizing JavaScript execution, reducing main thread blocking, using code splitting, and deferring non-critical scripts. Target: <=200ms for good rating.'
       });
     }
 

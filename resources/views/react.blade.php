@@ -50,32 +50,55 @@
     <title>{{ $metaTitle ?? 'IndoQuran - Al-Quran Digital Indonesia' }}</title>
 
     <!-- Critical Performance Optimizations -->
-    <!-- DNS prefetch for external domains (highest priority) -->
+    <!-- DNS prefetch for external domains (highest priority) - reduced to only used resources -->
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    <link rel="dns-prefetch" href="//fonts.bunny.net">
     
-    <!-- Preconnect to critical external resources -->
+    <!-- Preconnect to critical external resources only (fonts) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+    
+    <!-- Preload critical resources for faster initial load -->
+    <link rel="modulepreload" href="{{ Vite::asset('resources/js/react/index.jsx') }}" as="script">
     
     <!-- Preload critical CSS non-blocking - Let Vite handle this -->
     <!-- CSS will be loaded by Vite directive at the bottom -->
     
-    <!-- Optimized Font Loading - Reduced to essential fonts only -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600&display=swap"></noscript>
+    <!-- Optimized Font Loading - Reduced to essential fonts only with font-display: swap -->
+    <!-- Using only critical font weights for better performance -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;600&family=Noto+Naskh+Arabic:wght@400;600&display=swap&text=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;600&family=Noto+Naskh+Arabic:wght@400;600&display=swap"></noscript>
     
     <!-- Fallback system fonts for immediate rendering -->
     <style>
+        /* Optimize font loading with font-display: swap */
+        @font-face {
+            font-family: 'Inter Fallback';
+            font-style: normal;
+            font-weight: 400;
+            src: local('Arial');
+            ascent-override: 90%;
+            descent-override: 22%;
+            line-gap-override: 0%;
+            size-adjust: 107%;
+        }
+        
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: Inter, 'Inter Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             font-display: swap;
         }
+        
         .arabic-text { 
-            font-family: 'Noto Naskh Arabic', 'Arabic Typesetting', 'Traditional Arabic', serif;
+            font-family: 'Amiri', 'Noto Naskh Arabic', 'Arabic Typesetting', 'Traditional Arabic', serif;
             font-display: swap;
+        }
+        
+        /* Reduce layout shift from font loading */
+        * {
+            font-synthesis: none;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
     </style>
 

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prayer Images Test</title>
+</head>
+<body>
+    <h1>Prayer Images Test</h1>
+    <div id="test-images"></div>
+
+    <script>
+        // Test the API endpoint
+        fetch('/api/prayer-images')
+            .then(response => response.json())
+            .then(data => {
+                console.log('API Response:', data);
+                
+                if (data.success && data.data.length > 0) {
+                    const container = document.getElementById('test-images');
+                    
+                    data.data.forEach((image, index) => {
+                        const img = document.createElement('img');
+                        img.src = image.url;
+                        img.alt = `Prayer ${index + 1}`;
+                        img.style.width = '200px';
+                        img.style.height = '150px';
+                        img.style.objectFit = 'cover';
+                        img.style.margin = '10px';
+                        img.style.border = '2px solid #ccc';
+                        
+                        img.onload = () => {
+                            console.log('Image loaded:', image.url);
+                            img.style.border = '2px solid green';
+                        };
+                        
+                        img.onerror = () => {
+                            console.error('Image failed to load:', image.url);
+                            img.style.border = '2px solid red';
+                            img.alt = 'Failed to load';
+                        };
+                        
+                        container.appendChild(img);
+                    });
+                } else {
+                    document.getElementById('test-images').innerHTML = '<p>No images found</p>';
+                }
+            })
+            .catch(error => {
+                console.error('API Error:', error);
+                document.getElementById('test-images').innerHTML = '<p>API Error: ' + error.message + '</p>';
+            });
+    </script>
+</body>
+</html>

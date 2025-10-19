@@ -4,11 +4,21 @@
  */
 
 // Mobile-specific performance thresholds
+// Reference: https://support.google.com/webmasters/answer/9205520
 export const MOBILE_PERFORMANCE_CONFIG = {
-  // Core Web Vitals thresholds (more lenient for mobile)
-  LCP_THRESHOLD: 3000, // 3 seconds for mobile
-  FID_THRESHOLD: 150,  // 150ms for mobile
-  CLS_THRESHOLD: 0.15, // 0.15 for mobile
+  // Core Web Vitals thresholds (Google standards apply to both mobile and desktop)
+  // Good: <=2.5s, Needs Improvement: <=4s, Poor: >4s
+  LCP_THRESHOLD: 2500, // 2.5 seconds - good threshold
+  LCP_POOR_THRESHOLD: 4000, // 4 seconds - poor threshold
+  
+  // INP replaces FID as of March 2024
+  // Good: <=200ms, Needs Improvement: <=500ms, Poor: >500ms
+  INP_THRESHOLD: 200,  // 200ms - good threshold
+  INP_POOR_THRESHOLD: 500, // 500ms - poor threshold
+  
+  // Good: <=0.1, Needs Improvement: <=0.25, Poor: >0.25
+  CLS_THRESHOLD: 0.1, // 0.1 - good threshold
+  CLS_POOR_THRESHOLD: 0.25, // 0.25 - poor threshold
 
   // Resource loading limits
   MAX_CONCURRENT_REQUESTS: 4, // Limit concurrent requests on mobile
@@ -107,13 +117,16 @@ export const PERFORMANCE_BUDGETS = {
 };
 
 // Performance monitoring configuration
+// Based on Google Core Web Vitals requirements
 export const MONITORING_CONFIG = {
-  // Core Web Vitals
-  TRACK_LCP: true,
-  TRACK_FID: true,
-  TRACK_CLS: true,
-  TRACK_TTFB: true,
-  TRACK_FCP: true,
+  // Core Web Vitals (LCP, INP, CLS are the 3 required metrics)
+  TRACK_LCP: true,   // Largest Contentful Paint
+  TRACK_INP: true,   // Interaction to Next Paint (replaces FID)
+  TRACK_CLS: true,   // Cumulative Layout Shift
+  
+  // Additional metrics for diagnostics
+  TRACK_TTFB: true,  // Time to First Byte
+  TRACK_FCP: true,   // First Contentful Paint
   
   // Custom metrics
   TRACK_BUNDLE_SIZE: true,
