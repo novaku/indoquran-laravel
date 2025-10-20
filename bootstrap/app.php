@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(prepend: [
             \App\Http\Middleware\ExcludeSSLErrorsMiddleware::class,
             \App\Http\Middleware\DomainRedirectMiddleware::class,
+            \App\Http\Middleware\CanonicalUrlRedirect::class, // Canonical URL enforcement
             \Illuminate\Http\Middleware\HandleCors::class,
         ]);
         

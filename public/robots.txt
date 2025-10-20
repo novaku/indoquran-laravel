@@ -1,20 +1,54 @@
+# robots.txt untuk IndoQuran.web.id
+# Mengoptimalkan crawling dan mencegah duplicate content
+
+# =============================================
+# ALLOW ALL SEARCH ENGINES (DEFAULT)
+# =============================================
 User-agent: *
 Allow: /
 
-# Disallow private pages
+# =============================================
+# DISALLOW PRIVATE AREAS
+# =============================================
 Disallow: /auth/
 Disallow: /profile
 Disallow: /bookmarks
 Disallow: /api/
 Disallow: /admin/
+Disallow: /storage/
+Disallow: /vendor/
 
-# Allow important pages
+# =============================================
+# DISALLOW TRACKING PARAMETERS
+# Mencegah Google crawl URL dengan parameter tracking
+# =============================================
+Disallow: /*?ref=*
+Disallow: /*?utm_*
+Disallow: /*&utm_*
+Disallow: /*?fbclid=*
+Disallow: /*&fbclid=*
+Disallow: /*?gclid=*
+Disallow: /*&gclid=*
+Disallow: /*?msclkid=*
+Disallow: /*&msclkid=*
+Disallow: /*?_ga=*
+Disallow: /*&_ga=*
+
+# =============================================
+# DISALLOW DUPLICATE PATHS
+# =============================================
+Disallow: /*?page=1$          # Page 1 sama dengan tanpa parameter
+Disallow: /*/                  # URL dengan trailing slash (akan di-redirect)
+
+# =============================================
+# ALLOW IMPORTANT PAGES
+# =============================================
 Allow: /cari
 Allow: /surah
 Allow: /daftar-lengkap
-Allow: /surah/
-Allow: /juz/
-Allow: /halaman/
+Allow: /surah/*
+Allow: /juz/*
+Allow: /halaman/*
 Allow: /asmaul-husna
 Allow: /tafsir-maudhui
 Allow: /doa-bersama
@@ -24,22 +58,72 @@ Allow: /donasi
 Allow: /riwayat-versi
 Allow: /kebijakan
 
-# Crawl delay for respectful crawling
-Crawl-delay: 1
-
-# Sitemaps
-Sitemap: https://indoquran.web.id/sitemap.xml
-Sitemap: https://indoquran.web.id/sitemap-index.xml
-
-# Additional guidelines for major search engines
+# =============================================
+# GOOGLE SEARCH ENGINE
+# =============================================
 User-agent: Googlebot
 Allow: /
-Crawl-delay: 1
+Crawl-delay: 0
 
+User-agent: Googlebot-Image
+Allow: /images/
+Allow: /storage/images/
+
+User-agent: Googlebot-Mobile
+Allow: /
+
+# =============================================
+# BING SEARCH ENGINE
+# =============================================
 User-agent: Bingbot
 Allow: /
 Crawl-delay: 1
 
+# =============================================
+# OTHER MAJOR SEARCH ENGINES
+# =============================================
 User-agent: Slurp
 Allow: /
 Crawl-delay: 1
+
+User-agent: Yandex
+Allow: /
+Crawl-delay: 2
+
+# =============================================
+# SOCIAL MEDIA CRAWLERS
+# =============================================
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+User-agent: TelegramBot
+Allow: /
+
+# =============================================
+# BAD BOTS (Optional)
+# =============================================
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+# =============================================
+# SITEMAP LOCATION
+# =============================================
+Sitemap: https://indoquran.web.id/sitemap.xml
+Sitemap: https://indoquran.web.id/sitemap-index.xml
+
+# =============================================
+# HOST DIRECTIVE (Untuk Yandex)
+# =============================================
+Host: https://indoquran.web.id
