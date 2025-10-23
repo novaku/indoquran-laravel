@@ -1,23 +1,35 @@
 # Performance Optimizations
 
-# Explicit MIME Types for fonts and assets
-AddType font/woff2                 .woff2
-AddType font/woff                  .woff
-AddType font/ttf                   .ttf
-AddType font/otf                   .otf
-AddType application/font-woff      .woff
-AddType application/font-woff2     .woff2
-AddType application/javascript     .js
-AddType application/json           .json
-AddType text/css                   .css
-
-# For Apache 2.4.27+, also set font loading headers
-<FilesMatch "\.(woff|woff2|ttf|otf)$">
-    Header add Access-Control-Allow-Origin "*"
-    Header add Cache-Control "public, max-age=31536000, immutable"
-</FilesMatch>
+# Explicit MIME Types for fonts and assets - CRITICAL for security and functionality
+<IfModule mod_mime.c>
+    AddType text/css                   .css
+    AddType application/javascript     .js
+    AddType application/json           .json
+    AddType font/woff2                 .woff2
+    AddType font/woff                  .woff
+    AddType font/ttf                   .ttf
+    AddType font/otf                   .otf
+    AddType application/font-woff      .woff
+    AddType application/font-woff2     .woff2
+    AddType image/svg+xml              .svg
+    AddType image/webp                 .webp
+    AddType image/avif                 .avif
+</IfModule>
 
 <IfModule mod_headers.c>
+    # CRITICAL: Force correct MIME types for CSS and JS to prevent browser rejection
+    <FilesMatch "\.(css)$">
+        ForceType text/css
+        Header always set Content-Type "text/css; charset=utf-8"
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    
+    <FilesMatch "\.(js)$">
+        ForceType application/javascript
+        Header always set Content-Type "application/javascript; charset=utf-8"
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    
     # GZIP Compression
     <IfModule mod_deflate.c>
         SetOutputFilter DEFLATE
@@ -103,8 +115,11 @@ Options -MultiViews -Indexes
 
 RewriteEngine On
 
-# Ensure build directory assets are NOT rewritten
+# Ensure build directory assets are NOT rewritten - CRITICAL for Vite assets
 RewriteRule ^build/ - [L]
+
+# Ensure storage directory is accessible
+RewriteRule ^storage/ - [L]
 
 # Handle Authorization Header
 RewriteCond %{HTTP:Authorization} .

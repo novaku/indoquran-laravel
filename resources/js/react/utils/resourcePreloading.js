@@ -327,7 +327,7 @@ export const initializeRoutePreloading = () => {
 export const preloadFonts = () => {
   const fonts = [
     { href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap', type: 'text/css' },
-    { href: '/fonts/AlQuran-IndoPak.woff2', type: 'font/woff2' }
+    { href: '/fonts/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED.ttf', type: 'font/ttf' }
   ];
   
   fonts.forEach(font => {
