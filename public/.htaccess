@@ -1,6 +1,6 @@
-# Performance Optimizations
+# Apache 2.4.65 cPanel Configuration - IndoQuran
+# Optimized for production performance and security
 
-# Explicit MIME Types for fonts and assets - CRITICAL for security and functionality
 <IfModule mod_mime.c>
     AddType text/css                   .css
     AddType application/javascript     .js
@@ -9,15 +9,13 @@
     AddType font/woff                  .woff
     AddType font/ttf                   .ttf
     AddType font/otf                   .otf
-    AddType application/font-woff      .woff
-    AddType application/font-woff2     .woff2
     AddType image/svg+xml              .svg
     AddType image/webp                 .webp
     AddType image/avif                 .avif
 </IfModule>
 
 <IfModule mod_headers.c>
-    # CRITICAL: Force correct MIME types for CSS and JS to prevent browser rejection
+    # CRITICAL: Force correct MIME types for CSS and JS - prevents browser rejection
     <FilesMatch "\.(css)$">
         ForceType text/css
         Header always set Content-Type "text/css; charset=utf-8"

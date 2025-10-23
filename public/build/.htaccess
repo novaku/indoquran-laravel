@@ -1,0 +1,127 @@
+# Apache 2.4.65 cPanel - Vite Build Output Directory<IfModule mod_mime.c># Ensure all assets in build directory are served with correct MIME types
+
+
+
+<IfModule mod_mime.c>    AddType text/css                   .css# This prevents browsers from rejecting stylesheets due to MIME type mismatch
+
+    AddType text/css                   .css
+
+    AddType application/javascript     .js    AddType application/javascript     .js
+
+    AddType font/woff2                 .woff2
+
+    AddType font/woff                  .woff    AddType application/json           .json# CRITICAL: Set correct MIME types using mod_mime
+
+    AddType font/ttf                   .ttf
+
+    AddType font/otf                   .otf    AddType font/woff2                 .woff2<IfModule mod_mime.c>
+
+    AddType image/svg+xml              .svg
+
+    AddType image/webp                 .webp    AddType font/woff                  .woff    AddType text/css                   .css
+
+</IfModule>
+
+    AddType font/ttf                   .ttf    AddType application/javascript     .js
+
+<IfModule mod_headers.c>
+
+    # Critical MIME type fix for CSS    AddType font/otf                   .otf    AddType application/json           .json
+
+    <FilesMatch "\.css$">
+
+        ForceType text/css</IfModule>    AddType font/woff2                 .woff2
+
+        Header always set Content-Type "text/css; charset=utf-8"
+
+        Header set Cache-Control "public, max-age=31536000, immutable"    AddType font/woff                  .woff
+
+    </FilesMatch>
+
+    <IfModule mod_headers.c>    AddType font/ttf                   .ttf
+
+    # JavaScript
+
+    <FilesMatch "\.js$">    # Force correct MIME types for CSS    AddType font/otf                   .otf
+
+        ForceType application/javascript
+
+        Header always set Content-Type "application/javascript; charset=utf-8"    <FilesMatch "\.(css)$">    AddType image/svg+xml              .svg
+
+        Header set Cache-Control "public, max-age=31536000, immutable"
+
+    </FilesMatch>        ForceType text/css    AddType image/webp                 .webp
+
+    
+
+    # Fonts and other assets        Header always set Content-Type "text/css; charset=utf-8"    AddType image/avif                 .avif
+
+    <FilesMatch "\.(woff2|woff|ttf|otf|svg|webp|png|jpg|jpeg|gif)$">
+
+        Header set Cache-Control "public, max-age=31536000, immutable"        Header set Cache-Control "public, max-age=31536000, immutable"</IfModule>
+
+    </FilesMatch>
+
+</IfModule>    </FilesMatch>
+
+
+
+# Deny hidden files    # CRITICAL: Force correct MIME types for CSS and JS - prevents "text/html" rejection
+
+<FilesMatch "^\.">
+
+    <IfModule mod_authz_core.c>    # Force correct MIME types for JavaScript<IfModule mod_headers.c>
+
+        Require all denied
+
+    </IfModule>    <FilesMatch "\.(js)$">    <FilesMatch "\.(css)$">
+
+</FilesMatch>
+
+        ForceType application/javascript        ForceType text/css
+
+        Header always set Content-Type "application/javascript; charset=utf-8"        Header always set Content-Type "text/css; charset=utf-8"
+
+        Header set Cache-Control "public, max-age=31536000, immutable"    </FilesMatch>
+
+    </FilesMatch>    
+
+        <FilesMatch "\.(js)$">
+
+    # Font files        ForceType application/javascript
+
+    <FilesMatch "\.(woff2|woff|ttf|otf)$">        Header always set Content-Type "application/javascript; charset=utf-8"
+
+        Header set Cache-Control "public, max-age=31536000, immutable"    </FilesMatch>
+
+    </FilesMatch></IfModule>
+
+</IfModule>
+
+# Set caching headers for immutable assets
+
+# Allow access to all files<FilesMatch "\.(css|js|json|woff|woff2|ttf|otf|svg|png|jpg|jpeg|gif|webp|avif)$">
+
+<FilesMatch "^\.">    <IfModule mod_headers.c>
+
+    <IfModule mod_authz_core.c>        Header set Cache-Control "public, max-age=31536000, immutable"
+
+        Require all denied        Header set Access-Control-Allow-Origin "*"
+
+    </IfModule>    </IfModule>
+
+    <IfModule !mod_authz_core.c></FilesMatch>
+
+        Order allow,deny
+
+        Deny from all# Security headers
+
+    </IfModule><IfModule mod_headers.c>
+
+</FilesMatch>    Header always set X-Content-Type-Options nosniff
+
+    Header always set X-Frame-Options SAMEORIGIN
+</IfModule>
+
+# Prevent directory listing
+Options -Indexes
