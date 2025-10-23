@@ -116,9 +116,9 @@ class SEOMiddleware
         // Add resource hints for critical resources
         // Note: Don't preload app.js/app.css as they have hashed filenames
         // Vite handles this automatically via @vite directive
+        // REMOVED: Icon preload - not critical for initial render, causes "not used" warnings
         $preloadLinks = [
-            '</android-chrome-192x192.png>; rel=preload; as=image',
-            // DNS prefetch for external resources
+            // DNS prefetch for external resources only
             '<//fonts.googleapis.com>; rel=dns-prefetch',
             '<//www.google-analytics.com>; rel=dns-prefetch',
         ];
