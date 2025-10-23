@@ -284,4 +284,28 @@ class BookmarkController extends Controller
             ]
         ]);
     }
+
+    /**
+     * Get count of all bookmarks for statistics (public endpoint)
+     */
+    public function count(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $count = UserAyahBookmark::count();
+            
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'count' => $count
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to get bookmark count',
+                'data' => ['count' => 0]
+            ], 500);
+        }
+    }
 }
+

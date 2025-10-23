@@ -12,6 +12,7 @@ use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PrayerController;
+use App\Http\Controllers\TafsirMaudhuiController;
 use App\Http\Controllers\Api\SecurityController;
 
 /*
@@ -184,12 +185,20 @@ Route::get('/doa-bersama/{prayer}', [PrayerController::class, 'show']);
 Route::get('/doa-bersama/{prayer}/comments', [PrayerController::class, 'getComments']);
 Route::get('/kategori-doa', [PrayerController::class, 'getCategories']);
 Route::get('/prayer-images', [PrayerController::class, 'getPrayerImages']);
+Route::get('/dua-bersama/count', [PrayerController::class, 'count']);
 
 // Prayer times API endpoint
 Route::get('/prayer-times', [PrayerController::class, 'getPrayerTimes']);
 
+// Bookmark count endpoint (public)
+Route::get('/bookmarks/count', [BookmarkController::class, 'count']);
+
 // Statistics routes
 Route::get('/stats/public', [\App\Http\Controllers\Api\StatsController::class, 'getPublicStats']);
+
+// Tafsir Maudhui routes
+Route::get('/tafsir-maudhui', [TafsirMaudhuiController::class, 'api']);
+Route::get('/tafsir-maudhui/count', [TafsirMaudhuiController::class, 'count']);
 
 // SEO API routes
 Route::prefix('seo')->group(function() {

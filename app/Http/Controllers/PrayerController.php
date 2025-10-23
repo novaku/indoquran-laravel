@@ -83,13 +83,15 @@ class PrayerController extends Controller
 
         // Add user's amin status for each prayer
         $userId = $this->getAuthenticatedUserId($request);
-        foreach ($prayers as $prayer) {
-            $prayer->user_has_amin = $userId ? $prayer->hasAminFromUser($userId) : false;
+        $prayersArray = $prayers->toArray();
+        foreach ($prayersArray['data'] as &$prayer) {
+            $prayerModel = Prayer::find($prayer['id']);
+            $prayer['user_has_amin'] = $userId ? $prayerModel->hasAminFromUser($userId) : false;
         }
 
         return response()->json([
             'success' => true,
-            'data' => $prayers,
+            'data' => $prayersArray,
             'message' => 'Doa berhasil dimuat'
         ]);
     }
@@ -116,9 +118,9 @@ class PrayerController extends Controller
 
         $prayer = Prayer::create([
             'user_id' => Auth::id(),
-            'title' => $request->title,
-            'content' => $request->content,
-            'category' => $request->category,
+            'title' => $request->input('title'),
+            'content' => $request->input('content'),
+            'category' => $request->input('category'),
             'is_anonymous' => $request->get('is_anonymous', false)
         ]);
 
@@ -144,11 +146,12 @@ class PrayerController extends Controller
 
         // Add user's amin status
         $userId = $this->getAuthenticatedUserId($request);
-        $prayer->user_has_amin = $userId ? $prayer->hasAminFromUser($userId) : false;
+        $prayerArray = $prayer->toArray();
+        $prayerArray['user_has_amin'] = $userId ? $prayer->hasAminFromUser($userId) : false;
 
         return response()->json([
             'success' => true,
-            'data' => $prayer,
+            'data' => $prayerArray,
             'message' => 'Doa berhasil dimuat'
         ]);
     }
@@ -178,11 +181,12 @@ class PrayerController extends Controller
 
         // Add user's amin status
         $userId = Auth::id();
-        $prayer->user_has_amin = $userId ? $prayer->hasAminFromUser($userId) : false;
+        $prayerArray = $prayer->toArray();
+        $prayerArray['user_has_amin'] = $userId ? $prayer->hasAminFromUser($userId) : false;
 
         return response()->json([
             'success' => true,
-            'data' => $prayer,
+            'data' => $prayerArray,
             'message' => 'Doa berhasil diperbarui'
         ]);
     }
@@ -272,7 +276,7 @@ class PrayerController extends Controller
             $comment = PrayerComment::create([
                 'user_id' => Auth::id(),
                 'prayer_id' => $prayer->id,
-                'content' => $request->content,
+                'content' => $request->input('content'),
                 'is_anonymous' => $request->get('is_anonymous', false)
             ]);
 
@@ -555,4 +559,28 @@ class PrayerController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Get count of prayers for statistics
+     */
+    public function count(): JsonResponse
+    {
+        try {
+            $count = Prayer::count();
+            
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'count' => $count
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to get prayer count',
+                'data' => ['count' => 0]
+            ], 500);
+        }
+    }
 }
+

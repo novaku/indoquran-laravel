@@ -203,4 +203,28 @@ class TafsirMaudhuiController extends Controller
 
         return response()->json(['message' => 'Cache cleared successfully']);
     }
+
+    /**
+     * Get count of tafsir maudhui topics for statistics
+     */
+    public function count(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $count = TafsirMaudhuiTopic::active()->count();
+            
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'count' => $count
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to get tafsir maudhui count',
+                'data' => ['count' => 0]
+            ], 500);
+        }
+    }
 }
+
