@@ -1,0 +1,59 @@
+# Assets subdirectory - ensure correct MIME types for all asset files
+
+# Explicit MIME Types for all asset types
+AddType text/css                   .css
+AddType application/javascript     .js
+AddType application/json           .json
+AddType font/woff2                 .woff2
+AddType font/woff                  .woff
+AddType font/ttf                   .ttf
+AddType font/otf                   .otf
+AddType font/sfnt                  .otf
+AddType image/svg+xml              .svg
+AddType image/webp                 .webp
+AddType image/avif                 .avif
+AddType image/png                  .png
+AddType image/jpeg                 .jpg
+AddType image/jpeg                 .jpeg
+AddType image/gif                  .gif
+AddType image/x-icon               .ico
+
+# Force correct content types
+<FilesMatch "\.(css)$">
+    ForceType text/css
+    Header set Content-Type "text/css; charset=utf-8"
+    Header set Cache-Control "public, max-age=31536000, immutable"
+</FilesMatch>
+
+<FilesMatch "\.(js)$">
+    ForceType application/javascript
+    Header set Content-Type "application/javascript; charset=utf-8"
+    Header set Cache-Control "public, max-age=31536000, immutable"
+</FilesMatch>
+
+<FilesMatch "\.(woff2)$">
+    ForceType font/woff2
+    Header set Content-Type "font/woff2"
+    Header set Cache-Control "public, max-age=31536000, immutable"
+    Header set Access-Control-Allow-Origin "*"
+</FilesMatch>
+
+<FilesMatch "\.(woff)$">
+    ForceType font/woff
+    Header set Content-Type "font/woff"
+    Header set Cache-Control "public, max-age=31536000, immutable"
+    Header set Access-Control-Allow-Origin "*"
+</FilesMatch>
+
+<FilesMatch "\.(ttf|otf)$">
+    ForceType font/ttf
+    Header set Content-Type "font/ttf"
+    Header set Cache-Control "public, max-age=31536000, immutable"
+    Header set Access-Control-Allow-Origin "*"
+</FilesMatch>
+
+# Security headers
+Header always set X-Content-Type-Options nosniff
+
+# Prevent directory listing
+Options -Indexes

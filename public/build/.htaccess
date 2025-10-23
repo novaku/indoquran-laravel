@@ -1,0 +1,42 @@
+# Ensure all assets in build directory are served with correct MIME types
+# This prevents browsers from rejecting stylesheets due to MIME type mismatch
+
+# Explicit MIME Types
+AddType text/css                   .css
+AddType application/javascript     .js
+AddType application/json           .json
+AddType font/woff2                 .woff2
+AddType font/woff                  .woff
+AddType font/ttf                   .ttf
+AddType font/otf                   .otf
+AddType image/svg+xml              .svg
+AddType image/webp                 .webp
+AddType image/avif                 .avif
+
+# Set headers for all assets
+<FilesMatch "\.(css|js|json|woff|woff2|ttf|otf|svg|png|jpg|jpeg|gif|webp|avif)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+    Header set Access-Control-Allow-Origin "*"
+</FilesMatch>
+
+# CSRF protection and security headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options SAMEORIGIN
+</IfModule>
+
+# Disable script execution in build directory (defense in depth)
+<FilesMatch "\.js$">
+    # For .js files, ensure they're served as scripts not HTML
+    ForceType application/javascript
+    Header set Content-Type application/javascript
+</FilesMatch>
+
+<FilesMatch "\.css$">
+    # For .css files, ensure they're served as stylesheets not HTML
+    ForceType text/css
+    Header set Content-Type text/css; charset=utf-8
+</FilesMatch>
+
+# Prevent directory listing
+Options -Indexes

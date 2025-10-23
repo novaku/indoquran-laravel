@@ -1,4 +1,22 @@
 # Performance Optimizations
+
+# Explicit MIME Types for fonts and assets
+AddType font/woff2                 .woff2
+AddType font/woff                  .woff
+AddType font/ttf                   .ttf
+AddType font/otf                   .otf
+AddType application/font-woff      .woff
+AddType application/font-woff2     .woff2
+AddType application/javascript     .js
+AddType application/json           .json
+AddType text/css                   .css
+
+# For Apache 2.4.27+, also set font loading headers
+<FilesMatch "\.(woff|woff2|ttf|otf)$">
+    Header add Access-Control-Allow-Origin "*"
+    Header add Cache-Control "public, max-age=31536000, immutable"
+</FilesMatch>
+
 <IfModule mod_headers.c>
     # GZIP Compression
     <IfModule mod_deflate.c>
@@ -71,10 +89,8 @@
     Header unset ETag
     FileETag None
     
-    # Preload critical resources
+    # Preload critical resources (removed hardcoded paths as they change with each build)
     <FilesMatch "\.(html|php)$">
-        Header add Link "</build/assets/app.css>; rel=preload; as=style"
-        Header add Link "</build/assets/app.js>; rel=preload; as=script"
         Header add Link "<https://fonts.googleapis.com>; rel=preconnect"
         Header add Link "<https://fonts.gstatic.com>; rel=preconnect; crossorigin"
     </FilesMatch>
@@ -87,6 +103,9 @@ Options -MultiViews -Indexes
 
 RewriteEngine On
 
+# Ensure build directory assets are NOT rewritten
+RewriteRule ^build/ - [L]
+
 # Handle Authorization Header
 RewriteCond %{HTTP:Authorization} .
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
@@ -97,6 +116,7 @@ RewriteCond %{REQUEST_URI} (.+)/$
 RewriteRule ^ %1 [L,R=301]
 
 # Handle Front Controller...
+# Important: Check for existing files/directories FIRST
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^ index.php [L]
