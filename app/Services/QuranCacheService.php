@@ -6,6 +6,7 @@ use App\Models\Ayah;
 use App\Models\Surah;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class QuranCacheService
 {
@@ -14,7 +15,20 @@ class QuranCacheService
      */
     private function getCacheTtl(string $type = 'quran_data'): int
     {
-        return config("quran_cache.ttl.{$type}", 86400);
+        $ttl = config("quran_cache.ttl.{$type}");
+                
+                if ($ttl === null) {
+                    // Fallback to default quran_data TTL
+                    $ttl = config('quran_cache.ttl.quran_data');
+                    
+                    if ($ttl === null) {
+                        // Ultimate fallback: 24 hours
+                        $ttl = 86400;
+                        Log::warning("Config [quran_cache.ttl.{$type}] not found, using default 86400 seconds");
+                    }
+                }
+                
+                return $ttl;
     }
     
     /**
@@ -36,7 +50,7 @@ class QuranCacheService
         
         return Cache::remember($cacheKey, $this->getCacheTtl(), function () {
             if (config('quran_cache.detailed_logging', false)) {
-                \Log::info('QuranCacheService: Fetching all surahs from database');
+                Log::info('QuranCacheService: Fetching all surahs from database');
             }
             return Surah::orderBy('number')->get();
         });
@@ -54,7 +68,7 @@ class QuranCacheService
         
         return Cache::remember($cacheKey, $this->getCacheTtl(), function () use ($number) {
             if (config('quran_cache.detailed_logging', false)) {
-                \Log::info('QuranCacheService: Fetching surah from database', ['surah_number' => $number]);
+                Log::info('QuranCacheService: Fetching surah from database', ['surah_number' => $number]);
             }
             return Surah::where('number', $number)->first();
         });
@@ -72,7 +86,7 @@ class QuranCacheService
         
         return Cache::remember($cacheKey, $this->getCacheTtl(), function () use ($surahNumber) {
             if (config('quran_cache.detailed_logging', false)) {
-                \Log::info('QuranCacheService: Fetching surah ayahs from database', ['surah_number' => $surahNumber]);
+                Log::info('QuranCacheService: Fetching surah ayahs from database', ['surah_number' => $surahNumber]);
             }
             return Ayah::where('surah_number', $surahNumber)
                 ->orderBy('ayah_number')
@@ -97,7 +111,7 @@ class QuranCacheService
         
         return Cache::remember($cacheKey, $this->getCacheTtl(), function () use ($surahNumber, $ayahNumber) {
             if (config('quran_cache.detailed_logging', false)) {
-                \Log::info('QuranCacheService: Fetching ayah from database', ['surah' => $surahNumber, 'ayah' => $ayahNumber]);
+                Log::info('QuranCacheService: Fetching ayah from database', ['surah' => $surahNumber, 'ayah' => $ayahNumber]);
             }
             
             $ayah = Ayah::where('surah_number', $surahNumber)
@@ -105,7 +119,7 @@ class QuranCacheService
                 ->first();
                 
             if (!$ayah) {
-                \Log::warning('Ayah not found in database', ['surah' => $surahNumber, 'ayah' => $ayahNumber]);
+                Log::warning('Ayah not found in database', ['surah' => $surahNumber, 'ayah' => $ayahNumber]);
             }
             
             return $ayah;
@@ -130,7 +144,7 @@ class QuranCacheService
         
         return Cache::remember($cacheKey, $this->getCacheTtl('search_results'), function () use ($query, $limit) {
             if (config('quran_cache.detailed_logging', false)) {
-                \Log::info('QuranCacheService: Searching ayahs in database', ['query' => $query, 'limit' => $limit]);
+                Log::info('QuranCacheService: Searching ayahs in database', ['query' => $query, 'limit' => $limit]);
             }
             return Ayah::where('text_indonesian', 'like', "%{$query}%")
                 ->orderBy('surah_number')
@@ -163,7 +177,7 @@ class QuranCacheService
             }
         }
         
-        \Log::info('All Quran cache cleared');
+        Log::info('All Quran cache cleared');
     }
     
     /**
@@ -187,10 +201,10 @@ class QuranCacheService
             if (!empty($keys)) {
                 // Delete all matching keys
                 $redis->del($keys);
-                \Log::info('Cleared cache keys by pattern', ['pattern' => $pattern, 'count' => count($keys)]);
+                Log::info('Cleared cache keys by pattern', ['pattern' => $pattern, 'count' => count($keys)]);
             }
         } catch (\Exception $e) {
-            \Log::warning('Failed to clear cache by pattern', ['pattern' => $pattern, 'error' => $e->getMessage()]);
+            Log::warning('Failed to clear cache by pattern', ['pattern' => $pattern, 'error' => $e->getMessage()]);
             // Fallback: try to clear individual cache entries if we can't use Redis directly
         }
     }
@@ -208,7 +222,7 @@ class QuranCacheService
         // Clear individual ayah caches for this surah
         $this->clearCacheByPattern($this->getCachePrefix('ayah') . $surahNumber . ':*');
         
-        \Log::info('Cleared cache for surah', ['surah_number' => $surahNumber]);
+        Log::info('Cleared cache for surah', ['surah_number' => $surahNumber]);
     }
     
     /**
@@ -222,7 +236,7 @@ class QuranCacheService
         $cacheKey = $this->getCachePrefix('ayah') . $surahNumber . ':' . $ayahNumber;
         Cache::forget($cacheKey);
         
-        \Log::info('Cleared cache for ayah', ['surah' => $surahNumber, 'ayah' => $ayahNumber]);
+        Log::info('Cleared cache for ayah', ['surah' => $surahNumber, 'ayah' => $ayahNumber]);
     }
     
     /**
@@ -231,7 +245,7 @@ class QuranCacheService
     public function clearSearchCache(): void
     {
         $this->clearCacheByPattern($this->getCachePrefix('search') . '*');
-        \Log::info('Cleared all search cache');
+        Log::info('Cleared all search cache');
     }
     
     /**
@@ -239,7 +253,7 @@ class QuranCacheService
      */
     public function warmUpCache(): void
     {
-        \Log::info('Starting cache warm-up');
+        Log::info('Starting cache warm-up');
         
         // Preload all surahs
         $this->getAllSurahs();
@@ -252,6 +266,6 @@ class QuranCacheService
             $this->getSurahAyahs($surahNumber);
         }
         
-        \Log::info('Cache warm-up completed');
+        Log::info('Cache warm-up completed');
     }
 }
