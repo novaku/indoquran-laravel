@@ -10,9 +10,8 @@ export const PRELOAD_CONFIG = {
   // Critical resources that should be preloaded immediately
   // Note: Vite handles CSS and JS preloading automatically via @vite directive
   // No need to hardcode paths as they change with each build
-  CRITICAL_RESOURCES: [
-    { href: '/android-chrome-192x192.png', as: 'image', type: 'image/png' }
-  ],
+  // REMOVED: Icon images are not critical for initial render
+  CRITICAL_RESOURCES: [],
   
   // DNS prefetch domains
   DNS_PREFETCH: [
@@ -323,27 +322,18 @@ export const initializeRoutePreloading = () => {
 
 /**
  * Font preloading optimization
+ * Using prefetch instead of preload to avoid "not used" warnings
+ * Fonts will be loaded when needed by CSS
  */
 export const preloadFonts = () => {
-  const fonts = [
-    { href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap', type: 'text/css' },
-    { href: '/fonts/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL-COMPRESSED.ttf', type: 'font/ttf' }
-  ];
+  // Don't preload fonts - let them be loaded by CSS naturally
+  // The browser will fetch them when @font-face rules are processed
+  // This avoids the "preload not used within a few seconds" warning
   
-  fonts.forEach(font => {
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.href = font.href;
-    link.as = font.type === 'text/css' ? 'style' : 'font';
-    
-    if (font.type === 'font/woff2') {
-      link.type = font.type;
-      link.crossOrigin = 'anonymous';
-    }
-    
-    document.head.appendChild(link);
-  });
+  // Instead, we'll just ensure font CSS is loaded via link in HTML
+  // which is already handled in react.blade.php
 };
+
 
 /**
  * Service Worker prefetching

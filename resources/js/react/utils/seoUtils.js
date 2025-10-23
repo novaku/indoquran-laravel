@@ -1179,8 +1179,8 @@ export const preloadCriticalResources = () => {
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
     { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: 'anonymous' },
     
-    // Preload only the most critical fonts (reduced to improve LCP)
-    { rel: 'preload', href: '/fonts/arabic-font.woff2', as: 'font', type: 'font/woff2', crossorigin: 'anonymous' },
+    // REMOVED font preload - fonts are now loaded via CSS naturally
+    // This prevents "preload not used within a few seconds" warnings
     
     // Prefetch only high-priority navigation targets
     { rel: 'prefetch', href: `${BASE_URL}/surah` }

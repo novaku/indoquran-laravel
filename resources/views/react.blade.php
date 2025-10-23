@@ -61,12 +61,9 @@
     <!-- Preload critical resources for faster initial load -->
     <link rel="modulepreload" href="{{ Vite::asset('resources/js/react/index.jsx') }}" as="script">
     
-    <!-- Preload critical CSS non-blocking - Let Vite handle this -->
-    <!-- CSS will be loaded by Vite directive at the bottom -->
-    
-    <!-- Optimized Font Loading - Reduced to essential fonts only with font-display: swap -->
-    <!-- Using only critical font weights for better performance -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;600&family=Noto+Naskh+Arabic:wght@400;600&display=swap&text=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <!-- Optimized Font Loading - Load fonts asynchronously to avoid blocking -->
+    <!-- Using stylesheet with font-display: swap for better performance -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;600&family=Noto+Naskh+Arabic:wght@400;600&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;600&family=Noto+Naskh+Arabic:wght@400;600&display=swap"></noscript>
     
     <!-- Fallback system fonts for immediate rendering -->
@@ -287,9 +284,9 @@
         });
     </script>
     
-    <!-- Arabic Fonts -->
-    <link rel="stylesheet" href="{{ asset('fonts/arabic-font.css') }}">
-    <link rel="preload" href="{{ asset('fonts/arabic-font.woff2') }}" as="font" type="font/woff2" crossorigin="anonymous">
+    <!-- Arabic Fonts - Load after page load to avoid blocking -->
+    <link rel="stylesheet" href="{{ asset('fonts/arabic-font.css') }}" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="{{ asset('fonts/arabic-font.css') }}"></noscript>
     
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/react/index.jsx'])

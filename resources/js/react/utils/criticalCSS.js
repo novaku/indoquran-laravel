@@ -160,10 +160,8 @@ img[data-critical="true"] {
 // Non-critical CSS to be loaded asynchronously
 // Note: Don't hardcode app.css as Vite generates hashed filenames like app-C6UAHpIb.css
 // The @vite() Blade directive automatically includes the correct versioned CSS file
-export const NON_CRITICAL_CSS_URLS = [
-  // '/build/assets/app.css', // REMOVED: This file doesn't exist - Vite uses hashed filenames
-  'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap'
-];
+// Fonts are now loaded via HTML link tags with media="print" onload technique
+export const NON_CRITICAL_CSS_URLS = [];
 
 /**
  * Inject critical CSS into document head
@@ -182,32 +180,11 @@ export const injectCriticalCSS = () => {
 
 /**
  * Load non-critical CSS asynchronously
+ * Now fonts are loaded via HTML, so this is mostly empty
  */
 export const loadNonCriticalCSS = () => {
-  if (typeof document === 'undefined') return;
-  
-  NON_CRITICAL_CSS_URLS.forEach(href => {
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.as = 'style';
-    link.href = href;
-    link.onload = function() {
-      this.onload = null;
-      this.rel = 'stylesheet';
-    };
-    
-    // Fallback for browsers that don't support preload
-    const fallback = setTimeout(() => {
-      link.rel = 'stylesheet';
-    }, 3000);
-    
-    link.onload = () => {
-      clearTimeout(fallback);
-      link.rel = 'stylesheet';
-    };
-    
-    document.head.appendChild(link);
-  });
+  // Font CSS is now loaded via HTML link tags with media="print" technique
+  // No need to dynamically load here
 };
 
 /**
