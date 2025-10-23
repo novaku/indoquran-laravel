@@ -18,9 +18,9 @@ const CRITICAL_ASSETS = [
 ];
 
 // Static assets to cache
+// Note: Don't hardcode build assets as they have hashed filenames
+// The manifest.json already contains the correct asset paths
 const STATIC_ASSETS = [
-    '/build/assets/app.css',
-    '/build/assets/app.js',
     '/apple-touch-icon.png',
     '/favicon-16x16.png',
     '/favicon-32x32.png',

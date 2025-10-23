@@ -114,10 +114,10 @@ class SEOMiddleware
         }
 
         // Add resource hints for critical resources
+        // Note: Don't preload app.js/app.css as they have hashed filenames
+        // Vite handles this automatically via @vite directive
         $preloadLinks = [
             '</android-chrome-192x192.png>; rel=preload; as=image',
-            '</build/assets/app.css>; rel=preload; as=style',
-            '</build/assets/app.js>; rel=preload; as=script',
             // DNS prefetch for external resources
             '<//fonts.googleapis.com>; rel=dns-prefetch',
             '<//www.google-analytics.com>; rel=dns-prefetch',

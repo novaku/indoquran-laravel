@@ -222,22 +222,9 @@ export const isCriticalCSSInjected = () => {
 export const optimizeCSSDelivery = () => {
   if (typeof document === 'undefined') return;
   
-  // Load print CSS only when needed
-  const printLink = document.createElement('link');
-  printLink.rel = 'stylesheet';
-  printLink.href = '/build/assets/print.css';
-  printLink.media = 'print';
-  
-  // Load high-resolution display CSS only for appropriate screens
-  if (window.devicePixelRatio > 1) {
-    const retinaLink = document.createElement('link');
-    retinaLink.rel = 'stylesheet';
-    retinaLink.href = '/build/assets/retina.css';
-    retinaLink.media = 'screen and (min-resolution: 2dppx)';
-    document.head.appendChild(retinaLink);
-  }
-  
-  document.head.appendChild(printLink);
+  // Note: Print CSS and retina CSS are not available as separate files
+  // These would need to be built as separate Vite entry points
+  // For now, rely on responsive CSS from main stylesheet
 };
 
 /**

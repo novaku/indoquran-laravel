@@ -8,9 +8,9 @@
  */
 export const PRELOAD_CONFIG = {
   // Critical resources that should be preloaded immediately
+  // Note: Vite handles CSS and JS preloading automatically via @vite directive
+  // No need to hardcode paths as they change with each build
   CRITICAL_RESOURCES: [
-    { href: '/build/assets/app.css', as: 'style', type: 'text/css' },
-    { href: '/build/assets/app.js', as: 'script', type: 'text/javascript' },
     { href: '/android-chrome-192x192.png', as: 'image', type: 'image/png' }
   ],
   
