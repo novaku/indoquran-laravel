@@ -158,8 +158,10 @@ img[data-critical="true"] {
 `;
 
 // Non-critical CSS to be loaded asynchronously
+// Note: Don't hardcode app.css as Vite generates hashed filenames like app-C6UAHpIb.css
+// The @vite() Blade directive automatically includes the correct versioned CSS file
 export const NON_CRITICAL_CSS_URLS = [
-  '/build/assets/app.css',
+  // '/build/assets/app.css', // REMOVED: This file doesn't exist - Vite uses hashed filenames
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap'
 ];
 
