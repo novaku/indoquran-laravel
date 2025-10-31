@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
+import { Card, Button, Badge, PageHeader, PageContent } from '../components/ui';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
 
@@ -168,18 +169,16 @@ function SurahListPage() {
     if (error) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="text-center">
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-                        <h2 className="text-xl font-bold text-red-800 mb-2">Error</h2>
-                        <p className="text-red-600 mb-4">{error}</p>
-                        <button
-                            onClick={loadSurahs}
-                            className="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-colors"
-                        >
-                            Coba Lagi
-                        </button>
-                    </div>
-                </div>
+                <Card className="text-center max-w-md bg-red-50 border-red-200">
+                    <h2 className="text-xl font-bold text-red-800 mb-2">Error</h2>
+                    <p className="text-red-600 mb-4">{error}</p>
+                    <Button
+                        variant="danger"
+                        onClick={loadSurahs}
+                    >
+                        Coba Lagi
+                    </Button>
+                </Card>
             </div>
         );
     }
@@ -194,16 +193,14 @@ function SurahListPage() {
             
             <div className="min-h-screen bg-gray-50">
                 {/* Header */}
-                <div className="bg-white border-b border-gray-200 shadow-sm">
-                    <div className="max-w-7xl mx-auto px-4 py-6">
-                        <div className="flex items-center space-x-3 mb-6">
-                            <BookOpenIcon className="w-8 h-8 text-green-600" />
-                            <div>
-                                <h1 className="text-3xl font-bold text-gray-900">Daftar Surah Al-Quran</h1>
-                                <p className="text-gray-600">114 Surah dalam Al-Quran Karim</p>
-                            </div>
-                        </div>
+                <PageHeader
+                    title="Daftar Surah Al-Quran"
+                    subtitle="114 Surah dalam Al-Quran Karim"
+                    icon={<BookOpenIcon className="w-8 h-8" />}
+                />
 
+                <PageContent size="xl">
+                    <Card className="mb-6">
                         {/* Search and Filter */}
                         <div className="flex flex-col sm:flex-row gap-4">
                             {/* Search */}
@@ -282,17 +279,15 @@ function SurahListPage() {
                             <span>•</span>
                             <span>Madaniyah: {surahs.filter(s => s.revelation_place?.toLowerCase() === 'madinah').length}</span>
                         </div>
-                    </div>
-                </div>
+                    </Card>
 
-                {/* Content */}
-                <div className="max-w-7xl mx-auto px-4 py-8">
+                    {/* Content */}
                     {filteredSurahs.length === 0 ? (
-                        <div className="text-center py-12">
+                        <Card className="text-center py-12">
                             <BookOpenIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                             <h3 className="text-lg font-medium text-gray-900 mb-2">Tidak ada surah ditemukan</h3>
                             <p className="text-gray-500">Coba ubah kata kunci pencarian atau filter yang digunakan.</p>
-                        </div>
+                        </Card>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             {filteredSurahs.map((surah) => (
@@ -379,11 +374,9 @@ function SurahListPage() {
                             ))}
                         </div>
                     )}
-                </div>
 
-                {/* Quick Navigation */}
-                <div className="bg-white border-t border-gray-200 py-8">
-                    <div className="max-w-7xl mx-auto px-4 text-center">
+                    {/* Quick Navigation */}
+                    <Card className="mt-8 text-center">
                         <h3 className="text-lg font-semibold text-gray-900 mb-4">Navigasi Cepat</h3>
                         <div className="flex flex-wrap justify-center gap-4">
                             <Link
@@ -408,8 +401,8 @@ function SurahListPage() {
                                 <span>Pencarian Ayat</span>
                             </Link>
                         </div>
-                    </div>
-                </div>
+                    </Card>
+                </PageContent>
             </div>
         </>
     );

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Models\Visitor;
 use Carbon\Carbon;
 
@@ -36,7 +37,7 @@ class VisitorStatsController extends Controller
                 'generated_at' => now()->toISOString()
             ]);
         } catch (\Exception $e) {
-            \Log::error('Error generating visitor statistics: ' . $e->getMessage());
+            Log::error('Error generating visitor statistics: ' . $e->getMessage());
             
             return response()->json([
                 'success' => false,
@@ -235,7 +236,7 @@ class VisitorStatsController extends Controller
                           ->distinct('ip_address')
                           ->count('ip_address');
         } catch (\Exception $e) {
-            \Log::error('Error getting yesterday visitors: ' . $e->getMessage());
+            Log::error('Error getting yesterday visitors: ' . $e->getMessage());
             return 0;
         }
     }
@@ -267,7 +268,7 @@ class VisitorStatsController extends Controller
                 'percentage' => round($percentage, 2)
             ];
         } catch (\Exception $e) {
-            \Log::error('Error getting week comparison: ' . $e->getMessage());
+            Log::error('Error getting week comparison: ' . $e->getMessage());
             return [
                 'this_week' => 0,
                 'last_week' => 0,
@@ -304,7 +305,7 @@ class VisitorStatsController extends Controller
                 'percentage' => round($percentage, 2)
             ];
         } catch (\Exception $e) {
-            \Log::error('Error getting month comparison: ' . $e->getMessage());
+            Log::error('Error getting month comparison: ' . $e->getMessage());
             return [
                 'this_month' => 0,
                 'last_month' => 0,
@@ -379,7 +380,7 @@ class VisitorStatsController extends Controller
                 ]
             ]);
         } catch (\Exception $e) {
-            \Log::error('Error getting realtime statistics: ' . $e->getMessage());
+            Log::error('Error getting realtime statistics: ' . $e->getMessage());
             
             return response()->json([
                 'success' => false,

@@ -26,8 +26,11 @@ class DatabaseSeeder extends Seeder
         $this->call([
             QuranDataSeeder::class,
             AdminUserSeeder::class,
+            UserSeeder::class,  // Create sample regular users
             TafsirMaudhuiSeeder::class,
             AsmaulHusnaSeeder::class,
+            TagSeeder::class,  // Run tag seeder before article seeder
+            ArticleSeeder::class,
         ]);
     }
 }

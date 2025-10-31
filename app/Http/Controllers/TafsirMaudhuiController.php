@@ -10,45 +10,12 @@ class TafsirMaudhuiController extends Controller
 {
     /**
      * Display the tafsir maudhui page
+     * Note: This returns the main React app container, actual routing handled client-side
      */
     public function index()
     {
-        // Get all active topics with their verses from database
-        $topics = Cache::remember('tafsir_maudhui_all_topics', 3600, function () {
-            return TafsirMaudhuiTopic::active()
-                ->ordered()
-                ->with(['verses' => function ($query) {
-                    $query->ordered();
-                }])
-                ->get()
-                ->map(function ($topic) {
-                    return [
-                        'topic' => $topic->topic,
-                        'description' => $topic->description,
-                        'verses' => $topic->verses->map(function ($verse) {
-                            return [
-                                'surah' => $verse->surah_number,
-                                'ayah' => $verse->ayah_number
-                            ];
-                        })->toArray()
-                    ];
-                })
-                ->toArray();
-        });
-
-        $tafsirData = ['topics' => $topics];
-        
-        // SEO data for this page
-        $seoData = [
-            'metaTitle' => 'Tafsir Maudhui - Topik-topik dalam Al-Quran | IndoQuran',
-            'metaDescription' => 'Jelajahi topik-topik penting dalam Al-Quran melalui pendekatan tafsir maudhui. Temukan ayat-ayat Al-Quran berdasarkan tema seperti akidah, ibadah, akhlak, muamalah, dan banyak lagi.',
-            'metaKeywords' => 'tafsir maudhui, topik quran, tema al quran, tafsir tematik, akidah islam, ibadah islam, akhlak islam, muamalah islam, indoquran',
-            'canonicalUrl' => url('/tafsir-maudhui'),
-            'ogImage' => url('/android-chrome-512x512.png'),
-            'ogType' => 'website'
-        ];
-        
-        return view('tafsir-maudhui', compact('tafsirData', 'seoData'));
+        // Return the main SPA container - React Router handles the actual page
+        return view('react');
     }
     
     /**
@@ -223,6 +190,52 @@ class TafsirMaudhuiController extends Controller
                 'status' => 'error',
                 'message' => 'Failed to get tafsir maudhui count',
                 'data' => ['count' => 0]
+            ], 500);
+        }
+    }
+
+    /**
+     * Get a random tafsir maudhui topic
+     */
+    public function random(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $topic = TafsirMaudhuiTopic::active()
+                ->with(['verses' => function ($query) {
+                    $query->ordered();
+                }])
+                ->inRandomOrder()
+                ->first();
+
+            if (!$topic) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No tafsir maudhui topics available'
+                ], 404);
+            }
+
+            $topicData = [
+                'topic' => $topic->topic,
+                'description' => $topic->description,
+                'slug' => $topic->slug,
+                'verses' => $topic->verses->map(function ($verse) {
+                    return [
+                        'surah' => $verse->surah_number,
+                        'ayah' => $verse->ayah_number
+                    ];
+                })->toArray()
+            ];
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $topicData
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch random tafsir maudhui',
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
             ], 500);
         }
     }

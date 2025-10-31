@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use App\Models\TafsirMaudhuiTopic;
 use App\Models\TafsirMaudhuiVerse;
@@ -17,10 +18,10 @@ class TafsirMaudhuiSeeder extends Seeder
     public function run(): void
     {
         // Clear existing data safely (respect foreign key constraints)
-        \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         TafsirMaudhuiVerse::truncate();
         TafsirMaudhuiTopic::truncate();
-        \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         // Load JSON data
         $jsonPath = resource_path('js/tafsir_maudhui_full.json');

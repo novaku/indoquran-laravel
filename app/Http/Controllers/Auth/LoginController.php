@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
@@ -24,7 +25,7 @@ class LoginController extends Controller
      * Handle a login request to the application.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
     public function login(Request $request)
     {
@@ -41,7 +42,7 @@ class LoginController extends Controller
             
             if ($isApi) {
                 // API login - use token-based authentication
-                \Log::info('API User logged in successfully', [
+                Log::info('API User logged in successfully', [
                     'user_id' => $user->id,
                     'remember' => $request->boolean('remember'),
                 ]);
@@ -56,7 +57,7 @@ class LoginController extends Controller
                 ]);
             } else {
                 // Web login - use session-based authentication
-                \Log::info('Web User logged in successfully', [
+                Log::info('Web User logged in successfully', [
                     'user_id' => $user->id,
                     'session_id' => $request->session()->getId(),
                     'remember' => $request->boolean('remember'),
@@ -99,7 +100,7 @@ class LoginController extends Controller
     {
         // Log user before logout for debugging
         $user = Auth::user();
-        \Log::info('User logout attempt', [
+        Log::info('User logout attempt', [
             'user_id' => $user ? $user->id : null
         ]);
         

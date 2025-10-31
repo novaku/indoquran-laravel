@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class Visitor extends Model
 {
@@ -38,7 +39,7 @@ class Visitor extends Model
             
             return $data;
         } catch (\Exception $e) {
-            \Log::error('Error getting daily traffic: ' . $e->getMessage());
+            Log::error('Error getting daily traffic: ' . $e->getMessage());
             return [];
         }
     }
@@ -73,7 +74,7 @@ class Visitor extends Model
             
             return $data;
         } catch (\Exception $e) {
-            \Log::error('Error getting hourly traffic: ' . $e->getMessage());
+            Log::error('Error getting hourly traffic: ' . $e->getMessage());
             return [];
         }
     }
@@ -85,7 +86,7 @@ class Visitor extends Model
                        ->distinct('ip_address')
                        ->count('ip_address');
         } catch (\Exception $e) {
-            \Log::error('Error getting today visitors: ' . $e->getMessage());
+            Log::error('Error getting today visitors: ' . $e->getMessage());
             return 0;
         }
     }
@@ -97,7 +98,7 @@ class Visitor extends Model
                        ->distinct('ip_address')
                        ->count('ip_address');
         } catch (\Exception $e) {
-            \Log::error('Error getting weekly visitors: ' . $e->getMessage());
+            Log::error('Error getting weekly visitors: ' . $e->getMessage());
             return 0;
         }
     }
@@ -110,7 +111,7 @@ class Visitor extends Model
                        ->distinct('ip_address')
                        ->count('ip_address');
         } catch (\Exception $e) {
-            \Log::error('Error getting monthly visitors: ' . $e->getMessage());
+            Log::error('Error getting monthly visitors: ' . $e->getMessage());
             return 0;
         }
     }
@@ -120,7 +121,7 @@ class Visitor extends Model
         try {
             return self::distinct('ip_address')->count('ip_address');
         } catch (\Exception $e) {
-            \Log::error('Error getting total visitors: ' . $e->getMessage());
+            Log::error('Error getting total visitors: ' . $e->getMessage());
             return 0;
         }
     }
@@ -153,7 +154,7 @@ class Visitor extends Model
                            ];
                        });
         } catch (\Exception $e) {
-            \Log::error('Error getting popular pages: ' . $e->getMessage());
+            Log::error('Error getting popular pages: ' . $e->getMessage());
             return collect([]);
         }
     }
@@ -187,7 +188,7 @@ class Visitor extends Model
                            return !is_null($item['surah_number']) && $item['surah_number'] >= 1 && $item['surah_number'] <= 114;
                        });
         } catch (\Exception $e) {
-            \Log::error('Error getting popular surahs: ' . $e->getMessage());
+            Log::error('Error getting popular surahs: ' . $e->getMessage());
             return collect([]);
         }
     }
@@ -244,7 +245,7 @@ class Visitor extends Model
                        ->distinct('ip_address')
                        ->count('ip_address');
         } catch (\Exception $e) {
-            \Log::error('Error getting yearly visitors: ' . $e->getMessage());
+            Log::error('Error getting yearly visitors: ' . $e->getMessage());
             return 0;
         }
     }
@@ -269,7 +270,7 @@ class Visitor extends Model
                            ];
                        });
         } catch (\Exception $e) {
-            \Log::error('Error getting top referrers: ' . $e->getMessage());
+            Log::error('Error getting top referrers: ' . $e->getMessage());
             return collect([]);
         }
     }
@@ -292,7 +293,7 @@ class Visitor extends Model
                 ->orderByDesc('count')
                 ->get();
         } catch (\Exception $e) {
-            \Log::error('Error getting browser stats: ' . $e->getMessage());
+            Log::error('Error getting browser stats: ' . $e->getMessage());
             return collect([]);
         }
     }
@@ -312,7 +313,7 @@ class Visitor extends Model
                 ->orderByDesc('count')
                 ->get();
         } catch (\Exception $e) {
-            \Log::error('Error getting device stats: ' . $e->getMessage());
+            Log::error('Error getting device stats: ' . $e->getMessage());
             return collect([]);
         }
     }
@@ -342,7 +343,7 @@ class Visitor extends Model
             
             return $data;
         } catch (\Exception $e) {
-            \Log::error('Error getting unique visitors data: ' . $e->getMessage());
+            Log::error('Error getting unique visitors data: ' . $e->getMessage());
             return [];
         }
     }

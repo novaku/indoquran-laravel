@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -50,7 +52,7 @@ class PasswordResetController extends Controller
         $token = Str::random(64);
         
         // Store token in database
-        \DB::table('password_reset_tokens')->updateOrInsert(
+        DB::table('password_reset_tokens')->updateOrInsert(
             ['email' => $email],
             [
                 'email' => $email,
@@ -80,10 +82,10 @@ class PasswordResetController extends Controller
 
         } catch (\Exception $e) {
             // Log the error
-            \Log::error('Password reset email failed: ' . $e->getMessage());
+            Log::error('Password reset email failed: ' . $e->getMessage());
             
             // Clean up the token
-            \DB::table('password_reset_tokens')->where('email', $email)->delete();
+            DB::table('password_reset_tokens')->where('email', $email)->delete();
             
             return response()->json([
                 'success' => false,
@@ -113,7 +115,7 @@ class PasswordResetController extends Controller
         $token = $request->token;
 
         // Check if token exists and is valid
-        $resetRecord = \DB::table('password_reset_tokens')
+        $resetRecord = DB::table('password_reset_tokens')
             ->where('email', $email)
             ->first();
 
@@ -136,7 +138,7 @@ class PasswordResetController extends Controller
         $tokenAge = Carbon::parse($resetRecord->created_at)->diffInMinutes(Carbon::now());
         if ($tokenAge > 60) {
             // Delete expired token
-            \DB::table('password_reset_tokens')->where('email', $email)->delete();
+            DB::table('password_reset_tokens')->where('email', $email)->delete();
             
             return response()->json([
                 'success' => false,
@@ -190,7 +192,7 @@ class PasswordResetController extends Controller
         $password = $request->password;
 
         // Validate token again
-        $resetRecord = \DB::table('password_reset_tokens')
+        $resetRecord = DB::table('password_reset_tokens')
             ->where('email', $email)
             ->first();
 
@@ -204,7 +206,7 @@ class PasswordResetController extends Controller
         // Check token expiration
         $tokenAge = Carbon::parse($resetRecord->created_at)->diffInMinutes(Carbon::now());
         if ($tokenAge > 60) {
-            \DB::table('password_reset_tokens')->where('email', $email)->delete();
+            DB::table('password_reset_tokens')->where('email', $email)->delete();
             
             return response()->json([
                 'success' => false,
@@ -227,7 +229,7 @@ class PasswordResetController extends Controller
             $user->save();
 
             // Delete the used token
-            \DB::table('password_reset_tokens')->where('email', $email)->delete();
+            DB::table('password_reset_tokens')->where('email', $email)->delete();
 
             // Optionally, revoke all existing tokens for security
             $user->tokens()->delete();
@@ -238,7 +240,7 @@ class PasswordResetController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Password reset failed: ' . $e->getMessage());
+            Log::error('Password reset failed: ' . $e->getMessage());
             
             return response()->json([
                 'success' => false,

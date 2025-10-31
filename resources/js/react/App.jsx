@@ -107,12 +107,26 @@ const SEOLandingPage = lazy(() =>
   import(/* webpackChunkName: "seo-landing" */ './pages/SEOLandingPage')
 );
 
+// Article pages
+const ArticlesPage = lazy(() => 
+  import(/* webpackChunkName: "articles" */ './pages/ArticlesPage')
+);
+const ArticleDetailPage = lazy(() => 
+  import(/* webpackChunkName: "articles" */ './pages/ArticleDetailPage')
+);
+
 // Admin pages (separate bundle)
 const AdminLoginPage = lazy(() => 
   import(/* webpackChunkName: "admin" */ './pages/AdminLoginPage')
 );
 const AdminDashboard = lazy(() => 
   import(/* webpackChunkName: "admin" */ './pages/AdminDashboard')
+);
+const AdminArticlesPage = lazy(() => 
+  import(/* webpackChunkName: "admin-articles" */ './pages/AdminArticlesPage')
+);
+const AdminArticleEditorPage = lazy(() => 
+  import(/* webpackChunkName: "admin-articles" */ './pages/AdminArticleEditorPage')
 );
 const StatistikPage = lazy(() => 
   import(/* webpackChunkName: "stats" */ './pages/StatistikPage')
@@ -414,9 +428,16 @@ const AppContent = memo(() => {
                         <Route path="/daftar-lengkap" element={<SEOLandingPage />} />
                         <Route path="/statistik" element={<StatistikPage />} />
                         
+                        {/* Article Routes */}
+                        <Route path="/artikel" element={<ArticlesPage />} />
+                        <Route path="/artikel/:slug" element={<ArticleDetailPage />} />
+                        
                         {/* Admin Routes */}
                         <Route path="/admin/login" element={<AdminLoginPage />} />
                         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                        <Route path="/admin/artikel" element={<AdminArticlesPage />} />
+                        <Route path="/admin/artikel/baru" element={<AdminArticleEditorPage />} />
+                        <Route path="/admin/artikel/edit/:id" element={<AdminArticleEditorPage />} />
                         <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
                         
                         {/* Backward compatibility redirects */}

@@ -2,6 +2,7 @@ import React from 'react';
 import { CheckCircleIcon, CogIcon, BugAntIcon, SparklesIcon, ShieldCheckIcon, RocketLaunchIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import SEOHead from '../components/SEOHead';
 import StructuredData from '../components/StructuredData';
+import { Card, Badge, PageContent } from '../components/ui';
 
 function RiwayatVersiPage() {
     const versions = [
@@ -1045,7 +1046,7 @@ function RiwayatVersiPage() {
             />
             <StructuredData data={structuredData} />
             
-            <div className="max-w-6xl mx-auto px-4 py-8 pt-24 pb-20">
+            <PageContent>
                 {/* Header */}
                 <div className="text-center mb-16">
                     <div className="flex items-center justify-center mb-6">
@@ -1058,12 +1059,10 @@ function RiwayatVersiPage() {
                         Ikuti perjalanan pengembangan IndoQuran dari waktu ke waktu. Setiap pembaruan membawa 
                         perbaikan dan fitur baru untuk memberikan pengalaman terbaik dalam membaca Al-Quran.
                     </p>
-                    <div className="inline-flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-full border border-emerald-200">
+                    <Badge variant="green" className="inline-flex items-center gap-2">
                         <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                        <span className="text-sm text-emerald-700 font-medium">
-                            Terakhir diperbarui: 17 Oktober 2025
-                        </span>
-                    </div>
+                        <span>Terakhir diperbarui: 19 Oktober 2025</span>
+                    </Badge>
                 </div>
 
                 {/* Current Version Highlight */}
@@ -1077,19 +1076,17 @@ function RiwayatVersiPage() {
                             <div className="flex-1">
                                 <div className="flex items-center gap-3 mb-3">
                                     <span className="text-lg font-semibold text-emerald-100">Versi Terkini</span>
-                                    <span className="bg-white/25 backdrop-blur-sm px-4 py-1.5 rounded-full text-base font-bold border border-white/30">
+                                    <Badge className="bg-white/25 backdrop-blur-sm border border-white/30 text-white">
                                         {versions[0]?.version}
-                                    </span>
+                                    </Badge>
                                 </div>
                                 <h2 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">{versions[0]?.title}</h2>
                                 <p className="text-emerald-50 text-lg leading-relaxed max-w-3xl">{versions[0]?.description}</p>
                             </div>
-                            <div className="text-right">
-                                <div className="bg-white/20 backdrop-blur-sm rounded-xl px-6 py-4 border border-white/30">
-                                    <div className="text-emerald-100 text-sm mb-1">Dirilis pada</div>
-                                    <div className="text-2xl font-bold">{versions[0]?.date}</div>
-                                </div>
-                            </div>
+                            <Card className="bg-white/20 backdrop-blur-sm border border-white/30 text-white" padding="lg">
+                                <div className="text-emerald-100 text-sm mb-1">Dirilis pada</div>
+                                <div className="text-2xl font-bold">{versions[0]?.date}</div>
+                            </Card>
                         </div>
                     </div>
                 </div>
@@ -1188,7 +1185,7 @@ function RiwayatVersiPage() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </PageContent>
         </>
     );
 }

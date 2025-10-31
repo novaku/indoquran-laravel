@@ -114,6 +114,7 @@ function QuranHeader() {
         { name: 'Halaman', path: '/halaman', icon: DocumentIcon, description: 'Baca berdasarkan halaman mushaf' },
         { name: 'Asmaul Husna', path: '/asmaul-husna', icon: StarIcon, description: '99 nama indah Allah SWT' },
         { name: 'Tafsir Maudhui', path: '/tafsir-maudhui', icon: AcademicCapIcon, description: 'Topik-topik tematik dalam Al-Quran' },
+        { name: 'Artikel', path: '/artikel', icon: DocumentTextIcon, description: 'Artikel islami dan kajian Al-Quran' },
     ];
 
     const communityDropdownItems = [

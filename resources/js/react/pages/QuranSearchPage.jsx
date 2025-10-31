@@ -23,6 +23,7 @@ import {
 import SearchField from '../components/SearchField';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
+import { Card, Button, Input, Select, Badge, PageContent } from '../components/ui';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
 
@@ -593,20 +594,20 @@ function QuranSearchPage() {
             <div className="max-w-6xl mx-auto px-4 py-16">
                 {/* Filters - hanya tampil jika ada query */}
                 {query && (
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+                    <Card padding="lg" className="mb-8">
                         <div className="flex items-center justify-between mb-4">
-                            <button
+                            <Button
                                 onClick={() => setShowFilters(!showFilters)}
-                                className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-colors"
+                                variant="ghost"
+                                leftIcon={<FunnelIcon className="w-5 h-5" />}
                             >
-                                <FunnelIcon className="w-5 h-5" />
-                                <span className="font-medium">Filter & Urutkan</span>
-                            </button>
+                                Filter & Urutkan
+                            </Button>
 
                             {totalResults > 0 && (
-                                <span className="text-gray-600 bg-gray-100 px-4 py-2 rounded-full text-sm font-medium">
+                                <Badge variant="gray">
                                     {totalResults} hasil • Halaman {currentPage}/{totalPages}
-                                </span>
+                                </Badge>
                             )}
                         </div>
 
@@ -614,61 +615,51 @@ function QuranSearchPage() {
                         {showFilters && (
                             <div className="border-t border-gray-200 pt-4 mt-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-3">
-                                            Urutkan berdasarkan
-                                        </label>
-                                        <select
-                                            value={sortBy}
-                                            onChange={(e) => setSortBy(e.target.value)}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                        >
-                                            <option value="surah">Nomor Surah</option>
-                                            <option value="name">Nama (A-Z)</option>
-                                            <option value="verses">Jumlah Ayat</option>
-                                            <option value="revelation">Urutan Turun</option>
-                                        </select>
-                                    </div>
+                                    <Select
+                                        label="Urutkan berdasarkan"
+                                        value={sortBy}
+                                        onChange={(e) => setSortBy(e.target.value)}
+                                    >
+                                        <option value="surah">Nomor Surah</option>
+                                        <option value="name">Nama (A-Z)</option>
+                                        <option value="verses">Jumlah Ayat</option>
+                                        <option value="revelation">Urutan Turun</option>
+                                    </Select>
 
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-3">
-                                            Tempat Turun
-                                        </label>
-                                        <select
-                                            value={revelationType}
-                                            onChange={(e) => setRevelationType(e.target.value)}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                        >
-                                            <option value="all">Semua</option>
-                                            <option value="meccan">Makkiyyah</option>
-                                            <option value="medinan">Madaniyyah</option>
-                                        </select>
-                                    </div>
+                                    <Select
+                                        label="Tempat Turun"
+                                        value={revelationType}
+                                        onChange={(e) => setRevelationType(e.target.value)}
+                                    >
+                                        <option value="all">Semua</option>
+                                        <option value="meccan">Makkiyyah</option>
+                                        <option value="medinan">Madaniyyah</option>
+                                    </Select>
                                 </div>
                             </div>
                         )}
-                    </div>
+                    </Card>
                 )}
                 {loading ? (
                     <div className="flex justify-center py-12">
                         <LoadingSpinner size="md" />
                     </div>
                 ) : error ? (
-                    <div className="text-center py-12">
+                    <Card padding="lg" className="text-center">
                         <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <XMarkIcon className="w-8 h-8 text-red-500" />
                         </div>
                         <h3 className="text-xl font-semibold text-gray-900 mb-2">Terjadi Kesalahan</h3>
                         <p className="text-red-600 mb-4">{error}</p>
-                        <button 
+                        <Button 
                             onClick={() => performSearch(query)}
-                            className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium shadow-md hover:shadow-lg"
+                            variant="primary"
                         >
                             Coba Lagi
-                        </button>
-                    </div>
+                        </Button>
+                    </Card>
                 ) : query && searchResults.length === 0 && totalResults === 0 ? (
-                    <div className="text-center py-16">
+                    <Card padding="lg" className="text-center">
                         <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
                             <MagnifyingGlassIcon className="w-12 h-12 text-gray-400" />
                         </div>
@@ -677,22 +668,22 @@ function QuranSearchPage() {
                             Coba sesuaikan kata kunci atau gunakan filter pencarian yang berbeda
                         </p>
                         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                            <button
+                            <Button
                                 onClick={clearSearch}
-                                className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium shadow-md hover:shadow-lg"
+                                variant="primary"
                             >
                                 Hapus Pencarian
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 onClick={() => setShowFilters(!showFilters)}
-                                className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium"
+                                variant="ghost"
                             >
                                 Ubah Filter
-                            </button>
+                            </Button>
                         </div>
-                    </div>
+                    </Card>
                 ) : query && searchResults.length === 0 && totalResults > 0 ? (
-                    <div className="text-center py-16">
+                    <Card padding="lg" className="text-center">
                         <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
                             <MagnifyingGlassIcon className="w-12 h-12 text-blue-500" />
                         </div>
@@ -701,25 +692,25 @@ function QuranSearchPage() {
                             Halaman ini tidak memiliki hasil, tetapi ada {totalResults} hasil di halaman lain.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                            <button
+                            <Button
                                 onClick={() => {
                                     setCurrentPage(1);
                                     if (debouncedQuery.trim()) {
                                         performSearch(debouncedQuery.trim(), 1);
                                     }
                                 }}
-                                className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium shadow-md hover:shadow-lg"
+                                variant="primary"
                             >
                                 Kembali ke Halaman 1
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 onClick={clearSearch}
-                                className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium"
+                                variant="ghost"
                             >
                                 Hapus Pencarian
-                            </button>
+                            </Button>
                         </div>
-                    </div>
+                    </Card>
                 ) : searchResults.length > 0 ? (
                     /* Search Results */
                     <div className="space-y-8">
@@ -727,9 +718,9 @@ function QuranSearchPage() {
                             <h2 className="text-2xl font-bold text-gray-900">
                                 Hasil Pencarian
                             </h2>
-                            <span className="text-gray-500 bg-gray-100 px-4 py-2 rounded-full text-sm font-medium">
+                            <Badge variant="gray">
                                 {((currentPage - 1) * resultsPerPage) + 1}-{Math.min(currentPage * resultsPerPage, totalResults)} dari {totalResults}
-                            </span>
+                            </Badge>
                         </div>
                         
                         <div className="grid gap-6">
@@ -738,48 +729,49 @@ function QuranSearchPage() {
                                 <Link
                                     key={`ayah-${result.surah_number}-${result.ayah_number || result.number}`}
                                     to={`/surah/${result.surah_number}/${result.ayah_number || result.number}`}
-                                    className="block bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02]"
                                 >
-                                    <div className="space-y-4">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center space-x-4">
-                                                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
-                                                    <span className="font-bold text-white text-sm">
-                                                        {result.surah_number}:{result.ayah_number || result.number}
-                                                    </span>
-                                                </div>
-                                                <div>
-                                                    <h3 className="font-bold text-gray-900 text-lg">
-                                                        {highlightText(result.surah_info?.name_latin, debouncedQuery)} • Ayat {result.ayah_number || result.number}
-                                                    </h3>
-                                                    <p className="text-gray-500">
-                                                        {highlightText(result.surah_info?.name_indonesian, debouncedQuery)}
-                                                    </p>
-                                                    {debouncedQuery && (
-                                                        <p className="text-blue-600 text-sm mt-1 font-medium bg-blue-50 px-2 py-1 rounded-full inline-block">
-                                                            {getSearchContext(result, debouncedQuery)}
+                                    <Card hoverable padding="lg">
+                                        <div className="space-y-4">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center space-x-4">
+                                                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
+                                                        <span className="font-bold text-white text-sm">
+                                                            {result.surah_number}:{result.ayah_number || result.number}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="font-bold text-gray-900 text-lg">
+                                                            {highlightText(result.surah_info?.name_latin, debouncedQuery)} • Ayat {result.ayah_number || result.number}
+                                                        </h3>
+                                                        <p className="text-gray-500">
+                                                            {highlightText(result.surah_info?.name_indonesian, debouncedQuery)}
                                                         </p>
-                                                    )}
+                                                        {debouncedQuery && (
+                                                            <Badge variant="blue" className="mt-1">
+                                                                {getSearchContext(result, debouncedQuery)}
+                                                            </Badge>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <ChevronRightIcon className="w-6 h-6 text-gray-400" />
+                                            </div>
+                                            <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-4">
+                                                <div className="text-gray-700 leading-relaxed">
+                                                    <span className="font-semibold text-blue-600 text-sm uppercase tracking-wide">Terjemahan:</span>
+                                                    <p className="mt-2 text-gray-800">
+                                                        "{highlightText(result.text_indonesian, debouncedQuery)}"
+                                                    </p>
                                                 </div>
                                             </div>
-                                            <ChevronRightIcon className="w-6 h-6 text-gray-400" />
                                         </div>
-                                        <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-4">
-                                            <div className="text-gray-700 leading-relaxed">
-                                                <span className="font-semibold text-blue-600 text-sm uppercase tracking-wide">Terjemahan:</span>
-                                                <p className="mt-2 text-gray-800">
-                                                    "{highlightText(result.text_indonesian, debouncedQuery)}"
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    </Card>
                                 </Link>
                             ))}
                         </div>
                         
                         {/* Enhanced Pagination */}
                         {totalPages > 1 && (
-                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                            <Card padding="lg">
                                 <div className="flex items-center justify-between mb-4">
                                     <div className="text-sm text-gray-600">
                                         Menampilkan {((currentPage - 1) * resultsPerPage) + 1} - {Math.min(currentPage * resultsPerPage, totalResults)} dari {totalResults} hasil
@@ -790,21 +782,23 @@ function QuranSearchPage() {
                                 </div>
                                 
                                 <div className="flex items-center justify-center space-x-2">
-                                    <button
+                                    <Button
                                         onClick={goToFirstPage}
                                         disabled={currentPage === 1}
-                                        className="p-3 rounded-xl border border-gray-300 text-gray-500 hover:text-gray-700 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-md"
+                                        variant="outline"
+                                        size="sm"
                                     >
                                         <ChevronDoubleLeftIcon className="w-5 h-5" />
-                                    </button>
+                                    </Button>
                                     
-                                    <button
+                                    <Button
                                         onClick={goToPrevPage}
                                         disabled={currentPage === 1}
-                                        className="p-3 rounded-xl border border-gray-300 text-gray-500 hover:text-gray-700 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-md"
+                                        variant="outline"
+                                        size="sm"
                                     >
                                         <ChevronLeftIcon className="w-5 h-5" />
-                                    </button>
+                                    </Button>
                                     
                                     <div className="flex items-center space-x-1">
                                         {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -820,38 +814,37 @@ function QuranSearchPage() {
                                             }
                                             
                                             return (
-                                                <button
+                                                <Button
                                                     key={pageNum}
                                                     onClick={() => goToPage(pageNum)}
-                                                    className={`px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
-                                                        currentPage === pageNum
-                                                            ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md'
-                                                            : 'border border-gray-300 text-gray-700 hover:bg-gray-50 hover:shadow-md'
-                                                    }`}
+                                                    variant={currentPage === pageNum ? 'primary' : 'outline'}
+                                                    size="sm"
                                                 >
                                                     {pageNum}
-                                                </button>
+                                                </Button>
                                             );
                                         })}
                                     </div>
                                     
-                                    <button
+                                    <Button
                                         onClick={goToNextPage}
                                         disabled={currentPage === totalPages}
-                                        className="p-3 rounded-xl border border-gray-300 text-gray-500 hover:text-gray-700 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-md"
+                                        variant="outline"
+                                        size="sm"
                                     >
                                         <ChevronRightIcon className="w-5 h-5" />
-                                    </button>
+                                    </Button>
                                     
-                                    <button
+                                    <Button
                                         onClick={goToLastPage}
                                         disabled={currentPage === totalPages}
-                                        className="p-3 rounded-xl border border-gray-300 text-gray-500 hover:text-gray-700 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-md"
+                                        variant="outline"
+                                        size="sm"
                                     >
                                         <ChevronDoubleRightIcon className="w-5 h-5" />
-                                    </button>
+                                    </Button>
                                 </div>
-                            </div>
+                            </Card>
                         )}
                     </div>
                 ) : (

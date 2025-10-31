@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth.jsx';
 import { getWithAuth, putWithAuth } from '../utils/apiUtils';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
+import { Card, Button, Input, PageHeader, PageContent } from '../components/ui';
 
 function UserProfilePage() {
     const navigate = useNavigate();
@@ -108,28 +109,24 @@ function UserProfilePage() {
             
             <div className="min-h-screen bg-gray-50 pt-16">
                 {/* Header */}
-                <div className="bg-white shadow-sm border-b">
-                    <div className="max-w-2xl mx-auto px-4 py-4">
-                        <div className="flex items-center gap-3">
-                            <IoPersonOutline className="w-6 h-6 text-green-600" />
-                            <h1 className="text-2xl font-bold text-gray-900">Profil Saya</h1>
-                        </div>
-                    </div>
-                </div>
+                <PageHeader
+                    title="Profil Saya"
+                    icon={<IoPersonOutline className="w-6 h-6" />}
+                />
 
                 {/* Content */}
-                <div className="max-w-2xl mx-auto px-4 py-6">
+                <PageContent size="md">
                     {message && (
-                        <div className={`p-4 rounded-lg mb-6 ${
+                        <Card className={`mb-6 ${
                             message.type === 'success' 
-                                ? 'bg-green-50 border border-green-200 text-green-800' 
-                                : 'bg-red-50 border border-red-200 text-red-800'
+                                ? 'bg-green-50 border-green-200 text-green-800' 
+                                : 'bg-red-50 border-red-200 text-red-800'
                         }`}>
                             {message.text}
-                        </div>
+                        </Card>
                     )}
 
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <Card>
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Basic Information */}
                             <div>
@@ -277,33 +274,28 @@ function UserProfilePage() {
 
                             {/* Actions */}
                             <div className="flex flex-col sm:flex-row gap-4 pt-6">
-                                <button
+                                <Button
                                     type="submit"
+                                    variant="primary"
                                     disabled={loading}
-                                    className="flex items-center justify-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    loading={loading}
+                                    leftIcon={<IoSaveOutline className="w-5 h-5" />}
                                 >
-                                    {loading ? (
-                                        <LoadingSpinner size="sm" />
-                                    ) : (
-                                        <>
-                                            <IoSaveOutline className="w-5 h-5" />
-                                            <span>Simpan Perubahan</span>
-                                        </>
-                                    )}
-                                </button>
+                                    Simpan Perubahan
+                                </Button>
 
-                                <button
+                                <Button
                                     type="button"
+                                    variant="danger"
                                     onClick={handleLogout}
-                                    className="flex items-center justify-center gap-2 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors"
+                                    leftIcon={<IoLogOutOutline className="w-5 h-5" />}
                                 >
-                                    <IoLogOutOutline className="w-5 h-5" />
-                                    <span>Keluar</span>
-                                </button>
+                                    Keluar
+                                </Button>
                             </div>
                         </form>
-                    </div>
-                </div>
+                    </Card>
+                </PageContent>
             </div>
         </>
     );

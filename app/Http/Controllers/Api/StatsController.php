@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 
 class StatsController extends Controller
@@ -34,7 +36,7 @@ class StatsController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Error fetching public stats: ' . $e->getMessage());
+            Log::error('Error fetching public stats: ' . $e->getMessage());
             
             return response()->json([
                 'status' => 'error',
@@ -178,7 +180,7 @@ class StatsController extends Controller
     public function getDetailedStats(Request $request)
     {
         // Only for authenticated admin users
-        if (!auth()->check() || !auth()->user()->is_admin) {
+        if (!Auth::check() || !Auth::user()->is_admin) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Unauthorized'
@@ -213,7 +215,7 @@ class StatsController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Error fetching detailed stats: ' . $e->getMessage());
+            Log::error('Error fetching detailed stats: ' . $e->getMessage());
             
             return response()->json([
                 'status' => 'error',

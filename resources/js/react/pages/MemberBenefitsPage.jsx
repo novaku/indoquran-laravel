@@ -16,6 +16,7 @@ import {
 } from 'react-icons/io5';
 import { useAuth } from '../hooks/useAuth.jsx';
 import SEOHead from '../components/SEOHead';
+import { Card, Button, Badge, IconBadge, PageHeader, PageContent } from '../components/ui';
 
 function MemberBenefitsPage() {
     const navigate = useNavigate();
@@ -119,9 +120,9 @@ function MemberBenefitsPage() {
                 keywords="member indoquran, fitur premium, bookmark quran, catatan ayat, progress baca quran, komunitas muslim"
             />
             
-            <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
+            <PageContent>
                 {/* Hero Section */}
-                <div className="relative bg-gradient-to-r from-green-600 to-blue-600 text-white py-20">
+                <div className="relative bg-gradient-to-r from-green-600 to-blue-600 text-white py-20 -mx-4 sm:-mx-6 lg:-mx-8 mb-12">
                     <div className="absolute inset-0 bg-black opacity-10"></div>
                     <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="text-center">
@@ -134,17 +135,22 @@ function MemberBenefitsPage() {
                                 dengan fitur-fitur eksklusif untuk member terdaftar
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                <button
+                                <Button
                                     onClick={handleGetStarted}
-                                    className="bg-yellow-400 hover:bg-yellow-500 text-green-800 font-bold py-4 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+                                    variant="primary"
+                                    size="lg"
+                                    className="bg-yellow-400 hover:bg-yellow-500 text-green-800 shadow-lg"
                                 >
                                     {isAuthenticated ? 'Lihat Profil Saya' : 'Daftar Gratis Sekarang'}
-                                </button>
-                                <Link
-                                    to="/tentang"
-                                    className="border-2 border-white text-white hover:bg-white hover:text-green-600 font-bold py-4 px-8 rounded-full text-lg transition-all duration-300"
-                                >
-                                    Pelajari Lebih Lanjut
+                                </Button>
+                                <Link to="/tentang">
+                                    <Button
+                                        variant="outline"
+                                        size="lg"
+                                        className="border-2 border-white text-white hover:bg-white hover:text-green-600"
+                                    >
+                                        Pelajari Lebih Lanjut
+                                    </Button>
                                 </Link>
                             </div>
                         </div>
@@ -152,102 +158,98 @@ function MemberBenefitsPage() {
                 </div>
 
                 {/* Benefits Grid */}
-                <div className="py-20 bg-gray-50">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="text-center mb-16">
-                            <h2 className="text-4xl font-bold text-gray-900 mb-6">
-                                Keuntungan Menjadi Member
-                            </h2>
-                            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                                Nikmati fitur-fitur eksklusif yang akan memperkaya pengalaman 
-                                spiritual Anda dengan Al-Quran
-                            </p>
-                        </div>
+                <div className="py-12">
+                    <div className="text-center mb-12">
+                        <h2 className="text-4xl font-bold text-gray-900 mb-6">
+                            Keuntungan Menjadi Member
+                        </h2>
+                        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                            Nikmati fitur-fitur eksklusif yang akan memperkaya pengalaman 
+                            spiritual Anda dengan Al-Quran
+                        </p>
+                    </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {memberBenefits.map((benefit) => {
-                                const IconComponent = benefit.icon;
-                                return (
-                                    <div
-                                        key={benefit.id}
-                                        className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden"
-                                        onMouseEnter={() => setHoveredCard(benefit.id)}
-                                        onMouseLeave={() => setHoveredCard(null)}
-                                    >
-                                        <div className={`h-2 bg-gradient-to-r ${benefit.color}`}></div>
-                                        <div className="p-8">
-                                            <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${benefit.color} mb-6`}>
-                                                <IconComponent className="w-8 h-8 text-white" />
-                                            </div>
-                                            <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                                                {benefit.title}
-                                            </h3>
-                                            <p className="text-gray-600 mb-6">
-                                                {benefit.description}
-                                            </p>
-                                            <ul className="space-y-3">
-                                                {benefit.features.map((feature, index) => (
-                                                    <li key={index} className="flex items-center text-gray-700">
-                                                        <IoCheckmarkCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                                                        <span>{feature}</span>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {memberBenefits.map((benefit) => {
+                            const IconComponent = benefit.icon;
+                            return (
+                                <Card
+                                    key={benefit.id}
+                                    hoverable
+                                    padding="lg"
+                                    className="overflow-hidden"
+                                    onMouseEnter={() => setHoveredCard(benefit.id)}
+                                    onMouseLeave={() => setHoveredCard(null)}
+                                >
+                                    <div className={`h-2 bg-gradient-to-r ${benefit.color} -mt-8 -mx-8 mb-6`}></div>
+                                    <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${benefit.color} mb-6`}>
+                                        <IconComponent className="w-8 h-8 text-white" />
                                     </div>
-                                );
-                            })}
-                        </div>
+                                    <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                                        {benefit.title}
+                                    </h3>
+                                    <p className="text-gray-600 mb-6">
+                                        {benefit.description}
+                                    </p>
+                                    <ul className="space-y-3">
+                                        {benefit.features.map((feature, index) => (
+                                            <li key={index} className="flex items-center text-gray-700">
+                                                <IoCheckmarkCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                                                <span>{feature}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </Card>
+                            );
+                        })}
                     </div>
                 </div>
 
                 {/* How It Works Section */}
-                <div className="py-20 bg-white">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="text-center mb-16">
-                            <h2 className="text-4xl font-bold text-gray-900 mb-6">
-                                Cara Memulai
-                            </h2>
-                            <p className="text-xl text-gray-600">
-                                Hanya 3 langkah mudah untuk menikmati semua fitur
-                            </p>
-                        </div>
+                <div className="py-12">
+                    <div className="text-center mb-12">
+                        <h2 className="text-4xl font-bold text-gray-900 mb-6">
+                            Cara Memulai
+                        </h2>
+                        <p className="text-xl text-gray-600">
+                            Hanya 3 langkah mudah untuk menikmati semua fitur
+                        </p>
+                    </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            <div className="text-center">
-                                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 text-green-600 text-2xl font-bold mb-6">
-                                    1
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-4">Daftar Gratis</h3>
-                                <p className="text-gray-600">
-                                    Buat akun dengan email Anda. Proses pendaftaran hanya butuh 1 menit.
-                                </p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <Card className="text-center" padding="lg">
+                            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 text-green-600 text-2xl font-bold mb-6">
+                                1
                             </div>
-                            <div className="text-center">
-                                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-blue-100 text-blue-600 text-2xl font-bold mb-6">
-                                    2
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-4">Verifikasi Email</h3>
-                                <p className="text-gray-600">
-                                    Konfirmasi email Anda untuk mengaktifkan semua fitur member.
-                                </p>
+                            <h3 className="text-xl font-bold text-gray-900 mb-4">Daftar Gratis</h3>
+                            <p className="text-gray-600">
+                                Buat akun dengan email Anda. Proses pendaftaran hanya butuh 1 menit.
+                            </p>
+                        </Card>
+                        <Card className="text-center" padding="lg">
+                            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-blue-100 text-blue-600 text-2xl font-bold mb-6">
+                                2
                             </div>
-                            <div className="text-center">
-                                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-purple-100 text-purple-600 text-2xl font-bold mb-6">
-                                    3
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-4">Mulai Menikmati</h3>
-                                <p className="text-gray-600">
-                                    Langsung akses semua fitur premium dan mulai perjalanan spiritual Anda.
-                                </p>
+                            <h3 className="text-xl font-bold text-gray-900 mb-4">Verifikasi Email</h3>
+                            <p className="text-gray-600">
+                                Konfirmasi email Anda untuk mengaktifkan semua fitur member.
+                            </p>
+                        </Card>
+                        <Card className="text-center" padding="lg">
+                            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-purple-100 text-purple-600 text-2xl font-bold mb-6">
+                                3
                             </div>
-                        </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-4">Mulai Menikmati</h3>
+                            <p className="text-gray-600">
+                                Langsung akses semua fitur premium dan mulai perjalanan spiritual Anda.
+                            </p>
+                        </Card>
                     </div>
                 </div>
 
                 {/* CTA Section */}
-                <div className="py-20 bg-gradient-to-r from-green-600 to-blue-600 text-white">
-                    <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+                <div className="py-12 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-2xl -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+                    <div className="max-w-4xl mx-auto text-center">
                         <h2 className="text-4xl font-bold mb-6">
                             Siap Memulai Perjalanan Spiritual Anda?
                         </h2>
@@ -255,13 +257,15 @@ function MemberBenefitsPage() {
                             Bergabunglah dengan ribuan muslim lainnya dan dapatkan akses ke semua fitur premium secara gratis
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <button
+                            <Button
                                 onClick={handleGetStarted}
-                                className="bg-yellow-400 hover:bg-yellow-500 text-green-800 font-bold py-4 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+                                variant="primary"
+                                size="lg"
+                                leftIcon={<IoHandRightOutline className="w-6 h-6" />}
+                                className="bg-yellow-400 hover:bg-yellow-500 text-green-800 shadow-lg"
                             >
-                                <IoHandRightOutline className="inline-block w-6 h-6 mr-2" />
                                 {isAuthenticated ? 'Dashboard Saya' : 'Daftar Sekarang - Gratis!'}
-                            </button>
+                            </Button>
                         </div>
                         <p className="text-sm mt-6 text-green-200">
                             * Tidak ada biaya tersembunyi. Daftar sekali, nikmati selamanya.
@@ -270,58 +274,56 @@ function MemberBenefitsPage() {
                 </div>
 
                 {/* FAQ Section */}
-                <div className="py-20 bg-white">
-                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="text-center mb-16">
-                            <h2 className="text-4xl font-bold text-gray-900 mb-6">
-                                Pertanyaan Umum
-                            </h2>
-                        </div>
+                <div className="py-12">
+                    <div className="text-center mb-12">
+                        <h2 className="text-4xl font-bold text-gray-900 mb-6">
+                            Pertanyaan Umum
+                        </h2>
+                    </div>
 
-                        <div className="space-y-6">
-                            <div className="bg-gray-50 rounded-lg p-6">
-                                <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                                    Apakah benar-benar gratis?
-                                </h3>
-                                <p className="text-gray-700">
-                                    Ya, 100% gratis. Semua fitur member tersedia tanpa biaya. Kami berkomitmen 
-                                    menyediakan akses Al-Quran yang mudah untuk semua muslim.
-                                </p>
-                            </div>
+                    <div className="max-w-4xl mx-auto space-y-6">
+                        <Card padding="lg">
+                            <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                                Apakah benar-benar gratis?
+                            </h3>
+                            <p className="text-gray-700">
+                                Ya, 100% gratis. Semua fitur member tersedia tanpa biaya. Kami berkomitmen 
+                                menyediakan akses Al-Quran yang mudah untuk semua muslim.
+                            </p>
+                        </Card>
 
-                            <div className="bg-gray-50 rounded-lg p-6">
-                                <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                                    Bagaimana keamanan data saya?
-                                </h3>
-                                <p className="text-gray-700">
-                                    Data Anda aman dengan enkripsi tingkat enterprise. Kami tidak akan pernah 
-                                    membagikan informasi pribadi Anda kepada pihak ketiga.
-                                </p>
-                            </div>
+                        <Card padding="lg">
+                            <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                                Bagaimana keamanan data saya?
+                            </h3>
+                            <p className="text-gray-700">
+                                Data Anda aman dengan enkripsi tingkat enterprise. Kami tidak akan pernah 
+                                membagikan informasi pribadi Anda kepada pihak ketiga.
+                            </p>
+                        </Card>
 
-                            <div className="bg-gray-50 rounded-lg p-6">
-                                <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                                    Bisakah saya mengakses dari berbagai perangkat?
-                                </h3>
-                                <p className="text-gray-700">
-                                    Tentu! Akun Anda akan tersinkronisasi di semua perangkat. Login sekali, 
-                                    akses di mana saja - handphone, tablet, atau komputer.
-                                </p>
-                            </div>
+                        <Card padding="lg">
+                            <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                                Bisakah saya mengakses dari berbagai perangkat?
+                            </h3>
+                            <p className="text-gray-700">
+                                Tentu! Akun Anda akan tersinkronisasi di semua perangkat. Login sekali, 
+                                akses di mana saja - handphone, tablet, atau komputer.
+                            </p>
+                        </Card>
 
-                            <div className="bg-gray-50 rounded-lg p-6">
-                                <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                                    Bagaimana jika saya lupa password?
-                                </h3>
-                                <p className="text-gray-700">
-                                    Jangan khawatir! Kami menyediakan fitur reset password melalui email. 
-                                    Anda bisa reset kapan saja dengan mudah.
-                                </p>
-                            </div>
-                        </div>
+                        <Card padding="lg">
+                            <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                                Bagaimana jika saya lupa password?
+                            </h3>
+                            <p className="text-gray-700">
+                                Jangan khawatir! Kami menyediakan fitur reset password melalui email. 
+                                Anda bisa reset kapan saja dengan mudah.
+                            </p>
+                        </Card>
                     </div>
                 </div>
-            </div>
+            </PageContent>
         </>
     );
 }

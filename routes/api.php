@@ -14,6 +14,8 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PrayerController;
 use App\Http\Controllers\TafsirMaudhuiController;
 use App\Http\Controllers\Api\SecurityController;
+use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\TagController;
 
 /*
 |--------------------------------------------------------------------------
@@ -199,6 +201,7 @@ Route::get('/stats/public', [\App\Http\Controllers\Api\StatsController::class, '
 // Tafsir Maudhui routes
 Route::get('/tafsir-maudhui', [TafsirMaudhuiController::class, 'api']);
 Route::get('/tafsir-maudhui/count', [TafsirMaudhuiController::class, 'count']);
+Route::get('/tafsir-maudhui/random', [TafsirMaudhuiController::class, 'random']);
 
 // SEO API routes
 Route::prefix('seo')->group(function() {
@@ -218,4 +221,36 @@ Route::prefix('admin')->group(function() {
     
     // Detailed stats for admin
     Route::get('/stats/detailed', [\App\Http\Controllers\Api\StatsController::class, 'getDetailedStats']);
+});
+
+// Article routes
+// Public routes (anyone can view published articles)
+Route::get('/articles', [ArticleController::class, 'index']);
+Route::get('/articles/random', [ArticleController::class, 'random']); // Must be before {slug} route
+Route::get('/articles/{slug}', [ArticleController::class, 'show']);
+Route::get('/articles/{slug}/related', [ArticleController::class, 'related']);
+
+// Admin article routes (requires auth and admin role)
+Route::middleware(['auth', 'admin'])->prefix('admin/articles')->group(function() {
+    Route::get('/', [ArticleController::class, 'adminIndex']);
+    Route::get('/{id}/edit', [ArticleController::class, 'edit']);
+    Route::post('/', [ArticleController::class, 'store']);
+    Route::put('/{id}', [ArticleController::class, 'update']);
+    Route::delete('/{id}', [ArticleController::class, 'destroy']);
+    Route::post('/upload-image', [ArticleController::class, 'uploadImage']);
+});
+
+// Tag routes
+// Public routes (anyone can view tags)
+Route::get('/tags', [TagController::class, 'index']);
+Route::get('/tags/popular', [TagController::class, 'popular']);
+Route::get('/tags/{slug}', [TagController::class, 'show']);
+Route::get('/tags/{slug}/articles', [TagController::class, 'articles']);
+
+// Admin tag routes (requires auth and admin role)
+Route::middleware(['auth', 'admin'])->prefix('admin/tags')->group(function() {
+    Route::get('/', [TagController::class, 'adminIndex']);
+    Route::post('/', [TagController::class, 'store']);
+    Route::put('/{id}', [TagController::class, 'update']);
+    Route::delete('/{id}', [TagController::class, 'destroy']);
 });

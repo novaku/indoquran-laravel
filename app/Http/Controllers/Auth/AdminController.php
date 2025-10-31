@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use App\Models\Contact;
@@ -38,7 +39,7 @@ class AdminController extends Controller
      */
     public function sendOtp(Request $request)
     {
-        \Log::info('Admin OTP request received', [
+        Log::info('Admin OTP request received', [
             'email' => $request->get('email'),
             'ip' => $request->ip(),
             'user_agent' => $request->userAgent(),
@@ -73,7 +74,7 @@ class AdminController extends Controller
             // Send OTP via email
             Mail::to($request->email)->send(new AdminOtpMail($otpCode));
 
-            \Log::info('Admin OTP sent successfully', [
+            Log::info('Admin OTP sent successfully', [
                 'email' => $request->email,
                 'user_id' => $user->id,
                 'ip' => $request->ip(),
@@ -86,7 +87,7 @@ class AdminController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Failed to send admin OTP', [
+            Log::error('Failed to send admin OTP', [
                 'email' => $request->email,
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
@@ -124,7 +125,7 @@ class AdminController extends Controller
         $otpRecord = AdminOtpCode::findValidOtp($credentials['email'], $credentials['otp_code']);
         
         if (!$otpRecord) {
-            \Log::warning('Invalid admin OTP attempt', [
+            Log::warning('Invalid admin OTP attempt', [
                 'email' => $credentials['email'],
                 'otp_code' => $credentials['otp_code'],
                 'user_id' => $user->id,
@@ -140,7 +141,7 @@ class AdminController extends Controller
         $otpRecord->markAsUsed();
 
         // Log successful admin login
-        \Log::info('Admin user logged in successfully with OTP', [
+        Log::info('Admin user logged in successfully with OTP', [
             'user_id' => $user->id,
             'email' => $user->email,
             'ip' => $request->ip(),
@@ -154,7 +155,7 @@ class AdminController extends Controller
         // The React admin panel relies on sessions, not tokens
         $request->session()->regenerate();
         
-        \Log::info('Admin session created', [
+        Log::info('Admin session created', [
             'session_id' => $request->session()->getId(),
             'user_id' => $user->id,
             'auth_check' => Auth::check()
@@ -178,7 +179,7 @@ class AdminController extends Controller
      */
     public function dashboard(Request $request)
     {
-        \Log::info('Dashboard request received', [
+        Log::info('Dashboard request received', [
             'auth_check' => Auth::check(),
             'user_id' => Auth::id(),
             'is_admin' => Auth::check() ? Auth::user()->isAdmin() : false,
@@ -187,18 +188,20 @@ class AdminController extends Controller
         ]);
 
         if (!Auth::check()) {
-            \Log::warning('Dashboard access denied - not authenticated');
+            Log::warning('Dashboard access denied - not authenticated');
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
         if (!Auth::user()->isAdmin()) {
-            \Log::warning('Dashboard access denied - not admin', ['user_id' => Auth::id()]);
+            Log::warning('Dashboard access denied - not admin', ['user_id' => Auth::id()]);
             return response()->json(['message' => 'Unauthorized. Admin access required.'], 403);
         }
 
         // Get statistics
         $stats = [
             'total_users' => User::count(),
+            'total_articles' => \App\Models\Article::count(),
+            'published_articles' => \App\Models\Article::where('status', 'published')->count(),
             'total_contacts' => Contact::count(),
             'total_prayers' => Prayer::count(),
             'total_search_terms' => SearchTerm::count(),
@@ -258,7 +261,7 @@ class AdminController extends Controller
                 ];
             })->values();
         } catch (\Exception $e) {
-            \Log::error('Error getting popular surahs with names: ' . $e->getMessage());
+            Log::error('Error getting popular surahs with names: ' . $e->getMessage());
             return collect([]);
         }
     }
@@ -374,7 +377,7 @@ class AdminController extends Controller
         
         $csrfToken = csrf_token();
         
-        \Log::info('CSRF token requested', [
+        Log::info('CSRF token requested', [
             'session_id' => $request->session()->getId(),
             'csrf_token' => $csrfToken,
             'user_agent' => $request->userAgent(),
@@ -429,7 +432,7 @@ class AdminController extends Controller
             $contact->is_read = true;
             $contact->save();
 
-            \Log::info('Contact marked as read', [
+            Log::info('Contact marked as read', [
                 'contact_id' => $contactId,
                 'admin_id' => Auth::user()->id,
                 'admin_email' => Auth::user()->email
@@ -439,7 +442,7 @@ class AdminController extends Controller
                 'message' => 'Kontak berhasil ditandai sebagai sudah dibaca'
             ]);
         } catch (\Exception $e) {
-            \Log::error('Error marking contact as read', [
+            Log::error('Error marking contact as read', [
                 'contact_id' => $contactId,
                 'error' => $e->getMessage(),
                 'admin_id' => Auth::user()->id
@@ -486,7 +489,7 @@ class AdminController extends Controller
             $contact->is_read = true;
             $contact->save();
 
-            \Log::info('Contact reply sent', [
+            Log::info('Contact reply sent', [
                 'contact_id' => $contactId,
                 'contact_email' => $contact->email,
                 'admin_id' => Auth::user()->id,
@@ -498,7 +501,7 @@ class AdminController extends Controller
                 'message' => 'Balasan berhasil dikirim'
             ]);
         } catch (\Exception $e) {
-            \Log::error('Error sending contact reply', [
+            Log::error('Error sending contact reply', [
                 'contact_id' => $contactId,
                 'error' => $e->getMessage(),
                 'admin_id' => Auth::user()->id

@@ -71,6 +71,7 @@ Route::post('/admin/login', [AdminController::class, 'login']);
 // API routes for Tafsir Maudhui (to be consumed by React)
 Route::get('/api/tafsir-maudhui', [TafsirMaudhuiController::class, 'api'])->name('tafsir-maudhui.api');
 Route::get('/api/tafsir-maudhui/search', [TafsirMaudhuiController::class, 'search'])->name('tafsir-maudhui.search');
+Route::get('/api/tafsir-maudhui/random', [TafsirMaudhuiController::class, 'random'])->name('tafsir-maudhui.random');
 Route::get('/api/tafsir-maudhui/{slug}', [TafsirMaudhuiController::class, 'show'])->name('tafsir-maudhui.show');
 Route::post('/api/tafsir-maudhui/clear-cache', [TafsirMaudhuiController::class, 'clearCache'])->name('tafsir-maudhui.clear-cache');
 

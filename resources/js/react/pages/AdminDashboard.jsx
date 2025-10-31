@@ -302,6 +302,15 @@ const AdminDashboard = () => {
             bgColor: 'bg-blue-50'
         },
         {
+            title: 'Artikel',
+            value: stats.total_articles || 0,
+            subtitle: `${stats.published_articles || 0} dipublikasikan`,
+            icon: DocumentTextIcon,
+            color: 'bg-amber-500',
+            bgColor: 'bg-amber-50',
+            link: '/admin/artikel'
+        },
+        {
             title: 'Pesan Kontak',
             value: stats.total_contacts || 0,
             subtitle: `${recentActivities.contacts?.filter(c => !c.is_read)?.length || 0} belum dibaca`,
@@ -382,8 +391,16 @@ const AdminDashboard = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 mb-8">
                     {statCards.map((stat, index) => {
                         const IconComponent = stat.icon;
+                        const CardWrapper = stat.link ? 'button' : 'div';
+                        const cardProps = stat.link ? {
+                            onClick: () => navigate(stat.link),
+                            className: `${stat.bgColor} rounded-lg p-6 border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer text-left w-full`
+                        } : {
+                            className: `${stat.bgColor} rounded-lg p-6 border border-gray-200`
+                        };
+                        
                         return (
-                            <div key={index} className={`${stat.bgColor} rounded-lg p-6 border border-gray-200`}>
+                            <CardWrapper key={index} {...cardProps}>
                                 <div className="flex items-center">
                                     <div className={`${stat.color} rounded-lg p-3 mr-4`}>
                                         <IconComponent className="h-6 w-6 text-white" />
@@ -396,9 +413,50 @@ const AdminDashboard = () => {
                                         )}
                                     </div>
                                 </div>
-                            </div>
+                            </CardWrapper>
                         );
                     })}
+                </div>
+
+                {/* Quick Actions */}
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Aksi Cepat</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <button
+                            onClick={() => navigate('/admin/artikel')}
+                            className="flex items-center p-4 border-2 border-gray-200 rounded-lg hover:border-emerald-500 hover:bg-emerald-50 transition-all group"
+                        >
+                            <DocumentTextIcon className="h-8 w-8 text-amber-500 mr-3 group-hover:text-emerald-600" />
+                            <div className="text-left">
+                                <p className="font-semibold text-gray-900">Kelola Artikel</p>
+                                <p className="text-sm text-gray-500">Lihat & edit artikel</p>
+                            </div>
+                        </button>
+                        
+                        <button
+                            onClick={() => navigate('/admin/artikel/baru')}
+                            className="flex items-center p-4 border-2 border-gray-200 rounded-lg hover:border-emerald-500 hover:bg-emerald-50 transition-all group"
+                        >
+                            <svg className="h-8 w-8 text-emerald-500 mr-3 group-hover:text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            <div className="text-left">
+                                <p className="font-semibold text-gray-900">Buat Artikel Baru</p>
+                                <p className="text-sm text-gray-500">Tulis artikel baru</p>
+                            </div>
+                        </button>
+                        
+                        <button
+                            onClick={() => setActiveTab('contacts')}
+                            className="flex items-center p-4 border-2 border-gray-200 rounded-lg hover:border-emerald-500 hover:bg-emerald-50 transition-all group"
+                        >
+                            <ChatBubbleLeftRightIcon className="h-8 w-8 text-green-500 mr-3 group-hover:text-emerald-600" />
+                            <div className="text-left">
+                                <p className="font-semibold text-gray-900">Pesan Kontak</p>
+                                <p className="text-sm text-gray-500">Lihat pesan masuk</p>
+                            </div>
+                        </button>
+                    </div>
                 </div>
 
                 {/* Tabs */}
