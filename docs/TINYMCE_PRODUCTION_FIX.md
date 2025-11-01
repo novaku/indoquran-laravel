@@ -1,5 +1,15 @@
 # TinyMCE Production Fix - Dokumentasi
 
+## Update: Versi 2.0 - Improved Loading Detection
+
+### Changelog:
+- ✅ Added DNS prefetch dan preconnect untuk TinyMCE CDN
+- ✅ Added global `TINYMCE_READY` flag untuk koordinasi loading
+- ✅ Improved TinyMCEEditor component dengan loading state dan error handling
+- ✅ Added event-based loading detection (`tinymce-loaded`, `tinymce-load-error`)
+- ✅ Added comprehensive console logging untuk debugging
+- ✅ Added test script (`test-tinymce.sh`) untuk verifikasi implementasi
+
 ## Masalah
 TinyMCE editor tidak tampil di halaman production:
 - URL: https://indoquran.web.id/admin/artikel/edit/9
@@ -102,6 +112,26 @@ Script ini akan otomatis:
 
 ## Verifikasi
 
+### Testing Script
+
+Jalankan test script untuk memverifikasi implementasi:
+
+```bash
+./test-tinymce.sh
+```
+
+Script akan memeriksa:
+- ✅ TinyMCE CDN script di blade template
+- ✅ DNS prefetch configuration
+- ✅ Verification script
+- ✅ TinyMCEEditor component
+- ✅ Loading state dan error handling
+- ✅ Build artifacts (vendor-tinymce chunk)
+- ✅ API key configuration
+- ✅ Vite configuration
+
+### Manual Testing
+
 Setelah deployment, test di browser:
 
 1. Buka https://indoquran.web.id/admin/artikel/edit/9
@@ -110,6 +140,29 @@ Setelah deployment, test di browser:
 4. Test save artikel
 
 ### Troubleshooting
+
+#### Console Messages yang Diharapkan:
+
+Jika TinyMCE berhasil load, Anda akan melihat di browser console:
+```
+✅ TinyMCE loaded successfully from CDN
+TinyMCE version: 7.x
+✅ TinyMCE ready for React component
+✅ TinyMCE Editor initialized
+```
+
+#### Loading State:
+
+Saat halaman pertama kali load, editor akan menampilkan:
+- Spinner loading dengan text "Memuat editor..."
+- Setelah TinyMCE ready, editor akan ter-render penuh
+
+#### Error State:
+
+Jika TinyMCE gagal load (misal: koneksi internet bermasalah), akan tampil:
+- Icon warning merah
+- Message: "TinyMCE gagal dimuat dari CDN"
+- Tombol "Refresh Halaman" untuk retry
 
 Jika TinyMCE masih tidak tampil:
 
