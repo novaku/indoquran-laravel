@@ -53,10 +53,12 @@
     <!-- DNS prefetch for external domains (highest priority) - reduced to only used resources -->
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link rel="dns-prefetch" href="//cdn.tiny.cloud">
     
     <!-- Preconnect to critical external resources only (fonts) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tiny.cloud" crossorigin>
     
     <!-- Preload critical resources for faster initial load -->
     <link rel="modulepreload" href="{{ Vite::asset('resources/js/react/index.jsx') }}" as="script">
@@ -290,6 +292,49 @@
     
     <!-- TinyMCE - Load from CDN for admin pages -->
     <script src="https://cdn.tiny.cloud/1/x0f851mmzistj4au9egox5t5zqbwtxeuftlpfwseltrr7t0x/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+    
+    <!-- TinyMCE Verification Script -->
+    <script>
+        // Wait for TinyMCE to load and verify
+        (function() {
+            const maxWaitTime = 10000; // 10 seconds
+            const startTime = Date.now();
+            
+            function checkTinyMCE() {
+                if (typeof window.tinymce !== 'undefined') {
+                    console.log('✅ TinyMCE loaded successfully from CDN');
+                    console.log('TinyMCE version:', window.tinymce.majorVersion + '.' + window.tinymce.minorVersion);
+                    
+                    // Set global flag for React components
+                    window.TINYMCE_READY = true;
+                    window.dispatchEvent(new Event('tinymce-loaded'));
+                    return true;
+                }
+                
+                const elapsedTime = Date.now() - startTime;
+                if (elapsedTime >= maxWaitTime) {
+                    console.error('❌ TinyMCE failed to load from CDN after ' + (maxWaitTime / 1000) + ' seconds');
+                    console.error('Please check:');
+                    console.error('1. Internet connection');
+                    console.error('2. CDN availability: https://cdn.tiny.cloud');
+                    console.error('3. API key validity');
+                    window.TINYMCE_READY = false;
+                    window.dispatchEvent(new Event('tinymce-load-error'));
+                    return false;
+                }
+                
+                // Retry after 100ms
+                setTimeout(checkTinyMCE, 100);
+            }
+            
+            // Start checking after DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', checkTinyMCE);
+            } else {
+                checkTinyMCE();
+            }
+        })();
+    </script>
     
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/react/index.jsx'])

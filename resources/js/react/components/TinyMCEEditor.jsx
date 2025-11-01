@@ -1,10 +1,72 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import PropTypes from 'prop-types';
 import TINYMCE_CONFIG from '../config/tinymce.config';
 
 const TinyMCEEditor = ({ content, onChange, placeholder = 'Mulai menulis konten artikel di sini...' }) => {
   const editorRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+  const [tinymceReady, setTinymceReady] = useState(false);
+
+  useEffect(() => {
+    // Check if TinyMCE is loaded
+    const checkTinyMCE = () => {
+      if (typeof window.tinymce !== 'undefined' || window.TINYMCE_READY === true) {
+        console.log('✅ TinyMCE ready for React component');
+        setTinymceReady(true);
+        setIsLoading(false);
+        return true;
+      }
+      return false;
+    };
+
+    // Initial check
+    if (checkTinyMCE()) {
+      return;
+    }
+
+    // Listen for global TinyMCE loaded event
+    const handleTinyMCELoaded = () => {
+      console.log('✅ TinyMCE loaded event received');
+      setTinymceReady(true);
+      setIsLoading(false);
+    };
+
+    const handleTinyMCEError = () => {
+      console.error('❌ TinyMCE load error event received');
+      setLoadError('TinyMCE gagal dimuat dari CDN. Silakan refresh halaman.');
+      setIsLoading(false);
+    };
+
+    window.addEventListener('tinymce-loaded', handleTinyMCELoaded);
+    window.addEventListener('tinymce-load-error', handleTinyMCEError);
+
+    // Retry check every 100ms for max 10 seconds as fallback
+    let attempts = 0;
+    const maxAttempts = 100; // 100 * 100ms = 10 seconds
+    
+    const interval = setInterval(() => {
+      attempts++;
+      
+      if (checkTinyMCE()) {
+        clearInterval(interval);
+      } else if (attempts >= maxAttempts) {
+        clearInterval(interval);
+        if (!window.TINYMCE_READY) {
+          console.error('❌ TinyMCE failed to load after 10 seconds');
+          setLoadError('TinyMCE gagal dimuat. Silakan refresh halaman.');
+          setIsLoading(false);
+        }
+      }
+    }, 100);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('tinymce-loaded', handleTinyMCELoaded);
+      window.removeEventListener('tinymce-load-error', handleTinyMCEError);
+    };
+  }, []);
 
   const handleEditorChange = (newContent) => {
     if (onChange) {
@@ -12,10 +74,57 @@ const TinyMCEEditor = ({ content, onChange, placeholder = 'Mulai menulis konten 
     }
   };
 
+  const handleInit = (evt, editor) => {
+    console.log('✅ TinyMCE Editor initialized');
+    editorRef.current = editor;
+  };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="w-full border border-gray-300 rounded-lg p-8 text-center bg-gray-50">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+          <p className="text-gray-600">Memuat editor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (loadError) {
+    return (
+      <div className="w-full border border-red-300 rounded-lg p-8 text-center bg-red-50">
+        <div className="flex flex-col items-center gap-4">
+          <svg className="w-12 h-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <p className="text-red-800 font-semibold">{loadError}</p>
+            <p className="text-red-600 text-sm mt-2">
+              Pastikan koneksi internet Anda stabil, kemudian refresh halaman.
+            </p>
+          </div>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Refresh Halaman
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Render TinyMCE Editor
+  if (!tinymceReady) {
+    return null;
+  }
+
   return (
     <Editor
       apiKey={TINYMCE_CONFIG.apiKey}
-      onInit={(evt, editor) => editorRef.current = editor}
+      onInit={handleInit}
       value={content}
       onEditorChange={handleEditorChange}
       init={{
