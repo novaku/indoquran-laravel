@@ -120,6 +120,10 @@ export default defineConfig(({ command, mode }) => {
                         if (id.includes('chart.js')) {
                             return 'vendor-charts';
                         }
+                        // TinyMCE - separate chunk (loaded from CDN, but React wrapper needs to be bundled)
+                        if (id.includes('@tinymce') || id.includes('tinymce')) {
+                            return 'vendor-tinymce';
+                        }
                         // Small vendor libs (grouped)
                         if (id.includes('node_modules')) {
                             return 'vendor-utils';

@@ -288,6 +288,9 @@
     <link rel="stylesheet" href="{{ asset('fonts/arabic-font.css') }}" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="{{ asset('fonts/arabic-font.css') }}"></noscript>
     
+    <!-- TinyMCE - Load from CDN for admin pages -->
+    <script src="https://cdn.tiny.cloud/1/x0f851mmzistj4au9egox5t5zqbwtxeuftlpfwseltrr7t0x/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+    
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/react/index.jsx'])
     
