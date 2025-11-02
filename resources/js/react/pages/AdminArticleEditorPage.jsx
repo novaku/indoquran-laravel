@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FaSave, FaArrowLeft, FaImage } from 'react-icons/fa';
-import TinyMCEEditor from '../components/TinyMCEEditor';
+import TipTapEditor from '../components/TipTapEditor';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const AdminArticleEditorPage = () => {
@@ -550,7 +550,7 @@ const AdminArticleEditorPage = () => {
           {/* Content Editor */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Konten Artikel *</h2>
-            <TinyMCEEditor
+            <TipTapEditor
               content={formData.content}
               onChange={handleContentChange}
               placeholder="Mulai menulis konten artikel di sini..."
