@@ -2,6 +2,7 @@
     "$schema": "https://json.schemastore.org/package.json",
     "private": true,
     "type": "module",
+    "version": "2.11.4",
     "scripts": {
         "build": "vite build --mode production",
         "build:analyze": "vite build --mode production && npx vite-bundle-analyzer",
@@ -23,7 +24,9 @@
         "bundle:size": "./analyze-bundle.sh",
         "pwa:test": "./test-pwa.sh",
         "pwa:audit": "npx lighthouse --view --only-categories=pwa http://localhost:8000",
-        "pwa:build": "npm run build && npm run pwa:test"
+        "pwa:build": "npm run build && npm run pwa:test",
+        "test:canonical": "./test-canonical-url.sh",
+        "test:seo": "./test-canonical-url.sh && npm run pwa:test"
     },
     "devDependencies": {
         "@babel/preset-react": "^7.27.1",

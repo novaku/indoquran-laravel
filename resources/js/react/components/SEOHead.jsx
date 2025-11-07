@@ -29,7 +29,8 @@ function SEOHead({
 }) {
   const baseUrl = 'https://indoquran.web.id';
   
-  // Default SEO values (updated August 2025 for canonical URL consistency)
+  // Default SEO values (updated November 2025 for canonical URL consistency)
+  // Note: Canonical tag is managed by useCanonicalURL hook in App.jsx to prevent duplication
   const seoDefaults = {
     title: title || 'IndoQuran - Al-Quran Digital Indonesia | Baca & Dengar Al-Quran Online',
     description: description || 'Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia, fitur bookmark, pencarian ayat, audio murottal berkualitas tinggi, dan tafsir lengkap.',
@@ -56,8 +57,8 @@ function SEOHead({
     metaTags.push(<meta key="viewport" name="viewport" content={seoDefaults.viewport} />);
     metaTags.push(<meta key="theme-color" name="theme-color" content={seoDefaults.themeColor} />);
     
-    // Canonical URL
-    metaTags.push(<link key="canonical" rel="canonical" href={seoDefaults.canonicalUrl} />);
+    // Canonical URL is managed by useCanonicalURL hook to prevent duplication
+    // Do NOT add canonical tag here - it's handled centrally in App.jsx
     
     // Open Graph tags
     const ogTags = {

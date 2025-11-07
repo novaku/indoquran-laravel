@@ -4,6 +4,7 @@ import { generateCanonicalUrl, ensureCanonicalConsistency } from '../utils/seoUt
 
 /**
  * Hook to ensure canonical URL consistency according to Google's guidelines
+ * Reference: https://developers.google.com/search/docs/crawling-indexing/canonicalization
  * Prevents "Google chose different canonical than user" issues
  */
 export const useCanonicalURL = (manualCanonicalUrl = null) => {
@@ -16,14 +17,24 @@ export const useCanonicalURL = (manualCanonicalUrl = null) => {
     const currentPath = location.pathname + location.search;
     const canonicalUrl = manualCanonicalUrl || generateCanonicalUrl(currentPath);
     
-    // Update canonical link tag
+    // Find existing canonical link or create new one
     let canonicalLink = document.querySelector('link[rel="canonical"]');
     if (!canonicalLink) {
       canonicalLink = document.createElement('link');
       canonicalLink.rel = 'canonical';
-      document.head.appendChild(canonicalLink);
+      // Insert after charset meta tag for proper positioning
+      const charsetMeta = document.querySelector('meta[charset]');
+      if (charsetMeta && charsetMeta.nextSibling) {
+        document.head.insertBefore(canonicalLink, charsetMeta.nextSibling);
+      } else {
+        document.head.insertBefore(canonicalLink, document.head.firstChild);
+      }
     }
-    canonicalLink.href = canonicalUrl;
+    
+    // Only update if canonical URL has changed to avoid unnecessary DOM manipulation
+    if (canonicalLink.href !== canonicalUrl) {
+      canonicalLink.href = canonicalUrl;
+    }
 
     // Ensure URL consistency (only in production to avoid dev disruptions)
     if (process.env.NODE_ENV === 'production') {
@@ -37,7 +48,9 @@ export const useCanonicalURL = (manualCanonicalUrl = null) => {
       ogUrlMeta.setAttribute('property', 'og:url');
       document.head.appendChild(ogUrlMeta);
     }
-    ogUrlMeta.content = canonicalUrl;
+    if (ogUrlMeta.content !== canonicalUrl) {
+      ogUrlMeta.content = canonicalUrl;
+    }
 
     // Update Twitter URL
     let twitterUrlMeta = document.querySelector('meta[name="twitter:url"]');
@@ -46,7 +59,9 @@ export const useCanonicalURL = (manualCanonicalUrl = null) => {
       twitterUrlMeta.name = 'twitter:url';
       document.head.appendChild(twitterUrlMeta);
     }
-    twitterUrlMeta.content = canonicalUrl;
+    if (twitterUrlMeta.content !== canonicalUrl) {
+      twitterUrlMeta.content = canonicalUrl;
+    }
 
   }, [location.pathname, location.search, manualCanonicalUrl]);
 

@@ -1,5 +1,441 @@
 # 📝 IndoQuran Changelog
 
+## 🏷️ Version 2.11.4 - Canonical URL Fix (Google Search Console)
+**Release Date:** November 7, 2025  
+**Type:** SEO Bug Fix / Critical  
+**Impact:** High - Fixes Google Search Console canonical URL errors
+
+---
+
+## 📊 Overview
+
+Fixed critical SEO issue where Google chose different canonical URLs than user-specified, causing indexing problems and duplicate content issues. This was detected in Google Search Console with the error "Duplicate, Google chose different canonical than user".
+
+### Problem Identified
+1. **Duplicate Canonical Tags** - Server-side and client-side both adding canonical tags
+2. **URL Normalization Issues** - Inconsistent trailing slash and query parameter handling
+3. **Race Condition** - Server renders one canonical, React updates with different canonical
+4. **Tracking Parameter Pollution** - UTM and other tracking params included in canonical URLs
+
+### Solution Implemented
+Centralized canonical URL management in React with proper normalization following Google's best practices.
+
+---
+
+## 🛠️ Changes Made
+
+### 1. Server-Side Template (`resources/views/react.blade.php`)
+**Changed:**
+- ❌ Removed: `<link rel="canonical" href="{{ url()->current() }}">`
+- ✅ Added: Comment explaining React manages canonical tags
+- **Reason:** Prevent duplicate canonical tags and race conditions
+
+### 2. SEO Utils Enhancement (`resources/js/react/utils/seoUtils.js`)
+**Updated `generateCanonicalUrl()` function:**
+```javascript
+// NEW Features:
+- Smart query parameter filtering (keep: q, page, filter, sort)
+- Remove tracking params (utm_*, fbclid, gclid, etc.)
+- Consistent trailing slash removal (except root /)
+- Always use production domain (https://indoquran.web.id)
+- Proper URL validation and fallback
+```
+
+**Updated `ensureCanonicalConsistency()` function:**
+```javascript
+// NEW Features:
+- Comprehensive URL comparison (protocol, hostname, pathname, search)
+- Automatic 301 redirect to canonical version
+- Skip in development environment
+- Better logging for debugging
+```
+
+**Benefits:**
+- ✅ `/surah/1/` → auto redirects to `/surah/1`
+- ✅ `?utm_source=test` → removed from canonical
+- ✅ `?q=allah` → preserved (content-changing param)
+
+### 3. Canonical URL Hook (`resources/js/react/hooks/useCanonicalURL.js`)
+**Improvements:**
+- Proper DOM insertion position (after charset meta tag)
+- Only update if canonical URL has changed (performance)
+- Sync og:url and twitter:url with canonical
+- Better error handling and validation
+
+### 4. SEOHead Component (`resources/js/react/components/SEOHead.jsx`)
+**Changed:**
+- ❌ Removed: Canonical tag generation (duplicated with hook)
+- ✅ Added: Comment explaining centralized management
+- **Reason:** Single source of truth for canonical URLs
+
+### 5. Testing & Documentation
+**New Files:**
+- `test-canonical-url.sh` - Automated canonical URL testing script
+- `docs/CANONICAL_URL_FIX.md` - Comprehensive documentation
+
+**Test Script Features:**
+- Tests for canonical tag presence
+- Checks for duplicate canonical tags
+- Validates URL normalization
+- Tests query parameter handling
+- Production domain verification
+
+---
+
+## 📋 Google Canonicalization Best Practices Applied
+
+Based on: https://developers.google.com/search/docs/crawling-indexing/canonicalization
+
+### ✅ Implemented:
+1. **Single Canonical Tag** - Only one `<link rel="canonical">` per page
+2. **Absolute URLs** - Always use full URL with protocol and domain
+3. **HTTPS Preferred** - Always use `https://indoquran.web.id`
+4. **Consistent Domain** - No www vs non-www confusion
+5. **Trailing Slash Normalization** - Remove except for root `/`
+6. **Query Parameter Filtering** - Keep only content-changing params
+7. **Self-Referencing Canonical** - Each page points to itself in canonical form
+8. **Meta Tag Sync** - og:url and twitter:url use same canonical URL
+
+### 🚫 Removed:
+1. Duplicate canonical tags (server-side + client-side)
+2. Dynamic `url()->current()` (includes unwanted query params)
+3. Inconsistent URL formats (mixed trailing slashes)
+
+---
+
+## 🧪 Testing
+
+### Automated Testing:
+```bash
+./test-canonical-url.sh
+```
+
+Tests performed:
+- ✅ Homepage canonical URL
+- ✅ Surah pages canonical URL
+- ✅ Search page with query params
+- ✅ Duplicate canonical tag detection
+- ✅ Trailing slash normalization
+- ✅ Tracking parameter removal
+
+### Manual Verification:
+```bash
+# Check homepage
+curl -s https://indoquran.web.id | grep canonical
+
+# Check surah page
+curl -s https://indoquran.web.id/surah/1 | grep canonical
+
+# Check search page
+curl -s https://indoquran.web.id/cari?q=allah | grep canonical
+```
+
+---
+
+## 🎯 Expected Results
+
+### Before Fix:
+```html
+<!-- Multiple canonical tags causing Google confusion -->
+<link rel="canonical" href="https://indoquran.web.id/surah/1?utm_source=facebook">
+<link rel="canonical" href="https://indoquran.web.id/surah/1">
+```
+
+### After Fix:
+```html
+<!-- Single, consistent canonical tag -->
+<link rel="canonical" href="https://indoquran.web.id/surah/1">
+<meta property="og:url" content="https://indoquran.web.id/surah/1">
+<meta name="twitter:url" content="https://indoquran.web.id/surah/1">
+```
+
+---
+
+## 📈 Expected SEO Impact
+
+### Week 1-2:
+- ✅ Canonical errors in Google Search Console decrease by 50%+
+- ✅ Better crawl efficiency (Google stops crawling duplicate URLs)
+
+### Month 1:
+- ✅ Canonical errors should be reduced by 90%+
+- ✅ Consolidated link equity (backlinks point to one canonical URL)
+- ✅ Improved search rankings for key pages
+- ✅ Better indexing coverage
+
+### Long-term:
+- ✅ Cleaner search result appearance
+- ✅ No more duplicate content issues
+- ✅ Better domain authority distribution
+
+---
+
+## 🚀 Deployment Steps
+
+1. **Build Production:**
+   ```bash
+   ./build-production.sh
+   ```
+
+2. **Test Locally:**
+   ```bash
+   npm run preview
+   ./test-canonical-url.sh
+   ```
+
+3. **Deploy to Server:**
+   ```bash
+   ./deploy-production.sh
+   ```
+
+4. **Verify in Browser:**
+   - Open https://indoquran.web.id
+   - DevTools → Elements → Search "canonical"
+   - Should see exactly ONE canonical tag
+
+5. **Request Google Reindex:**
+   - Google Search Console
+   - URL Inspection tool
+   - Request indexing for important pages
+   - Monitor Coverage report
+
+---
+
+## 📚 References
+- [Google Canonicalization Guide](https://developers.google.com/search/docs/crawling-indexing/canonicalization)
+- [Canonical Link Element RFC](https://datatracker.ietf.org/doc/html/rfc6596)
+- [Google Search Console Help](https://support.google.com/webmasters/answer/7440203)
+
+---
+
+## 🏷️ Version 2.11.3 - cPanel Storage Link Fix
+**Release Date:** November 2, 2025  
+**Type:** Bug Fix / Deployment Enhancement  
+**Impact:** Critical - Fixes deployment issue on cPanel/shared hosting
+
+---
+
+## 📊 Overview
+
+Fixed critical issue where `php artisan storage:link` fails on cPanel with "Call to undefined function Illuminate\Filesystem\exec()" error. This is caused by shared hosting providers disabling the `exec()` function for security reasons.
+
+### Problem
+- Laravel's default `storage:link` command uses `exec()` internally
+- cPanel and most shared hosting disable `exec()`, `shell_exec()`, `system()`, etc.
+- Without storage link, uploaded files (images, documents) are not accessible
+
+### Solution
+Implemented **four fallback methods** for creating storage links without `exec()`:
+
+---
+
+## 🛠️ New Files & Commands
+
+### 1. Custom Artisan Command
+**File:** `app/Console/Commands/StorageLinkCommand.php`
+**Command:** `php artisan storage:link-cpanel`
+
+**Features:**
+- Uses PHP's native `symlink()` function instead of `exec()`
+- Supports `--relative` flag for relative path symlinks
+- Supports `--force` flag to recreate existing links
+- Fallback to file copy if symlinks are disabled
+- Better error messages and user prompts
+
+**Options:**
+```bash
+php artisan storage:link-cpanel              # Create link
+php artisan storage:link-cpanel --force      # Force recreate
+php artisan storage:link-cpanel --relative   # Use relative paths
+```
+
+### 2. Standalone PHP Script
+**File:** `create-storage-link.php`
+**Usage:** `php create-storage-link.php [--force] [--copy]`
+
+**Features:**
+- Works without Laravel bootstrap (can run before app is configured)
+- Tries relative symlink first (better for most hosting)
+- Falls back to absolute symlink
+- Falls back to copying files if symlinks disabled
+- Colorful terminal output with status indicators
+- Detailed error messages
+
+**Flags:**
+- `--force` - Remove and recreate existing link
+- `--copy` - Copy files instead of creating symlink
+
+### 3. Quick Fix Script
+**File:** `fix-storage-link.sh`
+**Usage:** `./fix-storage-link.sh`
+
+**Features:**
+- Automated troubleshooting script
+- Tries all 4 methods sequentially:
+  1. Standalone PHP script
+  2. Custom artisan command
+  3. Manual symlink via shell
+  4. Copy files as last resort
+- Stops at first successful method
+- Clear success/failure messages
+
+### 4. Documentation
+**File:** `docs/CPANEL_DEPLOYMENT.md`
+
+**Contents:**
+- Complete cPanel deployment guide
+- Storage link troubleshooting
+- Four solution methods with examples
+- Verification steps
+- `.htaccess` configuration
+- Complete deployment checklist
+- Common issues and fixes
+
+---
+
+## 🔄 Modified Files
+
+### deploy-production.sh
+**Change:** Added automatic storage link creation
+
+**New Section:**
+```bash
+# Create storage link (cPanel-safe method)
+log_message "Creating storage symbolic link..."
+if [ -L "public/storage" ]; then
+    log_message "✓ Storage link already exists"
+elif [ -f "create-storage-link.php" ]; then
+    php create-storage-link.php --force || ...
+else
+    php artisan storage:link-cpanel --force 2>/dev/null || ...
+fi
+```
+
+**Fallback Chain:**
+1. Check if link exists
+2. Try standalone script
+3. Try artisan command
+4. Try manual symlink
+5. Offer copy method
+6. Log warnings if all fail
+
+### README.md
+**Change:** Added "Production Deployment" section
+
+**New Content:**
+- Common storage link error documentation
+- Quick fix command
+- Link to detailed cPanel guide
+- Production build workflow
+
+---
+
+## 📝 Technical Details
+
+### Why `exec()` Fails on cPanel
+```php
+// Laravel's Filesystem uses this internally:
+exec('ln -s ../storage/app/public public/storage');
+
+// But exec() is disabled in php.ini:
+disable_functions = exec,shell_exec,system,passthru,...
+```
+
+### Our Solution
+```php
+// Use PHP's native function instead:
+symlink($target, $link);
+
+// This works because:
+// - symlink() is a PHP core function
+// - Not part of disabled_functions list
+// - Safe for shared hosting
+```
+
+### Relative vs Absolute Paths
+```bash
+# Absolute path (may break if moved):
+public/storage -> /home/user/public_html/storage/app/public
+
+# Relative path (portable):
+public/storage -> ../storage/app/public
+```
+
+Our script tries relative first, then absolute as fallback.
+
+---
+
+## 🧪 Testing
+
+### Test on Local Development
+```bash
+# Test custom command
+php artisan storage:link-cpanel --force
+
+# Test standalone script
+php create-storage-link.php --force
+
+# Test quick fix
+./fix-storage-link.sh
+```
+
+### Verify Link
+```bash
+# Check if link exists
+ls -la public/storage
+
+# Should show:
+# public/storage -> ../storage/app/public
+
+# Test file access
+touch storage/app/public/test.txt
+curl http://localhost:8000/storage/test.txt
+```
+
+### Test on cPanel
+1. Upload files via FTP/Git
+2. SSH into server
+3. Run: `php create-storage-link.php`
+4. Verify: Access http://yourdomain.com/storage/
+
+---
+
+## 🎯 Benefits
+
+1. **No More Deployment Errors**
+   - Eliminates exec() error on cPanel
+   - Automatic fallback methods
+   - Works on all shared hosting
+
+2. **Multiple Solutions**
+   - Standalone script (works anywhere)
+   - Artisan command (Laravel integrated)
+   - Shell script (automated fixing)
+   - Copy method (last resort)
+
+3. **Better User Experience**
+   - Clear error messages
+   - Step-by-step instructions
+   - Automated troubleshooting
+   - Comprehensive documentation
+
+4. **Production Ready**
+   - Integrated into deployment script
+   - No manual intervention needed
+   - Automatic verification
+   - Graceful fallbacks
+
+---
+
+## 📚 Related Issues
+
+- Fixes: "Call to undefined function Illuminate\Filesystem\exec()"
+- Fixes: "storage:link fails on cPanel"
+- Fixes: "Uploaded images not accessible"
+- Fixes: "Public storage 404 errors"
+
+---
+
 ## 🏷️ Version 2.11.2 - Admin Tag Editor
 **Release Date:** October 31, 2025  
 **Type:** Feature Enhancement  

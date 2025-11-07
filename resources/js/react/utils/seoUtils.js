@@ -1565,15 +1565,38 @@ export const generateSearchSEOKeywords = (query = '') => {
 };
 
 // Generate canonical URL with proper formatting and validation
+// According to Google's guidelines: https://developers.google.com/search/docs/crawling-indexing/canonicalization
 export const generateCanonicalUrl = (path) => {
   // Ensure path starts with /
-  const cleanPath = path.startsWith('/') ? path : '/' + path;
+  let cleanPath = path.startsWith('/') ? path : '/' + path;
   
-  // Remove trailing slash except for root
-  const normalizedPath = cleanPath === '/' ? cleanPath : cleanPath.replace(/\/$/, '');
+  // Parse URL to handle query params properly
+  const url = new URL(cleanPath, BASE_URL);
   
-  // Build canonical URL with consistent domain
-  const canonicalUrl = BASE_URL + normalizedPath;
+  // Google guidelines: Keep query params that change content, remove tracking params
+  const paramsToKeep = ['q', 'page', 'filter', 'sort']; // Only content-changing params
+  const searchParams = new URLSearchParams();
+  
+  url.searchParams.forEach((value, key) => {
+    if (paramsToKeep.includes(key)) {
+      searchParams.append(key, value);
+    }
+  });
+  
+  // Build normalized path
+  let normalizedPath = url.pathname;
+  
+  // Remove trailing slash except for root (Google prefers consistency)
+  if (normalizedPath !== '/') {
+    normalizedPath = normalizedPath.replace(/\/$/, '');
+  }
+  
+  // Add back query params if any
+  const queryString = searchParams.toString();
+  const finalPath = normalizedPath + (queryString ? '?' + queryString : '');
+  
+  // Build canonical URL with consistent domain (always use production domain)
+  const canonicalUrl = 'https://indoquran.web.id' + finalPath;
   
   // Validate URL format
   try {
@@ -1581,7 +1604,7 @@ export const generateCanonicalUrl = (path) => {
     return canonicalUrl;
   } catch (error) {
     console.warn('Invalid canonical URL generated:', canonicalUrl, 'falling back to base URL');
-    return BASE_URL;
+    return 'https://indoquran.web.id';
   }
 };
 
@@ -1593,21 +1616,27 @@ export const ensureCanonicalConsistency = () => {
   }
 
   const currentUrl = window.location.href;
-  const currentPath = window.location.pathname;
+  const currentPath = window.location.pathname + window.location.search;
   const expectedCanonical = generateCanonicalUrl(currentPath);
   
   // Check if current URL matches canonical format
   const currentUrlObj = new URL(currentUrl);
   const expectedUrlObj = new URL(expectedCanonical);
   
-  const isCanonicalMismatch = 
-    currentUrlObj.hostname !== expectedUrlObj.hostname ||
+  // Only redirect if there's a significant mismatch that affects SEO
+  const needsRedirect = 
+    // Different protocol (http vs https)
     currentUrlObj.protocol !== expectedUrlObj.protocol ||
-    currentUrlObj.pathname !== expectedUrlObj.pathname;
+    // Different hostname (www vs non-www, or different domain)
+    currentUrlObj.hostname !== expectedUrlObj.hostname ||
+    // Different path (case sensitivity, trailing slash)
+    currentUrlObj.pathname !== expectedUrlObj.pathname ||
+    // Different query params (only check params that should be kept)
+    currentUrlObj.search !== expectedUrlObj.search;
   
-  if (isCanonicalMismatch) {
-    // Redirect to canonical URL if not already canonical
-    console.log('Redirecting to canonical URL:', expectedCanonical);
+  if (needsRedirect) {
+    // Use 301 redirect via window.location.replace to avoid adding to history
+    console.log('[SEO] Redirecting to canonical URL:', expectedCanonical);
     window.location.replace(expectedCanonical);
     return false;
   }

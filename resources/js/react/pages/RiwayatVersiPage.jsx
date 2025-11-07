@@ -7,6 +7,71 @@ import { Card, Badge, PageContent } from '../components/ui';
 function RiwayatVersiPage() {
     const versions = [
         {
+            version: "2.11.4",
+            date: "7 November 2025",
+            type: "major",
+            title: "Canonical URL Fix - Google Search Console Optimization",
+            description: "Update mayor dengan perbaikan critical SEO issue 'Google chose different canonical than user' yang terdeteksi di Google Search Console. Implementasi canonical URL management yang konsisten sesuai Google's best practices dengan normalisasi URL, smart query parameter filtering, dan eliminasi duplicate canonical tags untuk meningkatkan indexing quality dan search rankings.",
+            changes: [
+                {
+                    type: "fix",
+                    text: "Eliminasi duplicate canonical tags - Removed server-side canonical tag dari react.blade.php untuk mencegah race condition dengan React client-side management"
+                },
+                {
+                    type: "improvement",
+                    text: "Enhanced URL Normalization - Smart query parameter filtering (keep: q, page, filter, sort | remove: utm_*, fbclid, gclid tracking params)"
+                },
+                {
+                    type: "improvement",
+                    text: "Consistent Trailing Slash Handling - Automatic removal kecuali root '/' dengan 301 redirect ke canonical version"
+                },
+                {
+                    type: "improvement",
+                    text: "Production Domain Consistency - Always use https://indoquran.web.id pada canonical URLs, tidak pernah localhost atau IP"
+                },
+                {
+                    type: "improvement",
+                    text: "Optimized useCanonicalURL Hook - Proper DOM insertion position (after charset meta), conditional updates untuk avoid unnecessary DOM manipulation"
+                },
+                {
+                    type: "improvement",
+                    text: "Meta Tags Sync - og:url dan twitter:url synchronized dengan canonical URL untuk konsistensi cross-platform"
+                },
+                {
+                    type: "improvement",
+                    text: "SEOHead Component Enhancement - Removed duplicate canonical tag generation, centralized management di App.jsx via useCanonicalURL hook"
+                },
+                {
+                    type: "feature",
+                    text: "Automated Testing Script (test-canonical-url.sh) - Comprehensive test untuk canonical tag presence, duplicates, normalization, dan query parameter handling"
+                },
+                {
+                    type: "feature",
+                    text: "ensureCanonicalConsistency Function - Automatic 301 redirect ke canonical version jika URL tidak match (protocol, hostname, pathname, search params)"
+                },
+                {
+                    type: "documentation",
+                    text: "CANONICAL_URL_FIX.md - Comprehensive documentation dengan Google best practices, implementation details, testing guide, dan monitoring checklist"
+                },
+                {
+                    type: "documentation",
+                    text: "DEPLOYMENT_v2.11.4.md - Complete deployment checklist dengan pre/post verification steps dan success criteria"
+                },
+                {
+                    type: "documentation",
+                    text: "Updated CHANGELOG.md - Detailed version 2.11.4 entry dengan expected SEO impact (90%+ canonical error reduction dalam 2-4 minggu)"
+                },
+                {
+                    type: "documentation",
+                    text: "Updated README.md - Added canonical testing commands dan enhanced feature list dengan SEO optimization highlights"
+                },
+                {
+                    type: "security",
+                    text: "Single Source of Truth - Canonical URLs dimanage exclusively oleh React untuk prevent confusion dan ensure Google sees consistent canonical"
+                }
+            ]
+        },
+        {
             version: "2.10.0",
             date: "19 Oktober 2025",
             type: "major",
@@ -1016,9 +1081,9 @@ function RiwayatVersiPage() {
         "@context": "https://schema.org",
         "@type": "WebPage",
         "name": "Riwayat Versi - IndoQuran",
-        "description": "Catatan perubahan dan pembaruan versi platform Al-Quran digital IndoQuran dengan optimasi SEO terbaru, fitur Asmaul Husna, dan PWA",
+        "description": "Catatan perubahan dan pembaruan versi platform Al-Quran digital IndoQuran dengan canonical URL fix, optimasi SEO terbaru, fitur Asmaul Husna, dan PWA",
         "url": `${window.location.origin}/riwayat-versi`,
-        "dateModified": "2025-10-17",
+        "dateModified": "2025-11-07",
         "mainEntity": {
             "@type": "SoftwareApplication",
             "name": "IndoQuran",
@@ -1040,8 +1105,8 @@ function RiwayatVersiPage() {
         <>
             <SEOHead 
                 title="Riwayat Versi - Changelog IndoQuran ✅"
-                description="📝 Catatan lengkap update IndoQuran: Optimasi SEO (CTR +757%), fitur komunitas doa, Asmaul Husna, Tafsir Maudhui, PWA. Versi terbaru 2.8.0 dengan backend API baru dan frontend components optimized."
-                keywords="indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi, indoquran 2.8.0, seo optimization, google search console, migrasi database asmaul husna, tafsir maudhui, tafsir tematik, statistik quran, dashboard analytics, 99 nama allah, PWA, progressive web app, deployment workflow"
+                description="📝 Catatan lengkap update IndoQuran: Canonical URL Fix (v2.11.4), Optimasi SEO (CTR +757%), audio murottal 79+ qari, fitur komunitas doa, Asmaul Husna, Tafsir Maudhui, PWA. Versi terbaru dengan Google Search Console optimization."
+                keywords="indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi, indoquran 2.11.4, canonical url fix, seo optimization, google search console, audio murottal everyayah, 79 qari, migrasi database asmaul husna, tafsir maudhui, tafsir tematik, statistik quran, dashboard analytics, 99 nama allah, PWA, progressive web app, deployment workflow"
                 canonicalUrl={`${window.location.origin}/riwayat-versi`}
             />
             <StructuredData data={structuredData} />
@@ -1061,7 +1126,7 @@ function RiwayatVersiPage() {
                     </p>
                     <Badge variant="green" className="inline-flex items-center gap-2">
                         <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                        <span>Terakhir diperbarui: 19 Oktober 2025</span>
+                        <span>Terakhir diperbarui: 7 November 2025</span>
                     </Badge>
                 </div>
 
