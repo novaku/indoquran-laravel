@@ -1,9 +1,13 @@
-import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { FiHome, FiBook, FiSearch, FiArrowLeft } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { FiHome, FiBook, FiSearch, FiArrowLeft, FiAlertCircle } from 'react-icons/fi';
 import SEOHead from '../components/SEOHead';
 
 const NotFoundPage = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [searchQuery, setSearchQuery] = useState('');
+
     // Set 404 status code for server-side rendering and crawlers
     useEffect(() => {
         // Send 404 signal to server via meta tag for proper HTTP status
@@ -23,6 +27,14 @@ const NotFoundPage = () => {
             }
         };
     }, []);
+
+    // Handle search submission
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (searchQuery.trim()) {
+            navigate(`/cari?q=${encodeURIComponent(searchQuery.trim())}`);
+        }
+    };
 
     const quickLinks = [
         {
@@ -111,14 +123,94 @@ const NotFoundPage = () => {
                         </button>
                     </div>
 
+                    {/* Search Alternative - Google Best Practice: Provide search on 404 pages */}
+                    <div className="mt-8">
+                        <div className="bg-white rounded-xl shadow-sm border-2 border-gray-100 p-6">
+                            <div className="flex items-start gap-3 mb-4">
+                                <FiAlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                                <div>
+                                    <h3 className="font-semibold text-gray-900 mb-1">
+                                        Coba Cari yang Anda Butuhkan
+                                    </h3>
+                                    <p className="text-sm text-gray-600">
+                                        Gunakan pencarian untuk menemukan ayat atau surah yang Anda cari
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <form onSubmit={handleSearch} className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    placeholder="Cari ayat, surah, atau kata kunci..."
+                                    className="flex-1 px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none transition-colors"
+                                />
+                                <button
+                                    type="submit"
+                                    className="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200"
+                                >
+                                    Cari
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    {/* Common Reasons - Google Best Practice: Explain why the error occurred */}
+                    <div className="mt-8">
+                        <div className="bg-blue-50 rounded-xl border-2 border-blue-100 p-6">
+                            <h3 className="font-semibold text-blue-900 mb-3">
+                                Mengapa halaman ini tidak ditemukan?
+                            </h3>
+                            <ul className="space-y-2 text-sm text-blue-800">
+                                <li className="flex items-start gap-2">
+                                    <span className="text-blue-600 mt-0.5">•</span>
+                                    <span>URL yang Anda masukkan mungkin salah atau tidak lengkap</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="text-blue-600 mt-0.5">•</span>
+                                    <span>Halaman mungkin telah dipindahkan atau dihapus</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="text-blue-600 mt-0.5">•</span>
+                                    <span>Link dari sumber external mungkin sudah tidak valid</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="text-blue-600 mt-0.5">•</span>
+                                    <span>Nomor surah/juz/halaman mungkin di luar jangkauan (Surah: 1-114, Juz: 1-30, Halaman: 1-604)</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    {/* Current URL Info - Helpful for debugging */}
+                    {location.pathname !== '/' && (
+                        <div className="mt-6">
+                            <details className="bg-gray-50 rounded-lg border border-gray-200">
+                                <summary className="px-4 py-3 cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900">
+                                    Informasi Teknis
+                                </summary>
+                                <div className="px-4 pb-3 pt-1">
+                                    <p className="text-xs text-gray-600 mb-1">URL yang diminta:</p>
+                                    <code className="block bg-gray-100 px-3 py-2 rounded text-xs text-gray-800 break-all font-mono">
+                                        {window.location.href}
+                                    </code>
+                                    <p className="text-xs text-gray-500 mt-2">
+                                        HTTP Status: 404 Not Found
+                                    </p>
+                                </div>
+                            </details>
+                        </div>
+                    )}
+
                     {/* Help Text */}
-                    <div className="mt-12 text-center">
+                    <div className="mt-8 text-center">
                         <p className="text-sm text-gray-500">
                             Jika Anda yakin halaman ini seharusnya ada, silakan{' '}
                             <Link to="/kontak" className="text-green-600 hover:text-green-700 font-medium underline">
                                 hubungi kami
                             </Link>
-                            .
+                            {' '}dan kami akan membantu Anda.
                         </p>
                     </div>
                 </div>
