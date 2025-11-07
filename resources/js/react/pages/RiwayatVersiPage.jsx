@@ -7,6 +7,67 @@ import { Card, Badge, PageContent } from '../components/ui';
 function RiwayatVersiPage() {
     const versions = [
         {
+            version: "2.11.6",
+            date: "7 November 2025",
+            type: "minor",
+            title: "Admin Article Editor - Auto-Generate Slug Enhancement",
+            description: "Update minor dengan peningkatan UX pada admin article editor melalui implementasi auto-generate slug yang intelligent. Slug otomatis ter-generate dari judul artikel dengan normalisasi karakter Indonesia, smart handling untuk mode manual vs otomatis, dan fitur reset untuk kembali ke auto-sync. Meningkatkan efisiensi workflow admin dalam membuat artikel dengan SEO-friendly URLs.",
+            changes: [
+                {
+                    type: "feature",
+                    text: "Auto-Generate Slug dari Judul Artikel - Slug otomatis terisi dan ter-update real-time saat judul berubah atau dihapus"
+                },
+                {
+                    type: "feature",
+                    text: "Intelligent Mode Switching - Mode otomatis (default) vs mode manual (terkunci) dengan state tracking untuk user control"
+                },
+                {
+                    type: "feature",
+                    text: "Reset Button - Tombol reset yang muncul saat slug di-edit manual untuk kembali ke auto-sync dengan judul"
+                },
+                {
+                    type: "feature",
+                    text: "generateSlug() Function - Normalisasi karakter spesial Indonesia (à, é, ü), konversi ke lowercase, replace spaces dengan hyphen"
+                },
+                {
+                    type: "feature",
+                    text: "URL Preview - Real-time preview URL artikel (/artikel/{slug}) di bawah input field untuk visual confirmation"
+                },
+                {
+                    type: "improvement",
+                    text: "Smart Character Normalization - Handle Indonesian special characters (àáâãäå → a, èéêë → e, ìíîï → i, òóôõö → o, ùúûü → u)"
+                },
+                {
+                    type: "improvement",
+                    text: "Enhanced Input Handler - Deteksi manual edit pada slug field untuk switch ke mode manual dan stop auto-update"
+                },
+                {
+                    type: "improvement",
+                    text: "Dynamic Helper Text - Contextual helper text yang berubah sesuai mode (auto/manual) dan status edit (new/existing article)"
+                },
+                {
+                    type: "improvement",
+                    text: "SEO Warning for Edit Mode - Peringatan khusus saat edit artikel existing untuk hati-hati mengubah slug (dampak SEO)"
+                },
+                {
+                    type: "improvement",
+                    text: "Flexible Layout - Input slug dengan button reset dalam flex container untuk UI yang compact dan responsive"
+                },
+                {
+                    type: "improvement",
+                    text: "State Management - isSlugManuallyEdited state untuk track user intention dan preserve manual edits"
+                },
+                {
+                    type: "improvement",
+                    text: "useEffect Optimization - Conditional auto-update hanya untuk artikel baru (!isEdit) dan mode otomatis (!isSlugManuallyEdited)"
+                },
+                {
+                    type: "improvement",
+                    text: "Empty Title Handling - Slug otomatis kosong jika judul dihapus untuk prevent invalid URLs"
+                }
+            ]
+        },
+        {
             version: "2.11.5",
             date: "7 November 2025",
             type: "major",
@@ -1166,7 +1227,7 @@ function RiwayatVersiPage() {
         "@context": "https://schema.org",
         "@type": "WebPage",
         "name": "Riwayat Versi - IndoQuran",
-        "description": "Catatan perubahan dan pembaruan versi platform Al-Quran digital IndoQuran dengan sitemap validation fix, canonical URL optimization, SEO enhancements, fitur Asmaul Husna, dan PWA",
+        "description": "Catatan perubahan dan pembaruan versi platform Al-Quran digital IndoQuran dengan admin auto-generate slug, sitemap validation fix, canonical URL optimization, SEO enhancements, fitur Asmaul Husna, dan PWA",
         "url": `${window.location.origin}/riwayat-versi`,
         "dateModified": "2025-11-07",
         "mainEntity": {

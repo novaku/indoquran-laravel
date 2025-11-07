@@ -16,6 +16,7 @@ const AdminArticleEditorPage = () => {
   const [selectedTags, setSelectedTags] = useState([]);
   const [tagInput, setTagInput] = useState('');
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
+  const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -33,6 +34,17 @@ const AdminArticleEditorPage = () => {
     }
     fetchTags();
   }, [id]);
+
+  // Auto-generate slug from title for new articles
+  useEffect(() => {
+    if (!isEdit && !isSlugManuallyEdited) {
+      const newSlug = formData.title ? generateSlug(formData.title) : '';
+      setFormData(prev => ({
+        ...prev,
+        slug: newSlug
+      }));
+    }
+  }, [formData.title, isEdit, isSlugManuallyEdited]);
 
   // Helper function to get CSRF token (same as AdminDashboard)
   const getCsrfToken = async () => {
@@ -132,8 +144,34 @@ const AdminArticleEditorPage = () => {
     }
   };
 
+  // Generate slug from title
+  const generateSlug = (text) => {
+    return text
+      .toLowerCase()
+      .trim()
+      // Replace Indonesian special characters
+      .replace(/[àáâãäå]/g, 'a')
+      .replace(/[èéêë]/g, 'e')
+      .replace(/[ìíîï]/g, 'i')
+      .replace(/[òóôõö]/g, 'o')
+      .replace(/[ùúûü]/g, 'u')
+      // Remove special characters
+      .replace(/[^\w\s-]/g, '')
+      // Replace spaces and multiple hyphens with single hyphen
+      .replace(/[\s_]+/g, '-')
+      .replace(/-+/g, '-')
+      // Remove leading/trailing hyphens
+      .replace(/^-+|-+$/g, '');
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    // Track if user manually edits slug
+    if (name === 'slug' && !isEdit) {
+      setIsSlugManuallyEdited(true);
+    }
+    
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -374,19 +412,47 @@ const AdminArticleEditorPage = () => {
               {/* Slug */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Slug (URL)
+                  Slug (URL) {!isEdit && <span className="text-xs text-gray-500 font-normal">(otomatis dari judul)</span>}
                 </label>
-                <input
-                  type="text"
-                  name="slug"
-                  value={formData.slug}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  placeholder="otomatis-dari-judul"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    name="slug"
+                    value={formData.slug}
+                    onChange={handleInputChange}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    placeholder="otomatis-dari-judul"
+                  />
+                  {!isEdit && isSlugManuallyEdited && formData.title && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsSlugManuallyEdited(false);
+                        setFormData(prev => ({
+                          ...prev,
+                          slug: generateSlug(formData.title)
+                        }));
+                      }}
+                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm transition-colors"
+                      title="Reset ke otomatis dari judul"
+                    >
+                      Reset
+                    </button>
+                  )}
+                </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Kosongkan untuk generate otomatis dari judul
+                  {!isEdit 
+                    ? isSlugManuallyEdited
+                      ? 'Slug telah diubah manual. Klik "Reset" untuk kembali otomatis dari judul.'
+                      : 'Slug akan otomatis terisi dan ter-update saat judul berubah. Edit manual untuk mengunci slug.'
+                    : 'URL artikel ini. Hati-hati mengubah slug karena dapat mempengaruhi SEO.'
+                  }
                 </p>
+                {formData.slug && (
+                  <p className="text-xs text-primary-600 mt-1">
+                    Preview URL: /artikel/{formData.slug}
+                  </p>
+                )}
               </div>
 
               {/* Excerpt */}
