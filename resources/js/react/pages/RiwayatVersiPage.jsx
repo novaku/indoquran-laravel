@@ -7,6 +7,91 @@ import { Card, Badge, PageContent } from '../components/ui';
 function RiwayatVersiPage() {
     const versions = [
         {
+            version: "2.11.5",
+            date: "7 November 2025",
+            type: "major",
+            title: "Sitemap Validation Fix - Google Search Console Compliance",
+            description: "Update mayor dengan perbaikan critical sitemap validation issue yang terdeteksi di Google Search Console. Fix 'Di-crawl - saat ini tidak diindeks' error dengan normalisasi format tanggal W3C, update ke current date, dan eliminasi static sitemap files yang override dynamic routes. Implementasi best practices sesuai dokumentasi Google untuk meningkatkan crawlability dan indexing success rate.",
+            changes: [
+                {
+                    type: "fix",
+                    text: "Fixed Invalid Date Format - Changed from '2025-10-17' (future/invalid date) to proper W3C datetime format 'YYYY-MM-DDTHH:MM:SS+00:00' sesuai Google standards"
+                },
+                {
+                    type: "fix",
+                    text: "Updated All Sitemap Dates to Current Date (2025-11-07) - Eliminasi future dates yang menyebabkan validation error 'Validasi gagal: Dimulai 17/10/25, Gagal 18/10/25'"
+                },
+                {
+                    type: "fix",
+                    text: "Removed Static Sitemap Files Override - Deleted outdated static XML files di public/ yang override dynamic routes dari SitemapController dan SitemapIndexController"
+                },
+                {
+                    type: "fix",
+                    text: "Fixed sitemap-index.xml Date Consistency - Semua <lastmod> tags menggunakan ISO 8601 format dengan timezone UTC (+00:00)"
+                },
+                {
+                    type: "fix",
+                    text: "Fixed sitemap-main.xml - Updated lastmod dates untuk homepage, pencarian, kontak, dan static pages ke 2025-11-07"
+                },
+                {
+                    type: "fix",
+                    text: "Fixed sitemap-surahs-*.xml (1-6) - Updated all 114 surah lastmod dates dengan proper format untuk optimal crawling"
+                },
+                {
+                    type: "fix",
+                    text: "Fixed sitemap-juz.xml - Updated 30 juz pages dengan current dates dan proper XML structure"
+                },
+                {
+                    type: "improvement",
+                    text: "Enhanced SitemapIndexController - Standardized date format ke ISO 8601 (Carbon::now()->toIso8601String()) untuk consistency"
+                },
+                {
+                    type: "improvement",
+                    text: "Enhanced SitemapController - All dynamic routes now use Carbon::now()->toIso8601String() untuk real-time valid dates"
+                },
+                {
+                    type: "improvement",
+                    text: "Updated robots.txt - Ensured proper sitemap reference 'Sitemap: https://indoquran.web.id/sitemap.xml' untuk crawler discovery"
+                },
+                {
+                    type: "improvement",
+                    text: "Regenerate Sitemaps Script (regenerate-sitemaps.sh) - Automated script untuk bulk update semua sitemap files dengan proper dates"
+                },
+                {
+                    type: "improvement",
+                    text: "Comprehensive Sitemap Testing (test-sitemaps.sh) - 11 automated tests untuk validate XML structure, date format, URL consistency, dan Google compliance"
+                },
+                {
+                    type: "feature",
+                    text: "W3C Datetime Compliance - All <lastmod> tags follow W3C format: YYYY-MM-DDTHH:MM:SS+00:00 sesuai https://www.w3.org/TR/NOTE-datetime"
+                },
+                {
+                    type: "feature",
+                    text: "Dynamic Date Generation - Sitemaps now auto-update dates menggunakan Carbon untuk prevent future date issues"
+                },
+                {
+                    type: "documentation",
+                    text: "SITEMAP_VALIDATION_FIX.md - Comprehensive documentation dengan problem analysis, solution implementation, dan Google Search Console validation guide"
+                },
+                {
+                    type: "documentation",
+                    text: "Quick Deployment Guide - Step-by-step deployment checklist dengan pre/post verification untuk production rollout"
+                },
+                {
+                    type: "documentation",
+                    text: "Updated README.md - Added sitemap testing commands (./test-sitemaps.sh) dan sitemap regeneration workflow"
+                },
+                {
+                    type: "security",
+                    text: "Sitemap URL Validation - Ensure all URLs use HTTPS dan proper domain (https://indoquran.web.id) untuk prevent security warnings"
+                },
+                {
+                    type: "security",
+                    text: "XML Security Headers - Added proper Content-Type headers (application/xml; charset=utf-8) untuk prevent MIME type attacks"
+                }
+            ]
+        },
+        {
             version: "2.11.4",
             date: "7 November 2025",
             type: "major",
@@ -1081,7 +1166,7 @@ function RiwayatVersiPage() {
         "@context": "https://schema.org",
         "@type": "WebPage",
         "name": "Riwayat Versi - IndoQuran",
-        "description": "Catatan perubahan dan pembaruan versi platform Al-Quran digital IndoQuran dengan canonical URL fix, optimasi SEO terbaru, fitur Asmaul Husna, dan PWA",
+        "description": "Catatan perubahan dan pembaruan versi platform Al-Quran digital IndoQuran dengan sitemap validation fix, canonical URL optimization, SEO enhancements, fitur Asmaul Husna, dan PWA",
         "url": `${window.location.origin}/riwayat-versi`,
         "dateModified": "2025-11-07",
         "mainEntity": {

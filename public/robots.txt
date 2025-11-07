@@ -41,13 +41,14 @@ Disallow: /*?page=1$          # Page 1 sama dengan tanpa parameter
 Disallow: /*/                  # URL dengan trailing slash (akan di-redirect)
 
 # =============================================
-# ALLOW IMPORTANT PAGES
+# SITEMAPS
 # =============================================
-Allow: /cari
-Allow: /surah
-Allow: /daftar-lengkap
-Allow: /surah/*
-Allow: /juz/*
+Sitemap: https://indoquran.web.id/sitemap.xml
+Sitemap: https://indoquran.web.id/sitemap-index.xml
+
+# =============================================
+# GOOGLEBOT SPECIFIC
+# =============================================
 Allow: /halaman/*
 Allow: /asmaul-husna
 Allow: /tafsir-maudhui

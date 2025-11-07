@@ -19,7 +19,7 @@ class SitemapIndexController extends Controller
             ? 'https://indoquran.web.id' 
             : config('app.url');
             
-        $currentDate = now()->format('Y-m-d\TH:i:s\Z');
+        $currentDate = now()->toIso8601String();
         
         // Generate sitemap index XML
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
