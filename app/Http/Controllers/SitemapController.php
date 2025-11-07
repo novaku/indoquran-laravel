@@ -210,10 +210,27 @@ class SitemapController extends Controller
         $robotsTxt .= "Disallow: /login\n";
         $robotsTxt .= "Disallow: /register\n";
         $robotsTxt .= "Disallow: /logout\n";
-        $robotsTxt .= "Disallow: /*?*utm_\n";
-        $robotsTxt .= "Disallow: /*?*fb_\n";
+        
+        // Prevent indexing of URLs with tracking parameters (to avoid redirect validation failures)
+        $robotsTxt .= "\n# Disallow URLs with tracking parameters to prevent redirect issues\n";
+        $robotsTxt .= "Disallow: /*?*utm_source=\n";
+        $robotsTxt .= "Disallow: /*?*utm_medium=\n";
+        $robotsTxt .= "Disallow: /*?*utm_campaign=\n";
+        $robotsTxt .= "Disallow: /*?*utm_term=\n";
+        $robotsTxt .= "Disallow: /*?*utm_content=\n";
+        $robotsTxt .= "Disallow: /*?*fbclid=\n";
         $robotsTxt .= "Disallow: /*?*gclid=\n";
+        $robotsTxt .= "Disallow: /*?*msclkid=\n";
+        $robotsTxt .= "Disallow: /*?*ref=\n";
+        $robotsTxt .= "Disallow: /*?*_ga=\n";
+        $robotsTxt .= "Disallow: /*?*_gid=\n";
         $robotsTxt .= "Disallow: /*?*session=\n";
+        
+        // Prevent indexing of URLs with trailing slashes (to avoid duplicate content)
+        $robotsTxt .= "\n# Disallow URLs with trailing slashes to prevent duplicates\n";
+        $robotsTxt .= "Disallow: /*/\n";
+        
+        $robotsTxt .= "\n# Disallow search and pagination URLs\n";
         $robotsTxt .= "Disallow: /search?*\n";
         $robotsTxt .= "Disallow: /cari?page=\n";
         $robotsTxt .= "Disallow: /*?preview=\n\n";

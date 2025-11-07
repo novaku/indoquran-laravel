@@ -126,7 +126,10 @@ RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 # Redirect Trailing Slashes If Not A Folder...
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} (.+)/$
-RewriteRule ^ %1 [L,R=301]
+RewriteRule ^ %1 [L,R=301,E=NOINDEX:1]
+
+# Add X-Robots-Tag for redirected URLs
+Header always set X-Robots-Tag "noindex, nofollow" env=NOINDEX
 
 # Handle Front Controller...
 # Important: Check for existing files/directories FIRST
