@@ -24,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\ContentSecurityPolicy::class,
             \App\Http\Middleware\TrackVisitor::class,
             \App\Http\Middleware\SEOMiddleware::class,
+            \App\Http\Middleware\SetProperHttpStatus::class, // Prevent soft 404 errors
         ]);
         
         $middleware->api(prepend: [
@@ -47,10 +48,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'seo' => \App\Http\Middleware\SEOMiddleware::class,
         ]);
-        
-        // Configure authentication redirects
-        $middleware->redirectUsersTo(fn () => route('login'));
-        $middleware->redirectGuestsTo(fn () => route('login'));
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

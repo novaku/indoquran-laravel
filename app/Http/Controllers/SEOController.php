@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Surah;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 class SEOController extends Controller
@@ -12,10 +13,43 @@ class SEOController extends Controller
      * Handle dynamic SEO for React app
      * This controller provides SEO data to the React blade template
      */
-    public function handleReactRoute(Request $request): View
+    public function handleReactRoute(Request $request): View|Response
     {
         $path = $request->path();
         $segments = explode('/', $path);
+        
+        // Check for invalid routes that should return 404
+        $isInvalidRoute = false;
+        
+        // Check invalid surah numbers
+        if (isset($segments[0]) && $segments[0] === 'surah' && isset($segments[1]) && is_numeric($segments[1])) {
+            $surahNumber = (int) $segments[1];
+            if ($surahNumber < 1 || $surahNumber > 114) {
+                $isInvalidRoute = true;
+            } else {
+                // Verify surah exists in database
+                $surah = Surah::where('number', $surahNumber)->first();
+                if (!$surah) {
+                    $isInvalidRoute = true;
+                }
+            }
+        }
+        
+        // Check invalid juz numbers
+        if (isset($segments[0]) && $segments[0] === 'juz' && isset($segments[1]) && is_numeric($segments[1])) {
+            $juzNumber = (int) $segments[1];
+            if ($juzNumber < 1 || $juzNumber > 30) {
+                $isInvalidRoute = true;
+            }
+        }
+        
+        // Check invalid page numbers
+        if (isset($segments[0]) && $segments[0] === 'halaman' && isset($segments[1]) && is_numeric($segments[1])) {
+            $pageNumber = (int) $segments[1];
+            if ($pageNumber < 1 || $pageNumber > 604) {
+                $isInvalidRoute = true;
+            }
+        }
         
         // Default SEO values
         $seoData = [
@@ -258,6 +292,20 @@ class SEOController extends Controller
                 'canonicalUrl' => url('/admin'),
                 'ogType' => 'website'
             ]);
+        }
+
+        // If invalid route detected, set proper 404 SEO and status code
+        if ($isInvalidRoute) {
+            $seoData = [
+                'metaTitle' => '404 - Halaman Tidak Ditemukan | IndoQuran',
+                'metaDescription' => 'Maaf, halaman yang Anda cari tidak ditemukan. Kembali ke beranda IndoQuran untuk mengakses Al-Quran Digital Indonesia.',
+                'metaKeywords' => '404, halaman tidak ditemukan, error, indoquran',
+                'canonicalUrl' => url($request->getRequestUri()),
+                'ogImage' => url('/android-chrome-512x512.png'),
+                'ogType' => 'website'
+            ];
+            
+            return response()->view('react', $seoData, 404);
         }
 
         return view('react', $seoData);

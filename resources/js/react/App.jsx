@@ -132,6 +132,11 @@ const StatistikPage = lazy(() =>
   import(/* webpackChunkName: "stats" */ './pages/StatistikPage')
 );
 
+// 404 Not Found Page - loaded on demand for invalid routes
+const NotFoundPage = lazy(() => 
+  import(/* webpackChunkName: "not-found" */ './pages/NotFoundPage')
+);
+
 // Enhanced redirect components with performance optimizations
 const PagesRedirect = memo(() => {
     const { number } = useParams();
@@ -495,8 +500,8 @@ const AppContent = memo(() => {
                             } 
                         />
                         
-                        {/* Fallback route */}
-                        <Route path="*" element={<Navigate to="/" replace />} />
+                        {/* 404 Not Found - Proper 404 status for invalid routes */}
+                        <Route path="*" element={<NotFoundPage />} />
                     </Routes>
                 </Suspense>
                 
