@@ -120,6 +120,10 @@
     <!-- PWA Manager -->
     <script src="/pwa-manager.js"></script>
     
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9994842285785390"
+     crossorigin="anonymous"></script>
+    
     <!-- Critical CSS for above-the-fold content -->
     {!! App\Services\PerformanceOptimizationService::getCriticalCSS() !!}
     
