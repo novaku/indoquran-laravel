@@ -18,7 +18,12 @@
     
     // Log security events for monitoring
     const logSecurityEvent = (type, details) => {
-        console.warn(`🛡️ SECURITY: ${type}`, details);
+        // Use a more informative console message format
+        if (type.includes('BLOCKED')) {
+            console.log(`🛡️ IndoQuran Security: ${type}`, details);
+        } else {
+            console.info(`🛡️ IndoQuran Security: ${type}`, details);
+        }
         
         // Send to monitoring endpoint if available
         if (window.fetch && typeof window.trackSecurityEvent === 'function') {
@@ -50,6 +55,7 @@
                 const originalSetAttribute = element.setAttribute.bind(element);
                 element.setAttribute = function(name, value) {
                     if (name && name.toLowerCase() === 'src' && isMaliciousUrl(value)) {
+                        console.log(`🛡️ IndoQuran Security: Blocked suspicious script src: ${value}`);
                         logSecurityEvent('BLOCKED_SCRIPT_INJECTION', {
                             method: 'createElement.setAttribute',
                             url: value,
@@ -65,6 +71,7 @@
                 Object.defineProperty(element, 'src', {
                     set: function(value) {
                         if (isMaliciousUrl(value)) {
+                            console.log(`🛡️ IndoQuran Security: Blocked suspicious script src: ${value}`);
                             logSecurityEvent('BLOCKED_SCRIPT_INJECTION', {
                                 method: 'createElement.src',
                                 url: value,

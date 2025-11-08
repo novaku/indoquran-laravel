@@ -115,15 +115,16 @@ export const useAdvancedPerformanceMonitor = (config = {}) => {
     });
 
     try {
-      // Observe all interaction events
+      // Use 'type' (singular) instead of 'entryTypes' (array) when using buffered flag
+      // Note: 'event' type is not widely supported, so we focus on 'first-input'
       observer.observe({ 
-        entryTypes: ['event', 'first-input'],
+        type: 'first-input',
         buffered: true 
       });
     } catch (e) {
-      // Fallback to first-input for older browsers
+      // Fallback without buffered flag for compatibility
       try {
-        observer.observe({ entryTypes: ['first-input'], buffered: true });
+        observer.observe({ entryTypes: ['first-input'] });
       } catch (err) {
         console.warn('INP/FID observation not supported');
       }
