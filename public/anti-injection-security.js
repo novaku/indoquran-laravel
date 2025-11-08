@@ -12,8 +12,10 @@
         'infird.com',
         'b50b7f30-3efc-40a4-958b-47c84a6ef83f',
         '5898d5bc-251a-4028-b882-b262a7cc68b7',
+        'ee80bf2d-c6ad-4a18-97fc-d44142493a40',  // New injection attempt
         /^https?:\/\/[^\/]+\/cdn\/[a-f0-9\-]{36}/,  // UUID-based CDN patterns
         /^https?:\/\/[^\/]+\/cdn\/[a-f0-9\-]+\?uuid=/,  // UUID query patterns
+        /[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/i,  // Any UUID pattern
     ];
     
     // Log security events for monitoring
@@ -88,9 +90,91 @@
                     configurable: true,
                     enumerable: true
                 });
+                
+                // Override textContent and innerHTML to block inline malicious scripts
+                const originalTextContentDescriptor = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+                const originalInnerHTMLDescriptor = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
+                
+                Object.defineProperty(element, 'textContent', {
+                    set: function(value) {
+                        if (value && typeof value === 'string' && isMaliciousUrl(value)) {
+                            console.log(`🛡️ IndoQuran Security: Blocked suspicious inline script content`);
+                            logSecurityEvent('BLOCKED_INLINE_SCRIPT', {
+                                method: 'script.textContent',
+                                content: value.substring(0, 200)
+                            });
+                            return; // Block the operation
+                        }
+                        if (originalTextContentDescriptor && originalTextContentDescriptor.set) {
+                            originalTextContentDescriptor.set.call(this, value);
+                        }
+                    },
+                    get: function() {
+                        if (originalTextContentDescriptor && originalTextContentDescriptor.get) {
+                            return originalTextContentDescriptor.get.call(this);
+                        }
+                        return '';
+                    },
+                    configurable: true,
+                    enumerable: true
+                });
+                
+                Object.defineProperty(element, 'innerHTML', {
+                    set: function(value) {
+                        if (value && typeof value === 'string' && isMaliciousUrl(value)) {
+                            console.log(`🛡️ IndoQuran Security: Blocked suspicious inline script HTML`);
+                            logSecurityEvent('BLOCKED_INLINE_SCRIPT', {
+                                method: 'script.innerHTML',
+                                content: value.substring(0, 200)
+                            });
+                            return; // Block the operation
+                        }
+                        if (originalInnerHTMLDescriptor && originalInnerHTMLDescriptor.set) {
+                            originalInnerHTMLDescriptor.set.call(this, value);
+                        }
+                    },
+                    get: function() {
+                        if (originalInnerHTMLDescriptor && originalInnerHTMLDescriptor.get) {
+                            return originalInnerHTMLDescriptor.get.call(this);
+                        }
+                        return '';
+                    },
+                    configurable: true,
+                    enumerable: true
+                });
             }
             
             return element;
+        };
+    }
+    
+    // 1.5. Override document.write and document.writeln to prevent injection
+    if (typeof document !== 'undefined') {
+        const originalWrite = document.write;
+        const originalWriteln = document.writeln;
+        
+        document.write = function(content) {
+            if (content && typeof content === 'string' && isMaliciousUrl(content)) {
+                console.log(`🛡️ IndoQuran Security: Blocked document.write injection attempt`);
+                logSecurityEvent('BLOCKED_DOCUMENT_WRITE', {
+                    method: 'document.write',
+                    content: content.substring(0, 200)
+                });
+                return; // Block the operation
+            }
+            return originalWrite.call(this, content);
+        };
+        
+        document.writeln = function(content) {
+            if (content && typeof content === 'string' && isMaliciousUrl(content)) {
+                console.log(`🛡️ IndoQuran Security: Blocked document.writeln injection attempt`);
+                logSecurityEvent('BLOCKED_DOCUMENT_WRITELN', {
+                    method: 'document.writeln',
+                    content: content.substring(0, 200)
+                });
+                return; // Block the operation
+            }
+            return originalWriteln.call(this, content);
         };
     }
     
@@ -150,6 +234,50 @@
         Object.setPrototypeOf(window.XMLHttpRequest.prototype, OriginalXHR.prototype);
     }
     
+    // 3.5. Override Node appendChild and insertBefore to prevent malicious script insertion
+    if (typeof Node !== 'undefined' && Node.prototype) {
+        const originalAppendChild = Node.prototype.appendChild;
+        const originalInsertBefore = Node.prototype.insertBefore;
+        
+        Node.prototype.appendChild = function(child) {
+            if (child && child.nodeType === Node.ELEMENT_NODE && 
+                child.tagName && child.tagName.toLowerCase() === 'script') {
+                const src = child.src || child.getAttribute('src');
+                const content = child.textContent || child.innerHTML;
+                
+                if ((src && isMaliciousUrl(src)) || (content && isMaliciousUrl(content))) {
+                    console.log(`🛡️ IndoQuran Security: Blocked appendChild script injection`);
+                    logSecurityEvent('BLOCKED_APPEND_CHILD', {
+                        method: 'appendChild',
+                        url: src || 'inline',
+                        content: (content || '').substring(0, 200)
+                    });
+                    return child; // Return the element but don't append it
+                }
+            }
+            return originalAppendChild.call(this, child);
+        };
+        
+        Node.prototype.insertBefore = function(newNode, referenceNode) {
+            if (newNode && newNode.nodeType === Node.ELEMENT_NODE && 
+                newNode.tagName && newNode.tagName.toLowerCase() === 'script') {
+                const src = newNode.src || newNode.getAttribute('src');
+                const content = newNode.textContent || newNode.innerHTML;
+                
+                if ((src && isMaliciousUrl(src)) || (content && isMaliciousUrl(content))) {
+                    console.log(`🛡️ IndoQuran Security: Blocked insertBefore script injection`);
+                    logSecurityEvent('BLOCKED_INSERT_BEFORE', {
+                        method: 'insertBefore',
+                        url: src || 'inline',
+                        content: (content || '').substring(0, 200)
+                    });
+                    return newNode; // Return the element but don't insert it
+                }
+            }
+            return originalInsertBefore.call(this, newNode, referenceNode);
+        };
+    }
+    
     // 4. Monitor and block dynamic script insertions
     if (typeof document !== 'undefined' && document.head) {
         const observer = new MutationObserver((mutations) => {
@@ -159,14 +287,17 @@
                         node.tagName && node.tagName.toLowerCase() === 'script') {
                         
                         const src = node.src || node.getAttribute('src');
-                        if (src && isMaliciousUrl(src)) {
+                        const content = node.textContent || node.innerHTML;
+                        
+                        if ((src && isMaliciousUrl(src)) || (content && isMaliciousUrl(content))) {
+                            console.log(`🛡️ IndoQuran Security: Blocked dynamic script via MutationObserver`);
                             logSecurityEvent('BLOCKED_DYNAMIC_SCRIPT', {
                                 method: 'MutationObserver',
-                                url: src,
-                                innerHTML: node.innerHTML.substring(0, 100)
+                                url: src || 'inline',
+                                innerHTML: (content || '').substring(0, 100)
                             });
                             
-                            // Remove the malicious script
+                            // Remove the malicious script immediately
                             if (node.parentNode) {
                                 node.parentNode.removeChild(node);
                             }

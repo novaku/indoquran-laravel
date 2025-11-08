@@ -123,68 +123,18 @@
     <!-- Critical CSS for above-the-fold content -->
     {!! App\Services\PerformanceOptimizationService::getCriticalCSS() !!}
     
-    <!-- Module MIME Type Fix Script -->
+    <!-- Module MIME Type Fix Script (Lightweight - Anti-injection handled by anti-injection-security.js) -->
     <script>
-        // Enhanced fix for JS module MIME type issues and malicious script injection protection
+        // Fix for JS module MIME type issues only - Security handled by external script
         (function() {
-            // Prevent malicious script injection
-            const originalCreateElement = document.createElement.bind(document);
-            document.createElement = function(tagName) {
-                const element = originalCreateElement(tagName);
-                
-                // Block creation of script elements with suspicious sources
-                if (tagName.toLowerCase() === 'script') {
-                    const originalSetAttribute = element.setAttribute.bind(element);
-                    element.setAttribute = function(name, value) {
-                        if (name.toLowerCase() === 'src' && 
-                            (value.includes('infird.com') || 
-                             value.includes('b50b7f30') ||
-                             value.match(/^https?:\/\/[^\/]+\/cdn\/[a-f0-9-]+/))) {
-                            console.warn('Blocked suspicious script injection:', value);
-                            return; // Block the script
-                        }
-                        return originalSetAttribute(name, value);
-                    };
-                    
-                    // Also override src property
-                    Object.defineProperty(element, 'src', {
-                        set: function(value) {
-                            if (value.includes('infird.com') || 
-                                value.includes('b50b7f30') ||
-                                value.match(/^https?:\/\/[^\/]+\/cdn\/[a-f0-9-]+/)) {
-                                console.warn('Blocked suspicious script src:', value);
-                                return;
-                            }
-                            this.setAttribute('src', value);
-                        },
-                        get: function() {
-                            return this.getAttribute('src');
-                        }
-                    });
-                }
-                
-                return element;
-            };
-            
             // Override the default module loading to handle MIME type errors
             const originalFetch = window.fetch;
             
             window.fetch = function(resource, options = {}) {
-                // Block suspicious requests
-                if (typeof resource === 'string' && 
-                    (resource.includes('infird.com') || 
-                     resource.includes('b50b7f30') ||
-                     resource.match(/^https?:\/\/[^\/]+\/cdn\/[a-f0-9-]+/))) {
-                    console.warn('Blocked suspicious fetch request:', resource);
-                    return Promise.reject(new Error('Blocked suspicious request'));
-                }
-                
                 // Handle JS modules in build/assets directory
                 if (typeof resource === 'string' && 
                     (resource.includes('/build/assets/') || resource.includes('/assets/')) && 
                     resource.endsWith('.js')) {
-                    
-                    console.log('Loading JS module:', resource);
                     
                     // Set proper headers for module requests
                     const enhancedOptions = {
@@ -231,32 +181,7 @@
                 return originalFetch(resource, options);
             };
             
-            // Block document.write injection
-            const originalWrite = document.write;
-            document.write = function(markup) {
-                if (markup.includes('infird.com') || 
-                    markup.includes('b50b7f30') ||
-                    markup.match(/script[^>]*src[^>]*\/cdn\/[a-f0-9-]+/)) {
-                    console.warn('Blocked suspicious document.write:', markup);
-                    return;
-                }
-                return originalWrite.call(document, markup);
-            };
-            
-            // Also handle dynamic import errors
-            const originalImport = window.import || (function() {});
-            if (typeof window.import !== 'undefined') {
-                const originalDynamicImport = window.import;
-                window.import = function(specifier) {
-                    return originalDynamicImport(specifier).catch(error => {
-                        console.error('Dynamic import failed:', specifier, error);
-                        // Return empty module
-                        return { default: {} };
-                    });
-                };
-            }
-            
-            console.log('Enhanced security and JS module MIME type fix loaded');
+            console.log('JS module MIME type fix loaded');
         })();
         
         // Error handling for the React app
