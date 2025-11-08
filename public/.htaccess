@@ -12,6 +12,7 @@
     AddType image/svg+xml              .svg
     AddType image/webp                 .webp
     AddType image/avif                 .avif
+    AddType text/plain                 .txt
 </IfModule>
 
 <IfModule mod_headers.c>
@@ -112,6 +113,12 @@ Options -MultiViews -Indexes
 </IfModule>
 
 RewriteEngine On
+
+# Ensure ads.txt is served correctly - CRITICAL for AdSense verification
+RewriteRule ^ads\.txt$ - [L]
+
+# Ensure robots.txt is served correctly
+RewriteRule ^robots\.txt$ - [L]
 
 # Ensure build directory assets are NOT rewritten - CRITICAL for Vite assets
 RewriteRule ^build/ - [L]
