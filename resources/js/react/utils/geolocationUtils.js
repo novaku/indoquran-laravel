@@ -15,7 +15,7 @@ export const checkGeolocationPermissions = async () => {
         const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
         return permissionStatus.state;
     } catch (error) {
-        console.warn('Could not query geolocation permissions:', error);
+        // Silently handle geolocation permission errors (common on iOS/macOS)
         return 'unsupported';
     }
 };
@@ -37,7 +37,7 @@ export const requestGeolocation = (
     return new Promise((resolve) => {
         // Check if geolocation is supported
         if (!navigator.geolocation) {
-            console.warn('Geolocation is not supported by this browser');
+            // Silently handle unsupported geolocation
             resolve({
                 success: false,
                 coords: fallbackCoords,
@@ -73,7 +73,11 @@ export const requestGeolocation = (
                         errorMessage += 'Kesalahan tidak diketahui.';
                 }
                 
-                console.error('Geolocation error:', error);
+                // Silently handle geolocation errors - don't spam console
+                // Only log in development mode if needed
+                if (process.env.NODE_ENV === 'development' && error.code !== error.PERMISSION_DENIED) {
+                    console.warn('Geolocation error:', error.code, error.message);
+                }
                 
                 resolve({
                     success: false,
@@ -120,7 +124,10 @@ export const getLocationName = async (latitude, longitude) => {
         
         return 'Lokasi saat ini';
     } catch (error) {
-        console.error('Error fetching location name:', error);
+        // Silently handle geocoding errors
+        if (process.env.NODE_ENV === 'development') {
+            console.warn('Error fetching location name:', error.message);
+        }
         return 'Lokasi saat ini';
     }
 };
@@ -145,7 +152,11 @@ export const initializeGeolocation = async (config = {}) => {
     const tryGetLocation = async () => {
         // Check permissions first
         const permissionStatus = await checkGeolocationPermissions();
-        console.log('Geolocation permission status:', permissionStatus);
+        
+        // Only log in development mode
+        if (process.env.NODE_ENV === 'development') {
+            console.log('Geolocation permission status:', permissionStatus);
+        }
         
         if (permissionStatus === 'denied') {
             return {
@@ -168,7 +179,11 @@ export const initializeGeolocation = async (config = {}) => {
             // If retry is enabled and we haven't exceeded max retries
             if (enableRetry && retryCount < maxRetries) {
                 retryCount++;
-                console.log(`Retrying geolocation (attempt ${retryCount}/${maxRetries})...`);
+                
+                // Only log retries in development mode
+                if (process.env.NODE_ENV === 'development') {
+                    console.log(`Retrying geolocation (attempt ${retryCount}/${maxRetries})...`);
+                }
                 
                 await new Promise(resolve => setTimeout(resolve, retryDelay));
                 return tryGetLocation();

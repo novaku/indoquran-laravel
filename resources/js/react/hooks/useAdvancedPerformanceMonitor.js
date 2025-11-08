@@ -76,7 +76,10 @@ export const useAdvancedPerformanceMonitor = (config = {}) => {
     try {
       observer.observe({ entryTypes: ['largest-contentful-paint'] });
     } catch (e) {
-      console.warn('LCP observation not supported');
+      // Silently handle unsupported observers - don't spam console
+      if (logToConsole) {
+        console.warn('LCP observation not supported');
+      }
     }
 
     return () => observer.disconnect();
@@ -126,7 +129,10 @@ export const useAdvancedPerformanceMonitor = (config = {}) => {
       try {
         observer.observe({ entryTypes: ['first-input'] });
       } catch (err) {
-        console.warn('INP/FID observation not supported');
+        // Silently handle unsupported observers
+        if (logToConsole) {
+          console.warn('INP/FID observation not supported');
+        }
       }
     }
 
@@ -151,7 +157,10 @@ export const useAdvancedPerformanceMonitor = (config = {}) => {
     try {
       observer.observe({ entryTypes: ['layout-shift'] });
     } catch (e) {
-      console.warn('CLS observation not supported');
+      // Silently handle unsupported observers
+      if (logToConsole) {
+        console.warn('CLS observation not supported');
+      }
     }
 
     // Report CLS on page visibility change
