@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
+import AdSenseVertical from '../components/AdSenseVertical';
 import { Card, Button, Badge, PageHeader, PageContent } from '../components/ui';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
@@ -200,6 +201,9 @@ function SurahListPage() {
                 />
 
                 <PageContent size="xl">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        {/* Main Content */}
+                        <div className="lg:col-span-8">
                     <Card className="mb-6">
                         {/* Search and Filter */}
                         <div className="flex flex-col sm:flex-row gap-4">
@@ -402,6 +406,35 @@ function SurahListPage() {
                             </Link>
                         </div>
                     </Card>
+                        </div>
+
+                        {/* Sidebar dengan Iklan */}
+                        <aside className="lg:col-span-4">
+                            <div className="sticky top-4 space-y-6">
+                                {/* Iklan Vertikal */}
+                                <Card padding="none">
+                                    <div className="text-xs text-center text-gray-400 py-2 border-b border-gray-100">
+                                        Iklan
+                                    </div>
+                                    <AdSenseVertical
+                                        adSlot="9427110099"
+                                        className="min-h-[600px]"
+                                    />
+                                </Card>
+
+                                {/* Info Box */}
+                                <Card>
+                                    <h3 className="font-semibold text-gray-900 mb-3">Info Al-Quran</h3>
+                                    <div className="space-y-2 text-sm text-gray-600">
+                                        <p>📖 114 Surah</p>
+                                        <p>📄 6,236 Ayat</p>
+                                        <p>📑 30 Juz</p>
+                                        <p>📃 604 Halaman</p>
+                                    </div>
+                                </Card>
+                            </div>
+                        </aside>
+                    </div>
                 </PageContent>
             </div>
         </>

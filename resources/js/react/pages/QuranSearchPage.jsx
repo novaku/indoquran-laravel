@@ -26,6 +26,7 @@ import SEOHead from '../components/SEOHead';
 import { Card, Button, Input, Select, Badge, PageContent } from '../components/ui';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
+import AdSenseVertical from '../components/AdSenseVertical';
 
 // Text highlighting utility function
 const highlightText = (text, searchQuery) => {

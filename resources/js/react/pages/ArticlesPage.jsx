@@ -4,6 +4,7 @@ import { FaSearch, FaCalendar, FaUser, FaClock, FaEye } from 'react-icons/fa';
 import SEOHead from '../components/SEOHead';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { getWithAuth } from '../utils/apiUtils';
+import AdSenseVertical from '../components/AdSenseVertical';
 
 const ArticlesPage = () => {
   const [articles, setArticles] = useState([]);

@@ -13,6 +13,7 @@ import {
 } from '@heroicons/react/24/outline';
 import SEOHead from '../components/SEOHead';
 import LoadingSpinner from '../components/LoadingSpinner';
+import AdSenseVertical from '../components/AdSenseVertical';
 
 // Tree Node Component
 function TreeNode({ topic, index, isExpanded, onToggle, level = 0 }) {

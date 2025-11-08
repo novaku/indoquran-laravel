@@ -1,4 +1,5 @@
 import React from 'react';
+import AdSenseVertical from '../components/AdSenseVertical';
 
 function PrivacyPage() {
     return (

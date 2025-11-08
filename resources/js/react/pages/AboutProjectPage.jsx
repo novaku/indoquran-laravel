@@ -15,6 +15,7 @@ import {
     IoCodeSlashOutline
 } from 'react-icons/io5';
 import SEOHead from '../components/SEOHead';
+import AdSenseVertical from '../components/AdSenseVertical';
 
 function AboutProjectPage() {
     const navigate = useNavigate();
