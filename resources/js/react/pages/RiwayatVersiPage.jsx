@@ -1,10 +1,18 @@
-import React from 'react';
-import { CheckCircleIcon, CogIcon, BugAntIcon, SparklesIcon, ShieldCheckIcon, RocketLaunchIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import React, { useState } from 'react';
+import { CheckCircleIcon, CogIcon, BugAntIcon, SparklesIcon, ShieldCheckIcon, RocketLaunchIcon, DocumentTextIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 import SEOHead from '../components/SEOHead';
 import StructuredData from '../components/StructuredData';
 import { Card, Badge, PageContent } from '../components/ui';
 
 function RiwayatVersiPage() {
+    const [expandedVersions, setExpandedVersions] = useState({ "2.11.6": true });
+
+    const toggleVersion = (versionNumber) => {
+        setExpandedVersions(prev => ({
+            ...prev,
+            [versionNumber]: !prev[versionNumber]
+        }));
+    };
     const versions = [
         {
             version: "2.11.6",
@@ -1345,27 +1353,44 @@ function RiwayatVersiPage() {
 
                                 {/* Changes List */}
                                 <div className="p-8 bg-gray-50/50">
-                                    <h5 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-                                        <CheckCircleIcon className="w-6 h-6 text-emerald-600" />
-                                        Perubahan & Peningkatan
-                                    </h5>
-                                    <div className="space-y-3">
-                                        {version.changes.map((change, changeIndex) => (
-                                            <div key={changeIndex} className={`flex items-start gap-4 p-5 rounded-xl transition-all duration-200 shadow-sm ${getChangeItemStyle(change.type)}`}>
-                                                <div className="flex-shrink-0 mt-0.5">
-                                                    {getChangeIcon(change.type)}
-                                                </div>
-                                                <div className="flex-grow min-w-0">
-                                                    <div className="mb-2">
-                                                        <span className={`inline-block px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-full border ${getChangeTypeBadgeStyle(change.type)}`}>
-                                                            {getChangeTypeText(change.type)}
-                                                        </span>
+                                    <button
+                                        onClick={() => toggleVersion(version.version)}
+                                        className="w-full text-left group"
+                                    >
+                                        <h5 className="text-lg font-bold text-gray-900 mb-6 flex items-center justify-between gap-2 cursor-pointer hover:text-emerald-700 transition-colors">
+                                            <span className="flex items-center gap-2">
+                                                <CheckCircleIcon className="w-6 h-6 text-emerald-600" />
+                                                Perubahan & Peningkatan
+                                                <span className="text-sm font-normal text-gray-500">
+                                                    ({version.changes.length} perubahan)
+                                                </span>
+                                            </span>
+                                            {expandedVersions[version.version] ? (
+                                                <ChevronUpIcon className="w-6 h-6 text-emerald-600 group-hover:text-emerald-700 transition-transform" />
+                                            ) : (
+                                                <ChevronDownIcon className="w-6 h-6 text-emerald-600 group-hover:text-emerald-700 transition-transform" />
+                                            )}
+                                        </h5>
+                                    </button>
+                                    {expandedVersions[version.version] && (
+                                        <div className="space-y-3 animate-fadeIn">
+                                            {version.changes.map((change, changeIndex) => (
+                                                <div key={changeIndex} className={`flex items-start gap-4 p-5 rounded-xl transition-all duration-200 shadow-sm ${getChangeItemStyle(change.type)}`}>
+                                                    <div className="flex-shrink-0 mt-0.5">
+                                                        {getChangeIcon(change.type)}
                                                     </div>
-                                                    <p className="text-gray-700 leading-relaxed text-sm">{change.text}</p>
+                                                    <div className="flex-grow min-w-0">
+                                                        <div className="mb-2">
+                                                            <span className={`inline-block px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-full border ${getChangeTypeBadgeStyle(change.type)}`}>
+                                                                {getChangeTypeText(change.type)}
+                                                            </span>
+                                                        </div>
+                                                        <p className="text-gray-700 leading-relaxed text-sm">{change.text}</p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
