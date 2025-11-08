@@ -17,6 +17,7 @@ import { useAuth } from '../hooks/useAuth.jsx';
 import SearchField from '../components/SearchField';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
+import AdSenseVertical from '../components/AdSenseVertical';
 import { Card, Button, Badge } from '../components/ui';
 import { fetchWithAuth } from '../utils/apiUtils';
 import { getReadingProgress } from '../services/ReadingProgressService';
@@ -372,7 +373,11 @@ function QuranHomePage() {
                 </div>
             </section>
 
-            <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+            {/* Main content dengan sidebar */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    {/* Main content - 8 kolom di desktop */}
+                    <main className="lg:col-span-8 space-y-10">
                 {user && recentReading?.surah && (
                     <Card shadow="sm">
                         <div className="flex items-center justify-between mb-4">
@@ -661,6 +666,51 @@ function QuranHomePage() {
                     </div>
                 </Card>
             </main>
+
+                    {/* Sidebar - 4 kolom di desktop, tersembunyi di mobile */}
+                    <aside className="lg:col-span-4 space-y-6">
+                        {/* Sticky sidebar untuk iklan */}
+                        <div className="sticky top-4 space-y-6">
+                            {/* Iklan Vertikal #1 */}
+                            <Card shadow="sm" padding="none">
+                                <div className="text-xs text-center text-gray-400 py-2 border-b border-gray-100">
+                                    Iklan
+                                </div>
+                                <AdSenseVertical
+                                    adSlot="9427110099"
+                                    adFormat="autorelaxed"
+                                    fullWidth={true}
+                                    className="min-h-[600px]"
+                                />
+                            </Card>
+
+                            {/* Informasi Cepat */}
+                            <Card shadow="sm">
+                                <h3 className="font-semibold text-gray-900 mb-3">Informasi Cepat</h3>
+                                <div className="space-y-2 text-sm text-gray-600">
+                                    <p>📖 {exploreOverview.totalSurahs} Surah</p>
+                                    <p>📑 {exploreOverview.totalJuz} Juz</p>
+                                    <p>📄 {exploreOverview.totalPages} Halaman</p>
+                                    <p>⭐ {exploreOverview.totalAsmaulHusna} Asmaul Husna</p>
+                                </div>
+                            </Card>
+
+                            {/* Iklan Vertikal #2 (Optional - untuk lebih banyak impressions) */}
+                            <Card shadow="sm" padding="none">
+                                <div className="text-xs text-center text-gray-400 py-2 border-b border-gray-100">
+                                    Iklan
+                                </div>
+                                <AdSenseVertical
+                                    adSlot="9427110099"
+                                    adFormat="autorelaxed"
+                                    fullWidth={true}
+                                    className="min-h-[600px]"
+                                />
+                            </Card>
+                        </div>
+                    </aside>
+                </div>
+            </div>
         </div>
     );
 }
