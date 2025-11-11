@@ -38,7 +38,8 @@ Disallow: /*&_ga=*
 # DISALLOW DUPLICATE PATHS
 # =============================================
 Disallow: /*?page=1$          # Page 1 sama dengan tanpa parameter
-Disallow: /*/                  # URL dengan trailing slash (akan di-redirect)
+# Note: Trailing slash redirects handled by htaccess, not blocked in robots.txt
+# Removed: Disallow: /*/ - This was blocking legitimate URLs like /surah/, /juz/, etc.
 
 # =============================================
 # SITEMAPS

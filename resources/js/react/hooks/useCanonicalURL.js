@@ -6,6 +6,9 @@ import { generateCanonicalUrl, ensureCanonicalConsistency } from '../utils/seoUt
  * Hook to ensure canonical URL consistency according to Google's guidelines
  * Reference: https://developers.google.com/search/docs/crawling-indexing/canonicalization
  * Prevents "Google chose different canonical than user" issues
+ * 
+ * UPDATED: Now only updates existing server-side canonical tag, doesn't create new ones
+ * This prevents duplication with server-side canonical tags in Blade template
  */
 export const useCanonicalURL = (manualCanonicalUrl = null) => {
   const location = useLocation();
@@ -17,23 +20,17 @@ export const useCanonicalURL = (manualCanonicalUrl = null) => {
     const currentPath = location.pathname + location.search;
     const canonicalUrl = manualCanonicalUrl || generateCanonicalUrl(currentPath);
     
-    // Find existing canonical link or create new one
+    // CRITICAL: Only UPDATE existing canonical link, don't create new one
+    // Server-side Blade template already renders the initial canonical tag
     let canonicalLink = document.querySelector('link[rel="canonical"]');
-    if (!canonicalLink) {
-      canonicalLink = document.createElement('link');
-      canonicalLink.rel = 'canonical';
-      // Insert after charset meta tag for proper positioning
-      const charsetMeta = document.querySelector('meta[charset]');
-      if (charsetMeta && charsetMeta.nextSibling) {
-        document.head.insertBefore(canonicalLink, charsetMeta.nextSibling);
-      } else {
-        document.head.insertBefore(canonicalLink, document.head.firstChild);
+    if (canonicalLink) {
+      // Only update if canonical URL has changed to avoid unnecessary DOM manipulation
+      if (canonicalLink.href !== canonicalUrl) {
+        canonicalLink.href = canonicalUrl;
       }
-    }
-    
-    // Only update if canonical URL has changed to avoid unnecessary DOM manipulation
-    if (canonicalLink.href !== canonicalUrl) {
-      canonicalLink.href = canonicalUrl;
+    } else {
+      // If for some reason server-side canonical is missing, log warning but don't create
+      console.warn('[SEO] Server-side canonical tag missing - should be in Blade template');
     }
 
     // Ensure URL consistency (only in production to avoid dev disruptions)

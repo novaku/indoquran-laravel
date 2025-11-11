@@ -40,8 +40,9 @@
     <meta property="twitter:description" content="{{ $metaDescription ?? 'Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia.' }}">
     <meta property="twitter:image" content="{{ $ogImage ?? url('/android-chrome-512x512.png') }}">
     
-    <!-- Canonical URL managed by React client-side for consistency -->
-    <!-- This prevents duplicate canonical tags and ensures Google sees one consistent canonical URL -->
+    <!-- Canonical URL - Server-Side ONLY (React tidak perlu duplikasi) -->
+    <!-- CRITICAL: Canonical tag harus di server-side agar Googlebot melihatnya saat pertama kali crawl -->
+    <link rel="canonical" href="{{ $canonicalUrl ?? url()->current() }}">
     
     <!-- Additional SEO Links -->
     <link rel="alternate" hreflang="id" href="{{ url()->current() }}">
@@ -115,6 +116,70 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="IndoQuran">
     <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- CRITICAL: Structured Data JSON-LD for Better Indexing -->
+    <!-- Google requires structured data to be in server-side HTML for proper indexing -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "IndoQuran",
+        "alternateName": "Al-Quran Digital Indonesia",
+        "url": "{{ url('/') }}",
+        "description": "Platform Al-Quran Digital terlengkap di Indonesia dengan terjemahan, audio murottal, dan tafsir lengkap",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "{{ url('/cari') }}?q={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "IndoQuran",
+            "url": "{{ url('/') }}",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "{{ url('/android-chrome-512x512.png') }}",
+                "width": 512,
+                "height": 512
+            }
+        },
+        "inLanguage": "id-ID"
+    }
+    </script>
+    
+    @if(isset($surah) && $surah)
+    <!-- Structured Data for Surah Page -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Surah {{ $surah->name_latin }} ({{ $surah->name_arabic }})",
+        "description": "{{ $surah->getSeoDescription() }}",
+        "url": "{{ url('/surah/' . $surah->number) }}",
+        "author": {
+            "@type": "Organization",
+            "name": "IndoQuran"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "IndoQuran",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "{{ url('/android-chrome-512x512.png') }}"
+            }
+        },
+        "articleSection": "Al-Quran",
+        "inLanguage": "id-ID",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "{{ url('/surah/' . $surah->number) }}"
+        }
+    }
+    </script>
+    @endif
     
     <!-- Enhanced Anti-Injection Security -->
     <script src="/anti-injection-security.js"></script>
@@ -227,34 +292,8 @@
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/react/index.jsx'])
     
-    <!-- Structured Data for SEO -->
-    <script type="application/ld+json">
-    {
-        "@@context": "https://schema.org",
-        "@@type": "WebSite",
-        "name": "IndoQuran",
-        "alternateName": "Al-Quran Digital Indonesia",
-        "url": "https://indoquran.web.id",
-        "description": "Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia.",
-        "inLanguage": "id",
-        "publisher": {
-            "@@type": "Organization",
-            "name": "IndoQuran",
-            "url": "https://indoquran.web.id",
-            "logo": {
-                "@@type": "ImageObject",
-                "url": "https://indoquran.web.id/android-chrome-512x512.png",
-                "width": 512,
-                "height": 512
-            }
-        },
-        "potentialAction": {
-            "@@type": "SearchAction",
-            "target": "https://indoquran.web.id/search?q={search_term_string}",
-            "query-input": "required name=search_term_string"
-        }
-    }
-    </script>
+    <!-- NOTE: Main Structured Data is now above, before Vite assets -->
+    <!-- This duplicate is removed to prevent schema.org duplication errors -->
 
     @if(app()->environment('local'))
     <!-- Font override for local development to prevent CORS issues -->
@@ -337,6 +376,83 @@
             </div>
         </div>
     </div>
+    
+    <!-- CRITICAL: Noscript Content for Search Engines (Googlebot without JavaScript) -->
+    <!-- This ensures search engines can index meaningful content even without JS execution -->
+    <noscript>
+        <div style="max-width: 1200px; margin: 0 auto; padding: 2rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+            <header style="text-align: center; padding: 2rem 0; border-bottom: 2px solid #22c55e;">
+                <h1 style="font-size: 2.5rem; color: #16a34a; margin: 0 0 0.5rem 0;">IndoQuran</h1>
+                <p style="font-size: 1.2rem; color: #666; margin: 0;">Al-Quran Digital Indonesia</p>
+            </header>
+            
+            <main style="padding: 2rem 0;">
+                <section style="margin-bottom: 2rem;">
+                    <h2 style="color: #16a34a; margin-bottom: 1rem;">{{ $metaTitle ?? 'Platform Al-Quran Digital Terlengkap' }}</h2>
+                    <p style="line-height: 1.8; color: #333;">{{ $metaDescription ?? 'Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia, fitur bookmark, pencarian ayat, dan audio murottal berkualitas tinggi.' }}</p>
+                </section>
+                
+                @if(isset($surah) && $surah)
+                <section style="margin-bottom: 2rem; padding: 1.5rem; background: #f0f9ff; border-left: 4px solid #22c55e; border-radius: 8px;">
+                    <h3 style="color: #16a34a; margin: 0 0 1rem 0;">Surah {{ $surah->name_latin }}</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <strong>Nama Arab:</strong> {{ $surah->name_arabic }}
+                        </div>
+                        <div>
+                            <strong>Arti:</strong> {{ $surah->translation_id }}
+                        </div>
+                        <div>
+                            <strong>Jumlah Ayat:</strong> {{ $surah->ayah_count }}
+                        </div>
+                        <div>
+                            <strong>Tempat Turun:</strong> {{ $surah->revelation_type == 'meccan' ? 'Mekah' : 'Madinah' }}
+                        </div>
+                    </div>
+                    <p style="line-height: 1.8; color: #555;">{{ $surah->getSeoDescription() }}</p>
+                </section>
+                @endif
+                
+                <section style="margin-bottom: 2rem;">
+                    <h3 style="color: #16a34a; margin-bottom: 1rem;">Fitur Utama</h3>
+                    <ul style="line-height: 2; color: #333;">
+                        <li>✅ Baca Al-Quran dengan teks Arab dan terjemahan bahasa Indonesia</li>
+                        <li>✅ Dengarkan audio murottal dari 79+ qari berkualitas tinggi</li>
+                        <li>✅ Simpan ayat favorit dengan fitur bookmark</li>
+                        <li>✅ Cari ayat dengan mudah menggunakan pencarian cerdas</li>
+                        <li>✅ Tafsir lengkap untuk setiap ayat</li>
+                        <li>✅ Akses 30 Juz Al-Quran dengan navigasi mudah</li>
+                        <li>✅ Tampilan responsif untuk semua perangkat</li>
+                    </ul>
+                </section>
+                
+                <section style="background: #fffbeb; padding: 1.5rem; border-radius: 8px; border: 1px solid #fbbf24;">
+                    <p style="margin: 0; color: #92400e; line-height: 1.8;">
+                        <strong>⚠️ JavaScript Diperlukan:</strong> Untuk pengalaman terbaik, silakan aktifkan JavaScript di browser Anda. IndoQuran menggunakan teknologi modern untuk memberikan pengalaman membaca Al-Quran yang optimal.
+                    </p>
+                </section>
+                
+                <section style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e5e7eb;">
+                    <h3 style="color: #16a34a; margin-bottom: 1rem;">Navigasi Utama</h3>
+                    <nav>
+                        <ul style="list-style: none; padding: 0; display: grid; gap: 0.5rem;">
+                            <li><a href="{{ url('/') }}" style="color: #16a34a; text-decoration: none;">🏠 Beranda</a></li>
+                            <li><a href="{{ url('/semua-surah') }}" style="color: #16a34a; text-decoration: none;">📖 Semua Surah</a></li>
+                            <li><a href="{{ url('/juz') }}" style="color: #16a34a; text-decoration: none;">📚 Daftar Juz</a></li>
+                            <li><a href="{{ url('/cari') }}" style="color: #16a34a; text-decoration: none;">🔍 Pencarian Ayat</a></li>
+                            <li><a href="{{ url('/asmaul-husna') }}" style="color: #16a34a; text-decoration: none;">✨ Asmaul Husna</a></li>
+                            <li><a href="{{ url('/tafsir-maudhui') }}" style="color: #16a34a; text-decoration: none;">📝 Tafsir Maudhui</a></li>
+                        </ul>
+                    </nav>
+                </section>
+            </main>
+            
+            <footer style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid #e5e7eb; text-align: center; color: #666;">
+                <p style="margin: 0;">© {{ date('Y') }} IndoQuran - Platform Al-Quran Digital Indonesia</p>
+                <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem;">Dibuat dengan ❤️ untuk umat Muslim Indonesia</p>
+            </footer>
+        </div>
+    </noscript>
     
     <!-- Loading timeout and error handling -->
     <script>
