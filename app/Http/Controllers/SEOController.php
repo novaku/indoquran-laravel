@@ -10,21 +10,6 @@ use Illuminate\View\View;
 class SEOController extends Controller
 {
     /**
-     * Get default SEO data
-     */
-    private function getDefaultSEOData(Request $request): array
-    {
-        return [
-            'metaTitle' => 'IndoQuran - Al-Quran Digital Indonesia',
-            'metaDescription' => 'Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia, fitur bookmark, pencarian ayat, dan audio murottal berkualitas tinggi.',
-            'metaKeywords' => 'al quran indonesia, quran online, al quran digital, baca quran, terjemahan quran, murottal, quran indonesia, ayat al quran, surah quran, indoquran',
-            'canonicalUrl' => url($request->getRequestUri()),
-            'ogImage' => url('/android-chrome-512x512.png'),
-            'ogType' => 'website'
-        ];
-    }
-    
-    /**
      * Handle dynamic SEO for React app
      * This controller provides SEO data to the React blade template
      */
@@ -36,155 +21,45 @@ class SEOController extends Controller
         // Check for invalid routes that should return 404
         $isInvalidRoute = false;
         
-        // Define valid routes (whitelist approach for better security)
-        $validRoutes = [
-            '', // homepage
-            'surah', 'cari', 'juz', 'halaman', 'tafsir-maudhui', 'asmaul-husna',
-            'doa-bersama', 'tentang', 'kontak', 'donasi', 'member', 'keuntungan-member',
-            'kebijakan', 'riwayat-versi', 'daftar-lengkap', 'statistik', 'artikel',
-            'penanda', 'profil', 'masuk', 'daftar', 'reset-password', 'password',
-            'admin', 'version-history', 'search', 'pages', 'about', 'contact',
-            'donation', 'privacy', 'bookmark', 'profile', 'auth'
-        ];
-        
-        // Get first segment
-        $firstSegment = $segments[0] ?? '';
-        
-        // Check for invalid routes that should return 404
-        $isInvalidRoute = false;
-        
-        // Define valid routes (whitelist approach for better security)
-        $validRoutes = [
-            '', // homepage
-            'surah', 'cari', 'juz', 'halaman', 'tafsir-maudhui', 'asmaul-husna',
-            'doa-bersama', 'tentang', 'kontak', 'donasi', 'member', 'keuntungan-member',
-            'kebijakan', 'riwayat-versi', 'daftar-lengkap', 'statistik', 'artikel',
-            'penanda', 'profil', 'masuk', 'daftar', 'reset-password', 'password',
-            'admin', 'version-history', 'search', 'pages', 'about', 'contact',
-            'donation', 'privacy', 'bookmark', 'profile', 'auth'
-        ];
-        
-        // Check if first segment is valid
-        $firstSegment = $segments[0] ?? '';
-        
-        // Check for trailing slashes (should be redirected, not 404)
-        if (substr($path, -1) === '/' && $path !== '/') {
-            // This will be handled by redirect middleware, not 404
-            return view('react', $this->getDefaultSEOData($request));
-        }
-        
-        // Check for invalid characters or patterns
-        if (preg_match('/[<>{}[\]|\\^`"\(\)%\$\@\!]/', $path)) {
-            $isInvalidRoute = true;
-        }
-        
-        // Check for common attack patterns
-        $attackPatterns = [
-            'wp-admin', 'wp-login', 'wp-content', 'wp-includes', 'xmlrpc.php',
-            'administrator', 'phpmyadmin', '.env', '.git', 'config.php',
-            '.well-known', 'vendor', 'node_modules', '.htaccess', 'composer.json'
-        ];
-        
-        foreach ($attackPatterns as $pattern) {
-            if (stripos($path, $pattern) !== false) {
-                $isInvalidRoute = true;
-                break;
-            }
-        }
-        
-        // Check for file extensions that shouldn't exist in routes
-        if (preg_match('/\.(php|asp|aspx|jsp|cgi|pl|py)$/i', $path)) {
-            $isInvalidRoute = true;
-        }
-        
         // Check invalid surah numbers
-        if (isset($segments[0]) && $segments[0] === 'surah' && isset($segments[1])) {
-            if (is_numeric($segments[1])) {
-                $surahNumber = (int) $segments[1];
-                if ($surahNumber < 1 || $surahNumber > 114) {
-                    $isInvalidRoute = true;
-                } else {
-                    // Verify surah exists in database
-                    $surah = Surah::where('number', $surahNumber)->first();
-                    if (!$surah) {
-                        $isInvalidRoute = true;
-                    }
-                }
-                
-                // Check invalid ayah numbers if specified
-                if (!$isInvalidRoute && isset($segments[2]) && is_numeric($segments[2])) {
-                    $ayahNumber = (int) $segments[2];
-                    $surah = Surah::where('number', $surahNumber)->first();
-                    if ($surah && ($ayahNumber < 1 || $ayahNumber > $surah->ayah_count)) {
-                        $isInvalidRoute = true;
-                    }
-                }
-            } elseif ($segments[1] !== '' && !in_array($segments[1], ['index', 'list'])) {
-                // Invalid non-numeric surah identifier
+        if (isset($segments[0]) && $segments[0] === 'surah' && isset($segments[1]) && is_numeric($segments[1])) {
+            $surahNumber = (int) $segments[1];
+            if ($surahNumber < 1 || $surahNumber > 114) {
                 $isInvalidRoute = true;
+            } else {
+                // Verify surah exists in database
+                $surah = Surah::where('number', $surahNumber)->first();
+                if (!$surah) {
+                    $isInvalidRoute = true;
+                }
             }
         }
         
         // Check invalid juz numbers
-        if (isset($segments[0]) && $segments[0] === 'juz' && isset($segments[1])) {
-            if (is_numeric($segments[1])) {
-                $juzNumber = (int) $segments[1];
-                if ($juzNumber < 1 || $juzNumber > 30) {
-                    $isInvalidRoute = true;
-                }
-            } elseif ($segments[1] !== '' && !in_array($segments[1], ['index', 'list'])) {
+        if (isset($segments[0]) && $segments[0] === 'juz' && isset($segments[1]) && is_numeric($segments[1])) {
+            $juzNumber = (int) $segments[1];
+            if ($juzNumber < 1 || $juzNumber > 30) {
                 $isInvalidRoute = true;
             }
         }
         
         // Check invalid page numbers
-        if (isset($segments[0]) && $segments[0] === 'halaman' && isset($segments[1])) {
-            if (is_numeric($segments[1])) {
-                $pageNumber = (int) $segments[1];
-                if ($pageNumber < 1 || $pageNumber > 604) {
-                    $isInvalidRoute = true;
-                }
-            } elseif ($segments[1] !== '' && !in_array($segments[1], ['index', 'list'])) {
+        if (isset($segments[0]) && $segments[0] === 'halaman' && isset($segments[1]) && is_numeric($segments[1])) {
+            $pageNumber = (int) $segments[1];
+            if ($pageNumber < 1 || $pageNumber > 604) {
                 $isInvalidRoute = true;
             }
-        }
-        
-        // Check if route has too many segments (likely invalid)
-        if (count($segments) > 4) {
-            $isInvalidRoute = true;
-        }
-        
-        // Check for unknown first-level routes
-        if ($firstSegment !== '' && !in_array($firstSegment, $validRoutes)) {
-            // Allow artikel with slug
-            if ($firstSegment === 'artikel' && isset($segments[1])) {
-                // Valid article route
-            } else {
-                $isInvalidRoute = true;
-            }
-        }
-        
-        // If invalid route detected, set proper 404 SEO and status code
-        if ($isInvalidRoute) {
-            $seoData = [
-                'metaTitle' => '404 - Halaman Tidak Ditemukan | IndoQuran',
-                'metaDescription' => 'Maaf, halaman yang Anda cari tidak ditemukan. Kembali ke beranda IndoQuran untuk mengakses Al-Quran Digital Indonesia.',
-                'metaKeywords' => '404, halaman tidak ditemukan, error, indoquran',
-                'canonicalUrl' => url($request->getRequestUri()),
-                'ogImage' => url('/android-chrome-512x512.png'),
-                'ogType' => 'website',
-                'noindex' => true // Add noindex for 404 pages
-            ];
-            
-            // Return 404 response with proper headers
-            return response()
-                ->view('react', $seoData, 404)
-                ->header('X-Robots-Tag', 'noindex, nofollow')
-                ->header('Cache-Control', 'no-cache, no-store, must-revalidate');
         }
         
         // Default SEO values
-        $seoData = $this->getDefaultSEOData($request);
+        $seoData = [
+            'metaTitle' => 'IndoQuran - Al-Quran Digital Indonesia',
+            'metaDescription' => 'Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia, fitur bookmark, pencarian ayat, dan audio murottal berkualitas tinggi.',
+            'metaKeywords' => 'al quran indonesia, quran online, al quran digital, baca quran, terjemahan quran, murottal, quran indonesia, ayat al quran, surah quran, indoquran',
+            'canonicalUrl' => url($request->getRequestUri()),
+            'ogImage' => url('/android-chrome-512x512.png'),
+            'ogType' => 'website'
+        ];
 
         // Handle different routes
         if ($path === '/' || $path === '') {
@@ -417,6 +292,20 @@ class SEOController extends Controller
                 'canonicalUrl' => url('/admin'),
                 'ogType' => 'website'
             ]);
+        }
+
+        // If invalid route detected, set proper 404 SEO and status code
+        if ($isInvalidRoute) {
+            $seoData = [
+                'metaTitle' => '404 - Halaman Tidak Ditemukan | IndoQuran',
+                'metaDescription' => 'Maaf, halaman yang Anda cari tidak ditemukan. Kembali ke beranda IndoQuran untuk mengakses Al-Quran Digital Indonesia.',
+                'metaKeywords' => '404, halaman tidak ditemukan, error, indoquran',
+                'canonicalUrl' => url($request->getRequestUri()),
+                'ogImage' => url('/android-chrome-512x512.png'),
+                'ogType' => 'website'
+            ];
+            
+            return response()->view('react', $seoData, 404);
         }
 
         return view('react', $seoData);
