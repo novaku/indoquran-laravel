@@ -3,6 +3,7 @@ import { CheckCircleIcon, CogIcon, BugAntIcon, SparklesIcon, ShieldCheckIcon, Ro
 import SEOHead from '../components/SEOHead';
 import StructuredData from '../components/StructuredData';
 import { Card, Badge, PageContent } from '../components/ui';
+import AdSenseVertical from '../components/AdSenseVertical';
 
 function RiwayatVersiPage() {
     const [expandedVersions, setExpandedVersions] = useState({ "2.11.6": true });
@@ -1266,6 +1267,9 @@ function RiwayatVersiPage() {
             <StructuredData data={structuredData} />
             
             <PageContent>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    {/* Main Content Area */}
+                    <div className="lg:col-span-8">
                 {/* Header */}
                 <div className="text-center mb-16">
                     <div className="flex items-center justify-center mb-6">
@@ -1420,6 +1424,42 @@ function RiwayatVersiPage() {
                             </a>
                         </div>
                     </div>
+                </div>
+                    </div>
+
+                    {/* Sidebar dengan Iklan */}
+                    <aside className="lg:col-span-4">
+                        <div className="sticky top-4 space-y-6">
+                            {/* Iklan Vertikal */}
+                            <Card padding="none">
+                                <div className="text-xs text-center text-gray-400 py-2 border-b border-gray-100">
+                                    Iklan
+                                </div>
+                                <AdSenseVertical
+                                    adSlot="9427110099"
+                                    className="min-h-[600px]"
+                                />
+                            </Card>
+
+                            {/* Quick Stats */}
+                            <Card>
+                                <h3 className="font-semibold text-gray-900 mb-3">📊 Statistik Update</h3>
+                                <div className="space-y-2 text-sm text-gray-600">
+                                    <p>🎯 {versions.length} Versi Dirilis</p>
+                                    <p>✨ Pembaruan Berkala</p>
+                                    <p>🚀 Peningkatan Berkelanjutan</p>
+                                    <p>💡 Berdasarkan Feedback</p>
+                                </div>
+                            </Card>
+
+                            {/* Latest Version Highlight */}
+                            <Card className="bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-200">
+                                <h3 className="font-semibold text-emerald-800 mb-2">🎉 Versi Terbaru</h3>
+                                <p className="text-2xl font-bold text-emerald-700">{versions[0].version}</p>
+                                <p className="text-sm text-emerald-600 mt-1">{versions[0].date}</p>
+                            </Card>
+                        </div>
+                    </aside>
                 </div>
             </PageContent>
         </>

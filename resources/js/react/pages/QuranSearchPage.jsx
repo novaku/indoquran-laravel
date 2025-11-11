@@ -592,7 +592,10 @@ function QuranSearchPage() {
             </div>
 
             {/* Main Content */}
-            <div className="max-w-6xl mx-auto px-4 py-16">
+            <div className="max-w-7xl mx-auto px-4 py-16">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    {/* Main Content Area */}
+                    <div className="lg:col-span-8">
                 {/* Filters - hanya tampil jika ada query */}
                 {query && (
                     <Card padding="lg" className="mb-8">
@@ -975,6 +978,53 @@ function QuranSearchPage() {
                         </section>
                     </div>
                 )}
+                    </div>
+
+                    {/* Sidebar dengan Iklan */}
+                    <aside className="lg:col-span-4">
+                        <div className="sticky top-4 space-y-6">
+                            {/* Iklan Vertikal */}
+                            <Card padding="none">
+                                <div className="text-xs text-center text-gray-400 py-2 border-b border-gray-100">
+                                    Iklan
+                                </div>
+                                <AdSenseVertical
+                                    adSlot="9427110099"
+                                    className="min-h-[600px]"
+                                />
+                            </Card>
+
+                            {/* Quick Tips Box */}
+                            <Card>
+                                <h3 className="font-semibold text-gray-900 mb-3">💡 Tips Pencarian</h3>
+                                <div className="space-y-2 text-sm text-gray-600">
+                                    <p>🔍 Gunakan kata kunci spesifik</p>
+                                    <p>📖 Cari berdasarkan nama surah</p>
+                                    <p>🎯 Filter berdasarkan tempat turun</p>
+                                    <p>📊 Urutkan hasil pencarian</p>
+                                </div>
+                            </Card>
+
+                            {/* Popular Shortcuts */}
+                            {!query && (
+                                <Card>
+                                    <h3 className="font-semibold text-gray-900 mb-3">⭐ Surah Populer</h3>
+                                    <div className="space-y-2">
+                                        {['Al-Fatihah', 'Ya-Sin', 'Ar-Rahman', 'Al-Kahf'].map((surah) => (
+                                            <button
+                                                key={surah}
+                                                onClick={() => handleSearch(surah)}
+                                                className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                                            >
+                                                {surah}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </Card>
+                            )}
+                        </div>
+                    </aside>
+                </div>
             </div>
         </div>
     );

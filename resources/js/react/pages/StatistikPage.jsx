@@ -1,7 +1,6 @@
 import React from 'react';
 import VisitorStatsHomepage from '../components/VisitorStatsHomepage';
 import SEOHead from '../components/SEOHead';
-import AdSenseVertical from '../components/AdSenseVertical';
 import { Card, Button, PageHeader, PageContent } from '../components/ui';
 
 const StatistikPage = () => {
@@ -22,9 +21,6 @@ const StatistikPage = () => {
                     subtitle="Jelajahi data aktivitas komunitas dan lihat bagaimana umat muslim di seluruh dunia menggunakan IndoQuran untuk memperdalam pemahaman Al-Quran"
                 />
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    {/* Main Content */}
-                    <div className="lg:col-span-8">
                 {/* Info Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <Card padding="lg">
@@ -120,35 +116,6 @@ const StatistikPage = () => {
                         </ul>
                     </div>
                 </Card>
-                    </div>
-
-                    {/* Sidebar dengan Iklan */}
-                    <aside className="lg:col-span-4">
-                        <div className="sticky top-4 space-y-6">
-                            {/* Iklan Vertikal */}
-                            <Card padding="none">
-                                <div className="text-xs text-center text-gray-400 py-2 border-b border-gray-100">
-                                    Iklan
-                                </div>
-                                <AdSenseVertical
-                                    adSlot="9427110099"
-                                    className="min-h-[600px]"
-                                />
-                            </Card>
-
-                            {/* Info Box */}
-                            <Card>
-                                <h3 className="font-semibold text-gray-900 mb-3">📊 Statistik</h3>
-                                <div className="space-y-2 text-sm text-gray-600">
-                                    <p>📈 Data Real-time</p>
-                                    <p>🌍 Global Community</p>
-                                    <p>📱 Mobile Friendly</p>
-                                    <p>🔒 Privacy Protected</p>
-                                </div>
-                            </Card>
-                        </div>
-                    </aside>
-                </div>
             </PageContent>
         </>
     );
