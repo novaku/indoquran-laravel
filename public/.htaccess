@@ -96,6 +96,12 @@
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Header always set Permissions-Policy "geolocation=(self)"
     
+    # Add X-Robots-Tag: noindex for 404 pages
+    <If "%{REQUEST_STATUS} == 404">
+        Header always set X-Robots-Tag "noindex, nofollow"
+        Header always set Cache-Control "no-cache, no-store, must-revalidate"
+    </If>
+    
     # Remove ETag (use Cache-Control instead)
     Header unset ETag
     FileETag None

@@ -20,10 +20,12 @@ class SetProperHttpStatus
         // Get the response first
         $response = $next($request);
         
-        // Only process HTML responses (not API routes)
+        // Only process HTML responses (not API routes, assets, or build files)
         if (!str_starts_with($request->path(), 'api/') && 
             !str_starts_with($request->path(), 'build/') &&
-            !str_starts_with($request->path(), 'assets/')) {
+            !str_starts_with($request->path(), 'assets/') &&
+            !str_starts_with($request->path(), 'fonts/') &&
+            !str_starts_with($request->path(), 'images/')) {
             
             $path = $request->path();
             $segments = explode('/', $path);
@@ -31,13 +33,33 @@ class SetProperHttpStatus
             // Check if this is a potentially invalid route that should return 404
             $shouldReturn404 = false;
             
+            // Check for common attack patterns and invalid paths
+            $attackPatterns = [
+                'wp-admin', 'wp-login', 'wp-content', 'wp-includes', 'xmlrpc.php',
+                'administrator', 'phpmyadmin', '.env', '.git', 'config.php',
+                '.well-known', 'vendor', 'node_modules', '.htaccess', 'composer.json',
+                'package.json', 'yarn.lock', 'composer.lock'
+            ];
+            
+            foreach ($attackPatterns as $pattern) {
+                if (stripos($path, $pattern) !== false) {
+                    $shouldReturn404 = true;
+                    break;
+                }
+            }
+            
+            // Check for file extensions that shouldn't exist in routes
+            if (preg_match('/\.(php|asp|aspx|jsp|cgi|pl|py|rb|exe|dll|zip|rar|tar|gz)$/i', $path)) {
+                $shouldReturn404 = true;
+            }
+            
             // Check invalid surah numbers
-            if (isset($segments[0]) && $segments[0] === 'surah' && isset($segments[1])) {
+            if (isset($segments[0]) && $segments[0] === 'surah' && isset($segments[1]) && is_numeric($segments[1])) {
                 $surahNumber = (int) $segments[1];
                 if ($surahNumber < 1 || $surahNumber > 114) {
                     $shouldReturn404 = true;
-                } elseif (is_numeric($segments[1])) {
-                    // Verify surah exists in database
+                } elseif ($surahNumber > 0 && $surahNumber <= 114) {
+                    // Verify surah exists in database (more reliable than range check alone)
                     $surah = Surah::where('number', $surahNumber)->first();
                     if (!$surah) {
                         $shouldReturn404 = true;
@@ -46,7 +68,7 @@ class SetProperHttpStatus
             }
             
             // Check invalid juz numbers
-            if (isset($segments[0]) && $segments[0] === 'juz' && isset($segments[1])) {
+            if (isset($segments[0]) && $segments[0] === 'juz' && isset($segments[1]) && is_numeric($segments[1])) {
                 $juzNumber = (int) $segments[1];
                 if ($juzNumber < 1 || $juzNumber > 30) {
                     $shouldReturn404 = true;
@@ -54,37 +76,20 @@ class SetProperHttpStatus
             }
             
             // Check invalid page numbers
-            if (isset($segments[0]) && $segments[0] === 'halaman' && isset($segments[1])) {
+            if (isset($segments[0]) && $segments[0] === 'halaman' && isset($segments[1]) && is_numeric($segments[1])) {
                 $pageNumber = (int) $segments[1];
                 if ($pageNumber < 1 || $pageNumber > 604) {
                     $shouldReturn404 = true;
                 }
             }
             
-            // Check for obviously invalid routes (random strings, old paths, etc.)
-            $invalidPatterns = [
-                '/wp-admin',
-                '/wp-login',
-                '/administrator',
-                '/phpmyadmin',
-                '/.env',
-                '/.git',
-                '/config',
-                '/wp-content',
-                '/xmlrpc.php',
-                '/wp-includes',
-            ];
-            
-            foreach ($invalidPatterns as $pattern) {
-                if (str_starts_with('/' . $path, $pattern)) {
-                    $shouldReturn404 = true;
-                    break;
-                }
-            }
-            
             // Set 404 status if route is invalid
             if ($shouldReturn404) {
                 $response->setStatusCode(404);
+                
+                // Add X-Robots-Tag header to prevent indexing of 404 pages
+                $response->headers->set('X-Robots-Tag', 'noindex, nofollow');
+                $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
             }
         }
         
