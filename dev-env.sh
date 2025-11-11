@@ -135,7 +135,23 @@ start_laravel_server() {
     php artisan route:clear > /dev/null 2>&1
     php artisan view:clear > /dev/null 2>&1
     
-    php artisan serve --port=$port
+    # Start Laravel server in background
+    php artisan serve --port=$port &
+    LARAVEL_PID=$!
+    
+    # Wait for server to start
+    echo -e "${YELLOW}⏳ Waiting for Laravel to start...${NC}"
+    sleep 3
+    
+    # Open browser
+    echo -e "${GREEN}🌐 Opening browser at http://127.0.0.1:${port}${NC}"
+    open "http://127.0.0.1:${port}"
+    
+    echo -e "${GREEN}✅ Laravel server started successfully on port ${port}!${NC}"
+    echo -e "${YELLOW}💡 Press Ctrl+C to stop server${NC}"
+    
+    # Wait for the Laravel process
+    wait $LARAVEL_PID
 }
 
 # Function to restart development servers
