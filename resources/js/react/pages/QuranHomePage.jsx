@@ -18,6 +18,8 @@ import SearchField from '../components/SearchField';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
 import AdSenseVertical from '../components/AdSenseVertical';
+import PrayerTimesWidget from '../components/PrayerTimesWidget';
+import OnlineUsersWidget from '../components/OnlineUsersWidget';
 import { Card, Button, Badge } from '../components/ui';
 import { fetchWithAuth } from '../utils/apiUtils';
 import { getReadingProgress } from '../services/ReadingProgressService';
@@ -321,6 +323,11 @@ function QuranHomePage() {
                             <p className="text-lg md:text-xl text-gray-600 max-w-3xl">
                                 Platform Al-Quran yang ringkas dan informatif untuk membaca, mendengar, dan memahami ayat demi ayat.
                             </p>
+                        </div>
+
+                        {/* Online Users Widget */}
+                        <div className="flex justify-center">
+                            <OnlineUsersWidget />
                         </div>
 
                         <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -694,6 +701,9 @@ function QuranHomePage() {
                                     <p>⭐ {exploreOverview.totalAsmaulHusna} Asmaul Husna</p>
                                 </div>
                             </Card>
+
+                            {/* Jadwal Shalat Widget */}
+                            <PrayerTimesWidget />
 
                             {/* Iklan Vertikal #2 (Optional - untuk lebih banyak impressions) */}
                             <Card shadow="sm" padding="none">

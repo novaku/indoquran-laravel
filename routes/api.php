@@ -16,6 +16,7 @@ use App\Http\Controllers\TafsirMaudhuiController;
 use App\Http\Controllers\Api\SecurityController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\Api\OnlineUsersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,6 +40,10 @@ Route::get('/security/stats', [SecurityController::class, 'getSecurityStats']);
 Route::post('/web-vitals', [\App\Http\Controllers\Api\CoreWebVitalsController::class, 'store']);
 Route::get('/web-vitals/stats', [\App\Http\Controllers\Api\CoreWebVitalsController::class, 'getStats']);
 Route::get('/web-vitals/url', [\App\Http\Controllers\Api\CoreWebVitalsController::class, 'getUrlStats']);
+
+// Online users tracking (realtime visitor count)
+Route::post('/online-users/track', [OnlineUsersController::class, 'track']);
+Route::get('/online-users/count', [OnlineUsersController::class, 'count']);
 // Return authenticated user or null - simplified without session checks
 Route::get('/user', function (Request $request) {
     // First attempt with regular auth check
