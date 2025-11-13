@@ -18,6 +18,7 @@ import SearchField from '../components/SearchField';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
 import AdSenseVertical from '../components/AdSenseVertical';
+import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import OnlineUsersWidget from '../components/OnlineUsersWidget';
 import { Card, Button, Badge } from '../components/ui';
@@ -380,6 +381,21 @@ function QuranHomePage() {
                 </div>
             </section>
 
+            {/* Iklan Horizontal - Setelah Hero Section */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <Card shadow="sm" padding="none">
+                    <div className="text-xs text-center text-gray-400 py-2 border-b border-gray-100">
+                        Iklan
+                    </div>
+                    <div className="p-4">
+                        <AdSenseHorizontal
+                            adSlot="1519827772"
+                            className="min-h-[100px]"
+                        />
+                    </div>
+                </Card>
+            </div>
+
             {/* Main content dengan sidebar */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -505,6 +521,19 @@ function QuranHomePage() {
                                 Rekomendasi surah belum tersedia saat ini.
                             </div>
                         )}
+                    </div>
+                </Card>
+
+                {/* Iklan Horizontal - Setelah Surah Rekomendasi */}
+                <Card shadow="sm" padding="none">
+                    <div className="text-xs text-center text-gray-400 py-2 border-b border-gray-100">
+                        Iklan
+                    </div>
+                    <div className="p-4">
+                        <AdSenseHorizontal
+                            adSlot="1519827772"
+                            className="min-h-[100px]"
+                        />
                     </div>
                 </Card>
 
@@ -643,6 +672,19 @@ function QuranHomePage() {
                         )}
                     </Card>
                 )}
+
+                {/* Iklan Horizontal - Setelah Artikel Pilihan */}
+                <Card shadow="sm" padding="none">
+                    <div className="text-xs text-center text-gray-400 py-2 border-b border-gray-100">
+                        Iklan
+                    </div>
+                    <div className="p-4">
+                        <AdSenseHorizontal
+                            adSlot="1519827772"
+                            className="min-h-[100px]"
+                        />
+                    </div>
+                </Card>
 
                 <Card shadow="sm">
                     <h2 className="text-2xl font-bold text-gray-900 mb-6">Jelajahi Konten</h2>
