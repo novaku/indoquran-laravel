@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * Google AdSense Horizontal Ad Component
@@ -7,53 +8,67 @@ import React, { useEffect } from 'react';
  * Format iklan: auto (responsive)
  * 
  * @param {string} adSlot - Ad slot ID dari Google AdSense
+ * @param {string} adClient - Ad client ID dari Google AdSense
  * @param {string} className - Additional CSS classes
+ * @param {object} style - Additional inline styles
  */
 const AdSenseHorizontal = ({ 
-    adSlot = "1519827772",
-    className = ""
+    adSlot = '1519827772',
+    adClient = 'ca-pub-9994842285785390',
+    className = '',
+    style = {}
 }) => {
+    const adRef = useRef(null);
+    const hasAdLoaded = useRef(false);
+
     useEffect(() => {
-        try {
-            // Load AdSense script only once
-            if (!window.adsbygoogle) {
-                const script = document.createElement('script');
-                script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9994842285785390";
-                script.async = true;
-                script.crossOrigin = "anonymous";
-                document.head.appendChild(script);
+        // Load AdSense script only once
+        if (!hasAdLoaded.current && adRef.current) {
+            try {
+                // Push ad to AdSense queue
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
+                hasAdLoaded.current = true;
+            } catch (error) {
+                console.error('AdSense loading error:', error);
             }
-
-            // Push ad to AdSense queue after a short delay
-            const timer = setTimeout(() => {
-                if (window.adsbygoogle && Array.isArray(window.adsbygoogle)) {
-                    window.adsbygoogle.push({});
-                } else {
-                    // If adsbygoogle not ready, try again after delay
-                    setTimeout(() => {
-                        if (window.adsbygoogle) {
-                            window.adsbygoogle.push({});
-                        }
-                    }, 1000);
-                }
-            }, 100);
-
-            return () => clearTimeout(timer);
-        } catch (error) {
-            console.error('Error loading AdSense:', error);
         }
+
+        // Cleanup on unmount
+        return () => {
+            hasAdLoaded.current = false;
+        };
     }, []);
 
     return (
-        <ins 
-            className={`adsbygoogle ${className}`}
-            style={{ display: 'block' }}
-            data-ad-client="ca-pub-9994842285785390"
-            data-ad-slot={adSlot}
-            data-ad-format="auto"
-            data-full-width-responsive="true"
-        />
+        <div 
+            className={`adsense-container ${className}`}
+            style={{
+                minHeight: '90px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: '0.5rem',
+                ...style
+            }}
+        >
+            <ins 
+                ref={adRef}
+                className="adsbygoogle"
+                style={{ display: 'block' }}
+                data-ad-client={adClient}
+                data-ad-slot={adSlot}
+                data-ad-format="auto"
+                data-full-width-responsive="true"
+            />
+        </div>
     );
+};
+
+AdSenseHorizontal.propTypes = {
+    adSlot: PropTypes.string,
+    adClient: PropTypes.string,
+    className: PropTypes.string,
+    style: PropTypes.object
 };
 
 export default AdSenseHorizontal;

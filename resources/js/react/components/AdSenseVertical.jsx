@@ -13,7 +13,6 @@ const AdSenseVertical = ({
     adSlot = '9427110099',
     adClient = 'ca-pub-9994842285785390',
     adFormat = 'autorelaxed',
-    fullWidth = true,
     style = {},
     className = ''
 }) => {
@@ -25,18 +24,8 @@ const AdSenseVertical = ({
         if (!hasAdLoaded.current && adRef.current) {
             try {
                 // Push ad to AdSense queue
-                if (window.adsbygoogle && Array.isArray(window.adsbygoogle)) {
-                    window.adsbygoogle.push({});
-                    hasAdLoaded.current = true;
-                } else {
-                    // If adsbygoogle not ready, try again after delay
-                    setTimeout(() => {
-                        if (window.adsbygoogle) {
-                            window.adsbygoogle.push({});
-                            hasAdLoaded.current = true;
-                        }
-                    }, 500);
-                }
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
+                hasAdLoaded.current = true;
             } catch (error) {
                 console.error('AdSense loading error:', error);
             }
@@ -64,10 +53,9 @@ const AdSenseVertical = ({
                 ref={adRef}
                 className="adsbygoogle"
                 style={{ display: 'block' }}
+                data-ad-format={adFormat}
                 data-ad-client={adClient}
                 data-ad-slot={adSlot}
-                data-ad-format={adFormat}
-                data-full-width-responsive={fullWidth.toString()}
             />
         </div>
     );
@@ -77,7 +65,6 @@ AdSenseVertical.propTypes = {
     adSlot: PropTypes.string,
     adClient: PropTypes.string,
     adFormat: PropTypes.string,
-    fullWidth: PropTypes.bool,
     style: PropTypes.object,
     className: PropTypes.string
 };
