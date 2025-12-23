@@ -2,19 +2,54 @@ import React from 'react';
 import VisitorStatsHomepage from '../components/VisitorStatsHomepage';
 import SEOHead from '../components/SEOHead';
 import { Card, Button, PageHeader, PageContent } from '../components/ui';
+import { getPageSEOData } from '../utils/seoUtils';
 
 const StatistikPage = () => {
-    const seoData = {
-        title: 'Statistik Pengunjung - IndoQuran',
-        description: 'Lihat statistik dan aktivitas komunitas IndoQuran. Data pengunjung real-time, halaman populer, dan tren bacaan Al-Quran.',
-        keywords: 'statistik, pengunjung, komunitas, IndoQuran, data, analitik, Al-Quran',
-        url: '/statistik',
-        type: 'website'
-    };
+    // Use centralized SEO function for better consistency
+    const seoData = getPageSEOData('statistik');
 
     return (
         <>
-            <SEOHead {...seoData} />
+            <SEOHead 
+                {...seoData}
+                structuredData={[
+                    {
+                        "@context": "https://schema.org",
+                        "@type": "WebPage",
+                        "name": "Statistik Pengunjung IndoQuran",
+                        "description": "Data statistik dan aktivitas komunitas IndoQuran - Platform Al-Quran Digital Indonesia",
+                        "url": "https://indoquran.web.id/statistik",
+                        "publisher": {
+                            "@type": "Organization",
+                            "name": "IndoQuran",
+                            "url": "https://indoquran.web.id"
+                        },
+                        "mainEntity": {
+                            "@type": "DataCatalog",
+                            "name": "Statistik Pengunjung Al-Quran Digital",
+                            "description": "Data real-time pengunjung dan aktivitas membaca Al-Quran di platform IndoQuran"
+                        }
+                    },
+                    {
+                        "@context": "https://schema.org",
+                        "@type": "BreadcrumbList",
+                        "itemListElement": [
+                            {
+                                "@type": "ListItem",
+                                "position": 1,
+                                "name": "Beranda",
+                                "item": "https://indoquran.web.id"
+                            },
+                            {
+                                "@type": "ListItem",
+                                "position": 2,
+                                "name": "Statistik",
+                                "item": "https://indoquran.web.id/statistik"
+                            }
+                        ]
+                    }
+                ]}
+            />
             <PageContent>
                 <PageHeader
                     title="📊 Statistik Komunitas IndoQuran"

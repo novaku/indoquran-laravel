@@ -627,6 +627,13 @@ export const getPageSEOData = (pageType, data = {}) => {
       seoData.canonicalUrl = generateCanonicalUrl('/kebijakan');
       break;
 
+    case 'statistik':
+      seoData.title = 'Statistik Pengunjung - Komunitas Al-Quran Digital Indonesia | IndoQuran';
+      seoData.description = 'Lihat statistik dan aktivitas komunitas IndoQuran. Data pengunjung real-time, halaman Al-Quran populer, tren bacaan, dan analisis aktivitas muslim Indonesia dalam mempelajari Al-Quran digital.';
+      seoData.keywords = 'statistik indoquran, pengunjung al quran, komunitas muslim indonesia, data analitik quran, halaman populer, trend bacaan al quran, aktivitas muslim digital';
+      seoData.canonicalUrl = generateCanonicalUrl('/statistik');
+      break;
+
     default:
       seoData.title = 'IndoQuran - Al-Quran Digital Indonesia Terlengkap';
       seoData.description = 'Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online gratis.';
@@ -1947,4 +1954,216 @@ export const generateEATSignals = () => {
   };
 };
 
-
+/**
+ * Generate SEO data specifically for individual Ayah pages
+ * Strategy to fix "Crawled - currently not indexed" issue:
+ * 1. Canonical URL points to parent Surah page with fragment identifier
+ * 2. Rich structured data (Quote schema) for unique content representation
+ * 3. Enhanced meta description with actual ayah content
+ * 4. Proper internal linking signals
+ * 
+ * @see https://support.google.com/webmasters/answer/7440203
+ * @param {Object} surah - Surah data object
+ * @param {number} ayahNumber - Current ayah number
+ * @param {Object} currentAyah - Current ayah data with text_arabic, translation_id, etc.
+ * @returns {Object} SEO data object for the ayah page
+ */
+export const generateAyahSEOData = (surah, ayahNumber, currentAyah = null) => {
+  if (!surah) return getPageSEOData('home');
+  
+  const surahNumber = surah.number;
+  const surahName = surah.name_latin || surah.name_english || `Surah ${surahNumber}`;
+  const totalAyahs = surah.total_ayahs || surah.ayah_count || surah.verses_count || 0;
+  
+  // Extract translation preview for meta description (truncate wisely)
+  let translationPreview = '';
+  if (currentAyah) {
+    const translation = currentAyah.translation_id || currentAyah.translation || currentAyah.text_indonesian || '';
+    // Clean and truncate to ~120 chars for optimal snippet display
+    translationPreview = translation.replace(/<[^>]*>/g, '').substring(0, 120);
+    if (translation.length > 120) translationPreview += '...';
+  }
+  
+  // CRITICAL FIX: Canonical URL points to parent Surah page
+  // This consolidates indexing signals and prevents duplicate content issues
+  // Using fragment identifier to preserve specific ayah context
+  const canonicalUrl = `https://indoquran.web.id/surah/${surahNumber}#ayat-${ayahNumber}`;
+  
+  // Generate unique, descriptive title
+  const title = `${surahName} Ayat ${ayahNumber} - Terjemahan, Tafsir & Audio | IndoQuran`;
+  
+  // Generate rich meta description with actual content
+  const description = translationPreview 
+    ? `"${translationPreview}" - Baca ${surahName} ayat ${ayahNumber} dengan terjemahan Indonesia, tafsir lengkap, dan audio murottal. Surah ke-${surahNumber}, ayat ${ayahNumber} dari ${totalAyahs}.`
+    : `Baca ${surahName} ayat ${ayahNumber} dengan terjemahan bahasa Indonesia, tafsir lengkap, dan audio murottal berkualitas. Surah ke-${surahNumber} dalam Al-Quran, ayat ${ayahNumber} dari ${totalAyahs} ayat.`;
+  
+  // Generate comprehensive keywords
+  const keywords = [
+    `${surahName} ayat ${ayahNumber}`,
+    `surat ${surahName} ayat ${ayahNumber}`,
+    `${surahName.toLowerCase()} ${ayahNumber}`,
+    `terjemahan ${surahName} ayat ${ayahNumber}`,
+    `tafsir ${surahName} ayat ${ayahNumber}`,
+    `quran ${surahNumber}:${ayahNumber}`,
+    `al quran surah ${surahNumber} ayat ${ayahNumber}`,
+    `arti ${surahName} ayat ${ayahNumber}`,
+    `murottal ${surahName}`,
+    'al quran indonesia',
+    'quran terjemahan'
+  ].join(', ');
+  
+  // Generate Quote structured data for unique ayah content
+  const structuredData = [];
+  
+  // Quote schema for the ayah - this is unique content that Google values
+  if (currentAyah) {
+    structuredData.push({
+      "@context": "https://schema.org",
+      "@type": "Quotation",
+      "text": currentAyah.text_arabic || '',
+      "author": {
+        "@type": "Person",
+        "name": "Allah SWT"
+      },
+      "inLanguage": "ar",
+      "isPartOf": {
+        "@type": "Book",
+        "name": "Al-Quran",
+        "inLanguage": ["ar", "id"]
+      },
+      "citation": `Al-Quran, ${surahName} (${surahNumber}:${ayahNumber})`
+    });
+    
+    // Add translation as separate quote
+    if (currentAyah.translation_id || currentAyah.translation) {
+      structuredData.push({
+        "@context": "https://schema.org",
+        "@type": "Quotation",
+        "text": currentAyah.translation_id || currentAyah.translation,
+        "inLanguage": "id",
+        "isBasedOn": {
+          "@type": "Quotation",
+          "text": currentAyah.text_arabic || '',
+          "inLanguage": "ar"
+        },
+        "citation": `Terjemahan ${surahName} (${surahNumber}:${ayahNumber})`
+      });
+    }
+  }
+  
+  // BreadcrumbList for navigation context
+  structuredData.push({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Beranda",
+        "item": "https://indoquran.web.id"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Daftar Surah",
+        "item": "https://indoquran.web.id/surah"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": `Surah ${surahName}`,
+        "item": `https://indoquran.web.id/surah/${surahNumber}`
+      },
+      {
+        "@type": "ListItem",
+        "position": 4,
+        "name": `Ayat ${ayahNumber}`,
+        "item": `https://indoquran.web.id/surah/${surahNumber}/${ayahNumber}`
+      }
+    ]
+  });
+  
+  // Article schema linking to parent surah
+  structuredData.push({
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": `${surahName} Ayat ${ayahNumber} - Terjemahan & Tafsir`,
+    "description": description.substring(0, 160),
+    "author": {
+      "@type": "Organization",
+      "name": "IndoQuran",
+      "url": "https://indoquran.web.id"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "IndoQuran",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://indoquran.web.id/android-chrome-512x512.png"
+      }
+    },
+    "datePublished": "2025-01-01T00:00:00Z",
+    "dateModified": new Date().toISOString(),
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `https://indoquran.web.id/surah/${surahNumber}/${ayahNumber}`
+    },
+    "isPartOf": {
+      "@type": "Article",
+      "name": `Surah ${surahName}`,
+      "url": `https://indoquran.web.id/surah/${surahNumber}`
+    },
+    "inLanguage": ["id", "ar"],
+    "keywords": keywords.split(', ').slice(0, 10)
+  });
+  
+  // AudioObject for the ayah audio
+  structuredData.push({
+    "@context": "https://schema.org",
+    "@type": "AudioObject",
+    "name": `Murottal ${surahName} Ayat ${ayahNumber}`,
+    "description": `Audio tilawah ${surahName} ayat ${ayahNumber} dengan bacaan merdu`,
+    "contentUrl": `https://everyayah.com/data/Abdul_Basit_Murattal_64kbps/${String(surahNumber).padStart(3, '0')}${String(ayahNumber).padStart(3, '0')}.mp3`,
+    "encodingFormat": "audio/mpeg",
+    "inLanguage": "ar",
+    "duration": "PT30S",
+    "creator": {
+      "@type": "Organization",
+      "name": "IndoQuran"
+    }
+  });
+  
+  return {
+    title: generateOptimalTitle(title, '', 60),
+    description: generateOptimalMetaDescription(description, 160),
+    keywords: cleanKeywords(keywords),
+    canonicalUrl: canonicalUrl,
+    structuredData: structuredData,
+    robots: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
+    // Additional meta for ayah pages
+    additionalMeta: [
+      { name: 'author', content: 'IndoQuran' },
+      { property: 'article:section', content: 'Al-Quran' },
+      { property: 'article:tag', content: `${surahName}, Ayat ${ayahNumber}, Al-Quran, Terjemahan` },
+      { name: 'twitter:label1', content: 'Surah' },
+      { name: 'twitter:data1', content: surahName },
+      { name: 'twitter:label2', content: 'Ayat' },
+      { name: 'twitter:data2', content: `${ayahNumber} dari ${totalAyahs}` }
+    ],
+    openGraph: {
+      'og:title': title,
+      'og:description': description.substring(0, 200),
+      'og:url': `https://indoquran.web.id/surah/${surahNumber}/${ayahNumber}`,
+      'og:type': 'article',
+      'og:image': `https://indoquran.web.id/android-chrome-512x512.png`,
+      'og:site_name': 'IndoQuran',
+      'og:locale': 'id_ID'
+    },
+    twitter: {
+      'twitter:card': 'summary',
+      'twitter:title': title,
+      'twitter:description': description.substring(0, 200),
+      'twitter:site': '@indoquran'
+    }
+  };
+};

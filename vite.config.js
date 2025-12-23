@@ -56,7 +56,8 @@ export default defineConfig(({ command, mode }) => {
                 },
             },
             // Reduce chunk size warning limit for mobile optimization
-            chunkSizeWarningLimit: 250,
+            // Note: Some vendor chunks (react-dom, chart.js) cannot be split smaller
+            chunkSizeWarningLimit: 300,
             // Disable source maps for production to reduce size significantly
             sourcemap: false,
             // Enhanced code splitting for aggressive bundle size reduction
@@ -117,16 +118,51 @@ export default defineConfig(({ command, mode }) => {
                         if (id.includes('moment')) {
                             return 'vendor-moment';
                         }
-                        if (id.includes('chart.js')) {
+                        if (id.includes('chart.js') || id.includes('chartjs')) {
                             return 'vendor-charts';
                         }
-                        // TipTap - WYSIWYG editor (open source)
-                        if (id.includes('@tiptap')) {
-                            return 'vendor-editor';
+                        // TipTap - WYSIWYG editor (split by components)
+                        if (id.includes('@tiptap/core') || id.includes('@tiptap/pm')) {
+                            return 'vendor-editor-core';
                         }
-                        // Small vendor libs (grouped)
+                        if (id.includes('@tiptap/extension') || id.includes('@tiptap/starter-kit')) {
+                            return 'vendor-editor-ext';
+                        }
+                        if (id.includes('@tiptap/react')) {
+                            return 'vendor-editor-react';
+                        }
+                        // Prosemirror (TipTap dependency) - split by module
+                        if (id.includes('prosemirror-model') || id.includes('prosemirror-state')) {
+                            return 'vendor-pm-core';
+                        }
+                        if (id.includes('prosemirror-view') || id.includes('prosemirror-transform')) {
+                            return 'vendor-pm-view';
+                        }
+                        if (id.includes('prosemirror')) {
+                            return 'vendor-pm-utils';
+                        }
+                        // Web Vitals and performance monitoring
+                        if (id.includes('web-vitals')) {
+                            return 'vendor-vitals';
+                        }
+                        // Scheduler (React internal)
+                        if (id.includes('scheduler')) {
+                            return 'vendor-scheduler';
+                        }
+                        // Additional splitting for large libs
+                        if (id.includes('@babel') || id.includes('regenerator-runtime')) {
+                            return 'vendor-babel';
+                        }
+                        if (id.includes('core-js') || id.includes('object-assign')) {
+                            return 'vendor-polyfills';
+                        }
+                        // CSS/style related
+                        if (id.includes('clsx') || id.includes('classnames') || id.includes('tailwind-merge')) {
+                            return 'vendor-css-utils';
+                        }
+                        // Remaining small vendor libs
                         if (id.includes('node_modules')) {
-                            return 'vendor-utils';
+                            return 'vendor-misc';
                         }
                     },
                 },

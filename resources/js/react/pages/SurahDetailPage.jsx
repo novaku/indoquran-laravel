@@ -25,7 +25,7 @@ import { useAuth } from '../hooks/useAuth.jsx';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
 import { updateReadingProgress } from '../services/ReadingProgressService';
-import { getPageSEOData, generateSurahSEOKeywords } from '../utils/seoUtils';
+import { getPageSEOData, generateSurahSEOKeywords, generateAyahSEOData, generateCanonicalUrl } from '../utils/seoUtils';
 
 // WhatsApp Icon Component
 const WhatsAppIcon = ({ className }) => (
@@ -1666,7 +1666,44 @@ function SurahDetailPage() {
                 }
             `}</style>
 
-            <SEOHead 
+            {/* 
+              SEO Strategy for "Crawled - currently not indexed" fix:
+              - If ayahNumber is present in URL (e.g., /surah/8/58), use ayah-specific SEO
+              - Canonical URL points to parent surah page with fragment (#ayat-X)
+              - This consolidates signals and prevents duplicate content issues
+              - Reference: https://support.google.com/webmasters/answer/7440203
+            */}
+            {ayahNumber ? (
+              // SEO for individual ayah pages - canonical to parent surah
+              <SEOHead 
+                {...generateAyahSEOData(surah, currentAyahNumber, currentAyah)}
+                additionalMeta={[
+                    { name: 'author', content: 'IndoQuran' },
+                    { name: 'robots', content: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1' },
+                    { name: 'googlebot', content: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1' },
+                    { property: 'article:section', content: 'Al-Quran' },
+                    { property: 'article:tag', content: `${surah.name_latin}, Ayat ${currentAyahNumber}` },
+                    { property: 'article:published_time', content: '2025-01-01T00:00:00Z' },
+                    { property: 'article:modified_time', content: new Date().toISOString() },
+                    // Link to parent surah for consolidation
+                    { name: 'twitter:label1', content: 'Surah' },
+                    { name: 'twitter:data1', content: surah.name_latin },
+                    { name: 'twitter:label2', content: 'Ayat' },
+                    { name: 'twitter:data2', content: `${currentAyahNumber} dari ${maxAyahNumber}` },
+                    { name: 'application-name', content: 'IndoQuran' },
+                    { name: 'apple-mobile-web-app-title', content: `${surah.name_latin} Ayat ${currentAyahNumber}` },
+                    { name: 'geo.region', content: 'ID' },
+                    { name: 'geo.country', content: 'Indonesia' },
+                    { name: 'language', content: 'id,ar' },
+                    { name: 'rating', content: 'General' },
+                    { name: 'audience', content: 'all' },
+                    { name: 'format-detection', content: 'telephone=no' },
+                    { name: 'apple-mobile-web-app-capable', content: 'yes' }
+                ]}
+              />
+            ) : (
+              // SEO for full surah pages - standard SEO
+              <SEOHead 
                 {...getPageSEOData('surah', surah)}
                 additionalMeta={[
                     { name: 'author', content: 'IndoQuran' },
@@ -1800,7 +1837,8 @@ function SurahDetailPage() {
                         ]
                     }
                 ]}
-            />
+              />
+            )}
 
             {/* Floating Share Button for Selected Text */}
             {showFloatingShare && (
