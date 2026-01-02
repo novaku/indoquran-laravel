@@ -118,39 +118,10 @@ log_message "Starting deployment process..."
 log_message "Pulling latest changes from git..."
 git pull origin main || { log_error "Failed to pull from git"; exit 1; }
 
-# Install/update PHP dependencies
-log_message "Installing PHP dependencies with Composer..."
-
-# Try to find Composer command
-COMPOSER_CMD=""
-if command -v composer >/dev/null 2>&1; then
-    COMPOSER_CMD="composer"
-elif command -v composer.phar >/dev/null 2>&1; then
-    COMPOSER_CMD="composer.phar"
-elif [ -f "composer.phar" ]; then
-    COMPOSER_CMD="php composer.phar"
-elif [ -f "/usr/local/bin/composer" ]; then
-    COMPOSER_CMD="/usr/local/bin/composer"
-elif [ -f "$HOME/composer.phar" ]; then
-    COMPOSER_CMD="php $HOME/composer.phar"
-else
-    log_error "Composer not found! Please install Composer first."
-    log_error "You can install it with:"
-    log_error "curl -sS https://getcomposer.org/installer | php"
-    log_error "mv composer.phar /usr/local/bin/composer"
-    exit 1
-fi
-
-log_message "Using Composer command: $COMPOSER_CMD"
-
-if [ -f "composer.lock" ]; then
-    log_message "composer.lock found, running composer install..."
-    $COMPOSER_CMD install --no-dev --optimize-autoloader --no-interaction || { log_error "Composer install failed"; exit 1; }
-else
-    log_message "No composer.lock found, running composer update..."
-    $COMPOSER_CMD update --no-dev --optimize-autoloader --no-interaction || { log_error "Composer update failed"; exit 1; }
-fi
-log_message "✓ Composer dependencies installed successfully"
+# Update PHP dependencies
+log_message "Updating PHP dependencies with Composer..."
+composer update --no-dev --optimize-autoloader --no-interaction || { log_error "Composer update failed"; exit 1; }
+log_message "✓ Composer dependencies updated successfully"
 
 # Generate application key if not exists
 log_message "Ensuring application key exists..."
