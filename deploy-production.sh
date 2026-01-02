@@ -118,11 +118,6 @@ log_message "Starting deployment process..."
 log_message "Pulling latest changes from git..."
 git pull origin main || { log_error "Failed to pull from git"; exit 1; }
 
-# Update PHP dependencies
-log_message "Updating PHP dependencies with Composer..."
-composer update --no-dev --optimize-autoloader --no-interaction || { log_error "Composer update failed"; exit 1; }
-log_message "✓ Composer dependencies updated successfully"
-
 # Generate application key if not exists
 log_message "Ensuring application key exists..."
 if ! grep -q "APP_KEY=" .env || grep -q "APP_KEY=$" .env; then
