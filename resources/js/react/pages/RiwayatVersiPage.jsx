@@ -6,7 +6,7 @@ import { Card, Badge, PageContent } from '../components/ui';
 import AdSenseVertical from '../components/AdSenseVertical';
 
 function RiwayatVersiPage() {
-    const [expandedVersions, setExpandedVersions] = useState({ "2.11.6": true });
+    const [expandedVersions, setExpandedVersions] = useState({ "2.12.0": true });
 
     const toggleVersion = (versionNumber) => {
         setExpandedVersions(prev => ({
@@ -15,6 +15,103 @@ function RiwayatVersiPage() {
         }));
     };
     const versions = [
+        {
+            version: "2.12.0",
+            date: "2 Januari 2026",
+            type: "major",
+            title: "AMP (Accelerated Mobile Pages) Implementation",
+            description: "Update mayor dengan implementasi AMP untuk meningkatkan kecepatan loading halaman di perangkat mobile. Integrasi AMP HTML framework dengan validasi penuh sesuai standar Google AMP, optimasi performa untuk Core Web Vitals, dan dukungan untuk semua konten Quran termasuk Surah, Ayah, Artikel, dan Tafsir. Implementasi mencakup AMP-specific components, caching strategy, dan analytics tracking untuk mobile-first experience yang optimal.",
+            changes: [
+                {
+                    type: "feature",
+                    text: "AMP HTML Framework - Implementasi full AMP HTML dengan doctype <!doctype html> dan tag <html ⚡> untuk validasi Google AMP"
+                },
+                {
+                    type: "feature",
+                    text: "AMP Surah Pages - Halaman AMP untuk semua 114 Surah dengan Arabic text rendering dan Indonesian translation"
+                },
+                {
+                    type: "feature",
+                    text: "AMP Article Pages - Artikel berbasis AMP dengan rich content, images, dan structured data untuk SEO"
+                },
+                {
+                    type: "feature",
+                    text: "AMP Tafsir Pages - Halaman tafsir dengan AMP validation dan optimized loading untuk mobile readers"
+                },
+                {
+                    type: "feature",
+                    text: "AMP Components - amp-img, amp-list, amp-bind, amp-analytics untuk interactive mobile experience"
+                },
+                {
+                    type: "feature",
+                    text: "AMP Cache Support - Optimized untuk Google AMP Cache dengan proper cache headers dan CDN delivery"
+                },
+                {
+                    type: "feature",
+                    text: "AMP Analytics - Integration dengan Google Analytics 4 untuk tracking AMP pages performance"
+                },
+                {
+                    type: "feature",
+                    text: "AMP Sidebar Navigation - amp-sidebar component untuk mobile-friendly navigation menu"
+                },
+                {
+                    type: "feature",
+                    text: "AMP Search - Implementasi amp-form untuk search functionality tanpa JavaScript tradisional"
+                },
+                {
+                    type: "improvement",
+                    text: "Mobile Performance Boost - Loading time reduction hingga 4x lebih cepat dibanding non-AMP pages"
+                },
+                {
+                    type: "improvement",
+                    text: "Core Web Vitals Optimization - Improved LCP, FID, dan CLS scores untuk mobile devices"
+                },
+                {
+                    type: "improvement",
+                    text: "SEO Enhancement - AMP badge di Google Search results untuk better visibility dan CTR"
+                },
+                {
+                    type: "improvement",
+                    text: "Progressive Enhancement - Fallback ke regular pages untuk browsers yang tidak support AMP"
+                },
+                {
+                    type: "improvement",
+                    text: "Canonical Links - Proper rel=canonical dan rel=amphtml tags untuk SEO best practices"
+                },
+                {
+                    type: "improvement",
+                    text: "Structured Data for AMP - Schema.org JSON-LD dengan AMP-specific markup untuk rich snippets"
+                },
+                {
+                    type: "improvement",
+                    text: "AMP Validation - Full validation menggunakan AMP validator untuk compliance dengan Google standards"
+                },
+                {
+                    type: "improvement",
+                    text: "Responsive AMP Layout - Flexible layouts menggunakan AMP layout system (responsive, fill, fixed-height)"
+                },
+                {
+                    type: "improvement",
+                    text: "Font Optimization - AMP-allowed fonts dengan subsetting untuk minimal payload size"
+                },
+                {
+                    type: "improvement",
+                    text: "Image Lazy Loading - Native AMP lazy loading dengan amp-img untuk bandwidth savings"
+                },
+                {
+                    type: "improvement",
+                    text: "CSS Optimization - Inline CSS dengan size limit 75KB sesuai AMP specifications"
+                },
+                {
+                    type: "improvement",
+                    text: "No Custom JavaScript - Pure AMP components without custom JS untuk maximum performance"
+                },
+                {
+                    type: "improvement",
+                    text: "Service Worker Integration - amp-install-serviceworker untuk offline capability"
+                }
+            ]
+        },
         {
             version: "2.11.6",
             date: "7 November 2025",
