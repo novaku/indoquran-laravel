@@ -1668,6 +1668,7 @@ function SurahDetailPage() {
 
             <SEOHead 
                 {...getPageSEOData('surah', surah)}
+                ampHtmlUrl={`https://indoquran.web.id/amp/surah/${number}`}
                 additionalMeta={[
                     { name: 'author', content: 'IndoQuran' },
                     { name: 'robots', content: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1' },

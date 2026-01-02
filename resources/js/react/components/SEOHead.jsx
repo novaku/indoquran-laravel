@@ -9,6 +9,7 @@ function SEOHead({
   description,
   keywords,
   canonicalUrl,
+  ampHtmlUrl,
   ogImage,
   ogType = 'website',
   author = 'IndoQuran',
@@ -102,6 +103,11 @@ function SEOHead({
     }
     if (manifestUrl) {
       metaTags.push(<link key="manifest" rel="manifest" href={manifestUrl} />);
+    }
+    
+    // AMP HTML Link
+    if (ampHtmlUrl) {
+      metaTags.push(<link key="amphtml" rel="amphtml" href={ampHtmlUrl} />);
     }
     
     // Additional meta tags

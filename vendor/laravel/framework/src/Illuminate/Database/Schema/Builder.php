@@ -30,7 +30,7 @@ class Builder
     /**
      * The Blueprint resolver callback.
      *
-     * @var \Closure(string, \Closure, string): \Illuminate\Database\Schema\Blueprint|null
+     * @var \Closure(\Illuminate\Database\Connection, string, \Closure|null): \Illuminate\Database\Schema\Blueprint
      */
     protected $resolver;
 
@@ -318,6 +318,38 @@ class Builder
     public function whenTableDoesntHaveColumn(string $table, string $column, Closure $callback)
     {
         if (! $this->hasColumn($table, $column)) {
+            $this->table($table, fn (Blueprint $table) => $callback($table));
+        }
+    }
+
+    /**
+     * Execute a table builder callback if the given table has a given index.
+     *
+     * @param  string  $table
+     * @param  string|array  $index
+     * @param  \Closure  $callback
+     * @param  string|null  $type
+     * @return void
+     */
+    public function whenTableHasIndex(string $table, string|array $index, Closure $callback, ?string $type = null)
+    {
+        if ($this->hasIndex($table, $index, $type)) {
+            $this->table($table, fn (Blueprint $table) => $callback($table));
+        }
+    }
+
+    /**
+     * Execute a table builder callback if the given table doesn't have a given index.
+     *
+     * @param  string  $table
+     * @param  string|array  $index
+     * @param  \Closure  $callback
+     * @param  string|null  $type
+     * @return void
+     */
+    public function whenTableDoesntHaveIndex(string $table, string|array $index, Closure $callback, ?string $type = null)
+    {
+        if (! $this->hasIndex($table, $index, $type)) {
             $this->table($table, fn (Blueprint $table) => $callback($table));
         }
     }
@@ -698,7 +730,7 @@ class Builder
     /**
      * Set the Schema Blueprint resolver callback.
      *
-     * @param  \Closure(string, \Closure, string): \Illuminate\Database\Schema\Blueprint|null  $resolver
+     * @param  \Closure(\Illuminate\Database\Connection, string, \Closure|null): \Illuminate\Database\Schema\Blueprint  $resolver
      * @return void
      */
     public function blueprintResolver(Closure $resolver)

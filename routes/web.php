@@ -163,6 +163,9 @@ if (app()->environment(['local', 'development'])) {
     })->name('test.redis');
 }
 
+// AMP Routes
+Route::get('/amp/surah/{number}', [App\Http\Controllers\AmpController::class, 'showSurah'])->name('amp.surah');
+
 // React SPA routes with SEO optimization - serve the React app for any other routes, but don't catch /api or build routes
 // This MUST be after all other specific routes to avoid conflicts
 // Now /admin/* paths will be served by the React SPA, and /statistik added
