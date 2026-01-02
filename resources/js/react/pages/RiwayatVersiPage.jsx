@@ -1381,7 +1381,7 @@ function RiwayatVersiPage() {
                     </p>
                     <Badge variant="green" className="inline-flex items-center gap-2">
                         <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                        <span>Terakhir diperbarui: 2 Januari 2026</span>
+                        <span>Terakhir diperbarui: {versions[0]?.date}</span>
                     </Badge>
                 </div>
 
