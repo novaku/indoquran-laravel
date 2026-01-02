@@ -10,11 +10,26 @@ echo "  Composer Autoload Error Fix"
 echo "================================================"
 echo ""
 
-# Check if composer is available
-if ! command -v composer &> /dev/null; then
+# Find composer in common locations
+COMPOSER=""
+if command -v composer &> /dev/null; then
+    COMPOSER="composer"
+elif [ -f "/usr/local/bin/composer" ]; then
+    COMPOSER="/usr/local/bin/composer"
+elif [ -f "/usr/bin/composer" ]; then
+    COMPOSER="/usr/bin/composer"
+elif [ -f "$HOME/.composer/composer.phar" ]; then
+    COMPOSER="php $HOME/.composer/composer.phar"
+elif [ -f "composer.phar" ]; then
+    COMPOSER="php composer.phar"
+else
     echo "❌ Composer not found! Please install Composer first."
+    echo "   Tried: composer, /usr/local/bin/composer, /usr/bin/composer"
     exit 1
 fi
+
+echo "✅ Found Composer: $COMPOSER"
+echo ""
 
 # Check if we're in Laravel project root
 if [ ! -f "artisan" ]; then
@@ -36,7 +51,7 @@ php artisan down --message="Fixing dependencies" --retry=60 || echo "⚠️  Cou
 
 echo ""
 echo "🔧 Step 2: Clearing Composer cache..."
-composer clear-cache
+$COMPOSER clear-cache
 
 echo ""
 echo "🔧 Step 3: Removing corrupted vendor directory..."
@@ -48,7 +63,7 @@ rm -f composer.lock
 
 echo ""
 echo "🔧 Step 5: Reinstalling dependencies (this may take a few minutes)..."
-composer install --no-scripts --no-dev --prefer-dist
+$COMPOSER install --no-scripts --no-dev --prefer-dist
 
 echo ""
 echo "🔧 Step 6: Verifying Laravel framework installation..."
@@ -57,16 +72,16 @@ if [ -f "vendor/laravel/framework/src/Illuminate/Reflection/helpers.php" ]; then
 else
     echo "   ❌ Laravel framework still incomplete! Trying to reinstall..."
     rm -rf vendor/laravel/framework
-    composer require laravel/framework --no-scripts --no-dev --prefer-dist
+    $COMPOSER require laravel/framework --no-scripts --no-dev --prefer-dist
 fi
 
 echo ""
 echo "🔧 Step 7: Generating optimized autoload..."
-composer dump-autoload --optimize
+$COMPOSER dump-autoload --optimize
 
 echo ""
 echo "🔧 Step 8: Running post-install scripts..."
-composer run-script post-autoload-dump 2>/dev/null || echo "   ⚠️  Post-autoload scripts had issues (continuing)"
+$COMPOSER run-script post-autoload-dump 2>/dev/null || echo "   ⚠️  Post-autoload scripts had issues (continuing)"
 
 echo ""
 echo "🔧 Step 9: Clearing Laravel caches..."
@@ -89,7 +104,7 @@ echo "================================================"
 echo ""
 echo "🔍 Verifying installation..."
 echo ""
-composer validate
+$COMPOSER validate
 echo ""
 echo "Laravel version:"
 php artisan --version
