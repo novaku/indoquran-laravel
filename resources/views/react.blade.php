@@ -337,6 +337,37 @@
                 </div>
             </div>
         </div>
+
+        <!-- SEO Content (Server Side Rendered) to ensure indexing -->
+        @if(isset($reactData['surahs']))
+            <div id="ssr-surah-list" style="padding: 2rem; background: #fff; color: #1f2937;">
+                <h1 style="font-size: 1.875rem; font-weight: 800; margin-bottom: 2rem; text-align: center; color: #166534;">Daftar Surah Al-Quran</h1>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; max-width: 1200px; margin: 0 auto;">
+                    @foreach($reactData['surahs'] as $surah)
+                        <a href="/surah/{{ $surah->number }}" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; text-decoration: none; color: inherit; background-color: #f9fafb; transition: all 0.2s;">
+                            <div>
+                                <div style="font-weight: 700; color: #111827;">{{ $surah->number }}. {{ $surah->name_latin }}</div>
+                                <div style="font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem;">{{ $surah->name_indonesian }} • {{ $surah->total_ayahs }} Ayat</div>
+                            </div>
+                            <div class="arabic-text" style="font-size: 1.5rem; color: #15803d;">{{ $surah->name_arabic }}</div>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
+        @if(isset($reactData['currentSurah']))
+            <div id="ssr-surah-detail" style="padding: 4rem 2rem; background: #fff; color: #1f2937; text-align: center; max-width: 800px; margin: 0 auto;">
+                <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 0.5rem; color: #111827;">Surah {{ $reactData['currentSurah']->name_latin }}</h1>
+                <h2 class="arabic-text" style="font-size: 3.75rem; margin-bottom: 1.5rem; color: #166534;">{{ $reactData['currentSurah']->name_arabic }}</h2>
+                <div style="font-size: 1.125rem; color: #4b5563; margin-bottom: 3rem; background: #f3f4f6; display: inline-block; padding: 0.5rem 1.5rem; border-radius: 9999px;">
+                    {{ $reactData['currentSurah']->name_indonesian }} • {{ $reactData['currentSurah']->total_ayahs }} Ayat • {{ $reactData['currentSurah']->revelation_place }}
+                </div>
+                <div>
+                    <a href="/" style="display: inline-block; padding: 0.75rem 1.5rem; background: #16a34a; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">&larr; Kembali ke Daftar Surah</a>
+                </div>
+            </div>
+        @endif
     </div>
     
     <!-- Loading timeout and error handling -->

@@ -308,6 +308,24 @@ class SEOController extends Controller
             return response()->view('react', $seoData, 404);
         }
 
-        return view('react', $seoData);
+        // Prepare data for Server-Side Rendering (SSR) to solve "Crawled - currently not indexed"
+        $reactData = [];
+
+        // Fetch data based on route
+        if ($path === '/' || $path === '') {
+            // Homepage: Fetch all surahs for SEO list
+            $reactData['surahs'] = \Illuminate\Support\Facades\Cache::remember('seo_surah_list', 86400, function () {
+                return Surah::orderBy('number')
+                    ->select('number', 'name_latin', 'name_indonesian', 'name_arabic', 'total_ayahs')
+                    ->get();
+            });
+        } 
+        elseif (isset($segments[0]) && $segments[0] === 'surah' && isset($segments[1]) && is_numeric($segments[1])) {
+            // Surah Detail: Fetch specific surah info
+            $surahNumber = (int) $segments[1];
+            $reactData['currentSurah'] = Surah::where('number', $surahNumber)->first();
+        }
+
+        return view('react', array_merge($seoData, ['reactData' => $reactData]));
     }
 }
