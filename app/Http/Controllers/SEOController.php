@@ -56,7 +56,7 @@ class SEOController extends Controller
             'metaTitle' => 'IndoQuran - Al-Quran Digital Indonesia',
             'metaDescription' => 'Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia, fitur bookmark, pencarian ayat, dan audio murottal berkualitas tinggi.',
             'metaKeywords' => 'al quran indonesia, quran online, al quran digital, baca quran, terjemahan quran, murottal, quran indonesia, ayat al quran, surah quran, indoquran',
-            'canonicalUrl' => url($request->getRequestUri()),
+            'canonicalUrl' => url($request->path() === '/' ? '/' : $request->path()),
             'ogImage' => url('/android-chrome-512x512.png'),
             'ogType' => 'website'
         ];

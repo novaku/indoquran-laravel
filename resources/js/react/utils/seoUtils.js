@@ -21,8 +21,8 @@
  */
 
 // Environment-aware BASE_URL with enhanced mobile detection
-export const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-  ? window.location.origin 
+export const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? window.location.origin
   : 'https://indoquran.web.id';
 
 // Google Search Console optimized priority scores (Updated Aug 2025)
@@ -44,7 +44,7 @@ export const SEO_PRIORITIES = {
 // Generate Google Search Console optimized sitemap XML
 export const generateSitemap = (surahs = []) => {
   const currentDate = new Date().toISOString().split('T')[0];
-  
+
   const staticPages = [
     {
       url: BASE_URL,
@@ -221,7 +221,7 @@ ${allPages.map(page => `  <url>
 // Helper function for image XML in sitemap
 const generateImageXmlForSitemap = (images) => {
   if (!images || images.length === 0) return '';
-  
+
   return images.map(image => `
     <image:image>
       <image:loc>${image.loc}</image:loc>
@@ -233,7 +233,7 @@ const generateImageXmlForSitemap = (images) => {
 // Helper function for alternate URLs in sitemap
 const generateAlternatesXml = (alternates) => {
   if (!alternates || Object.keys(alternates).length === 0) return '';
-  
+
   return Object.entries(alternates).map(([rel, href]) => `
     <xhtml:link rel="alternate" hreflang="${rel}" href="${href}" />`).join('');
 };
@@ -483,7 +483,7 @@ export const generateTwitterCardTags = (page) => {
   };
 
   const ogTags = generateOpenGraphTags(page);
-  
+
   return {
     ...defaultTwitter,
     'twitter:title': ogTags['og:title'],
@@ -642,7 +642,7 @@ export const getPageSEOData = (pageType, data = {}) => {
   // Generate Open Graph and Twitter tags
   seoData.openGraph = generateOpenGraphTags({ type: pageType, data });
   seoData.twitter = generateTwitterCardTags({ type: pageType, data });
-  
+
   // Generate structured data
   seoData.structuredData = generateStructuredData(pageType, data);
 
@@ -910,7 +910,7 @@ export const generateStructuredData = (pageType, data = {}) => {
               }
             },
             {
-              "@type": "Offer", 
+              "@type": "Offer",
               "name": "Catatan Pribadi",
               "description": "Tulis refleksi dan catatan personal untuk setiap ayat Al-Quran",
               "price": "0",
@@ -927,7 +927,7 @@ export const generateStructuredData = (pageType, data = {}) => {
               "price": "0",
               "priceCurrency": "IDR",
               "itemOffered": {
-                "@type": "Service", 
+                "@type": "Service",
                 "name": "Reading Progress Analytics"
               }
             },
@@ -1050,7 +1050,7 @@ export const generateHowToStructuredData = (steps, title, description) => {
         "name": "Internet Connection"
       },
       {
-        "@type": "HowToSupply", 
+        "@type": "HowToSupply",
         "name": "Web Browser"
       }
     ]
@@ -1084,7 +1084,7 @@ export const generateLocalBusinessStructuredData = () => {
         "alternateName": "Bahasa Indonesia"
       },
       {
-        "@type": "Language", 
+        "@type": "Language",
         "name": "Arabic",
         "alternateName": "العربية"
       }
@@ -1160,28 +1160,28 @@ export const preloadCriticalResources = () => {
   // Check network conditions to avoid aggressive preloading on slow connections
   const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
   const isSlowConnection = connection && (
-    connection.effectiveType === 'slow-2g' || 
-    connection.effectiveType === '2g' || 
+    connection.effectiveType === 'slow-2g' ||
+    connection.effectiveType === '2g' ||
     connection.saveData
   );
-  
+
   // Reduce preloading on slow connections
   if (isSlowConnection) {
     return;
   }
-  
+
   const resources = [
     // DNS prefetch for external domains (highest priority)
     { rel: 'dns-prefetch', href: 'https://fonts.googleapis.com' },
     { rel: 'dns-prefetch', href: 'https://fonts.gstatic.com' },
-    
+
     // Preconnect only for critical external resources
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
     { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: 'anonymous' },
-    
+
     // REMOVED font preload - fonts are now loaded via CSS naturally
     // This prevents "preload not used within a few seconds" warnings
-    
+
     // Prefetch only high-priority navigation targets
     { rel: 'prefetch', href: `${BASE_URL}/surah` }
   ];
@@ -1193,7 +1193,7 @@ export const preloadCriticalResources = () => {
     if (document.querySelector(selector)) {
       return;
     }
-    
+
     try {
       const link = document.createElement('link');
       Object.keys(resource).forEach(key => {
@@ -1203,12 +1203,12 @@ export const preloadCriticalResources = () => {
           link.setAttribute(key, resource[key]);
         }
       });
-      
+
       // Add error handling to prevent blocking
       link.onerror = () => {
         console.warn(`Failed to load resource: ${resource.href}`);
       };
-      
+
       document.head.appendChild(link);
     } catch (error) {
       console.warn('Error adding preload resource:', error);
@@ -1221,7 +1221,7 @@ export const preloadNextPageResources = (nextPageType, nextPageData) => {
   if (!nextPageType) return;
 
   const resources = [];
-  
+
   switch (nextPageType) {
     case 'surah':
       if (nextPageData?.number) {
@@ -1235,7 +1235,7 @@ export const preloadNextPageResources = (nextPageType, nextPageData) => {
         });
       }
       break;
-      
+
     case 'search':
       resources.push({
         rel: 'prefetch',
@@ -1256,12 +1256,12 @@ export const preloadNextPageResources = (nextPageType, nextPageData) => {
 // Generate Google-optimized meta description with keyword density
 export const generateOptimalMetaDescription = (description, maxLength = 160, keywords = []) => {
   if (description.length <= maxLength) return description;
-  
+
   // Try to include primary keywords in truncated description
   const truncated = description.substring(0, maxLength - 3);
   const lastSpace = truncated.lastIndexOf(' ');
   const finalDescription = lastSpace > 0 ? truncated.substring(0, lastSpace) + '...' : truncated + '...';
-  
+
   // Ensure at least one primary keyword is included
   if (keywords.length > 0) {
     const primaryKeyword = keywords[0];
@@ -1273,7 +1273,7 @@ export const generateOptimalMetaDescription = (description, maxLength = 160, key
       }
     }
   }
-  
+
   return finalDescription;
 };
 
@@ -1281,21 +1281,21 @@ export const generateOptimalMetaDescription = (description, maxLength = 160, key
 export const generateOptimalTitle = (title, siteName = 'IndoQuran', maxLength = 60) => {
   const separator = ' | ';
   const fullTitle = title + separator + siteName;
-  
+
   if (fullTitle.length <= maxLength) return fullTitle;
-  
+
   // Try different separators to save space
   const shortSeparator = ' - ';
   const shortTitle = title + shortSeparator + siteName;
   if (shortTitle.length <= maxLength) return shortTitle;
-  
+
   // Truncate title but keep brand
   const availableSpace = maxLength - shortSeparator.length - siteName.length - 3;
   if (availableSpace > 20) {
     const truncatedTitle = title.substring(0, availableSpace) + '...';
     return truncatedTitle + shortSeparator + siteName;
   }
-  
+
   // Last resort: just return the title
   return title.substring(0, maxLength - 3) + '...';
 };
@@ -1386,11 +1386,11 @@ export const cleanKeywords = (keywords) => {
       .filter(keyword => {
         // Filter out empty keywords and very short ones
         if (keyword.length < 2) return false;
-        
+
         // Filter out stop words (Indonesian and English)
         const stopWords = ['dan', 'atau', 'dengan', 'untuk', 'pada', 'di', 'ke', 'dari', 'yang', 'adalah', 'the', 'a', 'an', 'in', 'on', 'at', 'to', 'for'];
         if (stopWords.includes(keyword)) return false;
-        
+
         // Keep only meaningful keywords
         return keyword.length <= 50;
       })
@@ -1407,16 +1407,16 @@ export const generateLongTailKeywords = (baseKeyword, pageType) => {
     'search': ['pencarian', 'cari', 'temukan', 'hasil', 'online', 'digital', 'gratis'],
     'general': ['online', 'gratis', 'terbaik', 'lengkap', 'mudah', 'indonesia', 'digital', 'terjemahan']
   };
-  
+
   const modifiers = indonesianModifiers[pageType] || indonesianModifiers.general;
-  
+
   return modifiers.map(modifier => `${baseKeyword} ${modifier}`).slice(0, 8);
 };
 
 // Generate comprehensive SEO keywords for Surah pages
 export const generateSurahSEOKeywords = (surah) => {
   if (!surah) return '';
-  
+
   const baseKeywords = [
     // Primary keywords
     `surah ${surah.name_latin}`,
@@ -1425,11 +1425,11 @@ export const generateSurahSEOKeywords = (surah) => {
     `surah ke ${surah.number}`,
     `surat ke ${surah.number}`,
     `qs ${surah.number}`,
-    
+
     // Arabic variations
     `${surah.name_arabic}`,
     `surat ${surah.name_arabic}`,
-    
+
     // Common search patterns
     `${surah.name_latin} artinya`,
     `arti surah ${surah.name_latin}`,
@@ -1437,31 +1437,31 @@ export const generateSurahSEOKeywords = (surah) => {
     `surah ${surah.name_latin} indonesia`,
     `${surah.name_latin} ayat`,
     `surat ${surah.name_latin} ayat`,
-    
+
     // Audio/murottal keywords
     `murottal ${surah.name_latin}`,
     `audio ${surah.name_latin}`,
     `tilawah ${surah.name_latin}`,
-    
+
     // Context keywords
     `${surah.name_latin} juz berapa`,
     `surat ${surah.name_latin} surat ke berapa`,
     `${surah.name_latin} diturunkan di`,
     `${surah.name_latin} berapa ayat`,
-    
+
     // High-traffic general terms
     ...HIGH_TRAFFIC_SEARCH_TERMS,
-    
+
     // User-specific requested terms that match this surah
-    ...USER_REQUESTED_TERMS.filter(term => 
-      term.includes(surah.name_latin.toLowerCase()) || 
+    ...USER_REQUESTED_TERMS.filter(term =>
+      term.includes(surah.name_latin.toLowerCase()) ||
       term.includes(surah.number.toString()) ||
       term.includes(`ke ${surah.number}`) ||
       term.includes(`surat ${surah.number}`) ||
       term.includes(`surah ${surah.number}`)
     )
   ];
-  
+
   // Add specific ayah-based keywords if available
   if (surah.total_ayahs) {
     baseKeywords.push(
@@ -1469,7 +1469,7 @@ export const generateSurahSEOKeywords = (surah) => {
       `surat ${surah.name_latin} ${surah.total_ayahs} ayat`
     );
   }
-  
+
   // Remove duplicates and clean
   const uniqueKeywords = [...new Set(baseKeywords)];
   return cleanKeywords(uniqueKeywords.join(', '));
@@ -1481,27 +1481,27 @@ export const generateHomeSEOKeywords = () => {
     ...HIGH_TRAFFIC_SEARCH_TERMS,
     ...ALL_SURAH_NAMES.map(name => `surah ${name}`),
     ...ALL_SURAH_NAMES.map(name => `surat ${name}`),
-    
+
     // General Quran terms
     'al quran 30 juz', 'al quran 114 surah', 'mushaf indonesia', 'quran mushaf utsmani',
     'baca quran online', 'hafalan quran', 'menghafal al quran', 'tilawah quran',
     'murottal quran', 'qori quran indonesia', 'tadarus quran', 'khatam quran',
-    
+
     // Member benefits & premium features (New)
     'bookmark ayat quran', 'catatan pribadi quran', 'progress baca quran',
     'komunitas muslim online', 'doa bersama indonesia', 'fitur premium quran',
     'al quran gratis indonesia', 'member indoquran', 'aplikasi quran lengkap',
-    
+
     // Indonesian Islamic terms
     'islam indonesia', 'muslim indonesia', 'kitab suci umat islam', 'wahyu allah',
     'firman allah', 'kalamullah', 'al kitab', 'furqan', 'umat islam indonesia',
-    
+
     // Technology terms
     'aplikasi quran', 'software quran', 'platform quran digital',
     'website quran indonesia', 'situs al quran', 'portal islam indonesia',
     'quran digital terbaik', 'al quran cloud sync'
   ];
-  
+
   return cleanKeywords(homeKeywords.join(', '));
 };
 
@@ -1513,24 +1513,24 @@ export const generateMemberBenefitsKeywords = () => {
     'bookmark ayat favorit', 'simpan ayat quran', 'penanda ayat al quran',
     'catatan pribadi ayat', 'notes ayat quran', 'refleksi ayat al quran',
     'progress baca quran', 'tracking bacaan al quran', 'statistik baca quran',
-    
+
     // Community features
     'komunitas muslim indonesia', 'doa bersama online', 'ukhuwah islamiyah',
     'silaturahmi muslim', 'sharing doa muslim', 'dukungan sesama muslim',
-    
+
     // Premium features
     'al quran premium gratis', 'fitur eksklusif quran', 'quran tanpa iklan',
     'sinkronisasi cloud quran', 'backup data quran', 'akses multi device quran',
-    
+
     // Registration & access
     'daftar member quran gratis', 'registrasi indoquran', 'akun premium quran',
     'login member quran', 'create account quran', 'sign up al quran',
-    
+
     // Indonesian Islamic community
     'platform islam indonesia', 'aplikasi muslim indonesia', 'teknologi islam',
     'digitalisasi al quran', 'modernisasi baca quran', 'inovasi platform quran'
   ];
-  
+
   return cleanKeywords(memberKeywords.join(', '));
 };
 
@@ -1540,7 +1540,7 @@ export const generateSearchSEOKeywords = (query = '') => {
     // Base search terms
     'pencarian al quran', 'cari ayat quran', 'search quran indonesia',
     'temukan ayat', 'cari surat', 'pencarian surah',
-    
+
     // Query-specific terms
     ...(query ? [
       `cari ${query}`,
@@ -1549,18 +1549,18 @@ export const generateSearchSEOKeywords = (query = '') => {
       `ayat tentang ${query}`,
       `surah tentang ${query}`
     ] : []),
-    
+
     // High-traffic terms
     ...HIGH_TRAFFIC_SEARCH_TERMS,
-    
+
     // Specific search patterns from user request
-    ...USER_REQUESTED_TERMS.filter(term => 
-      term.includes('cari') || 
+    ...USER_REQUESTED_TERMS.filter(term =>
+      term.includes('cari') ||
       term.includes('pencarian') ||
       term.includes('search')
     )
   ];
-  
+
   return cleanKeywords(searchKeywords.join(', '));
 };
 
@@ -1569,35 +1569,35 @@ export const generateSearchSEOKeywords = (query = '') => {
 export const generateCanonicalUrl = (path) => {
   // Ensure path starts with /
   let cleanPath = path.startsWith('/') ? path : '/' + path;
-  
+
   // Parse URL to handle query params properly
   const url = new URL(cleanPath, BASE_URL);
-  
+
   // Google guidelines: Keep query params that change content, remove tracking params
   const paramsToKeep = ['q', 'page', 'filter', 'sort']; // Only content-changing params
   const searchParams = new URLSearchParams();
-  
+
   url.searchParams.forEach((value, key) => {
     if (paramsToKeep.includes(key)) {
       searchParams.append(key, value);
     }
   });
-  
+
   // Build normalized path
   let normalizedPath = url.pathname;
-  
+
   // Remove trailing slash except for root (Google prefers consistency)
   if (normalizedPath !== '/') {
     normalizedPath = normalizedPath.replace(/\/$/, '');
   }
-  
+
   // Add back query params if any
   const queryString = searchParams.toString();
   const finalPath = normalizedPath + (queryString ? '?' + queryString : '');
-  
+
   // Build canonical URL with consistent domain (always use production domain)
   const canonicalUrl = 'https://indoquran.web.id' + finalPath;
-  
+
   // Validate URL format
   try {
     new URL(canonicalUrl);
@@ -1618,29 +1618,31 @@ export const ensureCanonicalConsistency = () => {
   const currentUrl = window.location.href;
   const currentPath = window.location.pathname + window.location.search;
   const expectedCanonical = generateCanonicalUrl(currentPath);
-  
+
   // Check if current URL matches canonical format
   const currentUrlObj = new URL(currentUrl);
   const expectedUrlObj = new URL(expectedCanonical);
-  
+
   // Only redirect if there's a significant mismatch that affects SEO
-  const needsRedirect = 
+  const needsRedirect =
     // Different protocol (http vs https)
     currentUrlObj.protocol !== expectedUrlObj.protocol ||
     // Different hostname (www vs non-www, or different domain)
     currentUrlObj.hostname !== expectedUrlObj.hostname ||
     // Different path (case sensitivity, trailing slash)
-    currentUrlObj.pathname !== expectedUrlObj.pathname ||
-    // Different query params (only check params that should be kept)
-    currentUrlObj.search !== expectedUrlObj.search;
-  
+    currentUrlObj.pathname !== expectedUrlObj.pathname;
+
+  // NOTE: We do NOT check query params here (currentUrlObj.search !== expectedUrlObj.search)
+  // primarily to preserve tracking parameters like utm_source, fbclid, etc.
+  // The rel="canonical" tag handles the SEO duplication issue without needing a hard redirect.
+
   if (needsRedirect) {
     // Use 301 redirect via window.location.replace to avoid adding to history
     console.log('[SEO] Redirecting to canonical URL:', expectedCanonical);
     window.location.replace(expectedCanonical);
     return false;
   }
-  
+
   return true;
 };
 
@@ -1669,10 +1671,10 @@ export const generateHreflangTags = (currentPath) => {
 export const shouldIndexPage = (pageType, userRole = 'guest') => {
   const noIndexPages = ['login', 'register', 'profile', 'dashboard', 'admin'];
   const privatePages = ['bookmarks', 'profile', 'dashboard'];
-  
+
   if (noIndexPages.includes(pageType)) return false;
   if (privatePages.includes(pageType) && userRole === 'guest') return false;
-  
+
   return true;
 };
 
@@ -1690,7 +1692,7 @@ export const generateSecurityHeaders = () => {
 // Generate enhanced sitemap with images and videos
 export const generateEnhancedSitemap = (surahs = [], additionalContent = {}) => {
   const currentDate = new Date().toISOString().split('T')[0];
-  
+
   const staticPages = [
     {
       url: BASE_URL,
@@ -1749,7 +1751,7 @@ export const generateEnhancedSitemap = (surahs = [], additionalContent = {}) => 
 
   const generateImageXml = (images) => {
     if (!images || images.length === 0) return '';
-    
+
     return images.map(image => `
     <image:image>
       <image:loc>${image.loc}</image:loc>
@@ -1775,7 +1777,7 @@ ${allPages.map(page => `  <url>
 // Generate news sitemap for time-sensitive content
 export const generateNewsSitemap = (newsItems = []) => {
   if (newsItems.length === 0) return null;
-  
+
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
@@ -1828,10 +1830,10 @@ const generateNaturalLanguageContent = (pageType, data) => {
   switch (pageType) {
     case 'surah':
       return `Surah ${data.name_latin} adalah surah ke-${data.number} dalam Al-Quran yang terdiri dari ${data.total_ayahs} ayat. Anda dapat membaca dan mendengarkan Surah ${data.name_latin} dengan terjemahan bahasa Indonesia di IndoQuran.`;
-    
+
     case 'home':
       return 'IndoQuran adalah platform Al-Quran digital terlengkap di Indonesia yang memungkinkan Anda membaca, mendengarkan, dan mempelajari Al-Quran online dengan terjemahan bahasa Indonesia.';
-    
+
     default:
       return 'IndoQuran menyediakan Al-Quran digital lengkap dengan terjemahan Indonesia dan audio murottal berkualitas tinggi.';
   }
@@ -1845,16 +1847,16 @@ const generateConversationalKeywords = (pageType, data) => {
     'home': ['baca al-quran online', 'platform quran digital', 'al-quran indonesia'],
     'search': ['cari ayat quran', 'pencarian al-quran', 'temukan ayat']
   };
-  
+
   const relevantTopics = topics[pageType] || topics.home;
   const combinations = [];
-  
+
   base.forEach(prefix => {
     relevantTopics.forEach(topic => {
       combinations.push(`${prefix} ${topic}`);
     });
   });
-  
+
   return combinations.slice(0, 10);
 };
 
@@ -1872,14 +1874,14 @@ export const generateCoreWebVitalsOptimization = () => {
         { rel: 'preload', as: 'font', href: '/fonts/arabic-font.woff2', type: 'font/woff2', crossorigin: 'anonymous' }
       ]
     },
-    
+
     // First Input Delay (FID) optimization
     fidOptimization: {
       deferNonCriticalJS: true,
       removeUnusedCSS: true,
       optimizeEventListeners: true
     },
-    
+
     // Cumulative Layout Shift (CLS) optimization
     clsOptimization: {
       reserveImageSpace: true,
@@ -1919,7 +1921,7 @@ export const generateEATSignals = () => {
       certifications: ['ISO 27001', 'Verified by Islamic Scholars'],
       experience: 'Lebih dari 5 tahun pengalaman'
     },
-    
+
     authoritativeness: {
       citations: [
         'Kementerian Agama RI',
@@ -1936,7 +1938,7 @@ export const generateEATSignals = () => {
         'Hidayatullah.com'
       ]
     },
-    
+
     trustworthiness: {
       contactInfo: `${BASE_URL}/kontak`,
       privacyPolicy: `${BASE_URL}/kebijakan`,

@@ -40,8 +40,9 @@
     <meta property="twitter:description" content="{{ $metaDescription ?? 'Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia.' }}">
     <meta property="twitter:image" content="{{ $ogImage ?? url('/android-chrome-512x512.png') }}">
     
-    <!-- Canonical URL managed by React client-side for consistency -->
+    <!-- Canonical URL managed by Server Side for SEO Consistency -->
     <!-- This prevents duplicate canonical tags and ensures Google sees one consistent canonical URL -->
+    <link rel="canonical" href="{{ $canonicalUrl ?? url()->current() }}">
     
     <!-- Additional SEO Links -->
     <link rel="alternate" hreflang="id" href="{{ url()->current() }}">
