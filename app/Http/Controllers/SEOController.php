@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Surah;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
 
@@ -13,10 +14,36 @@ class SEOController extends Controller
      * Handle dynamic SEO for React app
      * This controller provides SEO data to the React blade template
      */
-    public function handleReactRoute(Request $request): View|Response
+    public function handleReactRoute(Request $request): View|Response|RedirectResponse
     {
         $path = $request->path();
         $segments = explode('/', $path);
+        
+        // Redirect legacy English routes to Indonesian (301 Permanent Redirect)
+        if (isset($segments[0])) {
+            $redirectPaths = [
+                'pages' => 'halaman',
+                'search' => 'cari',
+                'about' => 'tentang',
+                'contact' => 'kontak',
+                'privacy' => 'kebijakan'
+            ];
+            
+            if (array_key_exists($segments[0], $redirectPaths)) {
+                 $newPath = $redirectPaths[$segments[0]];
+                 
+                 // Handle remaining segments (e.g. pages/1 -> halaman/1)
+                 if (count($segments) > 1) {
+                     $newPath .= '/' . implode('/', array_slice($segments, 1));
+                 }
+                 
+                 // Handle query strings (e.g. search?q=foo -> cari?q=foo)
+                 $queryString = $request->getQueryString();
+                 $target = url('/' . $newPath . ($queryString ? '?' . $queryString : ''));
+                 
+                 return redirect($target, 301);
+            }
+        }
         
         // Check for invalid routes that should return 404
         $isInvalidRoute = false;

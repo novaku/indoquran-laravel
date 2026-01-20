@@ -79,25 +79,25 @@ class SitemapIndexController extends Controller
                 'priority' => '1.0'
             ],
             [
-                'url' => $baseUrl . '/search',
+                'url' => $baseUrl . '/cari',
                 'lastmod' => $currentDate,
                 'changefreq' => 'weekly',
                 'priority' => '0.8'
             ],
             [
-                'url' => $baseUrl . '/about',
+                'url' => $baseUrl . '/tentang',
                 'lastmod' => $currentDate,
                 'changefreq' => 'monthly',
                 'priority' => '0.6'
             ],
             [
-                'url' => $baseUrl . '/contact',
+                'url' => $baseUrl . '/kontak',
                 'lastmod' => $currentDate,
                 'changefreq' => 'monthly',
                 'priority' => '0.5'
             ],
             [
-                'url' => $baseUrl . '/privacy',
+                'url' => $baseUrl . '/kebijakan',
                 'lastmod' => $currentDate,
                 'changefreq' => 'yearly',
                 'priority' => '0.3'
@@ -179,7 +179,7 @@ class SitemapIndexController extends Controller
         // Add page-based navigation (604 pages in Mushaf)
         for ($page = 1; $page <= 604; $page++) {
             $pages[] = [
-                'url' => $baseUrl . '/pages/' . $page,
+                'url' => $baseUrl . '/halaman/' . $page,
                 'lastmod' => $currentDate,
                 'changefreq' => 'monthly',
                 'priority' => '0.6'
