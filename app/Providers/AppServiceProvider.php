@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Ayah;
 use App\Models\Surah;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\URL;
@@ -18,6 +19,55 @@ class AppServiceProvider extends ServiceProvider
     {
         // Register helpers
         require_once app_path('Helpers/AssetHelper.php');
+
+        // Override the default filesystem "link" behavior for environments
+        // (such as some cPanel shared hosting) where both the PHP "symlink"
+        // and "exec" functions are unavailable. In that case Laravel's
+        // default implementation throws "Call to undefined function
+        // Illuminate\\Filesystem\\exec()" when running "php artisan storage:link".
+        //
+        // Here we replace the "files" binding with a subclass that, on
+        // non‑Windows systems, avoids calling exec() and instead falls
+        // back to copying the directory / file so that "storage:link"
+        // completes without fatal errors.
+        $this->app->extend('files', function ($service, $app) {
+            return new class extends Filesystem {
+                /**
+                 * Create a link to the target file or directory.
+                 *
+                 * On hosts where both "symlink" and "exec" are disabled,
+                 * we fall back to copying the contents so Laravel can still
+                 * serve files from "public/storage" without using real
+                 * filesystem symlinks.
+                 */
+                public function link($target, $link)
+                {
+                    // Keep the default behavior on Windows where exec()
+                    // is typically available and symlink semantics are
+                    // different.
+                    if (windows_os()) {
+                        return parent::link($target, $link);
+                    }
+
+                    // Preferred: if PHP's symlink() exists and is allowed, use it.
+                    if (function_exists('symlink')) {
+                        return @symlink($target, $link);
+                    }
+
+                    // Fallback for environments (like some cPanel setups)
+                    // where both "symlink" and "exec" are unavailable:
+                    // - If the target is a directory, recursively copy it.
+                    // - If it's a single file, copy the file.
+                    if ($this->isDirectory($target)) {
+                        return $this->copyDirectory($target, $link);
+                    }
+
+                    $this->ensureDirectoryExists(dirname($link));
+
+                    return $this->copy($target, $link);
+                }
+            };
+        });
     }
 
     /**
