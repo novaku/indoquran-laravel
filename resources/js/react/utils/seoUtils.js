@@ -352,7 +352,6 @@ Disallow: /
 User-agent: AmazonBot
 Disallow: /`;
 };
-};
 
 // Generate Google-optimized Open Graph meta tags for social media
 export const generateOpenGraphTags = (page) => {
