@@ -40,7 +40,10 @@ function SEOHead({
       baseUrl + window.location.pathname + window.location.search : baseUrl),
     ogImage: ogImage || `${baseUrl}/android-chrome-512x512.png`,
     author: author,
-    robots: robots || (noindex || nofollow ? `${noindex ? 'noindex' : 'index'}, ${nofollow ? 'nofollow' : 'follow'}` : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'),
+    // FIXED: Proper robots tag strategy for Google Search Console
+    // Only use noindex for genuinely private pages (auth pages, profile)
+    // Public content pages should always be indexed
+    robots: robots || (noindex ? 'noindex, nofollow' : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'),
     viewport: viewport || 'width=device-width, initial-scale=1.0',
     themeColor: themeColor || '#2563eb'
   };

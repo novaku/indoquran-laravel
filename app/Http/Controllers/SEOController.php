@@ -13,6 +13,12 @@ class SEOController extends Controller
     /**
      * Handle dynamic SEO for React app
      * This controller provides SEO data to the React blade template
+     * 
+     * Fixed for Google Search Console issues:
+     * 1. Proper redirect handling (301 permanent)
+     * 2. Canonical URL consistency (NO duplicate content)
+     * 3. Proper noindex/follow strategy for different page types
+     * 4. Query parameter normalization
      */
     public function handleReactRoute(Request $request): View|Response|RedirectResponse
     {
@@ -41,7 +47,40 @@ class SEOController extends Controller
                  $queryString = $request->getQueryString();
                  $target = url('/' . $newPath . ($queryString ? '?' . $queryString : ''));
                  
+                 // Use 301 permanent redirect for SEO
                  return redirect($target, 301);
+            }
+        }
+        
+        // CANONICAL URL NORMALIZATION - Fix duplicate content issue
+        // Remove trailing slashes and normalize query parameters
+        $canonicalPath = rtrim($path, '/');
+        if ($canonicalPath !== $path && $path !== '/') {
+            // Redirect paths with trailing slashes to non-trailing versions
+            $target = url($canonicalPath);
+            if ($request->getQueryString()) {
+                $target .= '?' . $request->getQueryString();
+            }
+            return redirect($target, 301);
+        }
+        
+        // Remove unwanted query parameters for canonical URL consistency
+        $allowedQueryParams = ['q', 'page', 'sort', 'reciter']; // Only these params are relevant for content
+        $queryString = $request->getQueryString();
+        
+        if ($queryString) {
+            parse_str($queryString, $params);
+            $filteredParams = array_intersect_key($params, array_flip($allowedQueryParams));
+            
+            // If there are extra params, redirect to clean URL
+            if (count($filteredParams) !== count($params)) {
+                ksort($filteredParams); // Sort for consistency
+                $newQueryString = http_build_query($filteredParams);
+                $target = url($path);
+                if ($newQueryString) {
+                    $target .= '?' . $newQueryString;
+                }
+                return redirect($target, 301);
             }
         }
         

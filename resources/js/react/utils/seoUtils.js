@@ -239,54 +239,62 @@ const generateAlternatesXml = (alternates) => {
 };
 
 // Generate Google-optimized robots.txt content
+// FIXED: Proper crawl budget optimization without blocking indexable content
 export const generateRobotsTxt = () => {
   return `User-agent: *
 Allow: /
 
-# Optimize crawl budget by disallowing low-value pages
-Disallow: /masuk
-Disallow: /daftar
-Disallow: /profil
-Disallow: /penanda
-Disallow: /api/
-Disallow: /admin/
-Disallow: /dashboard/
-Disallow: /login
-Disallow: /register
-Disallow: /logout
-Disallow: /*?*utm_
-Disallow: /*?*fb_
-Disallow: /*?*gclid=
-Disallow: /*?*session=
-Disallow: /search?*
-Disallow: /cari?page=
-Disallow: /*?preview=
-
-# Allow high-value content for better indexing
-Allow: /cari$
+# Allow all public content for indexing
+Allow: /
 Allow: /surah/
 Allow: /juz/
 Allow: /halaman/
+Allow: /cari
 Allow: /doa-bersama
 Allow: /tafsir-maudhui
+Allow: /asmaul-husna
 Allow: /tentang
 Allow: /kontak
 Allow: /donasi
 Allow: /kebijakan
 Allow: /riwayat-versi
+Allow: /member
+
+# Optimize crawl budget by disallowing ONLY low-value private pages
+Disallow: /masuk
+Disallow: /daftar
+Disallow: /profil
+Disallow: /penanda
+Disallow: /admin/
+Disallow: /dashboard/
+
+# Block query parameters that create duplicates/low value
+Disallow: /api/
+Disallow: /login
+Disallow: /register
+Disallow: /logout
+Disallow: /*?utm_
+Disallow: /*?fb_
+Disallow: /*?gclid=
+Disallow: /*?session=
+Disallow: /*?preview=
+
+# Prevent search parameter pagination issues
+Disallow: /cari?page=
 
 # Crawl delay optimized for server performance
 Crawl-delay: 1
 
 # Multiple sitemap references for better discovery
-Sitemap: ${BASE_URL}/sitemap.xml
-Sitemap: ${BASE_URL}/sitemap-images.xml
-Sitemap: ${BASE_URL}/sitemap-news.xml
+Sitemap: https://indoquran.web.id/sitemap.xml
+Sitemap: https://indoquran.web.id/sitemap-index.xml
 
 # Google-specific optimizations
 User-agent: Googlebot
 Allow: /
 Crawl-delay: 0.5
+# Allow Google to crawl more of our site for better indexing
+Request-rate: 50/1s
 
 User-agent: Googlebot-Image
 Allow: /images/
@@ -312,7 +320,7 @@ User-agent: DuckDuckBot
 Allow: /
 Crawl-delay: 1
 
-# Social media crawlers
+# Social media crawlers - ALLOW for social sharing
 User-agent: facebookexternalhit
 Allow: /
 
@@ -322,7 +330,13 @@ Allow: /
 User-agent: LinkedInBot
 Allow: /
 
-# Block unwanted bots
+User-agent: WhatsApp
+Allow: /
+
+User-agent: Viber
+Allow: /
+
+# Block unwanted/aggressive bots to preserve crawl budget
 User-agent: AhrefsBot
 Disallow: /
 
@@ -330,7 +344,14 @@ User-agent: MJ12bot
 Disallow: /
 
 User-agent: SemrushBot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: AmazonBot
 Disallow: /`;
+};
 };
 
 // Generate Google-optimized Open Graph meta tags for social media
@@ -1668,13 +1689,22 @@ export const generateHreflangTags = (currentPath) => {
 };
 
 // Check if page should be indexed
+// FIXED: Only noindex pages that are genuinely private or not valuable for search
 export const shouldIndexPage = (pageType, userRole = 'guest') => {
-  const noIndexPages = ['login', 'register', 'profile', 'dashboard', 'admin'];
+  // Pages that should NEVER be indexed (private/auth pages only)
+  const noIndexPages = ['login', 'register', 'login-old', 'register-old', 'admin'];
+  
+  // Private pages that should only be indexed when user is authenticated
   const privatePages = ['bookmarks', 'profile', 'dashboard'];
 
-  if (noIndexPages.includes(pageType)) return false;
+  // Block private pages for guests
   if (privatePages.includes(pageType) && userRole === 'guest') return false;
+  
+  // Block genuinely private pages (auth, admin)
+  if (noIndexPages.includes(pageType)) return false;
 
+  // All PUBLIC content pages SHOULD be indexed
+  // This includes: home, surah, ayah, juz, halaman, tafsir, about, contact, etc.
   return true;
 };
 

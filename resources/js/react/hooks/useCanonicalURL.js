@@ -5,7 +5,12 @@ import { generateCanonicalUrl, ensureCanonicalConsistency } from '../utils/seoUt
 /**
  * Hook to ensure canonical URL consistency according to Google's guidelines
  * Reference: https://developers.google.com/search/docs/crawling-indexing/canonicalization
- * Prevents "Google chose different canonical than user" issues
+ * 
+ * FIXED to prevent:
+ * 1. Duplicate content issues (removes trailing slashes, normalizes query params)
+ * 2. "Google chose different canonical than user" errors
+ * 3. Multiple canonical tags
+ * 4. Canonical URL mismatches with Open Graph
  */
 export const useCanonicalURL = (manualCanonicalUrl = null) => {
   const location = useLocation();
@@ -15,20 +20,43 @@ export const useCanonicalURL = (manualCanonicalUrl = null) => {
     if (typeof window === 'undefined') return;
 
     const currentPath = location.pathname + location.search;
-    const canonicalUrl = manualCanonicalUrl || generateCanonicalUrl(currentPath);
     
-    // Find existing canonical link or create new one
-    let canonicalLink = document.querySelector('link[rel="canonical"]');
+    // Normalize path: remove trailing slashes and sort query parameters
+    let normalizedPath = location.pathname;
+    if (normalizedPath !== '/' && normalizedPath.endsWith('/')) {
+      normalizedPath = normalizedPath.slice(0, -1);
+    }
+    
+    // Normalize query parameters (sort for consistency)
+    let normalizedSearch = '';
+    if (location.search) {
+      const params = new URLSearchParams(location.search);
+      const sortedParams = new URLSearchParams([...params.entries()].sort());
+      normalizedSearch = sortedParams.toString();
+      if (normalizedSearch) {
+        normalizedSearch = '?' + normalizedSearch;
+      }
+    }
+    
+    const normalizedUrl = normalizedPath + normalizedSearch;
+    const canonicalUrl = manualCanonicalUrl || generateCanonicalUrl(normalizedUrl);
+    
+    // Remove all existing canonical links first to prevent duplicates
+    const existingCanonicals = document.querySelectorAll('link[rel="canonical"]');
+    existingCanonicals.forEach(el => {
+      if (!el.dataset.managed) {
+        el.remove();
+      }
+    });
+    
+    // Find or create canonical link
+    let canonicalLink = document.querySelector('link[rel="canonical"][data-managed="true"]');
     if (!canonicalLink) {
       canonicalLink = document.createElement('link');
       canonicalLink.rel = 'canonical';
-      // Insert after charset meta tag for proper positioning
-      const charsetMeta = document.querySelector('meta[charset]');
-      if (charsetMeta && charsetMeta.nextSibling) {
-        document.head.insertBefore(canonicalLink, charsetMeta.nextSibling);
-      } else {
-        document.head.insertBefore(canonicalLink, document.head.firstChild);
-      }
+      canonicalLink.setAttribute('data-managed', 'true');
+      // Insert at the beginning of head for proper parsing
+      document.head.insertBefore(canonicalLink, document.head.firstChild);
     }
     
     // Only update if canonical URL has changed to avoid unnecessary DOM manipulation
@@ -41,7 +69,7 @@ export const useCanonicalURL = (manualCanonicalUrl = null) => {
       ensureCanonicalConsistency();
     }
 
-    // Update Open Graph URL
+    // Update Open Graph URL to match canonical
     let ogUrlMeta = document.querySelector('meta[property="og:url"]');
     if (!ogUrlMeta) {
       ogUrlMeta = document.createElement('meta');
@@ -52,7 +80,7 @@ export const useCanonicalURL = (manualCanonicalUrl = null) => {
       ogUrlMeta.content = canonicalUrl;
     }
 
-    // Update Twitter URL
+    // Update Twitter URL to match canonical
     let twitterUrlMeta = document.querySelector('meta[name="twitter:url"]');
     if (!twitterUrlMeta) {
       twitterUrlMeta = document.createElement('meta');

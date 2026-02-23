@@ -23,6 +23,15 @@ Route::get('/sitemap-surahs-{group}.xml', [SitemapIndexController::class, 'surah
     ->name('sitemap.surahs');
 Route::get('/sitemap-juz.xml', [SitemapIndexController::class, 'juzSitemap'])->name('sitemap.juz');
 
+// HTTPS redirect middleware - ensure all traffic is HTTPS in production
+if (app()->environment('production')) {
+    $request = request();
+    if (!$request->secure()) {
+        // Permanent redirect to HTTPS (301)
+        return redirect('https://' . $request->getHttpHost() . $request->getRequestUri(), 301);
+    }
+}
+
 // CORS Proxy route for development environment only
 if (app()->environment('local', 'development')) {
     // CORS Debug tool
