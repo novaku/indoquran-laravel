@@ -24,6 +24,21 @@ class SEOController extends Controller
     {
         $path = $request->path();
         $segments = explode('/', $path);
+
+        // Redirect keyword-slug variants to canonical pages (301) to consolidate ranking signals.
+        if (preg_match('/^(?:al-?quran|alquran)-halaman-(\d+)$/i', $path, $matches)) {
+            $pageNumber = (int) $matches[1];
+            if ($pageNumber >= 1 && $pageNumber <= 604) {
+                return redirect(url('/halaman/' . $pageNumber), 301);
+            }
+        }
+
+        if (preg_match('/^juz-(\d+)-arab-saja$/i', $path, $matches)) {
+            $juzNumber = (int) $matches[1];
+            if ($juzNumber >= 1 && $juzNumber <= 30) {
+                return redirect(url('/juz/' . $juzNumber), 301);
+            }
+        }
         
         // Redirect legacy English routes to Indonesian (301 Permanent Redirect)
         if (isset($segments[0])) {
@@ -94,7 +109,7 @@ class SEOController extends Controller
                 $isInvalidRoute = true;
             } else {
                 // Verify surah exists in database
-                $surah = Surah::where('number', $surahNumber)->first();
+                $surah = Surah::query()->where('number', $surahNumber)->first();
                 if (!$surah) {
                     $isInvalidRoute = true;
                 }
@@ -133,7 +148,7 @@ class SEOController extends Controller
             $seoData = array_merge($seoData, [
                 'metaTitle' => 'Al-Quran Online Indonesia - Baca, Dengar & Terjemahan Gratis | IndoQuran',
                 'metaDescription' => '✅ Al-Quran Digital GRATIS ✅ Teks Arab & Terjemahan ✅ Audio Murottal HD ✅ Tafsir Lengkap ✅ Bookmark Ayat. Platform Al-Quran online terpercaya untuk belajar Islam. 114 Surah lengkap dengan fitur pencarian ayat.',
-                'metaKeywords' => 'al quran online, quran online, al quran indonesia, al quran digital, baca quran online, terjemahan quran indonesia, murottal quran, quran indonesia, ayat al quran, surah quran, indoquran, alquran online, quran digital gratis, quran digital terlengkap',
+                'metaKeywords' => 'al quran online, alquran online, quran online, al quran indonesia, al quran digital, baca quran online, terjemahan quran indonesia, murottal quran, quran indonesia, ayat al quran, surah quran, indoquran, indo quran, quran web, quran digital gratis, quran digital terlengkap',
                 'canonicalUrl' => url('/')
             ]);
         } 
@@ -141,7 +156,7 @@ class SEOController extends Controller
             // Surah page SEO
             if (isset($segments[1]) && is_numeric($segments[1])) {
                 $surahNumber = (int) $segments[1];
-                $surah = Surah::where('number', $surahNumber)->first();
+                $surah = Surah::query()->where('number', $surahNumber)->first();
                 
                 if ($surah) {
                     $ayahNumber = isset($segments[2]) && is_numeric($segments[2]) ? (int) $segments[2] : null;
@@ -193,9 +208,9 @@ class SEOController extends Controller
                 $juzNumber = (int) $segments[1];
                 // Specific Juz SEO
                 $seoData = array_merge($seoData, [
-                    'metaTitle' => "Juz {$juzNumber} - Teks Arab Al-Quran - IndoQuran",
-                    'metaDescription' => "Baca Juz {$juzNumber} Al-Quran dengan teks Arab lengkap. Para {$juzNumber} Al-Quran tersedia untuk dibaca dan dipelajari. Platform Al-Quran digital terlengkap di Indonesia.",
-                    'metaKeywords' => "juz {$juzNumber}, para {$juzNumber}, al quran juz {$juzNumber}, teks arab juz {$juzNumber}, quran digital, al quran indonesia",
+                    'metaTitle' => "Juz {$juzNumber} Arab Saja - Teks Arab Al-Quran Lengkap | IndoQuran",
+                    'metaDescription' => "Baca Juz {$juzNumber} Arab saja dengan teks Arab Al-Quran lengkap. Para {$juzNumber} tersedia dengan navigasi per ayat, audio murottal, dan tampilan nyaman untuk tilawah harian.",
+                    'metaKeywords' => "juz {$juzNumber}, juz {$juzNumber} arab saja, para {$juzNumber}, al quran juz {$juzNumber}, teks arab juz {$juzNumber}, quran digital, al quran indonesia",
                     'canonicalUrl' => url("/juz/{$juzNumber}"),
                     'ogType' => 'article'
                 ]);
@@ -324,9 +339,9 @@ class SEOController extends Controller
                 $pageNumber = (int) $segments[1];
                 // Specific page SEO
                 $seoData = array_merge($seoData, [
-                    'metaTitle' => "Halaman {$pageNumber} - Al-Quran Digital - IndoQuran",
-                    'metaDescription' => "Baca Halaman {$pageNumber} Al-Quran dengan teks Arab lengkap. Navigasi mudah antar halaman Al-Quran di platform digital terlengkap Indonesia.",
-                    'metaKeywords' => "halaman {$pageNumber}, al quran halaman {$pageNumber}, teks arab halaman {$pageNumber}, quran digital, al quran indonesia",
+                    'metaTitle' => "Al Quran Halaman {$pageNumber} - Teks Arab & Audio | IndoQuran",
+                    'metaDescription' => "Baca Al-Quran halaman {$pageNumber} dengan teks Arab jelas, navigasi cepat antar halaman, dan audio murottal per ayat. Cocok untuk tilawah, murajaah, dan hafalan harian.",
+                    'metaKeywords' => "halaman {$pageNumber}, al quran halaman {$pageNumber}, alquran halaman {$pageNumber}, quran halaman {$pageNumber}, teks arab halaman {$pageNumber}, quran digital, al quran indonesia",
                     'canonicalUrl' => url("/halaman/{$pageNumber}"),
                     'ogType' => 'article'
                 ]);
@@ -381,7 +396,7 @@ class SEOController extends Controller
         if ($path === '/' || $path === '') {
             // Homepage: Fetch all surahs for SEO list
             $reactData['surahs'] = \Illuminate\Support\Facades\Cache::remember('seo_surah_list', 86400, function () {
-                return Surah::orderBy('number')
+                return Surah::query()->orderBy('number', 'asc')
                     ->select('number', 'name_latin', 'name_indonesian', 'name_arabic', 'total_ayahs')
                     ->get();
             });
@@ -389,7 +404,23 @@ class SEOController extends Controller
         elseif (isset($segments[0]) && $segments[0] === 'surah' && isset($segments[1]) && is_numeric($segments[1])) {
             // Surah Detail: Fetch specific surah info
             $surahNumber = (int) $segments[1];
-            $reactData['currentSurah'] = Surah::where('number', $surahNumber)->first();
+            $reactData['currentSurah'] = Surah::query()->where('number', $surahNumber)->first();
+        }
+        elseif (isset($segments[0]) && $segments[0] === 'juz' && isset($segments[1]) && is_numeric($segments[1])) {
+            $juzNumber = (int) $segments[1];
+            $reactData['currentJuz'] = [
+                'number' => $juzNumber,
+                'title' => "Juz {$juzNumber} Arab Saja",
+                'description' => "Halaman ini berisi teks Arab Al-Quran untuk Juz {$juzNumber} dengan navigasi cepat per ayat dan dukungan audio murottal."
+            ];
+        }
+        elseif (isset($segments[0]) && $segments[0] === 'halaman' && isset($segments[1]) && is_numeric($segments[1])) {
+            $pageNumber = (int) $segments[1];
+            $reactData['currentPage'] = [
+                'number' => $pageNumber,
+                'title' => "Al Quran Halaman {$pageNumber}",
+                'description' => "Akses Al-Quran halaman {$pageNumber} dengan teks Arab jelas untuk bacaan harian, murajaah, dan hafalan."
+            ];
         }
 
         return view('react', array_merge($seoData, ['reactData' => $reactData]));

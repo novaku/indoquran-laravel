@@ -85,6 +85,42 @@ class SitemapIndexController extends Controller
                 'priority' => '0.8'
             ],
             [
+                'url' => $baseUrl . '/halaman',
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.8'
+            ],
+            [
+                'url' => $baseUrl . '/halaman/205',
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.9'
+            ],
+            [
+                'url' => $baseUrl . '/halaman/276',
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.9'
+            ],
+            [
+                'url' => $baseUrl . '/halaman/390',
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.9'
+            ],
+            [
+                'url' => $baseUrl . '/juz',
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.8'
+            ],
+            [
+                'url' => $baseUrl . '/juz/15',
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.9'
+            ],
+            [
                 'url' => $baseUrl . '/tentang',
                 'lastmod' => $currentDate,
                 'changefreq' => 'monthly',

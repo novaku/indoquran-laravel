@@ -97,8 +97,10 @@ function PageListPage() {
     return (
         <div className="min-h-screen bg-gray-50">
             <SEOHead 
-                title="Telusuri berdasarkan Halaman - IndoQuran"
-                description="Telusuri dan baca Al-Quran yang diatur berdasarkan halaman. Semua 604 halaman Al-Quran suci dengan teks Arab dan terjemahan."
+                title="Daftar Halaman Al Quran (1-604) - IndoQuran"
+                description="Cari dan buka Al-Quran berdasarkan nomor halaman. Tersedia semua 604 halaman mushaf dengan teks Arab, terjemahan Indonesia, dan akses cepat per halaman."
+                keywords="daftar halaman al quran, al quran halaman, alquran halaman, quran halaman, halaman mushaf, halaman 205, halaman 276, halaman 390"
+                canonicalUrl="https://indoquran.web.id/halaman"
             />
 
             {/* Header */}

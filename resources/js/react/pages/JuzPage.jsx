@@ -271,9 +271,18 @@ function JuzPage() {
     }
 
     const juzSEO = {
-        title: `Juz ${juzData.juz_number} - Al-Quran Digital - IndoQuran`,
-        description: `Baca Juz ${juzData.juz_number} Al-Quran dengan teks Arab lengkap. Total ${juzData.total_ayahs} ayat dari ${juzData.surahs.length} surah. Platform Al-Quran digital terlengkap di Indonesia.`,
-        keywords: `juz ${juzData.juz_number}, para ${juzData.juz_number}, al quran juz ${juzData.juz_number}, quran digital, teks arab, al quran indonesia`
+        title: `Juz ${juzData.juz_number} Arab Saja - Teks Arab Al-Quran | IndoQuran`,
+        description: `Baca Juz ${juzData.juz_number} Arab saja dengan teks Arab lengkap. Total ${juzData.total_ayahs} ayat dari ${juzData.surahs.length} surah, plus audio murottal untuk membantu tilawah harian.`,
+        keywords: `juz ${juzData.juz_number}, juz ${juzData.juz_number} arab saja, para ${juzData.juz_number}, al quran juz ${juzData.juz_number}, quran digital, teks arab, al quran indonesia`,
+        canonicalUrl: `https://indoquran.web.id/juz/${juzData.juz_number}`,
+        structuredData: {
+            '@context': 'https://schema.org',
+            '@type': 'WebPage',
+            name: `Juz ${juzData.juz_number} Arab Saja`,
+            url: `https://indoquran.web.id/juz/${juzData.juz_number}`,
+            inLanguage: 'id',
+            description: `Juz ${juzData.juz_number} Al-Quran dengan teks Arab lengkap dan audio murottal.`
+        }
     };
 
     return (

@@ -293,9 +293,18 @@ function PageDetailPage() {
     }
 
     const pageSEO = {
-        title: `Halaman ${number} Al-Quran - IndoQuran`,
-        description: `Baca Halaman ${number} Al-Quran lengkap dengan terjemahan bahasa Indonesia, audio murottal, dan tafsir. ${pageData.total_ayahs} ayat tersedia untuk dipelajari.`,
-        keywords: `halaman ${number}, al quran halaman ${number}, terjemahan halaman ${number}, quran digital, al quran indonesia`
+        title: `Al Quran Halaman ${number} - Arab, Terjemahan, Audio | IndoQuran`,
+        description: `Baca Al-Quran halaman ${number} lengkap dengan teks Arab, terjemahan Indonesia, dan audio murottal. Tersedia ${pageData.total_ayahs} ayat untuk tilawah dan murajaah.`,
+        keywords: `halaman ${number}, al quran halaman ${number}, alquran halaman ${number}, quran halaman ${number}, terjemahan halaman ${number}, quran digital, al quran indonesia`,
+        canonicalUrl: `https://indoquran.web.id/halaman/${number}`,
+        structuredData: {
+            '@context': 'https://schema.org',
+            '@type': 'WebPage',
+            name: `Al Quran Halaman ${number}`,
+            url: `https://indoquran.web.id/halaman/${number}`,
+            inLanguage: 'id',
+            description: `Halaman ${number} Al-Quran lengkap dengan teks Arab, terjemahan, dan audio murottal.`
+        }
     };
     
     return (

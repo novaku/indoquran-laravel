@@ -240,7 +240,7 @@
         },
         "potentialAction": {
             "@@type": "SearchAction",
-            "target": "https://indoquran.web.id/search?q={search_term_string}",
+            "target": "https://indoquran.web.id/cari?q={search_term_string}",
             "query-input": "required name=search_term_string"
         }
     }
@@ -354,6 +354,26 @@
                 </div>
                 <div>
                     <a href="/" style="display: inline-block; padding: 0.75rem 1.5rem; background: #16a34a; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">&larr; Kembali ke Daftar Surah</a>
+                </div>
+            </div>
+        @endif
+
+        @if(isset($reactData['currentJuz']))
+            <div id="ssr-juz-detail" style="padding: 3rem 2rem; background: #fff; color: #1f2937; text-align: center; max-width: 900px; margin: 0 auto;">
+                <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.75rem; color: #111827;">{{ $reactData['currentJuz']['title'] }}</h1>
+                <p style="font-size: 1.0625rem; color: #4b5563; line-height: 1.8; margin: 0 auto 1.5rem; max-width: 700px;">{{ $reactData['currentJuz']['description'] }}</p>
+                <div style="font-size: 0.9375rem; color: #6b7280; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 0.875rem 1rem; display: inline-block;">
+                    Query terkait: juz {{ $reactData['currentJuz']['number'] }}, juz {{ $reactData['currentJuz']['number'] }} arab saja, para {{ $reactData['currentJuz']['number'] }}.
+                </div>
+            </div>
+        @endif
+
+        @if(isset($reactData['currentPage']))
+            <div id="ssr-page-detail" style="padding: 3rem 2rem; background: #fff; color: #1f2937; text-align: center; max-width: 900px; margin: 0 auto;">
+                <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.75rem; color: #111827;">{{ $reactData['currentPage']['title'] }}</h1>
+                <p style="font-size: 1.0625rem; color: #4b5563; line-height: 1.8; margin: 0 auto 1.5rem; max-width: 700px;">{{ $reactData['currentPage']['description'] }}</p>
+                <div style="font-size: 0.9375rem; color: #6b7280; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 0.875rem 1rem; display: inline-block;">
+                    Query terkait: al quran halaman {{ $reactData['currentPage']['number'] }}, alquran halaman {{ $reactData['currentPage']['number'] }}, quran halaman {{ $reactData['currentPage']['number'] }}.
                 </div>
             </div>
         @endif

@@ -57,6 +57,30 @@ class SitemapController extends Controller
                 'priority' => '0.75'
             ],
             [
+                'url' => $baseUrl . '/halaman/205',
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.9'
+            ],
+            [
+                'url' => $baseUrl . '/halaman/276',
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.9'
+            ],
+            [
+                'url' => $baseUrl . '/halaman/390',
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.9'
+            ],
+            [
+                'url' => $baseUrl . '/juz/15',
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.9'
+            ],
+            [
                 'url' => $baseUrl . '/doa-bersama',
                 'lastmod' => $currentDate,
                 'changefreq' => 'daily',

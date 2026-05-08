@@ -310,8 +310,10 @@ function QuranHomePage() {
     return (
         <div className="min-h-screen bg-gray-50">
             <SEOHead
-                title="Baca dan Pelajari Al-Quran Online - IndoQuran"
-                description="IndoQuran menghadirkan bacaan Al-Quran, audio tilawah, serta referensi belajar yang terkurasi."
+                title="AlQuran Online Indonesia - Baca, Dengar, Terjemahan | IndoQuran"
+                description="AlQuran online lengkap untuk Indonesia: baca teks Arab, dengarkan audio murottal, dan pelajari terjemahan per ayat di IndoQuran web."
+                keywords="alquran online, al quran online, indo quran, quran web, al quran indonesia, baca quran online, murottal quran"
+                canonicalUrl="https://indoquran.web.id/"
             />
 
             <section className="bg-white border-b border-gray-200">

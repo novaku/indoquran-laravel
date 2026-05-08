@@ -94,8 +94,10 @@ function JuzIndexPage() {
     return (
         <div className="min-h-screen bg-gray-50">
             <SEOHead 
-                title="Jelajahi berdasarkan Juz (Para) - IndoQuran"
-                description="Jelajahi dan baca Al-Quran yang disusun berdasarkan Juz (Para). Semua 30 Juz Al-Quran dengan teks Arab dan terjemahan."
+                title="Daftar Juz Al Quran (1-30) - Arab Saja & Terjemahan | IndoQuran"
+                description="Jelajahi 30 Juz Al-Quran dengan navigasi cepat. Tersedia mode baca teks Arab, audio murottal, dan referensi terjemahan untuk belajar harian."
+                keywords="daftar juz al quran, juz arab saja, para al quran, juz 15 arab saja, juz lengkap, quran indonesia"
+                canonicalUrl="https://indoquran.web.id/juz"
             />
 
             {/* Header */}
