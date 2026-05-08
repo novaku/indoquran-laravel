@@ -420,6 +420,7 @@ const AppContent = memo(() => {
                         <Route path="/halaman" element={<PageListPage />} />
                         <Route path="/halaman/:number" element={<PageDetailPage />} />
                         <Route path="/tafsir-maudhui" element={<TafsirMaudhuiPage />} />
+                        <Route path="/tafsir-maudhui/:slug" element={<TafsirMaudhuiPage />} />
                         <Route path="/asmaul-husna" element={<AsmaulHusnaPage />} />
                         <Route path="/doa-bersama" element={<PrayerPage />} />
                         <Route path="/tentang" element={<AboutPage />} />

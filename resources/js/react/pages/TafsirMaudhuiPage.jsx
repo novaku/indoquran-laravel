@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { 
     BookOpenIcon, 
     MagnifyingGlassIcon,
@@ -15,16 +15,18 @@ import SEOHead from '../components/SEOHead';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 // Tree Node Component
-function TreeNode({ topic, index, isExpanded, onToggle, level = 0 }) {
+function TreeNode({ topic, index, isExpanded, onToggle, level = 0, isHighlighted = false }) {
     const indentStyle = {
         paddingLeft: `${level * 20 + 12}px`
     };
 
     return (
-        <div className="select-none">
+        <div className="select-none" id={topic.slug ? `topic-${topic.slug}` : undefined}>
             {/* Topic Header */}
             <div 
-                className="flex items-center py-2 px-3 rounded-lg hover:bg-gray-50 cursor-pointer group transition-colors"
+                className={`flex items-center py-2 px-3 rounded-lg cursor-pointer group transition-colors ${
+                    isHighlighted ? 'bg-blue-50 ring-1 ring-blue-200' : 'hover:bg-gray-50'
+                }`}
                 style={indentStyle}
                 onClick={onToggle}
             >
@@ -111,7 +113,7 @@ function TreeNode({ topic, index, isExpanded, onToggle, level = 0 }) {
 }
 
 // Letter Group Component
-function LetterGroup({ letter, topics, expandedTopics, toggleExpanded, expandedGroups, toggleGroupExpanded }) {
+function LetterGroup({ letter, topics, expandedTopics, toggleExpanded, expandedGroups, toggleGroupExpanded, highlightedTopicIndex }) {
     const isGroupExpanded = expandedGroups.has(letter);
     
     return (
@@ -161,6 +163,7 @@ function LetterGroup({ letter, topics, expandedTopics, toggleExpanded, expandedG
                                 topic={topic}
                                 index={globalIndex}
                                 isExpanded={expandedTopics.has(globalIndex)}
+                                isHighlighted={highlightedTopicIndex === globalIndex}
                                 onToggle={() => toggleExpanded(globalIndex)}
                                 level={1}
                             />
@@ -196,12 +199,14 @@ function VerseNode({ verse, level = 0 }) {
 }
 
 function TafsirMaudhuiPage() {
+    const { slug } = useParams();
     const [tafsirData, setTafsirData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchKeyword, setSearchKeyword] = useState('');
     const [expandedTopics, setExpandedTopics] = useState(new Set());
     const [expandedGroups, setExpandedGroups] = useState(new Set());
+    const [highlightedTopicIndex, setHighlightedTopicIndex] = useState(null);
 
     // Fetch tafsir data
     useEffect(() => {
@@ -260,6 +265,56 @@ function TafsirMaudhuiPage() {
             groupedTopics: grouped 
         };
     }, [tafsirData, searchKeyword]);
+
+    // Auto-open, highlight, and focus topic from URL slug
+    useEffect(() => {
+        if (!slug || loading || !tafsirData?.topics?.length) return;
+
+        let matchedLetter = null;
+        let matchedIndex = null;
+
+        Object.entries(groupedTopics).some(([letter, topics]) => {
+            const localIndex = topics.findIndex((topic) => topic.slug === slug);
+            if (localIndex !== -1) {
+                matchedLetter = letter;
+                matchedIndex = `${letter}-${localIndex}`;
+                return true;
+            }
+            return false;
+        });
+
+        if (!matchedLetter || !matchedIndex) return;
+
+        setExpandedGroups((prev) => {
+            const next = new Set(prev);
+            next.add(matchedLetter);
+            return next;
+        });
+
+        setExpandedTopics((prev) => {
+            const next = new Set(prev);
+            next.add(matchedIndex);
+            return next;
+        });
+
+        setHighlightedTopicIndex(matchedIndex);
+
+        const scrollTimer = setTimeout(() => {
+            const topicElement = document.getElementById(`topic-${slug}`);
+            if (topicElement) {
+                topicElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 150);
+
+        const highlightTimer = setTimeout(() => {
+            setHighlightedTopicIndex(null);
+        }, 2500);
+
+        return () => {
+            clearTimeout(scrollTimer);
+            clearTimeout(highlightTimer);
+        };
+    }, [slug, loading, tafsirData, groupedTopics]);
 
     // Toggle expanded state for a topic
     const toggleExpanded = (index) => {
@@ -501,6 +556,7 @@ function TafsirMaudhuiPage() {
                                             toggleExpanded={toggleExpanded}
                                             expandedGroups={expandedGroups}
                                             toggleGroupExpanded={toggleGroupExpanded}
+                                            highlightedTopicIndex={highlightedTopicIndex}
                                         />
                                     ))
                                 }
