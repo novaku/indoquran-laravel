@@ -108,7 +108,7 @@ function Breadcrumb() {
     }, [location.pathname]);
 
     return (
-        <div className="breadcrumb-transparent breadcrumb-auto-hide sticky top-16 z-40 border-b border-white/20 backdrop-blur-md">
+        <div className="breadcrumb-transparent sticky top-16 z-40 border-b border-white/20 backdrop-blur-md">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-start py-3">
                     <nav className="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm overflow-x-auto scrollbar-hide" aria-label="Breadcrumb">

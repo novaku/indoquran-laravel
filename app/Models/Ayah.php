@@ -14,9 +14,12 @@ class Ayah extends Model
         'ayah_number',
         'text_arabic',
         'text_latin',
+        'no_footnote',
+        'footnotes',
         'juz',
         'page',
         'text_indonesian',
+        'text_english',
         'tafsir',
         'audio_urls'
     ];

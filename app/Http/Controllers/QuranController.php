@@ -23,13 +23,54 @@ class QuranController extends Controller
     }
 
     /**
+     * Convert line breaks in long description to HTML break tags for UI rendering.
+     *
+     * @param string|null $descriptionLong
+     * @return string|null
+     */
+    private function formatDescriptionLong(?string $descriptionLong): ?string
+    {
+        if ($descriptionLong === null) {
+            return null;
+        }
+
+        return preg_replace('/\r\n|\r|\n/', '<br>', $descriptionLong);
+    }
+
+    /**
+     * Apply API display formatting for surah payload.
+     *
+     * @param mixed $surah
+     * @return mixed
+     */
+    private function formatSurahForApi($surah)
+    {
+        if (is_array($surah)) {
+            if (array_key_exists('description_long', $surah)) {
+                $surah['description_long'] = $this->formatDescriptionLong($surah['description_long']);
+            }
+
+            return $surah;
+        }
+
+        if ($surah instanceof Surah) {
+            $surah->description_long = $this->formatDescriptionLong($surah->description_long);
+        }
+
+        return $surah;
+    }
+
+    /**
      * Get all surahs
      * 
      * @return JsonResponse
      */
     public function getAllSurahs(): JsonResponse
     {
-        $surahs = $this->quranCache->getAllSurahs();
+        $surahs = $this->quranCache->getAllSurahs()->map(function ($surah) {
+            return $this->formatSurahForApi($surah);
+        });
+
         return response()->json([
             'status' => 'success',
             'data' => $surahs
@@ -47,7 +88,9 @@ class QuranController extends Controller
         $count = $request->query('count', 6); // Default 6 surahs
         $count = min(max((int)$count, 1), 20); // Limit between 1-20
         
-        $allSurahs = $this->quranCache->getAllSurahs()->toArray();
+        $allSurahs = $this->quranCache->getAllSurahs()->map(function ($surah) {
+            return $this->formatSurahForApi($surah);
+        })->toArray();
         
         if (empty($allSurahs)) {
             return response()->json([
@@ -136,6 +179,7 @@ class QuranController extends Controller
             ], 404);
         }
         
+        $surah = $this->formatSurahForApi($surah);
         $ayahs = $this->quranCache->getSurahAyahs($surahNumber);
         
         return response()->json([
@@ -183,6 +227,7 @@ class QuranController extends Controller
             ], 404);
         }
         
+        $surah = $this->formatSurahForApi($surah);
         return response()->json([
             'status' => 'success',
             'data' => $surah
