@@ -21,7 +21,26 @@ function JuzPage() {
     const [isAudioPlaying, setIsAudioPlaying] = useState(false);
     const [audioElement, setAudioElement] = useState(null);
     const [playingAyahId, setPlayingAyahId] = useState(null);
+
+    // Play All state
+    const [isPlayingAll, setIsPlayingAll] = useState(false);
+    const [playAllCurrentIndex, setPlayAllCurrentIndex] = useState(0);
+    const playAllQueueRef = useRef([]);
+    const playAllIndexRef = useRef(0);
+    const isPlayingAllRef = useRef(false);
+
     const audioRef = useRef(null);
+    const ayahRefs = useRef({});
+
+    // Auto-scroll to playing ayah
+    useEffect(() => {
+        if (playingAyahId && ayahRefs.current[playingAyahId]) {
+            ayahRefs.current[playingAyahId].scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+            });
+        }
+    }, [playingAyahId]);
 
     useEffect(() => {
         if (number) {
@@ -106,39 +125,88 @@ function JuzPage() {
     }, []);
     
     // Audio functions
-    const playAudio = (audioUrl, ayahId) => {
-        if (audioElement) {
-            audioElement.pause();
-            setIsAudioPlaying(false);
-            setPlayingAyahId(null);
+    const playAudio = (audioUrl, ayahId, onEnded) => {
+        if (audioRef.current) {
+            audioRef.current.pause();
         }
-        
+        setIsAudioPlaying(false);
+        setPlayingAyahId(null);
+        setAudioElement(null);
+
         const audio = new Audio(audioUrl);
         audioRef.current = audio;
-        
+
         audio.play()
             .then(() => {
                 setIsAudioPlaying(true);
                 setAudioElement(audio);
                 setPlayingAyahId(ayahId);
-                
+
                 audio.onended = () => {
                     setIsAudioPlaying(false);
                     setAudioElement(null);
                     setPlayingAyahId(null);
+                    if (onEnded) onEnded();
                 };
             })
             .catch(err => {
                 console.error('Audio playback error:', err);
+                if (onEnded) onEnded();
             });
     };
-    
+
     const stopAudio = () => {
-        if (audioElement) {
-            audioElement.pause();
-            setIsAudioPlaying(false);
-            setAudioElement(null);
-            setPlayingAyahId(null);
+        isPlayingAllRef.current = false;
+        setIsPlayingAll(false);
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current = null;
+        }
+        setIsAudioPlaying(false);
+        setAudioElement(null);
+        setPlayingAyahId(null);
+    };
+
+    const playAllAyahs = () => {
+        if (!juzData) return;
+        const queue = [];
+        juzData.surahs.forEach(surahData => {
+            surahData.ayahs.forEach(ayah => {
+                queue.push({ ayah, surahNumber: surahData.surah.number });
+            });
+        });
+        playAllQueueRef.current = queue;
+        playAllIndexRef.current = 0;
+        isPlayingAllRef.current = true;
+        setIsPlayingAll(true);
+        setPlayAllCurrentIndex(0);
+        playNextInQueue();
+    };
+
+    const playNextInQueue = () => {
+        const queue = playAllQueueRef.current;
+        const index = playAllIndexRef.current;
+
+        if (!isPlayingAllRef.current || index >= queue.length) {
+            isPlayingAllRef.current = false;
+            setIsPlayingAll(false);
+            setPlayAllCurrentIndex(0);
+            return;
+        }
+
+        const { ayah, surahNumber } = queue[index];
+        const ayahId = ayah.id || `${ayah.surah_number}-${ayah.ayah_number}`;
+        const audioUrl = getEveryAyahAudioUrl(surahNumber, ayah.ayah_number, selectedQari);
+        setPlayAllCurrentIndex(index);
+
+        if (audioUrl) {
+            playAudio(audioUrl, ayahId, () => {
+                playAllIndexRef.current = index + 1;
+                playNextInQueue();
+            });
+        } else {
+            playAllIndexRef.current = index + 1;
+            playNextInQueue();
         }
     };
     
@@ -213,9 +281,9 @@ function JuzPage() {
             <SEOHead {...juzSEO} />
             <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
                 <div className="max-w-6xl mx-auto px-4 py-8 pt-24 pb-20">
-                    {/* Header */}
+                    {/* Header + Controls + Play All */}
                     <div className="bg-white rounded-3xl shadow-xl p-8 mb-8 border border-green-100">
-                        <div className="flex items-center gap-4 mb-4">
+                        <div className="flex items-center justify-between mb-6">
                             <div className="flex items-center gap-3">
                                 <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl">
                                     <IoBookOutline className="text-2xl" />
@@ -229,7 +297,39 @@ function JuzPage() {
                                     </p>
                                 </div>
                             </div>
+
+                            {isPlayingAll ? (
+                                <button
+                                    onClick={stopAudio}
+                                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-colors text-sm font-medium"
+                                >
+                                    <IoPauseCircleOutline className="w-4 h-4" />
+                                    Berhenti
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={playAllAyahs}
+                                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors text-sm font-medium shadow-sm"
+                                >
+                                    <IoPlayCircleOutline className="w-4 h-4" />
+                                    Putar Semua
+                                </button>
+                            )}
                         </div>
+
+                        {isPlayingAll && (
+                            <div className="flex items-center gap-2 mb-5 px-4 py-2 bg-green-50 rounded-xl border border-green-200">
+                                <span className="text-xs font-medium text-green-700">Sedang diputar:</span>
+                                <span className="text-xs text-green-600">
+                                    Ayat {playAllCurrentIndex + 1} / {playAllQueueRef.current.length}
+                                </span>
+                                <span className="flex gap-0.5 ml-1">
+                                    <span className="w-1 h-3 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                                    <span className="w-1 h-3 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                                    <span className="w-1 h-3 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                                </span>
+                            </div>
+                        )}
 
                         {/* Arabic Text Zoom Controls & Qari Selector */}
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -300,7 +400,7 @@ function JuzPage() {
 
                     {/* Juz Content */}
                     <div className="space-y-8">
-                        {juzData.surahs.map((surahData, surahIndex) => (
+                        {juzData.surahs.map((surahData) => (
                             <div key={surahData.surah.number} className="bg-white rounded-3xl shadow-xl border border-green-100 overflow-hidden">
                                 {/* Surah Header */}
                                 <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6">
@@ -323,8 +423,19 @@ function JuzPage() {
                                 {/* Ayahs */}
                                 <div className="p-6">
                                     <div className="space-y-6">
-                                        {surahData.ayahs.map((ayah) => (
-                                            <div key={`${ayah.surah_number}-${ayah.ayah_number}`} className="group">
+                                        {surahData.ayahs.map((ayah) => {
+                                            const ayahId = ayah.id || `${ayah.surah_number}-${ayah.ayah_number}`;
+                                            const isPlaying = isAudioPlaying && playingAyahId === ayahId;
+                                            return (
+                                            <div
+                                                key={`${ayah.surah_number}-${ayah.ayah_number}`}
+                                                ref={el => ayahRefs.current[ayahId] = el}
+                                                className={`group rounded-2xl p-3 -mx-3 transition-all duration-300 ${
+                                                    isPlaying
+                                                        ? 'bg-green-50 ring-2 ring-green-400 shadow-md'
+                                                        : 'hover:bg-gray-50'
+                                                }`}
+                                            >
                                                 {/* Ayah Number */}
                                                 <div className="flex items-center justify-between mb-4">
                                                     <div className="flex items-center gap-3">
@@ -357,37 +468,52 @@ function JuzPage() {
                                                     </p>
                                                 </div>
                                                 
-                                                {/* Action Buttons - Only shown on hover */}
-                                                <div className="mt-4 flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    {/* Audio Controls */}
-                                                    {/* Always show audio controls */}
-                                                    <>
-                                                        {isAudioPlaying && playingAyahId === ayah.id ? (
-                                                            <button
-                                                                onClick={stopAudio}
-                                                                className="p-2 rounded-md bg-green-50 text-green-700 hover:bg-green-100 transition-colors border border-green-200"
-                                                                title="Jeda Audio"
-                                                            >
-                                                                <IoPauseCircleOutline className="w-5 h-5" />
-                                                            </button>
-                                                        ) : (
-                                                            <button
-                                                                onClick={() => {
-                                                                    const audioUrl = getAudioUrl(ayah, surahData.surah.number);
-                                                                    if (audioUrl) {
-                                                                        playAudio(audioUrl, ayah.id);
-                                                                    }
-                                                                }}
-                                                                className="p-2 rounded-md bg-green-50 text-green-700 hover:bg-green-100 transition-colors border border-green-200"
-                                                                title="Putar Audio"
-                                                            >
-                                                                <IoPlayCircleOutline className="w-5 h-5" />
-                                                            </button>
-                                                        )}
-                                                    </>
+                                                {/* Audio Player */}
+                                                <div className="mt-3 flex items-center gap-3 bg-green-50 rounded-xl px-4 py-2 border border-green-100">
+                                                    {isPlaying ? (
+                                                        <button
+                                                            onClick={stopAudio}
+                                                            className="flex items-center justify-center w-9 h-9 rounded-full bg-green-600 text-white hover:bg-green-700 transition-colors shadow-sm flex-shrink-0"
+                                                            title="Jeda Audio"
+                                                        >
+                                                            <IoPauseCircleOutline className="w-5 h-5" />
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => {
+                                                                const audioUrl = getAudioUrl(ayah, surahData.surah.number);
+                                                                if (audioUrl) {
+                                                                    playAudio(audioUrl, ayahId);
+                                                                }
+                                                            }}
+                                                            className="flex items-center justify-center w-9 h-9 rounded-full bg-green-600 text-white hover:bg-green-700 transition-colors shadow-sm flex-shrink-0"
+                                                            title="Putar Audio"
+                                                        >
+                                                            <IoPlayCircleOutline className="w-5 h-5" />
+                                                        </button>
+                                                    )}
+                                                    <div className="flex-1">
+                                                        <div className="flex items-center gap-2">
+                                                            {isPlaying ? (
+                                                                <div className="flex items-center gap-1">
+                                                                    <span className="text-xs font-medium text-green-700">Sedang diputar...</span>
+                                                                    <span className="flex gap-0.5">
+                                                                        <span className="w-1 h-3 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                                                                        <span className="w-1 h-3 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                                                                        <span className="w-1 h-3 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                                                                    </span>
+                                                                </div>
+                                                            ) : (
+                                                                <span className="text-xs text-gray-500">
+                                                                    Surah {surahData.surah.name_latin} : Ayat {ayah.ayah_number}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             </div>

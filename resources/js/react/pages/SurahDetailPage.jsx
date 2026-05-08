@@ -16,7 +16,6 @@ import {
 import {
     ShareIcon,
     ClipboardDocumentIcon,
-    SpeakerWaveIcon as SpeakerWaveOutlineIcon,
     SpeakerXMarkIcon,
     PlusIcon,
     MinusIcon,
@@ -1303,31 +1302,21 @@ function SurahDetailPage() {
             const indonesianText = ayah.text_indonesian || ayah.translation_id || '';
             
             // Construct share content with both Arabic and Indonesian
-            let shareText = `🕌 Al-Qur'an: ${surah.name_latin || surah.name_english} - Ayat ${ayahNum}\n\n`;
-            shareText += `📖 Arab:\n${ayah.text_arabic}\n\n`;
+            let shareText = `*${(surah.name_latin || surah.name_english).toUpperCase()} : AYAT ${ayahNum}*\n`;
+            shareText += `${surah.name_arabic} - Ayat ${ayahNum}\n\n`;
+            shareText += `${ayah.text_arabic}\n\n`;
             
             // Add Latin transliteration if available
             if (ayah.text_latin) {
-                shareText += `🔤 Latin:\n${ayah.text_latin}\n\n`;
+                shareText += `_${ayah.text_latin}_\n\n`;
             }
             
             if (indonesianText) {
-                shareText += `🇮🇩 Terjemahan:\n${indonesianText}\n\n`;
-            }
-
-            // Add English translation if available
-            if (ayah.text_english) {
-                shareText += `🇬🇧 English:\n${ayah.text_english}\n\n`;
-            }
-
-            // Add tafsir if available
-            if (ayah.tafsir) {
-                shareText += `📚 Tafsir:\n${ayah.tafsir}\n\n`;
+                shareText += `_${indonesianText}_\n\n`;
             }
             
-            shareText += `📍 Surah ${surah.name_latin} (${surah.name_arabic}) - Ayat ${ayahNum}\n`;
-            shareText += `🔗 Baca selengkapnya: ${window.location.origin}/surah/${number}/${ayahNum}\n\n`;
-            shareText += `📱 IndoQuran - Baca Al-Qur'an dengan mudah`;
+            shareText += `[ BACA SELENGKAPNYA ]\n${window.location.origin}/surah/${number}/${ayahNum}\n\n`;
+            shareText += `INDOQURAN - Baca Al-Qur'an dengan mudah`;
 
             // Share via WhatsApp only
             const encodedText = encodeURIComponent(shareText);
@@ -1405,27 +1394,20 @@ function SurahDetailPage() {
     const shareSurah = async () => {
         if (surah) {
             // Construct share content for entire surah
-            let shareText = `🕌 Al-Qur'an: ${surah.name_latin || surah.name_english}\n\n`;
-            shareText += `📊 Total Ayat: ${totalAyahs}\n`;
-            shareText += `📍 Tempat Turun: ${surah.revelation_place || 'Makkiyah/Madaniyah'}\n`;
+            let shareText = `*AL-QUR'AN: ${(surah.name_latin || surah.name_english).toUpperCase()}*\n\n`;
+            shareText += `TOTAL AYAT: ${totalAyahs}\n`;
+            shareText += `TEMPAT TURUN: ${surah.revelation_place || 'Makkiyah/Madaniyah'}\n`;
             
             if (surah.name_arabic) {
-                shareText += `🔤 Nama Arab: ${surah.name_arabic}\n`;
+                shareText += `NAMA ARAB: ${surah.name_arabic}\n`;
             }
             
             if (surah.meaning || surah.name_indonesian) {
-                shareText += `💡 Arti: ${surah.meaning || surah.name_indonesian}\n`;
-            }
-
-            // Add short description if available
-            if (surah.description_short) {
-                // Strip HTML tags for WhatsApp sharing
-                const plainDescription = surah.description_short.replace(/<[^>]*>/g, '');
-                shareText += `\n📚 Ringkasan:\n${plainDescription}\n`;
+                shareText += `ARTI: ${surah.meaning || surah.name_indonesian}\n`;
             }
             
-            shareText += `\n🔗 Baca selengkapnya: ${window.location.origin}/surah/${number}\n\n`;
-            shareText += `📱 IndoQuran - Baca Al-Qur'an dengan mudah`;
+            shareText += `\n[ BACA SELENGKAPNYA ]\n${window.location.origin}/surah/${number}\n\n`;
+            shareText += `INDOQURAN - Baca Al-Qur'an dengan mudah`;
 
             // Share via WhatsApp only
             const encodedText = encodeURIComponent(shareText);
@@ -2006,26 +1988,6 @@ function SurahDetailPage() {
                             {showActionsMenu && (
                                 <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
                                     <button
-                                        onClick={() => {
-                                            shareAyah(currentAyahNumber);
-                                            setShowActionsMenu(false);
-                                        }}
-                                        className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                                    >
-                                        <ShareIcon className="w-4 h-4 text-green-600" />
-                                        Bagikan ayat ini
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            shareSurah();
-                                            setShowActionsMenu(false);
-                                        }}
-                                        className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                                    >
-                                        <ShareIcon className="w-4 h-4 text-blue-600" />
-                                        Bagikan surah
-                                    </button>
-                                    <button
                                         onClick={async () => {
                                             await copyAyahText(currentAyahNumber, 'arabic');
                                             setShowActionsMenu(false);
@@ -2051,43 +2013,6 @@ function SurahDetailPage() {
                                             {bookmarkedAyahs.has(currentAyahNumber) ? 'Hapus bookmark ayat' : 'Bookmark ayat'}
                                         </button>
                                     )}
-                                    <button
-                                        onClick={() => {
-                                            if (isPlaying && currentPlayingAyah === currentAyahNumber) {
-                                                pauseAudio();
-                                            } else {
-                                                playAyah(currentAyahNumber);
-                                            }
-                                            setShowActionsMenu(false);
-                                        }}
-                                        className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                                    >
-                                        {isPlaying && currentPlayingAyah === currentAyahNumber ? (
-                                            <SpeakerXMarkIcon className="w-4 h-4 text-orange-600" />
-                                        ) : (
-                                            <SpeakerWaveOutlineIcon className="w-4 h-4 text-orange-600" />
-                                        )}
-                                        {isPlaying && currentPlayingAyah === currentAyahNumber ? 'Jeda audio ayat ini' : 'Putar audio ayat ini'}
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            if (isSurahPlaying || isAutoPlayingSequence) {
-                                                pauseFullSurah();
-                                            } else {
-                                                playFullSurah();
-                                            }
-                                            setShowActionsMenu(false);
-                                        }}
-                                        className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                                    >
-                                        {(isSurahPlaying || isAutoPlayingSequence) ? (
-                                            <SpeakerXMarkIcon className="w-4 h-4 text-red-600" />
-                                        ) : (
-                                            <SpeakerWaveOutlineIcon className="w-4 h-4 text-red-600" />
-                                        )}
-                                        {isSurahPlaying || isAutoPlayingSequence ? 'Jeda surah lengkap' : 'Putar surah lengkap'}
-                                    </button>
-
                                 </div>
                             )}
                         </div>
@@ -2097,32 +2022,38 @@ function SurahDetailPage() {
 
             <div className="max-w-6xl mx-auto px-4 py-6">
                 {/* Main Content - Single Ayah Display */}
-                <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg mb-6" id="ayah-content">
+                <div className="bg-white rounded-3xl border border-amber-100 p-4 sm:p-6 lg:p-8 shadow-sm mb-6" id="ayah-content">
                     {currentAyah ? (
                         <>
                             {/* Bismillah or Ayah Content */}
-                            <div className="text-center mb-8">
-                                {/* Font Size Controls */}
-                                <div className="flex items-center justify-end mb-3 gap-1">
-                                    <button
-                                        onClick={() => changeFontSize(-2)}
-                                        disabled={fontSize <= 12}
-                                        className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
-                                        title="Perkecil font Arab"
-                                    >
-                                        <MinusIcon className="w-3.5 h-3.5" />
-                                    </button>
-                                    <span className="text-xs text-gray-500 w-6 text-center">{fontSize}</span>
-                                    <button
-                                        onClick={() => changeFontSize(2)}
-                                        disabled={fontSize >= 32}
-                                        className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
-                                        title="Perbesar font Arab"
-                                    >
-                                        <PlusIcon className="w-3.5 h-3.5" />
-                                    </button>
+                            <div className="mb-8">
+                                <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                                    <div className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                                        Ayat {currentAyahNumber} dari {maxAyahNumber}
+                                    </div>
+                                    {/* Font Size Controls */}
+                                    <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-2 py-1">
+                                        <button
+                                            onClick={() => changeFontSize(-2)}
+                                            disabled={fontSize <= 12}
+                                            className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+                                            title="Perkecil font Arab"
+                                        >
+                                            <MinusIcon className="h-3.5 w-3.5" />
+                                        </button>
+                                        <span className="w-8 text-center text-xs font-medium text-gray-600">{fontSize}</span>
+                                        <button
+                                            onClick={() => changeFontSize(2)}
+                                            disabled={fontSize >= 32}
+                                            className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+                                            title="Perbesar font Arab"
+                                        >
+                                            <PlusIcon className="h-3.5 w-3.5" />
+                                        </button>
+                                    </div>
                                 </div>
-                                <div className="mb-6" id={`ayah-${currentAyahNumber}-arabic`}>
+
+                                <div className="mb-6 rounded-2xl bg-gradient-to-b from-white to-amber-50/35 p-4 sm:p-6" id={`ayah-${currentAyahNumber}-arabic`}>
                                     <div className="text-center" dir="rtl">
                                         <p 
                                             ref={currentAyahRef}
@@ -2134,15 +2065,15 @@ function SurahDetailPage() {
                                             <span 
                                                 className="font-bold text-white select-none inline-flex items-center justify-center ml-3"
                                                 style={{ 
-                                                    fontSize: `${Math.max(fontSize + 8, 28)}px`,
+                                                    fontSize: `${Math.max(fontSize + 6, 26)}px`,
                                                     fontFamily: 'Arial, sans-serif',
                                                     textShadow: '0 2px 4px rgba(0,0,0,0.3)',
                                                     background: 'linear-gradient(135deg, #059669, #047857)',
-                                                    minWidth: '50px',
-                                                    minHeight: '50px',
+                                                    minWidth: '44px',
+                                                    minHeight: '44px',
                                                     borderRadius: '50%',
                                                     border: '3px solid white',
-                                                    boxShadow: '0 8px 25px rgba(0,0,0,0.15), 0 0 0 3px rgba(34, 197, 94, 0.2)',
+                                                    boxShadow: '0 6px 16px rgba(0,0,0,0.14), 0 0 0 2px rgba(34, 197, 94, 0.2)',
                                                     verticalAlign: 'middle'
                                                 }}
                                             >
@@ -2164,7 +2095,7 @@ function SurahDetailPage() {
 
                                 {/* Indonesian Translation */}
                                 {currentAyah.text_indonesian && (
-                                    <div className="mb-6 max-w-3xl mx-auto bg-amber-50 border border-amber-200 rounded-xl p-4">
+                                    <div className="mb-4 max-w-3xl mx-auto bg-amber-50 border border-amber-200 rounded-xl p-4">
                                         <p className="text-xs font-semibold text-amber-700 uppercase tracking-wide mb-2">Terjemahan Indonesia</p>
                                         <p className="text-sm sm:text-base text-gray-800 leading-relaxed">
                                             {renderTranslationWithFootnote(
@@ -2202,66 +2133,58 @@ function SurahDetailPage() {
                                     </div>
                                 )}
 
-                                <div className="mb-6 max-w-4xl mx-auto">
-                                    <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-left">
-                                        <p className="text-xs sm:text-sm font-medium text-gray-700 mb-2">CDN URL Gambar Ayat</p>
-                                        <a
-                                            href={getAyahImageCdnUrl(surah.number, currentAyahNumber)}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-xs sm:text-sm text-blue-700 hover:text-blue-900 break-all underline block"
-                                        >
-                                            {getAyahImageCdnUrl(surah.number, currentAyahNumber)}
-                                        </a>
-                                    </div>
-                                </div>
-
-                                <div className="mb-6 max-w-md mx-auto text-left">
-                                    <label
-                                        htmlFor="ayah-audio-reciter"
-                                        className="block text-xs sm:text-sm font-medium text-gray-700 mb-2"
-                                    >
-                                        Pilihan audio ayat
-                                    </label>
-                                    <div className="relative">
-                                        <select
-                                            id="ayah-audio-reciter"
-                                            value={selectedQari}
-                                            onChange={(event) => setSelectedQari(event.target.value)}
-                                            disabled={recitersLoading || availableReciters.length === 0}
-                                            className="w-full appearance-none rounded-xl border border-gray-200 bg-white px-4 py-3 pr-11 text-sm text-gray-800 shadow-sm outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-100 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
-                                        >
-                                            {recitersLoading ? (
-                                                <option value="">Memuat pilihan audio...</option>
-                                            ) : availableReciters.length > 0 ? (
-                                                availableReciters.map((reciter) => (
-                                                    <option key={reciter.id} value={reciter.id}>
-                                                        {reciter.name}
-                                                    </option>
-                                                ))
-                                            ) : (
-                                                <option value="">Pilihan audio tidak tersedia</option>
-                                            )}
-                                        </select>
-                                        <ChevronDownIcon className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                                    </div>
-                                    <p className="mt-2 text-xs text-gray-500">
-                                        Pilihan ini dipakai untuk memutar audio ayat ini dan mode putar surah lengkap.
-                                    </p>
-                                </div>
-
-                                <div className="mb-8 max-w-3xl mx-auto rounded-2xl border border-green-100 bg-green-50/80 p-4 sm:p-5 text-left">
-                                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                                <div className="mb-8 max-w-4xl mx-auto rounded-2xl border border-gray-200 bg-gray-50/80 p-4 sm:p-5 text-left">
+                                    <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-6">
                                         <div>
-                                            <p className="text-xs font-semibold uppercase tracking-wide text-green-700">Audio Surah Lengkap</p>
-                                            <p className="mt-1 text-sm text-green-900 font-medium">
+                                            <p className="text-xs font-semibold uppercase tracking-wide text-gray-600">Pengaturan Audio</p>
+                                            <p className="mt-1 text-sm font-medium text-gray-900">
                                                 Putar semua ayat surah ini secara berurutan.
                                             </p>
-                                            <p className="mt-1 text-xs text-green-700">
+                                            <p className="mt-1 text-xs text-gray-600">
                                                 Qari: {selectedReciter?.name || 'Default'}
                                             </p>
                                         </div>
-                                        <div className="text-xs text-green-700 sm:text-right">
+                                        <div className="w-full md:ml-auto md:max-w-sm">
+                                            <label
+                                                htmlFor="ayah-audio-reciter"
+                                                className="mb-2 block text-xs font-medium text-gray-700"
+                                            >
+                                                Pilihan audio ayat
+                                            </label>
+                                            <div className="relative">
+                                                <select
+                                                    id="ayah-audio-reciter"
+                                                    value={selectedQari}
+                                                    onChange={(event) => setSelectedQari(event.target.value)}
+                                                    disabled={recitersLoading || availableReciters.length === 0}
+                                                    className="w-full appearance-none rounded-xl border border-gray-200 bg-white px-4 py-3 pr-11 text-sm text-gray-800 shadow-sm outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-100 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
+                                                >
+                                                    {recitersLoading ? (
+                                                        <option value="">Memuat pilihan audio...</option>
+                                                    ) : availableReciters.length > 0 ? (
+                                                        availableReciters.map((reciter) => (
+                                                            <option key={reciter.id} value={reciter.id}>
+                                                                {reciter.name}
+                                                            </option>
+                                                        ))
+                                                    ) : (
+                                                        <option value="">Pilihan audio tidak tersedia</option>
+                                                    )}
+                                                </select>
+                                                <ChevronDownIcon className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-4 rounded-xl border border-green-100 bg-green-50 p-4">
+                                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                                            <div>
+                                                <p className="text-xs font-semibold uppercase tracking-wide text-green-700">Audio Surah Lengkap</p>
+                                                <p className="mt-1 text-sm text-green-900 font-medium">
+                                                    Putar otomatis ayat 1 hingga {maxAyahNumber}
+                                                </p>
+                                            </div>
+                                            <div className="text-xs text-green-700 sm:text-right">
                                             {(isSurahPlaying || isAutoPlayingSequence) ? (
                                                 <>
                                                     <p className="font-semibold text-green-800">Sedang diputar</p>
@@ -2345,15 +2268,32 @@ function SurahDetailPage() {
                                             <ChevronRightIcon className="h-4 w-4" />
                                         </button>
                                     </div>
+
+                                    </div>
+                                </div>
+
+                                <div className="mb-8 max-w-4xl mx-auto">
+                                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-left">
+                                        <p className="mb-2 text-xs sm:text-sm font-medium text-gray-700">CDN URL Gambar Ayat</p>
+                                        <a
+                                            href={getAyahImageCdnUrl(surah.number, currentAyahNumber)}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="block break-all text-xs sm:text-sm text-blue-700 underline hover:text-blue-900"
+                                        >
+                                            {getAyahImageCdnUrl(surah.number, currentAyahNumber)}
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
 
                             {/* Navigation Controls */}
-                            <div className="flex items-center justify-center gap-3 sm:gap-4 mb-8">
+                            <div className="mb-8 rounded-2xl border border-gray-200 bg-white p-3 sm:p-4">
+                            <div className="flex items-center justify-center gap-3 sm:gap-4">
                                 <button
                                     onClick={goToPreviousAyah}
                                     disabled={availableAyahNumbers.indexOf(currentAyahNumber) <= 0}
-                                    className="flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base"
+                                    className="flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base"
                                 >
                                     <ChevronLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                                     <span className="hidden sm:inline">Sebelumnya</span>
@@ -2400,12 +2340,13 @@ function SurahDetailPage() {
                                 <button
                                     onClick={goToNextAyah}
                                     disabled={availableAyahNumbers.indexOf(currentAyahNumber) >= availableAyahNumbers.length - 1}
-                                    className="flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base"
+                                    className="flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base"
                                 >
                                     <span className="hidden sm:inline">Selanjutnya</span>
                                     <span className="sm:hidden">Next</span>
                                     <ChevronRightIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                                 </button>
+                            </div>
                             </div>
 
                             {/* Next Surah / Next Ayah prominent button */}
@@ -2505,8 +2446,26 @@ function SurahDetailPage() {
                         </div>
 
                         <p className="text-sm text-gray-500 mt-3">
-                            Gunakan menu aksi di pojok kanan atas untuk membagikan ayat, bookmark, memutar audio, dan mengatur ukuran font.
+                            Gunakan tombol panel detail untuk berbagi, dan menu aksi di pojok kanan atas untuk salin teks atau bookmark ayat.
                         </p>
+
+                        <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3">
+                            <button
+                                onClick={() => shareAyah(currentAyahNumber)}
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors text-sm font-medium"
+                            >
+                                <ShareIcon className="w-4 h-4" />
+                                Bagikan Ayat Ini
+                            </button>
+
+                            <button
+                                onClick={shareSurah}
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors text-sm font-medium"
+                            >
+                                <ShareIcon className="w-4 h-4" />
+                                Bagikan Surah
+                            </button>
+                        </div>
 
                         <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3">
                             <button

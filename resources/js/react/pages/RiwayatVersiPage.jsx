@@ -5,7 +5,7 @@ import StructuredData from '../components/StructuredData';
 import { Card, Badge, PageContent } from '../components/ui';
 
 function RiwayatVersiPage() {
-    const [expandedVersions, setExpandedVersions] = useState({ "2.13.0": true });
+    const [expandedVersions, setExpandedVersions] = useState({ "2.14.0": true });
 
     const toggleVersion = (versionNumber) => {
         setExpandedVersions(prev => ({
@@ -14,6 +14,51 @@ function RiwayatVersiPage() {
         }));
     };
     const versions = [
+        {
+            version: "2.14.0",
+            date: "8 Mei 2026",
+            type: "major",
+            title: "Halaman Al-Quran: CDN Image, Audio Player & Tafsir Maudhui Slug Routing",
+            description: "Update mayor pada halaman detail Al-Quran dengan tampilan gambar halaman via CDN myquran.com, audio player per ayat dengan fitur Putar Semua secara berurutan, highlight dan auto-scroll ke ayat yang sedang diputar. Tafsir Maudhui kini mendukung slug routing sehingga setiap topik dapat dibuka langsung melalui URL, lengkap dengan highlight dan scroll otomatis.",
+            changes: [
+                {
+                    type: "feature",
+                    text: "CDN Gambar Halaman - Gambar setiap halaman Al-Quran ditampilkan dari CDN cdn.myquran.com/img/page/{nomor}.png"
+                },
+                {
+                    type: "feature",
+                    text: "Audio Player Per Ayat - Setiap ayat memiliki audio player inline dengan tombol play/pause dan label nama surah & ayat"
+                },
+                {
+                    type: "feature",
+                    text: "Putar Semua Ayat - Tombol Putar Semua memutar seluruh ayat halaman secara berurutan dengan progress counter"
+                },
+                {
+                    type: "feature",
+                    text: "Highlight & Auto-Scroll Ayat - Ayat yang sedang diputar otomatis di-highlight dengan ring hijau dan di-scroll ke tengah layar"
+                },
+                {
+                    type: "feature",
+                    text: "Panel Header Tergabung - Header halaman, kontrol ukuran teks, pemilih qari, dan tombol Putar Semua digabung dalam satu panel"
+                },
+                {
+                    type: "feature",
+                    text: "Tafsir Maudhui Slug Routing - Rute baru /tafsir-maudhui/:slug memungkinkan direct link ke topik tafsir tertentu"
+                },
+                {
+                    type: "feature",
+                    text: "Highlight Topik Tafsir - Topik yang dibuka via URL slug otomatis di-highlight (bg biru) dan di-scroll ke posisinya"
+                },
+                {
+                    type: "improvement",
+                    text: "Format Share WhatsApp Ayat & Surah - Teks share disederhanakan tanpa ikon/emoticon, menggunakan karakter teks besar agar lebih konsisten dan terbaca di semua perangkat WhatsApp"
+                },
+                {
+                    type: "fix",
+                    text: "Fix Sintaks JSX QuranSearchPage - Perbaikan komentar JSX yang tidak valid pada komponen sidebar"
+                }
+            ]
+        },
         {
             version: "2.13.0",
             date: "8 Mei 2026",
