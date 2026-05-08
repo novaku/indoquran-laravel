@@ -982,7 +982,7 @@ function QuranSearchPage() {
                     {/* Sidebar */}
                     <aside className="lg:col-span-4">
                         <div className="sticky top-4 space-y-6">
-                            {/* Quick Tips Box */}}
+                            {/* Quick Tips Box */}
                             <Card>
                                 <h3 className="font-semibold text-gray-900 mb-3">💡 Tips Pencarian</h3>
                                 <div className="space-y-2 text-sm text-gray-600">

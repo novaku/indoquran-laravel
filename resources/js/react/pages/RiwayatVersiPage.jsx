@@ -5,7 +5,7 @@ import StructuredData from '../components/StructuredData';
 import { Card, Badge, PageContent } from '../components/ui';
 
 function RiwayatVersiPage() {
-    const [expandedVersions, setExpandedVersions] = useState({ "2.12.0": true });
+    const [expandedVersions, setExpandedVersions] = useState({ "2.13.0": true });
 
     const toggleVersion = (versionNumber) => {
         setExpandedVersions(prev => ({
@@ -14,6 +14,51 @@ function RiwayatVersiPage() {
         }));
     };
     const versions = [
+        {
+            version: "2.13.0",
+            date: "8 Mei 2026",
+            type: "major",
+            title: "Redesign Detail Ayat, Tafsir Lengkap & Optimasi Performa",
+            description: "Update mayor mencakup redesign tampilan detail ayat dengan footnote, tafsir ayat dan surah yang lebih lengkap, integrasi CDN untuk gambar ayat, serta penghapusan komponen AdSense untuk menyederhanakan aplikasi dan meningkatkan performa. Berbagai perbaikan Google Search Console juga disertakan untuk meningkatkan indeksasi dan visibilitas di mesin pencari.",
+            changes: [
+                {
+                    type: "feature",
+                    text: "Redesign Detail Ayat - Tampilan detail ayat dirancang ulang untuk pengalaman membaca yang lebih baik dan intuitif"
+                },
+                {
+                    type: "feature",
+                    text: "Footnote - Penambahan footnote pada detail ayat untuk memberikan konteks dan keterangan tambahan"
+                },
+                {
+                    type: "feature",
+                    text: "Tafsir Lebih Lengkap - Tafsir ayat dan surah ditampilkan lebih lengkap dan informatif"
+                },
+                {
+                    type: "feature",
+                    text: "CDN Image Ayat - Gambar ayat kini menggunakan CDN untuk loading yang lebih cepat dan reliable"
+                },
+                {
+                    type: "improvement",
+                    text: "Hapus Komponen AdSense - Penghapusan seluruh komponen AdSense dari halaman dan layout utama untuk menyederhanakan kode dan meningkatkan performa"
+                },
+                {
+                    type: "improvement",
+                    text: "Optimasi Performa - Bundle JavaScript lebih ringan setelah penghapusan AdSense, meningkatkan Core Web Vitals"
+                },
+                {
+                    type: "fix",
+                    text: "Google Search Console - Perbaikan berbagai isu crawl, 404 error, duplikat URL, dan canonical yang dilaporkan Google Search Console"
+                },
+                {
+                    type: "fix",
+                    text: "Fix 404 Error Crawl - Mengatasi halaman yang tidak terindeks akibat error 404 saat di-crawl Google"
+                },
+                {
+                    type: "fix",
+                    text: "Fix Duplikat Canonical - Mengatasi isu duplikat URL dimana Google memilih versi kanonik berbeda dari pengguna"
+                }
+            ]
+        },
         {
             version: "2.12.0",
             date: "2 Januari 2026",
