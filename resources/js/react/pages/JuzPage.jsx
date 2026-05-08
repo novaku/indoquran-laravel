@@ -4,7 +4,6 @@ import { fetchWithAuth } from '../utils/apiUtils';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PageTransition from '../components/PageTransition';
 import SEOHead from '../components/SEOHead';
-import AdSenseVertical from '../components/AdSenseVertical';
 import { IoBookOutline, IoAddOutline, IoRemoveOutline, IoReloadOutline, IoPlayCircleOutline, IoPauseCircleOutline } from 'react-icons/io5';
 
 function JuzPage() {

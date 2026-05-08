@@ -21,7 +21,6 @@ import PrayerFilters from '../components/PrayerFilters';
 import PrayerSlideshow from '../components/PrayerSlideshow';
 import SimpleSlideshow from '../components/SimpleSlideshow';
 import SEOHead from '../components/SEOHead';
-import AdSenseVertical from '../components/AdSenseVertical';
 
 const PrayerPage = () => {
     const navigate = useNavigate();

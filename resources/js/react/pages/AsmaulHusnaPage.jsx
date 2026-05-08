@@ -13,7 +13,6 @@ import {
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead, { getAsmaulHusnaSEO } from '../components/SEOHead';
-import AdSenseVertical from '../components/AdSenseVertical';
 
 // Add custom styles for Arabic calligraphy
 const customStyles = `

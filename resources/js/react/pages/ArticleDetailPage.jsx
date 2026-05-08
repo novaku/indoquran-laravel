@@ -5,7 +5,6 @@ import SEOHead from '../components/SEOHead';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { getWithAuth } from '../utils/apiUtils';
 import { useAuth } from '../hooks/useAuth';
-import AdSenseVertical from '../components/AdSenseVertical';
 
 const ArticleDetailPage = () => {
   const { slug } = useParams();

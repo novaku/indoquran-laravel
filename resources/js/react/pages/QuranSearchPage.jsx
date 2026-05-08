@@ -26,7 +26,6 @@ import SEOHead from '../components/SEOHead';
 import { Card, Button, Input, Select, Badge, PageContent } from '../components/ui';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
-import AdSenseVertical from '../components/AdSenseVertical';
 
 // Text highlighting utility function
 const highlightText = (text, searchQuery) => {
@@ -980,21 +979,10 @@ function QuranSearchPage() {
                 )}
                     </div>
 
-                    {/* Sidebar dengan Iklan */}
+                    {/* Sidebar */}
                     <aside className="lg:col-span-4">
                         <div className="sticky top-4 space-y-6">
-                            {/* Iklan Vertikal */}
-                            <Card padding="none">
-                                <div className="text-xs text-center text-gray-400 py-2 border-b border-gray-100">
-                                    Iklan
-                                </div>
-                                <AdSenseVertical
-                                    adSlot="9427110099"
-                                    className="min-h-[600px]"
-                                />
-                            </Card>
-
-                            {/* Quick Tips Box */}
+                            {/* Quick Tips Box */}}
                             <Card>
                                 <h3 className="font-semibold text-gray-900 mb-3">💡 Tips Pencarian</h3>
                                 <div className="space-y-2 text-sm text-gray-600">

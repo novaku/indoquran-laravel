@@ -3,7 +3,6 @@ import { CheckCircleIcon, CogIcon, BugAntIcon, SparklesIcon, ShieldCheckIcon, Ro
 import SEOHead from '../components/SEOHead';
 import StructuredData from '../components/StructuredData';
 import { Card, Badge, PageContent } from '../components/ui';
-import AdSenseVertical from '../components/AdSenseVertical';
 
 function RiwayatVersiPage() {
     const [expandedVersions, setExpandedVersions] = useState({ "2.12.0": true });
@@ -1524,20 +1523,9 @@ function RiwayatVersiPage() {
                 </div>
                     </div>
 
-                    {/* Sidebar dengan Iklan */}
+                    {/* Sidebar */}
                     <aside className="lg:col-span-4">
                         <div className="sticky top-4 space-y-6">
-                            {/* Iklan Vertikal */}
-                            <Card padding="none">
-                                <div className="text-xs text-center text-gray-400 py-2 border-b border-gray-100">
-                                    Iklan
-                                </div>
-                                <AdSenseVertical
-                                    adSlot="9427110099"
-                                    className="min-h-[600px]"
-                                />
-                            </Card>
-
                             {/* Quick Stats */}
                             <Card>
                                 <h3 className="font-semibold text-gray-900 mb-3">📊 Statistik Update</h3>

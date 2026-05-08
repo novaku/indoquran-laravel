@@ -8,7 +8,6 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
-import AdSenseVertical from '../components/AdSenseVertical';
 
 function JuzIndexPage() {
     const navigate = useNavigate();

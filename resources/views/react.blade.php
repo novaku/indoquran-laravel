@@ -54,8 +54,6 @@
     <!-- DNS prefetch for external domains (highest priority) - reduced to only used resources -->
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    <link rel="dns-prefetch" href="//fundingchoicesmessages.google.com">
-    <link rel="dns-prefetch" href="//pagead2.googlesyndication.com">
     
     <!-- Preconnect to critical external resources only (fonts) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -122,15 +120,6 @@
     
     <!-- PWA Manager -->
     <script src="/pwa-manager.js"></script>
-    
-    <!-- Google Funding Choices (Consent Management Platform) -->
-    <!-- Required for GDPR, CCPA, and other privacy regulations -->
-    <script async src="https://fundingchoicesmessages.google.com/i/pub-9994842285785390?ers=1" nonce="FUNDING_CHOICES_NONCE"></script>
-    <script nonce="FUNDING_CHOICES_NONCE">(function() {function signalGooglefcPresent() {if (!window.frames['googlefcPresent']) {if (document.body) {const iframe = document.createElement('iframe'); iframe.style = 'width: 0; height: 0; border: none; z-index: -1000; left: -1000px; top: -1000px;'; iframe.style.display = 'none'; iframe.name = 'googlefcPresent'; document.body.appendChild(iframe);} else {setTimeout(signalGooglefcPresent, 0);}}}signalGooglefcPresent();})();</script>
-    
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9994842285785390"
-     crossorigin="anonymous"></script>
     
     <!-- Critical CSS for above-the-fold content -->
     {!! App\Services\PerformanceOptimizationService::getCriticalCSS() !!}
