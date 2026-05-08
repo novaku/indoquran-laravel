@@ -73,21 +73,18 @@ const looksLikeEnglishTranslation = (text) => {
 
 const escapeRegExp = (value = '') => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-const resolveFootnoteMarker = (translationText, marker) => {
-    const cleanTranslation = (translationText || '').trim();
-    const cleanMarker = (marker || '').trim();
-
-    if (!cleanTranslation || !cleanMarker) {
-        return '';
-    }
-
-    const candidates = Array.from(new Set([
-        cleanMarker,
-        cleanMarker.replace(/\s+/g, ''),
-        cleanMarker.endsWith(')') ? cleanMarker : `${cleanMarker})`,
-    ].filter(Boolean)));
-
-    return candidates.find((candidate) => cleanTranslation.includes(candidate)) || '';
+const parseFootnotes = (footnoteText) => {
+    const result = {};
+    if (!footnoteText) return result;
+    // Split on newline followed by a number and closing paren
+    const parts = footnoteText.split(/\n(?=\d+\))/);
+    parts.forEach(part => {
+        const match = part.match(/^(\d+)\)\s*([\s\S]*)/);
+        if (match) {
+            result[match[1]] = match[2].trim();
+        }
+    });
+    return result;
 };
 
 const FootnoteMarker = ({ resolvedMarker, cleanFootnote }) => {
@@ -129,34 +126,51 @@ const FootnoteMarker = ({ resolvedMarker, cleanFootnote }) => {
     );
 };
 
-const renderTranslationWithFootnote = (translationText, marker, footnoteText) => {
+const renderTranslationWithFootnote = (translationText, markerStr, footnoteText) => {
     const cleanTranslation = (translationText || '').trim();
-    const cleanFootnote = (footnoteText || '').trim();
-    const resolvedMarker = resolveFootnoteMarker(cleanTranslation, marker);
+    if (!cleanTranslation) return '';
 
-    if (!cleanTranslation) {
-        return '';
-    }
+    const cleanFootnoteText = (footnoteText || '').trim();
+    const markers = (markerStr || '').split(/[,\s]+/).map(m => m.trim()).filter(Boolean);
 
-    if (!resolvedMarker || !cleanFootnote) {
+    if (!markers.length || !cleanFootnoteText) {
         return cleanTranslation;
     }
 
-    const parts = cleanTranslation.split(new RegExp(`(${escapeRegExp(resolvedMarker)})`, 'g'));
+    const footnoteMap = parseFootnotes(cleanFootnoteText);
 
-    if (parts.length <= 1) {
-        return cleanTranslation;
-    }
+    // Iteratively split the text by each marker pattern (e.g. "9)")
+    let segments = [cleanTranslation];
 
-    return parts.map((part, index) => {
-        if (part !== resolvedMarker) {
-            return <React.Fragment key={`translation-part-${index}`}>{part}</React.Fragment>;
-        }
+    markers.forEach(marker => {
+        const footnoteContent = footnoteMap[marker];
+        if (!footnoteContent) return;
 
-        return (
-            <FootnoteMarker key={`translation-footnote-${index}`} resolvedMarker={resolvedMarker} cleanFootnote={cleanFootnote} />
-        );
+        const markerPattern = `${marker})`;
+        const regex = new RegExp(`(${escapeRegExp(markerPattern)})`, 'g');
+
+        segments = segments.flatMap((seg, segIndex) => {
+            if (typeof seg !== 'string') return [seg];
+            const subParts = seg.split(regex);
+            if (subParts.length <= 1) return [seg];
+            return subParts.map((subPart, j) => {
+                if (subPart !== markerPattern) return subPart;
+                return (
+                    <FootnoteMarker
+                        key={`fn-${marker}-${segIndex}-${j}`}
+                        resolvedMarker={markerPattern}
+                        cleanFootnote={footnoteContent}
+                    />
+                );
+            });
+        });
     });
+
+    return segments.map((seg, i) =>
+        typeof seg === 'string'
+            ? <React.Fragment key={`text-${i}`}>{seg}</React.Fragment>
+            : seg
+    );
 };
 
 function SurahDetailPage() {
