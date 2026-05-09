@@ -19,8 +19,12 @@ function RiwayatVersiPage() {
             date: "8 Mei 2026",
             type: "major",
             title: "Halaman Al-Quran: CDN Image, Audio Player & Tafsir Maudhui Slug Routing",
-            description: "Update mayor pada halaman detail Al-Quran dengan tampilan gambar halaman via CDN myquran.com, audio player per ayat dengan fitur Putar Semua secara berurutan, highlight dan auto-scroll ke ayat yang sedang diputar. Tafsir Maudhui kini mendukung slug routing sehingga setiap topik dapat dibuka langsung melalui URL, lengkap dengan highlight dan scroll otomatis.",
+            description: "Update mayor pada halaman detail Al-Quran dengan tampilan gambar halaman via CDN myquran.com, audio player per ayat dengan fitur Putar Semua secara berurutan, highlight dan auto-scroll ke ayat yang sedang diputar. Tafsir Maudhui kini mendukung slug routing sehingga setiap topik dapat dibuka langsung melalui URL, lengkap dengan highlight dan scroll otomatis. Versi ini juga mencakup sinkronisasi referensi data dari dataset Hugging Face ronnieaban/alquran untuk memperkaya metadata ayat dan tafsir.",
             changes: [
+                {
+                    type: "feature",
+                    text: "Integrasi Referensi Dataset Hugging Face - Menambahkan referensi data terbaru dari https://huggingface.co/datasets/ronnieaban/alquran (6.236 ayat) yang mencakup teks Arab, latin, terjemahan Indonesia, metadata surah/ayat, footnote, serta tafsir wajiz dan tahlili"
+                },
                 {
                     type: "feature",
                     text: "CDN Gambar Halaman - Gambar setiap halaman Al-Quran ditampilkan dari CDN cdn.myquran.com/img/page/{nomor}.png"
