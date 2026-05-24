@@ -308,17 +308,19 @@ function SurahDetailPage() {
     // Get current ayah - simplified and reliable approach with type-safe comparison and fallback
     const currentAyah = ayahs.find(ayah => parseInt(ayah.ayah_number) === parseInt(currentAyahNumber)) || 
                         (ayahs.length > 0 ? ayahs[0] : null); // Fallback to first ayah if current not found
-    const isAyahRoute = Boolean(ayahNumber && currentAyah);
+    const isAyahRoute = Boolean(ayahNumber && currentAyah && surah);
     const effectiveCanonicalPath = isAyahRoute
         ? `https://indoquran.web.id/surah/${number}/${currentAyahNumber}`
         : `https://indoquran.web.id/surah/${number}`;
-    const seoPayload = isAyahRoute
-        ? getPageSEOData('ayah', {
-            surah,
-            ayah_number: parseInt(currentAyahNumber, 10),
-            translation: currentAyah?.translation_id || currentAyah?.translation || ''
-        })
-        : getPageSEOData('surah', surah);
+    const seoPayload = surah
+        ? (isAyahRoute
+            ? getPageSEOData('ayah', {
+                surah,
+                ayah_number: parseInt(currentAyahNumber, 10),
+                translation: currentAyah?.translation_id || currentAyah?.translation || ''
+            })
+            : getPageSEOData('surah', surah))
+        : getPageSEOData('home');
     const currentLatinText = currentAyah?.text_latin?.trim() || '';
     const currentEnglishText = currentAyah?.text_english?.trim() || '';
     const englishFallbackFromLatin = !currentEnglishText && looksLikeEnglishTranslation(currentLatinText);
@@ -1747,6 +1749,23 @@ function SurahDetailPage() {
         }
     };
 
+    // Show error state only if there's an actual error and not just loading
+    if (error) {
+        return (
+            <div className="min-h-screen flex items-center justify-center px-4">
+                <div className="text-center">
+                    <p className="text-red-600 mb-4">Terjadi kesalahan memuat surah</p>
+                    <button 
+                        onClick={() => window.location.reload()} 
+                        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                    >
+                        Coba Lagi
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     // REQUIREMENT 1: Show loading state until complete surah API data is loaded
     // Only render content after surah and all ayahs are loaded from API
     if (loading || !surah || ayahs.length === 0) {
@@ -1761,23 +1780,6 @@ function SurahDetailPage() {
                     <p className="mt-2 text-sm text-gray-500">
                         Mengambil data lengkap dari API: /api/surahs/{number}
                     </p>
-                </div>
-            </div>
-        );
-    }
-
-    // Show error state only if there's an actual error and not just loading
-    if (error) {
-        return (
-            <div className="min-h-screen flex items-center justify-center px-4">
-                <div className="text-center">
-                    <p className="text-red-600 mb-4">Terjadi kesalahan memuat surah</p>
-                    <button 
-                        onClick={() => window.location.reload()} 
-                        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                    >
-                        Coba Lagi
-                    </button>
                 </div>
             </div>
         );

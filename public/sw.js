@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v2.0.0';
+const CACHE_VERSION = 'v2.0.1';
 const CACHE_NAME = `indoquran-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `indoquran-runtime-${CACHE_VERSION}`;
 const IMAGE_CACHE = `indoquran-images-${CACHE_VERSION}`;
@@ -56,6 +56,16 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
+  // Avoid stale-cache issues during local development.
+  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+    return;
+  }
+
+  // Only cache GET requests. Non-GET requests (POST/PUT/DELETE) should pass through.
+  if (request.method !== 'GET') {
+    return;
+  }
+
   // Skip cross-origin requests
   if (url.origin !== location.origin) {
     return;
@@ -100,7 +110,7 @@ async function cacheFirstStrategy(request, cacheName) {
   
   try {
     const response = await fetch(request);
-    if (response.ok) {
+    if (response.ok && request.method === 'GET') {
       cache.put(request, response.clone());
     }
     return response;
@@ -121,7 +131,7 @@ async function networkFirstStrategy(request, cacheName, timeout = 3000) {
     const response = await fetch(request, { signal: controller.signal });
     clearTimeout(timeoutId);
     
-    if (response.ok) {
+    if (response.ok && request.method === 'GET') {
       cache.put(request, response.clone());
     }
     return response;
@@ -155,7 +165,7 @@ async function staleWhileRevalidateStrategy(request, cacheName) {
   
   const fetchPromise = fetch(request)
     .then((response) => {
-      if (response.ok) {
+      if (response.ok && request.method === 'GET') {
         cache.put(request, response.clone());
       }
       return response;

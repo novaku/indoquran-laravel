@@ -5,7 +5,7 @@ import StructuredData from '../components/StructuredData';
 import { Card, Badge, PageContent } from '../components/ui';
 
 function RiwayatVersiPage() {
-    const [expandedVersions, setExpandedVersions] = useState({ "2.14.0": true });
+    const [expandedVersions, setExpandedVersions] = useState({ "2.15.1": true });
 
     const toggleVersion = (versionNumber) => {
         setExpandedVersions(prev => ({
@@ -14,6 +14,35 @@ function RiwayatVersiPage() {
         }));
     };
     const versions = [
+        {
+            version: "2.15.1",
+            date: "24 Mei 2026",
+            type: "patch",
+            title: "Perbaikan Crash Halaman Surah & Sinkronisasi Cache Service Worker",
+            description: "Patch stabilisasi untuk memperbaiki error boundary pada halaman surah (termasuk rute /surah/112) dan mengatasi masalah cache service worker yang menyebabkan bundle lama tetap dipakai saat pengembangan lokal. Update ini memastikan halaman surah kembali tampil normal serta cache lebih aman untuk request dan build terbaru.",
+            changes: [
+                {
+                    type: "fix",
+                    text: "Perbaikan Runtime Crash SurahDetailPage - Menambahkan guard null-safe saat membentuk payload SEO agar halaman tidak crash sebelum data surah selesai dimuat"
+                },
+                {
+                    type: "fix",
+                    text: "Perbaikan Urutan Render Error/Loading - State error kini ditampilkan lebih dulu sehingga kegagalan API tidak terjebak pada fallback loading"
+                },
+                {
+                    type: "fix",
+                    text: "Cache.put Safety Guard - Service worker kini hanya menyimpan request GET untuk mencegah error Request method POST is unsupported"
+                },
+                {
+                    type: "improvement",
+                    text: "Bypass Cache di Localhost - Service worker tidak lagi melakukan runtime caching pada localhost/127.0.0.1 untuk mencegah stale bundle saat debug"
+                },
+                {
+                    type: "improvement",
+                    text: "Cache Version Bump - Version cache pada sw.js, sw-mobile.js, dan sw-pwa.js diperbarui agar cache lama otomatis terinvalidasi"
+                }
+            ]
+        },
         {
             version: "2.15.0",
             date: "24 Mei 2026",

@@ -25,7 +25,7 @@ class OptimizedErrorBoundary extends Component {
             error,
             errorInfo
         });
-        
+
         // Log to external error reporting service in production
         if (process.env.NODE_ENV === 'production') {
             console.error('Error caught by ErrorBoundary:', error, errorInfo);

@@ -1,7 +1,7 @@
-const CACHE_NAME = 'indoquran-mobile-v2';
-const STATIC_CACHE = 'static-v2';
-const DYNAMIC_CACHE = 'dynamic-v2';
-const IMAGE_CACHE = 'images-v2';
+const CACHE_NAME = 'indoquran-mobile-v3';
+const STATIC_CACHE = 'static-v3';
+const DYNAMIC_CACHE = 'dynamic-v3';
+const IMAGE_CACHE = 'images-v3';
 
 // Performance-focused cache limits
 const MAX_STATIC_ITEMS = 50;
@@ -41,7 +41,7 @@ self.addEventListener('activate', event => {
       caches.keys().then(cacheNames => {
         return Promise.all(
           cacheNames.map(cacheName => {
-            if (!cacheName.includes('v2')) {
+            if (!cacheName.includes('v3')) {
               return caches.delete(cacheName);
             }
           })
