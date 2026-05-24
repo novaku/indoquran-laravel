@@ -352,6 +352,40 @@
                 <div style="font-size: 1.125rem; color: #4b5563; margin-bottom: 3rem; background: #f3f4f6; display: inline-block; padding: 0.5rem 1.5rem; border-radius: 9999px;">
                     {{ $reactData['currentSurah']->name_indonesian }} • {{ $reactData['currentSurah']->total_ayahs }} Ayat • {{ $reactData['currentSurah']->revelation_place }}
                 </div>
+
+                @if(isset($reactData['currentAyah']) && $reactData['currentAyah'])
+                    <article id="ssr-ayah-detail" style="text-align: left; margin: 0 auto 2rem; max-width: 720px; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.25rem; background: #fafaf9;">
+                        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem; color: #14532d;">
+                            Ayat {{ $reactData['currentAyah']->ayah_number }} Surah {{ $reactData['currentSurah']->name_latin }}
+                        </h3>
+
+                        <p class="arabic-text" style="font-size: 2rem; line-height: 2.4; color: #111827; text-align: right; margin: 0 0 1rem 0; direction: rtl;">
+                            {{ $reactData['currentAyah']->text_arabic }}
+                        </p>
+
+                        @if(!empty($reactData['currentAyah']->text_latin))
+                            <p style="font-size: 1rem; color: #4b5563; line-height: 1.7; margin: 0 0 0.75rem 0;">
+                                {{ $reactData['currentAyah']->text_latin }}
+                            </p>
+                        @endif
+
+                        @if(!empty($reactData['currentAyah']->text_indonesian))
+                            <p style="font-size: 1rem; color: #1f2937; line-height: 1.7; margin: 0;">
+                                {{ $reactData['currentAyah']->text_indonesian }}
+                            </p>
+                        @endif
+
+                        <nav style="margin-top: 1rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                            @if(isset($reactData['ayahNavigation']['prev']) && $reactData['ayahNavigation']['prev'])
+                                <a href="/surah/{{ $reactData['currentSurah']->number }}/{{ $reactData['ayahNavigation']['prev'] }}" style="color: #166534; font-weight: 600; text-decoration: none;">&larr; Ayat {{ $reactData['ayahNavigation']['prev'] }}</a>
+                            @endif
+                            @if(isset($reactData['ayahNavigation']['next']) && $reactData['ayahNavigation']['next'])
+                                <a href="/surah/{{ $reactData['currentSurah']->number }}/{{ $reactData['ayahNavigation']['next'] }}" style="color: #166534; font-weight: 600; text-decoration: none;">Ayat {{ $reactData['ayahNavigation']['next'] }} &rarr;</a>
+                            @endif
+                        </nav>
+                    </article>
+                @endif
+
                 <div>
                     <a href="/" style="display: inline-block; padding: 0.75rem 1.5rem; background: #16a34a; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">&larr; Kembali ke Daftar Surah</a>
                 </div>

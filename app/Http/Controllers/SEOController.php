@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Ayah;
 use App\Models\Surah;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -112,6 +113,27 @@ class SEOController extends Controller
                 $surah = Surah::query()->where('number', $surahNumber)->first();
                 if (!$surah) {
                     $isInvalidRoute = true;
+                } elseif (isset($segments[2])) {
+                    // Verify ayah number is valid for this surah
+                    if (!is_numeric($segments[2])) {
+                        $isInvalidRoute = true;
+                    } else {
+                        $ayahNumber = (int) $segments[2];
+                        $maxAyah = (int) ($surah->total_ayahs ?? 0);
+
+                        if ($ayahNumber < 1 || ($maxAyah > 0 && $ayahNumber > $maxAyah)) {
+                            $isInvalidRoute = true;
+                        } else {
+                            $ayahExists = Ayah::query()
+                                ->where('surah_number', $surahNumber)
+                                ->where('ayah_number', $ayahNumber)
+                                ->exists();
+
+                            if (!$ayahExists) {
+                                $isInvalidRoute = true;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -405,6 +427,27 @@ class SEOController extends Controller
             // Surah Detail: Fetch specific surah info
             $surahNumber = (int) $segments[1];
             $reactData['currentSurah'] = Surah::query()->where('number', $surahNumber)->first();
+
+            if (
+                $reactData['currentSurah'] &&
+                isset($segments[2]) &&
+                is_numeric($segments[2])
+            ) {
+                $ayahNumber = (int) $segments[2];
+
+                $reactData['currentAyah'] = Ayah::query()
+                    ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian')
+                    ->where('surah_number', $surahNumber)
+                    ->where('ayah_number', $ayahNumber)
+                    ->first();
+
+                if ($reactData['currentAyah']) {
+                    $reactData['ayahNavigation'] = [
+                        'prev' => $ayahNumber > 1 ? $ayahNumber - 1 : null,
+                        'next' => $ayahNumber < (int) $reactData['currentSurah']->total_ayahs ? $ayahNumber + 1 : null,
+                    ];
+                }
+            }
         }
         elseif (isset($segments[0]) && $segments[0] === 'juz' && isset($segments[1]) && is_numeric($segments[1])) {
             $juzNumber = (int) $segments[1];
