@@ -372,7 +372,7 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<Ayah>|Ayah newModelQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<Ayah>|Ayah newQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<Ayah>|Ayah query()
-     * @method static \Illuminate\Database\Eloquent\Builder<Ayah>|Ayah searchIndonesianText(mixed $search) {@see App\Models\Ayah::scopeSearchIndonesianText()}
+     * @method static \Illuminate\Database\Eloquent\Builder<Ayah>|Ayah searchIndonesianText(mixed $search, bool $exact = false) {@see App\Models\Ayah::scopeSearchIndonesianText()}
      * @method static mixed select($columns)
      * @method static mixed selectSub($query, $as)
      * @method static mixed selectRaw($expression, array $bindings)

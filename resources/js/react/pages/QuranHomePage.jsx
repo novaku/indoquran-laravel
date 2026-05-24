@@ -354,8 +354,9 @@ function QuranHomePage() {
                         <div className="max-w-2xl w-full">
                             <SearchField
                                 placeholder="Cari ayat, surah, atau topik..."
-                                className="w-full"
+                                className="w-full pb-8"
                                 surahs={surahs}
+                                showExactSearchToggle={true}
                             />
                         </div>
 

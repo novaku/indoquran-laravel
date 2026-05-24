@@ -3,6 +3,64 @@ import { useNavigate } from 'react-router-dom';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
 
+const escapeRegExp = (value) => String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const buildExactWordRegex = (query) => new RegExp(`(^|[^a-z0-9])(${escapeRegExp(query)})([^a-z0-9]|$)`, 'i');
+
+const matchesSearchText = (text, query, exactMatch) => {
+    const textValue = String(text || '').toLowerCase();
+    const searchValue = String(query || '').trim().toLowerCase();
+
+    if (!textValue || !searchValue) {
+        return false;
+    }
+
+    if (exactMatch) {
+        return buildExactWordRegex(searchValue).test(textValue);
+    }
+
+    return textValue.includes(searchValue);
+};
+
+const buildHighlightedParts = (text, query, exactMatch) => {
+    const textValue = String(text || '');
+    const searchValue = String(query || '').trim();
+
+    if (!textValue || !searchValue) {
+        return textValue;
+    }
+
+    if (exactMatch) {
+        const regex = buildExactWordRegex(searchValue);
+        const match = textValue.match(regex);
+
+        if (!match || match.index === undefined) {
+            return textValue;
+        }
+
+        const startIndex = match.index + (match[1] || '').length;
+        return {
+            before: textValue.substring(0, startIndex),
+            match: textValue.substring(startIndex, startIndex + searchValue.length),
+            after: textValue.substring(startIndex + searchValue.length)
+        };
+    }
+
+    const lowerText = textValue.toLowerCase();
+    const lowerQuery = searchValue.toLowerCase();
+
+    if (!lowerText.includes(lowerQuery)) {
+        return textValue;
+    }
+
+    const startIndex = lowerText.indexOf(lowerQuery);
+    return {
+        before: textValue.substring(0, startIndex),
+        match: textValue.substring(startIndex, startIndex + searchValue.length),
+        after: textValue.substring(startIndex + searchValue.length)
+    };
+};
+
 const SearchField = ({ 
     onSuggestionClick, 
     onViewAllResults, 
@@ -12,12 +70,16 @@ const SearchField = ({
     theme = 'islamic', // 'islamic' or 'amber'
     value, // controlled value
     onChange, // controlled onChange
-    disableAutocomplete = false // prop to disable autocomplete suggestions
+    disableAutocomplete = false, // prop to disable autocomplete suggestions
+    exactMatch,
+    onExactMatchChange,
+    showExactSearchToggle = false
 }) => {
     const navigate = useNavigate();
     
     // Search functionality states
     const [internalSearchTerm, setInternalSearchTerm] = useState('');
+    const [internalExactMatch, setInternalExactMatch] = useState(false);
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [isSearchLoading, setIsSearchLoading] = useState(false);
@@ -32,6 +94,8 @@ const SearchField = ({
     const isControlled = value !== undefined;
     // Ensure searchTerm is always a string
     const searchTerm = isControlled ? String(value || '') : internalSearchTerm;
+    const isExactMatchControlled = exactMatch !== undefined;
+    const exactSearch = isExactMatchControlled ? Boolean(exactMatch) : internalExactMatch;
 
     // Search functionality
     const fetchSuggestions = useCallback(async (query) => {
@@ -42,10 +106,11 @@ const SearchField = ({
         }
 
         // Don't make API call if the query is the same as the last one
-        if (lastSearchTermRef.current === query) {
+        const searchKey = `${query}::${exactSearch ? 'exact' : 'contains'}`;
+        if (lastSearchTermRef.current === searchKey) {
             return;
         }
-        lastSearchTermRef.current = query;
+        lastSearchTermRef.current = searchKey;
 
         // Cancel previous request if it exists
         if (currentRequestRef.current) {
@@ -62,8 +127,8 @@ const SearchField = ({
             // First, search through surahs in memory
             const surahResults = surahs
                 .filter(surah => 
-                    surah.name_latin.toLowerCase().includes(query.toLowerCase()) ||
-                    surah.name_indonesian.toLowerCase().includes(query.toLowerCase()) ||
+                    matchesSearchText(surah.name_latin, query, exactSearch) ||
+                    matchesSearchText(surah.name_indonesian, query, exactSearch) ||
                     surah.number.toString() === query
                 )
                 .slice(0, 3)
@@ -79,7 +144,16 @@ const SearchField = ({
                 }));
 
             // Then, fetch ayah results from API
-            const response = await fetchWithAuth(`/api/cari?q=${encodeURIComponent(query)}&limit=5`, {
+            const searchParams = new URLSearchParams({
+                q: query,
+                limit: '5'
+            });
+
+            if (exactSearch) {
+                searchParams.append('exact', '1');
+            }
+
+            const response = await fetchWithAuth(`/api/cari?${searchParams.toString()}`, {
                 signal: abortController.signal,
                 headers: {
                     'Authorization': token ? `Bearer ${token}` : '',
@@ -114,18 +188,7 @@ const SearchField = ({
                         return null;
                     }
                     
-                    let highlightedText = ayahData.text_indonesian;
-                    const lowerText = ayahData.text_indonesian.toLowerCase();
-                    const lowerQuery = query.toLowerCase();
-                    
-                    if (lowerText.includes(lowerQuery)) {
-                        const startIndex = lowerText.indexOf(lowerQuery);
-                        highlightedText = {
-                            before: ayahData.text_indonesian.substring(0, startIndex),
-                            match: ayahData.text_indonesian.substring(startIndex, startIndex + query.length),
-                            after: ayahData.text_indonesian.substring(startIndex + query.length)
-                        };
-                    }
+                    const highlightedText = buildHighlightedParts(ayahData.text_indonesian, query, exactSearch);
                     
                     const suggestion = {
                         type: 'ayah',
@@ -159,7 +222,7 @@ const SearchField = ({
                 currentRequestRef.current = null;
             }
         }
-    }, [surahs]); // Only depend on surahs, which should be memoized by parent component
+    }, [surahs, exactSearch]); // Depend on surahs and exact mode, which should be stable from parent component
 
     // Debounced search function
     const debouncedFetchSuggestions = useCallback((query) => {
@@ -239,7 +302,11 @@ const SearchField = ({
         e.preventDefault();
         const query = e.target.elements.search.value.trim();
         if (query) {
-            navigate(`/cari?q=${encodeURIComponent(query)}`);
+            const params = new URLSearchParams({ q: query });
+            if (exactSearch) {
+                params.append('exact', '1');
+            }
+            navigate(`/cari?${params.toString()}`);
             setShowSuggestions(false);
             if (onViewAllResults) onViewAllResults(query);
         }
@@ -265,6 +332,18 @@ const SearchField = ({
             setShowSuggestions(true);
         } else {
             setShowSuggestions(false);
+        }
+    };
+
+    const handleExactMatchChange = (event) => {
+        const checked = Boolean(event.target.checked);
+
+        if (isExactMatchControlled) {
+            if (onExactMatchChange && typeof onExactMatchChange === 'function') {
+                onExactMatchChange(checked);
+            }
+        } else {
+            setInternalExactMatch(checked);
         }
     };
 
@@ -336,7 +415,11 @@ const SearchField = ({
     }, [navigate, onSuggestionClick, isControlled, onChange]);
 
     const handleViewAllResults = () => {
-        navigate(`/cari?q=${encodeURIComponent(searchTerm)}`);
+        const params = new URLSearchParams({ q: searchTerm });
+        if (exactSearch) {
+            params.append('exact', '1');
+        }
+        navigate(`/cari?${params.toString()}`);
         setShowSuggestions(false);
         if (onViewAllResults) onViewAllResults(searchTerm);
     };
@@ -401,6 +484,17 @@ const SearchField = ({
                         placeholder={placeholder}
                         className={`w-full pl-12 pr-12 py-4 rounded-xl border-2 border-${currentTheme.primaryBorder} focus:outline-none focus:ring-2 focus:ring-${currentTheme.primaryFocus} focus:border-${currentTheme.primaryHover} shadow-md text-base bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow`}
                     />
+                    {showExactSearchToggle && (
+                        <label className={`absolute left-4 -bottom-8 inline-flex items-center gap-2 rounded-full border border-${currentTheme.primaryBorder} bg-white px-3 py-1 text-xs font-medium text-gray-700 shadow-sm`}>
+                            <input
+                                type="checkbox"
+                                checked={exactSearch}
+                                onChange={handleExactMatchChange}
+                                className={`h-3.5 w-3.5 rounded border-${currentTheme.primaryBorder} text-${currentTheme.primaryText} focus:ring-${currentTheme.primaryFocus}`}
+                            />
+                            <span>Pencarian persis</span>
+                        </label>
+                    )}
                     {searchTerm && (
                         <button
                             type="button"

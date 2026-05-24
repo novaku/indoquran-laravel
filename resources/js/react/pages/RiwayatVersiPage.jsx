@@ -15,6 +15,39 @@ function RiwayatVersiPage() {
     };
     const versions = [
         {
+            version: "2.15.0",
+            date: "24 Mei 2026",
+            type: "minor",
+            title: "Pencarian Persis dan Toggle Exact Search",
+            description: "Update minor yang menambahkan mode pencarian persis di seluruh alur pencarian IndoQuran. Pengguna kini bisa menyalakan opsi pencarian persis untuk memastikan kata yang dicari hanya cocok sebagai kata utuh, bukan bagian dari kata lain. Mode ini didukung di frontend, autocomplete, halaman hasil, dan backend API agar hasil pencarian tetap konsisten.",
+            changes: [
+                {
+                    type: "feature",
+                    text: "Toggle Pencarian Persis - Checkbox baru di halaman pencarian dan search bar beranda untuk mengaktifkan mode exact search"
+                },
+                {
+                    type: "feature",
+                    text: "Exact Search Backend - Endpoint pencarian kini mendukung flag exact=1 untuk membedakan hasil kata utuh dan substring"
+                },
+                {
+                    type: "feature",
+                    text: "Autocomplete Consistency - Saran pencarian ikut memakai mode exact agar hasil pencarian cepat dan hasil halaman utama tetap selaras"
+                },
+                {
+                    type: "improvement",
+                    text: "URL dan Pagination Sync - Mode exact dipertahankan lewat query string saat submit, navigasi hasil, dan paginasi"
+                },
+                {
+                    type: "improvement",
+                    text: "Default Behavior Tetap Aman - Pencarian biasa tetap bekerja seperti sebelumnya jika toggle exact tidak diaktifkan"
+                },
+                {
+                    type: "fix",
+                    text: "Perbaikan Riwayat Pencarian - Mencegah kata seperti 'misalkan' ikut muncul saat mencari kata utuh seperti 'isa'"
+                }
+            ]
+        },
+        {
             version: "2.14.0",
             date: "8 Mei 2026",
             type: "major",
@@ -1426,9 +1459,9 @@ function RiwayatVersiPage() {
         "@context": "https://schema.org",
         "@type": "WebPage",
         "name": "Riwayat Versi - IndoQuran",
-        "description": "Catatan perubahan dan pembaruan versi platform Al-Quran digital IndoQuran dengan admin auto-generate slug, sitemap validation fix, canonical URL optimization, SEO enhancements, fitur Asmaul Husna, dan PWA",
+        "description": "Catatan perubahan dan pembaruan versi platform Al-Quran digital IndoQuran dengan exact search, admin auto-generate slug, sitemap validation fix, canonical URL optimization, SEO enhancements, fitur Asmaul Husna, dan PWA",
         "url": `${window.location.origin}/riwayat-versi`,
-        "dateModified": "2025-11-07",
+        "dateModified": "2026-05-24",
         "mainEntity": {
             "@type": "SoftwareApplication",
             "name": "IndoQuran",
@@ -1450,8 +1483,8 @@ function RiwayatVersiPage() {
         <>
             <SEOHead 
                 title="Riwayat Versi - Changelog IndoQuran ✅"
-                description="📝 Catatan lengkap update IndoQuran: Canonical URL Fix (v2.11.4), Optimasi SEO (CTR +757%), audio murottal 79+ qari, fitur komunitas doa, Asmaul Husna, Tafsir Maudhui, PWA. Versi terbaru dengan Google Search Console optimization."
-                keywords="indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi, indoquran 2.11.4, canonical url fix, seo optimization, google search console, audio murottal everyayah, 79 qari, migrasi database asmaul husna, tafsir maudhui, tafsir tematik, statistik quran, dashboard analytics, 99 nama allah, PWA, progressive web app, deployment workflow"
+                description="📝 Catatan lengkap update IndoQuran: Exact Search (v2.15.0), Canonical URL Fix (v2.11.4), Optimasi SEO (CTR +757%), audio murottal 79+ qari, fitur komunitas doa, Asmaul Husna, Tafsir Maudhui, PWA. Versi terbaru dengan Google Search Console optimization."
+                keywords="indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi, indoquran 2.15.0, exact search, pencarian persis, canonical url fix, seo optimization, google search console, audio murottal everyayah, 79 qari, migrasi database asmaul husna, tafsir maudhui, tafsir tematik, statistik quran, dashboard analytics, 99 nama allah, PWA, progressive web app, deployment workflow"
                 canonicalUrl={`${window.location.origin}/riwayat-versi`}
             />
             <StructuredData data={structuredData} />

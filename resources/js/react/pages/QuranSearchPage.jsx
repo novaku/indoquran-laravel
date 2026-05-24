@@ -88,6 +88,7 @@ function QuranSearchPage() {
     const [searchParams] = useSearchParams();
     const [query, setQuery] = useState(searchParams.get('q') || '');
     const [debouncedQuery, setDebouncedQuery] = useState(searchParams.get('q') || '');
+    const [exactSearch, setExactSearch] = useState(searchParams.get('exact') === '1');
     const [surahs, setSurahs] = useState([]);
     const [searchResults, setSearchResults] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -186,6 +187,15 @@ function QuranSearchPage() {
         return () => clearTimeout(timer);
     }, [query]);
 
+    useEffect(() => {
+        const nextQuery = searchParams.get('q') || '';
+        const nextExact = searchParams.get('exact') === '1';
+
+        setQuery(nextQuery);
+        setDebouncedQuery(nextQuery);
+        setExactSearch(nextExact);
+    }, [searchParams]);
+
     // Fetch surahs on component mount
     useEffect(() => {
         const fetchSurahs = async () => {
@@ -231,7 +241,7 @@ function QuranSearchPage() {
             setTotalResults(0);
             setCurrentPage(1);
         }
-    }, [debouncedQuery, surahsLoading, surahs.length]);
+    }, [debouncedQuery, exactSearch, surahsLoading, surahs.length]);
 
     // Perform search when page changes (but not on initial load)
     useEffect(() => {
@@ -239,7 +249,7 @@ function QuranSearchPage() {
             // Only trigger search for page changes after initial search has run
             performSearch(debouncedQuery.trim(), currentPage);
         }
-    }, [currentPage, debouncedQuery, surahs.length, hasInitialSearchRun]);
+    }, [currentPage, debouncedQuery, exactSearch, surahs.length, hasInitialSearchRun]);
 
     // Helper function to build API URL with filters
     const buildSearchUrl = (searchQuery, page, perPage) => {
@@ -248,6 +258,10 @@ function QuranSearchPage() {
             page: page.toString(),
             per_page: perPage.toString()
         });
+
+        if (exactSearch) {
+            params.append('exact', '1');
+        }
         
         // Add revelation_place filter if not "all"
         if (revelationType !== 'all') {
@@ -469,26 +483,34 @@ function QuranSearchPage() {
         // Update URL immediately when user types
         if (searchQuery !== searchParams.get('q')) {
             if (searchQuery.trim()) {
-                navigate(`/cari?q=${encodeURIComponent(searchQuery)}`, { replace: true });
+                const params = new URLSearchParams({ q: searchQuery });
+                if (exactSearch) {
+                    params.append('exact', '1');
+                }
+                navigate(`/cari?${params.toString()}`, { replace: true });
             } else {
                 navigate('/cari', { replace: true });
             }
         }
         
         // The debounced query will handle the actual search
-    }, [navigate, searchParams]);
+    }, [navigate, searchParams, exactSearch]);
 
     const handleSearchSubmit = useCallback((searchQuery) => {
         setQuery(searchQuery);
         setDebouncedQuery(searchQuery); // Immediate search on submit
         if (searchQuery !== searchParams.get('q')) {
             if (searchQuery.trim()) {
-                navigate(`/cari?q=${encodeURIComponent(searchQuery)}`);
+                const params = new URLSearchParams({ q: searchQuery });
+                if (exactSearch) {
+                    params.append('exact', '1');
+                }
+                navigate(`/cari?${params.toString()}`);
             } else {
                 navigate('/cari');
             }
         }
-    }, [navigate, searchParams]);
+    }, [navigate, searchParams, exactSearch]);
 
     const clearSearch = useCallback(() => {
         setQuery('');
@@ -496,6 +518,7 @@ function QuranSearchPage() {
         setSearchResults([]);
         setTotalResults(0);
         setCurrentPage(1);
+        setExactSearch(false);
         navigate('/cari');
     }, [navigate]);
 
@@ -510,6 +533,7 @@ function QuranSearchPage() {
         setRevelationType('all');
         setSortBy('surah');
         setError(null);
+        setExactSearch(false);
         
         // Navigate to clean search page
         navigate('/cari');
@@ -567,6 +591,9 @@ function QuranSearchPage() {
                                 surahs={surahs || []}
                                 value={query || ''}
                                 onChange={handleSearch}
+                                exactMatch={exactSearch}
+                                onExactMatchChange={setExactSearch}
+                                showExactSearchToggle={true}
                                 disableAutocomplete={true}
                             />
                             {query && (

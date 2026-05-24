@@ -8,6 +8,7 @@ use App\Services\QuranCacheService;
 use App\Services\MurottalService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -340,6 +341,7 @@ class QuranController extends Controller
         $perPage = (int)$request->input('per_page', 10);
         $page = (int)$request->input('page', 1);
         $revelationPlace = $request->input('revelation_place');
+        $exact = $request->boolean('exact');
         
         // Validate per_page to reasonable limits
         $perPage = max(1, min($perPage, 50)); // Between 1 and 50
@@ -361,7 +363,7 @@ class QuranController extends Controller
         
         // Build the search query using Indonesian text
         $searchQuery = Ayah::with('surah:number,name_indonesian,name_arabic,name_latin,revelation_place');
-        $searchQuery->searchIndonesianText($query);
+        $searchQuery->searchIndonesianText($query, false);
         
         // Add revelation place filter if provided
         if ($revelationPlace && in_array($revelationPlace, ['makkah', 'madinah'])) {
@@ -373,16 +375,34 @@ class QuranController extends Controller
         // Add ordering for consistent pagination
         $searchQuery->orderBy('surah_number')->orderBy('ayah_number');
         
-        // Apply pagination with proper appending of query parameters for pagination links
-        $paginatedResults = $searchQuery->paginate($perPage, ['*'], 'page', $page)
-                                     ->appends($request->only(['q', 'per_page', 'revelation_place']));
+        if ($exact) {
+            $filteredResults = $searchQuery->get()->filter(function ($ayah) use ($query) {
+                return Ayah::matchesExactSearchText($ayah->text_indonesian ?? '', $query);
+            })->values();
+
+            $paginatedResults = new LengthAwarePaginator(
+                $filteredResults->forPage($page, $perPage)->values(),
+                $filteredResults->count(),
+                $perPage,
+                $page,
+                [
+                    'path' => $request->url(),
+                    'query' => $request->query()
+                ]
+            );
+        } else {
+            // Apply pagination with proper appending of query parameters for pagination links
+            $paginatedResults = $searchQuery->paginate($perPage, ['*'], 'page', $page)
+                ->appends($request->only(['q', 'per_page', 'revelation_place', 'exact']));
+        }
         
         return response()->json([
             'status' => 'success',
             'query' => [
                 'text' => $query,
                 'revelation_place' => $revelationPlace,
-                'search_mode' => 'AND' // Indicating that search uses AND between terms
+                'exact' => $exact,
+                'search_mode' => $exact ? 'EXACT' : 'AND'
             ],
             'data' => $paginatedResults->items(),
             'pagination' => [
@@ -444,7 +464,7 @@ class QuranController extends Controller
         }
         
         // Get all ayahs for this juz with surah information
-        $ayahs = Ayah::where('juz', $juzNum)
+        $ayahs = Ayah::query()->where('juz', $juzNum)
             ->with('surah:number,name_indonesian,name_arabic,name_latin')
             ->orderBy('surah_number')
             ->orderBy('ayah_number')
@@ -503,7 +523,7 @@ class QuranController extends Controller
         }
         
         // Get all ayahs for this page with surah information
-        $ayahs = Ayah::where('page', $pageNum)
+        $ayahs = Ayah::query()->where('page', $pageNum)
             ->with('surah:number,name_indonesian,name_arabic,name_latin')
             ->orderBy('surah_number')
             ->orderBy('ayah_number')

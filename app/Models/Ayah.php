@@ -53,17 +53,51 @@ class Ayah extends Model
                     ->withPivot(['is_favorite', 'notes', 'created_at'])
                     ->withTimestamps();
     }
+
+    /**
+     * Build a regex pattern that matches a term as a whole word.
+     */
+    protected static function buildExactWordPattern(string $term): string
+    {
+        return '[[:<:]]' . preg_quote(trim($term), '/') . '[[:>:]]';
+    }
+
+    /**
+     * Check if Indonesian text contains all search terms as whole words.
+     */
+    public static function matchesExactSearchText(?string $text, string $search): bool
+    {
+        $textValue = trim((string) $text);
+        $searchTerms = array_filter(preg_split('/\s+/u', trim((string) $search)) ?: [], function ($term) {
+            return !empty(trim($term));
+        });
+
+        if ($textValue === '' || empty($searchTerms)) {
+            return false;
+        }
+
+        foreach ($searchTerms as $term) {
+            $pattern = '/(^|[^a-z0-9])' . preg_quote(trim($term), '/') . '([^a-z0-9]|$)/i';
+
+            if (!preg_match($pattern, $textValue)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
     
     /**
      * Scope a query to search ayahs by Indonesian text.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param string $search
+     * @param bool $exact
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeSearchIndonesianText($query, $search)
+    public function scopeSearchIndonesianText($query, $search, bool $exact = false)
     {
-        $searchTerms = array_filter(explode(' ', trim($search)), function($term) {
+        $searchTerms = array_filter(preg_split('/\s+/u', trim((string) $search)) ?: [], function($term) {
             return !empty(trim($term));
         });
         
@@ -71,6 +105,7 @@ class Ayah extends Model
         // This will work like: WHERE text_indonesian LIKE '%term1%' AND text_indonesian LIKE '%term2%'
         foreach ($searchTerms as $term) {
             $term = trim($term);
+
             $query->where('text_indonesian', 'like', '%' . $term . '%');
         }
 
