@@ -12,6 +12,30 @@ use Illuminate\Support\Str;
 class ArticleController extends Controller
 {
     /**
+     * Ensure public/storage link exists before handling upload.
+     */
+    private function ensureStorageLinkForUploads(): void
+    {
+        $linkPath = public_path('storage');
+        $targetPath = storage_path('app/public');
+
+        if (is_link($linkPath)) {
+            return;
+        }
+
+        // If a regular folder/file exists at public/storage, do not modify it automatically.
+        if (file_exists($linkPath)) {
+            return;
+        }
+
+        if (!is_dir($targetPath)) {
+            @mkdir($targetPath, 0755, true);
+        }
+
+        @symlink($targetPath, $linkPath);
+    }
+
+    /**
      * Display a listing of published articles (public)
      */
     public function index(Request $request)
@@ -222,6 +246,8 @@ class ArticleController extends Controller
      */
     public function uploadImage(Request $request)
     {
+        $this->ensureStorageLinkForUploads();
+
         $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048'
         ]);
