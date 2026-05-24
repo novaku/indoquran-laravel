@@ -30,10 +30,9 @@ class DomainRedirectMiddleware
             $path = $request->getRequestUri(); // Sudah termasuk query string
             $newUrl = $scheme . '://indoquran.web.id' . $path;
             
-            // Redirect dengan status 301 (permanent redirect)
-            // Add X-Robots-Tag: noindex to prevent Google from indexing the old domain
-            return redirect($newUrl, 301)
-                ->header('X-Robots-Tag', 'noindex, nofollow');
+            // Redirect dengan status 301 (permanent redirect).
+            // Jangan kirim noindex di response redirect agar tidak memicu issue GSC.
+            return redirect($newUrl, 301);
         }
         
         // Jika bukan domain yang perlu di-redirect, lanjutkan request normal

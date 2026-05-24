@@ -84,10 +84,10 @@ class CanonicalUrlRedirect
         // Perform redirect if needed
         if ($needsRedirect) {
             $url = $this->buildCanonicalUrl($path, $query);
-            
-            // Add X-Robots-Tag: noindex to prevent Google from indexing redirect URLs
-            return redirect($url, 301)
-                ->header('X-Robots-Tag', 'noindex, nofollow');
+
+            // Keep redirects clean: avoid sending noindex on redirect responses.
+            // Canonical target pages already define their own index directives.
+            return redirect($url, 301);
         }
 
         return $next($request);
