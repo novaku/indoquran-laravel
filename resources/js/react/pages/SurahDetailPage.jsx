@@ -308,6 +308,17 @@ function SurahDetailPage() {
     // Get current ayah - simplified and reliable approach with type-safe comparison and fallback
     const currentAyah = ayahs.find(ayah => parseInt(ayah.ayah_number) === parseInt(currentAyahNumber)) || 
                         (ayahs.length > 0 ? ayahs[0] : null); // Fallback to first ayah if current not found
+    const isAyahRoute = Boolean(ayahNumber && currentAyah);
+    const effectiveCanonicalPath = isAyahRoute
+        ? `https://indoquran.web.id/surah/${number}/${currentAyahNumber}`
+        : `https://indoquran.web.id/surah/${number}`;
+    const seoPayload = isAyahRoute
+        ? getPageSEOData('ayah', {
+            surah,
+            ayah_number: parseInt(currentAyahNumber, 10),
+            translation: currentAyah?.translation_id || currentAyah?.translation || ''
+        })
+        : getPageSEOData('surah', surah);
     const currentLatinText = currentAyah?.text_latin?.trim() || '';
     const currentEnglishText = currentAyah?.text_english?.trim() || '';
     const englishFallbackFromLatin = !currentEnglishText && looksLikeEnglishTranslation(currentLatinText);
@@ -1815,7 +1826,7 @@ function SurahDetailPage() {
             `}</style>
 
             <SEOHead 
-                {...getPageSEOData('surah', surah)}
+                {...seoPayload}
                 ampHtmlUrl={`https://indoquran.web.id/amp/surah/${number}`}
                 additionalMeta={[
                     { name: 'author', content: 'IndoQuran' },
@@ -1857,8 +1868,12 @@ function SurahDetailPage() {
                     {
                         "@context": "https://schema.org",
                         "@type": "Article",
-                        "headline": `Surah ${surah.name_latin} (${surah.name_arabic}) - Terjemahan & Audio Murottal`,
-                        "description": `Baca dan dengarkan Surah ${surah.name_latin} lengkap dengan terjemahan bahasa Indonesia dan tafsir. Surah ke-${surah.number} dalam Al-Quran yang terdiri dari ${maxAyahNumber} ayat.`,
+                        "headline": isAyahRoute
+                            ? `${surah.name_latin} Ayat ${currentAyahNumber} - Terjemahan & Audio Murottal`
+                            : `Surah ${surah.name_latin} (${surah.name_arabic}) - Terjemahan & Audio Murottal`,
+                        "description": isAyahRoute
+                            ? `Baca ${surah.name_latin} ayat ${currentAyahNumber} dengan terjemahan bahasa Indonesia, audio murottal, dan tafsir lengkap di IndoQuran.`
+                            : `Baca dan dengarkan Surah ${surah.name_latin} lengkap dengan terjemahan bahasa Indonesia dan tafsir. Surah ke-${surah.number} dalam Al-Quran yang terdiri dari ${maxAyahNumber} ayat.`,
                         "author": {
                             "@type": "Organization",
                             "name": "IndoQuran",
@@ -1876,7 +1891,7 @@ function SurahDetailPage() {
                         "dateModified": new Date().toISOString(),
                         "mainEntityOfPage": {
                             "@type": "WebPage",
-                            "@id": `https://indoquran.web.id/surah/${surah.number}`
+                            "@id": effectiveCanonicalPath
                         },
                         "image": `https://indoquran.web.id/images/surah-${surah.number}-social.png`,
                         "inLanguage": ["id", "ar"],
