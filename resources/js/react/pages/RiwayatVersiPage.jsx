@@ -5,7 +5,7 @@ import StructuredData from '../components/StructuredData';
 import { Card, Badge, PageContent } from '../components/ui';
 
 function RiwayatVersiPage() {
-    const [expandedVersions, setExpandedVersions] = useState({ "2.15.1": true });
+    const [expandedVersions, setExpandedVersions] = useState({ "2.15.2": true });
 
     const toggleVersion = (versionNumber) => {
         setExpandedVersions(prev => ({
@@ -14,6 +14,27 @@ function RiwayatVersiPage() {
         }));
     };
     const versions = [
+        {
+            version: "2.15.2",
+            date: "24 Mei 2026",
+            type: "patch",
+            title: "Integrasi Google AdSense Global",
+            description: "Patch monetisasi dengan menambahkan script Google AdSense resmi ke layout React global agar semua halaman memuat script verifikasi dan iklan otomatis secara konsisten. Pembaruan ini juga menambahkan DNS prefetch untuk domain AdSense agar inisialisasi script lebih cepat.",
+            changes: [
+                {
+                    type: "feature",
+                    text: "Integrasi Script AdSense Global - Menambahkan script resmi adsbygoogle.js dengan publisher ca-pub-9994842285785390 pada head layout React agar berlaku di semua halaman"
+                },
+                {
+                    type: "improvement",
+                    text: "DNS Prefetch AdSense - Menambahkan dns-prefetch untuk pagead2.googlesyndication.com guna mempercepat koneksi awal resource iklan"
+                },
+                {
+                    type: "improvement",
+                    text: "Konsistensi SPA - Penempatan di layout utama memastikan script AdSense tidak terduplikasi di tiap halaman React"
+                }
+            ]
+        },
         {
             version: "2.15.1",
             date: "24 Mei 2026",

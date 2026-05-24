@@ -52,8 +52,12 @@
 
     <!-- Critical Performance Optimizations -->
     <!-- DNS prefetch for external domains (highest priority) - reduced to only used resources -->
+    <link rel="dns-prefetch" href="//pagead2.googlesyndication.com">
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9994842285785390" crossorigin="anonymous"></script>
     
     <!-- Preconnect to critical external resources only (fonts) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
