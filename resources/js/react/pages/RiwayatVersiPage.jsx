@@ -5,7 +5,7 @@ import StructuredData from '../components/StructuredData';
 import { Card, Badge, PageContent } from '../components/ui';
 
 function RiwayatVersiPage() {
-    const [expandedVersions, setExpandedVersions] = useState({ "2.15.2": true });
+    const [expandedVersions, setExpandedVersions] = useState({ "2.15.3": true });
 
     const toggleVersion = (versionNumber) => {
         setExpandedVersions(prev => ({
@@ -14,6 +14,31 @@ function RiwayatVersiPage() {
         }));
     };
     const versions = [
+        {
+            version: "2.15.3",
+            date: "24 Mei 2026",
+            type: "patch",
+            title: "Validasi AMP Lulus & SEO amphtml Server-Side",
+            description: "Patch AMP yang memperbaiki boilerplate layout AMP agar lolos amphtml-validator untuk seluruh 114 halaman surah AMP. Pembaruan ini juga menambahkan link rel=amphtml langsung pada HTML server-side halaman surah reguler agar relasi AMP dapat terlihat di source awal tanpa menunggu hydration React.",
+            changes: [
+                {
+                    type: "fix",
+                    text: "Perbaikan Boilerplate AMP - Menyamakan style amp-boilerplate dan noscript boilerplate dengan snippet resmi AMP agar validator menerima semua halaman surah AMP"
+                },
+                {
+                    type: "fix",
+                    text: "Perapian Output AMP Layout - Title dan canonical pada layout AMP kini di-trim untuk mencegah newline ikut masuk ke HTML hasil render"
+                },
+                {
+                    type: "improvement",
+                    text: "Validasi 114 Halaman AMP - Seluruh halaman /amp/surah/1 sampai /amp/surah/114 berhasil lolos pemeriksaan amphtml-validator"
+                },
+                {
+                    type: "improvement",
+                    text: "amphtml Server-Side - Halaman surah reguler kini menambahkan link rel=amphtml dari Blade server-side agar bot melihat relasi ke versi AMP di source HTML awal"
+                }
+            ]
+        },
         {
             version: "2.15.2",
             date: "24 Mei 2026",

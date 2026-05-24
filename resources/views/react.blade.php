@@ -47,6 +47,9 @@
     <!-- Additional SEO Links -->
     <link rel="alternate" hreflang="id" href="{{ url()->current() }}">
     <link rel="alternate" hreflang="x-default" href="{{ url('/') }}">
+    @if(isset($reactData['currentSurah']) && $reactData['currentSurah'])
+    <link rel="amphtml" href="{{ url('/amp/surah/' . $reactData['currentSurah']->number) }}">
+    @endif
     
     <title>{{ $metaTitle ?? 'IndoQuran - Al-Quran Digital Indonesia' }}</title>
 
