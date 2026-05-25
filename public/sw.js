@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v2.0.1';
+const CACHE_VERSION = 'v2.0.2';
 const CACHE_NAME = `indoquran-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `indoquran-runtime-${CACHE_VERSION}`;
 const IMAGE_CACHE = `indoquran-images-${CACHE_VERSION}`;
@@ -68,6 +68,12 @@ self.addEventListener('fetch', (event) => {
 
   // Skip cross-origin requests
   if (url.origin !== location.origin) {
+    return;
+  }
+
+  // Always hit network directly for visitor stats.
+  // These endpoints are heavy/dynamic and should not return synthetic SW 503 responses.
+  if (url.pathname.startsWith('/api/visitor-stats')) {
     return;
   }
 
