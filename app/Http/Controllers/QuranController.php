@@ -396,6 +396,31 @@ class QuranController extends Controller
                 ->appends($request->only(['q', 'per_page', 'revelation_place', 'exact']));
         }
         
+        // Search surah names matching the query
+        $surahMatchesQuery = Surah::query()
+            ->where(function ($q) use ($query) {
+                $q->where('name_latin', 'LIKE', '%' . $query . '%')
+                  ->orWhere('name_indonesian', 'LIKE', '%' . $query . '%')
+                  ->orWhere('name_arabic', 'LIKE', '%' . $query . '%');
+            })
+            ->select('number', 'name_latin', 'name_indonesian', 'name_arabic', 'total_ayahs', 'revelation_place');
+
+        if ($revelationPlace && in_array($revelationPlace, ['makkah', 'madinah'])) {
+            $surahMatchesQuery->where('revelation_place', $revelationPlace);
+        }
+
+        $surahMatches = $surahMatchesQuery->orderBy('number')->get()->map(function ($surah) {
+            return [
+                'number'           => $surah->number,
+                'name_latin'       => $surah->name_latin,
+                'name_indonesian'  => $surah->name_indonesian,
+                'name_arabic'      => $surah->name_arabic,
+                'total_ayahs'      => $surah->total_ayahs,
+                'revelation_place' => $surah->revelation_place,
+                'url'              => '/surah/' . $surah->number,
+            ];
+        });
+
         return response()->json([
             'status' => 'success',
             'query' => [
@@ -404,6 +429,7 @@ class QuranController extends Controller
                 'exact' => $exact,
                 'search_mode' => $exact ? 'EXACT' : 'AND'
             ],
+            'surah_matches' => $surahMatches,
             'data' => $paginatedResults->items(),
             'pagination' => [
                 'total' => $paginatedResults->total(),

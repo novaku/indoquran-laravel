@@ -5,7 +5,7 @@ import StructuredData from '../components/StructuredData';
 import { Card, Badge, PageContent } from '../components/ui';
 
 function RiwayatVersiPage() {
-    const [expandedVersions, setExpandedVersions] = useState({ "2.15.3": true });
+    const [expandedVersions, setExpandedVersions] = useState({ "2.15.4": true });
 
     const toggleVersion = (versionNumber) => {
         setExpandedVersions(prev => ({
@@ -14,6 +14,35 @@ function RiwayatVersiPage() {
         }));
     };
     const versions = [
+        {
+            version: "2.15.4",
+            date: "28 Mei 2026",
+            type: "patch",
+            title: "Pencarian Nama Surah di Halaman Cari",
+            description: "Patch pencarian yang menambahkan kemampuan mengenali nama surah langsung dari halaman /cari. Sebelumnya pencarian hanya menyisir terjemahan ayat; kini query seperti 'Al-Ikhlas' atau 'Yasin' juga menampilkan kartu surah yang cocok beserta link langsung ke halaman surah tersebut.",
+            changes: [
+                {
+                    type: "feature",
+                    text: "Pencarian Nama Surah - API /api/cari kini juga mencari kecocokan pada name_latin, name_indonesian, dan name_arabic sehingga query nama surah menghasilkan kartu surah yang relevan"
+                },
+                {
+                    type: "feature",
+                    text: "Kartu Surah di Hasil Pencarian - Surah yang cocok ditampilkan dalam seksi 'Surah Ditemukan' (kartu hijau) di atas hasil ayat, dilengkapi nama Latin, nama Indonesia, tulisan Arab, jumlah ayat, dan link ke halaman surah"
+                },
+                {
+                    type: "improvement",
+                    text: "Hasil Hanya Surah - Jika query hanya cocok dengan nama surah (tanpa hasil ayat), halaman menampilkan daftar surah tersebut alih-alih pesan 'Tidak ada hasil ditemukan'"
+                },
+                {
+                    type: "improvement",
+                    text: "Highlight Nama Surah - Bagian nama surah yang cocok dengan query turut di-highlight kuning seperti hasil ayat"
+                },
+                {
+                    type: "improvement",
+                    text: "Filter Tempat Turun Berlaku - Filter Makkiyyah/Madaniyyah juga diterapkan pada pencarian nama surah"
+                }
+            ]
+        },
         {
             version: "2.15.3",
             date: "24 Mei 2026",

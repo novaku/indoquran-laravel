@@ -91,6 +91,7 @@ function QuranSearchPage() {
     const [exactSearch, setExactSearch] = useState(searchParams.get('exact') === '1');
     const [surahs, setSurahs] = useState([]);
     const [searchResults, setSearchResults] = useState([]);
+    const [surahMatches, setSurahMatches] = useState([]);
     const [loading, setLoading] = useState(false);
     const [surahsLoading, setSurahsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -308,6 +309,13 @@ function QuranSearchPage() {
                     // Get total results from API pagination
                     const apiTotalResults = data.pagination?.total || 0;
                     
+                    // Process surah matches from API
+                    if (page === 1 && Array.isArray(data.surah_matches)) {
+                        setSurahMatches(data.surah_matches);
+                    } else if (page === 1) {
+                        setSurahMatches([]);
+                    }
+
                     // Process ayah results with surah info
                     const ayahResults = data.data.map(ayah => ({
                         ...ayah,
@@ -367,12 +375,14 @@ function QuranSearchPage() {
                 } else {
                     // API returned success but no data or wrong format
                     setSearchResults([]);
+                    setSurahMatches([]);
                     setTotalResults(0);
                     console.warn('API returned success but no valid data format:', data);
                 }
             } else {
                 // API call failed
                 setSearchResults([]);
+                setSurahMatches([]);
                 setTotalResults(0);
                 console.error('API request failed:', response.status, response.statusText);
                 setError('Gagal mengambil data dari server. Silakan coba lagi.');
@@ -381,6 +391,7 @@ function QuranSearchPage() {
             console.error('Error performing search:', error);
             setError('Gagal melakukan pencarian. Silakan coba lagi.');
             setSearchResults([]);
+            setSurahMatches([]);
             setTotalResults(0);
         } finally {
             setLoading(false);
@@ -512,6 +523,7 @@ function QuranSearchPage() {
         setQuery('');
         setDebouncedQuery('');
         setSearchResults([]);
+        setSurahMatches([]);
         setTotalResults(0);
         setCurrentPage(1);
         setExactSearch(false);
@@ -524,6 +536,7 @@ function QuranSearchPage() {
         setQuery('');
         setDebouncedQuery('');
         setSearchResults([]);
+        setSurahMatches([]);
         setTotalResults(0);
         setCurrentPage(1);
         setRevelationType('all');
@@ -685,6 +698,46 @@ function QuranSearchPage() {
                         </Button>
                     </Card>
                 ) : query && searchResults.length === 0 && totalResults === 0 ? (
+                    surahMatches.length > 0 ? (
+                        /* Surah-only matches (no ayah results) */
+                        <div className="space-y-6">
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-2xl font-bold text-gray-900">Hasil Pencarian</h2>
+                                <Badge variant="gray">{surahMatches.length} surah ditemukan</Badge>
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
+                                <BookOpenIcon className="w-5 h-5 text-green-600" />
+                                Surah Ditemukan
+                            </h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {surahMatches.map((surah) => (
+                                    <Link key={surah.number} to={surah.url}>
+                                        <Card hoverable padding="md" className="border border-green-100 bg-green-50 hover:bg-green-100 transition-colors">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-sm">
+                                                        <span className="font-bold text-white text-sm">{surah.number}</span>
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-bold text-gray-900">
+                                                            {highlightText(surah.name_latin, debouncedQuery)}
+                                                        </p>
+                                                        <p className="text-sm text-gray-500">
+                                                            {highlightText(surah.name_indonesian, debouncedQuery)} • {surah.total_ayahs} ayat
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-lg font-arabic text-gray-700">{surah.name_arabic}</span>
+                                                    <ChevronRightIcon className="w-5 h-5 text-green-500" />
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
                     <Card padding="lg" className="text-center">
                         <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
                             <MagnifyingGlassIcon className="w-12 h-12 text-gray-400" />
@@ -708,6 +761,7 @@ function QuranSearchPage() {
                             </Button>
                         </div>
                     </Card>
+                    )
                 ) : query && searchResults.length === 0 && totalResults > 0 ? (
                     <Card padding="lg" className="text-center">
                         <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -748,6 +802,43 @@ function QuranSearchPage() {
                                 {((currentPage - 1) * resultsPerPage) + 1}-{Math.min(currentPage * resultsPerPage, totalResults)} dari {totalResults}
                             </Badge>
                         </div>
+
+                        {/* Surah Matches Section */}
+                        {surahMatches.length > 0 && (
+                            <div>
+                                <h3 className="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                    <BookOpenIcon className="w-5 h-5 text-green-600" />
+                                    Surah Ditemukan
+                                </h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {surahMatches.map((surah) => (
+                                        <Link key={surah.number} to={surah.url}>
+                                            <Card hoverable padding="md" className="border border-green-100 bg-green-50 hover:bg-green-100 transition-colors">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-sm">
+                                                            <span className="font-bold text-white text-sm">{surah.number}</span>
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-bold text-gray-900">
+                                                                {highlightText(surah.name_latin, debouncedQuery)}
+                                                            </p>
+                                                            <p className="text-sm text-gray-500">
+                                                                {highlightText(surah.name_indonesian, debouncedQuery)} • {surah.total_ayahs} ayat
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-lg font-arabic text-gray-700">{surah.name_arabic}</span>
+                                                        <ChevronRightIcon className="w-5 h-5 text-green-500" />
+                                                    </div>
+                                                </div>
+                                            </Card>
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                         
                         <div className="grid gap-6">
                             {paginatedResults.map((result, index) => (
