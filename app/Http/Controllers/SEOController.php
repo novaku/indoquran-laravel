@@ -213,7 +213,7 @@ class SEOController extends Controller
                     'metaTitle' => "Hasil Pencarian \"{$query}\" - Al-Quran Digital | IndoQuran",
                     'metaDescription' => "🔍 Hasil pencarian Al-Quran untuk \"{$query}\". Temukan ayat dan surah yang sesuai dengan mudah. Platform pencarian Al-Quran terlengkap dengan terjemahan Indonesia.",
                     'metaKeywords' => "pencarian quran, cari ayat, {$query}, al quran indonesia, pencarian al quran, search quran, cari al quran",
-                    'canonicalUrl' => url("/cari?q=" . urlencode($query))
+                    'canonicalUrl' => url("/cari?q=" . rawurlencode($query))
                 ]);
             } else {
                 $seoData = array_merge($seoData, [

@@ -483,11 +483,9 @@ function QuranSearchPage() {
         // Update URL immediately when user types
         if (searchQuery !== searchParams.get('q')) {
             if (searchQuery.trim()) {
-                const params = new URLSearchParams({ q: searchQuery });
-                if (exactSearch) {
-                    params.append('exact', '1');
-                }
-                navigate(`/cari?${params.toString()}`, { replace: true });
+                const qParam = `q=${encodeURIComponent(searchQuery)}`;
+                const extraParam = exactSearch ? '&exact=1' : '';
+                navigate(`/cari?${qParam}${extraParam}`, { replace: true });
             } else {
                 navigate('/cari', { replace: true });
             }
@@ -501,11 +499,9 @@ function QuranSearchPage() {
         setDebouncedQuery(searchQuery); // Immediate search on submit
         if (searchQuery !== searchParams.get('q')) {
             if (searchQuery.trim()) {
-                const params = new URLSearchParams({ q: searchQuery });
-                if (exactSearch) {
-                    params.append('exact', '1');
-                }
-                navigate(`/cari?${params.toString()}`);
+                const qParam = `q=${encodeURIComponent(searchQuery)}`;
+                const extraParam = exactSearch ? '&exact=1' : '';
+                navigate(`/cari?${qParam}${extraParam}`);
             } else {
                 navigate('/cari');
             }

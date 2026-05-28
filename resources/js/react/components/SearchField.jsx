@@ -302,11 +302,9 @@ const SearchField = ({
         e.preventDefault();
         const query = e.target.elements.search.value.trim();
         if (query) {
-            const params = new URLSearchParams({ q: query });
-            if (exactSearch) {
-                params.append('exact', '1');
-            }
-            navigate(`/cari?${params.toString()}`);
+            const qParam = `q=${encodeURIComponent(query)}`;
+            const extraParam = exactSearch ? '&exact=1' : '';
+            navigate(`/cari?${qParam}${extraParam}`);
             setShowSuggestions(false);
             if (onViewAllResults) onViewAllResults(query);
         }
@@ -415,11 +413,9 @@ const SearchField = ({
     }, [navigate, onSuggestionClick, isControlled, onChange]);
 
     const handleViewAllResults = () => {
-        const params = new URLSearchParams({ q: searchTerm });
-        if (exactSearch) {
-            params.append('exact', '1');
-        }
-        navigate(`/cari?${params.toString()}`);
+        const qParam = `q=${encodeURIComponent(searchTerm)}`;
+        const extraParam = exactSearch ? '&exact=1' : '';
+        navigate(`/cari?${qParam}${extraParam}`);
         setShowSuggestions(false);
         if (onViewAllResults) onViewAllResults(searchTerm);
     };

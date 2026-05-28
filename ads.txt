@@ -1,0 +1,6 @@
+# ads.txt file for indoquran.web.id
+# More info: https://iabtechlab.com/ads-txt/
+
+# Google AdSense
+google.com, pub-9994842285785390, DIRECT, f08c47fec0942fa0
+

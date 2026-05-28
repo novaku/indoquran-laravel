@@ -1612,7 +1612,11 @@ export const generateCanonicalUrl = (path) => {
   }
 
   // Add back query params if any
-  const queryString = searchParams.toString();
+  // Use encodeURIComponent (%20) instead of URLSearchParams.toString() (+) for space encoding
+  // This ensures canonical URLs match crawled URLs (prevents 'Alternate page' GSC issue)
+  const queryString = [...searchParams.entries()]
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+    .join('&');
   const finalPath = normalizedPath + (queryString ? '?' + queryString : '');
 
   // Build canonical URL with consistent domain (always use production domain)

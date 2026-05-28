@@ -28,13 +28,17 @@ export const useCanonicalURL = (manualCanonicalUrl = null) => {
     }
     
     // Normalize query parameters (sort for consistency)
+    // Use encodeURIComponent (%20) instead of URLSearchParams.toString() (+) for space encoding
+    // This ensures canonical URLs match crawled URLs (prevents 'Alternate page' GSC issue)
     let normalizedSearch = '';
     if (location.search) {
       const params = new URLSearchParams(location.search);
-      const sortedParams = new URLSearchParams([...params.entries()].sort());
-      normalizedSearch = sortedParams.toString();
-      if (normalizedSearch) {
-        normalizedSearch = '?' + normalizedSearch;
+      const sortedEntries = [...params.entries()].sort();
+      const encodedQuery = sortedEntries
+        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+        .join('&');
+      if (encodedQuery) {
+        normalizedSearch = '?' + encodedQuery;
       }
     }
     
