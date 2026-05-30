@@ -1,10 +1,11 @@
 # Handle PHP files in the public directory
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    
-    # Force HTTPS
+
+    # Canonical host/protocol redirect (single hop)
+    RewriteCond %{HTTP_HOST} ^www\.indoquran\.web\.id$ [NC,OR]
     RewriteCond %{HTTPS} off
-    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    RewriteRule ^ https://indoquran.web.id%{REQUEST_URI} [L,R=301]
     
     # Handle HTTP Authorization for APIs
     RewriteCond %{HTTP:Authorization} .

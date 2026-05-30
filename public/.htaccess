@@ -114,6 +114,14 @@ Options -MultiViews -Indexes
 
 RewriteEngine On
 
+# Canonical host/protocol redirect (single hop):
+# - http://indoquran.web.id/* -> https://indoquran.web.id/*
+# - https://www.indoquran.web.id/* -> https://indoquran.web.id/*
+# - http://www.indoquran.web.id/* -> https://indoquran.web.id/*
+RewriteCond %{HTTP_HOST} ^www\.indoquran\.web\.id$ [NC,OR]
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://indoquran.web.id%{REQUEST_URI} [L,R=301]
+
 # Ensure ads.txt is served correctly - CRITICAL for AdSense verification
 RewriteRule ^ads\.txt$ - [L]
 
