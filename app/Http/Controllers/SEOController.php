@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Ayah;
 use App\Models\Surah;
+use App\Models\TafsirMaudhuiTopic;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
@@ -153,6 +154,39 @@ class SEOController extends Controller
                 $isInvalidRoute = true;
             }
         }
+
+        // Check invalid tafsir-maudhui slugs
+        if (isset($segments[0]) && $segments[0] === 'tafsir-maudhui' && isset($segments[1])) {
+            $slug = trim((string) $segments[1]);
+
+            if ($slug === '' || !preg_match('/^[a-z0-9\-]+$/', $slug)) {
+                $isInvalidRoute = true;
+            } else {
+                $topicExists = TafsirMaudhuiTopic::query()
+                    ->where('slug', $slug)
+                    ->where('is_active', true)
+                    ->exists();
+
+                if (!$topicExists) {
+                    $isInvalidRoute = true;
+                }
+            }
+        }
+
+        // Guard against extra path segments that create soft-404 style URLs.
+        if (isset($segments[0])) {
+            if ($segments[0] === 'surah' && count($segments) > 3) {
+                $isInvalidRoute = true;
+            }
+
+            if (in_array($segments[0], ['juz', 'halaman', 'cari'], true) && count($segments) > 2) {
+                $isInvalidRoute = true;
+            }
+
+            if ($segments[0] === 'tafsir-maudhui' && count($segments) > 2) {
+                $isInvalidRoute = true;
+            }
+        }
         
         // Default SEO values
         $seoData = [
@@ -160,6 +194,7 @@ class SEOController extends Controller
             'metaDescription' => 'Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia, fitur bookmark, pencarian ayat, dan audio murottal berkualitas tinggi.',
             'metaKeywords' => 'al quran indonesia, quran online, al quran digital, baca quran, terjemahan quran, murottal, quran indonesia, ayat al quran, surah quran, indoquran',
             'canonicalUrl' => url($request->path() === '/' ? '/' : $request->path()),
+            'robots' => 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
             'ogImage' => url('/android-chrome-512x512.png'),
             'ogType' => 'website'
         ];
@@ -213,14 +248,16 @@ class SEOController extends Controller
                     'metaTitle' => "Hasil Pencarian \"{$query}\" - Al-Quran Digital | IndoQuran",
                     'metaDescription' => "🔍 Hasil pencarian Al-Quran untuk \"{$query}\". Temukan ayat dan surah yang sesuai dengan mudah. Platform pencarian Al-Quran terlengkap dengan terjemahan Indonesia.",
                     'metaKeywords' => "pencarian quran, cari ayat, {$query}, al quran indonesia, pencarian al quran, search quran, cari al quran",
-                    'canonicalUrl' => url("/cari?q=" . rawurlencode($query))
+                    'canonicalUrl' => url("/cari?q=" . rawurlencode($query)),
+                    'robots' => 'noindex, follow'
                 ]);
             } else {
                 $seoData = array_merge($seoData, [
                     'metaTitle' => 'Pencarian Al-Quran - Cari Ayat & Terjemahan | IndoQuran',
                     'metaDescription' => '🔍 Cari ayat dalam Al-Quran dengan mudah dan cepat ✅ Pencarian Teks Arab ✅ Pencarian Terjemahan Indonesia ✅ Hasil Akurat. Temukan ayat yang Anda butuhkan sekarang!',
                     'metaKeywords' => 'cari ayat quran, pencarian al quran, search quran, al quran digital, cari terjemahan quran, pencarian ayat',
-                    'canonicalUrl' => url('/cari')
+                    'canonicalUrl' => url('/cari'),
+                    'robots' => 'noindex, follow'
                 ]);
             }
         }
@@ -279,7 +316,8 @@ class SEOController extends Controller
                 'metaTitle' => 'Penanda Ayat Favorit - IndoQuran',
                 'metaDescription' => 'Kelola dan akses penanda ayat Al-Quran favorit Anda. Simpan ayat-ayat penting untuk dibaca kembali dengan mudah di IndoQuran.',
                 'metaKeywords' => 'penanda quran, ayat favorit, simpan ayat, al quran penanda, indoquran penanda',
-                'canonicalUrl' => url('/penanda')
+                'canonicalUrl' => url('/penanda'),
+                'robots' => 'noindex, nofollow'
             ]);
         }
         elseif (isset($segments[0]) && $segments[0] === 'profil') {
@@ -288,7 +326,8 @@ class SEOController extends Controller
                 'metaTitle' => 'Profil Pengguna - IndoQuran',
                 'metaDescription' => 'Kelola profil dan pengaturan akun IndoQuran Anda.',
                 'metaKeywords' => 'profil indoquran, pengaturan akun, pengguna',
-                'canonicalUrl' => url('/profil')
+                'canonicalUrl' => url('/profil'),
+                'robots' => 'noindex, nofollow'
             ]);
         }
         elseif (isset($segments[0]) && $segments[0] === 'masuk') {
@@ -297,7 +336,8 @@ class SEOController extends Controller
                 'metaTitle' => 'Masuk - IndoQuran',
                 'metaDescription' => 'Masuk ke akun IndoQuran Anda untuk mengakses fitur penanda dan sinkronisasi bacaan.',
                 'metaKeywords' => 'masuk indoquran, login, akun pengguna',
-                'canonicalUrl' => url('/masuk')
+                'canonicalUrl' => url('/masuk'),
+                'robots' => 'noindex, nofollow'
             ]);
         }
         elseif (isset($segments[0]) && $segments[0] === 'daftar') {
@@ -306,7 +346,8 @@ class SEOController extends Controller
                 'metaTitle' => 'Daftar Akun - IndoQuran',
                 'metaDescription' => 'Buat akun IndoQuran untuk menyimpan penanda ayat dan sinkronisasi progres bacaan Anda.',
                 'metaKeywords' => 'daftar indoquran, buat akun, registrasi pengguna',
-                'canonicalUrl' => url('/daftar')
+                'canonicalUrl' => url('/daftar'),
+                'robots' => 'noindex, nofollow'
             ]);
         }
         elseif (isset($segments[0]) && $segments[0] === 'tafsir-maudhui') {
@@ -393,6 +434,7 @@ class SEOController extends Controller
                 'metaDescription' => 'Panel administrasi IndoQuran untuk pengelolaan sistem.',
                 'metaKeywords' => 'admin, panel administrasi, indoquran',
                 'canonicalUrl' => url('/admin'),
+                'robots' => 'noindex, nofollow',
                 'ogType' => 'website'
             ]);
         }
@@ -404,6 +446,7 @@ class SEOController extends Controller
                 'metaDescription' => 'Maaf, halaman yang Anda cari tidak ditemukan. Kembali ke beranda IndoQuran untuk mengakses Al-Quran Digital Indonesia.',
                 'metaKeywords' => '404, halaman tidak ditemukan, error, indoquran',
                 'canonicalUrl' => url($request->getRequestUri()),
+                'robots' => 'noindex, nofollow',
                 'ogImage' => url('/android-chrome-512x512.png'),
                 'ogType' => 'website'
             ];
