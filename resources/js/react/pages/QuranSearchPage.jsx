@@ -488,6 +488,8 @@ function QuranSearchPage() {
         ].filter(Boolean);
     }, [surahs]);
 
+    const hasActiveSearchQuery = Boolean(query?.trim());
+
     const handleSearch = useCallback((searchQuery) => {
         setQuery(searchQuery);
         
@@ -570,6 +572,9 @@ function QuranSearchPage() {
                 title="Cari Al-Quran - IndoQuran"
                 description="Cari Al-Quran berdasarkan nama surah, nomor, atau konten. Temukan ayat dan surah dengan mudah menggunakan pencarian lanjutan kami."
                 keywords="cari al-quran, pencarian ayat, surah, al-quran digital, pencarian quran indonesia"
+                canonicalUrl="https://indoquran.web.id/cari"
+                noindex={hasActiveSearchQuery}
+                robots={hasActiveSearchQuery ? 'noindex, follow' : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'}
             />
 
             {/* Hero Header */}

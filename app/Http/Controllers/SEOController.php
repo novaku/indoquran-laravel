@@ -248,7 +248,9 @@ class SEOController extends Controller
                     'metaTitle' => "Hasil Pencarian \"{$query}\" - Al-Quran Digital | IndoQuran",
                     'metaDescription' => "🔍 Hasil pencarian Al-Quran untuk \"{$query}\". Temukan ayat dan surah yang sesuai dengan mudah. Platform pencarian Al-Quran terlengkap dengan terjemahan Indonesia.",
                     'metaKeywords' => "pencarian quran, cari ayat, {$query}, al quran indonesia, pencarian al quran, search quran, cari al quran",
-                    'canonicalUrl' => url("/cari?q=" . rawurlencode($query)),
+                    // Canonicalize all internal search result URLs to a single endpoint.
+                    // This prevents canonical fragmentation from user-generated queries.
+                    'canonicalUrl' => url('/cari'),
                     'robots' => 'noindex, follow'
                 ]);
             } else {
@@ -257,7 +259,7 @@ class SEOController extends Controller
                     'metaDescription' => '🔍 Cari ayat dalam Al-Quran dengan mudah dan cepat ✅ Pencarian Teks Arab ✅ Pencarian Terjemahan Indonesia ✅ Hasil Akurat. Temukan ayat yang Anda butuhkan sekarang!',
                     'metaKeywords' => 'cari ayat quran, pencarian al quran, search quran, al quran digital, cari terjemahan quran, pencarian ayat',
                     'canonicalUrl' => url('/cari'),
-                    'robots' => 'noindex, follow'
+                    'robots' => 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'
                 ]);
             }
         }

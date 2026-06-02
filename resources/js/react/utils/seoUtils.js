@@ -1593,6 +1593,12 @@ export const generateCanonicalUrl = (path) => {
   // Parse URL to handle query params properly
   const url = new URL(cleanPath, BASE_URL);
 
+  // Internal search result URLs should canonicalize to the base search page.
+  // This prevents canonical fragmentation from arbitrary user-generated queries.
+  if (url.pathname === '/cari' || url.pathname === '/search') {
+    return 'https://indoquran.web.id/cari';
+  }
+
   // Google guidelines: Keep query params that change content, remove tracking params
   const paramsToKeep = ['q', 'page', 'filter', 'sort']; // Only content-changing params
   const searchParams = new URLSearchParams();
