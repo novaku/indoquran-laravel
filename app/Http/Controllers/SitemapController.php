@@ -234,6 +234,7 @@ class SitemapController extends Controller
         $robotsTxt .= "Disallow: /login\n";
         $robotsTxt .= "Disallow: /register\n";
         $robotsTxt .= "Disallow: /logout\n";
+        $robotsTxt .= "Disallow: /amp/\n";
         
         // Prevent indexing of URLs with tracking parameters (to avoid redirect validation failures)
         $robotsTxt .= "\n# Disallow URLs with tracking parameters to prevent redirect issues\n";

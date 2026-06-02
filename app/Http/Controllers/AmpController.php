@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Surah;
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -11,8 +12,8 @@ class AmpController extends Controller
     /**
      * Display the specified Surah in AMP format.
      *
-     * @param string $number
-     * @return \Illuminate\View\View
+    * @param string $number
+    * @return \Illuminate\View\View|Response
      */
     public function showSurah(string $number)
     {
@@ -26,6 +27,8 @@ class AmpController extends Controller
             })
             : Surah::with('ayahs')->where('number', $number)->firstOrFail();
 
-        return view('amp.surah', compact('surah'));
+        return response()
+            ->view('amp.surah', compact('surah'))
+            ->header('X-Robots-Tag', 'noindex, follow');
     }
 }
