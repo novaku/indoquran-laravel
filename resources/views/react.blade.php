@@ -409,6 +409,42 @@
             <div id="ssr-page-detail" style="padding: 3rem 2rem; background: #fff; color: #1f2937; text-align: center; max-width: 900px; margin: 0 auto;">
                 <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.75rem; color: #111827;">{{ $reactData['currentPage']['title'] }}</h1>
                 <p style="font-size: 1.0625rem; color: #4b5563; line-height: 1.8; margin: 0 auto 1.5rem; max-width: 700px;">{{ $reactData['currentPage']['description'] }}</p>
+
+                @if(!empty($reactData['currentPage']['has_ssr_content']) && !empty($reactData['currentPage']['surah_spans']))
+                    <section style="text-align: left; margin: 0 auto 1.5rem; max-width: 760px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1rem 1.25rem;">
+                        <h2 style="font-size: 1.125rem; font-weight: 700; color: #14532d; margin: 0 0 0.75rem 0;">Kandungan Halaman {{ $reactData['currentPage']['number'] }}</h2>
+                        <ul style="margin: 0; padding-left: 1.25rem; color: #374151; line-height: 1.7;">
+                            @foreach($reactData['currentPage']['surah_spans'] as $span)
+                                <li>
+                                    Surah {{ $span['surah_name_latin'] }} ({{ $span['surah_name_arabic'] }}) ayat {{ $span['from_ayah'] }}-{{ $span['to_ayah'] }}
+                                    <a href="/surah/{{ $span['surah_number'] }}/{{ $span['from_ayah'] }}" style="margin-left: 0.5rem; color: #166534; text-decoration: none; font-weight: 600;">Baca</a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </section>
+
+                    @if(!empty($reactData['currentPage']['ayah_previews']))
+                        <section style="text-align: left; margin: 0 auto 1.5rem; max-width: 760px; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1rem 1.25rem; background: #ffffff;">
+                            <h2 style="font-size: 1.0625rem; font-weight: 700; color: #14532d; margin: 0 0 0.75rem 0;">Cuplikan Ayat</h2>
+                            @foreach($reactData['currentPage']['ayah_previews'] as $ayah)
+                                <article style="padding: 0.75rem 0; border-top: 1px solid #f3f4f6;">
+                                    <a href="/surah/{{ $ayah->surah_number }}/{{ $ayah->ayah_number }}" style="text-decoration: none; color: inherit; display: block;">
+                                        <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">
+                                            {{ $ayah->surah->name_latin ?? 'Surah' }} ayat {{ $ayah->ayah_number }}
+                                        </div>
+                                        <p class="arabic-text" style="font-size: 1.6rem; line-height: 2.1; color: #111827; margin: 0 0 0.35rem 0; direction: rtl; text-align: right;">{{ $ayah->text_arabic }}</p>
+                                        @if(!empty($ayah->text_indonesian))
+                                            <p style="font-size: 0.95rem; color: #374151; line-height: 1.6; margin: 0;">
+                                                {{ \Illuminate\Support\Str::limit($ayah->text_indonesian, 180) }}
+                                            </p>
+                                        @endif
+                                    </a>
+                                </article>
+                            @endforeach
+                        </section>
+                    @endif
+                @endif
+
                 <div style="font-size: 0.9375rem; color: #6b7280; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 0.875rem 1rem; display: inline-block;">
                     Query terkait: al quran halaman {{ $reactData['currentPage']['number'] }}, alquran halaman {{ $reactData['currentPage']['number'] }}, quran halaman {{ $reactData['currentPage']['number'] }}.
                 </div>

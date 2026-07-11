@@ -41,6 +41,40 @@ class SEOController extends Controller
                 return redirect(url('/juz/' . $juzNumber), 301);
             }
         }
+
+        // Redirect legacy query-based ayah URL to canonical route in a single hop.
+        // Example: /ayat.php?surat=23&ayat=102 -> /surah/23/102
+        if (strcasecmp($path, 'ayat.php') === 0) {
+            $surahNumber = (int) $request->query('surat', 0);
+            $ayahNumber = (int) $request->query('ayat', 0);
+
+            if ($surahNumber >= 1 && $surahNumber <= 114 && $ayahNumber >= 1) {
+                $surah = Surah::query()->select('number', 'total_ayahs')->where('number', $surahNumber)->first();
+
+                if ($surah && $ayahNumber <= (int) ($surah->total_ayahs ?? 0)) {
+                    return redirect(url('/surah/' . $surahNumber . '/' . $ayahNumber), 301);
+                }
+            }
+
+            // Invalid legacy URL parameters should not be indexed.
+            return response('Gone', 410);
+        }
+
+        // Redirect legacy ayah URLs to canonical route to consolidate indexing signals.
+        // Example: /quran/viewAyat/279 -> /surah/{surah}/{ayah}
+        if (preg_match('/^quran\/viewAyat\/(\d+)$/i', $path, $matches)) {
+            $legacyAyahId = (int) $matches[1];
+            $legacyAyah = Ayah::query()
+                ->select('surah_number', 'ayah_number')
+                ->find($legacyAyahId);
+
+            if ($legacyAyah && $legacyAyah->surah_number && $legacyAyah->ayah_number) {
+                return redirect(url('/surah/' . $legacyAyah->surah_number . '/' . $legacyAyah->ayah_number), 301);
+            }
+
+            // URL existed in old version but cannot be mapped anymore.
+            return response('Gone', 410);
+        }
         
         // Redirect legacy English routes to Indonesian (301 Permanent Redirect)
         if (isset($segments[0])) {
@@ -82,7 +116,7 @@ class SEOController extends Controller
         }
         
         // Remove unwanted query parameters for canonical URL consistency
-        $allowedQueryParams = ['q', 'page', 'sort', 'reciter']; // Only these params are relevant for content
+        $allowedQueryParams = ['q', 'page', 'sort', 'reciter', 'tag']; // Only these params are relevant for content
         $queryString = $request->getQueryString();
         
         if ($queryString) {
@@ -184,6 +218,11 @@ class SEOController extends Controller
             }
 
             if ($segments[0] === 'tafsir-maudhui' && count($segments) > 2) {
+                $isInvalidRoute = true;
+            }
+
+            // Legacy namespace should not be indexable unless explicitly redirected above.
+            if ($segments[0] === 'quran') {
                 $isInvalidRoute = true;
             }
         }
@@ -504,10 +543,46 @@ class SEOController extends Controller
         }
         elseif (isset($segments[0]) && $segments[0] === 'halaman' && isset($segments[1]) && is_numeric($segments[1])) {
             $pageNumber = (int) $segments[1];
+            $pageAyahs = \Illuminate\Support\Facades\Cache::remember("seo_page_ayahs_{$pageNumber}", 86400, function () use ($pageNumber) {
+                return Ayah::query()
+                    ->select('surah_number', 'ayah_number', 'text_arabic', 'text_indonesian')
+                    ->with('surah:number,name_latin,name_indonesian,name_arabic')
+                    ->where('page', $pageNumber)
+                    ->orderBy('surah_number')
+                    ->orderBy('ayah_number')
+                    ->limit(8)
+                    ->get();
+            });
+
+            $surahSpans = $pageAyahs
+                ->groupBy('surah_number')
+                ->map(function ($ayahsBySurah) {
+                    $firstAyah = $ayahsBySurah->first();
+                    $lastAyah = $ayahsBySurah->last();
+                    $surah = $firstAyah?->surah;
+
+                    if (!$surah) {
+                        return null;
+                    }
+
+                    return [
+                        'surah_number' => (int) $surah->number,
+                        'surah_name_latin' => $surah->name_latin,
+                        'surah_name_arabic' => $surah->name_arabic,
+                        'from_ayah' => (int) $firstAyah->ayah_number,
+                        'to_ayah' => (int) $lastAyah->ayah_number,
+                    ];
+                })
+                ->filter()
+                ->values();
+
             $reactData['currentPage'] = [
                 'number' => $pageNumber,
                 'title' => "Al Quran Halaman {$pageNumber}",
-                'description' => "Akses Al-Quran halaman {$pageNumber} dengan teks Arab jelas untuk bacaan harian, murajaah, dan hafalan."
+                'description' => "Akses Al-Quran halaman {$pageNumber} dengan teks Arab jelas untuk bacaan harian, murajaah, dan hafalan.",
+                'ayah_previews' => $pageAyahs,
+                'surah_spans' => $surahSpans,
+                'has_ssr_content' => $pageAyahs->isNotEmpty(),
             ];
         }
 
