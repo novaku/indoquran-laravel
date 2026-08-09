@@ -209,8 +209,8 @@ function SurahDetailPage() {
     const [selectionPosition, setSelectionPosition] = useState({ x: 0, y: 0 });
     const [showActionsMenu, setShowActionsMenu] = useState(false);
     const [showEnglishTranslation, setShowEnglishTranslation] = useState(false);
-    const [showAyahTafsirDetail, setShowAyahTafsirDetail] = useState(false);
-    const [showSurahTafsirDetail, setShowSurahTafsirDetail] = useState(false);
+    const [showAyahTafsirDetail, setShowAyahTafsirDetail] = useState(true);
+    const [showSurahTafsirDetail, setShowSurahTafsirDetail] = useState(true);
 
     // Full Surah Audio Player State
     const [isSurahPlaying, setIsSurahPlaying] = useState(false);
@@ -2500,38 +2500,21 @@ function SurahDetailPage() {
 
                         <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3">
                             <button
-                                onClick={() => setShowAyahTafsirDetail((prev) => !prev)}
-                                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-green-200 bg-green-50 text-green-700 hover:bg-green-100 transition-colors text-sm font-medium"
-                            >
-                                <BookOpenIcon className="w-4 h-4" />
-                                {showAyahTafsirDetail ? 'Sembunyikan Detail Tafsir Ayat' : 'Tampilkan Detail Tafsir Ayat'}
-                            </button>
-
-                            <button
                                 onClick={() => setShowSurahTafsirDetail((prev) => !prev)}
                                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors text-sm font-medium"
                             >
                                 <DocumentTextIcon className="w-4 h-4" />
                                 {showSurahTafsirDetail ? 'Sembunyikan Detail Tafsir Surah' : 'Tampilkan Detail Tafsir Surah'}
                             </button>
-                        </div>
 
-                        {showAyahTafsirDetail && (
-                            <div className="mt-4 text-left bg-green-50 border border-green-100 rounded-xl p-4">
-                                <h4 className="text-sm font-semibold text-green-800 mb-2">
-                                    Tafsir Ayat {currentAyahNumber}
-                                </h4>
-                                {currentAyah?.tafsir ? (
-                                    <p className="text-sm text-green-900 leading-relaxed whitespace-pre-line">
-                                        {currentAyah.tafsir}
-                                    </p>
-                                ) : (
-                                    <p className="text-sm text-green-700">
-                                        Tafsir ayat ini belum tersedia.
-                                    </p>
-                                )}
-                            </div>
-                        )}
+                            <button
+                                onClick={() => setShowAyahTafsirDetail((prev) => !prev)}
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-green-200 bg-green-50 text-green-700 hover:bg-green-100 transition-colors text-sm font-medium"
+                            >
+                                <BookOpenIcon className="w-4 h-4" />
+                                {showAyahTafsirDetail ? 'Sembunyikan Detail Tafsir Ayat' : 'Tampilkan Detail Tafsir Ayat'}
+                            </button>
+                        </div>
 
                         {showSurahTafsirDetail && (
                             <div className="mt-4 text-left bg-blue-50 border border-blue-100 rounded-xl p-4">
@@ -2548,6 +2531,23 @@ function SurahDetailPage() {
                                 ) : (
                                     <p className="text-sm text-blue-700">
                                         Tafsir atau penjelasan surah belum tersedia.
+                                    </p>
+                                )}
+                            </div>
+                        )}
+
+                        {showAyahTafsirDetail && (
+                            <div className="mt-4 text-left bg-green-50 border border-green-100 rounded-xl p-4">
+                                <h4 className="text-sm font-semibold text-green-800 mb-2">
+                                    Tafsir Ayat {currentAyahNumber}
+                                </h4>
+                                {currentAyah?.tafsir ? (
+                                    <p className="text-sm text-green-900 leading-relaxed whitespace-pre-line">
+                                        {currentAyah.tafsir}
+                                    </p>
+                                ) : (
+                                    <p className="text-sm text-green-700">
+                                        Tafsir ayat ini belum tersedia.
                                     </p>
                                 )}
                             </div>
