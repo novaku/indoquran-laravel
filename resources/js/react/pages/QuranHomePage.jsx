@@ -36,6 +36,8 @@ function QuranHomePage() {
     const [loadingPopular, setLoadingPopular] = useState(false);
     const [randomArticle, setRandomArticle] = useState(null);
     const [loadingArticle, setLoadingArticle] = useState(false);
+    const [latestArticles, setLatestArticles] = useState([]);
+    const [loadingLatestArticles, setLoadingLatestArticles] = useState(false);
     const [randomTafsir, setRandomTafsir] = useState(null);
     const [loadingTafsir, setLoadingTafsir] = useState(false);
 
@@ -139,6 +141,33 @@ function QuranHomePage() {
         }
     }, [surahs]);
 
+    const fetchLatestArticles = useCallback(async () => {
+        setLoadingLatestArticles(true);
+        try {
+            const response = await fetchWithAuth('/api/articles?per_page=3', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch latest articles');
+            }
+
+            const result = await response.json();
+            // Laravel paginate returns { data: [...], ... }
+            if (result.data && Array.isArray(result.data)) {
+                setLatestArticles(result.data);
+            }
+        } catch (err) {
+            console.error('Error fetching latest articles:', err);
+            // Silently fail - articles are optional content
+        } finally {
+            setLoadingLatestArticles(false);
+        }
+    }, []);
+
     const fetchRandomArticle = useCallback(async () => {
         setLoadingArticle(true);
         try {
@@ -233,6 +262,10 @@ function QuranHomePage() {
     useEffect(() => {
         fetchRandomArticle();
     }, [fetchRandomArticle]);
+
+    useEffect(() => {
+        fetchLatestArticles();
+    }, [fetchLatestArticles]);
 
     useEffect(() => {
         fetchRandomTafsir();
@@ -578,42 +611,131 @@ function QuranHomePage() {
                     </Card>
                 )}
 
-                {randomArticle && (
-                    <Card shadow="sm" className="overflow-hidden">
+                {/* Artikel Terbaru */}
+                <Card shadow="sm">
+                    <div className="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 className="text-2xl font-bold text-gray-900">Artikel Terbaru</h2>
+                            <p className="text-sm text-gray-500">Tulisan terkini seputar Islam dan Al-Quran</p>
+                        </div>
+                        <Link to="/artikel" className="flex items-center space-x-1 text-green-600 hover:text-green-700 font-medium">
+                            <span>Lihat semua</span>
+                            <ChevronRightIcon className="w-4 h-4" />
+                        </Link>
+                    </div>
+
+                    {loadingLatestArticles ? (
+                        <div className="space-y-4">
+                            {Array.from({ length: 3 }).map((_, i) => (
+                                <div key={i} className="flex gap-4 animate-pulse">
+                                    <div className="w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0" />
+                                    <div className="flex-1 space-y-2 py-1">
+                                        <div className="h-4 bg-gray-200 rounded w-3/4" />
+                                        <div className="h-3 bg-gray-200 rounded w-full" />
+                                        <div className="h-3 bg-gray-200 rounded w-1/3" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : latestArticles.length > 0 ? (
+                        <div className="divide-y divide-gray-100">
+                            {latestArticles.map((article) => (
+                                <Link
+                                    key={article.id}
+                                    to={`/artikel/${article.slug}`}
+                                    className="group flex gap-4 py-4 first:pt-0 last:pb-0 hover:opacity-80 transition-opacity"
+                                >
+                                    {article.featured_image_url ? (
+                                        <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                                            <img
+                                                src={article.featured_image_url}
+                                                alt={article.title}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="w-20 h-20 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
+                                            <NewspaperIcon className="w-8 h-8 text-green-300" />
+                                        </div>
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="font-semibold text-gray-900 group-hover:text-green-600 transition-colors line-clamp-2 mb-1">
+                                            {article.title}
+                                        </h3>
+                                        <div className="flex items-center gap-3 text-xs text-gray-400">
+                                            {article.formatted_date && (
+                                                <div className="flex items-center gap-1">
+                                                    <ClockIcon className="w-3 h-3" />
+                                                    <span>{article.formatted_date}</span>
+                                                </div>
+                                            )}
+                                            {article.reading_time && (
+                                                <span>{article.reading_time} menit baca</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    ) : null}
+                </Card>
+
+                {(randomArticle || loadingArticle) && (
+                    <Card shadow="sm" className="overflow-hidden border-amber-200 bg-amber-50/30">
                         <div className="flex items-center justify-between mb-6">
                             <div>
-                                <h2 className="text-2xl font-bold text-gray-900">Artikel Pilihan</h2>
-                                <p className="text-sm text-gray-500">Bacaan menarik untuk menambah wawasan Islam</p>
+                                <div className="flex items-center gap-2 mb-1">
+                                    <StarIcon className="w-4 h-4 text-amber-500" />
+                                    <span className="text-xs font-semibold text-amber-600 uppercase tracking-wide">Artikel Pilihan</span>
+                                </div>
+                                <h2 className="text-2xl font-bold text-gray-900">Baca Artikel Ini</h2>
+                                <p className="text-sm text-gray-500">Bacaan menarik yang dipilihkan untuk Anda</p>
                             </div>
-                            <Link to="/artikel" className="flex items-center space-x-1 text-green-600 hover:text-green-700 font-medium">
-                                <span>Lihat semua</span>
-                                <ChevronRightIcon className="w-4 h-4" />
-                            </Link>
+                            <div className="flex items-center space-x-3">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={fetchRandomArticle}
+                                    disabled={loadingArticle}
+                                    leftIcon={<ArrowPathIcon className={`w-4 h-4 ${loadingArticle ? 'animate-spin' : ''}`} />}
+                                    title="Tampilkan artikel lain"
+                                >
+                                    Segarkan
+                                </Button>
+                                <Link to="/artikel" className="flex items-center space-x-1 text-green-600 hover:text-green-700 font-medium">
+                                    <span>Lihat semua</span>
+                                    <ChevronRightIcon className="w-4 h-4" />
+                                </Link>
+                            </div>
                         </div>
 
                         {loadingArticle ? (
                             <div className="animate-pulse">
-                                <div className="aspect-video bg-gray-200 rounded-lg mb-4" />
+                                <div className="aspect-video bg-gray-200 rounded-xl mb-4" />
                                 <div className="h-6 bg-gray-200 rounded w-3/4 mb-2" />
                                 <div className="h-4 bg-gray-200 rounded w-full mb-2" />
                                 <div className="h-4 bg-gray-200 rounded w-2/3" />
                             </div>
-                        ) : (
+                        ) : randomArticle ? (
                             <Link
                                 to={`/artikel/${randomArticle.slug}`}
                                 className="group block"
                             >
-                                {randomArticle.featured_image_url && (
-                                    <div className="aspect-video mb-4 overflow-hidden rounded-lg bg-gray-100">
+                                {randomArticle.featured_image_url ? (
+                                    <div className="aspect-video mb-4 overflow-hidden rounded-xl bg-gray-100">
                                         <img
                                             src={randomArticle.featured_image_url}
                                             alt={randomArticle.title}
                                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                         />
                                     </div>
+                                ) : (
+                                    <div className="aspect-video mb-4 rounded-xl bg-amber-100 flex items-center justify-center">
+                                        <NewspaperIcon className="w-16 h-16 text-amber-300" />
+                                    </div>
                                 )}
                                 <div className="space-y-3">
-                                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-green-600 transition-colors line-clamp-2">
+                                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-amber-600 transition-colors line-clamp-2">
                                         {randomArticle.title}
                                     </h3>
                                     {randomArticle.excerpt && (
@@ -621,7 +743,7 @@ function QuranHomePage() {
                                             {randomArticle.excerpt}
                                         </p>
                                     )}
-                                    <div className="flex items-center space-x-4 text-sm text-gray-500">
+                                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
                                         {randomArticle.author && (
                                             <div className="flex items-center space-x-1">
                                                 <UserGroupIcon className="w-4 h-4" />
@@ -638,13 +760,13 @@ function QuranHomePage() {
                                             <span>{randomArticle.formatted_date}</span>
                                         )}
                                     </div>
-                                    <div className="flex items-center text-green-600 font-medium group-hover:underline">
+                                    <div className="flex items-center text-amber-600 font-medium group-hover:underline">
                                         <span>Baca selengkapnya</span>
                                         <ChevronRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                     </div>
                                 </div>
                             </Link>
-                        )}
+                        ) : null}
                     </Card>
                 )}
 
