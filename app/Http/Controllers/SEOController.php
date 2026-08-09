@@ -225,6 +225,35 @@ class SEOController extends Controller
             if ($segments[0] === 'quran') {
                 $isInvalidRoute = true;
             }
+
+            // Whitelist of all valid top-level route segments.
+            // Any unknown segment (e.g. /urdb/, /xyz/, etc.) is an immediate hard 404
+            // to prevent soft-404 responses that waste Google's crawl budget.
+            $knownSegments = [
+                // Core Quran content
+                'surah', 'juz', 'halaman', 'cari',
+                // Features
+                'tafsir-maudhui', 'asmaul-husna', 'doa-bersama',
+                // Static / info pages
+                'tentang', 'kontak', 'donasi', 'kebijakan',
+                'riwayat-versi', 'member', 'keuntungan-member',
+                'statistik', 'daftar-lengkap',
+                // Auth & user
+                'masuk', 'daftar', 'profil', 'penanda',
+                'reset-password', 'password',
+                // Admin
+                'admin',
+                // Articles
+                'artikel',
+                // Legacy redirects handled above but segment still valid
+                'pages', 'search', 'about', 'contact', 'privacy',
+                'version-history', 'donation', 'bookmark', 'profile', 'auth',
+                // Homepage (empty string / root is handled before this block)
+            ];
+
+            if ($segments[0] !== '' && !in_array($segments[0], $knownSegments, true)) {
+                $isInvalidRoute = true;
+            }
         }
         
         // Default SEO values

@@ -1,65 +1,196 @@
-# Handle PHP files in the public directory
+# Apache 2.4.65 cPanel Configuration - IndoQuran
+# Optimized for production performance and security
+
+# ---------------------------------------------------------------------------
+# MIME Types
+# ---------------------------------------------------------------------------
+<IfModule mod_mime.c>
+    AddType text/css                   .css
+    AddType application/javascript     .js
+    AddType application/json           .json
+    AddType font/woff2                 .woff2
+    AddType font/woff                  .woff
+    AddType font/ttf                   .ttf
+    AddType font/otf                   .otf
+    AddType image/svg+xml              .svg
+    AddType image/webp                 .webp
+    AddType image/avif                 .avif
+    AddType text/plain                 .txt
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# GZIP Compression (mod_deflate must be outside mod_headers)
+# ---------------------------------------------------------------------------
+<IfModule mod_deflate.c>
+    # Compress text-based content types
+    AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml text/javascript
+    AddOutputFilterByType DEFLATE application/javascript application/json
+    AddOutputFilterByType DEFLATE application/xml application/xhtml+xml
+    AddOutputFilterByType DEFLATE image/svg+xml font/woff font/woff2
+
+    # Skip already-compressed binary formats
+    SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png|webp|avif)$ no-gzip dont-vary
+    SetEnvIfNoCase Request_URI \.(?:exe|t?gz|zip|bz2|sit|rar)$ no-gzip dont-vary
+    SetEnvIfNoCase Request_URI \.(?:pdf|woff2?)$               no-gzip dont-vary
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# Browser Caching (mod_expires must be outside mod_headers)
+# ---------------------------------------------------------------------------
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 month"
+
+    # Images – 1 year
+    ExpiresByType image/jpeg             "access plus 1 year"
+    ExpiresByType image/gif              "access plus 1 year"
+    ExpiresByType image/png              "access plus 1 year"
+    ExpiresByType image/webp             "access plus 1 year"
+    ExpiresByType image/avif             "access plus 1 year"
+    ExpiresByType image/svg+xml          "access plus 1 year"
+    ExpiresByType image/x-icon           "access plus 1 year"
+
+    # CSS & JavaScript – 1 year (Vite uses content-hashed filenames)
+    ExpiresByType text/css               "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType text/javascript        "access plus 1 year"
+
+    # Fonts – 1 year
+    ExpiresByType font/woff              "access plus 1 year"
+    ExpiresByType font/woff2             "access plus 1 year"
+    ExpiresByType application/font-woff  "access plus 1 year"
+    ExpiresByType application/font-woff2 "access plus 1 year"
+
+    # HTML – short TTL (dynamic content)
+    ExpiresByType text/html              "access plus 1 hour"
+
+    # Web manifests – 1 week
+    ExpiresByType application/manifest+json "access plus 1 week"
+    ExpiresByType text/cache-manifest       "access plus 1 week"
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# ETag – disable in favour of Cache-Control (core directive, not mod_headers)
+# ---------------------------------------------------------------------------
+FileETag None
+
+# ---------------------------------------------------------------------------
+# Response Headers
+# ---------------------------------------------------------------------------
+<IfModule mod_headers.c>
+
+    # Force correct MIME types for CSS and JS (prevents browser MIME-sniff rejection)
+    <FilesMatch "\.css$">
+        ForceType text/css
+        Header always set Content-Type "text/css; charset=utf-8"
+    </FilesMatch>
+
+    <FilesMatch "\.js$">
+        ForceType application/javascript
+        Header always set Content-Type "application/javascript; charset=utf-8"
+    </FilesMatch>
+
+    # Long-lived cache for versioned static assets (Vite content-hashed filenames)
+    <FilesMatch "\.(css|js|png|jpg|jpeg|gif|webp|avif|svg|woff|woff2|ttf|otf|eot|ico)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+
+    # Short-lived cache for HTML (dynamic Laravel responses)
+    # IMPORTANT: use "private" so CDNs/proxies do NOT cache per-user pages
+    <FilesMatch "\.php$">
+        Header set Cache-Control "private, no-cache, must-revalidate"
+    </FilesMatch>
+
+    # Disable caching for API random endpoints
+    <If "%{REQUEST_URI} =~ m|^/api/.*/random|">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </If>
+
+    # Preconnect to Google Fonts CDN for faster font loading
+    <FilesMatch "\.(html|php)$">
+        Header add Link "<https://fonts.googleapis.com>; rel=preconnect"
+        Header add Link "<https://fonts.gstatic.com>; rel=preconnect; crossorigin"
+    </FilesMatch>
+
+    # Remove ETag header value (FileETag None removes the field; belt-and-suspenders)
+    Header unset ETag
+
+    # Security Headers
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(self)"
+
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# URL Rewriting
+# ---------------------------------------------------------------------------
 <IfModule mod_rewrite.c>
+
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
     RewriteEngine On
 
-    # Canonical host/protocol redirect (single hop)
-    RewriteCond %{HTTP_HOST} ^www\.indoquran\.web\.id$ [NC,OR]
-    RewriteCond %{HTTPS} off
+    # ------------------------------------------------------------------
+    # 1. Canonical host + protocol redirect – single 301 hop
+    #
+    #    Handles all four non-canonical entry points:
+    #      http://indoquran.web.id/*       -> https://indoquran.web.id/*
+    #      http://www.indoquran.web.id/*   -> https://indoquran.web.id/*
+    #      https://www.indoquran.web.id/*  -> https://indoquran.web.id/*
+    #
+    #    Rule A: strip www (works for both http and https www requests)
+    # ------------------------------------------------------------------
+    RewriteCond %{HTTP_HOST} ^www\.indoquran\.web\.id$ [NC]
     RewriteRule ^ https://indoquran.web.id%{REQUEST_URI} [L,R=301]
-    
-    # Handle HTTP Authorization for APIs
+
+    # Rule B: upgrade http to https (non-www only, www already redirected above)
+    RewriteCond %{HTTPS} !=on
+    RewriteRule ^ https://indoquran.web.id%{REQUEST_URI} [L,R=301]
+
+    # ------------------------------------------------------------------
+    # 2. Static file passthroughs (serve directly, skip front controller)
+    # ------------------------------------------------------------------
+    RewriteRule ^ads\.txt$       - [L]
+    RewriteRule ^robots\.txt$    - [L]
+    RewriteRule ^sitemap.*\.xml$ - [L]
+    RewriteRule ^build/          - [L]
+    RewriteRule ^storage/        - [L]
+    RewriteRule ^images/         - [L]
+    RewriteRule ^fonts/          - [L]
+
+    # ------------------------------------------------------------------
+    # 3. Preserve Authorization header (PHP-FPM / CGI strips it by default)
+    # ------------------------------------------------------------------
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-    
-    # Handle XSRF Token
-    RewriteCond %{HTTP:X-XSRF-TOKEN} .
-    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-TOKEN}]
-    
-    # Redirect trailing slashes
+
+    # ------------------------------------------------------------------
+    # 4. Remove trailing slashes (not a directory) – 301 + noindex env var
+    # ------------------------------------------------------------------
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_URI} (.+)/$
-    RewriteRule ^ %1 [L,R=301]
-    
-    # Handle front controller
+    RewriteCond %{REQUEST_URI} ^(.+)/$
+    RewriteRule ^ %1 [L,R=301,E=NOINDEX:1]
+
+    # ------------------------------------------------------------------
+    # 5. Front controller – pass everything else to Laravel's index.php
+    # ------------------------------------------------------------------
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
-    
-# Support client-side routing for React SPA
-    # If the request is not for an actual file or directory
-    # and it's not starting with /api, /public, or other backend paths
-    # rewrite to index.php to allow React Router to handle it
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_URI} !^/api
-    RewriteCond %{REQUEST_URI} !^/storage
-    RewriteCond %{REQUEST_URI} !^/build
-    RewriteRule ^(.*)$ /public/index.php [L]
+
 </IfModule>
 
-# Handle static file caching
-<IfModule mod_expires.c>
-    ExpiresActive On
-    
-    # Images
-    ExpiresByType image/jpeg "access plus 1 year"
-    ExpiresByType image/gif "access plus 1 year"
-    ExpiresByType image/png "access plus 1 year"
-    ExpiresByType image/webp "access plus 1 year"
-    ExpiresByType image/svg+xml "access plus 1 year"
-    ExpiresByType image/x-icon "access plus 1 year"
-    
-    # Video
-    ExpiresByType video/mp4 "access plus 1 year"
-    ExpiresByType video/mpeg "access plus 1 year"
-    
-    # CSS, JavaScript
-    ExpiresByType text/css "access plus 1 month"
-    ExpiresByType text/javascript "access plus 1 month"
-    ExpiresByType application/javascript "access plus 1 month"
-    
-    # Others
-    ExpiresByType application/pdf "access plus 1 month"
-    ExpiresByType application/x-font-ttf "access plus 1 year"
-    ExpiresByType font/ttf "access plus 1 year"
+# ---------------------------------------------------------------------------
+# X-Robots-Tag for trailing-slash redirects (requires mod_headers)
+# Must be outside mod_rewrite block; env var set by rule 4 above is readable here
+# ---------------------------------------------------------------------------
+<IfModule mod_headers.c>
+    Header always set X-Robots-Tag "noindex, nofollow" env=NOINDEX
 </IfModule>
