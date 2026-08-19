@@ -5,7 +5,7 @@ import StructuredData from '../components/StructuredData';
 import { Card, Badge, PageContent } from '../components/ui';
 
 function RiwayatVersiPage() {
-    const [expandedVersions, setExpandedVersions] = useState({ "2.15.4": true });
+    const [expandedVersions, setExpandedVersions] = useState({ "2.16.0": true });
 
     const toggleVersion = (versionNumber) => {
         setExpandedVersions(prev => ({
@@ -14,6 +14,35 @@ function RiwayatVersiPage() {
         }));
     };
     const versions = [
+        {
+            version: "2.16.0",
+            date: "19 Agustus 2026",
+            type: "feature",
+            title: "Frontend Penanda Ayat, Favorit & Catatan Tadabbur",
+            description: "Pembaruan besar fitur Penanda (Bookmarks) yang menghadirkan antarmuka frontend lengkap untuk mengelola ayat yang ditandai, ayat favorit, catatan tadabbur pribadi, riwayat bacaan terakhir, serta integrasi tombol penanda langsung di halaman detail ayat.",
+            changes: [
+                {
+                    type: "feature",
+                    text: "Halaman Penanda Lengkap (/penanda) - Menyediakan antarmuka interaktif dengan tab Semua Penanda, Ayat Favorit, Catatan Tadabbur, dan Terakhir Dibaca, lengkap dengan audio murottal per ayat dan pencarian"
+                },
+                {
+                    type: "feature",
+                    text: "Tombol Penanda di Detail Ayat - Menambahkan tombol 'Tandai Ayat Ini' (Bookmark) dan 'Jadikan Favorit' langsung di halaman pembaca detail ayat (/surah/:number/:ayah)"
+                },
+                {
+                    type: "feature",
+                    text: "Catatan Tadabbur Ayat - Fitur menulis, mengedit, dan menyimpan catatan refleksi pribadi untuk setiap ayat tertentu secara inline"
+                },
+                {
+                    type: "feature",
+                    text: "Dukungan Multi-Sesi & Mode Tamu - Pengunjung tanpa login dapat menandai ayat secara lokal di perangkat (localStorage), dengan opsi masuk/daftar akun untuk sinkronisasi cloud"
+                },
+                {
+                    type: "improvement",
+                    text: "Navigasi & Akses Cepat - Menambahkan tautan Penanda di bilah navigasi Header dan menu Sidebar untuk kemudahan akses pengguna"
+                }
+            ]
+        },
         {
             version: "2.15.4",
             date: "28 Mei 2026",

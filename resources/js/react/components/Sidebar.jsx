@@ -17,7 +17,8 @@ import {
     Squares2X2Icon,
     DocumentIcon,
     ChartBarIcon,
-    HomeIcon
+    HomeIcon,
+    BookmarkIcon
 } from '@heroicons/react/24/outline';
 
 function Sidebar({ isOpen, setIsOpen }) {
@@ -70,6 +71,7 @@ function Sidebar({ isOpen, setIsOpen }) {
         { name: 'Daftar Surah', path: '/surah', icon: BookOpenIcon, description: 'Jelajahi 114 surah Al-Quran' },
         { name: 'Juz', path: '/juz', icon: Squares2X2Icon, description: 'Baca berdasarkan juz (para)' },
         { name: 'Halaman', path: '/halaman', icon: DocumentIcon, description: 'Baca berdasarkan halaman mushaf' },
+        { name: 'Penanda & Favorit', path: '/penanda', icon: BookmarkIcon, description: 'Ayat yang telah Anda tandai' },
         { name: 'Asmaul Husna', path: '/asmaul-husna', icon: StarIcon, description: '99 nama indah Allah SWT' },
         { name: 'Tafsir Maudhui', path: '/tafsir-maudhui', icon: AcademicCapIcon, description: 'Topik-topik tematik dalam Al-Quran' },
         { name: 'Artikel', path: '/artikel', icon: DocumentTextIcon, description: 'Artikel islami dan kajian Al-Quran' },

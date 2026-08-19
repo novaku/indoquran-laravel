@@ -1,13 +1,145 @@
 /**
  * BookmarkService.js
  * Service to handle bookmark and favorite functionality for ayahs
+ * Supports both authenticated API calls and localStorage fallback for guests
  */
 import { postWithAuth, getWithAuth, putWithAuth } from '../utils/apiUtils';
+import authUtils from '../utils/auth';
+
+const LOCAL_STORAGE_KEY = 'indoquran_local_bookmarks';
+const LAST_READ_KEY = 'indoquran_last_read';
 
 /**
- * Toggle bookmark status for an ayah
- * @param {number} ayahId - The ID of the ayah to bookmark/unbookmark
- * @returns {Promise<Object>} - The bookmark status response
+ * Get local bookmarks from localStorage
+ */
+export const getLocalBookmarks = () => {
+    try {
+        const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+        return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+        console.error('Error reading local bookmarks:', e);
+        return [];
+    }
+};
+
+/**
+ * Save local bookmarks to localStorage
+ */
+export const saveLocalBookmarks = (bookmarks) => {
+    try {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(bookmarks));
+        // Dispatch storage event for cross-tab or component sync
+        window.dispatchEvent(new Event('indoquran_bookmarks_updated'));
+    } catch (e) {
+        console.error('Error saving local bookmarks:', e);
+    }
+};
+
+/**
+ * Toggle bookmark in localStorage
+ */
+export const toggleLocalBookmark = (ayahData) => {
+    const bookmarks = getLocalBookmarks();
+    const existingIndex = bookmarks.findIndex(
+        b => b.surah_number === ayahData.surah_number && b.ayah_number === ayahData.ayah_number
+    );
+
+    let isBookmarked = false;
+    let updatedBookmarks;
+
+    if (existingIndex > -1) {
+        // Remove
+        updatedBookmarks = bookmarks.filter((_, i) => i !== existingIndex);
+        isBookmarked = false;
+    } else {
+        // Add
+        const newBookmark = {
+            id: ayahData.id || `local_${ayahData.surah_number}_${ayahData.ayah_number}`,
+            surah_number: ayahData.surah_number,
+            ayah_number: ayahData.ayah_number,
+            text_arabic: ayahData.text_arabic || ayahData.arabic || '',
+            text_indonesian: ayahData.text_indonesian || ayahData.translation || ayahData.text || '',
+            surah: ayahData.surah || {
+                number: ayahData.surah_number,
+                name_indonesian: ayahData.surah_name || `Surah ${ayahData.surah_number}`,
+                name_arabic: ayahData.surah_arabic || '',
+                name_latin: ayahData.surah_latin || ayahData.surah_name || `Surah ${ayahData.surah_number}`,
+                total_ayahs: ayahData.total_ayahs || 0,
+                revelation_place: ayahData.revelation_place || ''
+            },
+            pivot: {
+                is_favorite: false,
+                notes: '',
+                created_at: new Date().toISOString()
+            }
+        };
+        updatedBookmarks = [newBookmark, ...bookmarks];
+        isBookmarked = true;
+    }
+
+    saveLocalBookmarks(updatedBookmarks);
+    return { is_bookmarked: isBookmarked, bookmarks: updatedBookmarks };
+};
+
+/**
+ * Toggle local favorite status
+ */
+export const toggleLocalFavorite = (surahNumber, ayahNumber) => {
+    const bookmarks = getLocalBookmarks();
+    let isFavorite = false;
+    const updated = bookmarks.map(b => {
+        if (b.surah_number === surahNumber && b.ayah_number === ayahNumber) {
+            const currentFav = b.pivot?.is_favorite || false;
+            isFavorite = !currentFav;
+            return {
+                ...b,
+                pivot: {
+                    ...(b.pivot || {}),
+                    is_favorite: isFavorite
+                }
+            };
+        }
+        return b;
+    });
+    saveLocalBookmarks(updated);
+    return isFavorite;
+};
+
+/**
+ * Update local bookmark notes
+ */
+export const updateLocalBookmarkNotes = (surahNumber, ayahNumber, notes) => {
+    const bookmarks = getLocalBookmarks();
+    const updated = bookmarks.map(b => {
+        if (b.surah_number === surahNumber && b.ayah_number === ayahNumber) {
+            return {
+                ...b,
+                pivot: {
+                    ...(b.pivot || {}),
+                    notes: notes
+                }
+            };
+        }
+        return b;
+    });
+    saveLocalBookmarks(updated);
+    return updated;
+};
+
+/**
+ * Remove bookmark locally
+ */
+export const removeLocalBookmark = (surahNumber, ayahNumber) => {
+    const bookmarks = getLocalBookmarks();
+    const updated = bookmarks.filter(
+        b => !(b.surah_number === surahNumber && b.ayah_number === ayahNumber)
+    );
+    saveLocalBookmarks(updated);
+    return updated;
+};
+
+/**
+ * Toggle bookmark status for an ayah ID (API)
  */
 export const toggleBookmark = async (ayahId) => {
     try {
@@ -25,10 +157,7 @@ export const toggleBookmark = async (ayahId) => {
 };
 
 /**
- * Toggle favorite status for an ayah
- * @deprecated Use toggleBookmark instead - favorites are now handled as bookmarks with is_favorite flag for existing data
- * @param {number} ayahId - The ID of the ayah to favorite/unfavorite
- * @returns {Promise<Object>} - The favorite status response
+ * Toggle favorite status for an ayah ID (API)
  */
 export const toggleFavorite = async (ayahId) => {
     try {
@@ -46,9 +175,7 @@ export const toggleFavorite = async (ayahId) => {
 };
 
 /**
- * Get bookmark status for multiple ayahs
- * @param {Array<number>} ayahIds - Array of ayah IDs to check
- * @returns {Promise<Object>} - Object with ayah IDs as keys and status as values
+ * Get bookmark status for multiple ayahs (API)
  */
 export const getBookmarkStatus = async (ayahIds) => {
     try {
@@ -67,32 +194,37 @@ export const getBookmarkStatus = async (ayahIds) => {
 };
 
 /**
- * Get user's bookmarks
+ * Get user's bookmarks (handles both authenticated API and guest fallback)
  * @param {boolean} favoritesOnly - If true, only return favorites
  * @returns {Promise<Array>} - Array of bookmarked ayahs
  */
 export const getUserBookmarks = async (favoritesOnly = false) => {
-    try {
-        const url = favoritesOnly ? '/api/penanda?favorites_only=true' : '/api/penanda';
-        const response = await getWithAuth(url);
+    const token = authUtils.getAuthToken();
+    
+    if (token) {
+        try {
+            const url = favoritesOnly ? '/api/penanda?favorites_only=true' : '/api/penanda';
+            const response = await getWithAuth(url);
 
-        if (!response.ok) {
-            throw new Error('Failed to get bookmarks');
+            if (response.ok) {
+                const result = await response.json();
+                return result.data || [];
+            }
+        } catch (error) {
+            console.warn('API get bookmarks failed, falling back to local:', error);
         }
-
-        const result = await response.json();
-        return result.data;
-    } catch (error) {
-        console.error('Error getting bookmarks:', error);
-        throw error;
     }
+
+    // Guest or API fallback: get from localStorage
+    const local = getLocalBookmarks();
+    if (favoritesOnly) {
+        return local.filter(b => b.pivot?.is_favorite);
+    }
+    return local;
 };
 
 /**
- * Update notes for a bookmark
- * @param {number} ayahId - The ID of the ayah
- * @param {string} notes - The notes to save
- * @returns {Promise<Object>} - The updated bookmark data
+ * Update notes for a bookmark by ayahId
  */
 export const updateBookmarkNotes = async (ayahId, notes) => {
     try {
@@ -110,44 +242,95 @@ export const updateBookmarkNotes = async (ayahId, notes) => {
 };
 
 /**
- * Toggle bookmark status for an ayah using surah and ayah numbers
- * @param {number} surahNumber - The number of the surah
- * @param {number} ayahNumber - The number of the ayah within the surah
- * @returns {Promise<Object>} - The bookmark status response
+ * Toggle bookmark status using surah and ayah numbers
  */
-export const toggleBookmarkByNumbers = async (surahNumber, ayahNumber) => {
-    try {
-        const response = await postWithAuth(`/api/penanda/surah/${surahNumber}/ayah/${ayahNumber}/toggle`);
+export const toggleBookmarkByNumbers = async (surahNumber, ayahNumber, ayahData = null) => {
+    const token = authUtils.getAuthToken();
+    
+    if (token) {
+        try {
+            const response = await postWithAuth(`/api/penanda/surah/${surahNumber}/ayah/${ayahNumber}/toggle`);
 
-        if (!response.ok) {
-            throw new Error('Failed to toggle bookmark');
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (error) {
+            console.warn('API toggle bookmark failed, updating locally:', error);
         }
-
-        return await response.json();
-    } catch (error) {
-        console.error('Error toggling bookmark:', error);
-        throw error;
     }
+
+    // Guest fallback
+    if (ayahData) {
+        const res = toggleLocalBookmark(ayahData);
+        return {
+            status: 'success',
+            data: {
+                is_bookmarked: res.is_bookmarked,
+                surah_number: surahNumber,
+                ayah_number: ayahNumber
+            }
+        };
+    }
+
+    return {
+        status: 'error',
+        message: 'Tidak dapat mengubah penanda'
+    };
 };
 
 /**
  * Update notes for a bookmark using surah and ayah numbers
- * @param {number} surahNumber - The number of the surah
- * @param {number} ayahNumber - The number of the ayah within the surah
- * @param {string} notes - The notes to save
- * @returns {Promise<Object>} - The updated bookmark data
  */
 export const updateBookmarkNotesByNumbers = async (surahNumber, ayahNumber, notes) => {
-    try {
-        const response = await putWithAuth(`/api/penanda/surah/${surahNumber}/ayah/${ayahNumber}/notes`, { notes });
+    const token = authUtils.getAuthToken();
+    
+    if (token) {
+        try {
+            const response = await putWithAuth(`/api/penanda/surah/${surahNumber}/ayah/${ayahNumber}/notes`, { notes });
 
-        if (!response.ok) {
-            throw new Error('Failed to update notes');
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (error) {
+            console.warn('API update notes failed, updating locally:', error);
         }
+    }
 
-        return await response.json();
-    } catch (error) {
-        console.error('Error updating notes:', error);
-        throw error;
+    // Local fallback
+    updateLocalBookmarkNotes(surahNumber, ayahNumber, notes);
+    return {
+        status: 'success',
+        data: {
+            notes,
+            surah_number: surahNumber,
+            ayah_number: ayahNumber
+        }
+    };
+};
+
+/**
+ * Get Last Read from localStorage or cache
+ */
+export const getLocalLastRead = () => {
+    try {
+        const stored = localStorage.getItem(LAST_READ_KEY);
+        return stored ? JSON.parse(stored) : null;
+    } catch (e) {
+        return null;
     }
 };
+
+/**
+ * Save Last Read to localStorage
+ */
+export const saveLocalLastRead = (data) => {
+    try {
+        localStorage.setItem(LAST_READ_KEY, JSON.stringify({
+            ...data,
+            timestamp: new Date().toISOString()
+        }));
+    } catch (e) {
+        console.error('Error saving local last read:', e);
+    }
+};
+

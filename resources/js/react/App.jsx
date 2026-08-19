@@ -461,13 +461,10 @@ const AppContent = memo(() => {
                         <Route path="/auth/register" element={<Navigate to="/daftar" replace />} />
                         <Route path="/auth/:action" element={<Navigate to="/masuk" replace />} />
                         
+                        {/* Bookmarks & Reading Progress Route */}
+                        <Route path="/penanda" element={<BookmarksPage user={user} />} />
+                        
                         {/* Protected Routes */}
-                        <Route 
-                            path="/penanda" 
-                            element={
-                                isAuthenticated ? <BookmarksPage user={user} /> : <Navigate to="/masuk" replace />
-                            } 
-                        />
                         <Route 
                             path="/profil" 
                             element={

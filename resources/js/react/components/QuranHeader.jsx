@@ -18,7 +18,8 @@ import {
     AcademicCapIcon,
     Squares2X2Icon,
     DocumentIcon,
-    ChartBarIcon
+    ChartBarIcon,
+    BookmarkIcon
 } from '@heroicons/react/24/outline';
 
 function QuranHeader({ isSidebarOpen, setIsSidebarOpen }) {
@@ -61,7 +62,7 @@ function QuranHeader({ isSidebarOpen, setIsSidebarOpen }) {
     };
 
     const userNavItems = user ? [
-        { name: 'Penanda', path: '/penanda', icon: HeartIcon },
+        { name: 'Penanda', path: '/penanda', icon: BookmarkIcon },
         { name: 'Profil', path: '/profil', icon: UserIcon },
     ] : [];
 
@@ -100,7 +101,21 @@ function QuranHeader({ isSidebarOpen, setIsSidebarOpen }) {
                         </Link>
                     </div>
                     {/* User Menu & Mobile Menu Button */}
-                    <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2 sm:space-x-3">
+                        {/* Quick Penanda Button */}
+                        <Link
+                            to="/penanda"
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                                isActivePath('/penanda') 
+                                    ? 'text-green-600 bg-green-50' 
+                                    : 'text-gray-600 hover:text-green-600 hover:bg-gray-50'
+                            }`}
+                            title="Penanda & Bacaan Saya"
+                        >
+                            <BookmarkIcon className="w-5 h-5 text-green-600" />
+                            <span className="hidden sm:inline text-xs font-semibold">Penanda</span>
+                        </Link>
+
                         {/* User Menu (Desktop) */}
                         {user ? (
                             <div className="relative user-menu">

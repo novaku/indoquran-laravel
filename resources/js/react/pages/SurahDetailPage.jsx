@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
     PlayIcon, 
     PauseIcon, 
@@ -22,12 +22,32 @@ import {
     BookOpenIcon,
     DocumentTextIcon
 } from '@heroicons/react/24/outline';
+import { 
+    IoBookmark, 
+    IoBookmarkOutline, 
+    IoHeart, 
+    IoHeartOutline, 
+    IoPencilOutline, 
+    IoCheckmarkOutline, 
+    IoCloseOutline,
+    IoTrashOutline,
+    IoSparkles,
+    IoDocumentTextOutline
+} from 'react-icons/io5';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
 import { updateReadingProgress } from '../services/ReadingProgressService';
+import { 
+    getLocalBookmarks, 
+    toggleLocalBookmark, 
+    saveLocalLastRead,
+    updateBookmarkNotesByNumbers,
+    toggleLocalFavorite,
+    toggleFavorite
+} from '../services/BookmarkService';
 import { getPageSEOData, generateSurahSEOKeywords } from '../utils/seoUtils';
 
 // WhatsApp Icon Component
@@ -199,6 +219,11 @@ function SurahDetailPage() {
         return initialAyah;
     });
     const [bookmarkedAyahs, setBookmarkedAyahs] = useState(new Set());
+    const [favoriteAyahs, setFavoriteAyahs] = useState(new Set());
+    const [ayahNotesMap, setAyahNotesMap] = useState({});
+    const [isNotesEditorOpen, setIsNotesEditorOpen] = useState(false);
+    const [currentEditingNote, setCurrentEditingNote] = useState('');
+    const [isSavingNote, setIsSavingNote] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentPlayingAyah, setCurrentPlayingAyah] = useState(null);
     const [isAudioLoading, setIsAudioLoading] = useState(false);
@@ -515,8 +540,8 @@ function SurahDetailPage() {
                         }))
                     });
                     
-                    // Fetch bookmarks if user is logged in
-                    if (user) {
+                    // Fetch bookmarks for this surah
+                    if (user && token) {
                         try {
                             const bookmarksResponse = await fetchWithAuth('/api/penanda', {
                                 headers: {
@@ -530,17 +555,47 @@ function SurahDetailPage() {
                                 const bookmarksResult = await bookmarksResponse.json();
                                 if (bookmarksResult.status === 'success') {
                                     const bookmarkedSet = new Set();
+                                    const favSet = new Set();
+                                    const notesMap = {};
                                     bookmarksResult.data.forEach(bookmark => {
                                         if (bookmark.surah_number == number) {
                                             bookmarkedSet.add(bookmark.ayah_number);
+                                            if (bookmark.pivot?.is_favorite) {
+                                                favSet.add(bookmark.ayah_number);
+                                            }
+                                            if (bookmark.pivot?.notes) {
+                                                notesMap[bookmark.ayah_number] = bookmark.pivot.notes;
+                                            }
                                         }
                                     });
                                     setBookmarkedAyahs(bookmarkedSet);
+                                    setFavoriteAyahs(favSet);
+                                    setAyahNotesMap(notesMap);
                                 }
                             }
                         } catch (error) {
                             console.log('Error fetching bookmarks:', error);
                         }
+                    } else {
+                        // Load local bookmarks for guests
+                        const local = getLocalBookmarks();
+                        const bookmarkedSet = new Set();
+                        const favSet = new Set();
+                        const notesMap = {};
+                        local.forEach(bookmark => {
+                            if (bookmark.surah_number == number) {
+                                bookmarkedSet.add(bookmark.ayah_number);
+                                if (bookmark.pivot?.is_favorite) {
+                                    favSet.add(bookmark.ayah_number);
+                                }
+                                if (bookmark.pivot?.notes) {
+                                    notesMap[bookmark.ayah_number] = bookmark.pivot.notes;
+                                }
+                            }
+                        });
+                        setBookmarkedAyahs(bookmarkedSet);
+                        setFavoriteAyahs(favSet);
+                        setAyahNotesMap(notesMap);
                     }
                 } else {
                     throw new Error(surahResult.message || 'Failed to load surah');
@@ -734,78 +789,218 @@ function SurahDetailPage() {
     }, [loading, ayahs.length, ayahNumber, currentAyah, scrollToCurrentAyah]);
 
     const toggleBookmark = async (ayahNum) => {
-        if (!user) {
-            navigate('/masuk');
-            return;
-        }
+        const isCurrentlyBookmarked = bookmarkedAyahs.has(ayahNum);
+        const ayahObj = ayahs.find(a => a.ayah_number === ayahNum);
 
-        try {
-            const token = authUtils.getAuthToken();
-            const isCurrentlyBookmarked = bookmarkedAyahs.has(ayahNum);
-            
-            // Debug: Log what we're sending
-            console.log('🔖 Bookmark Debug:', {
-                surahNumber: number,
-                ayahNumber: ayahNum,
-                isCurrentlyBookmarked,
-                token: token ? 'Present' : 'Missing'
-            });
+        // Find surah info
+        const surahData = {
+            id: ayahObj?.id,
+            surah_number: parseInt(number),
+            ayah_number: ayahNum,
+            text_arabic: ayahObj?.arabic || ayahObj?.text_arabic || '',
+            text_indonesian: ayahObj?.translation || ayahObj?.text_indonesian || '',
+            surah_name: surah?.name_indonesian || surah?.name_latin || `Surah ${number}`,
+            surah_latin: surah?.name_latin || `Surah ${number}`,
+            surah_arabic: surah?.name_arabic || '',
+            total_ayahs: maxAyahNumber,
+            revelation_place: surah?.revelation_place || ''
+        };
 
-            // Use the new endpoint that accepts surah and ayah numbers
-            const response = await fetchWithAuth(`/api/penanda/surah/${number}/ayah/${ayahNum}/toggle`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                }
-            });
-
-            console.log('🔖 Bookmark API Response:', {
-                status: response.status,
-                ok: response.ok,
-                statusText: response.statusText
-            });
-
-            if (response.ok) {
-                const responseData = await response.json();
-                console.log('🔖 Bookmark Response Data:', responseData);
-                
-                const newBookmarkedAyahs = new Set(bookmarkedAyahs);
-                if (isCurrentlyBookmarked) {
-                    newBookmarkedAyahs.delete(ayahNum);
-                } else {
-                    newBookmarkedAyahs.add(ayahNum);
-                }
-                setBookmarkedAyahs(newBookmarkedAyahs);
-                
-                // Show success message
-                const alertDiv = document.createElement('div');
-                alertDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-all text-sm';
-                alertDiv.textContent = `✅ ${isCurrentlyBookmarked ? 'Bookmark dihapus' : 'Bookmark ditambah'}!`;
-                document.body.appendChild(alertDiv);
-                
-                setTimeout(() => {
-                    alertDiv.style.opacity = '0';
-                    setTimeout(() => {
-                        if (document.body.contains(alertDiv)) {
-                            document.body.removeChild(alertDiv);
-                        }
-                    }, 300);
-                }, 2000);
-            } else {
-                const errorText = await response.text();
-                console.error('❌ Bookmark API Error:', {
-                    status: response.status,
-                    statusText: response.statusText,
-                    errorText: errorText
+        if (user) {
+            try {
+                const token = authUtils.getAuthToken();
+                const response = await fetchWithAuth(`/api/penanda/surah/${number}/ayah/${ayahNum}/toggle`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    }
                 });
-                alert(`Error toggling bookmark: ${response.status} ${response.statusText}`);
+
+                if (response.ok) {
+                    const newBookmarkedAyahs = new Set(bookmarkedAyahs);
+                    if (isCurrentlyBookmarked) {
+                        newBookmarkedAyahs.delete(ayahNum);
+                    } else {
+                        newBookmarkedAyahs.add(ayahNum);
+                    }
+                    setBookmarkedAyahs(newBookmarkedAyahs);
+                    
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'fixed top-4 right-4 bg-emerald-600 text-white px-4 py-2 rounded-xl shadow-lg z-50 transition-all text-sm font-medium';
+                    alertDiv.textContent = `✅ ${isCurrentlyBookmarked ? 'Penanda dihapus' : 'Ayat berhasil ditandai'}!`;
+                    document.body.appendChild(alertDiv);
+                    
+                    setTimeout(() => {
+                        alertDiv.style.opacity = '0';
+                        setTimeout(() => {
+                            if (document.body.contains(alertDiv)) {
+                                document.body.removeChild(alertDiv);
+                            }
+                        }, 300);
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error('❌ Error toggling bookmark:', error);
             }
-        } catch (error) {
-            console.error('❌ Error toggling bookmark:', error);
-            alert('Network error while toggling bookmark. Please try again.');
+        } else {
+            // Guest local bookmark
+            toggleLocalBookmark(surahData);
+            const newBookmarkedAyahs = new Set(bookmarkedAyahs);
+            if (isCurrentlyBookmarked) {
+                newBookmarkedAyahs.delete(ayahNum);
+            } else {
+                newBookmarkedAyahs.add(ayahNum);
+            }
+            setBookmarkedAyahs(newBookmarkedAyahs);
+
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'fixed top-4 right-4 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-lg z-50 transition-all text-sm font-medium';
+            alertDiv.textContent = `✅ ${isCurrentlyBookmarked ? 'Penanda lokal dihapus' : 'Ayat ditandai di perangkat ini'}!`;
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.style.opacity = '0';
+                setTimeout(() => {
+                    if (document.body.contains(alertDiv)) {
+                        document.body.removeChild(alertDiv);
+                    }
+                }, 300);
+            }, 2500);
         }
+    };
+
+    // Keep currentEditingNote in sync with currentAyahNumber
+    useEffect(() => {
+        setCurrentEditingNote(ayahNotesMap[currentAyahNumber] || '');
+        setIsNotesEditorOpen(false);
+    }, [currentAyahNumber, ayahNotesMap]);
+
+    // Save Ayah Note
+    const handleSaveAyahNote = async () => {
+        const ayahNum = currentAyahNumber;
+        const noteText = currentEditingNote.trim();
+        
+        try {
+            setIsSavingNote(true);
+            await updateBookmarkNotesByNumbers(parseInt(number), ayahNum, noteText);
+            
+            setAyahNotesMap(prev => ({
+                ...prev,
+                [ayahNum]: noteText
+            }));
+            
+            // Automatically mark as bookmarked
+            setBookmarkedAyahs(prev => new Set(prev).add(ayahNum));
+            setIsNotesEditorOpen(false);
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'fixed top-4 right-4 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-lg z-50 transition-all text-sm font-medium';
+            alertDiv.textContent = '✅ Catatan tadabbur berhasil disimpan!';
+            document.body.appendChild(alertDiv);
+            setTimeout(() => {
+                alertDiv.style.opacity = '0';
+                setTimeout(() => {
+                    if (document.body.contains(alertDiv)) document.body.removeChild(alertDiv);
+                }, 300);
+            }, 2000);
+        } catch (error) {
+            console.error('Error saving note:', error);
+        } finally {
+            setIsSavingNote(false);
+        }
+    };
+
+    // Delete Ayah Note
+    const handleDeleteAyahNote = async () => {
+        const ayahNum = currentAyahNumber;
+        try {
+            setIsSavingNote(true);
+            await updateBookmarkNotesByNumbers(parseInt(number), ayahNum, '');
+            setAyahNotesMap(prev => {
+                const next = { ...prev };
+                delete next[ayahNum];
+                return next;
+            });
+            setCurrentEditingNote('');
+            setIsNotesEditorOpen(false);
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'fixed top-4 right-4 bg-gray-700 text-white px-4 py-2.5 rounded-xl shadow-lg z-50 transition-all text-sm font-medium';
+            alertDiv.textContent = '🗑️ Catatan telah dihapus';
+            document.body.appendChild(alertDiv);
+            setTimeout(() => {
+                alertDiv.style.opacity = '0';
+                setTimeout(() => {
+                    if (document.body.contains(alertDiv)) document.body.removeChild(alertDiv);
+                }, 300);
+            }, 2000);
+        } catch (error) {
+            console.error('Error deleting note:', error);
+        } finally {
+            setIsSavingNote(false);
+        }
+    };
+
+    // Toggle Favorite for Ayah
+    const handleToggleAyahFavorite = async (ayahNum = currentAyahNumber) => {
+        const isFav = favoriteAyahs.has(ayahNum);
+        const newFavState = !isFav;
+        
+        setFavoriteAyahs(prev => {
+            const next = new Set(prev);
+            if (isFav) next.delete(ayahNum);
+            else next.add(ayahNum);
+            return next;
+        });
+
+        // Ensure bookmarked
+        setBookmarkedAyahs(prev => new Set(prev).add(ayahNum));
+
+        const ayahObj = ayahs.find(a => a.ayah_number === ayahNum);
+        const surahData = {
+            id: ayahObj?.id,
+            surah_number: parseInt(number),
+            ayah_number: ayahNum,
+            text_arabic: ayahObj?.arabic || ayahObj?.text_arabic || '',
+            text_indonesian: ayahObj?.translation || ayahObj?.text_indonesian || '',
+            surah_name: surah?.name_indonesian || surah?.name_latin || `Surah ${number}`,
+            surah_latin: surah?.name_latin || `Surah ${number}`,
+            surah_arabic: surah?.name_arabic || '',
+            total_ayahs: maxAyahNumber,
+            revelation_place: surah?.revelation_place || ''
+        };
+
+        if (user && ayahObj?.id) {
+            try {
+                const token = authUtils.getAuthToken();
+                await fetchWithAuth(`/api/penanda/surah/ayah/${ayahObj.id}/favorite`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    }
+                });
+            } catch (err) {
+                console.error('Error toggling favorite:', err);
+            }
+        } else {
+            toggleLocalBookmark(surahData);
+            toggleLocalFavorite(parseInt(number), ayahNum);
+        }
+
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'fixed top-4 right-4 bg-rose-600 text-white px-4 py-2.5 rounded-xl shadow-lg z-50 transition-all text-sm font-medium';
+        alertDiv.textContent = newFavState ? '❤️ Ditambahkan ke ayat favorit!' : 'Dihapus dari ayat favorit';
+        document.body.appendChild(alertDiv);
+        setTimeout(() => {
+            alertDiv.style.opacity = '0';
+            setTimeout(() => {
+                if (document.body.contains(alertDiv)) document.body.removeChild(alertDiv);
+            }, 300);
+        }, 2000);
     };
 
     // Helper function to get audio URL from EveryAyah API
@@ -2028,22 +2223,20 @@ function SurahDetailPage() {
                                         <ClipboardDocumentIcon className="w-4 h-4 text-indigo-600" />
                                         Salin teks Arab ayat
                                     </button>
-                                    {user && (
-                                        <button
-                                            onClick={async () => {
-                                                await toggleBookmark(currentAyahNumber);
-                                                setShowActionsMenu(false);
-                                            }}
-                                            className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                                        >
-                                            {bookmarkedAyahs.has(currentAyahNumber) ? (
-                                                <BookmarkSolidIcon className="w-4 h-4 text-yellow-600" />
-                                            ) : (
-                                                <BookmarkOutlineIcon className="w-4 h-4 text-yellow-600" />
-                                            )}
-                                            {bookmarkedAyahs.has(currentAyahNumber) ? 'Hapus bookmark ayat' : 'Bookmark ayat'}
-                                        </button>
-                                    )}
+                                    <button
+                                        onClick={async () => {
+                                            await toggleBookmark(currentAyahNumber);
+                                            setShowActionsMenu(false);
+                                        }}
+                                        className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                                    >
+                                        {bookmarkedAyahs.has(currentAyahNumber) ? (
+                                            <BookmarkSolidIcon className="w-4 h-4 text-emerald-600" />
+                                        ) : (
+                                            <BookmarkOutlineIcon className="w-4 h-4 text-emerald-600" />
+                                        )}
+                                        {bookmarkedAyahs.has(currentAyahNumber) ? 'Hapus penanda ayat' : 'Tandai / Bookmark ayat'}
+                                    </button>
                                 </div>
                             )}
                         </div>
@@ -2163,6 +2356,164 @@ function SurahDetailPage() {
                                         )}
                                     </div>
                                 )}
+
+                                {/* Dedicated Bookmark & Notes Section for this Ayah */}
+                                <div className="mb-8 max-w-3xl mx-auto bg-gradient-to-r from-emerald-50/80 via-teal-50/50 to-green-50/80 border border-emerald-200/90 rounded-2xl p-4 sm:p-5 shadow-sm text-left">
+                                    <div className="flex flex-wrap items-center justify-between gap-3">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            {/* Tandai / Bookmark Button */}
+                                            <button
+                                                type="button"
+                                                onClick={() => toggleBookmark(currentAyahNumber)}
+                                                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm active:scale-95 ${
+                                                    bookmarkedAyahs.has(currentAyahNumber)
+                                                        ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-200 ring-2 ring-emerald-300'
+                                                        : 'bg-white border border-emerald-300 text-emerald-800 hover:bg-emerald-50'
+                                                }`}
+                                                title={bookmarkedAyahs.has(currentAyahNumber) ? 'Hapus penanda dari ayat ini' : 'Tandai ayat ini'}
+                                            >
+                                                {bookmarkedAyahs.has(currentAyahNumber) ? (
+                                                    <IoBookmark className="w-4 h-4 text-yellow-300" />
+                                                ) : (
+                                                    <IoBookmarkOutline className="w-4 h-4 text-emerald-600" />
+                                                )}
+                                                <span>
+                                                    {bookmarkedAyahs.has(currentAyahNumber) ? 'Ditandai (Bookmark)' : 'Tandai Ayat Ini'}
+                                                </span>
+                                            </button>
+
+                                            {/* Favorit Button */}
+                                            <button
+                                                type="button"
+                                                onClick={() => handleToggleAyahFavorite(currentAyahNumber)}
+                                                className={`inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all ${
+                                                    favoriteAyahs.has(currentAyahNumber)
+                                                        ? 'bg-rose-100 text-rose-700 border border-rose-300 hover:bg-rose-200'
+                                                        : 'bg-white border border-gray-200 text-gray-700 hover:text-rose-600 hover:bg-rose-50'
+                                                }`}
+                                                title={favoriteAyahs.has(currentAyahNumber) ? 'Hapus dari ayat favorit' : 'Jadikan ayat favorit'}
+                                            >
+                                                {favoriteAyahs.has(currentAyahNumber) ? (
+                                                    <IoHeart className="w-4 h-4 text-rose-500" />
+                                                ) : (
+                                                    <IoHeartOutline className="w-4 h-4 text-gray-500" />
+                                                )}
+                                                <span>
+                                                    {favoriteAyahs.has(currentAyahNumber) ? 'Favorit' : 'Jadikan Favorit'}
+                                                </span>
+                                            </button>
+
+                                            {/* Catatan Button */}
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsNotesEditorOpen(prev => !prev)}
+                                                className={`inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all ${
+                                                    ayahNotesMap[currentAyahNumber]
+                                                        ? 'bg-amber-100 text-amber-800 border border-amber-300 hover:bg-amber-200'
+                                                        : 'bg-white border border-gray-200 text-gray-700 hover:text-amber-700 hover:bg-amber-50'
+                                                }`}
+                                                title="Tulis catatan tadabbur"
+                                            >
+                                                <IoPencilOutline className="w-4 h-4 text-amber-600" />
+                                                <span>
+                                                    {ayahNotesMap[currentAyahNumber] ? 'Catatan Tadabbur' : '+ Catatan'}
+                                                </span>
+                                            </button>
+                                        </div>
+
+                                        {/* Link to /penanda */}
+                                        <Link
+                                            to="/penanda"
+                                            className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 hover:underline flex items-center gap-1"
+                                        >
+                                            <span>Semua Penanda Saya →</span>
+                                        </Link>
+                                    </div>
+
+                                    {/* Notes Section for Current Ayah */}
+                                    {(isNotesEditorOpen || ayahNotesMap[currentAyahNumber]) && (
+                                        <div className="mt-4 pt-3.5 border-t border-emerald-200/70">
+                                            {isNotesEditorOpen ? (
+                                                <div className="space-y-2.5 bg-white p-3.5 rounded-xl border border-emerald-200 shadow-sm">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-xs font-semibold text-emerald-900 flex items-center gap-1.5">
+                                                            <IoPencilOutline className="w-4 h-4 text-amber-600" />
+                                                            Catatan Tadabbur Ayat {currentAyahNumber}:
+                                                        </span>
+                                                        <span className="text-[11px] text-gray-400">
+                                                            {currentEditingNote.length}/1000 karakter
+                                                        </span>
+                                                    </div>
+
+                                                    <textarea
+                                                        value={currentEditingNote}
+                                                        onChange={(e) => setCurrentEditingNote(e.target.value)}
+                                                        placeholder="Tuliskan refleksi tadabbur, pelajaran, atau doa terkait ayat ini..."
+                                                        className="w-full p-3 text-xs sm:text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none resize-none"
+                                                        rows={3}
+                                                        maxLength={1000}
+                                                        autoFocus
+                                                    />
+
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setCurrentEditingNote(ayahNotesMap[currentAyahNumber] || '');
+                                                                setIsNotesEditorOpen(false);
+                                                            }}
+                                                            disabled={isSavingNote}
+                                                            className="px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-100"
+                                                        >
+                                                            Batal
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={handleSaveAyahNote}
+                                                            disabled={isSavingNote}
+                                                            className="px-4 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm disabled:opacity-50 inline-flex items-center gap-1"
+                                                        >
+                                                            {isSavingNote ? (
+                                                                <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                                            ) : (
+                                                                <IoCheckmarkOutline className="w-4 h-4" />
+                                                            )}
+                                                            <span>Simpan Catatan</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : ayahNotesMap[currentAyahNumber] ? (
+                                                <div className="bg-amber-50/90 border-l-4 border-amber-400 p-3.5 rounded-r-xl">
+                                                    <div className="flex items-start justify-between gap-2 mb-1">
+                                                        <span className="text-xs font-semibold text-amber-900 flex items-center gap-1">
+                                                            <IoDocumentTextOutline className="w-3.5 h-3.5 text-amber-600" />
+                                                            Catatan Tadabbur Anda:
+                                                        </span>
+                                                        <div className="flex items-center gap-2">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setIsNotesEditorOpen(true)}
+                                                                className="text-[11px] font-medium text-blue-700 hover:underline"
+                                                            >
+                                                                Edit
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={handleDeleteAyahNote}
+                                                                className="text-[11px] font-medium text-red-600 hover:underline"
+                                                            >
+                                                                Hapus
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <p className="text-xs sm:text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
+                                                        {ayahNotesMap[currentAyahNumber]}
+                                                    </p>
+                                                </div>
+                                            ) : null}
+                                        </div>
+                                    )}
+                                </div>
 
                                 <div className="mb-8 max-w-4xl mx-auto rounded-2xl border border-gray-200 bg-gray-50/80 p-4 sm:p-5 text-left">
                                     <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-6">
