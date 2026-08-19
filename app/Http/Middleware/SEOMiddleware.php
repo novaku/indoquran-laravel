@@ -34,8 +34,8 @@ class SEOMiddleware
      */
     private function shouldApplySEOHeaders(Request $request, Response $response): bool
     {
-        // Only apply to successful HTML responses
-        if ($response->getStatusCode() >= 400) {
+        // Only apply to successful 200 OK responses
+        if ($response->getStatusCode() !== 200 || $response->isRedirection()) {
             return false;
         }
 
@@ -126,6 +126,7 @@ class SEOMiddleware
         $response->headers->set('Link', implode(', ', $preloadLinks), false);
 
         // Add timing headers for performance monitoring
-        $response->headers->set('Server-Timing', 'app;dur=' . (microtime(true) - LARAVEL_START) * 1000);
+        $startTime = defined('LARAVEL_START') ? LARAVEL_START : (defined('\LARAVEL_START') ? \LARAVEL_START : microtime(true));
+        $response->headers->set('Server-Timing', 'app;dur=' . (microtime(true) - $startTime) * 1000);
     }
 }

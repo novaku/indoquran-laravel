@@ -1,19 +1,48 @@
 User-agent: *
 Allow: /
 
-# Disallow private pages
+# Disallow private and account pages
 Disallow: /auth/
 Disallow: /profile
+Disallow: /profil
 Disallow: /bookmarks
+Disallow: /penanda
+Disallow: /masuk
+Disallow: /daftar
+Disallow: /login
+Disallow: /register
+Disallow: /logout
 Disallow: /api/
 Disallow: /admin/
+Disallow: /dashboard/
 
-# Allow important pages
-Allow: /cari
+# Disallow internal search query and pagination URLs (Google Search Central Guidelines)
+Disallow: /cari?
+Disallow: /cari/*
+Disallow: /search
+Disallow: /search?
+
+# Disallow tracking parameters
+Disallow: /*?*utm_source=
+Disallow: /*?*utm_medium=
+Disallow: /*?*utm_campaign=
+Disallow: /*?*utm_term=
+Disallow: /*?*utm_content=
+Disallow: /*?*fbclid=
+Disallow: /*?*gclid=
+Disallow: /*?*msclkid=
+Disallow: /*?*ref=
+Disallow: /*?*_ga=
+Disallow: /*?*_gid=
+
+# Allow main landing pages
+Allow: /cari$
 Allow: /surah
-Allow: /daftar-lengkap
 Allow: /surah/
+Allow: /daftar-lengkap
+Allow: /juz
 Allow: /juz/
+Allow: /halaman
 Allow: /halaman/
 Allow: /asmaul-husna
 Allow: /tafsir-maudhui
@@ -23,6 +52,7 @@ Allow: /kontak
 Allow: /donasi
 Allow: /riwayat-versi
 Allow: /kebijakan
+Allow: /amp/
 
 # Crawl delay for respectful crawling
 Crawl-delay: 1
@@ -30,11 +60,25 @@ Crawl-delay: 1
 # Sitemaps
 Sitemap: https://indoquran.web.id/sitemap.xml
 Sitemap: https://indoquran.web.id/sitemap-index.xml
+Sitemap: https://indoquran.web.id/sitemap-main.xml
 
-# Additional guidelines for major search engines
+# Googlebot specific
 User-agent: Googlebot
 Allow: /
-Crawl-delay: 1
+Allow: /cari$
+Disallow: /cari?
+Disallow: /cari/*
+Disallow: /search
+Disallow: /search?
+Disallow: /api/
+Disallow: /admin/
+Crawl-delay: 0.5
+
+User-agent: Googlebot-Image
+Allow: /images/
+Allow: /android-chrome-*.png
+Allow: /apple-touch-icon.png
+Allow: /favicon.ico
 
 User-agent: Bingbot
 Allow: /

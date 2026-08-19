@@ -221,17 +221,19 @@ class SitemapController extends Controller
         
         // Optimize crawl budget by disallowing low-value pages
         $robotsTxt .= "# Disallow private and low-value pages\n";
+        $robotsTxt .= "Disallow: /auth/\n";
+        $robotsTxt .= "Disallow: /profile\n";
+        $robotsTxt .= "Disallow: /profil\n";
+        $robotsTxt .= "Disallow: /bookmarks\n";
+        $robotsTxt .= "Disallow: /penanda\n";
         $robotsTxt .= "Disallow: /masuk\n";
         $robotsTxt .= "Disallow: /daftar\n";
-        $robotsTxt .= "Disallow: /profil\n";
-        $robotsTxt .= "Disallow: /penanda\n";
-        $robotsTxt .= "Disallow: /api/\n";
-        $robotsTxt .= "Disallow: /admin/\n";
-        $robotsTxt .= "Disallow: /dashboard/\n";
         $robotsTxt .= "Disallow: /login\n";
         $robotsTxt .= "Disallow: /register\n";
         $robotsTxt .= "Disallow: /logout\n";
-        $robotsTxt .= "Disallow: /amp/\n";
+        $robotsTxt .= "Disallow: /api/\n";
+        $robotsTxt .= "Disallow: /admin/\n";
+        $robotsTxt .= "Disallow: /dashboard/\n";
         
         // Prevent indexing of URLs with tracking parameters (to avoid redirect validation failures)
         $robotsTxt .= "\n# Disallow URLs with tracking parameters to prevent redirect issues\n";
@@ -248,21 +250,24 @@ class SitemapController extends Controller
         $robotsTxt .= "Disallow: /*?*_gid=\n";
         $robotsTxt .= "Disallow: /*?*session=\n";
         
-        // Prevent indexing of URLs with trailing slashes (to avoid duplicate content)
-        $robotsTxt .= "\n# Disallow URLs with trailing slashes to prevent duplicates\n";
-        $robotsTxt .= "Disallow: /*/\n";
-        
         $robotsTxt .= "\n# Disallow search and pagination URLs\n";
-        $robotsTxt .= "Disallow: /search?*\n";
-        $robotsTxt .= "Disallow: /cari?page=\n";
+        $robotsTxt .= "Disallow: /cari?\n";
+        $robotsTxt .= "Disallow: /cari/*\n";
+        $robotsTxt .= "Disallow: /search\n";
+        $robotsTxt .= "Disallow: /search?\n";
         $robotsTxt .= "Disallow: /*?preview=\n\n";
         
         // Allow high-value content for better indexing
         $robotsTxt .= "# Allow high-value content for Indonesian Quran searches\n";
         $robotsTxt .= "Allow: /cari$\n";
+        $robotsTxt .= "Allow: /surah\n";
         $robotsTxt .= "Allow: /surah/\n";
+        $robotsTxt .= "Allow: /daftar-lengkap\n";
+        $robotsTxt .= "Allow: /juz\n";
         $robotsTxt .= "Allow: /juz/\n";
+        $robotsTxt .= "Allow: /halaman\n";
         $robotsTxt .= "Allow: /halaman/\n";
+        $robotsTxt .= "Allow: /amp/\n";
         $robotsTxt .= "Allow: /doa-bersama\n";
         $robotsTxt .= "Allow: /tafsir-maudhui\n";
         $robotsTxt .= "Allow: /tentang\n";

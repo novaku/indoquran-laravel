@@ -28,7 +28,6 @@ class AmpController extends Controller
             : Surah::with('ayahs')->where('number', $number)->firstOrFail();
 
         return response()
-            ->view('amp.surah', compact('surah'))
-            ->header('X-Robots-Tag', 'noindex, follow');
+            ->view('amp.surah', compact('surah'));
     }
 }
