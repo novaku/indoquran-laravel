@@ -1648,41 +1648,8 @@ export const generateCanonicalUrl = (path) => {
   }
 };
 
-// Ensure canonical URL consistency for current page
+// Ensure canonical URL consistency for current page (safe no-op: canonical tags handle SEO without forcing client-side browser reloads)
 export const ensureCanonicalConsistency = () => {
-  // Skip canonical redirect in development environment
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    return true;
-  }
-
-  const currentUrl = window.location.href;
-  const currentPath = window.location.pathname + window.location.search;
-  const expectedCanonical = generateCanonicalUrl(currentPath);
-
-  // Check if current URL matches canonical format
-  const currentUrlObj = new URL(currentUrl);
-  const expectedUrlObj = new URL(expectedCanonical);
-
-  // Only redirect if there's a significant mismatch that affects SEO
-  const needsRedirect =
-    // Different protocol (http vs https)
-    currentUrlObj.protocol !== expectedUrlObj.protocol ||
-    // Different hostname (www vs non-www, or different domain)
-    currentUrlObj.hostname !== expectedUrlObj.hostname ||
-    // Different path (case sensitivity, trailing slash)
-    currentUrlObj.pathname !== expectedUrlObj.pathname;
-
-  // NOTE: We do NOT check query params here (currentUrlObj.search !== expectedUrlObj.search)
-  // primarily to preserve tracking parameters like utm_source, fbclid, etc.
-  // The rel="canonical" tag handles the SEO duplication issue without needing a hard redirect.
-
-  if (needsRedirect) {
-    // Use 301 redirect via window.location.replace to avoid adding to history
-    console.log('[SEO] Redirecting to canonical URL:', expectedCanonical);
-    window.location.replace(expectedCanonical);
-    return false;
-  }
-
   return true;
 };
 

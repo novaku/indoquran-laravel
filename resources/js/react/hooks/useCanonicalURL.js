@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { generateCanonicalUrl, ensureCanonicalConsistency } from '../utils/seoUtils';
+import { generateCanonicalUrl } from '../utils/seoUtils';
 
 /**
  * Hook to ensure canonical URL consistency according to Google's guidelines
@@ -68,10 +68,7 @@ export const useCanonicalURL = (manualCanonicalUrl = null) => {
       canonicalLink.href = canonicalUrl;
     }
 
-    // Ensure URL consistency (only in production to avoid dev disruptions)
-    if (process.env.NODE_ENV === 'production') {
-      ensureCanonicalConsistency();
-    }
+    // Canonical URL is updated in the DOM head without forcing hard browser redirects
 
     // Update Open Graph URL to match canonical
     let ogUrlMeta = document.querySelector('meta[property="og:url"]');
