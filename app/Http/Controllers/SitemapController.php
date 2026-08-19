@@ -117,6 +117,12 @@ class SitemapController extends Controller
                 'priority' => '0.5'
             ],
             [
+                'url' => $baseUrl . '/artikel',
+                'lastmod' => $currentDate,
+                'changefreq' => 'daily',
+                'priority' => '0.85'
+            ],
+            [
                 'url' => $baseUrl . '/kebijakan',
                 'lastmod' => $currentDate,
                 'changefreq' => 'yearly',
@@ -151,6 +157,22 @@ class SitemapController extends Controller
                 'priority' => '0.9'
             ];
         })->toArray();
+
+        // Dynamic published article pages
+        $articlePages = [];
+        try {
+            $articles = \App\Models\Article::published()->select('slug', 'updated_at')->get();
+            $articlePages = $articles->map(function ($article) use ($baseUrl, $currentDate) {
+                return [
+                    'url' => $baseUrl . '/artikel/' . $article->slug,
+                    'lastmod' => $article->updated_at ? $article->updated_at->format('Y-m-d') : $currentDate,
+                    'changefreq' => 'weekly',
+                    'priority' => '0.8'
+                ];
+            })->toArray();
+        } catch (\Throwable $e) {
+            // Ignore if table doesn't exist yet
+        }
         
         // Add Juz pages
         $juzPages = [];
@@ -174,7 +196,7 @@ class SitemapController extends Controller
             ];
         }
         
-        $allPages = array_merge($staticPages, $surahPages, $juzPages, $halamanPages);
+        $allPages = array_merge($staticPages, $surahPages, $articlePages, $juzPages, $halamanPages);
         
         // Generate XML
         $xml = $this->generateSitemapXml($allPages);
@@ -255,6 +277,9 @@ class SitemapController extends Controller
         $robotsTxt .= "Disallow: /cari/*\n";
         $robotsTxt .= "Disallow: /search\n";
         $robotsTxt .= "Disallow: /search?\n";
+        $robotsTxt .= "Disallow: /*?*tag=\n";
+        $robotsTxt .= "Disallow: /*?*search=\n";
+        $robotsTxt .= "Disallow: /artikel?*\n";
         $robotsTxt .= "Disallow: /*?preview=\n\n";
         
         // Allow high-value content for better indexing
@@ -267,6 +292,8 @@ class SitemapController extends Controller
         $robotsTxt .= "Allow: /juz/\n";
         $robotsTxt .= "Allow: /halaman\n";
         $robotsTxt .= "Allow: /halaman/\n";
+        $robotsTxt .= "Allow: /artikel$\n";
+        $robotsTxt .= "Allow: /artikel/\n";
         $robotsTxt .= "Allow: /amp/\n";
         $robotsTxt .= "Allow: /doa-bersama\n";
         $robotsTxt .= "Allow: /tafsir-maudhui\n";

@@ -78,9 +78,12 @@ const ArticlesPage = () => {
   return (
     <>
       <SEOHead
-        title="Artikel Islami - IndoQuran"
-        description="Baca berbagai artikel islami, kajian Al-Quran, dan pengetahuan agama untuk memperdalam pemahaman Islam Anda."
+        title={selectedTag ? `Artikel Tag #${selectedTag} - IndoQuran` : (searchQuery ? `Hasil Pencarian Artikel "${searchQuery}" - IndoQuran` : "Artikel Islami - IndoQuran")}
+        description={selectedTag ? `Kumpulan artikel islami dan kajian Al-Quran dengan topik #${selectedTag} di IndoQuran.` : "Baca berbagai artikel islami, kajian Al-Quran, dan pengetahuan agama untuk memperdalam pemahaman Islam Anda."}
         keywords="artikel islam, kajian quran, artikel islami, pengetahuan agama"
+        canonicalUrl="https://indoquran.web.id/artikel"
+        noindex={Boolean(selectedTag || searchQuery || currentPage > 1)}
+        robots={selectedTag || searchQuery || currentPage > 1 ? 'noindex, follow' : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'}
       />
 
       <div className="min-h-screen bg-gradient-to-b from-primary-50 to-white">

@@ -22,20 +22,16 @@ class DomainRedirectMiddleware
         
         $host = $request->getHost();
         
-        // Cek apakah domain adalah my.indoquran.web.id
-        if ($host === 'my.indoquran.web.id') {
-            // Bangun URL baru dengan domain indoquran.web.id
-            // Gunakan scheme yang sama, ganti hanya domain, pertahankan path dan query
-            $scheme = $request->getScheme();
-            $path = $request->getRequestUri(); // Sudah termasuk query string
-            $newUrl = $scheme . '://indoquran.web.id' . $path;
+        // Redirect all subdomains (mail.indoquran.web.id, my.indoquran.web.id, www.indoquran.web.id, etc.)
+        // to primary canonical domain: indoquran.web.id
+        if ($host !== 'indoquran.web.id') {
+            $path = $request->getRequestUri(); // Already includes query string
+            $newUrl = 'https://indoquran.web.id' . $path;
             
-            // Redirect dengan status 301 (permanent redirect).
-            // Jangan kirim noindex di response redirect agar tidak memicu issue GSC.
+            // Redirect with status 301 (permanent redirect).
             return redirect($newUrl, 301);
         }
         
-        // Jika bukan domain yang perlu di-redirect, lanjutkan request normal
         return $next($request);
     }
 }

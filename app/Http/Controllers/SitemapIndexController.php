@@ -140,6 +140,12 @@ class SitemapIndexController extends Controller
                 'priority' => '0.4'
             ],
             [
+                'url' => $baseUrl . '/artikel',
+                'lastmod' => $currentDate,
+                'changefreq' => 'daily',
+                'priority' => '0.85'
+            ],
+            [
                 'url' => $baseUrl . '/riwayat-versi',
                 'lastmod' => $currentDate,
                 'changefreq' => 'monthly',
@@ -161,6 +167,21 @@ class SitemapIndexController extends Controller
                 'changefreq' => 'weekly',
                 'priority' => '0.9'
             ];
+        }
+
+        // Add published articles
+        try {
+            $articles = \App\Models\Article::published()->select('slug', 'updated_at')->get();
+            foreach ($articles as $article) {
+                $pages[] = [
+                    'url' => $baseUrl . '/artikel/' . $article->slug,
+                    'lastmod' => $article->updated_at ? $article->updated_at->format('Y-m-d') : $currentDate,
+                    'changefreq' => 'weekly',
+                    'priority' => '0.8'
+                ];
+            }
+        } catch (\Throwable $e) {
+            // Ignore if table not available
         }
         
         return $this->generateSitemapXml($pages);

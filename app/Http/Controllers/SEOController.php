@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use App\Models\Ayah;
 use App\Models\Surah;
 use App\Models\TafsirMaudhuiTopic;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class SEOController extends Controller
@@ -219,6 +221,26 @@ class SEOController extends Controller
 
             if ($segments[0] === 'tafsir-maudhui' && count($segments) > 2) {
                 $isInvalidRoute = true;
+            }
+
+            // Article route validation
+            if ($segments[0] === 'artikel') {
+                if (count($segments) > 2) {
+                    $isInvalidRoute = true;
+                } elseif (count($segments) === 2) {
+                    $slug = trim((string) $segments[1]);
+                    if ($slug === '') {
+                        $isInvalidRoute = true;
+                    } else {
+                        $articleExists = Article::query()
+                            ->where('slug', $slug)
+                            ->published()
+                            ->exists();
+                        if (!$articleExists) {
+                            $isInvalidRoute = true;
+                        }
+                    }
+                }
             }
 
             // Legacy namespace should not be indexable unless explicitly redirected above.
@@ -496,6 +518,63 @@ class SEOController extends Controller
                 'metaKeywords' => 'indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi, fitur baru',
                 'canonicalUrl' => url('/riwayat-versi')
             ]);
+        }
+        elseif (isset($segments[0]) && $segments[0] === 'artikel') {
+            // Article SEO handling
+            if (isset($segments[1])) {
+                $slug = (string) $segments[1];
+                $article = Article::query()->where('slug', $slug)->published()->first();
+                if ($article) {
+                    $seoData = array_merge($seoData, [
+                        'metaTitle' => "{$article->title} - IndoQuran",
+                        'metaDescription' => Str::limit(strip_tags($article->excerpt ?: $article->content), 160),
+                        'metaKeywords' => "artikel islam, {$article->title}, kajian quran, indoquran",
+                        'canonicalUrl' => url("/artikel/{$slug}"),
+                        'ogImage' => $article->featured_image_url ?: url('/android-chrome-512x512.png'),
+                        'ogType' => 'article',
+                        'robots' => 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'
+                    ]);
+                }
+            } else {
+                // Listing page /artikel
+                $hasFilter = $request->hasAny(['tag', 'search', 'page']);
+                $tag = $request->get('tag', '');
+                $search = $request->get('search', '');
+
+                if ($tag) {
+                    $seoData = array_merge($seoData, [
+                        'metaTitle' => "Artikel Tag #{$tag} - IndoQuran",
+                        'metaDescription' => "Kumpulan artikel islami dan kajian Al-Quran dengan topik #{$tag} di IndoQuran.",
+                        'metaKeywords' => "artikel {$tag}, kajian {$tag}, artikel islam, indoquran",
+                        'canonicalUrl' => url('/artikel'),
+                        'robots' => 'noindex, follow'
+                    ]);
+                } elseif ($search) {
+                    $seoData = array_merge($seoData, [
+                        'metaTitle' => "Hasil Pencarian Artikel \"{$search}\" - IndoQuran",
+                        'metaDescription' => "Kumpulan artikel islami yang sesuai dengan pencarian \"{$search}\" di IndoQuran.",
+                        'metaKeywords' => "cari artikel, {$search}, artikel islam, indoquran",
+                        'canonicalUrl' => url('/artikel'),
+                        'robots' => 'noindex, follow'
+                    ]);
+                } elseif ($hasFilter) {
+                    $seoData = array_merge($seoData, [
+                        'metaTitle' => 'Artikel Islami & Kajian Al-Quran | IndoQuran',
+                        'metaDescription' => 'Kumpulan artikel islami, kajian Al-Quran, tafsir, dan pengetahuan agama Islam untuk memperdalam keimanan Anda.',
+                        'metaKeywords' => 'artikel islam, artikel islami, kajian quran, pengetahuan agama, tafsir, bacaan islam, indoquran',
+                        'canonicalUrl' => url('/artikel'),
+                        'robots' => 'noindex, follow'
+                    ]);
+                } else {
+                    $seoData = array_merge($seoData, [
+                        'metaTitle' => 'Artikel Islami - Kajian Al-Quran & Pengetahuan Islam | IndoQuran',
+                        'metaDescription' => 'Kumpulan artikel islami, kajian Al-Quran, tafsir, dan pengetahuan agama Islam untuk memperdalam keimanan Anda.',
+                        'metaKeywords' => 'artikel islam, artikel islami, kajian quran, pengetahuan agama, tafsir, bacaan islam, indoquran',
+                        'canonicalUrl' => url('/artikel'),
+                        'robots' => 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'
+                    ]);
+                }
+            }
         }
         elseif (isset($segments[0]) && $segments[0] === 'admin') {
             // Admin panel SEO (minimal for security)

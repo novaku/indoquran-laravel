@@ -21,6 +21,9 @@ Disallow: /cari?
 Disallow: /cari/*
 Disallow: /search
 Disallow: /search?
+Disallow: /*?*tag=
+Disallow: /*?*search=
+Disallow: /artikel?*
 
 # Disallow tracking parameters
 Disallow: /*?*utm_source=
@@ -44,6 +47,8 @@ Allow: /juz
 Allow: /juz/
 Allow: /halaman
 Allow: /halaman/
+Allow: /artikel$
+Allow: /artikel/
 Allow: /asmaul-husna
 Allow: /tafsir-maudhui
 Allow: /doa-bersama

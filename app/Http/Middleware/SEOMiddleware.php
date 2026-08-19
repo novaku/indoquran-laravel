@@ -21,7 +21,7 @@ class SEOMiddleware
 
         // Only apply SEO headers to HTML responses
         if ($this->shouldApplySEOHeaders($request, $response)) {
-            $this->addSEOHeaders($response);
+            $this->addSEOHeaders($request, $response);
             $this->addSecurityHeaders($response);
             $this->addPerformanceHeaders($response);
         }
@@ -56,15 +56,12 @@ class SEOMiddleware
     /**
      * Add comprehensive SEO headers
      */
-    private function addSEOHeaders(Response $response): void
+    private function addSEOHeaders(Request $request, Response $response): void
     {
         $headers = [
             // Language and content optimization for Indonesian market
             'Content-Language' => 'id',
             'X-Content-Language' => 'id-ID',
-            
-            // Search engine optimization headers
-            'X-Robots-Tag' => 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
             
             // Social media optimization
             'X-UA-Compatible' => 'IE=edge',
@@ -81,6 +78,16 @@ class SEOMiddleware
 
         foreach ($headers as $name => $value) {
             $response->headers->set($name, $value, false);
+        }
+
+        // Intelligent X-Robots-Tag: Noindex for parameter filter URLs and private routes
+        if (!$response->headers->has('X-Robots-Tag')) {
+            if ($request->hasAny(['q', 'tag', 'search', 'page', 'filter', 'sort']) || 
+                $request->is(['masuk', 'daftar', 'profil', 'penanda', 'admin*', 'login', 'register'])) {
+                $response->headers->set('X-Robots-Tag', 'noindex, follow');
+            } else {
+                $response->headers->set('X-Robots-Tag', 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1');
+            }
         }
     }
 

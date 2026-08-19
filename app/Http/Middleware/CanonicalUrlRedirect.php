@@ -102,12 +102,10 @@ class CanonicalUrlRedirect
      */
     private function buildCanonicalUrl(string $path, array $query): string
     {
-        // Base URL tanpa www
-        $baseUrl = config('app.url');
+        // Base URL always canonical production domain
+        $baseUrl = app()->environment('production') ? 'https://indoquran.web.id' : config('app.url');
         $baseUrl = str_replace('www.', '', $baseUrl);
-
-        // Ensure HTTPS
-        $baseUrl = str_replace('http://', 'https://', $baseUrl);
+        $baseUrl = rtrim($baseUrl, '/');
 
         // Normalize path
         if ($path === 'home' || $path === '') {

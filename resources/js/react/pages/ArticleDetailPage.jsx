@@ -122,7 +122,9 @@ const ArticleDetailPage = () => {
         title={`${article.title} - IndoQuran`}
         description={article.excerpt || article.title}
         keywords={`artikel islam, ${article.title}, kajian quran`}
-        image={article.featured_image_url || getImageUrl(article.featured_image)}
+        canonicalUrl={`https://indoquran.web.id/artikel/${article.slug}`}
+        ogImage={article.featured_image_url || getImageUrl(article.featured_image)}
+        ogType="article"
       />
 
       <div className="min-h-screen bg-white">
