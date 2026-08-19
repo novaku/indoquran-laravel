@@ -287,12 +287,12 @@ class SEOController extends Controller
                     $ayahNumber = isset($segments[2]) && is_numeric($segments[2]) ? (int) $segments[2] : null;
                     
                     if ($ayahNumber) {
-                        // Specific ayah SEO
+                        // Specific ayah SEO - Point canonical to parent surah to consolidate ranking signals and avoid thin-content indexing rejection
                         $seoData = array_merge($seoData, [
                             'metaTitle' => "Surah {$surah->name_latin} Ayat {$ayahNumber} - Terjemahan Indonesia - IndoQuran",
                             'metaDescription' => "Baca Surah {$surah->name_latin} ayat {$ayahNumber} lengkap dengan terjemahan bahasa Indonesia, audio murottal, dan tafsir. Pelajari makna dan kandungan ayat dalam Al-Quran.",
                             'metaKeywords' => "Surah {$surah->name_latin} ayat {$ayahNumber}, {$surah->name_arabic}, terjemahan ayat {$ayahNumber}, murottal ayat, quran ayat, al quran indonesia",
-                            'canonicalUrl' => url("/surah/{$surahNumber}/{$ayahNumber}"),
+                            'canonicalUrl' => url("/surah/{$surahNumber}"),
                             'ogType' => 'article'
                         ]);
                     } else {
@@ -541,45 +541,66 @@ class SEOController extends Controller
             $surahNumber = (int) $segments[1];
             $reactData['currentSurah'] = Surah::query()->where('number', $surahNumber)->first();
 
-            if (
-                $reactData['currentSurah'] &&
-                isset($segments[2]) &&
-                is_numeric($segments[2])
-            ) {
-                $ayahNumber = (int) $segments[2];
+            if ($reactData['currentSurah']) {
+                // Pre-render preview of surah ayahs so Googlebot gets rich, full text content immediately
+                $reactData['surahAyahs'] = \Illuminate\Support\Facades\Cache::remember("seo_surah_ayahs_{$surahNumber}", 86400, function () use ($surahNumber) {
+                    return Ayah::query()
+                        ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian')
+                        ->where('surah_number', $surahNumber)
+                        ->orderBy('ayah_number')
+                        ->limit(30)
+                        ->get();
+                });
 
-                $reactData['currentAyah'] = Ayah::query()
-                    ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian')
-                    ->where('surah_number', $surahNumber)
-                    ->where('ayah_number', $ayahNumber)
-                    ->first();
+                if (isset($segments[2]) && is_numeric($segments[2])) {
+                    $ayahNumber = (int) $segments[2];
 
-                if ($reactData['currentAyah']) {
-                    $reactData['ayahNavigation'] = [
-                        'prev' => $ayahNumber > 1 ? $ayahNumber - 1 : null,
-                        'next' => $ayahNumber < (int) $reactData['currentSurah']->total_ayahs ? $ayahNumber + 1 : null,
-                    ];
+                    $reactData['currentAyah'] = Ayah::query()
+                        ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian')
+                        ->where('surah_number', $surahNumber)
+                        ->where('ayah_number', $ayahNumber)
+                        ->first();
+
+                    if ($reactData['currentAyah']) {
+                        $reactData['ayahNavigation'] = [
+                            'prev' => $ayahNumber > 1 ? $ayahNumber - 1 : null,
+                            'next' => $ayahNumber < (int) $reactData['currentSurah']->total_ayahs ? $ayahNumber + 1 : null,
+                        ];
+                    }
                 }
             }
         }
         elseif (isset($segments[0]) && $segments[0] === 'juz' && isset($segments[1]) && is_numeric($segments[1])) {
             $juzNumber = (int) $segments[1];
+            $juzAyahs = \Illuminate\Support\Facades\Cache::remember("seo_juz_ayahs_{$juzNumber}", 86400, function () use ($juzNumber) {
+                return Ayah::query()
+                    ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian', 'juz')
+                    ->with('surah:number,name_latin,name_indonesian,name_arabic')
+                    ->where('juz', $juzNumber)
+                    ->orderBy('surah_number')
+                    ->orderBy('ayah_number')
+                    ->limit(15)
+                    ->get();
+            });
+
             $reactData['currentJuz'] = [
                 'number' => $juzNumber,
-                'title' => "Juz {$juzNumber} Arab Saja",
-                'description' => "Halaman ini berisi teks Arab Al-Quran untuk Juz {$juzNumber} dengan navigasi cepat per ayat dan dukungan audio murottal."
+                'title' => "Juz {$juzNumber} Arab Saja - Teks Arab Al-Quran Lengkap",
+                'description' => "Halaman ini berisi teks Arab Al-Quran untuk Juz {$juzNumber} dengan navigasi cepat per ayat dan dukungan audio murottal.",
+                'ayahs' => $juzAyahs,
+                'has_ssr_content' => $juzAyahs->isNotEmpty(),
             ];
         }
         elseif (isset($segments[0]) && $segments[0] === 'halaman' && isset($segments[1]) && is_numeric($segments[1])) {
             $pageNumber = (int) $segments[1];
+            // Fetch ALL ayahs for this page (no arbitrary limit) to ensure 100% complete content for Googlebot
             $pageAyahs = \Illuminate\Support\Facades\Cache::remember("seo_page_ayahs_{$pageNumber}", 86400, function () use ($pageNumber) {
                 return Ayah::query()
-                    ->select('surah_number', 'ayah_number', 'text_arabic', 'text_indonesian')
+                    ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian')
                     ->with('surah:number,name_latin,name_indonesian,name_arabic')
                     ->where('page', $pageNumber)
                     ->orderBy('surah_number')
                     ->orderBy('ayah_number')
-                    ->limit(8)
                     ->get();
             });
 

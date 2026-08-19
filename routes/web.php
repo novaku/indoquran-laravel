@@ -18,10 +18,11 @@ Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 // Advanced sitemap routes for better organization
 Route::get('/sitemap-index.xml', [SitemapIndexController::class, 'index'])->name('sitemap.index');
 Route::get('/sitemap-main.xml', [SitemapIndexController::class, 'mainSitemap'])->name('sitemap.main');
+Route::get('/sitemap-juz.xml', [SitemapIndexController::class, 'juzSitemap'])->name('sitemap.juz');
+Route::get('/sitemap-halaman.xml', [SitemapIndexController::class, 'halamanSitemap'])->name('sitemap.halaman');
 Route::get('/sitemap-surahs-{group}.xml', [SitemapIndexController::class, 'surahGroupSitemap'])
     ->where('group', '[0-9]+')
     ->name('sitemap.surahs');
-Route::get('/sitemap-juz.xml', [SitemapIndexController::class, 'juzSitemap'])->name('sitemap.juz');
 
 // CORS Proxy route for development environment only
 if (app()->environment('local', 'development')) {

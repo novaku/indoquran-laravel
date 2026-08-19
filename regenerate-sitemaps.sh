@@ -25,36 +25,22 @@ cp public/sitemap*.xml "$BACKUP_DIR/" 2>/dev/null || echo "No existing sitemaps 
 echo ""
 echo "🔄 Generating new sitemaps..."
 
-# Generate main sitemap index
-echo "  → Generating sitemap-index.xml..."
-curl -s "$BASE_URL/sitemap-index.xml" > public/sitemap-index.xml
-
-# Generate main sitemap
-echo "  → Generating sitemap-main.xml..."
-curl -s "$BASE_URL/sitemap-main.xml" > public/sitemap-main.xml
-
-# Generate surah group sitemaps (6 groups of ~20 surahs each)
-for i in {1..6}; do
-    echo "  → Generating sitemap-surahs-$i.xml..."
-    curl -s "$BASE_URL/sitemap-surahs-$i.xml" > "public/sitemap-surahs-$i.xml"
-done
-
-# Generate juz sitemap
-echo "  → Generating sitemap-juz.xml..."
-curl -s "$BASE_URL/sitemap-juz.xml" > public/sitemap-juz.xml
-
-# Generate main sitemap.xml (full)
-echo "  → Generating sitemap.xml..."
-curl -s "$BASE_URL/sitemap.xml" > public/sitemap.xml
+# Generate all sitemaps using artisan
+echo "  → Generating all production sitemaps..."
+if [ "$1" == "local" ]; then
+    php artisan sitemap:generate-comprehensive
+else
+    php artisan sitemap:generate-comprehensive --production
+fi
 
 echo ""
 echo "✅ Sitemap regeneration complete!"
 echo ""
 echo "📊 Summary:"
 echo "  - Main index: sitemap-index.xml"
-echo "  - Main pages: sitemap-main.xml"
-echo "  - Surah groups: sitemap-surahs-{1-6}.xml"
-echo "  - Juz pages: sitemap-juz.xml"
+echo "  - Main pages: sitemap-main.xml (114 Surahs + static pages)"
+echo "  - Juz pages: sitemap-juz.xml (30 Juz)"
+echo "  - Halaman pages: sitemap-halaman.xml (604 Mushaf pages)"
 echo "  - Full sitemap: sitemap.xml"
 echo ""
 echo "🔍 Backup saved to: $BACKUP_DIR"

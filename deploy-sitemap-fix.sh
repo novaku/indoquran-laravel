@@ -38,24 +38,16 @@ git add regenerate-sitemaps.sh
 git add test-sitemaps.sh
 git add docs/SITEMAP_VALIDATION_FIX.md
 
-git commit -m "fix: Update sitemaps for Google Search Console validation
+git commit -m "fix(seo): update clean sitemaps for Google Search Console compliance
 
-- Updated all sitemap dates to 2025-11-07 (current date)
-- Fixed date format in SitemapIndexController to use ISO 8601
-- Updated robots.txt with proper sitemap references
-- Added regenerate-sitemaps.sh automation script
-- Added test-sitemaps.sh validation script
-- Created comprehensive documentation in SITEMAP_VALIDATION_FIX.md
-
-Fixes Google Search Console 'Di-crawl - saat ini tidak diindeks' issue
-caused by outdated/future dates in sitemaps.
-
-Total URLs indexed: ~5,467 across 10 sitemap files
-- sitemap-index.xml (index of 8 sitemaps)
-- sitemap-main.xml (128 URLs)
-- sitemap-surahs-{1-6}.xml (6 files, ~5,288 URLs total)
-- sitemap-juz.xml (51 URLs)
-- sitemap.xml (full sitemap fallback)"
+- Modular clean sitemaps:
+  - sitemap-index.xml (index referencing main, juz, halaman)
+  - sitemap-main.xml (128 URLs: 114 Surahs + static/feature pages)
+  - sitemap-juz.xml (30 URLs: 30 Juz pages)
+  - sitemap-halaman.xml (604 URLs: 604 Mushaf pages)
+  - sitemap.xml (all 762 clean canonical URLs)
+- Removed legacy bloated single-verse sitemaps (sitemap-surahs-1..6.xml)
+- Updated robots.txt"
 
 echo ""
 echo "  ✅ Changes committed to git"

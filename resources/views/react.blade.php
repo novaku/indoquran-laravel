@@ -349,38 +349,47 @@
         @endif
 
         @if(isset($reactData['currentSurah']))
-            <div id="ssr-surah-detail" style="padding: 4rem 2rem; background: #fff; color: #1f2937; text-align: center; max-width: 800px; margin: 0 auto;">
-                <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 0.5rem; color: #111827;">Surah {{ $reactData['currentSurah']->name_latin }}</h1>
-                <h2 class="arabic-text" style="font-size: 3.75rem; margin-bottom: 1.5rem; color: #166534;">{{ $reactData['currentSurah']->name_arabic }}</h2>
-                <div style="font-size: 1.125rem; color: #4b5563; margin-bottom: 3rem; background: #f3f4f6; display: inline-block; padding: 0.5rem 1.5rem; border-radius: 9999px;">
-                    {{ $reactData['currentSurah']->name_indonesian }} • {{ $reactData['currentSurah']->total_ayahs }} Ayat • {{ $reactData['currentSurah']->revelation_place }}
-                </div>
+            <div id="ssr-surah-detail" style="padding: 3rem 1.5rem; background: #fff; color: #1f2937; max-width: 860px; margin: 0 auto;">
+                <header style="text-align: center; margin-bottom: 2.5rem;">
+                    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 0.5rem; color: #111827;">Surah {{ $reactData['currentSurah']->name_latin }}</h1>
+                    <h2 class="arabic-text" style="font-size: 3.5rem; margin: 0.75rem 0; color: #166534;">{{ $reactData['currentSurah']->name_arabic }}</h2>
+                    <div style="font-size: 1rem; color: #4b5563; background: #f3f4f6; display: inline-block; padding: 0.5rem 1.25rem; border-radius: 9999px; font-weight: 500;">
+                        {{ $reactData['currentSurah']->name_indonesian }} • {{ $reactData['currentSurah']->total_ayahs }} Ayat • {{ $reactData['currentSurah']->revelation_place }}
+                    </div>
+                </header>
 
                 @if(isset($reactData['currentAyah']) && $reactData['currentAyah'])
-                    <article id="ssr-ayah-detail" style="text-align: left; margin: 0 auto 2rem; max-width: 720px; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.25rem; background: #fafaf9;">
-                        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem; color: #14532d;">
-                            Ayat {{ $reactData['currentAyah']->ayah_number }} Surah {{ $reactData['currentSurah']->name_latin }}
-                        </h3>
+                    <article id="ssr-ayah-detail" style="margin: 0 auto 2.5rem; border: 2px solid #22c55e; border-radius: 0.75rem; padding: 1.5rem; background: #f0fdf4;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 style="font-size: 1.25rem; font-weight: 700; color: #14532d; margin: 0;">
+                                Ayat {{ $reactData['currentAyah']->ayah_number }} Surah {{ $reactData['currentSurah']->name_latin }}
+                            </h3>
+                            <a href="/surah/{{ $reactData['currentSurah']->number }}" style="color: #15803d; font-size: 0.875rem; font-weight: 600; text-decoration: none;">
+                                &larr; Lihat Seluruh Surah
+                            </a>
+                        </div>
 
-                        <p class="arabic-text" style="font-size: 2rem; line-height: 2.4; color: #111827; text-align: right; margin: 0 0 1rem 0; direction: rtl;">
+                        <p class="arabic-text" style="font-size: 2.25rem; line-height: 2.3; color: #111827; text-align: right; margin: 0 0 1.25rem 0; direction: rtl;">
                             {{ $reactData['currentAyah']->text_arabic }}
                         </p>
 
                         @if(!empty($reactData['currentAyah']->text_latin))
-                            <p style="font-size: 1rem; color: #4b5563; line-height: 1.7; margin: 0 0 0.75rem 0;">
+                            <p style="font-size: 1.0625rem; color: #374151; line-height: 1.7; margin: 0 0 0.75rem 0; font-style: italic;">
                                 {{ $reactData['currentAyah']->text_latin }}
                             </p>
                         @endif
 
                         @if(!empty($reactData['currentAyah']->text_indonesian))
-                            <p style="font-size: 1rem; color: #1f2937; line-height: 1.7; margin: 0;">
-                                {{ $reactData['currentAyah']->text_indonesian }}
+                            <p style="font-size: 1.0625rem; color: #1f2937; line-height: 1.7; margin: 0;">
+                                <strong>Artinya:</strong> {{ $reactData['currentAyah']->text_indonesian }}
                             </p>
                         @endif
 
-                        <nav style="margin-top: 1rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                        <nav style="margin-top: 1.25rem; display: flex; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; border-top: 1px solid #bbf7d0; padding-top: 0.75rem;">
                             @if(isset($reactData['ayahNavigation']['prev']) && $reactData['ayahNavigation']['prev'])
                                 <a href="/surah/{{ $reactData['currentSurah']->number }}/{{ $reactData['ayahNavigation']['prev'] }}" style="color: #166534; font-weight: 600; text-decoration: none;">&larr; Ayat {{ $reactData['ayahNavigation']['prev'] }}</a>
+                            @else
+                                <span></span>
                             @endif
                             @if(isset($reactData['ayahNavigation']['next']) && $reactData['ayahNavigation']['next'])
                                 <a href="/surah/{{ $reactData['currentSurah']->number }}/{{ $reactData['ayahNavigation']['next'] }}" style="color: #166534; font-weight: 600; text-decoration: none;">Ayat {{ $reactData['ayahNavigation']['next'] }} &rarr;</a>
@@ -389,29 +398,95 @@
                     </article>
                 @endif
 
-                <div>
+                @if(!empty($reactData['surahAyahs']) && $reactData['surahAyahs']->isNotEmpty())
+                    <section id="ssr-surah-verses" style="margin-bottom: 2.5rem;">
+                        <h3 style="font-size: 1.25rem; font-weight: 700; color: #14532d; margin: 0 0 1rem 0; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem;">
+                            Bacaan Ayat Surah {{ $reactData['currentSurah']->name_latin }}
+                        </h3>
+                        @foreach($reactData['surahAyahs'] as $ayah)
+                            <article style="padding: 1.25rem 0; border-bottom: 1px solid #f3f4f6;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                    <span style="display: inline-block; background: #e0f2fe; color: #0369a1; font-weight: 700; font-size: 0.875rem; padding: 0.25rem 0.75rem; border-radius: 9999px;">
+                                        Ayat {{ $ayah->ayah_number }}
+                                    </span>
+                                    <a href="/surah/{{ $reactData['currentSurah']->number }}/{{ $ayah->ayah_number }}" style="color: #15803d; font-size: 0.8125rem; font-weight: 600; text-decoration: none;">
+                                        Tautan Ayat #{{ $ayah->ayah_number }}
+                                    </a>
+                                </div>
+                                <p class="arabic-text" style="font-size: 2rem; line-height: 2.2; color: #111827; text-align: right; margin: 0 0 0.75rem 0; direction: rtl;">
+                                    {{ $ayah->text_arabic }}
+                                </p>
+                                @if(!empty($ayah->text_latin))
+                                    <p style="font-size: 1rem; color: #4b5563; line-height: 1.6; margin: 0 0 0.5rem 0; font-style: italic;">
+                                        {{ $ayah->text_latin }}
+                                    </p>
+                                @endif
+                                @if(!empty($ayah->text_indonesian))
+                                    <p style="font-size: 1rem; color: #1f2937; line-height: 1.6; margin: 0;">
+                                        {{ $ayah->text_indonesian }}
+                                    </p>
+                                @endif
+                            </article>
+                        @endforeach
+                    </section>
+                @endif
+
+                <div style="text-align: center; margin-top: 2rem;">
                     <a href="/" style="display: inline-block; padding: 0.75rem 1.5rem; background: #16a34a; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">&larr; Kembali ke Daftar Surah</a>
                 </div>
             </div>
         @endif
 
         @if(isset($reactData['currentJuz']))
-            <div id="ssr-juz-detail" style="padding: 3rem 2rem; background: #fff; color: #1f2937; text-align: center; max-width: 900px; margin: 0 auto;">
-                <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.75rem; color: #111827;">{{ $reactData['currentJuz']['title'] }}</h1>
-                <p style="font-size: 1.0625rem; color: #4b5563; line-height: 1.8; margin: 0 auto 1.5rem; max-width: 700px;">{{ $reactData['currentJuz']['description'] }}</p>
-                <div style="font-size: 0.9375rem; color: #6b7280; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 0.875rem 1rem; display: inline-block;">
-                    Query terkait: juz {{ $reactData['currentJuz']['number'] }}, juz {{ $reactData['currentJuz']['number'] }} arab saja, para {{ $reactData['currentJuz']['number'] }}.
+            <div id="ssr-juz-detail" style="padding: 3rem 1.5rem; background: #fff; color: #1f2937; max-width: 860px; margin: 0 auto;">
+                <header style="text-align: center; margin-bottom: 2rem;">
+                    <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.75rem; color: #111827;">{{ $reactData['currentJuz']['title'] }}</h1>
+                    <p style="font-size: 1.0625rem; color: #4b5563; line-height: 1.8; margin: 0 auto 1rem; max-width: 700px;">{{ $reactData['currentJuz']['description'] }}</p>
+                </header>
+
+                @if(!empty($reactData['currentJuz']['ayahs']) && $reactData['currentJuz']['ayahs']->isNotEmpty())
+                    <section style="margin-bottom: 2rem;">
+                        <h2 style="font-size: 1.25rem; font-weight: 700; color: #14532d; margin: 0 0 1rem 0; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem;">
+                            Ayat Pembuka Juz {{ $reactData['currentJuz']['number'] }}
+                        </h2>
+                        @foreach($reactData['currentJuz']['ayahs'] as $ayah)
+                            <article style="padding: 1rem 0; border-bottom: 1px solid #f3f4f6;">
+                                <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem; font-weight: 600;">
+                                    {{ $ayah->surah->name_latin ?? 'Surah' }} ayat {{ $ayah->ayah_number }}
+                                </div>
+                                <p class="arabic-text" style="font-size: 1.85rem; line-height: 2.1; color: #111827; text-align: right; margin: 0 0 0.5rem 0; direction: rtl;">
+                                    {{ $ayah->text_arabic }}
+                                </p>
+                                @if(!empty($ayah->text_latin))
+                                    <p style="font-size: 0.95rem; color: #4b5563; line-height: 1.6; margin: 0 0 0.35rem 0; font-style: italic;">
+                                        {{ $ayah->text_latin }}
+                                    </p>
+                                @endif
+                                @if(!empty($ayah->text_indonesian))
+                                    <p style="font-size: 0.95rem; color: #1f2937; line-height: 1.6; margin: 0;">
+                                        {{ $ayah->text_indonesian }}
+                                    </p>
+                                @endif
+                            </article>
+                        @endforeach
+                    </section>
+                @endif
+
+                <div style="text-align: center;">
+                    <a href="/juz" style="display: inline-block; padding: 0.75rem 1.5rem; background: #16a34a; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">&larr; Kembali ke Daftar Juz</a>
                 </div>
             </div>
         @endif
 
         @if(isset($reactData['currentPage']))
-            <div id="ssr-page-detail" style="padding: 3rem 2rem; background: #fff; color: #1f2937; text-align: center; max-width: 900px; margin: 0 auto;">
-                <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.75rem; color: #111827;">{{ $reactData['currentPage']['title'] }}</h1>
-                <p style="font-size: 1.0625rem; color: #4b5563; line-height: 1.8; margin: 0 auto 1.5rem; max-width: 700px;">{{ $reactData['currentPage']['description'] }}</p>
+            <div id="ssr-page-detail" style="padding: 3rem 1.5rem; background: #fff; color: #1f2937; max-width: 860px; margin: 0 auto;">
+                <header style="text-align: center; margin-bottom: 2rem;">
+                    <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.75rem; color: #111827;">{{ $reactData['currentPage']['title'] }}</h1>
+                    <p style="font-size: 1.0625rem; color: #4b5563; line-height: 1.8; margin: 0 auto; max-width: 700px;">{{ $reactData['currentPage']['description'] }}</p>
+                </header>
 
                 @if(!empty($reactData['currentPage']['has_ssr_content']) && !empty($reactData['currentPage']['surah_spans']))
-                    <section style="text-align: left; margin: 0 auto 1.5rem; max-width: 760px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1rem 1.25rem;">
+                    <section style="margin: 0 auto 1.5rem; max-width: 860px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1rem 1.25rem;">
                         <h2 style="font-size: 1.125rem; font-weight: 700; color: #14532d; margin: 0 0 0.75rem 0;">Kandungan Halaman {{ $reactData['currentPage']['number'] }}</h2>
                         <ul style="margin: 0; padding-left: 1.25rem; color: #374151; line-height: 1.7;">
                             @foreach($reactData['currentPage']['surah_spans'] as $span)
@@ -424,29 +499,34 @@
                     </section>
 
                     @if(!empty($reactData['currentPage']['ayah_previews']))
-                        <section style="text-align: left; margin: 0 auto 1.5rem; max-width: 760px; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1rem 1.25rem; background: #ffffff;">
-                            <h2 style="font-size: 1.0625rem; font-weight: 700; color: #14532d; margin: 0 0 0.75rem 0;">Cuplikan Ayat</h2>
+                        <section style="margin: 0 auto 1.5rem; max-width: 860px; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.25rem; background: #ffffff;">
+                            <h2 style="font-size: 1.125rem; font-weight: 700; color: #14532d; margin: 0 0 1rem 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem;">
+                                Teks Lengkap Ayat Halaman {{ $reactData['currentPage']['number'] }}
+                            </h2>
                             @foreach($reactData['currentPage']['ayah_previews'] as $ayah)
-                                <article style="padding: 0.75rem 0; border-top: 1px solid #f3f4f6;">
-                                    <a href="/surah/{{ $ayah->surah_number }}/{{ $ayah->ayah_number }}" style="text-decoration: none; color: inherit; display: block;">
-                                        <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">
-                                            {{ $ayah->surah->name_latin ?? 'Surah' }} ayat {{ $ayah->ayah_number }}
-                                        </div>
-                                        <p class="arabic-text" style="font-size: 1.6rem; line-height: 2.1; color: #111827; margin: 0 0 0.35rem 0; direction: rtl; text-align: right;">{{ $ayah->text_arabic }}</p>
-                                        @if(!empty($ayah->text_indonesian))
-                                            <p style="font-size: 0.95rem; color: #374151; line-height: 1.6; margin: 0;">
-                                                {{ \Illuminate\Support\Str::limit($ayah->text_indonesian, 180) }}
-                                            </p>
-                                        @endif
-                                    </a>
+                                <article style="padding: 1rem 0; border-bottom: 1px solid #f3f4f6;">
+                                    <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.35rem; font-weight: 600;">
+                                        {{ $ayah->surah->name_latin ?? 'Surah' }} ayat {{ $ayah->ayah_number }}
+                                    </div>
+                                    <p class="arabic-text" style="font-size: 1.85rem; line-height: 2.1; color: #111827; margin: 0 0 0.5rem 0; direction: rtl; text-align: right;">{{ $ayah->text_arabic }}</p>
+                                    @if(!empty($ayah->text_latin))
+                                        <p style="font-size: 0.95rem; color: #4b5563; line-height: 1.6; margin: 0 0 0.35rem 0; font-style: italic;">
+                                            {{ $ayah->text_latin }}
+                                        </p>
+                                    @endif
+                                    @if(!empty($ayah->text_indonesian))
+                                        <p style="font-size: 0.95rem; color: #374151; line-height: 1.6; margin: 0;">
+                                            {{ $ayah->text_indonesian }}
+                                        </p>
+                                    @endif
                                 </article>
                             @endforeach
                         </section>
                     @endif
                 @endif
 
-                <div style="font-size: 0.9375rem; color: #6b7280; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 0.875rem 1rem; display: inline-block;">
-                    Query terkait: al quran halaman {{ $reactData['currentPage']['number'] }}, alquran halaman {{ $reactData['currentPage']['number'] }}, quran halaman {{ $reactData['currentPage']['number'] }}.
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <a href="/halaman" style="display: inline-block; padding: 0.75rem 1.5rem; background: #16a34a; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">&larr; Kembali ke Daftar Halaman</a>
                 </div>
             </div>
         @endif

@@ -14,7 +14,7 @@ class GenerateSitemap extends Command
      *
      * @var string
      */
-    protected $signature = 'sitemap:generate';
+    protected $signature = 'sitemap:generate {--production : Generate for production environment}';
 
     /**
      * The console command description.
@@ -48,10 +48,12 @@ class GenerateSitemap extends Command
      */
     protected function generateSitemap()
     {
-        // Use production URL if in production, otherwise use configured URL
-        $baseUrl = (app()->environment('production') && !app()->environment(['local', 'development', 'testing']))
+        $isProduction = $this->option('production');
+        $baseUrl = $isProduction 
             ? 'https://indoquran.web.id' 
-            : config('app.url');
+            : ((app()->environment('production') && !app()->environment(['local', 'development', 'testing'])) 
+                ? 'https://indoquran.web.id' 
+                : config('app.url'));
             
         $this->info("Using base URL: {$baseUrl}");
         
@@ -88,50 +90,36 @@ class GenerateSitemap extends Command
             );
         }
         
-        // Add surah pages
-        $surahs = Surah::select('number', 'total_ayahs', 'updated_at')->get();
+        // Add surah pages (all 114 primary surah pages)
+        $surahs = Surah::select('number', 'updated_at')->get();
         $this->info("Adding {$surahs->count()} surah pages...");
         
         foreach ($surahs as $surah) {
-            // Main surah page
             $xml .= $this->createUrlEntry(
                 $baseUrl . '/surah/' . $surah->number,
                 $surah->updated_at ? $surah->updated_at->format('Y-m-d') : $lastMod,
                 'weekly',
                 '0.9'
             );
-            
-            // Individual ayah pages (with lower priority to avoid overwhelming sitemap)
-            $ayahCount = $surah->total_ayahs ?? 0;
-            if ($ayahCount > 0) {
-                for ($i = 1; $i <= $ayahCount; $i++) {
-                    $xml .= $this->createUrlEntry(
-                        $baseUrl . '/surah/' . $surah->number . '/' . $i,
-                        $surah->updated_at ? $surah->updated_at->format('Y-m-d') : $lastMod,
-                        'monthly',
-                        '0.7'
-                    );
-                }
-            }
         }
         
-        // Add Juz pages (if they exist in your application)
+        // Add Juz pages (30 Juz)
         for ($juz = 1; $juz <= 30; $juz++) {
             $xml .= $this->createUrlEntry(
                 $baseUrl . '/juz/' . $juz,
                 $lastMod,
-                'monthly',
+                'weekly',
                 '0.8'
             );
         }
         
-        // Add page-based navigation (if it exists)
+        // Add page-based navigation (604 pages in Mushaf)
         for ($page = 1; $page <= 604; $page++) {
             $xml .= $this->createUrlEntry(
                 $baseUrl . '/halaman/' . $page,
                 $lastMod,
-                'monthly',
-                '0.6'
+                'weekly',
+                '0.7'
             );
         }
         

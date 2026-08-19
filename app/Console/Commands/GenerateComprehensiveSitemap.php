@@ -33,23 +33,28 @@ class GenerateComprehensiveSitemap extends Command
         $this->info('Generating comprehensive sitemap files...');
         
         $isProduction = $this->option('production');
-        $baseUrl = ($isProduction && !app()->environment(['local', 'development', 'testing'])) 
+        $baseUrl = $isProduction 
             ? 'https://indoquran.web.id' 
-            : config('app.url');
+            : ((app()->environment('production') && !app()->environment(['local', 'development', 'testing'])) 
+                ? 'https://indoquran.web.id' 
+                : config('app.url'));
         
         $this->info("Base URL: {$baseUrl}");
         
-        // Generate main sitemap.xml (lightweight version for backward compatibility)
+        // Generate main sitemap.xml (all primary canonical URLs)
         $this->generateMainSitemap($baseUrl);
         
         // Generate sitemap index
         $this->generateSitemapIndex($baseUrl);
         
-        // Generate individual sitemap files
+        // Generate individual modular sitemap files
         $this->generateMainContentSitemap($baseUrl);
-        $this->generateSurahSitemaps($baseUrl);
         $this->generateJuzSitemap($baseUrl);
+        $this->generateHalamanSitemap($baseUrl);
         
+        // Cleanup any obsolete surah group sitemaps
+        $this->cleanupLegacySitemaps();
+
         // Update robots.txt
         $this->updateRobotsTxt($baseUrl);
         
@@ -59,7 +64,7 @@ class GenerateComprehensiveSitemap extends Command
     }
     
     /**
-     * Generate main sitemap.xml (backward compatible)
+     * Generate main sitemap.xml (containing all canonical indexable URLs)
      */
     protected function generateMainSitemap($baseUrl)
     {
@@ -96,14 +101,34 @@ class GenerateComprehensiveSitemap extends Command
             );
         }
         
-        // Add top surahs only (to keep file size manageable)
-        $surahs = Surah::select('number', 'updated_at')->limit(20)->get();
+        // Add all 114 surah overview pages
+        $surahs = Surah::select('number', 'updated_at')->get();
         foreach ($surahs as $surah) {
             $xml .= $this->createUrlEntry(
                 $baseUrl . '/surah/' . $surah->number,
                 $surah->updated_at ? $surah->updated_at->format('Y-m-d') : $currentDate,
                 'weekly',
                 '0.9'
+            );
+        }
+
+        // Add 30 Juz pages
+        for ($juz = 1; $juz <= 30; $juz++) {
+            $xml .= $this->createUrlEntry(
+                $baseUrl . '/juz/' . $juz,
+                $currentDate,
+                'weekly',
+                '0.8'
+            );
+        }
+
+        // Add 604 Mushaf pages
+        for ($page = 1; $page <= 604; $page++) {
+            $xml .= $this->createUrlEntry(
+                $baseUrl . '/halaman/' . $page,
+                $currentDate,
+                'weekly',
+                '0.7'
             );
         }
         
@@ -123,19 +148,14 @@ class GenerateComprehensiveSitemap extends Command
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
         $xml .= '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
         
-        // Main content sitemap
+        // Main content sitemap (static pages + 114 surahs)
         $xml .= $this->createSitemapEntry($baseUrl . '/sitemap-main.xml', $currentDate);
         
-        // Surah group sitemaps
-        $surahCount = Surah::count();
-        $groupCount = ceil($surahCount / 20);
-        
-        for ($i = 1; $i <= $groupCount; $i++) {
-            $xml .= $this->createSitemapEntry($baseUrl . '/sitemap-surahs-' . $i . '.xml', $currentDate);
-        }
-        
-        // Juz sitemap
+        // Juz sitemap (30 Juz)
         $xml .= $this->createSitemapEntry($baseUrl . '/sitemap-juz.xml', $currentDate);
+
+        // Halaman sitemap (604 Mushaf pages)
+        $xml .= $this->createSitemapEntry($baseUrl . '/sitemap-halaman.xml', $currentDate);
         
         $xml .= '</sitemapindex>';
         File::put(public_path('sitemap-index.xml'), $xml);
@@ -197,49 +217,7 @@ class GenerateComprehensiveSitemap extends Command
     }
     
     /**
-     * Generate surah-specific sitemaps with ayahs
-     */
-    protected function generateSurahSitemaps($baseUrl)
-    {
-        $this->info('Generating surah group sitemaps...');
-        
-        $surahs = Surah::select('number', 'total_ayahs', 'updated_at')->get();
-        $groups = $surahs->chunk(20);
-        
-        foreach ($groups as $index => $group) {
-            $groupNumber = $index + 1;
-            $this->info("  - Generating group {$groupNumber}...");
-            
-            $currentDate = Carbon::now()->format('Y-m-d');
-            $xml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
-            $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
-            
-            foreach ($group as $surah) {
-                $ayahCount = $surah->total_ayahs ?? 0;
-                $lastmod = $surah->updated_at ? $surah->updated_at->format('Y-m-d') : $currentDate;
-                
-                // Limit ayahs per surah to avoid huge files
-                $maxAyahs = min($ayahCount, 100);
-                
-                for ($i = 1; $i <= $maxAyahs; $i++) {
-                    $xml .= $this->createUrlEntry(
-                        $baseUrl . '/surah/' . $surah->number . '/' . $i,
-                        $lastmod,
-                        'monthly',
-                        '0.7'
-                    );
-                }
-            }
-            
-            $xml .= '</urlset>';
-            File::put(public_path("sitemap-surahs-{$groupNumber}.xml"), $xml);
-        }
-        
-        $this->info('✓ Surah group sitemaps generated');
-    }
-    
-    /**
-     * Generate Juz and page sitemaps
+     * Generate Juz sitemap
      */
     protected function generateJuzSitemap($baseUrl)
     {
@@ -254,25 +232,52 @@ class GenerateComprehensiveSitemap extends Command
             $xml .= $this->createUrlEntry(
                 $baseUrl . '/juz/' . $juz,
                 $currentDate,
-                'monthly',
+                'weekly',
                 '0.8'
-            );
-        }
-        
-        // Add Mushaf page navigation (sample pages to avoid overwhelming)
-        $samplePages = [1, 2, 3, 4, 5, 10, 20, 30, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 604];
-        foreach ($samplePages as $page) {
-            $xml .= $this->createUrlEntry(
-                $baseUrl . '/halaman/' . $page,
-                $currentDate,
-                'monthly',
-                '0.6'
             );
         }
         
         $xml .= '</urlset>';
         File::put(public_path('sitemap-juz.xml'), $xml);
         $this->info('✓ Juz sitemap generated');
+    }
+
+    /**
+     * Generate Halaman sitemap
+     */
+    protected function generateHalamanSitemap($baseUrl)
+    {
+        $this->info('Generating Halaman sitemap...');
+        
+        $currentDate = Carbon::now()->format('Y-m-d');
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
+        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
+        
+        // Add all 604 Mushaf pages
+        for ($page = 1; $page <= 604; $page++) {
+            $xml .= $this->createUrlEntry(
+                $baseUrl . '/halaman/' . $page,
+                $currentDate,
+                'weekly',
+                '0.7'
+            );
+        }
+        
+        $xml .= '</urlset>';
+        File::put(public_path('sitemap-halaman.xml'), $xml);
+        $this->info('✓ Halaman sitemap generated');
+    }
+
+    /**
+     * Clean up legacy surah group XML files from public directory
+     */
+    protected function cleanupLegacySitemaps()
+    {
+        $files = File::glob(public_path('sitemap-surahs-*.xml'));
+        foreach ($files as $file) {
+            File::delete($file);
+            $this->info('✓ Deleted legacy bloated sitemap: ' . basename($file));
+        }
     }
     
     /**

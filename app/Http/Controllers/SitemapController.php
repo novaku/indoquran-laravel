@@ -158,26 +158,23 @@ class SitemapController extends Controller
             $juzPages[] = [
                 'url' => $baseUrl . '/juz/' . $juz,
                 'lastmod' => $currentDate,
-                'changefreq' => 'monthly',
+                'changefreq' => 'weekly',
                 'priority' => '0.8'
             ];
         }
         
-        // Add high-priority individual ayah pages (first 10 surahs for better crawling)
-        $popularAyahPages = [];
-        foreach ($surahs->take(10) as $surah) {
-            $ayahCount = min($surah->total_ayahs ?? 0, 50); // Limit to first 50 ayahs per popular surah
-            for ($i = 1; $i <= $ayahCount; $i++) {
-                $popularAyahPages[] = [
-                    'url' => $baseUrl . '/surah/' . $surah->number . '/' . $i,
-                    'lastmod' => $surah->updated_at ? $surah->updated_at->format('Y-m-d') : $currentDate,
-                    'changefreq' => 'monthly',
-                    'priority' => '0.7'
-                ];
-            }
+        // Add Halaman pages (604 pages in standard Mushaf)
+        $halamanPages = [];
+        for ($page = 1; $page <= 604; $page++) {
+            $halamanPages[] = [
+                'url' => $baseUrl . '/halaman/' . $page,
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.7'
+            ];
         }
         
-        $allPages = array_merge($staticPages, $surahPages, $juzPages, $popularAyahPages);
+        $allPages = array_merge($staticPages, $surahPages, $juzPages, $halamanPages);
         
         // Generate XML
         $xml = $this->generateSitemapXml($allPages);

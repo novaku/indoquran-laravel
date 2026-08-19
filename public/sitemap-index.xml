@@ -2,34 +2,14 @@
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
     <loc>https://indoquran.web.id/sitemap-main.xml</loc>
-    <lastmod>2025-11-07T00:00:00+00:00</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>https://indoquran.web.id/sitemap-surahs-1.xml</loc>
-    <lastmod>2025-11-07T00:00:00+00:00</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>https://indoquran.web.id/sitemap-surahs-2.xml</loc>
-    <lastmod>2025-11-07T00:00:00+00:00</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>https://indoquran.web.id/sitemap-surahs-3.xml</loc>
-    <lastmod>2025-11-07T00:00:00+00:00</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>https://indoquran.web.id/sitemap-surahs-4.xml</loc>
-    <lastmod>2025-11-07T00:00:00+00:00</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>https://indoquran.web.id/sitemap-surahs-5.xml</loc>
-    <lastmod>2025-11-07T00:00:00+00:00</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>https://indoquran.web.id/sitemap-surahs-6.xml</loc>
-    <lastmod>2025-11-07T00:00:00+00:00</lastmod>
+    <lastmod>2026-08-19T12:52:29Z</lastmod>
   </sitemap>
   <sitemap>
     <loc>https://indoquran.web.id/sitemap-juz.xml</loc>
-    <lastmod>2025-11-07T00:00:00+00:00</lastmod>
+    <lastmod>2026-08-19T12:52:29Z</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://indoquran.web.id/sitemap-halaman.xml</loc>
+    <lastmod>2026-08-19T12:52:29Z</lastmod>
   </sitemap>
 </sitemapindex>

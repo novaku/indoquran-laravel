@@ -25,26 +25,21 @@ class SitemapIndexController extends Controller
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
         
-        // Main sitemap (static pages and surah overview)
+        // Main sitemap (static pages and 114 surahs)
         $xml .= $this->createSitemapEntry(
             $baseUrl . '/sitemap-main.xml',
             $currentDate
         );
         
-        // Surah-specific sitemaps (grouped to avoid too many files)
-        $surahs = Surah::select('number')->get();
-        $surahGroups = $surahs->chunk(20); // 20 surahs per sitemap
-        
-        foreach ($surahGroups as $index => $group) {
-            $xml .= $this->createSitemapEntry(
-                $baseUrl . '/sitemap-surahs-' . ($index + 1) . '.xml',
-                $currentDate
-            );
-        }
-        
-        // Juz sitemap
+        // Juz sitemap (30 juz pages)
         $xml .= $this->createSitemapEntry(
             $baseUrl . '/sitemap-juz.xml',
+            $currentDate
+        );
+
+        // Halaman sitemap (604 mushaf pages)
+        $xml .= $this->createSitemapEntry(
+            $baseUrl . '/sitemap-halaman.xml',
             $currentDate
         );
         
@@ -85,25 +80,13 @@ class SitemapIndexController extends Controller
                 'priority' => '0.8'
             ],
             [
-                'url' => $baseUrl . '/halaman',
-                'lastmod' => $currentDate,
-                'changefreq' => 'weekly',
-                'priority' => '0.8'
-            ],
-            [
-                'url' => $baseUrl . '/halaman/205',
+                'url' => $baseUrl . '/surah',
                 'lastmod' => $currentDate,
                 'changefreq' => 'weekly',
                 'priority' => '0.9'
             ],
             [
-                'url' => $baseUrl . '/halaman/276',
-                'lastmod' => $currentDate,
-                'changefreq' => 'weekly',
-                'priority' => '0.9'
-            ],
-            [
-                'url' => $baseUrl . '/halaman/390',
+                'url' => $baseUrl . '/daftar-lengkap',
                 'lastmod' => $currentDate,
                 'changefreq' => 'weekly',
                 'priority' => '0.9'
@@ -115,10 +98,28 @@ class SitemapIndexController extends Controller
                 'priority' => '0.8'
             ],
             [
-                'url' => $baseUrl . '/juz/15',
+                'url' => $baseUrl . '/halaman',
                 'lastmod' => $currentDate,
                 'changefreq' => 'weekly',
-                'priority' => '0.9'
+                'priority' => '0.8'
+            ],
+            [
+                'url' => $baseUrl . '/asmaul-husna',
+                'lastmod' => $currentDate,
+                'changefreq' => 'monthly',
+                'priority' => '0.7'
+            ],
+            [
+                'url' => $baseUrl . '/tafsir-maudhui',
+                'lastmod' => $currentDate,
+                'changefreq' => 'monthly',
+                'priority' => '0.7'
+            ],
+            [
+                'url' => $baseUrl . '/doa-bersama',
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.6'
             ],
             [
                 'url' => $baseUrl . '/tentang',
@@ -133,6 +134,18 @@ class SitemapIndexController extends Controller
                 'priority' => '0.5'
             ],
             [
+                'url' => $baseUrl . '/donasi',
+                'lastmod' => $currentDate,
+                'changefreq' => 'monthly',
+                'priority' => '0.4'
+            ],
+            [
+                'url' => $baseUrl . '/riwayat-versi',
+                'lastmod' => $currentDate,
+                'changefreq' => 'monthly',
+                'priority' => '0.4'
+            ],
+            [
                 'url' => $baseUrl . '/kebijakan',
                 'lastmod' => $currentDate,
                 'changefreq' => 'yearly',
@@ -140,7 +153,7 @@ class SitemapIndexController extends Controller
             ]
         ];
         
-        // Add surah overview pages (without individual ayahs)
+        // Add surah overview pages (all 114 surahs)
         foreach ($surahs as $surah) {
             $pages[] = [
                 'url' => $baseUrl . '/surah/' . $surah->number,
@@ -148,42 +161,6 @@ class SitemapIndexController extends Controller
                 'changefreq' => 'weekly',
                 'priority' => '0.9'
             ];
-        }
-        
-        return $this->generateSitemapXml($pages);
-    }
-    
-    /**
-     * Generate sitemap for specific group of surahs with their ayahs
-     */
-    public function surahGroupSitemap($groupNumber)
-    {
-        $baseUrl = (app()->environment('production') && !app()->environment(['local', 'development', 'testing']))
-            ? 'https://indoquran.web.id' 
-            : config('app.url');
-            
-        $currentDate = now()->format('Y-m-d');
-        
-        // Get surahs for this group (20 surahs per group)
-        $offset = ($groupNumber - 1) * 20;
-        $surahs = Surah::select('number', 'total_ayahs', 'updated_at')
-            ->offset($offset)
-            ->limit(20)
-            ->get();
-        
-        $pages = [];
-        
-        // Add individual ayah pages for each surah in this group
-        foreach ($surahs as $surah) {
-            $ayahCount = $surah->total_ayahs ?? 0;
-            for ($i = 1; $i <= $ayahCount; $i++) {
-                $pages[] = [
-                    'url' => $baseUrl . '/surah/' . $surah->number . '/' . $i,
-                    'lastmod' => $surah->updated_at ? $surah->updated_at->format('Y-m-d') : $currentDate,
-                    'changefreq' => 'monthly',
-                    'priority' => '0.7'
-                ];
-            }
         }
         
         return $this->generateSitemapXml($pages);
@@ -207,22 +184,46 @@ class SitemapIndexController extends Controller
             $pages[] = [
                 'url' => $baseUrl . '/juz/' . $juz,
                 'lastmod' => $currentDate,
-                'changefreq' => 'monthly',
+                'changefreq' => 'weekly',
                 'priority' => '0.8'
             ];
         }
         
-        // Add page-based navigation (604 pages in Mushaf)
+        return $this->generateSitemapXml($pages);
+    }
+
+    /**
+     * Generate sitemap for Halaman (Mushaf) pages
+     */
+    public function halamanSitemap()
+    {
+        $baseUrl = (app()->environment('production') && !app()->environment(['local', 'development', 'testing']))
+            ? 'https://indoquran.web.id' 
+            : config('app.url');
+            
+        $currentDate = now()->format('Y-m-d');
+        
+        $pages = [];
+        
+        // Add all 604 pages in Mushaf
         for ($page = 1; $page <= 604; $page++) {
             $pages[] = [
                 'url' => $baseUrl . '/halaman/' . $page,
                 'lastmod' => $currentDate,
-                'changefreq' => 'monthly',
-                'priority' => '0.6'
+                'changefreq' => 'weekly',
+                'priority' => '0.7'
             ];
         }
         
         return $this->generateSitemapXml($pages);
+    }
+
+    /**
+     * Backward compatibility fallback for legacy surah group sitemaps
+     */
+    public function surahGroupSitemap($groupNumber)
+    {
+        return $this->mainSitemap();
     }
     
     /**

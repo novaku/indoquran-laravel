@@ -16,6 +16,8 @@
     AddType image/webp                 .webp
     AddType image/avif                 .avif
     AddType text/plain                 .txt
+    AddType application/xml            .xml
+    AddType text/xml                   .xml
 </IfModule>
 
 # ---------------------------------------------------------------------------
@@ -40,6 +42,10 @@
 <IfModule mod_expires.c>
     ExpiresActive On
     ExpiresDefault "access plus 1 month"
+
+    # XML Sitemaps – 1 day
+    ExpiresByType application/xml        "access plus 1 day"
+    ExpiresByType text/xml               "access plus 1 day"
 
     # Images – 1 year
     ExpiresByType image/jpeg             "access plus 1 year"
