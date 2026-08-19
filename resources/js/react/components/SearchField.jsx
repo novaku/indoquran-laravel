@@ -460,7 +460,7 @@ const SearchField = ({
 
     return (
         <div className={`relative w-full ${className}`}>
-            <form onSubmit={handleSearchSubmit} method="GET" className="flex items-center">
+            <form onSubmit={handleSearchSubmit} method="GET" className="flex flex-col">
                 <div className="relative w-full" ref={searchRef}>
                     <svg 
                         xmlns="http://www.w3.org/2000/svg" 
@@ -480,17 +480,6 @@ const SearchField = ({
                         placeholder={placeholder}
                         className={`w-full pl-12 pr-12 py-4 rounded-xl border-2 border-${currentTheme.primaryBorder} focus:outline-none focus:ring-2 focus:ring-${currentTheme.primaryFocus} focus:border-${currentTheme.primaryHover} shadow-md text-base bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow`}
                     />
-                    {showExactSearchToggle && (
-                        <label className={`absolute left-4 -bottom-8 inline-flex items-center gap-2 rounded-full border border-${currentTheme.primaryBorder} bg-white px-3 py-1 text-xs font-medium text-gray-700 shadow-sm`}>
-                            <input
-                                type="checkbox"
-                                checked={exactSearch}
-                                onChange={handleExactMatchChange}
-                                className={`h-3.5 w-3.5 rounded border-${currentTheme.primaryBorder} text-${currentTheme.primaryText} focus:ring-${currentTheme.primaryFocus}`}
-                            />
-                            <span>Pencarian persis</span>
-                        </label>
-                    )}
                     {searchTerm && (
                         <button
                             type="button"
@@ -613,6 +602,20 @@ const SearchField = ({
                         </div>
                     )}
                 </div>
+
+                {showExactSearchToggle && (
+                    <div className="mt-2.5 flex items-center">
+                        <label className={`inline-flex items-center gap-2 rounded-full border border-${currentTheme.primaryBorder} bg-white px-3 py-1 text-xs font-medium text-gray-700 shadow-2xs cursor-pointer hover:bg-gray-50 transition-colors`}>
+                            <input
+                                type="checkbox"
+                                checked={exactSearch}
+                                onChange={handleExactMatchChange}
+                                className={`h-3.5 w-3.5 rounded border-${currentTheme.primaryBorder} text-emerald-600 focus:ring-emerald-500 cursor-pointer`}
+                            />
+                            <span>Pencarian persis</span>
+                        </label>
+                    </div>
+                )}
             </form>
         </div>
     );

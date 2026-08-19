@@ -62,7 +62,6 @@ function QuranHeader({ isSidebarOpen, setIsSidebarOpen }) {
     };
 
     const userNavItems = user ? [
-        { name: 'Penanda', path: '/penanda', icon: BookmarkIcon },
         { name: 'Profil', path: '/profil', icon: UserIcon },
     ] : [];
 
@@ -154,7 +153,7 @@ function QuranHeader({ isSidebarOpen, setIsSidebarOpen }) {
                                                 <div>
                                                     <div className="font-medium">{item.name}</div>
                                                     <div className="text-xs text-gray-500 mt-1">
-                                                        {item.name === 'Penanda' ? 'Ayat yang telah ditandai' : 'Pengaturan akun'}
+                                                        Pengaturan akun
                                                     </div>
                                                 </div>
                                             </Link>

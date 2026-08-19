@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
     BookOpenIcon,
@@ -11,7 +11,15 @@ import {
     ArrowPathIcon,
     UserGroupIcon,
     NewspaperIcon,
-    ClockIcon
+    ClockIcon,
+    SparklesIcon,
+    BookmarkIcon,
+    ArrowRightIcon,
+    CheckIcon,
+    ClipboardDocumentIcon,
+    TagIcon,
+    BuildingLibraryIcon,
+    HeartIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../hooks/useAuth.jsx';
 import SearchField from '../components/SearchField';
@@ -19,10 +27,82 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import OnlineUsersWidget from '../components/OnlineUsersWidget';
-import { Card, Button, Badge } from '../components/ui';
+import { Card, Button } from '../components/ui';
 import { fetchWithAuth } from '../utils/apiUtils';
 import { getReadingProgress } from '../services/ReadingProgressService';
 import authUtils from '../utils/auth';
+
+// Curated daily inspiration verses for tadabbur
+const DAILY_INSPIRATIONS = [
+    {
+        surahNumber: 2,
+        ayahNumber: 152,
+        surahName: 'Al-Baqarah',
+        arabic: 'فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ',
+        translation: 'Maka ingatlah kepada-Ku, niscaya Aku ingat (pula) kepadamu, dan bersyukurlah kepada-Ku, dan janganlah kamu mengingkari (nikmat-Ku).',
+        theme: 'Mengingat Allah & Syukur'
+    },
+    {
+        surahNumber: 13,
+        ayahNumber: 28,
+        surahName: "Ar-Ra'd",
+        arabic: 'الَّذِينَ آمَنُوا وَتَطْمَئِنُّ قُلُوبُهُمْ بِذِكْرِ اللَّهِ ۗ أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ',
+        translation: '(yaitu) orang-orang yang beriman dan hati mereka menjadi tenteram dengan mengingat Allah. Ingatlah, hanya dengan mengingati Allah-lah hati menjadi tenteram.',
+        theme: 'Ketenangan Hati'
+    },
+    {
+        surahNumber: 94,
+        ayahNumber: 5,
+        surahName: 'Asy-Syarh',
+        arabic: 'فَإِنَّ مَعَ الْعُسْرِ يُسْرًا • إِنَّ مَعَ الْعُسْرِ يُسْرًا',
+        translation: 'Maka sesungguhnya bersama kesulitan ada kemudahan, sesungguhnya bersama kesulitan ada kemudahan.',
+        theme: 'Harapan & Kemudahan'
+    },
+    {
+        surahNumber: 14,
+        ayahNumber: 7,
+        surahName: 'Ibrahim',
+        arabic: 'وَإِذْ تَأَذَّنَ رَبُّكُمْ لَئِنْ شَكَرْتُمْ لَأَزِيدَنَّكُمْ ۖ وَلَئِنْ كَفَرْتُمْ إِنَّ عَذَابِي لَشَدِيدٌ',
+        translation: 'Dan (ingatlah juga), tatkala Tuhanmu memaklumkan; "Sesungguhnya jika kamu bersyukur, pasti Kami akan menambah (nikmat) kepadamu..."',
+        theme: 'Keberkahan Syukur'
+    },
+    {
+        surahNumber: 2,
+        ayahNumber: 186,
+        surahName: 'Al-Baqarah',
+        arabic: 'وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ ۖ أُجِيبُ دَعْوَةَ الدَّاعِ إِذَا دَعَانِ',
+        translation: 'Dan apabila hamba-hamba-Ku bertanya kepadamu tentang Aku, maka sesungguhnya Aku adalah dekat. Aku mengabulkan permohonan orang yang berdoa apabila ia memohon kepada-Ku...',
+        theme: 'Kedekatan Doa'
+    },
+    {
+        surahNumber: 39,
+        ayahNumber: 53,
+        surahName: 'Az-Zumar',
+        arabic: 'قُلْ يَا عِبَادِيَ الَّذِينَ أَسْرَفُوا عَلَىٰ أَنْفُسِهِمْ لَا تَقْنَطُوا مِنْ رَحْمَةِ اللَّهِ ۚ إِنَّ اللَّهَ يَغْفِرُ الذُّنُوبَ جَمِيعًا',
+        translation: 'Katakanlah: "Wahai hamba-hamba-Ku yang melampaui batas terhadap diri mereka sendiri! Janganlah kamu berputus asa dari rahmat Allah. Sesungguhnya Allah mengampuni dosa-dosa semuanya..."',
+        theme: 'Rahmat & Ampunan'
+    },
+    {
+        surahNumber: 65,
+        ayahNumber: 3,
+        surahName: 'At-Talaq',
+        arabic: 'وَيَرْزُقْهُ مِنْ حَيْثُ لَا يَحْتَسِبُ ۚ وَمَنْ يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ',
+        translation: 'Dan Dia memberinya rezeki dari arah yang tiada disangka-sangkanya. Dan barangsiapa yang bertawakkal kepada Allah niscaya Allah akan mencukupkan (keperluan)nya.',
+        theme: 'Tawakkal & Rezeki'
+    }
+];
+
+const POPULAR_SURAH_NUMBERS = [1, 2, 18, 36, 55, 56, 67];
+
+const QUICK_CHIPS = [
+    { label: 'Al-Fatihah', surahNumber: 1 },
+    { label: 'Al-Baqarah', surahNumber: 2 },
+    { label: 'Al-Kahfi', surahNumber: 18 },
+    { label: 'Yasin', surahNumber: 36 },
+    { label: 'Ar-Rahman', surahNumber: 55 },
+    { label: 'Al-Waqi’ah', surahNumber: 56 },
+    { label: 'Al-Mulk', surahNumber: 67 }
+];
 
 function QuranHomePage() {
     const navigate = useNavigate();
@@ -34,12 +114,24 @@ function QuranHomePage() {
     const [recentReading, setRecentReading] = useState(null);
     const [popularSurahs, setPopularSurahs] = useState([]);
     const [loadingPopular, setLoadingPopular] = useState(false);
+    const [surahTab, setSurahTab] = useState('rekomendasi'); // 'rekomendasi' | 'populer' | 'juz30'
     const [randomArticle, setRandomArticle] = useState(null);
     const [loadingArticle, setLoadingArticle] = useState(false);
     const [latestArticles, setLatestArticles] = useState([]);
     const [loadingLatestArticles, setLoadingLatestArticles] = useState(false);
     const [randomTafsir, setRandomTafsir] = useState(null);
     const [loadingTafsir, setLoadingTafsir] = useState(false);
+    const [copiedAyah, setCopiedAyah] = useState(false);
+    const [dailyInspirationIndex, setDailyInspirationIndex] = useState(0);
+
+    // Pick inspiration based on day of year
+    useEffect(() => {
+        const today = new Date();
+        const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+        setDailyInspirationIndex(dayOfYear % DAILY_INSPIRATIONS.length);
+    }, []);
+
+    const activeInspiration = DAILY_INSPIRATIONS[dailyInspirationIndex] || DAILY_INSPIRATIONS[0];
 
     const exploreOverview = {
         totalSurahs: 114,
@@ -52,50 +144,56 @@ function QuranHomePage() {
         {
             to: '/surah',
             title: 'Daftar Surah',
-            description: `Semua ${exploreOverview.totalSurahs} surah Al-Quran`,
+            description: `${exploreOverview.totalSurahs} surah lengkap`,
+            badgeText: '114 Surah',
             icon: BookOpenIcon,
-            iconBg: 'bg-green-100',
-            iconColor: 'text-green-600'
+            iconBg: 'bg-emerald-50 text-emerald-600',
+            borderColor: 'hover:border-emerald-300'
         },
         {
             to: '/juz',
             title: 'Telusuri Juz',
-            description: `${exploreOverview.totalJuz} bagian bacaan teratur`,
-            icon: BookOpenIcon,
-            iconBg: 'bg-blue-100',
-            iconColor: 'text-blue-600'
+            description: `${exploreOverview.totalJuz} juz Al-Quran`,
+            badgeText: '30 Juz',
+            icon: DocumentTextIcon,
+            iconBg: 'bg-blue-50 text-blue-600',
+            borderColor: 'hover:border-blue-300'
         },
         {
             to: '/halaman',
-            title: 'Telusuri Halaman',
-            description: `${exploreOverview.totalPages} halaman mushaf digital`,
-            icon: DocumentTextIcon,
-            iconBg: 'bg-purple-100',
-            iconColor: 'text-purple-600'
+            title: 'Halaman Mushaf',
+            description: `${exploreOverview.totalPages} halaman digital`,
+            badgeText: '604 Hal',
+            icon: BuildingLibraryIcon,
+            iconBg: 'bg-purple-50 text-purple-600',
+            borderColor: 'hover:border-purple-300'
         },
         {
             to: '/asmaul-husna',
             title: 'Asmaul Husna',
-            description: `${exploreOverview.totalAsmaulHusna} nama Allah SWT`,
+            description: '99 nama Allah yang mulia',
+            badgeText: '99 Nama',
             icon: StarIcon,
-            iconBg: 'bg-yellow-100',
-            iconColor: 'text-yellow-600'
+            iconBg: 'bg-amber-50 text-amber-600',
+            borderColor: 'hover:border-amber-300'
         },
         {
             to: '/tafsir-maudhui',
             title: 'Tafsir Tematik',
-            description: 'Pelajari tema utama Al-Quran',
+            description: 'Penjelasan ayat per topik',
+            badgeText: 'Tematik',
             icon: AcademicCapIcon,
-            iconBg: 'bg-orange-100',
-            iconColor: 'text-orange-600'
+            iconBg: 'bg-orange-50 text-orange-600',
+            borderColor: 'hover:border-orange-300'
         },
         {
             to: '/doa-bersama',
             title: 'Doa dan Wirid',
-            description: 'Rangkaian doa harian pilihan',
+            description: 'Kumpulan doa mustajab harian',
+            badgeText: 'Doa',
             icon: UserGroupIcon,
-            iconBg: 'bg-rose-100',
-            iconColor: 'text-rose-600'
+            iconBg: 'bg-rose-50 text-rose-600',
+            borderColor: 'hover:border-rose-300'
         }
     ];
 
@@ -123,16 +221,15 @@ function QuranHomePage() {
             }
 
             const result = await response.json();
-            if (result.status === 'success') {
+            if (result.status === 'success' && Array.isArray(result.data)) {
                 setPopularSurahs(result.data);
             } else {
                 throw new Error('Failed to load popular surahs');
             }
         } catch (err) {
             console.error('Error fetching popular surahs:', err);
-            // Fallback keeps recommendations helpful when API fails.
-            const fallbackNumbers = [1, 2, 18, 36, 55, 67];
-            const fallback = fallbackNumbers
+            const fallback = POPULAR_SURAH_NUMBERS
+                .slice(0, 6)
                 .map((number) => surahs.find((surah) => surah.number === number))
                 .filter(Boolean);
             setPopularSurahs(fallback);
@@ -156,13 +253,11 @@ function QuranHomePage() {
             }
 
             const result = await response.json();
-            // Laravel paginate returns { data: [...], ... }
             if (result.data && Array.isArray(result.data)) {
                 setLatestArticles(result.data);
             }
         } catch (err) {
             console.error('Error fetching latest articles:', err);
-            // Silently fail - articles are optional content
         } finally {
             setLoadingLatestArticles(false);
         }
@@ -188,7 +283,6 @@ function QuranHomePage() {
             }
         } catch (err) {
             console.error('Error fetching random article:', err);
-            // Silently fail - article is optional content
         } finally {
             setLoadingArticle(false);
         }
@@ -214,7 +308,6 @@ function QuranHomePage() {
             }
         } catch (err) {
             console.error('Error fetching random tafsir maudhui:', err);
-            // Silently fail - tafsir is optional content
         } finally {
             setLoadingTafsir(false);
         }
@@ -308,17 +401,30 @@ function QuranHomePage() {
         }
     };
 
-    const handleRefreshPopular = () => {
-        fetchPopularSurahs();
+    const handleCopyInspiration = () => {
+        const textToCopy = `${activeInspiration.arabic}\n\n"${activeInspiration.translation}"\n(QS. ${activeInspiration.surahName}: ${activeInspiration.ayahNumber})\n\nDibaca melalui IndoQuran.web.id`;
+        navigator.clipboard.writeText(textToCopy);
+        setCopiedAyah(true);
+        setTimeout(() => setCopiedAyah(false), 2500);
     };
 
-    const handleRefreshTafsir = () => {
-        fetchRandomTafsir();
-    };
+    const displayedSurahs = useMemo(() => {
+        if (surahTab === 'populer') {
+            return POPULAR_SURAH_NUMBERS
+                .map((num) => surahs.find((s) => s.number === num))
+                .filter(Boolean);
+        }
+        if (surahTab === 'juz30') {
+            return surahs.filter((s) => s.number >= 78 && s.number <= 114).slice(0, 6);
+        }
+        return popularSurahs.length > 0
+            ? popularSurahs
+            : POPULAR_SURAH_NUMBERS.slice(0, 6).map((num) => surahs.find((s) => s.number === num)).filter(Boolean);
+    }, [surahTab, popularSurahs, surahs]);
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
                 <LoadingSpinner size="lg" />
             </div>
         );
@@ -326,9 +432,9 @@ function QuranHomePage() {
 
     if (error) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <Card className="text-center max-w-md">
-                    <p className="text-red-600 mb-4">Terjadi kesalahan memuat konten</p>
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+                <Card className="text-center max-w-md p-6">
+                    <p className="text-red-600 font-medium mb-4">Terjadi kesalahan memuat konten</p>
                     <Button
                         variant="primary"
                         onClick={() => window.location.reload()}
@@ -341,7 +447,7 @@ function QuranHomePage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 text-gray-800">
             <SEOHead
                 title="AlQuran Online Indonesia - Baca, Dengar, Terjemahan | IndoQuran"
                 description="AlQuran online lengkap untuk Indonesia: baca teks Arab, dengarkan audio murottal, dan pelajari terjemahan per ayat di IndoQuran web."
@@ -349,477 +455,657 @@ function QuranHomePage() {
                 canonicalUrl="https://indoquran.web.id/"
             />
 
-            <section className="bg-white border-b border-gray-200">
-                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-                    <div className="flex flex-col items-center text-center space-y-10">
-                        <div>
-                            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">IndoQuran</h1>
-                            <p className="text-lg md:text-xl text-gray-600 max-w-3xl">
-                                Platform Al-Quran yang ringkas dan informatif untuk membaca, mendengar, dan memahami ayat demi ayat.
+            {/* HERO SECTION - Sleek, minimalist, eye-catching */}
+            <section className="relative bg-gradient-to-b from-emerald-50/70 via-white to-gray-50/50 border-b border-gray-200/80 overflow-hidden">
+                {/* Subtle decorative background circles */}
+                <div className="absolute -top-24 -left-24 w-96 h-96 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute top-1/2 -right-24 w-96 h-96 bg-teal-100/30 rounded-full blur-3xl pointer-events-none" />
+
+                <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-12 lg:pt-14 lg:pb-16">
+                    <div className="flex flex-col items-center text-center space-y-6">
+                        
+                        {/* Status / Highlight Badge */}
+                        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/70 border border-emerald-200/80 text-emerald-800 text-xs sm:text-sm font-medium shadow-sm transition-transform hover:scale-[1.02]">
+                            <SparklesIcon className="w-4 h-4 text-emerald-600" />
+                            <span>Al-Quran Digital Indonesia & Terjemahan Lengkap</span>
+                        </div>
+
+                        {/* Title & Tagline */}
+                        <div className="max-w-3xl space-y-3">
+                            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 tracking-tight">
+                                Indo<span className="text-emerald-600">Quran</span>
+                            </h1>
+                            <p className="text-base sm:text-lg lg:text-xl text-gray-600 font-normal leading-relaxed">
+                                Membaca, mendengar murottal, dan mentadabburi ayat-ayat suci Al-Quran dengan tampilan yang tenang, bersih, dan informatif.
                             </p>
                         </div>
 
                         {/* Online Users Widget */}
-                        <div className="flex justify-center">
+                        <div className="flex justify-center pt-1">
                             <OnlineUsersWidget />
                         </div>
 
-                        <div className="flex flex-col sm:flex-row items-center gap-4">
+                        {/* Primary Action Buttons */}
+                        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                             <Button
                                 variant="primary"
                                 size="lg"
                                 onClick={handleStartReading}
                                 leftIcon={<BookOpenIcon className="w-5 h-5" />}
+                                className="shadow-md shadow-emerald-700/10 hover:shadow-lg transition-all"
                             >
                                 Mulai Membaca
                             </Button>
-                            <Link to="/cari">
+                            <Link to="/juz">
                                 <Button
                                     variant="outline"
                                     size="lg"
-                                    leftIcon={<MagnifyingGlassIcon className="w-5 h-5" />}
+                                    leftIcon={<DocumentTextIcon className="w-5 h-5 text-gray-600" />}
+                                    className="bg-white/80 hover:bg-gray-50 border-gray-300"
                                 >
-                                    Pencarian Lanjutan
+                                    Telusuri Juz
+                                </Button>
+                            </Link>
+                            <Link to="/cari">
+                                <Button
+                                    variant="ghost"
+                                    size="lg"
+                                    leftIcon={<MagnifyingGlassIcon className="w-5 h-5 text-emerald-600" />}
+                                    className="hover:bg-emerald-50 text-emerald-700 font-medium"
+                                >
+                                    Pencarian Ayat
                                 </Button>
                             </Link>
                         </div>
 
-                        <div className="max-w-2xl w-full">
+                        {/* Search Field with Quick Chips */}
+                        <div className="max-w-2xl w-full pt-4">
                             <SearchField
-                                placeholder="Cari ayat, surah, atau topik..."
-                                className="w-full pb-8"
+                                placeholder="Cari nomor surah, nama ayat, atau terjemahan..."
+                                className="w-full"
                                 surahs={surahs}
                                 showExactSearchToggle={true}
                             />
+                            
+                            {/* Quick Search / Jump Chips */}
+                            <div className="mt-3 flex items-center justify-center flex-wrap gap-1.5 text-xs text-gray-500">
+                                <span className="font-medium mr-1 text-gray-600 flex items-center gap-1">
+                                    <TagIcon className="w-3.5 h-3.5 text-emerald-600" /> Populer:
+                                </span>
+                                {QUICK_CHIPS.map((chip) => (
+                                    <button
+                                        key={chip.surahNumber}
+                                        onClick={() => navigate(`/surah/${chip.surahNumber}`)}
+                                        className="px-2.5 py-1 rounded-md bg-white border border-gray-200 text-gray-700 hover:border-emerald-400 hover:text-emerald-700 hover:bg-emerald-50/50 transition-colors shadow-2xs font-medium cursor-pointer"
+                                    >
+                                        {chip.label}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
-                            <Card padding="md" className="bg-gray-50">
-                                <p className="text-sm text-gray-500">Surah</p>
-                                <p className="text-2xl font-semibold text-gray-900">{exploreOverview.totalSurahs}</p>
-                            </Card>
-                            <Card padding="md" className="bg-gray-50">
-                                <p className="text-sm text-gray-500">Juz</p>
-                                <p className="text-2xl font-semibold text-gray-900">{exploreOverview.totalJuz}</p>
-                            </Card>
-                            <Card padding="md" className="bg-gray-50">
-                                <p className="text-sm text-gray-500">Halaman Mushaf</p>
-                                <p className="text-2xl font-semibold text-gray-900">{exploreOverview.totalPages}</p>
-                            </Card>
-                            <Card padding="md" className="bg-gray-50">
-                                <p className="text-sm text-gray-500">Asmaul Husna</p>
-                                <p className="text-2xl font-semibold text-gray-900">{exploreOverview.totalAsmaulHusna}</p>
-                            </Card>
+                        {/* Overview Stats Cards - Minimalist & Compact */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 w-full pt-4">
+                            <div className="bg-white/90 backdrop-blur-xs rounded-xl p-4 border border-gray-200/90 shadow-2xs hover:border-emerald-300 transition-all text-left">
+                                <div className="flex items-center justify-between text-emerald-600 mb-1">
+                                    <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Surah</span>
+                                    <BookOpenIcon className="w-4 h-4" />
+                                </div>
+                                <p className="text-2xl font-bold text-gray-900">{exploreOverview.totalSurahs}</p>
+                                <p className="text-xs text-gray-400 mt-0.5">Surah Lengkap</p>
+                            </div>
+
+                            <div className="bg-white/90 backdrop-blur-xs rounded-xl p-4 border border-gray-200/90 shadow-2xs hover:border-blue-300 transition-all text-left">
+                                <div className="flex items-center justify-between text-blue-600 mb-1">
+                                    <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Juz</span>
+                                    <DocumentTextIcon className="w-4 h-4" />
+                                </div>
+                                <p className="text-2xl font-bold text-gray-900">{exploreOverview.totalJuz}</p>
+                                <p className="text-xs text-gray-400 mt-0.5">Bagian Teratur</p>
+                            </div>
+
+                            <div className="bg-white/90 backdrop-blur-xs rounded-xl p-4 border border-gray-200/90 shadow-2xs hover:border-purple-300 transition-all text-left">
+                                <div className="flex items-center justify-between text-purple-600 mb-1">
+                                    <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Mushaf</span>
+                                    <BuildingLibraryIcon className="w-4 h-4" />
+                                </div>
+                                <p className="text-2xl font-bold text-gray-900">{exploreOverview.totalPages}</p>
+                                <p className="text-xs text-gray-400 mt-0.5">Halaman Standar</p>
+                            </div>
+
+                            <div className="bg-white/90 backdrop-blur-xs rounded-xl p-4 border border-gray-200/90 shadow-2xs hover:border-amber-300 transition-all text-left">
+                                <div className="flex items-center justify-between text-amber-600 mb-1">
+                                    <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Asmaul Husna</span>
+                                    <StarIcon className="w-4 h-4" />
+                                </div>
+                                <p className="text-2xl font-bold text-gray-900">{exploreOverview.totalAsmaulHusna}</p>
+                                <p className="text-xs text-gray-400 mt-0.5">Nama Mulia Allah</p>
+                            </div>
                         </div>
+
                     </div>
                 </div>
             </section>
 
-            {/* Iklan Horizontal - Setelah Hero Section */}
-
-            {/* Main content dengan sidebar */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            {/* MAIN CONTENT AREA WITH SIDEBAR */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    {/* Main content - 8 kolom di desktop */}
-                    <main className="lg:col-span-8 space-y-10">
-                {user && recentReading?.surah && (
-                    <Card shadow="sm">
-                        <div className="flex items-center justify-between mb-4">
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-900">Lanjutkan Membaca</h2>
-                                <p className="text-sm text-gray-500">Mulai dari tempat terakhir Anda membaca</p>
-                            </div>
-                            <Link
-                                to="/profil"
-                                className="text-green-600 hover:text-green-700 font-medium"
-                            >
-                                Lihat progres lengkap
-                            </Link>
-                        </div>
+                    
+                    {/* Main Content Column (8 cols) */}
+                    <main className="lg:col-span-8 space-y-8">
 
-                        <div className="bg-green-50 rounded-xl p-6 border border-green-100">
-                            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                                <div>
-                                    <h3 className="text-lg font-semibold text-gray-900">
-                                        {recentReading.surah.name_latin || recentReading.surah.name_english}
-                                    </h3>
-                                    <p className="text-gray-600">
-                                        {recentReading.surah.name_arabic} • Ayat {recentReading.lastVerse}
-                                    </p>
-                                    <p className="text-sm text-gray-500 mt-1">
-                                        {(recentReading.surah.total_ayahs ?? recentReading.surah.verses_count) || '-'} ayat • {recentReading.surah.revelation_place}
-                                    </p>
-                                </div>
-                                <Button
-                                    variant="primary"
-                                    onClick={handleStartReading}
-                                    leftIcon={<PlayIcon className="w-5 h-5" />}
-                                >
-                                    Buka Surah
-                                </Button>
-                            </div>
-                        </div>
-                    </Card>
-                )}
+                        {/* Ayat Hari Ini & Mutiara Tadabbur (Daily Inspiration) */}
+                        <div className="relative overflow-hidden bg-gradient-to-br from-emerald-800 to-teal-900 text-white rounded-2xl p-6 sm:p-7 shadow-md">
+                            {/* Decorative background aura */}
+                            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-emerald-500/20 rounded-full blur-2xl pointer-events-none" />
+                            <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 bg-teal-400/10 rounded-full blur-2xl pointer-events-none" />
 
-                <Card shadow="sm">
-                    <div className="flex items-center justify-between mb-6">
-                        <div>
-                            <h2 className="text-2xl font-bold text-gray-900">Surah Rekomendasi</h2>
-                            <p className="text-sm text-gray-500">Temukan bacaan populer untuk memperdalam tadabbur</p>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={handleRefreshPopular}
-                                disabled={loadingPopular}
-                                leftIcon={<ArrowPathIcon className={`w-4 h-4 ${loadingPopular ? 'animate-spin' : ''}`} />}
-                                title="Tampilkan rekomendasi lain"
-                            >
-                                Segarkan
-                            </Button>
-                            <Link to="/surah" className="flex items-center space-x-1 text-green-600 hover:text-green-700 font-medium">
-                                <span>Semua surah</span>
-                                <ChevronRightIcon className="w-4 h-4" />
-                            </Link>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {loadingPopular ? (
-                            Array.from({ length: 6 }).map((_, index) => (
-                                <div key={index} className="p-4 rounded-xl border border-gray-200 animate-pulse">
-                                    <div className="flex items-center space-x-4">
-                                        <div className="w-12 h-12 bg-gray-200 rounded-lg" />
-                                        <div className="flex-1 space-y-2">
-                                            <div className="h-4 bg-gray-200 rounded w-32" />
-                                            <div className="h-3 bg-gray-200 rounded w-24" />
-                                        </div>
+                            <div className="relative z-10 space-y-4">
+                                <div className="flex items-center justify-between flex-wrap gap-2">
+                                    <div className="flex items-center gap-2">
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-700/80 border border-emerald-500/30 text-emerald-200 text-xs font-semibold tracking-wide">
+                                            <SparklesIcon className="w-3.5 h-3.5 text-amber-300" />
+                                            Ayat Pilihan Hari Ini
+                                        </span>
+                                        <span className="text-xs text-emerald-200/90 font-medium">
+                                            • {activeInspiration.theme}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={handleCopyInspiration}
+                                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-700/60 hover:bg-emerald-600/80 text-xs text-emerald-100 transition-colors border border-emerald-500/30 cursor-pointer"
+                                            title="Salin ayat & terjemahan"
+                                        >
+                                            {copiedAyah ? (
+                                                <>
+                                                    <CheckIcon className="w-3.5 h-3.5 text-emerald-300" />
+                                                    <span>Tersalin</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <ClipboardDocumentIcon className="w-3.5 h-3.5" />
+                                                    <span>Salin</span>
+                                                </>
+                                            )}
+                                        </button>
+                                        <button
+                                            onClick={() => setDailyInspirationIndex((prev) => (prev + 1) % DAILY_INSPIRATIONS.length)}
+                                            className="p-1 rounded-lg bg-emerald-700/60 hover:bg-emerald-600/80 text-emerald-100 transition-colors border border-emerald-500/30 cursor-pointer"
+                                            title="Ganti ayat lain"
+                                        >
+                                            <ArrowPathIcon className="w-3.5 h-3.5" />
+                                        </button>
                                     </div>
                                 </div>
-                            ))
-                        ) : popularSurahs.length > 0 ? (
-                            popularSurahs.map((surah) => {
-                                const totalAyahs = surah.total_ayahs ?? surah.verses_count;
-                                return (
+
+                                <div className="py-2 text-right">
+                                    <p className="font-arabic text-2xl sm:text-3xl text-emerald-50 leading-loose">
+                                        {activeInspiration.arabic}
+                                    </p>
+                                </div>
+
+                                <div className="border-t border-emerald-700/60 pt-3">
+                                    <p className="text-emerald-100 text-sm sm:text-base leading-relaxed italic">
+                                        "{activeInspiration.translation}"
+                                    </p>
+                                    <div className="mt-3 flex items-center justify-between flex-wrap gap-3">
+                                        <span className="text-xs font-semibold text-emerald-300">
+                                            QS. {activeInspiration.surahName}: Ayat {activeInspiration.ayahNumber}
+                                        </span>
+                                        <button
+                                            onClick={() => navigate(`/surah/${activeInspiration.surahNumber}/${activeInspiration.ayahNumber}`)}
+                                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-emerald-600/90 hover:bg-emerald-500 px-3 py-1.5 rounded-lg transition-all shadow-sm cursor-pointer"
+                                        >
+                                            <span>Buka Surah</span>
+                                            <ArrowRightIcon className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Lanjutkan Membaca (Only shown if user is logged in or has active reading session) */}
+                        {user && recentReading?.surah && (
+                            <div className="bg-white rounded-2xl p-5 sm:p-6 border border-emerald-100 shadow-sm transition-all hover:shadow-md">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700">
+                                            <BookmarkIcon className="w-4 h-4" />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-lg font-bold text-gray-900">Lanjutkan Membaca</h2>
+                                            <p className="text-xs text-gray-500">Mulai dari ayat terakhir yang Anda baca</p>
+                                        </div>
+                                    </div>
                                     <Link
-                                        key={surah.number}
-                                        to={`/surah/${surah.number}`}
-                                        className="group p-4 rounded-xl border border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200"
+                                        to="/profil"
+                                        className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline"
                                     >
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center space-x-4">
-                                                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
-                                                    <span className="font-bold text-green-700">{surah.number}</span>
-                                                </div>
-                                                <div>
-                                                    <h3 className="font-semibold text-gray-900 group-hover:text-green-700">
-                                                        {surah.name_latin}
-                                                    </h3>
-                                                    <p className="text-sm text-gray-500">
-                                                        {totalAyahs} ayat • {surah.revelation_place}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="font-arabic text-lg text-gray-700 mb-1">
-                                                    {surah.name_arabic}
-                                                </p>
-                                                {[1, 2, 18, 36, 55, 67].includes(surah.number) && (
-                                                    <div className="flex items-center space-x-1">
-                                                        <StarIcon className="w-4 h-4 text-yellow-400" />
-                                                        <span className="text-xs text-gray-500">Sering dibaca</span>
+                                        Riwayat Lengkap →
+                                    </Link>
+                                </div>
+
+                                <div className="bg-gradient-to-r from-emerald-50/80 via-white to-emerald-50/40 rounded-xl p-4 sm:p-5 border border-emerald-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                    <div className="space-y-1">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-base font-bold text-gray-900">
+                                                {recentReading.surah.name_latin || recentReading.surah.name_english}
+                                            </span>
+                                            <span className="text-xs px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-medium">
+                                                Ayat {recentReading.lastVerse}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-gray-500">
+                                            {recentReading.surah.revelation_place} • {(recentReading.surah.total_ayahs ?? recentReading.surah.verses_count) || '-'} Total Ayat
+                                        </p>
+                                    </div>
+                                    <Button
+                                        variant="primary"
+                                        onClick={handleStartReading}
+                                        leftIcon={<PlayIcon className="w-4 h-4" />}
+                                        size="sm"
+                                        className="self-start sm:self-center shadow-xs"
+                                    >
+                                        Buka Bacaan
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Fitur & Navigasi Utama (Feature Hub) */}
+                        <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-200/90 shadow-2xs">
+                            <div className="flex items-center justify-between mb-5">
+                                <div>
+                                    <h2 className="text-xl font-bold text-gray-900">Jelajahi Al-Quran & Fitur</h2>
+                                    <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Pintasan cepat menuju seluruh modul dan referensi Al-Quran</p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+                                {navigationItems.map((item) => {
+                                    const Icon = item.icon;
+                                    return (
+                                        <Link
+                                            key={item.to}
+                                            to={item.to}
+                                            className={`group p-4 rounded-xl border border-gray-200/90 bg-white hover:bg-gray-50/80 ${item.borderColor} transition-all duration-200 hover:shadow-sm flex flex-col justify-between`}
+                                        >
+                                            <div>
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <div className={`w-10 h-10 rounded-xl ${item.iconBg} flex items-center justify-center transition-transform group-hover:scale-105`}>
+                                                        <Icon className="w-5 h-5" />
                                                     </div>
+                                                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-gray-100 text-gray-600 group-hover:bg-emerald-50 group-hover:text-emerald-700 transition-colors">
+                                                        {item.badgeText}
+                                                    </span>
+                                                </div>
+                                                <h3 className="font-bold text-gray-900 text-sm group-hover:text-emerald-700 transition-colors">
+                                                    {item.title}
+                                                </h3>
+                                                <p className="text-xs text-gray-500 mt-1 line-clamp-1">
+                                                    {item.description}
+                                                </p>
+                                            </div>
+                                            <div className="mt-3 flex items-center text-xs font-semibold text-emerald-600 group-hover:translate-x-0.5 transition-transform">
+                                                <span>Buka</span>
+                                                <ChevronRightIcon className="w-3.5 h-3.5 ml-0.5" />
+                                            </div>
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Surah Rekomendasi & Populer */}
+                        <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-200/90 shadow-2xs">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                                <div>
+                                    <h2 className="text-xl font-bold text-gray-900">Pilihan Surah</h2>
+                                    <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Surah pilihan utama yang sering dibaca dan dipelajari</p>
+                                </div>
+
+                                <div className="flex items-center flex-wrap gap-2">
+                                    {/* Tabs */}
+                                    <div className="inline-flex rounded-lg bg-gray-100 p-1 text-xs">
+                                        <button
+                                            onClick={() => setSurahTab('rekomendasi')}
+                                            className={`px-3 py-1.5 rounded-md font-medium transition-all ${
+                                                surahTab === 'rekomendasi'
+                                                    ? 'bg-white text-emerald-700 shadow-2xs'
+                                                    : 'text-gray-600 hover:text-gray-900'
+                                            }`}
+                                        >
+                                            Rekomendasi
+                                        </button>
+                                        <button
+                                            onClick={() => setSurahTab('populer')}
+                                            className={`px-3 py-1.5 rounded-md font-medium transition-all ${
+                                                surahTab === 'populer'
+                                                    ? 'bg-white text-emerald-700 shadow-2xs'
+                                                    : 'text-gray-600 hover:text-gray-900'
+                                            }`}
+                                        >
+                                            Populer
+                                        </button>
+                                        <button
+                                            onClick={() => setSurahTab('juz30')}
+                                            className={`px-3 py-1.5 rounded-md font-medium transition-all ${
+                                                surahTab === 'juz30'
+                                                    ? 'bg-white text-emerald-700 shadow-2xs'
+                                                    : 'text-gray-600 hover:text-gray-900'
+                                            }`}
+                                        >
+                                            Juz 30
+                                        </button>
+                                    </div>
+
+                                    {surahTab === 'rekomendasi' && (
+                                        <button
+                                            onClick={fetchPopularSurahs}
+                                            disabled={loadingPopular}
+                                            className="p-1.5 text-gray-500 hover:text-emerald-600 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                                            title="Segarkan rekomendasi"
+                                        >
+                                            <ArrowPathIcon className={`w-4 h-4 ${loadingPopular ? 'animate-spin' : ''}`} />
+                                        </button>
+                                    )}
+
+                                    <Link
+                                        to="/surah"
+                                        className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-0.5 ml-1"
+                                    >
+                                        <span>Semua Surah</span>
+                                        <ChevronRightIcon className="w-3.5 h-3.5" />
+                                    </Link>
+                                </div>
+                            </div>
+
+                            {/* Surah List Grid */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                                {loadingPopular ? (
+                                    Array.from({ length: 6 }).map((_, index) => (
+                                        <div key={index} className="p-4 rounded-xl border border-gray-100 bg-gray-50/50 animate-pulse">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center space-x-3">
+                                                    <div className="w-10 h-10 bg-gray-200 rounded-xl" />
+                                                    <div className="space-y-2">
+                                                        <div className="h-4 bg-gray-200 rounded w-28" />
+                                                        <div className="h-3 bg-gray-200 rounded w-20" />
+                                                    </div>
+                                                </div>
+                                                <div className="h-6 bg-gray-200 rounded w-16" />
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : displayedSurahs.length > 0 ? (
+                                    displayedSurahs.map((surah) => {
+                                        const totalAyahs = surah.total_ayahs ?? surah.verses_count;
+                                        return (
+                                            <Link
+                                                key={surah.number}
+                                                to={`/surah/${surah.number}`}
+                                                className="group p-4 rounded-xl border border-gray-200/80 bg-white hover:border-emerald-300 hover:bg-emerald-50/40 transition-all duration-200 hover:shadow-xs"
+                                            >
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center space-x-3.5">
+                                                        <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                                                            {surah.number}
+                                                        </div>
+                                                        <div>
+                                                            <div className="flex items-center gap-1.5">
+                                                                <h3 className="font-bold text-gray-900 group-hover:text-emerald-700 transition-colors text-sm">
+                                                                    {surah.name_latin || surah.name_simple}
+                                                                </h3>
+                                                                {POPULAR_SURAH_NUMBERS.includes(surah.number) && (
+                                                                    <StarIcon className="w-3.5 h-3.5 text-amber-400" />
+                                                                )}
+                                                            </div>
+                                                            <p className="text-xs text-gray-500 mt-0.5">
+                                                                {surah.name_translated || surah.meaning || surah.revelation_place} • {totalAyahs} Ayat
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="font-arabic text-lg text-gray-800 group-hover:text-emerald-800 transition-colors">
+                                                            {surah.name_arabic}
+                                                        </p>
+                                                        <span className="text-[10px] font-medium text-gray-400 capitalize">
+                                                            {surah.revelation_place?.toLowerCase()}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        );
+                                    })
+                                ) : (
+                                    <div className="col-span-1 md:col-span-2 text-center text-sm text-gray-500 border border-dashed border-gray-200 rounded-xl p-6">
+                                        Rekomendasi surah belum tersedia saat ini.
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Tafsir Tematik Highlight */}
+                        {randomTafsir && (
+                            <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-200/90 shadow-2xs">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600">
+                                            <AcademicCapIcon className="w-4 h-4" />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-xl font-bold text-gray-900">Tafsir Tematik Pilihan</h2>
+                                            <p className="text-xs text-gray-500">Pahami konsep penting dalam Al-Quran berdasarkan tema</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={fetchRandomTafsir}
+                                            disabled={loadingTafsir}
+                                            className="p-1.5 text-gray-500 hover:text-orange-600 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                                            title="Tampilkan topik lain"
+                                        >
+                                            <ArrowPathIcon className={`w-4 h-4 ${loadingTafsir ? 'animate-spin' : ''}`} />
+                                        </button>
+                                        <Link
+                                            to="/tafsir-maudhui"
+                                            className="text-xs font-semibold text-orange-600 hover:text-orange-700 flex items-center gap-0.5"
+                                        >
+                                            <span>Semua Tema</span>
+                                            <ChevronRightIcon className="w-3.5 h-3.5" />
+                                        </Link>
+                                    </div>
+                                </div>
+
+                                {loadingTafsir ? (
+                                    <div className="p-4 rounded-xl border border-gray-100 bg-gray-50 animate-pulse space-y-2">
+                                        <div className="h-5 bg-gray-200 rounded w-1/2" />
+                                        <div className="h-4 bg-gray-200 rounded w-full" />
+                                    </div>
+                                ) : (
+                                    <Link
+                                        to={`/tafsir-maudhui/${randomTafsir.slug}`}
+                                        className="group block p-5 rounded-xl border border-orange-200/70 bg-gradient-to-br from-orange-50/50 via-white to-amber-50/30 hover:border-orange-300 hover:shadow-xs transition-all"
+                                    >
+                                        <div className="space-y-2.5">
+                                            <div className="flex items-center justify-between flex-wrap gap-2">
+                                                <h3 className="text-base font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
+                                                    {randomTafsir.topic}
+                                                </h3>
+                                                {randomTafsir.verses && randomTafsir.verses.length > 0 && (
+                                                    <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-orange-100 text-orange-700">
+                                                        {randomTafsir.verses.length} Ayat Terkait
+                                                    </span>
                                                 )}
+                                            </div>
+                                            {randomTafsir.description && (
+                                                <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                                                    {randomTafsir.description}
+                                                </p>
+                                            )}
+                                            <div className="flex items-center text-xs font-semibold text-orange-600 group-hover:underline pt-1">
+                                                <span>Pelajari Pembahasan Lengkap</span>
+                                                <ChevronRightIcon className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
                                             </div>
                                         </div>
                                     </Link>
-                                );
-                            })
-                        ) : (
-                            <div className="col-span-1 md:col-span-2 text-center text-sm text-gray-500 border border-dashed border-gray-200 rounded-xl p-6">
-                                Rekomendasi surah belum tersedia saat ini.
+                                )}
                             </div>
                         )}
-                    </div>
-                </Card>
 
-                {randomTafsir && (
-                    <Card shadow="sm">
-                        <div className="flex items-center justify-between mb-6">
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-900">Tafsir Tematik Pilihan</h2>
-                                <p className="text-sm text-gray-500">Pelajari tema penting dalam Al-Quran</p>
-                            </div>
-                            <div className="flex items-center space-x-3">
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={handleRefreshTafsir}
-                                    disabled={loadingTafsir}
-                                    leftIcon={<ArrowPathIcon className={`w-4 h-4 ${loadingTafsir ? 'animate-spin' : ''}`} />}
-                                    title="Tampilkan topik lain"
+                        {/* Artikel & Wawasan Islami Terkini */}
+                        <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-200/90 shadow-2xs">
+                            <div className="flex items-center justify-between mb-5">
+                                <div>
+                                    <h2 className="text-xl font-bold text-gray-900">Artikel & Wawasan Islami</h2>
+                                    <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Tulisan inspiratif dan panduan seputar Al-Quran & ibadah</p>
+                                </div>
+                                <Link
+                                    to="/artikel"
+                                    className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-0.5"
                                 >
-                                    Segarkan
-                                </Button>
-                                <Link to="/tafsir-maudhui" className="flex items-center space-x-1 text-green-600 hover:text-green-700 font-medium">
-                                    <span>Lihat semua</span>
-                                    <ChevronRightIcon className="w-4 h-4" />
+                                    <span>Lihat Semua</span>
+                                    <ChevronRightIcon className="w-3.5 h-3.5" />
                                 </Link>
                             </div>
-                        </div>
 
-                        {loadingTafsir ? (
-                            <div className="animate-pulse">
-                                <div className="h-6 bg-gray-200 rounded w-3/4 mb-3" />
-                                <div className="h-4 bg-gray-200 rounded w-full mb-2" />
-                                <div className="h-4 bg-gray-200 rounded w-5/6" />
-                            </div>
-                        ) : (
-                            <Link
-                                to={`/tafsir-maudhui/${randomTafsir.slug}`}
-                                className="group block p-6 rounded-xl border border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all duration-200"
-                            >
-                                <div className="flex items-start space-x-4">
-                                    <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200 transition-colors flex-shrink-0">
-                                        <AcademicCapIcon className="w-6 h-6 text-orange-600" />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <h3 className="text-xl font-bold text-gray-900 group-hover:text-orange-600 transition-colors mb-2">
-                                            {randomTafsir.topic}
-                                        </h3>
-                                        {randomTafsir.description && (
-                                            <p className="text-gray-600 mb-3 line-clamp-2">
-                                                {randomTafsir.description}
-                                            </p>
-                                        )}
-                                        {randomTafsir.verses && randomTafsir.verses.length > 0 && (
-                                            <div className="flex items-center space-x-2 text-sm text-gray-500 mb-2">
-                                                <BookOpenIcon className="w-4 h-4" />
-                                                <span>{randomTafsir.verses.length} ayat terkait</span>
+                            {loadingLatestArticles ? (
+                                <div className="space-y-3">
+                                    {Array.from({ length: 3 }).map((_, i) => (
+                                        <div key={i} className="flex gap-4 p-3 rounded-xl border border-gray-100 animate-pulse">
+                                            <div className="w-20 h-16 bg-gray-200 rounded-lg flex-shrink-0" />
+                                            <div className="flex-1 space-y-2 py-1">
+                                                <div className="h-4 bg-gray-200 rounded w-3/4" />
+                                                <div className="h-3 bg-gray-200 rounded w-1/3" />
                                             </div>
-                                        )}
-                                        <div className="flex items-center text-orange-600 font-medium group-hover:underline">
-                                            <span>Pelajari selengkapnya</span>
-                                            <ChevronRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                         </div>
-                                    </div>
+                                    ))}
                                 </div>
-                            </Link>
-                        )}
-                    </Card>
-                )}
-
-                {/* Artikel Terbaru */}
-                <Card shadow="sm">
-                    <div className="flex items-center justify-between mb-6">
-                        <div>
-                            <h2 className="text-2xl font-bold text-gray-900">Artikel Terbaru</h2>
-                            <p className="text-sm text-gray-500">Tulisan terkini seputar Islam dan Al-Quran</p>
-                        </div>
-                        <Link to="/artikel" className="flex items-center space-x-1 text-green-600 hover:text-green-700 font-medium">
-                            <span>Lihat semua</span>
-                            <ChevronRightIcon className="w-4 h-4" />
-                        </Link>
-                    </div>
-
-                    {loadingLatestArticles ? (
-                        <div className="space-y-4">
-                            {Array.from({ length: 3 }).map((_, i) => (
-                                <div key={i} className="flex gap-4 animate-pulse">
-                                    <div className="w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0" />
-                                    <div className="flex-1 space-y-2 py-1">
-                                        <div className="h-4 bg-gray-200 rounded w-3/4" />
-                                        <div className="h-3 bg-gray-200 rounded w-full" />
-                                        <div className="h-3 bg-gray-200 rounded w-1/3" />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : latestArticles.length > 0 ? (
-                        <div className="divide-y divide-gray-100">
-                            {latestArticles.map((article) => (
-                                <Link
-                                    key={article.id}
-                                    to={`/artikel/${article.slug}`}
-                                    className="group flex gap-4 py-4 first:pt-0 last:pb-0 hover:opacity-80 transition-opacity"
-                                >
-                                    {article.featured_image_url ? (
-                                        <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                                            <img
-                                                src={article.featured_image_url}
-                                                alt={article.title}
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                            />
-                                        </div>
-                                    ) : (
-                                        <div className="w-20 h-20 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
-                                            <NewspaperIcon className="w-8 h-8 text-green-300" />
-                                        </div>
-                                    )}
-                                    <div className="flex-1 min-w-0">
-                                        <h3 className="font-semibold text-gray-900 group-hover:text-green-600 transition-colors line-clamp-2 mb-1">
-                                            {article.title}
-                                        </h3>
-                                        <div className="flex items-center gap-3 text-xs text-gray-400">
-                                            {article.formatted_date && (
-                                                <div className="flex items-center gap-1">
-                                                    <ClockIcon className="w-3 h-3" />
-                                                    <span>{article.formatted_date}</span>
+                            ) : latestArticles.length > 0 ? (
+                                <div className="divide-y divide-gray-100">
+                                    {latestArticles.map((article) => (
+                                        <Link
+                                            key={article.id}
+                                            to={`/artikel/${article.slug}`}
+                                            className="group flex gap-4 py-4 first:pt-0 last:pb-0 hover:bg-gray-50/50 rounded-xl px-2 -mx-2 transition-colors"
+                                        >
+                                            {article.featured_image_url ? (
+                                                <div className="w-20 sm:w-24 h-18 sm:h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                                                    <img
+                                                        src={article.featured_image_url}
+                                                        alt={article.title}
+                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                        loading="lazy"
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div className="w-20 sm:w-24 h-18 sm:h-20 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                                                    <NewspaperIcon className="w-7 h-7 text-emerald-400" />
                                                 </div>
                                             )}
-                                            {article.reading_time && (
-                                                <span>{article.reading_time} menit baca</span>
-                                            )}
-                                        </div>
-                                    </div>
-                                </Link>
-                            ))}
-                        </div>
-                    ) : null}
-                </Card>
-
-                {(randomArticle || loadingArticle) && (
-                    <Card shadow="sm" className="overflow-hidden border-amber-200 bg-amber-50/30">
-                        <div className="flex items-center justify-between mb-6">
-                            <div>
-                                <div className="flex items-center gap-2 mb-1">
-                                    <StarIcon className="w-4 h-4 text-amber-500" />
-                                    <span className="text-xs font-semibold text-amber-600 uppercase tracking-wide">Artikel Pilihan</span>
+                                            <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                                                <div>
+                                                    <h3 className="font-bold text-sm text-gray-900 group-hover:text-emerald-600 transition-colors line-clamp-2">
+                                                        {article.title}
+                                                    </h3>
+                                                    {article.excerpt && (
+                                                        <p className="text-xs text-gray-500 line-clamp-1 mt-1">
+                                                            {article.excerpt}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                <div className="flex items-center gap-3 text-[11px] text-gray-400 mt-2">
+                                                    {article.formatted_date && (
+                                                        <div className="flex items-center gap-1">
+                                                            <ClockIcon className="w-3 h-3" />
+                                                            <span>{article.formatted_date}</span>
+                                                        </div>
+                                                    )}
+                                                    {article.reading_time && (
+                                                        <span>• {article.reading_time} menit baca</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    ))}
                                 </div>
-                                <h2 className="text-2xl font-bold text-gray-900">Baca Artikel Ini</h2>
-                                <p className="text-sm text-gray-500">Bacaan menarik yang dipilihkan untuk Anda</p>
-                            </div>
-                            <div className="flex items-center space-x-3">
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={fetchRandomArticle}
-                                    disabled={loadingArticle}
-                                    leftIcon={<ArrowPathIcon className={`w-4 h-4 ${loadingArticle ? 'animate-spin' : ''}`} />}
-                                    title="Tampilkan artikel lain"
-                                >
-                                    Segarkan
-                                </Button>
-                                <Link to="/artikel" className="flex items-center space-x-1 text-green-600 hover:text-green-700 font-medium">
-                                    <span>Lihat semua</span>
-                                    <ChevronRightIcon className="w-4 h-4" />
-                                </Link>
-                            </div>
+                            ) : (
+                                <p className="text-xs text-gray-500 text-center py-4">Belum ada artikel terbaru.</p>
+                            )}
                         </div>
 
-                        {loadingArticle ? (
-                            <div className="animate-pulse">
-                                <div className="aspect-video bg-gray-200 rounded-xl mb-4" />
-                                <div className="h-6 bg-gray-200 rounded w-3/4 mb-2" />
-                                <div className="h-4 bg-gray-200 rounded w-full mb-2" />
-                                <div className="h-4 bg-gray-200 rounded w-2/3" />
-                            </div>
-                        ) : randomArticle ? (
-                            <Link
-                                to={`/artikel/${randomArticle.slug}`}
-                                className="group block"
-                            >
-                                {randomArticle.featured_image_url ? (
-                                    <div className="aspect-video mb-4 overflow-hidden rounded-xl bg-gray-100">
-                                        <img
-                                            src={randomArticle.featured_image_url}
-                                            alt={randomArticle.title}
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                        />
-                                    </div>
-                                ) : (
-                                    <div className="aspect-video mb-4 rounded-xl bg-amber-100 flex items-center justify-center">
-                                        <NewspaperIcon className="w-16 h-16 text-amber-300" />
-                                    </div>
-                                )}
-                                <div className="space-y-3">
-                                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-amber-600 transition-colors line-clamp-2">
-                                        {randomArticle.title}
-                                    </h3>
-                                    {randomArticle.excerpt && (
-                                        <p className="text-gray-600 line-clamp-3">
-                                            {randomArticle.excerpt}
-                                        </p>
-                                    )}
-                                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
-                                        {randomArticle.author && (
-                                            <div className="flex items-center space-x-1">
-                                                <UserGroupIcon className="w-4 h-4" />
-                                                <span>{randomArticle.author.name}</span>
-                                            </div>
-                                        )}
-                                        {randomArticle.reading_time && (
-                                            <div className="flex items-center space-x-1">
-                                                <ClockIcon className="w-4 h-4" />
-                                                <span>{randomArticle.reading_time} menit baca</span>
-                                            </div>
-                                        )}
-                                        {randomArticle.formatted_date && (
-                                            <span>{randomArticle.formatted_date}</span>
-                                        )}
-                                    </div>
-                                    <div className="flex items-center text-amber-600 font-medium group-hover:underline">
-                                        <span>Baca selengkapnya</span>
-                                        <ChevronRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                                    </div>
-                                </div>
-                            </Link>
-                        ) : null}
-                    </Card>
-                )}
+                    </main>
 
-                <Card shadow="sm">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Jelajahi Konten</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {navigationItems.map((item) => {
-                            const Icon = item.icon;
-                            return (
-                                <Link
-                                    key={item.to}
-                                    to={item.to}
-                                    className="group p-6 rounded-xl border border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200"
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center space-x-4">
-                                            <div className={`w-12 h-12 ${item.iconBg} rounded-lg flex items-center justify-center group-hover:opacity-90 transition-colors`}>
-                                                <Icon className={`w-6 h-6 ${item.iconColor}`} />
-                                            </div>
-                                            <div>
-                                                <h3 className="font-semibold text-gray-900 group-hover:text-green-700">{item.title}</h3>
-                                                <p className="text-sm text-gray-500">{item.description}</p>
-                                            </div>
-                                        </div>
-                                        <ChevronRightIcon className="w-5 h-5 text-gray-300 group-hover:text-green-600 transition-colors" />
-                                    </div>
-                                </Link>
-                            );
-                        })}
-                    </div>
-                </Card>
-            </main>
-
-                    {/* Sidebar - 4 kolom di desktop, tersembunyi di mobile */}
+                    {/* Sidebar Column (4 cols) */}
                     <aside className="lg:col-span-4 space-y-6">
-                        {/* Sticky sidebar untuk iklan */}
-                        <div className="sticky top-4 space-y-6">
-                            {/* Informasi Cepat */}
-                            <Card shadow="sm">
-                                <h3 className="font-semibold text-gray-900 mb-3">Informasi Cepat</h3>
-                                <div className="space-y-2 text-sm text-gray-600">
-                                    <p>📖 {exploreOverview.totalSurahs} Surah</p>
-                                    <p>📑 {exploreOverview.totalJuz} Juz</p>
-                                    <p>📄 {exploreOverview.totalPages} Halaman</p>
-                                    <p>⭐ {exploreOverview.totalAsmaulHusna} Asmaul Husna</p>
-                                </div>
-                            </Card>
-
+                        <div className="sticky top-20 space-y-6">
+                            
                             {/* Jadwal Shalat Widget */}
                             <PrayerTimesWidget />
 
+                            {/* Informasi Cepat & Struktur Al-Quran */}
+                            <div className="bg-white rounded-2xl p-5 border border-gray-200/90 shadow-2xs">
+                                <h3 className="font-bold text-gray-900 text-sm mb-3 flex items-center gap-2">
+                                    <BookOpenIcon className="w-4 h-4 text-emerald-600" />
+                                    <span>Struktur Al-Quran</span>
+                                </h3>
+                                <div className="divide-y divide-gray-100 text-xs">
+                                    <div className="py-2.5 flex items-center justify-between">
+                                        <span className="text-gray-600 flex items-center gap-1.5">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                            Total Surah
+                                        </span>
+                                        <span className="font-bold text-gray-900">114 Surah</span>
+                                    </div>
+                                    <div className="py-2.5 flex items-center justify-between">
+                                        <span className="text-gray-600 flex items-center gap-1.5">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                                            Total Ayat
+                                        </span>
+                                        <span className="font-bold text-gray-900">6.236 Ayat</span>
+                                    </div>
+                                    <div className="py-2.5 flex items-center justify-between">
+                                        <span className="text-gray-600 flex items-center gap-1.5">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                                            Jumlah Juz
+                                        </span>
+                                        <span className="font-bold text-gray-900">30 Juz</span>
+                                    </div>
+                                    <div className="py-2.5 flex items-center justify-between">
+                                        <span className="text-gray-600 flex items-center gap-1.5">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                            Halaman Standar
+                                        </span>
+                                        <span className="font-bold text-gray-900">604 Halaman</span>
+                                    </div>
+                                    <div className="py-2.5 flex items-center justify-between">
+                                        <span className="text-gray-600 flex items-center gap-1.5">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                                            Pembagian Surah
+                                        </span>
+                                        <span className="font-medium text-gray-700">86 Makkiyah • 28 Madaniyah</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Tips Membaca & Tadabbur */}
+                            <div className="bg-emerald-50/60 rounded-2xl p-5 border border-emerald-100 shadow-2xs">
+                                <h3 className="font-bold text-emerald-900 text-sm mb-2 flex items-center gap-1.5">
+                                    <SparklesIcon className="w-4 h-4 text-emerald-600" />
+                                    <span>Adab Membaca Al-Quran</span>
+                                </h3>
+                                <ul className="space-y-1.5 text-xs text-emerald-800/90 leading-relaxed list-disc list-inside">
+                                    <li>Berwudhu dan menghadap kiblat</li>
+                                    <li>Membaca ta'awudz & basmalah</li>
+                                    <li>Membaca dengan tartil dan tenang</li>
+                                    <li>Mentadabburi makna ayat per ayat</li>
+                                </ul>
+                            </div>
+
                         </div>
                     </aside>
+
                 </div>
             </div>
         </div>
