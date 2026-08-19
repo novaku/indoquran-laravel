@@ -553,7 +553,7 @@ export const getPageSEOData = (pageType, data = {}) => {
       seoData.title = `${ayahData.surah.name_latin} Ayat ${ayahData.ayah_number} - Terjemahan & Audio | IndoQuran`;
       seoData.description = `Baca ${ayahData.surah.name_latin} ayat ${ayahData.ayah_number} dengan terjemahan bahasa Indonesia: "${ayahData.translation?.substring(0, 120)}...". Lengkap dengan audio murottal, tafsir, dan asbabun nuzul.`;
       seoData.keywords = generateSurahSEOKeywords(ayahData.surah) + `, ${ayahData.surah.name_latin} ayat ${ayahData.ayah_number}, terjemahan ayat ${ayahData.ayah_number}, murottal ayat, tafsir ayat al quran`;
-      seoData.canonicalUrl = generateCanonicalUrl(`/surah/${ayahData.surah.number}/${ayahData.ayah_number}`);
+      seoData.canonicalUrl = generateCanonicalUrl(`/surah/${ayahData.surah.number}`);
       break;
 
     case 'search':
@@ -1601,6 +1601,12 @@ export const generateCanonicalUrl = (path) => {
 
   if (url.pathname === '/artikel') {
     return 'https://indoquran.web.id/artikel';
+  }
+
+  // Surah verse URLs (/surah/52/27) canonicalize to parent surah (/surah/52) to avoid duplicate content penalties
+  const surahMatch = url.pathname.match(/^\/surah\/(\d+)(?:\/\d+)?$/);
+  if (surahMatch) {
+    return `https://indoquran.web.id/surah/${surahMatch[1]}`;
   }
 
   // Google guidelines: Keep query params that change content, remove tracking params

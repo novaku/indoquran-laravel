@@ -334,9 +334,7 @@ function SurahDetailPage() {
     const currentAyah = ayahs.find(ayah => parseInt(ayah.ayah_number) === parseInt(currentAyahNumber)) || 
                         (ayahs.length > 0 ? ayahs[0] : null); // Fallback to first ayah if current not found
     const isAyahRoute = Boolean(ayahNumber && currentAyah && surah);
-    const effectiveCanonicalPath = isAyahRoute
-        ? `https://indoquran.web.id/surah/${number}/${currentAyahNumber}`
-        : `https://indoquran.web.id/surah/${number}`;
+    const effectiveCanonicalPath = `https://indoquran.web.id/surah/${number}`;
     const seoPayload = surah
         ? (isAyahRoute
             ? getPageSEOData('ayah', {
@@ -685,16 +683,6 @@ function SurahDetailPage() {
 
         fetchReciters();
     }, []);
-
-    // REQUIREMENT 2: Ensure URL is properly initialized when page loads
-    useEffect(() => {
-        // If we have ayahs loaded but no ayah number in URL, redirect to first ayah
-        if (ayahs.length > 0 && !ayahNumber && availableAyahNumbers.length > 0) {
-            const firstAyah = availableAyahNumbers[0];
-            console.log(`🔗 REQUIREMENT 2: No ayah in URL, redirecting to first ayah: /surah/${number}/${firstAyah}`);
-            navigate(`/surah/${number}/${firstAyah}`, { replace: true });
-        }
-    }, [ayahs, ayahNumber, number, navigate, availableAyahNumbers]);
 
     // REQUIREMENT 2: Update current ayah when URL changes and track reading progress
     useEffect(() => {

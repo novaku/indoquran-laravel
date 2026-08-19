@@ -387,12 +387,12 @@
 
                         <nav style="margin-top: 1.25rem; display: flex; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; border-top: 1px solid #bbf7d0; padding-top: 0.75rem;">
                             @if(isset($reactData['ayahNavigation']['prev']) && $reactData['ayahNavigation']['prev'])
-                                <a href="/surah/{{ $reactData['currentSurah']->number }}/{{ $reactData['ayahNavigation']['prev'] }}" style="color: #166534; font-weight: 600; text-decoration: none;">&larr; Ayat {{ $reactData['ayahNavigation']['prev'] }}</a>
+                                <a href="/surah/{{ $reactData['currentSurah']->number }}#ayah-{{ $reactData['ayahNavigation']['prev'] }}" style="color: #166534; font-weight: 600; text-decoration: none;">&larr; Ayat {{ $reactData['ayahNavigation']['prev'] }}</a>
                             @else
                                 <span></span>
                             @endif
                             @if(isset($reactData['ayahNavigation']['next']) && $reactData['ayahNavigation']['next'])
-                                <a href="/surah/{{ $reactData['currentSurah']->number }}/{{ $reactData['ayahNavigation']['next'] }}" style="color: #166534; font-weight: 600; text-decoration: none;">Ayat {{ $reactData['ayahNavigation']['next'] }} &rarr;</a>
+                                <a href="/surah/{{ $reactData['currentSurah']->number }}#ayah-{{ $reactData['ayahNavigation']['next'] }}" style="color: #166534; font-weight: 600; text-decoration: none;">Ayat {{ $reactData['ayahNavigation']['next'] }} &rarr;</a>
                             @endif
                         </nav>
                     </article>
@@ -406,12 +406,9 @@
                         @foreach($reactData['surahAyahs'] as $ayah)
                             <article style="padding: 1.25rem 0; border-bottom: 1px solid #f3f4f6;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                                    <span style="display: inline-block; background: #e0f2fe; color: #0369a1; font-weight: 700; font-size: 0.875rem; padding: 0.25rem 0.75rem; border-radius: 9999px;">
+                                    <span id="ayah-{{ $ayah->ayah_number }}" style="display: inline-block; background: #e0f2fe; color: #0369a1; font-weight: 700; font-size: 0.875rem; padding: 0.25rem 0.75rem; border-radius: 9999px;">
                                         Ayat {{ $ayah->ayah_number }}
                                     </span>
-                                    <a href="/surah/{{ $reactData['currentSurah']->number }}/{{ $ayah->ayah_number }}" style="color: #15803d; font-size: 0.8125rem; font-weight: 600; text-decoration: none;">
-                                        Tautan Ayat #{{ $ayah->ayah_number }}
-                                    </a>
                                 </div>
                                 <p class="arabic-text" style="font-size: 2rem; line-height: 2.2; color: #111827; text-align: right; margin: 0 0 0.75rem 0; direction: rtl;">
                                     {{ $ayah->text_arabic }}
@@ -492,7 +489,7 @@
                             @foreach($reactData['currentPage']['surah_spans'] as $span)
                                 <li>
                                     Surah {{ $span['surah_name_latin'] }} ({{ $span['surah_name_arabic'] }}) ayat {{ $span['from_ayah'] }}-{{ $span['to_ayah'] }}
-                                    <a href="/surah/{{ $span['surah_number'] }}/{{ $span['from_ayah'] }}" style="margin-left: 0.5rem; color: #166534; text-decoration: none; font-weight: 600;">Baca</a>
+                                    <a href="/surah/{{ $span['surah_number'] }}#ayah-{{ $span['from_ayah'] }}" style="margin-left: 0.5rem; color: #166534; text-decoration: none; font-weight: 600;">Baca</a>
                                 </li>
                             @endforeach
                         </ul>

@@ -219,7 +219,7 @@ export const getAyahSEO = (surah, ayahNumber, ayahText, translation) => ({
   title: `${surah.name_latin} Ayat ${ayahNumber} - Terjemahan dan Audio - IndoQuran`,
   description: `Baca ${surah.name_latin} ayat ${ayahNumber} dengan terjemahan bahasa Indonesia: "${translation?.substring(0, 150)}...". Lengkap dengan audio murottal dan tafsir.`,
   keywords: `${surah.name_latin} ayat ${ayahNumber}, terjemahan ayat ${ayahNumber}, ${surah.name_arabic}, quran ayat, murottal ayat`,
-  canonicalUrl: `https://indoquran.web.id/surah/${surah.number}/${ayahNumber}`,
+  canonicalUrl: `https://indoquran.web.id/surah/${surah.number}`,
   ogType: 'article',
   structuredDataType: 'ayah',
   structuredData: {
