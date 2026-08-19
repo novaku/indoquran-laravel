@@ -7,25 +7,37 @@ import {
     PlayIcon,
     StarIcon
 } from '@heroicons/react/24/outline';
+import { IoBookmark } from 'react-icons/io5';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
 import { Card, Button, Badge, PageHeader, PageContent } from '../components/ui';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
+import { getUserBookmarks } from '../services/BookmarkService';
 
 function SurahListPage() {
     const navigate = useNavigate();
     const searchRef = useRef(null);
     const [surahs, setSurahs] = useState([]);
+    const [bookmarksBySurah, setBookmarksBySurah] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterPlace, setFilterPlace] = useState('all'); // all, makkah, madinah
+    const [filterPlace, setFilterPlace] = useState('all'); // all, makkah, madinah, bookmarked
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [selectedSuggestion, setSelectedSuggestion] = useState(-1);
 
     useEffect(() => {
         loadSurahs();
+        loadBookmarks();
+
+        const handleBookmarksUpdate = () => {
+            loadBookmarks();
+        };
+        window.addEventListener('indoquran_bookmarks_updated', handleBookmarksUpdate);
+        return () => {
+            window.removeEventListener('indoquran_bookmarks_updated', handleBookmarksUpdate);
+        };
     }, []);
 
     // Handle clicks outside search component
@@ -42,6 +54,26 @@ function SurahListPage() {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+
+    const loadBookmarks = async () => {
+        try {
+            const bookmarks = await getUserBookmarks();
+            const map = {};
+            if (Array.isArray(bookmarks)) {
+                bookmarks.forEach(b => {
+                    const sNum = parseInt(b.surah_number, 10);
+                    const aNum = parseInt(b.ayah_number, 10);
+                    if (sNum && aNum) {
+                        if (!map[sNum]) map[sNum] = [];
+                        if (!map[sNum].includes(aNum)) map[sNum].push(aNum);
+                    }
+                });
+            }
+            setBookmarksBySurah(map);
+        } catch (e) {
+            console.error('Error loading bookmarks in SurahListPage:', e);
+        }
+    };
 
     const loadSurahs = async () => {
         try {
@@ -88,8 +120,12 @@ function SurahListPage() {
                 surah.name_arabic?.includes(searchTerm) ||
                 surah.number.toString().includes(searchTerm);
             
-            const matchesPlace = filterPlace === 'all' || 
-                surah.revelation_place?.toLowerCase() === filterPlace.toLowerCase();
+            let matchesPlace = true;
+            if (filterPlace === 'makkah' || filterPlace === 'madinah') {
+                matchesPlace = surah.revelation_place?.toLowerCase() === filterPlace.toLowerCase();
+            } else if (filterPlace === 'bookmarked') {
+                matchesPlace = (bookmarksBySurah[surah.number] || []).length > 0;
+            }
             
             return matchesSearch && matchesPlace;
         }).slice(0, 8); // Limit to 8 suggestions
@@ -141,7 +177,7 @@ function SurahListPage() {
         }
     };
 
-    // Filter surahs based on search and place
+    // Filter surahs based on search and place/bookmarks
     const filteredSurahs = surahs.filter(surah => {
         const matchesSearch = !searchTerm || 
             surah.name_latin?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -149,11 +185,17 @@ function SurahListPage() {
             surah.name_arabic?.includes(searchTerm) ||
             surah.number.toString().includes(searchTerm);
         
-        const matchesPlace = filterPlace === 'all' || 
-            surah.revelation_place?.toLowerCase() === filterPlace.toLowerCase();
+        let matchesPlace = true;
+        if (filterPlace === 'makkah' || filterPlace === 'madinah') {
+            matchesPlace = surah.revelation_place?.toLowerCase() === filterPlace.toLowerCase();
+        } else if (filterPlace === 'bookmarked') {
+            matchesPlace = (bookmarksBySurah[surah.number] || []).length > 0;
+        }
         
         return matchesSearch && matchesPlace;
     });
+
+    const bookmarkedSurahsCount = Object.keys(bookmarksBySurah).length;
 
     if (loading) {
         return (
@@ -221,63 +263,91 @@ function SurahListPage() {
                                 {/* Autocomplete Suggestions */}
                                 {showSuggestions && getSuggestions().length > 0 && (
                                     <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
-                                        {getSuggestions().map((surah, index) => (
-                                            <div
-                                                key={surah.number}
-                                                onClick={() => handleSuggestionClick(surah)}
-                                                className={`flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 ${
-                                                    index === selectedSuggestion ? 'bg-green-50 border-green-200' : ''
-                                                }`}
-                                            >
-                                                <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center text-white text-sm font-bold">
-                                                    {surah.number}
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center space-x-2">
-                                                        <p className="font-medium text-gray-900 truncate">
-                                                            {surah.name_latin}
-                                                        </p>
-                                                        <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                                                            surah.revelation_place?.toLowerCase() === 'makkah' 
-                                                                ? 'bg-orange-100 text-orange-700'
-                                                                : 'bg-blue-100 text-blue-700'
-                                                        }`}>
-                                                            {surah.revelation_place === 'makkah' ? 'Makkiyah' : 'Madaniyah'}
-                                                        </span>
+                                        {getSuggestions().map((surah, index) => {
+                                            const surahBookmarks = bookmarksBySurah[surah.number] || [];
+                                            return (
+                                                <div
+                                                    key={surah.number}
+                                                    onClick={() => handleSuggestionClick(surah)}
+                                                    className={`flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 ${
+                                                        index === selectedSuggestion ? 'bg-green-50 border-green-200' : ''
+                                                    }`}
+                                                >
+                                                    <div className="relative">
+                                                        <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center text-white text-sm font-bold">
+                                                            {surah.number}
+                                                        </div>
+                                                        {surahBookmarks.length > 0 && (
+                                                            <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-amber-500 text-white shadow-xs">
+                                                                <IoBookmark className="w-2 h-2" />
+                                                            </span>
+                                                        )}
                                                     </div>
-                                                    <p className="text-sm text-gray-500 truncate">{surah.name_indonesian}</p>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center space-x-2">
+                                                            <p className="font-medium text-gray-900 truncate">
+                                                                {surah.name_latin}
+                                                            </p>
+                                                            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                                                                surah.revelation_place?.toLowerCase() === 'makkah' 
+                                                                    ? 'bg-orange-100 text-orange-700'
+                                                                    : 'bg-blue-100 text-blue-700'
+                                                            }`}>
+                                                                {surah.revelation_place === 'makkah' ? 'Makkiyah' : 'Madaniyah'}
+                                                            </span>
+                                                            {surahBookmarks.length > 0 && (
+                                                                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded-full border border-amber-300">
+                                                                    <IoBookmark className="w-2.5 h-2.5 text-amber-600" />
+                                                                    {surahBookmarks.length} ditandai
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-sm text-gray-500 truncate">{surah.name_indonesian}</p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="text-lg font-arabic text-gray-800" dir="rtl">
+                                                            {surah.name_arabic}
+                                                        </p>
+                                                        <p className="text-xs text-gray-500">{surah.total_ayahs} ayat</p>
+                                                    </div>
                                                 </div>
-                                                <div className="text-right">
-                                                    <p className="text-lg font-arabic text-gray-800" dir="rtl">
-                                                        {surah.name_arabic}
-                                                    </p>
-                                                    <p className="text-xs text-gray-500">{surah.total_ayahs} ayat</p>
-                                                </div>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </div>
                             
-                            {/* Filter by revelation place */}
+                            {/* Filter by revelation place or bookmark */}
                             <select
                                 value={filterPlace}
                                 onChange={(e) => setFilterPlace(e.target.value)}
-                                className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+                                className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white font-medium text-gray-700"
                             >
                                 <option value="all">Semua Tempat</option>
                                 <option value="makkah">Makkiyah</option>
                                 <option value="madinah">Madaniyah</option>
+                                <option value="bookmarked">
+                                    🔖 Ditandai ({bookmarkedSurahsCount} Surah)
+                                </option>
                             </select>
                         </div>
 
                         {/* Stats */}
-                        <div className="mt-6 flex flex-wrap gap-4 text-sm text-gray-600">
+                        <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-gray-600">
                             <span>Total: {filteredSurahs.length} surah</span>
                             <span>•</span>
                             <span>Makkiyah: {surahs.filter(s => s.revelation_place?.toLowerCase() === 'makkah').length}</span>
                             <span>•</span>
                             <span>Madaniyah: {surahs.filter(s => s.revelation_place?.toLowerCase() === 'madinah').length}</span>
+                            {bookmarkedSurahsCount > 0 && (
+                                <>
+                                    <span>•</span>
+                                    <span className="inline-flex items-center gap-1 font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                                        <IoBookmark className="w-3.5 h-3.5 text-amber-600" />
+                                        {bookmarkedSurahsCount} surah ada penanda
+                                    </span>
+                                </>
+                            )}
                         </div>
                     </Card>
 
@@ -286,92 +356,128 @@ function SurahListPage() {
                         <Card className="text-center py-12">
                             <BookOpenIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                             <h3 className="text-lg font-medium text-gray-900 mb-2">Tidak ada surah ditemukan</h3>
-                            <p className="text-gray-500">Coba ubah kata kunci pencarian atau filter yang digunakan.</p>
+                            <p className="text-gray-500">
+                                {filterPlace === 'bookmarked'
+                                    ? 'Belum ada ayat yang ditandai (bookmark) pada surah apapun.'
+                                    : 'Coba ubah kata kunci pencarian atau filter yang digunakan.'}
+                            </p>
                         </Card>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {filteredSurahs.map((surah) => (
-                                <div
-                                    key={surah.number}
-                                    onClick={() => handleSurahClick(surah.number)}
-                                    className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg hover:border-green-300 transition-all duration-200 cursor-pointer group"
-                                >
-                                    {/* Surah Header */}
-                                    <div className="flex items-start justify-between mb-4">
-                                        <div className="flex items-center space-x-3">
-                                            <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center text-white font-bold group-hover:bg-green-700 transition-colors">
-                                                {surah.number}
-                                            </div>
-                                            <div className="flex-1">
-                                                <h3 className="font-bold text-gray-900 group-hover:text-green-700 transition-colors">
-                                                    {surah.name_latin}
-                                                </h3>
-                                                <p className="text-sm text-gray-500">{surah.name_indonesian}</p>
-                                            </div>
-                                        </div>
-                                        
-                                        {/* Revelation place badge */}
-                                        <div className="flex items-center space-x-1">
-                                            <MapPinIcon className="w-4 h-4 text-gray-400" />
-                                            <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                                                surah.revelation_place?.toLowerCase() === 'makkah' 
-                                                    ? 'bg-orange-100 text-orange-700'
-                                                    : 'bg-blue-100 text-blue-700'
-                                            }`}>
-                                                {surah.revelation_place === 'makkah' ? 'Makkiyah' : 'Madaniyah'}
-                                            </span>
-                                        </div>
-                                    </div>
+                            {filteredSurahs.map((surah) => {
+                                const surahBookmarks = bookmarksBySurah[surah.number] || [];
+                                const hasBookmarks = surahBookmarks.length > 0;
 
-                                    {/* Arabic Name */}
-                                    <div className="text-center mb-4">
-                                        <p className="text-2xl font-arabic text-gray-800 leading-loose" dir="rtl">
-                                            {surah.name_arabic}
-                                        </p>
-                                    </div>
-
-                                    {/* Surah Info */}
-                                    <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
-                                        <span>{surah.total_ayahs} ayat</span>
-                                        <div className="flex items-center space-x-2">
-                                            {/* Popular surah indicator */}
-                                            {[1, 2, 18, 36, 55, 67, 112, 113, 114].includes(surah.number) && (
-                                                <div className="flex items-center space-x-1">
-                                                    <StarIcon className="w-4 h-4 text-yellow-500" />
-                                                    <span className="text-xs text-yellow-600">Populer</span>
+                                return (
+                                    <div
+                                        key={surah.number}
+                                        onClick={() => handleSurahClick(surah.number)}
+                                        className={`bg-white rounded-xl border p-5 sm:p-6 hover:shadow-lg transition-all duration-200 cursor-pointer group relative overflow-hidden ${
+                                            hasBookmarks 
+                                                ? 'border-amber-300 hover:border-amber-400 bg-gradient-to-b from-amber-50/20 to-white' 
+                                                : 'border-gray-200 hover:border-green-300'
+                                        }`}
+                                    >
+                                        {/* Surah Header */}
+                                        <div className="flex items-start justify-between mb-4 gap-2">
+                                            <div className="flex items-center space-x-3 min-w-0 flex-1">
+                                                <div className="relative shrink-0">
+                                                    <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center text-white font-bold transition-colors ${
+                                                        hasBookmarks
+                                                            ? 'bg-emerald-600 group-hover:bg-emerald-700 ring-2 ring-amber-300'
+                                                            : 'bg-green-600 group-hover:bg-green-700'
+                                                    }`}>
+                                                        {surah.number}
+                                                    </div>
+                                                    {hasBookmarks && (
+                                                        <span 
+                                                            className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-white shadow-sm ring-2 ring-white"
+                                                            title={`${surahBookmarks.length} ayat ditandai di surah ini`}
+                                                        >
+                                                            <IoBookmark className="w-2.5 h-2.5" />
+                                                        </span>
+                                                    )}
                                                 </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <h3 className="font-bold text-gray-900 group-hover:text-green-700 transition-colors truncate">
+                                                        {surah.name_latin}
+                                                    </h3>
+                                                    <p className="text-sm text-gray-500 truncate">{surah.name_indonesian}</p>
+                                                </div>
+                                            </div>
+                                            
+                                            {/* Badges: Place & Bookmark */}
+                                            <div className="flex flex-col items-end gap-1.5 shrink-0">
+                                                <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${
+                                                    surah.revelation_place?.toLowerCase() === 'makkah' 
+                                                        ? 'bg-orange-100 text-orange-700'
+                                                        : 'bg-blue-100 text-blue-700'
+                                                }`}>
+                                                    <MapPinIcon className="w-3 h-3 shrink-0" />
+                                                    <span>{surah.revelation_place?.toLowerCase() === 'makkah' ? 'Makkiyah' : 'Madaniyah'}</span>
+                                                </span>
+                                                {hasBookmarks && (
+                                                    <span 
+                                                        className="inline-flex items-center gap-1 bg-amber-100 border border-amber-300 text-amber-800 px-2 py-0.5 rounded-full text-[11px] font-bold shadow-2xs"
+                                                        title={`Ayat ditandai: ${surahBookmarks.sort((a, b) => a - b).join(', ')}`}
+                                                    >
+                                                        <IoBookmark className="w-3 h-3 text-amber-600" />
+                                                        <span>{surahBookmarks.length} ayat</span>
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Arabic Name */}
+                                        <div className="text-center mb-4">
+                                            <p className="text-2xl font-arabic text-gray-800 leading-loose" dir="rtl">
+                                                {surah.name_arabic}
+                                            </p>
+                                        </div>
+
+                                        {/* Surah Info */}
+                                        <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
+                                            <span>{surah.total_ayahs} ayat</span>
+                                            <div className="flex items-center space-x-2">
+                                                {/* Popular surah indicator */}
+                                                {[1, 2, 18, 36, 55, 67, 112, 113, 114].includes(surah.number) && (
+                                                    <div className="flex items-center space-x-1">
+                                                        <StarIcon className="w-4 h-4 text-yellow-500" />
+                                                        <span className="text-xs text-yellow-600">Populer</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Description */}
+                                        {surah.description_short && (
+                                            <div className="text-sm text-gray-600 mb-4">
+                                                <p 
+                                                    className="line-clamp-3"
+                                                    dangerouslySetInnerHTML={{ 
+                                                        __html: surah.description_short.replace(/<[^>]*>/g, '').substring(0, 120) + '...'
+                                                    }}
+                                                />
+                                            </div>
+                                        )}
+
+                                        {/* Action Buttons */}
+                                        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                                            <button className="flex items-center space-x-2 text-green-600 hover:text-green-700 transition-colors">
+                                                <BookOpenIcon className="w-4 h-4" />
+                                                <span className="text-sm font-medium">Baca</span>
+                                            </button>
+                                            
+                                            {surah.audio_urls && (
+                                                <button className="flex items-center space-x-2 text-gray-600 hover:text-green-600 transition-colors">
+                                                    <PlayIcon className="w-4 h-4" />
+                                                    <span className="text-sm">Audio</span>
+                                                </button>
                                             )}
                                         </div>
                                     </div>
-
-                                    {/* Description */}
-                                    {surah.description_short && (
-                                        <div className="text-sm text-gray-600 mb-4">
-                                            <p 
-                                                className="line-clamp-3"
-                                                dangerouslySetInnerHTML={{ 
-                                                    __html: surah.description_short.replace(/<[^>]*>/g, '').substring(0, 120) + '...'
-                                                }}
-                                            />
-                                        </div>
-                                    )}
-
-                                    {/* Action Buttons */}
-                                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                                        <button className="flex items-center space-x-2 text-green-600 hover:text-green-700 transition-colors">
-                                            <BookOpenIcon className="w-4 h-4" />
-                                            <span className="text-sm font-medium">Baca</span>
-                                        </button>
-                                        
-                                        {surah.audio_urls && (
-                                            <button className="flex items-center space-x-2 text-gray-600 hover:text-green-600 transition-colors">
-                                                <PlayIcon className="w-4 h-4" />
-                                                <span className="text-sm">Audio</span>
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
 

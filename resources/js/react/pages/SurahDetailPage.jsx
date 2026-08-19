@@ -557,12 +557,13 @@ function SurahDetailPage() {
                                     const notesMap = {};
                                     bookmarksResult.data.forEach(bookmark => {
                                         if (bookmark.surah_number == number) {
-                                            bookmarkedSet.add(bookmark.ayah_number);
+                                            const aNum = parseInt(bookmark.ayah_number, 10);
+                                            bookmarkedSet.add(aNum);
                                             if (bookmark.pivot?.is_favorite) {
-                                                favSet.add(bookmark.ayah_number);
+                                                favSet.add(aNum);
                                             }
                                             if (bookmark.pivot?.notes) {
-                                                notesMap[bookmark.ayah_number] = bookmark.pivot.notes;
+                                                notesMap[aNum] = bookmark.pivot.notes;
                                             }
                                         }
                                     });
@@ -582,12 +583,13 @@ function SurahDetailPage() {
                         const notesMap = {};
                         local.forEach(bookmark => {
                             if (bookmark.surah_number == number) {
-                                bookmarkedSet.add(bookmark.ayah_number);
+                                const aNum = parseInt(bookmark.ayah_number, 10);
+                                bookmarkedSet.add(aNum);
                                 if (bookmark.pivot?.is_favorite) {
-                                    favSet.add(bookmark.ayah_number);
+                                    favSet.add(aNum);
                                 }
                                 if (bookmark.pivot?.notes) {
-                                    notesMap[bookmark.ayah_number] = bookmark.pivot.notes;
+                                    notesMap[aNum] = bookmark.pivot.notes;
                                 }
                             }
                         });
@@ -777,14 +779,15 @@ function SurahDetailPage() {
     }, [loading, ayahs.length, ayahNumber, currentAyah, scrollToCurrentAyah]);
 
     const toggleBookmark = async (ayahNum) => {
-        const isCurrentlyBookmarked = bookmarkedAyahs.has(ayahNum);
-        const ayahObj = ayahs.find(a => a.ayah_number === ayahNum);
+        const parsedAyahNum = parseInt(ayahNum, 10);
+        const isCurrentlyBookmarked = bookmarkedAyahs.has(parsedAyahNum) || bookmarkedAyahs.has(ayahNum);
+        const ayahObj = ayahs.find(a => parseInt(a.ayah_number, 10) === parsedAyahNum || a.ayah_number === ayahNum);
 
         // Find surah info
         const surahData = {
             id: ayahObj?.id,
             surah_number: parseInt(number),
-            ayah_number: ayahNum,
+            ayah_number: parsedAyahNum,
             text_arabic: ayahObj?.arabic || ayahObj?.text_arabic || '',
             text_indonesian: ayahObj?.translation || ayahObj?.text_indonesian || '',
             surah_name: surah?.name_indonesian || surah?.name_latin || `Surah ${number}`,
@@ -797,7 +800,7 @@ function SurahDetailPage() {
         if (user) {
             try {
                 const token = authUtils.getAuthToken();
-                const response = await fetchWithAuth(`/api/penanda/surah/${number}/ayah/${ayahNum}/toggle`, {
+                const response = await fetchWithAuth(`/api/penanda/surah/${number}/ayah/${parsedAyahNum}/toggle`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -809,9 +812,10 @@ function SurahDetailPage() {
                 if (response.ok) {
                     const newBookmarkedAyahs = new Set(bookmarkedAyahs);
                     if (isCurrentlyBookmarked) {
+                        newBookmarkedAyahs.delete(parsedAyahNum);
                         newBookmarkedAyahs.delete(ayahNum);
                     } else {
-                        newBookmarkedAyahs.add(ayahNum);
+                        newBookmarkedAyahs.add(parsedAyahNum);
                     }
                     setBookmarkedAyahs(newBookmarkedAyahs);
                     
@@ -837,9 +841,10 @@ function SurahDetailPage() {
             toggleLocalBookmark(surahData);
             const newBookmarkedAyahs = new Set(bookmarkedAyahs);
             if (isCurrentlyBookmarked) {
+                newBookmarkedAyahs.delete(parsedAyahNum);
                 newBookmarkedAyahs.delete(ayahNum);
             } else {
-                newBookmarkedAyahs.add(ayahNum);
+                newBookmarkedAyahs.add(parsedAyahNum);
             }
             setBookmarkedAyahs(newBookmarkedAyahs);
 
@@ -2240,8 +2245,16 @@ function SurahDetailPage() {
                             {/* Bismillah or Ayah Content */}
                             <div className="mb-8">
                                 <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-                                    <div className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                                        Ayat {currentAyahNumber} dari {maxAyahNumber}
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <div className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                                            Ayat {currentAyahNumber} dari {maxAyahNumber}
+                                        </div>
+                                        {(bookmarkedAyahs.has(currentAyahNumber) || bookmarkedAyahs.has(parseInt(currentAyahNumber, 10)) || bookmarkedAyahs.has(String(currentAyahNumber))) && (
+                                            <div className="inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800 shadow-xs animate-fadeIn">
+                                                <IoBookmark className="w-3.5 h-3.5 text-amber-600" />
+                                                <span>Ditandai</span>
+                                            </div>
+                                        )}
                                     </div>
                                     {/* Font Size Controls */}
                                     <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-2 py-1">
@@ -2748,29 +2761,50 @@ function SurahDetailPage() {
 
                 {/* Ayah Grid Navigation */}
                 <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-lg">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-gray-800">Navigasi Ayat</h3>
+                    <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                            <h3 className="text-lg font-semibold text-gray-800">Navigasi Ayat</h3>
+                            {bookmarkedAyahs.size > 0 && (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300 shadow-xs">
+                                    <IoBookmark className="w-3.5 h-3.5 text-amber-600" />
+                                    <span>{bookmarkedAyahs.size} ditandai</span>
+                                </span>
+                            )}
+                        </div>
                         <div className="text-xs sm:text-sm text-gray-500">
                             Ayat {currentAyahNumber} dari {maxAyahNumber}
                         </div>
                     </div>
-                    <div className="grid grid-cols-8 sm:grid-cols-10 md:grid-cols-12 lg:grid-cols-15 gap-2 max-h-80 sm:max-h-96 overflow-y-auto">
+                    <div className="grid grid-cols-8 sm:grid-cols-10 md:grid-cols-12 lg:grid-cols-15 gap-2 max-h-80 sm:max-h-96 overflow-y-auto p-1">
                         {availableAyahNumbers.map((ayahNum) => {
                             const isCurrentAyah = ayahNum === currentAyahNumber;
+                            const isBookmarked = bookmarkedAyahs.has(ayahNum) || bookmarkedAyahs.has(parseInt(ayahNum, 10)) || bookmarkedAyahs.has(String(ayahNum));
                             return (
                                 <div key={ayahNum} className="relative">
                                     <button
                                         onClick={() => navigateToAyah(ayahNum)}
                                         className={`
-                                            w-10 h-10 sm:w-12 sm:h-12 rounded-lg text-xs sm:text-sm font-medium transition-all
+                                            w-10 h-10 sm:w-12 sm:h-12 rounded-lg text-xs sm:text-sm font-medium transition-all relative flex items-center justify-center
                                             ${isCurrentAyah 
-                                                ? 'bg-green-600 text-white shadow-lg scale-105' 
-                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105'
+                                                ? 'bg-green-600 text-white shadow-lg scale-105 ring-2 ring-emerald-400 font-bold' 
+                                                : isBookmarked
+                                                    ? 'bg-amber-50 text-amber-900 border border-amber-300 hover:bg-amber-100 hover:scale-105 shadow-sm font-semibold'
+                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105'
                                             }
                                         `}
-                                        title={`Pergi ke ayat ${ayahNum}`}
+                                        title={`Pergi ke ayat ${ayahNum}${isBookmarked ? ' (Ditandai / Bookmark)' : ''}`}
                                     >
-                                        {ayahNum}
+                                        {isBookmarked && (
+                                            <span 
+                                                className={`absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full shadow-sm ring-1 ring-white z-10 ${
+                                                    isCurrentAyah ? 'bg-amber-400 text-emerald-950' : 'bg-amber-500 text-white'
+                                                }`}
+                                                title="Ayat ditandai (Bookmark)"
+                                            >
+                                                <IoBookmark className="h-2.5 w-2.5" />
+                                            </span>
+                                        )}
+                                        <span>{ayahNum}</span>
                                     </button>
                                 </div>
                             );
