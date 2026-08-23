@@ -307,6 +307,31 @@ class SEOController extends Controller
                 
                 if ($surah) {
                     $ayahNumber = isset($segments[2]) && is_numeric($segments[2]) ? (int) $segments[2] : null;
+
+                    $breadcrumbStructuredData = [
+                        '@context' => 'https://schema.org',
+                        '@type' => 'BreadcrumbList',
+                        'itemListElement' => [
+                            [
+                                '@type' => 'ListItem',
+                                'position' => 1,
+                                'name' => 'Beranda',
+                                'item' => 'https://indoquran.web.id'
+                            ],
+                            [
+                                '@type' => 'ListItem',
+                                'position' => 2,
+                                'name' => 'Daftar Surah',
+                                'item' => 'https://indoquran.web.id/surah'
+                            ],
+                            [
+                                '@type' => 'ListItem',
+                                'position' => 3,
+                                'name' => "Surah {$surah->name_latin}",
+                                'item' => "https://indoquran.web.id/surah/{$surahNumber}"
+                            ]
+                        ]
+                    ];
                     
                     if ($ayahNumber) {
                         // Specific ayah SEO - Point canonical to parent surah to consolidate ranking signals and avoid thin-content indexing rejection
@@ -315,6 +340,7 @@ class SEOController extends Controller
                             'metaDescription' => "Baca Surah {$surah->name_latin} ayat {$ayahNumber} lengkap dengan terjemahan bahasa Indonesia, audio murottal, dan tafsir. Pelajari makna dan kandungan ayat dalam Al-Quran.",
                             'metaKeywords' => "Surah {$surah->name_latin} ayat {$ayahNumber}, {$surah->name_arabic}, terjemahan ayat {$ayahNumber}, murottal ayat, quran ayat, al quran indonesia",
                             'canonicalUrl' => url("/surah/{$surahNumber}"),
+                            'breadcrumbStructuredData' => $breadcrumbStructuredData,
                             'ogType' => 'article'
                         ]);
                     } else {
@@ -324,6 +350,7 @@ class SEOController extends Controller
                             'metaDescription' => $surah->getSeoDescription(),
                             'metaKeywords' => $surah->getSeoKeywords(),
                             'canonicalUrl' => url("/surah/{$surahNumber}"),
+                            'breadcrumbStructuredData' => $breadcrumbStructuredData,
                             'ogType' => 'article'
                         ]);
                     }
@@ -357,21 +384,67 @@ class SEOController extends Controller
             // Juz page SEO
             if (isset($segments[1]) && is_numeric($segments[1])) {
                 $juzNumber = (int) $segments[1];
+                $breadcrumbStructuredData = [
+                    '@context' => 'https://schema.org',
+                    '@type' => 'BreadcrumbList',
+                    'itemListElement' => [
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 1,
+                            'name' => 'Beranda',
+                            'item' => 'https://indoquran.web.id'
+                        ],
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 2,
+                            'name' => 'Daftar Juz',
+                            'item' => 'https://indoquran.web.id/juz'
+                        ],
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 3,
+                            'name' => "Juz {$juzNumber}",
+                            'item' => "https://indoquran.web.id/juz/{$juzNumber}"
+                        ]
+                    ]
+                ];
+
                 // Specific Juz SEO
                 $seoData = array_merge($seoData, [
                     'metaTitle' => "Juz {$juzNumber} Arab Saja - Teks Arab Al-Quran Lengkap | IndoQuran",
                     'metaDescription' => "Baca Juz {$juzNumber} Arab saja dengan teks Arab Al-Quran lengkap. Para {$juzNumber} tersedia dengan navigasi per ayat, audio murottal, dan tampilan nyaman untuk tilawah harian.",
                     'metaKeywords' => "juz {$juzNumber}, juz {$juzNumber} arab saja, para {$juzNumber}, al quran juz {$juzNumber}, teks arab juz {$juzNumber}, quran digital, al quran indonesia",
                     'canonicalUrl' => url("/juz/{$juzNumber}"),
+                    'breadcrumbStructuredData' => $breadcrumbStructuredData,
                     'ogType' => 'article'
                 ]);
             } else {
+                $breadcrumbStructuredData = [
+                    '@context' => 'https://schema.org',
+                    '@type' => 'BreadcrumbList',
+                    'itemListElement' => [
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 1,
+                            'name' => 'Beranda',
+                            'item' => 'https://indoquran.web.id'
+                        ],
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 2,
+                            'name' => 'Daftar Juz',
+                            'item' => 'https://indoquran.web.id/juz'
+                        ]
+                    ]
+                ];
+
                 // Juz list page SEO
                 $seoData = array_merge($seoData, [
                     'metaTitle' => 'Daftar Juz Al-Quran - Teks Arab - IndoQuran',
                     'metaDescription' => 'Akses semua Juz (Para) Al-Quran dengan teks Arab lengkap. 30 Juz Al-Quran tersedia untuk dibaca dan dipelajari. Platform Al-Quran digital terlengkap di Indonesia.',
                     'metaKeywords' => 'juz al quran, para al quran, daftar juz, teks arab al quran, al quran digital, quran indonesia, juz lengkap',
-                    'canonicalUrl' => url('/juz')
+                    'canonicalUrl' => url('/juz'),
+                    'breadcrumbStructuredData' => $breadcrumbStructuredData
                 ]);
             }
         }
@@ -492,21 +565,67 @@ class SEOController extends Controller
             // Page detail SEO
             if (isset($segments[1]) && is_numeric($segments[1])) {
                 $pageNumber = (int) $segments[1];
+                $breadcrumbStructuredData = [
+                    '@context' => 'https://schema.org',
+                    '@type' => 'BreadcrumbList',
+                    'itemListElement' => [
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 1,
+                            'name' => 'Beranda',
+                            'item' => 'https://indoquran.web.id'
+                        ],
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 2,
+                            'name' => 'Daftar Halaman',
+                            'item' => 'https://indoquran.web.id/halaman'
+                        ],
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 3,
+                            'name' => "Halaman {$pageNumber}",
+                            'item' => "https://indoquran.web.id/halaman/{$pageNumber}"
+                        ]
+                    ]
+                ];
+
                 // Specific page SEO
                 $seoData = array_merge($seoData, [
                     'metaTitle' => "Al Quran Halaman {$pageNumber} - Teks Arab & Audio | IndoQuran",
                     'metaDescription' => "Baca Al-Quran halaman {$pageNumber} dengan teks Arab jelas, navigasi cepat antar halaman, dan audio murottal per ayat. Cocok untuk tilawah, murajaah, dan hafalan harian.",
                     'metaKeywords' => "halaman {$pageNumber}, al quran halaman {$pageNumber}, alquran halaman {$pageNumber}, quran halaman {$pageNumber}, teks arab halaman {$pageNumber}, quran digital, al quran indonesia",
                     'canonicalUrl' => url("/halaman/{$pageNumber}"),
+                    'breadcrumbStructuredData' => $breadcrumbStructuredData,
                     'ogType' => 'article'
                 ]);
             } else {
+                $breadcrumbStructuredData = [
+                    '@context' => 'https://schema.org',
+                    '@type' => 'BreadcrumbList',
+                    'itemListElement' => [
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 1,
+                            'name' => 'Beranda',
+                            'item' => 'https://indoquran.web.id'
+                        ],
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 2,
+                            'name' => 'Daftar Halaman',
+                            'item' => 'https://indoquran.web.id/halaman'
+                        ]
+                    ]
+                ];
+
                 // Page list SEO
                 $seoData = array_merge($seoData, [
                     'metaTitle' => 'Daftar Halaman Al-Quran - Teks Arab - IndoQuran',
                     'metaDescription' => 'Akses semua halaman Al-Quran dengan teks Arab lengkap. 604 halaman Al-Quran tersedia untuk dibaca dan dipelajari. Platform Al-Quran digital terlengkap di Indonesia.',
                     'metaKeywords' => 'halaman al quran, daftar halaman, teks arab al quran, al quran digital, quran indonesia, halaman lengkap',
-                    'canonicalUrl' => url('/halaman')
+                    'canonicalUrl' => url('/halaman'),
+                    'breadcrumbStructuredData' => $breadcrumbStructuredData
                 ]);
             }
         }
