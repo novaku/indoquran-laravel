@@ -567,7 +567,7 @@ function QuranSearchPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-green-50 to-white pt-16">
+        <div className="min-h-screen bg-gray-50 text-gray-800">
             <SEOHead 
                 title="Cari Al-Quran - IndoQuran"
                 description="Cari Al-Quran berdasarkan nama surah, nomor, atau konten. Temukan ayat dan surah dengan mudah menggunakan pencarian lanjutan kami."
@@ -577,23 +577,26 @@ function QuranSearchPage() {
                 robots={hasActiveSearchQuery ? 'noindex, follow' : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'}
             />
 
-            {/* Hero Header */}
-            <div className="relative bg-gradient-to-r from-blue-600 to-green-600 overflow-hidden">
-                <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-                <div className="relative max-w-6xl mx-auto px-4 py-16 text-center">
-                    <div className="inline-flex items-center justify-center w-20 h-20 bg-white bg-opacity-20 rounded-full mb-6">
-                        <IoSearchOutline className="w-10 h-10 text-white" />
+            {/* Hero Header - Bright Theme */}
+            <div className="relative bg-gradient-to-b from-emerald-50/70 via-white to-gray-50/50 border-b border-gray-200/80 overflow-hidden">
+                {/* Subtle decorative background circles */}
+                <div className="absolute -top-24 -left-24 w-96 h-96 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute top-1/2 -right-24 w-96 h-96 bg-teal-100/30 rounded-full blur-3xl pointer-events-none" />
+
+                <div className="relative max-w-5xl mx-auto px-4 py-12 sm:py-16 text-center">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-100/80 border border-emerald-200/80 rounded-2xl mb-5 shadow-xs">
+                        <IoSearchOutline className="w-8 h-8 text-emerald-600" />
                     </div>
                     <h1 
-                        className="text-4xl md:text-5xl font-bold text-white mb-4 cursor-pointer hover:text-blue-100 transition-colors"
+                        className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 mb-3 tracking-tight cursor-pointer hover:text-emerald-700 transition-colors"
                         onClick={reloadSearchPage}
                         title="Klik untuk me-reset halaman pencarian"
                     >
-                        Cari Al-Quran
+                        Cari <span className="text-emerald-600">Al-Quran</span>
                     </h1>
-                    <p className="text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed mb-8">
+                    <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed mb-8">
                         Temukan ayat, surah, dan hikmah Al-Quran dengan mudah. Pencarian cerdas dengan 
-                        teknologi terdepan untuk pengalaman spiritual yang lebih mendalam.
+                        teknologi terdepan dan terjemahan bahasa Indonesia lengkap.
                     </p>
                     
                     {/* Search Bar dalam Hero */}
@@ -601,7 +604,8 @@ function QuranSearchPage() {
                         <div className="relative">
                             <SearchField
                                 placeholder="Cari berdasarkan nama surah, nomor, atau konten..."
-                                className="w-full bg-white bg-opacity-95 backdrop-blur-sm border-0 shadow-lg"
+                                className="w-full"
+                                theme="islamic"
                                 surahs={surahs || []}
                                 value={query || ''}
                                 onChange={handleSearch}
@@ -613,26 +617,20 @@ function QuranSearchPage() {
                             {query && (
                                 <button
                                     onClick={clearSearch}
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 bg-white rounded-full p-1"
+                                    className="absolute right-3 top-4 text-gray-400 hover:text-gray-600 bg-white rounded-full p-1 shadow-xs transition-colors"
+                                    type="button"
+                                    title="Hapus pencarian"
                                 >
                                     <XMarkIcon className="w-5 h-5" />
                                 </button>
                             )}
                         </div>
                     </div>
-                    
-                    {/* Decorative Elements */}
-                    <div className="absolute top-0 right-0 w-64 h-64 opacity-10">
-                        <div className="w-full h-full bg-white rounded-full transform rotate-45"></div>
-                    </div>
-                    <div className="absolute bottom-0 left-0 w-48 h-48 opacity-10">
-                        <div className="w-full h-full bg-white rounded-full transform -rotate-12"></div>
-                    </div>
                 </div>
             </div>
 
             {/* Main Content */}
-            <div className="max-w-7xl mx-auto px-4 py-16">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Main Content Area */}
                     <div className="lg:col-span-8">
@@ -649,7 +647,7 @@ function QuranSearchPage() {
                             </Button>
 
                             {totalResults > 0 && (
-                                <Badge variant="gray">
+                                <Badge variant="default">
                                     {totalResults} hasil • Halaman {currentPage}/{totalPages}
                                 </Badge>
                             )}
@@ -708,19 +706,19 @@ function QuranSearchPage() {
                         <div className="space-y-6">
                             <div className="flex items-center justify-between">
                                 <h2 className="text-2xl font-bold text-gray-900">Hasil Pencarian</h2>
-                                <Badge variant="gray">{surahMatches.length} surah ditemukan</Badge>
+                                <Badge variant="default">{surahMatches.length} surah ditemukan</Badge>
                             </div>
                             <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-                                <BookOpenIcon className="w-5 h-5 text-green-600" />
+                                <BookOpenIcon className="w-5 h-5 text-emerald-600" />
                                 Surah Ditemukan
                             </h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {surahMatches.map((surah) => (
                                     <Link key={surah.number} to={surah.url}>
-                                        <Card hoverable padding="md" className="border border-green-100 bg-green-50 hover:bg-green-100 transition-colors">
+                                        <Card hoverable padding="md" className="border border-emerald-100 bg-emerald-50/50 hover:bg-emerald-100/60 transition-colors">
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-sm">
+                                                    <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-xs">
                                                         <span className="font-bold text-white text-sm">{surah.number}</span>
                                                     </div>
                                                     <div>
@@ -734,7 +732,7 @@ function QuranSearchPage() {
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     <span className="text-lg font-arabic text-gray-700">{surah.name_arabic}</span>
-                                                    <ChevronRightIcon className="w-5 h-5 text-green-500" />
+                                                    <ChevronRightIcon className="w-5 h-5 text-emerald-500" />
                                                 </div>
                                             </div>
                                         </Card>
@@ -769,8 +767,8 @@ function QuranSearchPage() {
                     )
                 ) : query && searchResults.length === 0 && totalResults > 0 ? (
                     <Card padding="lg" className="text-center">
-                        <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <MagnifyingGlassIcon className="w-12 h-12 text-blue-500" />
+                        <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <MagnifyingGlassIcon className="w-12 h-12 text-emerald-600" />
                         </div>
                         <h3 className="text-2xl font-bold text-gray-900 mb-4">Halaman ini kosong</h3>
                         <p className="text-gray-600 mb-6 text-lg max-w-md mx-auto">
@@ -803,7 +801,7 @@ function QuranSearchPage() {
                             <h2 className="text-2xl font-bold text-gray-900">
                                 Hasil Pencarian
                             </h2>
-                            <Badge variant="gray">
+                            <Badge variant="default">
                                 {((currentPage - 1) * resultsPerPage) + 1}-{Math.min(currentPage * resultsPerPage, totalResults)} dari {totalResults}
                             </Badge>
                         </div>
@@ -812,16 +810,16 @@ function QuranSearchPage() {
                         {surahMatches.length > 0 && (
                             <div>
                                 <h3 className="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                                    <BookOpenIcon className="w-5 h-5 text-green-600" />
+                                    <BookOpenIcon className="w-5 h-5 text-emerald-600" />
                                     Surah Ditemukan
                                 </h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {surahMatches.map((surah) => (
                                         <Link key={surah.number} to={surah.url}>
-                                            <Card hoverable padding="md" className="border border-green-100 bg-green-50 hover:bg-green-100 transition-colors">
+                                            <Card hoverable padding="md" className="border border-emerald-100 bg-emerald-50/50 hover:bg-emerald-100/60 transition-colors">
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-sm">
+                                                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-xs">
                                                             <span className="font-bold text-white text-sm">{surah.number}</span>
                                                         </div>
                                                         <div>
@@ -835,7 +833,7 @@ function QuranSearchPage() {
                                                     </div>
                                                     <div className="flex items-center gap-2">
                                                         <span className="text-lg font-arabic text-gray-700">{surah.name_arabic}</span>
-                                                        <ChevronRightIcon className="w-5 h-5 text-green-500" />
+                                                        <ChevronRightIcon className="w-5 h-5 text-emerald-500" />
                                                     </div>
                                                 </div>
                                             </Card>
@@ -852,11 +850,11 @@ function QuranSearchPage() {
                                     key={`ayah-${result.surah_number}-${result.ayah_number || result.number}`}
                                     to={`/surah/${result.surah_number}/${result.ayah_number || result.number}`}
                                 >
-                                    <Card hoverable padding="lg">
+                                    <Card hoverable padding="lg" className="border-gray-200/80 hover:border-emerald-300">
                                         <div className="space-y-4">
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-center space-x-4">
-                                                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
+                                                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-xs">
                                                         <span className="font-bold text-white text-sm">
                                                             {result.surah_number}:{result.ayah_number || result.number}
                                                         </span>
@@ -865,11 +863,11 @@ function QuranSearchPage() {
                                                         <h3 className="font-bold text-gray-900 text-lg">
                                                             {highlightText(result.surah_info?.name_latin, debouncedQuery)} • Ayat {result.ayah_number || result.number}
                                                         </h3>
-                                                        <p className="text-gray-500">
+                                                        <p className="text-gray-500 text-sm">
                                                             {highlightText(result.surah_info?.name_indonesian, debouncedQuery)}
                                                         </p>
                                                         {debouncedQuery && (
-                                                            <Badge variant="blue" className="mt-1">
+                                                            <Badge variant="primary" size="xs" className="mt-1">
                                                                 {getSearchContext(result, debouncedQuery)}
                                                             </Badge>
                                                         )}
@@ -877,10 +875,10 @@ function QuranSearchPage() {
                                                 </div>
                                                 <ChevronRightIcon className="w-6 h-6 text-gray-400" />
                                             </div>
-                                            <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-4">
+                                            <div className="bg-emerald-50/40 border border-emerald-100/70 rounded-xl p-4">
                                                 <div className="text-gray-700 leading-relaxed">
-                                                    <span className="font-semibold text-blue-600 text-sm uppercase tracking-wide">Terjemahan:</span>
-                                                    <p className="mt-2 text-gray-800">
+                                                    <span className="font-semibold text-emerald-700 text-xs uppercase tracking-wider">Terjemahan:</span>
+                                                    <p className="mt-1.5 text-gray-800 leading-relaxed text-base">
                                                         "{highlightText(result.text_indonesian, debouncedQuery)}"
                                                     </p>
                                                 </div>
@@ -924,7 +922,7 @@ function QuranSearchPage() {
                                     
                                     <div className="flex items-center space-x-1">
                                         {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                                            let pageNum;
+                                             let pageNum;
                                             if (totalPages <= 5) {
                                                 pageNum = i + 1;
                                             } else if (currentPage <= 3) {
@@ -983,7 +981,7 @@ function QuranSearchPage() {
 
                             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                                 {searchCategories.map((category, index) => (
-                                    <div key={index} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300 transform hover:scale-105">
+                                    <div key={index} className="bg-white rounded-2xl shadow-xs border border-gray-200/80 p-6 hover:shadow-md hover:border-emerald-200 transition-all duration-300 transform hover:scale-[1.02]">
                                         <div className={`w-16 h-16 ${category.bgColor} rounded-full flex items-center justify-center mx-auto mb-4`}>
                                             <category.icon className={`w-8 h-8 ${category.iconColor}`} />
                                         </div>
@@ -994,7 +992,7 @@ function QuranSearchPage() {
                                                 <button
                                                     key={search}
                                                     onClick={() => handleSearch(search)}
-                                                    className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs hover:bg-gray-200 transition-colors"
+                                                    className="px-3 py-1 bg-gray-50 border border-gray-200 text-gray-700 rounded-full text-xs hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 transition-colors"
                                                 >
                                                     {search}
                                                 </button>
@@ -1007,7 +1005,7 @@ function QuranSearchPage() {
 
                         {/* Popular Searches */}
                         <section>
-                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+                            <div className="bg-white rounded-2xl shadow-xs border border-gray-200/80 p-8">
                                 <div className="text-center mb-6">
                                     <h2 className="text-2xl font-bold text-gray-900 mb-2">
                                         Pencarian Populer
@@ -1021,7 +1019,7 @@ function QuranSearchPage() {
                                         <button
                                             key={search}
                                             onClick={() => handleSearch(search)}
-                                            className="px-6 py-3 bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-full text-gray-700 hover:from-blue-100 hover:to-green-100 hover:border-blue-300 transition-all duration-300 font-medium shadow-sm hover:shadow-md"
+                                            className="px-5 py-2.5 bg-gray-50 border border-gray-200 rounded-full text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 transition-all duration-200 font-medium text-sm shadow-xs hover:shadow-sm"
                                         >
                                             {search}
                                         </button>
@@ -1045,10 +1043,10 @@ function QuranSearchPage() {
                                     <Link
                                         key={surah.number}
                                         to={`/surah/${surah.number}`}
-                                        className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:border-blue-300 hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                                        className="bg-white rounded-2xl p-6 shadow-xs border border-gray-200/80 hover:border-emerald-300 hover:shadow-md transition-all duration-300 transform hover:scale-[1.02]"
                                     >
                                         <div className="flex items-center space-x-4">
-                                            <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-md">
+                                            <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-xs">
                                                 <span className="font-bold text-white">
                                                     {surah.number}
                                                 </span>
@@ -1074,22 +1072,22 @@ function QuranSearchPage() {
 
                         {/* Browse All Surahs */}
                         <section>
-                            <div className="text-center bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-2xl p-8">
-                                <div className="inline-flex items-center justify-center w-16 h-16 bg-white bg-opacity-20 rounded-full mb-6">
-                                    <BookOpenIcon className="w-8 h-8 text-white" />
+                            <div className="text-center bg-gradient-to-br from-emerald-50 via-teal-50/50 to-white rounded-2xl p-8 sm:p-10 border border-emerald-200/80 shadow-xs">
+                                <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-100/80 text-emerald-600 border border-emerald-200/80 rounded-2xl mb-6 shadow-xs">
+                                    <BookOpenIcon className="w-8 h-8 text-emerald-600" />
                                 </div>
-                                <h3 className="text-2xl font-bold mb-4">
+                                <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
                                     Jelajahi Semua Surah
                                 </h3>
-                                <p className="text-blue-100 mb-6 text-lg max-w-2xl mx-auto">
+                                <p className="text-gray-600 mb-6 text-base max-w-2xl mx-auto leading-relaxed">
                                     Jelajahi Al-Quran lengkap dengan semua 114 surah. Baca, pelajari, dan renungkan 
                                     firman Allah SWT dengan fitur lengkap kami.
                                 </p>
                                 <Link
                                     to="/surah"
-                                    className="inline-flex items-center space-x-2 px-8 py-4 bg-white text-blue-600 rounded-full hover:bg-gray-100 transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
+                                    className="inline-flex items-center space-x-2 px-8 py-3.5 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition-all duration-300 font-semibold text-base shadow-sm hover:shadow-md transform hover:scale-105"
                                 >
-                                    <BookOpenIcon className="w-6 h-6" />
+                                    <BookOpenIcon className="w-5 h-5" />
                                     <span>Lihat Semua Surah</span>
                                 </Link>
                             </div>

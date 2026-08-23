@@ -250,13 +250,43 @@ function SurahDetailPage() {
 
     const ayahRefs = useRef({});
     const currentAyahRef = useRef(null);
+    const ayahNavGridRef = useRef(null);
+    const ayahButtonRefs = useRef({});
     const isNavigatingRef = useRef(false); // Track navigation state to prevent race conditions
     const isAutoPlayingRef = useRef(false); // Track auto-playing state with ref for closures
+
+    // Auto-scroll Ayah Grid Navigation to active ayah button
+    const scrollAyahNavGrid = useCallback((ayahNum = currentAyahNumber) => {
+        try {
+            const gridContainer = ayahNavGridRef.current;
+            const activeButton = ayahButtonRefs.current?.[ayahNum];
+            if (gridContainer && activeButton) {
+                const containerRect = gridContainer.getBoundingClientRect();
+                const buttonRect = activeButton.getBoundingClientRect();
+                const relativeTop = buttonRect.top - containerRect.top + gridContainer.scrollTop;
+                const targetScrollTop = relativeTop - (gridContainer.clientHeight / 2) + (buttonRect.height / 2);
+                
+                if (typeof gridContainer.scrollTo === 'function') {
+                    gridContainer.scrollTo({
+                        top: Math.max(0, targetScrollTop),
+                        behavior: 'smooth'
+                    });
+                } else {
+                    gridContainer.scrollTop = Math.max(0, targetScrollTop);
+                }
+            }
+        } catch (err) {
+            console.warn('Could not auto-scroll ayah nav grid:', err);
+        }
+    }, [currentAyahNumber]);
 
     // Improved scroll function for better ayah targeting
     const scrollToCurrentAyah = useCallback((ayahNum = currentAyahNumber) => {
         console.log(`🎯 Scrolling to ayah ${ayahNum}...`);
         
+        // Auto scroll ayah navigation grid as well
+        scrollAyahNavGrid(ayahNum);
+
         // Try multiple scroll strategies for best reliability
         const scrollStrategies = [
             // Strategy 1: Use currentAyahRef if available
@@ -328,7 +358,7 @@ function SurahDetailPage() {
                 }, 2000);
             }
         }, 500);
-    }, [currentAyahNumber]);
+    }, [currentAyahNumber, scrollAyahNavGrid]);
 
     // Get current ayah - simplified and reliable approach with type-safe comparison and fallback
     const currentAyah = ayahs.find(ayah => parseInt(ayah.ayah_number) === parseInt(currentAyahNumber)) || 
@@ -403,6 +433,16 @@ function SurahDetailPage() {
     const surahPlaybackProgress = totalAyahs > 0
         ? Math.min(100, Math.max(0, Math.round(((currentPlayingAyahIndex + 1) / totalAyahs) * 100)))
         : 0;
+
+    // Auto-scroll Ayah Grid Navigation when currentAyahNumber or availableAyahNumbers change
+    useEffect(() => {
+        if (currentAyahNumber && availableAyahNumbers.length > 0) {
+            const timer = setTimeout(() => {
+                scrollAyahNavGrid(currentAyahNumber);
+            }, 250);
+            return () => clearTimeout(timer);
+        }
+    }, [currentAyahNumber, availableAyahNumbers, scrollAyahNavGrid]);
     
     // Debug total ayahs calculation
     useEffect(() => {
@@ -2180,12 +2220,12 @@ function SurahDetailPage() {
                 <div className="max-w-6xl mx-auto px-4 py-3">
                     <div className="flex items-center justify-between">
                         <div className="text-center flex-1 mx-4">
-                            <h1 className="text-base sm:text-lg font-semibold text-gray-800 truncate">
-                                {surah.name_latin || surah.name_english}
+                            <h1 className="text-base sm:text-lg font-bold text-gray-900 truncate">
+                                {surah.name_latin || surah.name_english} — Ayat {currentAyahNumber}
                             </h1>
                             <p className="text-xs sm:text-sm text-gray-500">
-                                <span className="hidden sm:inline">Ayat {currentAyahNumber} dari {maxAyahNumber} • </span>
-                                <span className="sm:hidden">{currentAyahNumber}/{maxAyahNumber} • </span>
+                                <span className="hidden sm:inline font-medium text-emerald-700">Ayat {currentAyahNumber} dari {maxAyahNumber} • </span>
+                                <span className="sm:hidden font-medium text-emerald-700">{currentAyahNumber}/{maxAyahNumber} • </span>
                                 {completionPercentage}%
                                 {(isSurahPlaying || isAutoPlayingSequence) && (
                                     <span className="ml-2 text-orange-600 font-medium">
@@ -2224,7 +2264,7 @@ function SurahDetailPage() {
                                         className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
                                     >
                                         {bookmarkedAyahs.has(currentAyahNumber) ? (
-                                            <BookmarkSolidIcon className="w-4 h-4 text-emerald-600" />
+                                             <BookmarkSolidIcon className="w-4 h-4 text-emerald-600" />
                                         ) : (
                                             <BookmarkOutlineIcon className="w-4 h-4 text-emerald-600" />
                                         )}
@@ -2246,8 +2286,21 @@ function SurahDetailPage() {
                             <div className="mb-8">
                                 <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
                                     <div className="flex flex-wrap items-center gap-2">
-                                        <div className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                                            Ayat {currentAyahNumber} dari {maxAyahNumber}
+                                        <div className="inline-flex items-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50/90 px-3.5 py-1.5 shadow-xs">
+                                            <span className="flex items-center justify-center min-w-[28px] h-7 px-2 rounded-lg bg-emerald-600 text-white font-bold text-xs sm:text-sm shadow-xs">
+                                                {currentAyahNumber}
+                                            </span>
+                                            <div className="flex items-baseline gap-1.5">
+                                                <span className="text-xs sm:text-sm font-bold text-emerald-900">
+                                                    Ayat {currentAyahNumber}
+                                                </span>
+                                                <span className="text-xs font-medium text-emerald-700/80">
+                                                    dari {maxAyahNumber}
+                                                </span>
+                                                <span className="hidden sm:inline text-xs text-emerald-600/70 font-medium">
+                                                    (QS. {surah.number}:{currentAyahNumber})
+                                                </span>
+                                            </div>
                                         </div>
                                         {(bookmarkedAyahs.has(currentAyahNumber) || bookmarkedAyahs.has(parseInt(currentAyahNumber, 10)) || bookmarkedAyahs.has(String(currentAyahNumber))) && (
                                             <div className="inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800 shadow-xs animate-fadeIn">
@@ -2288,21 +2341,24 @@ function SurahDetailPage() {
                                             }}
                                         >
                                             <span 
-                                                className="font-bold text-white select-none inline-flex items-center justify-center ml-3"
+                                                className="font-bold text-white select-none inline-flex items-center justify-center ml-3 shadow-md transition-transform hover:scale-105"
                                                 style={{ 
-                                                    fontSize: `${Math.max(fontSize + 6, 26)}px`,
-                                                    fontFamily: 'Arial, sans-serif',
-                                                    textShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                                                    fontSize: `${Math.max(fontSize - 4, 18)}px`,
+                                                    fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                                    textShadow: '0 1px 2px rgba(0,0,0,0.3)',
                                                     background: 'linear-gradient(135deg, #059669, #047857)',
-                                                    minWidth: '44px',
-                                                    minHeight: '44px',
-                                                    borderRadius: '50%',
+                                                    minWidth: '46px',
+                                                    minHeight: '46px',
+                                                    padding: '0 8px',
+                                                    borderRadius: '9999px',
                                                     border: '3px solid white',
-                                                    boxShadow: '0 6px 16px rgba(0,0,0,0.14), 0 0 0 2px rgba(34, 197, 94, 0.2)',
-                                                    verticalAlign: 'middle'
+                                                    boxShadow: '0 4px 12px rgba(5, 150, 105, 0.35), 0 0 0 2px rgba(34, 197, 94, 0.3)',
+                                                    verticalAlign: 'middle',
+                                                    direction: 'ltr'
                                                 }}
+                                                title={`Ayat ${currentAyahNumber} (${convertToArabicNumerals(currentAyahNumber)})`}
                                             >
-                                                {convertToArabicNumerals(currentAyahNumber) || currentAyahNumber}
+                                                {currentAyahNumber}
                                             </span>
                                             {currentAyah.text_arabic}
                                         </p>
@@ -2321,7 +2377,16 @@ function SurahDetailPage() {
                                 {/* Indonesian Translation */}
                                 {currentAyah.text_indonesian && (
                                     <div className="mb-4 max-w-3xl mx-auto bg-amber-50 border border-amber-200 rounded-xl p-4">
-                                        <p className="text-xs font-semibold text-amber-700 uppercase tracking-wide mb-2">Terjemahan Indonesia</p>
+                                        <div className="flex items-center justify-between gap-2 mb-2">
+                                            <p className="text-xs font-bold text-amber-800 uppercase tracking-wide flex items-center gap-1.5">
+                                                <span>Terjemahan Indonesia</span>
+                                                <span className="text-amber-400">•</span>
+                                                <span className="text-amber-900 font-extrabold">Ayat {currentAyahNumber}</span>
+                                            </p>
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-200/90 text-amber-900 shadow-2xs">
+                                                QS. {surah.number}:{currentAyahNumber}
+                                            </span>
+                                        </div>
                                         <p className="text-sm sm:text-base text-gray-800 leading-relaxed">
                                             {renderTranslationWithFootnote(
                                                 currentAyah.text_indonesian,
@@ -2341,7 +2406,11 @@ function SurahDetailPage() {
                                 {displayedEnglishText && (
                                     <div className="mb-6 max-w-3xl mx-auto bg-blue-50 border border-blue-200 rounded-xl p-4">
                                         <div className="mb-2 flex items-center justify-between gap-3">
-                                            <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide">English Translation</p>
+                                            <p className="text-xs font-bold text-blue-800 uppercase tracking-wide flex items-center gap-1.5">
+                                                <span>English Translation</span>
+                                                <span className="text-blue-400">•</span>
+                                                <span className="text-blue-900 font-extrabold">Ayah {currentAyahNumber}</span>
+                                            </p>
                                             <button
                                                 type="button"
                                                 onClick={() => setShowEnglishTranslation((prev) => !prev)}
@@ -2359,89 +2428,148 @@ function SurahDetailPage() {
                                 )}
 
                                 {/* Dedicated Bookmark & Notes Section for this Ayah */}
-                                <div className="mb-8 max-w-3xl mx-auto bg-gradient-to-r from-emerald-50/80 via-teal-50/50 to-green-50/80 border border-emerald-200/90 rounded-2xl p-4 sm:p-5 shadow-sm text-left">
-                                    <div className="flex flex-wrap items-center justify-between gap-3">
-                                        <div className="flex flex-wrap items-center gap-2">
-                                            {/* Tandai / Bookmark Button */}
-                                            <button
-                                                type="button"
-                                                onClick={() => toggleBookmark(currentAyahNumber)}
-                                                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm active:scale-95 ${
-                                                    bookmarkedAyahs.has(currentAyahNumber)
-                                                        ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-200 ring-2 ring-emerald-300'
-                                                        : 'bg-white border border-emerald-300 text-emerald-800 hover:bg-emerald-50'
-                                                }`}
-                                                title={bookmarkedAyahs.has(currentAyahNumber) ? 'Hapus penanda dari ayat ini' : 'Tandai ayat ini'}
-                                            >
-                                                {bookmarkedAyahs.has(currentAyahNumber) ? (
-                                                    <IoBookmark className="w-4 h-4 text-yellow-300" />
-                                                ) : (
-                                                    <IoBookmarkOutline className="w-4 h-4 text-emerald-600" />
-                                                )}
-                                                <span>
-                                                    {bookmarkedAyahs.has(currentAyahNumber) ? 'Ditandai (Bookmark)' : 'Tandai Ayat Ini'}
-                                                </span>
-                                            </button>
+                                <div className="mb-8 max-w-3xl mx-auto relative overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-300/80 bg-gradient-to-br from-emerald-50/90 via-white/95 to-teal-50/90 p-4 sm:p-6 shadow-sm shadow-emerald-900/5 transition-all duration-300 hover:shadow-md hover:border-emerald-400 text-left">
+                                    {/* Decorative background ambient glow */}
+                                    <div className="absolute -top-12 -right-12 w-36 h-36 rounded-full bg-gradient-to-br from-emerald-400/15 via-teal-400/10 to-transparent blur-2xl pointer-events-none" />
+                                    <div className="absolute -bottom-12 -left-12 w-36 h-36 rounded-full bg-gradient-to-tr from-teal-400/15 via-emerald-400/10 to-transparent blur-2xl pointer-events-none" />
 
-                                            {/* Favorit Button */}
-                                            <button
-                                                type="button"
-                                                onClick={() => handleToggleAyahFavorite(currentAyahNumber)}
-                                                className={`inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all ${
-                                                    favoriteAyahs.has(currentAyahNumber)
-                                                        ? 'bg-rose-100 text-rose-700 border border-rose-300 hover:bg-rose-200'
-                                                        : 'bg-white border border-gray-200 text-gray-700 hover:text-rose-600 hover:bg-rose-50'
-                                                }`}
-                                                title={favoriteAyahs.has(currentAyahNumber) ? 'Hapus dari ayat favorit' : 'Jadikan ayat favorit'}
-                                            >
-                                                {favoriteAyahs.has(currentAyahNumber) ? (
-                                                    <IoHeart className="w-4 h-4 text-rose-500" />
-                                                ) : (
-                                                    <IoHeartOutline className="w-4 h-4 text-gray-500" />
-                                                )}
-                                                <span>
-                                                    {favoriteAyahs.has(currentAyahNumber) ? 'Favorit' : 'Jadikan Favorit'}
-                                                </span>
-                                            </button>
-
-                                            {/* Catatan Button */}
-                                            <button
-                                                type="button"
-                                                onClick={() => setIsNotesEditorOpen(prev => !prev)}
-                                                className={`inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all ${
-                                                    ayahNotesMap[currentAyahNumber]
-                                                        ? 'bg-amber-100 text-amber-800 border border-amber-300 hover:bg-amber-200'
-                                                        : 'bg-white border border-gray-200 text-gray-700 hover:text-amber-700 hover:bg-amber-50'
-                                                }`}
-                                                title="Tulis catatan tadabbur"
-                                            >
-                                                <IoPencilOutline className="w-4 h-4 text-amber-600" />
-                                                <span>
-                                                    {ayahNotesMap[currentAyahNumber] ? 'Catatan Tadabbur' : '+ Catatan'}
-                                                </span>
-                                            </button>
+                                    {/* Section Header with Context & Direct Link */}
+                                    <div className="relative flex items-center justify-between gap-3 pb-3.5 mb-3.5 border-b border-emerald-100/90">
+                                        <div className="flex items-center gap-2.5 min-w-0">
+                                            <span className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-xs shadow-emerald-600/30">
+                                                <IoSparkles className="w-3.5 h-3.5 animate-pulse" />
+                                            </span>
+                                            <div className="min-w-0">
+                                                <div className="flex items-center gap-2">
+                                                    <h4 className="text-xs sm:text-sm font-bold text-gray-900 tracking-tight">
+                                                        Penanda & Catatan Ayat
+                                                    </h4>
+                                                    <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-bold text-emerald-800 bg-emerald-100/90 rounded-full border border-emerald-200/80 shadow-2xs">
+                                                        Ayat {currentAyahNumber}
+                                                    </span>
+                                                </div>
+                                                <p className="text-[11px] sm:text-xs text-gray-500 line-clamp-1">
+                                                    Tandai bacaan terakhir, favoritkan, atau simpan catatan tadabbur Anda.
+                                                </p>
+                                            </div>
                                         </div>
 
                                         {/* Link to /penanda */}
                                         <Link
                                             to="/penanda"
-                                            className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 hover:underline flex items-center gap-1"
+                                            className="flex-shrink-0 group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-800 bg-emerald-100/80 hover:bg-emerald-200/90 border border-emerald-200/80 shadow-2xs transition-all duration-200"
+                                            title="Buka halaman semua penanda dan catatan tersimpan"
                                         >
-                                            <span>Semua Penanda Saya →</span>
+                                            <span>Semua Penanda</span>
+                                            <ChevronRightIcon className="w-3.5 h-3.5 text-emerald-700 group-hover:translate-x-0.5 transition-transform duration-200" />
                                         </Link>
                                     </div>
 
+                                    {/* Main Action Buttons */}
+                                    <div className="relative flex flex-wrap items-center gap-2.5">
+                                        {/* Tandai / Bookmark Button (Hero Action) */}
+                                        {(() => {
+                                            const isBookmarked = bookmarkedAyahs.has(currentAyahNumber) || 
+                                                bookmarkedAyahs.has(parseInt(currentAyahNumber, 10)) || 
+                                                bookmarkedAyahs.has(String(currentAyahNumber));
+                                            
+                                            return (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => toggleBookmark(currentAyahNumber)}
+                                                    className={`group relative inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 active:scale-95 cursor-pointer ${
+                                                        isBookmarked
+                                                            ? 'bg-gradient-to-r from-amber-500 via-amber-600 to-emerald-600 text-white shadow-md shadow-amber-500/25 ring-2 ring-amber-300'
+                                                            : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md shadow-emerald-600/25 hover:shadow-emerald-600/35 hover:-translate-y-0.5'
+                                                    }`}
+                                                    title={isBookmarked ? 'Hapus penanda dari ayat ini' : 'Tandai sebagai penanda bacaan terakhir'}
+                                                >
+                                                    {isBookmarked ? (
+                                                        <IoBookmark className="w-4 h-4 text-yellow-200 drop-shadow-xs" />
+                                                    ) : (
+                                                        <IoBookmarkOutline className="w-4 h-4 text-white group-hover:scale-110 transition-transform duration-200" />
+                                                    )}
+                                                    <span>
+                                                        {isBookmarked ? 'Tersimpan di Penanda ✓' : 'Tandai Ayat Ini'}
+                                                    </span>
+                                                </button>
+                                            );
+                                        })()}
+
+                                        {/* Favorit Button */}
+                                        {(() => {
+                                            const isFavorite = favoriteAyahs.has(currentAyahNumber) || 
+                                                favoriteAyahs.has(parseInt(currentAyahNumber, 10)) || 
+                                                favoriteAyahs.has(String(currentAyahNumber));
+
+                                            return (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleToggleAyahFavorite(currentAyahNumber)}
+                                                    className={`group inline-flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 active:scale-95 cursor-pointer ${
+                                                        isFavorite
+                                                            ? 'bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-md shadow-rose-500/25 ring-2 ring-rose-300'
+                                                            : 'bg-white/95 text-gray-700 hover:text-rose-600 hover:bg-rose-50/90 border border-gray-200/90 hover:border-rose-200 shadow-2xs hover:shadow-xs hover:-translate-y-0.5'
+                                                    }`}
+                                                    title={isFavorite ? 'Hapus dari ayat favorit' : 'Jadikan ayat favorit'}
+                                                >
+                                                    {isFavorite ? (
+                                                        <IoHeart className="w-4 h-4 text-white animate-pulse" />
+                                                    ) : (
+                                                        <IoHeartOutline className="w-4 h-4 text-rose-500 group-hover:scale-110 transition-transform duration-200" />
+                                                    )}
+                                                    <span>
+                                                        {isFavorite ? 'Ayat Favorit ❤️' : 'Jadikan Favorit'}
+                                                    </span>
+                                                </button>
+                                            );
+                                        })()}
+
+                                        {/* Catatan Button */}
+                                        {(() => {
+                                            const hasNote = Boolean(
+                                                ayahNotesMap[currentAyahNumber] || 
+                                                ayahNotesMap[parseInt(currentAyahNumber, 10)] || 
+                                                ayahNotesMap[String(currentAyahNumber)]
+                                            );
+
+                                            return (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setIsNotesEditorOpen(prev => !prev)}
+                                                    className={`group inline-flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 active:scale-95 cursor-pointer ${
+                                                        hasNote
+                                                            ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-md shadow-amber-500/25 ring-2 ring-amber-300'
+                                                            : 'bg-white/95 text-gray-700 hover:text-amber-700 hover:bg-amber-50/90 border border-gray-200/90 hover:border-amber-200 shadow-2xs hover:shadow-xs hover:-translate-y-0.5'
+                                                    }`}
+                                                    title="Tulis catatan tadabbur atau refleksi ayat"
+                                                >
+                                                    {hasNote ? (
+                                                        <IoDocumentTextOutline className="w-4 h-4 text-white" />
+                                                    ) : (
+                                                        <IoPencilOutline className="w-4 h-4 text-amber-600 group-hover:scale-110 transition-transform duration-200" />
+                                                    )}
+                                                    <span>
+                                                        {hasNote ? 'Catatan Tersimpan 📝' : '+ Catatan Tadabbur'}
+                                                    </span>
+                                                </button>
+                                            );
+                                        })()}
+                                    </div>
+
                                     {/* Notes Section for Current Ayah */}
-                                    {(isNotesEditorOpen || ayahNotesMap[currentAyahNumber]) && (
-                                        <div className="mt-4 pt-3.5 border-t border-emerald-200/70">
+                                    {(isNotesEditorOpen || ayahNotesMap[currentAyahNumber] || ayahNotesMap[parseInt(currentAyahNumber, 10)]) && (
+                                        <div className="relative mt-4 pt-4 border-t border-emerald-200/80">
                                             {isNotesEditorOpen ? (
-                                                <div className="space-y-2.5 bg-white p-3.5 rounded-xl border border-emerald-200 shadow-sm">
+                                                <div className="space-y-3 bg-white p-4 rounded-2xl border border-emerald-300/80 shadow-md shadow-emerald-950/5">
                                                     <div className="flex items-center justify-between">
-                                                        <span className="text-xs font-semibold text-emerald-900 flex items-center gap-1.5">
-                                                            <IoPencilOutline className="w-4 h-4 text-amber-600" />
+                                                        <span className="text-xs sm:text-sm font-bold text-gray-900 flex items-center gap-2">
+                                                            <span className="w-6 h-6 rounded-lg bg-amber-100 flex items-center justify-center text-amber-700">
+                                                                <IoPencilOutline className="w-3.5 h-3.5" />
+                                                            </span>
                                                             Catatan Tadabbur Ayat {currentAyahNumber}:
                                                         </span>
-                                                        <span className="text-[11px] text-gray-400">
+                                                        <span className="text-[11px] font-medium text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
                                                             {currentEditingNote.length}/1000 karakter
                                                         </span>
                                                     </div>
@@ -2449,22 +2577,22 @@ function SurahDetailPage() {
                                                     <textarea
                                                         value={currentEditingNote}
                                                         onChange={(e) => setCurrentEditingNote(e.target.value)}
-                                                        placeholder="Tuliskan refleksi tadabbur, pelajaran, atau doa terkait ayat ini..."
-                                                        className="w-full p-3 text-xs sm:text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none resize-none"
+                                                        placeholder="Tuliskan refleksi tadabbur, mutiara hikmah, pelajaran, atau doa terkait ayat ini..."
+                                                        className="w-full p-3.5 text-xs sm:text-sm text-gray-800 bg-emerald-50/30 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none resize-none placeholder:text-gray-400 transition-all"
                                                         rows={3}
                                                         maxLength={1000}
                                                         autoFocus
                                                     />
 
-                                                    <div className="flex items-center justify-end gap-2">
+                                                    <div className="flex items-center justify-end gap-2.5 pt-1">
                                                         <button
                                                             type="button"
                                                             onClick={() => {
-                                                                setCurrentEditingNote(ayahNotesMap[currentAyahNumber] || '');
+                                                                setCurrentEditingNote(ayahNotesMap[currentAyahNumber] || ayahNotesMap[parseInt(currentAyahNumber, 10)] || '');
                                                                 setIsNotesEditorOpen(false);
                                                             }}
                                                             disabled={isSavingNote}
-                                                            className="px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-100"
+                                                            className="px-3.5 py-2 rounded-xl text-xs font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all active:scale-95 cursor-pointer"
                                                         >
                                                             Batal
                                                         </button>
@@ -2472,7 +2600,7 @@ function SurahDetailPage() {
                                                             type="button"
                                                             onClick={handleSaveAyahNote}
                                                             disabled={isSavingNote}
-                                                            className="px-4 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm disabled:opacity-50 inline-flex items-center gap-1"
+                                                            className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-700 hover:to-teal-700 shadow-md shadow-emerald-600/25 disabled:opacity-50 inline-flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer"
                                                         >
                                                             {isSavingNote ? (
                                                                 <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -2483,32 +2611,36 @@ function SurahDetailPage() {
                                                         </button>
                                                     </div>
                                                 </div>
-                                            ) : ayahNotesMap[currentAyahNumber] ? (
-                                                <div className="bg-amber-50/90 border-l-4 border-amber-400 p-3.5 rounded-r-xl">
-                                                    <div className="flex items-start justify-between gap-2 mb-1">
-                                                        <span className="text-xs font-semibold text-amber-900 flex items-center gap-1">
-                                                            <IoDocumentTextOutline className="w-3.5 h-3.5 text-amber-600" />
+                                            ) : (ayahNotesMap[currentAyahNumber] || ayahNotesMap[parseInt(currentAyahNumber, 10)]) ? (
+                                                <div className="bg-gradient-to-r from-amber-50/90 via-amber-50/50 to-orange-50/60 border border-amber-300/80 p-4 rounded-2xl shadow-xs">
+                                                    <div className="flex items-start justify-between gap-3 mb-2">
+                                                        <span className="text-xs sm:text-sm font-bold text-amber-950 flex items-center gap-2">
+                                                            <span className="w-5 h-5 rounded-md bg-amber-200/80 flex items-center justify-center text-amber-800">
+                                                                <IoDocumentTextOutline className="w-3.5 h-3.5" />
+                                                            </span>
                                                             Catatan Tadabbur Anda:
                                                         </span>
-                                                        <div className="flex items-center gap-2">
+                                                        <div className="flex items-center gap-3">
                                                             <button
                                                                 type="button"
                                                                 onClick={() => setIsNotesEditorOpen(true)}
-                                                                className="text-[11px] font-medium text-blue-700 hover:underline"
+                                                                className="text-xs font-bold text-emerald-700 hover:text-emerald-900 hover:underline inline-flex items-center gap-1 cursor-pointer"
                                                             >
+                                                                <IoPencilOutline className="w-3 h-3" />
                                                                 Edit
                                                             </button>
                                                             <button
                                                                 type="button"
                                                                 onClick={handleDeleteAyahNote}
-                                                                className="text-[11px] font-medium text-red-600 hover:underline"
+                                                                className="text-xs font-bold text-rose-600 hover:text-rose-800 hover:underline inline-flex items-center gap-1 cursor-pointer"
                                                             >
+                                                                <IoTrashOutline className="w-3 h-3" />
                                                                 Hapus
                                                             </button>
                                                         </div>
                                                     </div>
-                                                    <p className="text-xs sm:text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
-                                                        {ayahNotesMap[currentAyahNumber]}
+                                                    <p className="text-xs sm:text-sm text-gray-800 whitespace-pre-wrap leading-relaxed bg-white/70 p-3 rounded-xl border border-amber-200/60 shadow-2xs font-normal">
+                                                        {ayahNotesMap[currentAyahNumber] || ayahNotesMap[parseInt(currentAyahNumber, 10)]}
                                                     </p>
                                                 </div>
                                             ) : null}
@@ -2775,12 +2907,19 @@ function SurahDetailPage() {
                             Ayat {currentAyahNumber} dari {maxAyahNumber}
                         </div>
                     </div>
-                    <div className="grid grid-cols-8 sm:grid-cols-10 md:grid-cols-12 lg:grid-cols-15 gap-2 max-h-80 sm:max-h-96 overflow-y-auto p-1">
+                    <div 
+                        ref={ayahNavGridRef}
+                        className="grid grid-cols-8 sm:grid-cols-10 md:grid-cols-12 lg:grid-cols-15 gap-2 max-h-80 sm:max-h-96 overflow-y-auto p-1 scroll-smooth"
+                    >
                         {availableAyahNumbers.map((ayahNum) => {
                             const isCurrentAyah = ayahNum === currentAyahNumber;
                             const isBookmarked = bookmarkedAyahs.has(ayahNum) || bookmarkedAyahs.has(parseInt(ayahNum, 10)) || bookmarkedAyahs.has(String(ayahNum));
                             return (
-                                <div key={ayahNum} className="relative">
+                                <div 
+                                    key={ayahNum} 
+                                    ref={(el) => { ayahButtonRefs.current[ayahNum] = el; }}
+                                    className="relative"
+                                >
                                     <button
                                         onClick={() => navigateToAyah(ayahNum)}
                                         className={`
