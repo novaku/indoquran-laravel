@@ -124,15 +124,15 @@ function RiwayatVersiPage() {
         "@context": "https://schema.org",
         "@type": "WebPage",
         "name": "Riwayat Versi - IndoQuran",
-        "description": "Catatan perubahan dan pembaruan versi platform Al-Quran digital IndoQuran dengan exact search, admin auto-generate slug, sitemap validation fix, canonical URL optimization, SEO enhancements, fitur Asmaul Husna, dan PWA",
+        "description": "Catatan perubahan dan pembaruan versi platform Al-Quran digital IndoQuran dengan SEO Artikel, Schema.org Article, Sitemap Artikel, Hover Preview, Realtime Online Tracker, Exact Search, Bookmark, dan PWA",
         "url": `${window.location.origin}/riwayat-versi`,
-        "dateModified": "2026-08-19",
+        "dateModified": "2026-08-23",
         "mainEntity": {
             "@type": "SoftwareApplication",
             "name": "IndoQuran",
             "applicationCategory": "Religious Application",
             "operatingSystem": "Web Browser",
-            "softwareVersion": latestVersion?.version || "2.17.0",
+            "softwareVersion": latestVersion?.version || "2.18.0",
             "releaseNotes": latestVersion?.description || "",
             "installUrl": window.location.origin,
             "applicationSubCategory": "Progressive Web App",
@@ -156,8 +156,8 @@ function RiwayatVersiPage() {
         <div className="min-h-screen bg-gray-50/70 text-gray-800">
             <SEOHead 
                 title="Riwayat Versi - Changelog Lengkap IndoQuran ✅"
-                description="Catatan lengkap perjalanan pembaruan IndoQuran: Redesain Beranda, Exact Search, Bookmark & Tadabbur, Audio Murottal, SEO & PWA."
-                keywords="indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi, indoquran 2.17.0, exact search, pencarian persis, canonical url fix, seo optimization, audio murottal, penanda quran, PWA"
+                description="Catatan lengkap perjalanan pembaruan IndoQuran: Optimasi SEO Artikel, Schema.org, Sitemap Artikel, Hover Card, Online Tracker, Redesain Beranda, dan PWA."
+                keywords="indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi, indoquran 2.18.0, seo artikel, schema article, sitemap artikel, hover card, online users, exact search, audio murottal, penanda quran, PWA"
                 canonicalUrl={`${window.location.origin}/riwayat-versi`}
             />
             <StructuredData data={structuredData} />

@@ -1,5 +1,42 @@
 [
   {
+    "version": "2.18.0",
+    "date": "23 Agustus 2026",
+    "type": "feature",
+    "title": "Optimasi SEO Artikel Komprehensif, Schema.org Article, Dedicated Sitemap & Preview Interaktif",
+    "description": "Pembaruan besar sistem artikel dan optimasi mesin pencari (SEO Google): implementasi Server-Side Rendering (SSR) untuk artikel, Schema.org Article & BreadcrumbList JSON-LD, dedicated sitemap artikel (/sitemap-artikel.xml) dengan cron job otomatis, izin perayapan Googlebot-Image, kartu preview artikel interaktif (Hover Preview), serta pelacakan pengguna online realtime.",
+    "changes": [
+      {
+        "type": "feature",
+        "text": "Server-Side Rendering (SSR) untuk Artikel - Halaman artikel (/artikel/{slug}) dan katalog (/artikel) kini di-pre-render langsung dari server ke format HTML semantik lengkap (<article>, <h1>, <header>, <time>, penulis, tag, konten) sehingga Googlebot dapat mengindeks teks artikel secara instan tanpa hambatan JavaScript"
+      },
+      {
+        "type": "feature",
+        "text": "Schema.org Article & BreadcrumbList JSON-LD - Integrasi terstruktur Schema.org (@type: Article dan BreadcrumbList) pada server-side dan client-side untuk menampilkan rich snippet, breadcrumbs, dan ringkasan artikel di Google Search SERP"
+      },
+      {
+        "type": "feature",
+        "text": "Dedicated Sitemap Artikel (/sitemap-artikel.xml) & Cron Job - Pembuatan sitemap khusus artikel otomatis secara real-time dan generator cron job terjadwal harian (php artisan sitemap:generate-comprehensive --production)"
+      },
+      {
+        "type": "feature",
+        "text": "Preview Artikel Interaktif (Article Hover Card) - Fitur hover card interaktif pada kartu artikel di beranda yang menampilkan cuplikan teks, tanggal terbit, waktu baca, dan tombol akses cepat sebelum membuka artikel"
+      },
+      {
+        "type": "feature",
+        "text": "Pelacakan Pengguna Online Realtime - Endpoint pelacakan aktif (/api/online-users/track dan /api/online-users/count) untuk memantau pengunjung platform secara realtime"
+      },
+      {
+        "type": "improvement",
+        "text": "Optimasi Metadata Open Graph & Twitter Card - Metadata sosial lengkap dengan tanggal terbit, modifikasi, penulis, kategori, dan tautan gambar resolusi penuh (/storage/) untuk rich card media sosial dan Google Discover"
+      },
+      {
+        "type": "improvement",
+        "text": "Perizinan Perayapan Gambar Googlebot-Image - Konfigurasi robots.txt untuk mengizinkan direktori /storage/ agar gambar sampul artikel dapat muncul di Google Image Search"
+      }
+    ]
+  },
+  {
     "version": "2.17.0",
     "date": "19 Agustus 2026",
     "type": "feature",
