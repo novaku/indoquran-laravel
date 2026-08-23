@@ -185,37 +185,101 @@ const AdminArticleEditorPage = () => {
     }));
   };
 
+  const parseTags = (input) => {
+    if (!input || typeof input !== 'string') return [];
+
+    let rawTags = [];
+
+    // If string contains '#', extract each hashtag (e.g. #Ikhlas #TazkiyatunNafs or #Ikhlas, #TazkiyatunNafs)
+    if (input.includes('#')) {
+      const matches = input.match(/#([^\s,#;]+)/g);
+      if (matches && matches.length > 0) {
+        rawTags = matches.map(m => m.replace(/^#+/, '').trim());
+      } else {
+        rawTags = input.split('#').map(t => t.trim()).filter(Boolean);
+      }
+    } else if (input.includes(',') || input.includes(';') || input.includes('\n')) {
+      rawTags = input.split(/[,;\n]+/).map(t => t.trim()).filter(Boolean);
+    } else {
+      rawTags = [input.trim()].filter(Boolean);
+    }
+
+    return rawTags.map(t => t.replace(/^#+/, '').trim()).filter(Boolean);
+  };
+
   const handleTagInputChange = (e) => {
     const value = e.target.value;
     setTagInput(value);
-    setShowTagSuggestions(value.length > 0);
+    const clean = value.replace(/^#+/, '').trim();
+    setShowTagSuggestions(clean.length > 0 && !value.includes('#') && !value.includes(','));
   };
 
-  const addTag = (tagName) => {
-    const trimmedTag = tagName.trim();
-    if (trimmedTag && !selectedTags.includes(trimmedTag)) {
-      setSelectedTags([...selectedTags, trimmedTag]);
-    }
+  const addTags = (tagsInput) => {
+    const list = Array.isArray(tagsInput) ? tagsInput : [tagsInput];
+    const parsed = list.flatMap(item => parseTags(item));
+
+    if (parsed.length === 0) return;
+
+    setSelectedTags(prevSelected => {
+      const newSelected = [...prevSelected];
+
+      parsed.forEach(rawTag => {
+        const cleanTag = rawTag.replace(/^#+/, '').trim();
+        if (!cleanTag) return;
+
+        // Case-insensitive check against already selected tags
+        const alreadySelected = newSelected.some(
+          existing => existing.toLowerCase() === cleanTag.toLowerCase()
+        );
+        if (alreadySelected) return;
+
+        // Case-insensitive match with available tags in DB to adopt canonical casing
+        const matchedAvailable = availableTags.find(
+          avail => avail.name.toLowerCase() === cleanTag.toLowerCase()
+        );
+
+        const tagToInsert = matchedAvailable ? matchedAvailable.name : cleanTag;
+        newSelected.push(tagToInsert);
+      });
+
+      return newSelected;
+    });
+
     setTagInput('');
     setShowTagSuggestions(false);
   };
 
+  const addTag = (tagName) => addTags(tagName);
+
   const removeTag = (tagToRemove) => {
-    setSelectedTags(selectedTags.filter(tag => tag !== tagToRemove));
+    setSelectedTags(selectedTags.filter(tag => tag.toLowerCase() !== tagToRemove.toLowerCase()));
   };
 
   const handleTagInputKeyDown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       if (tagInput.trim()) {
-        addTag(tagInput);
+        addTags(tagInput);
       }
     }
   };
 
+  const handleTagInputPaste = (e) => {
+    const pastedText = e.clipboardData?.getData('text');
+    if (!pastedText) return;
+
+    // If pasted text contains hashtags (#), commas, or multiple lines, auto-parse and add immediately
+    if (pastedText.includes('#') || pastedText.includes(',') || pastedText.includes('\n')) {
+      e.preventDefault();
+      addTags(pastedText);
+    }
+  };
+
+  const cleanTagInput = tagInput.replace(/^#+/, '').trim().toLowerCase();
   const filteredTagSuggestions = availableTags.filter(tag =>
-    tag.name.toLowerCase().includes(tagInput.toLowerCase()) &&
-    !selectedTags.includes(tag.name)
+    cleanTagInput &&
+    tag.name.toLowerCase().includes(cleanTagInput) &&
+    !selectedTags.some(st => st.toLowerCase() === tag.name.toLowerCase())
   );
 
   const handleImageUpload = async (e) => {
@@ -507,18 +571,33 @@ const AdminArticleEditorPage = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Tambah Tag
                 </label>
-                <input
-                  type="text"
-                  value={tagInput}
-                  onChange={handleTagInputChange}
-                  onKeyDown={handleTagInputKeyDown}
-                  onFocus={() => setShowTagSuggestions(tagInput.length > 0)}
-                  onBlur={() => setTimeout(() => setShowTagSuggestions(false), 200)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Ketik nama tag atau pilih dari daftar..."
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={tagInput}
+                    onChange={handleTagInputChange}
+                    onKeyDown={handleTagInputKeyDown}
+                    onPaste={handleTagInputPaste}
+                    onFocus={() => {
+                      const clean = tagInput.replace(/^#+/, '').trim();
+                      setShowTagSuggestions(clean.length > 0 && !tagInput.includes('#') && !tagInput.includes(','));
+                    }}
+                    onBlur={() => setTimeout(() => setShowTagSuggestions(false), 200)}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="Ketik tag atau paste hashtag (#Tag1 #Tag2)..."
+                  />
+                  {tagInput.trim() && (
+                    <button
+                      type="button"
+                      onClick={() => addTags(tagInput)}
+                      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm transition-colors shadow-sm"
+                    >
+                      Tambah
+                    </button>
+                  )}
+                </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Tekan Enter untuk menambah tag baru atau pilih dari daftar yang tersedia
+                  Tekan Enter atau klik Tambah. Mendukung paste multiple hashtag sekaligus (contoh: <code className="bg-gray-100 px-1 py-0.5 rounded text-green-700">#Ikhlas #TazkiyatunNafs #AmalSaleh</code>). Tag yang sama (tidak membedakan huruf besar/kecil) tidak akan diduplikasi.
                 </p>
 
                 {/* Tag Suggestions */}
@@ -551,7 +630,7 @@ const AdminArticleEditorPage = () => {
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {availableTags
-                      .filter(tag => !selectedTags.includes(tag.name))
+                      .filter(tag => !selectedTags.some(st => st.toLowerCase() === tag.name.toLowerCase()))
                       .slice(0, 10)
                       .map((tag) => (
                         <button

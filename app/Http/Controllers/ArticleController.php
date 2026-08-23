@@ -321,23 +321,86 @@ class ArticleController extends Controller
     }
 
     /**
-     * Helper method to get or create tags
+     * Helper method to parse raw tag inputs
+     */
+    private function parseRawTags($rawTags): array
+    {
+        if (empty($rawTags)) {
+            return [];
+        }
+
+        $tags = [];
+        $items = is_array($rawTags) ? $rawTags : [$rawTags];
+
+        foreach ($items as $item) {
+            if (!is_string($item)) {
+                continue;
+            }
+            $trimmed = trim($item);
+            if (empty($trimmed)) {
+                continue;
+            }
+
+            // Check if item contains multiple hashtags (e.g. "#Ikhlas #TazkiyatunNafs #AmalSaleh")
+            if (substr_count($trimmed, '#') > 1) {
+                preg_match_all('/#([^\s,#;]+)/', $trimmed, $matches);
+                if (!empty($matches[1])) {
+                    foreach ($matches[1] as $m) {
+                        $tags[] = trim($m);
+                    }
+                }
+            } elseif (str_contains($trimmed, ',')) {
+                foreach (explode(',', $trimmed) as $part) {
+                    $tags[] = ltrim(trim($part), '#');
+                }
+            } else {
+                $tags[] = ltrim($trimmed, '#');
+            }
+        }
+
+        return array_values(array_unique(array_filter($tags)));
+    }
+
+    /**
+     * Helper method to get or create tags (case-insensitive & deduplicated)
      */
     private function getOrCreateTags(array $tagNames): array
     {
+        $parsedTagNames = $this->parseRawTags($tagNames);
         $tagIds = [];
         
-        foreach ($tagNames as $tagName) {
-            if (empty($tagName)) {
+        foreach ($parsedTagNames as $tagName) {
+            $cleaned = trim($tagName);
+            $cleaned = ltrim($cleaned, '#');
+            $cleaned = trim($cleaned);
+            
+            if (empty($cleaned)) {
                 continue;
             }
             
-            $tag = Tag::firstOrCreate(
-                ['name' => trim($tagName)],
-                ['slug' => Str::slug(trim($tagName))]
-            );
+            $slug = Str::slug($cleaned);
+            if (empty($slug)) {
+                continue;
+            }
             
-            $tagIds[] = $tag->id;
+            // Search case-insensitively by slug or lower(name) to prevent duplicate tag creation
+            $tag = Tag::where('slug', $slug)
+                ->orWhereRaw('LOWER(name) = ?', [mb_strtolower($cleaned, 'UTF-8')])
+                ->first();
+                
+            if (!$tag) {
+                $existingSlugCount = Tag::where('slug', $slug)->count();
+                $finalSlug = $existingSlugCount > 0 ? "{$slug}-" . time() : $slug;
+
+                $tag = Tag::create([
+                    'name' => $cleaned,
+                    'slug' => $finalSlug,
+                ]);
+            }
+            
+            if (!in_array($tag->id, $tagIds)) {
+                $tagIds[] = $tag->id;
+            }
         }
         
         return $tagIds;

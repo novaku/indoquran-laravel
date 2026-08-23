@@ -70,6 +70,11 @@ class TagController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->has('name')) {
+            $cleanedName = ltrim(trim($request->input('name')), '#');
+            $request->merge(['name' => $cleanedName]);
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:50|unique:tags,name',
             'slug' => 'nullable|string|max:50|unique:tags,slug',
