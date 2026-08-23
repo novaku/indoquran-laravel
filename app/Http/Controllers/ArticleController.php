@@ -41,8 +41,17 @@ class ArticleController extends Controller
     public function index(Request $request)
     {
         $query = Article::with(['author:id,name', 'tags'])
-            ->published()
-            ->latest('published_at');
+            ->published();
+
+        // Sort filter
+        $sort = $request->get('sort', 'latest');
+        if ($sort === 'popular' || $sort === 'views' || $sort === 'paling-banyak-dibaca') {
+            $query->orderBy('views_count', 'desc')->latest('published_at');
+        } elseif ($sort === 'random' || $sort === 'acak' || $sort === 'rekomendasi') {
+            $query->inRandomOrder();
+        } else {
+            $query->latest('published_at');
+        }
 
         // Filter by tag
         if ($request->has('tag') && !empty($request->tag)) {
@@ -61,7 +70,8 @@ class ArticleController extends Controller
             });
         }
 
-        $articles = $query->paginate(12);
+        $perPage = min(max((int)$request->get('per_page', 12), 1), 50);
+        $articles = $query->paginate($perPage);
 
         return response()->json($articles);
     }

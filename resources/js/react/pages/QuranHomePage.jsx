@@ -19,7 +19,10 @@ import {
     ClipboardDocumentIcon,
     TagIcon,
     BuildingLibraryIcon,
-    HeartIcon
+    HeartIcon,
+    FireIcon,
+    EyeIcon,
+    XMarkIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../hooks/useAuth.jsx';
 import SearchField from '../components/SearchField';
@@ -115,10 +118,10 @@ function QuranHomePage() {
     const [popularSurahs, setPopularSurahs] = useState([]);
     const [loadingPopular, setLoadingPopular] = useState(false);
     const [surahTab, setSurahTab] = useState('rekomendasi'); // 'rekomendasi' | 'populer' | 'juz30'
-    const [randomArticle, setRandomArticle] = useState(null);
-    const [loadingArticle, setLoadingArticle] = useState(false);
-    const [latestArticles, setLatestArticles] = useState([]);
-    const [loadingLatestArticles, setLoadingLatestArticles] = useState(false);
+    const [articles, setArticles] = useState([]);
+    const [loadingArticles, setLoadingArticles] = useState(true);
+    const [articleTab, setArticleTab] = useState('terbaru'); // 'terbaru' | 'populer' | 'rekomendasi'
+    const [articleSearch, setArticleSearch] = useState('');
     const [randomTafsir, setRandomTafsir] = useState(null);
     const [loadingTafsir, setLoadingTafsir] = useState(false);
     const [copiedAyah, setCopiedAyah] = useState(false);
@@ -238,10 +241,26 @@ function QuranHomePage() {
         }
     }, [surahs]);
 
-    const fetchLatestArticles = useCallback(async () => {
-        setLoadingLatestArticles(true);
+    const fetchArticles = useCallback(async (tab = 'terbaru', search = '') => {
+        setLoadingArticles(true);
         try {
-            const response = await fetchWithAuth('/api/articles?per_page=3', {
+            const params = new URLSearchParams();
+            params.append('per_page', '4');
+
+            if (search && search.trim()) {
+                params.append('search', search.trim());
+            }
+
+            if (tab === 'populer') {
+                params.append('sort', 'popular');
+            } else if (tab === 'rekomendasi') {
+                params.append('sort', 'random');
+                params.append('_t', Date.now().toString());
+            } else {
+                params.append('sort', 'latest');
+            }
+
+            const response = await fetchWithAuth(`/api/articles?${params.toString()}`, {
                 headers: {
                     'Content-Type': 'application/json',
                     Accept: 'application/json'
@@ -249,42 +268,17 @@ function QuranHomePage() {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to fetch latest articles');
+                throw new Error('Failed to fetch articles');
             }
 
             const result = await response.json();
             if (result.data && Array.isArray(result.data)) {
-                setLatestArticles(result.data);
+                setArticles(result.data);
             }
         } catch (err) {
-            console.error('Error fetching latest articles:', err);
+            console.error('Error fetching articles:', err);
         } finally {
-            setLoadingLatestArticles(false);
-        }
-    }, []);
-
-    const fetchRandomArticle = useCallback(async () => {
-        setLoadingArticle(true);
-        try {
-            const response = await fetchWithAuth('/api/articles/random', {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch random article');
-            }
-
-            const result = await response.json();
-            if (result.status === 'success' && result.data) {
-                setRandomArticle(result.data);
-            }
-        } catch (err) {
-            console.error('Error fetching random article:', err);
-        } finally {
-            setLoadingArticle(false);
+            setLoadingArticles(false);
         }
     }, []);
 
@@ -353,12 +347,8 @@ function QuranHomePage() {
     }, [surahs, fetchPopularSurahs]);
 
     useEffect(() => {
-        fetchRandomArticle();
-    }, [fetchRandomArticle]);
-
-    useEffect(() => {
-        fetchLatestArticles();
-    }, [fetchLatestArticles]);
+        fetchArticles('terbaru', '');
+    }, [fetchArticles]);
 
     useEffect(() => {
         fetchRandomTafsir();
@@ -954,76 +944,239 @@ function QuranHomePage() {
                             </div>
                         )}
 
-                        {/* Artikel & Wawasan Islami Terkini */}
+                        {/* Artikel & Wawasan Islami */}
                         <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-200/90 shadow-2xs">
-                            <div className="flex items-center justify-between mb-5">
+                            {/* Header */}
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
                                 <div>
-                                    <h2 className="text-xl font-bold text-gray-900">Artikel & Wawasan Islami</h2>
-                                    <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Tulisan inspiratif dan panduan seputar Al-Quran & ibadah</p>
+                                    <div className="flex items-center gap-2">
+                                        <h2 className="text-xl font-bold text-gray-900">Artikel & Wawasan Islami</h2>
+                                        <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                                            Kajian & Inspirasi
+                                        </span>
+                                    </div>
+                                    <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
+                                        Tulisan inspiratif, panduan ibadah, dan kajian seputar Al-Quran
+                                    </p>
                                 </div>
                                 <Link
                                     to="/artikel"
-                                    className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-0.5"
+                                    className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 self-start sm:self-center transition-colors group"
                                 >
-                                    <span>Lihat Semua</span>
-                                    <ChevronRightIcon className="w-3.5 h-3.5" />
+                                    <span>Lihat Semua Artikel</span>
+                                    <ChevronRightIcon className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                                 </Link>
                             </div>
 
-                            {loadingLatestArticles ? (
-                                <div className="space-y-3">
-                                    {Array.from({ length: 3 }).map((_, i) => (
-                                        <div key={i} className="flex gap-4 p-3 rounded-xl border border-gray-100 animate-pulse">
-                                            <div className="w-20 h-16 bg-gray-200 rounded-lg flex-shrink-0" />
+                            {/* Control Bar: Filter Tabs & Quick Search */}
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 mb-5 border-b border-gray-100">
+                                {/* Tab Switcher */}
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                    <div className="inline-flex rounded-xl bg-gray-100/90 p-1 text-xs font-medium">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setArticleTab('terbaru');
+                                                fetchArticles('terbaru', articleSearch);
+                                            }}
+                                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                                                articleTab === 'terbaru'
+                                                    ? 'bg-white text-emerald-700 font-semibold shadow-2xs'
+                                                    : 'text-gray-600 hover:text-gray-900'
+                                            }`}
+                                        >
+                                            <SparklesIcon className="w-3.5 h-3.5 text-emerald-600" />
+                                            <span>Terbaru</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setArticleTab('populer');
+                                                fetchArticles('populer', articleSearch);
+                                            }}
+                                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                                                articleTab === 'populer'
+                                                    ? 'bg-white text-emerald-700 font-semibold shadow-2xs'
+                                                    : 'text-gray-600 hover:text-gray-900'
+                                            }`}
+                                        >
+                                            <FireIcon className="w-3.5 h-3.5 text-amber-500" />
+                                            <span>Populer</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setArticleTab('rekomendasi');
+                                                fetchArticles('rekomendasi', articleSearch);
+                                            }}
+                                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                                                articleTab === 'rekomendasi'
+                                                    ? 'bg-white text-emerald-700 font-semibold shadow-2xs'
+                                                    : 'text-gray-600 hover:text-gray-900'
+                                            }`}
+                                        >
+                                            <StarIcon className="w-3.5 h-3.5 text-amber-400" />
+                                            <span>Rekomendasi</span>
+                                        </button>
+                                    </div>
+
+                                    {articleTab === 'rekomendasi' && (
+                                        <button
+                                            type="button"
+                                            onClick={() => fetchArticles('rekomendasi', articleSearch)}
+                                            disabled={loadingArticles}
+                                            className="p-1.5 text-gray-500 hover:text-emerald-600 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                                            title="Acak / Segarkan Rekomendasi"
+                                        >
+                                            <ArrowPathIcon className={`w-4 h-4 ${loadingArticles ? 'animate-spin' : ''}`} />
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* Quick Search Form */}
+                                <form
+                                    onSubmit={(e) => {
+                                        e.preventDefault();
+                                        fetchArticles(articleTab, articleSearch);
+                                    }}
+                                    className="relative w-full md:w-64"
+                                >
+                                    <input
+                                        type="text"
+                                        value={articleSearch}
+                                        onChange={(e) => setArticleSearch(e.target.value)}
+                                        placeholder="Cari judul / topik artikel..."
+                                        className="w-full text-xs bg-gray-50/90 border border-gray-200 rounded-xl pl-8 pr-8 py-2 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                                    />
+                                    <MagnifyingGlassIcon className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                    {articleSearch ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setArticleSearch('');
+                                                fetchArticles(articleTab, '');
+                                            }}
+                                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5 cursor-pointer"
+                                            title="Hapus pencarian"
+                                        >
+                                            <XMarkIcon className="w-3.5 h-3.5" />
+                                        </button>
+                                    ) : null}
+                                </form>
+                            </div>
+
+                            {/* Search status banner */}
+                            {articleSearch.trim() && (
+                                <div className="flex items-center justify-between text-xs text-gray-600 mb-4 bg-emerald-50/60 px-3 py-2 rounded-lg border border-emerald-100">
+                                    <span>
+                                        Hasil pencarian untuk: <strong className="text-emerald-800">"{articleSearch}"</strong>
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setArticleSearch('');
+                                            fetchArticles(articleTab, '');
+                                        }}
+                                        className="text-emerald-700 hover:underline font-semibold cursor-pointer"
+                                    >
+                                        Hapus Filter
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Article Cards */}
+                            {loadingArticles ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {Array.from({ length: 4 }).map((_, i) => (
+                                        <div key={i} className="flex gap-3.5 p-3.5 rounded-xl border border-gray-100 bg-gray-50/50 animate-pulse">
+                                            <div className="w-22 sm:w-26 h-22 sm:h-26 bg-gray-200 rounded-xl flex-shrink-0" />
                                             <div className="flex-1 space-y-2 py-1">
-                                                <div className="h-4 bg-gray-200 rounded w-3/4" />
-                                                <div className="h-3 bg-gray-200 rounded w-1/3" />
+                                                <div className="h-4 bg-gray-200 rounded w-4/5" />
+                                                <div className="h-3 bg-gray-200 rounded w-full" />
+                                                <div className="h-3 bg-gray-200 rounded w-1/2" />
                                             </div>
                                         </div>
                                     ))}
                                 </div>
-                            ) : latestArticles.length > 0 ? (
-                                <div className="divide-y divide-gray-100">
-                                    {latestArticles.map((article) => (
+                            ) : articles.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {articles.map((article, idx) => (
                                         <Link
                                             key={article.id}
                                             to={`/artikel/${article.slug}`}
-                                            className="group flex gap-4 py-4 first:pt-0 last:pb-0 hover:bg-gray-50/50 rounded-xl px-2 -mx-2 transition-colors"
+                                            className="group relative flex gap-3.5 p-3.5 rounded-xl border border-gray-200/80 bg-white hover:border-emerald-300 hover:bg-emerald-50/20 hover:shadow-xs transition-all duration-200"
                                         >
+                                            {/* Thumbnail */}
                                             {article.featured_image_url ? (
-                                                <div className="w-20 sm:w-24 h-18 sm:h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                                                <div className="w-22 sm:w-26 h-22 sm:h-26 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0 relative shadow-2xs">
                                                     <img
                                                         src={article.featured_image_url}
                                                         alt={article.title}
                                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                                         loading="lazy"
                                                     />
+                                                    {articleTab === 'populer' && idx === 0 && (
+                                                        <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-amber-500/90 backdrop-blur-xs text-[10px] font-bold text-white shadow-xs">
+                                                            #1 Populer
+                                                        </span>
+                                                    )}
                                                 </div>
                                             ) : (
-                                                <div className="w-20 sm:w-24 h-18 sm:h-20 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
-                                                    <NewspaperIcon className="w-7 h-7 text-emerald-400" />
+                                                <div className="w-22 sm:w-26 h-22 sm:h-26 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-500">
+                                                    <NewspaperIcon className="w-8 h-8 opacity-75 group-hover:scale-110 transition-transform" />
                                                 </div>
                                             )}
-                                            <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+
+                                            {/* Content */}
+                                            <div className="flex-1 min-w-0 flex flex-col justify-between">
                                                 <div>
-                                                    <h3 className="font-bold text-sm text-gray-900 group-hover:text-emerald-600 transition-colors line-clamp-2">
+                                                    {/* Tags or Category */}
+                                                    <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                                                        {article.tags && article.tags.length > 0 ? (
+                                                            article.tags.slice(0, 2).map((t) => (
+                                                                <span
+                                                                    key={t.id}
+                                                                    className="text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100"
+                                                                >
+                                                                    #{t.name}
+                                                                </span>
+                                                            ))
+                                                        ) : (
+                                                            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-gray-100 text-gray-600">
+                                                                Wawasan
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Title */}
+                                                    <h3 className="font-bold text-sm text-gray-900 group-hover:text-emerald-700 transition-colors line-clamp-2 leading-snug">
                                                         {article.title}
                                                     </h3>
+
+                                                    {/* Excerpt */}
                                                     {article.excerpt && (
-                                                        <p className="text-xs text-gray-500 line-clamp-1 mt-1">
+                                                        <p className="text-xs text-gray-500 line-clamp-1 mt-1 leading-relaxed">
                                                             {article.excerpt}
                                                         </p>
                                                     )}
                                                 </div>
-                                                <div className="flex items-center gap-3 text-[11px] text-gray-400 mt-2">
+
+                                                {/* Meta Info */}
+                                                <div className="flex items-center gap-2.5 text-[11px] text-gray-400 mt-2 flex-wrap">
                                                     {article.formatted_date && (
                                                         <div className="flex items-center gap-1">
-                                                            <ClockIcon className="w-3 h-3" />
+                                                            <ClockIcon className="w-3 h-3 text-gray-400" />
                                                             <span>{article.formatted_date}</span>
                                                         </div>
                                                     )}
                                                     {article.reading_time && (
-                                                        <span>• {article.reading_time} menit baca</span>
+                                                        <span>• {article.reading_time} mnt</span>
+                                                    )}
+                                                    {typeof article.views_count === 'number' && article.views_count > 0 && (
+                                                        <div className="flex items-center gap-1 text-emerald-600/90 font-medium ml-auto">
+                                                            <EyeIcon className="w-3 h-3" />
+                                                            <span>{article.views_count.toLocaleString('id-ID')}</span>
+                                                        </div>
                                                     )}
                                                 </div>
                                             </div>
@@ -1031,7 +1184,24 @@ function QuranHomePage() {
                                     ))}
                                 </div>
                             ) : (
-                                <p className="text-xs text-gray-500 text-center py-4">Belum ada artikel terbaru.</p>
+                                <div className="text-center py-8 px-4 border border-dashed border-gray-200 rounded-xl bg-gray-50/50">
+                                    <NewspaperIcon className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                                    <p className="text-xs sm:text-sm font-medium text-gray-700">
+                                        {articleSearch ? `Tidak ditemukan artikel untuk "${articleSearch}"` : 'Belum ada artikel pada kategori ini.'}
+                                    </p>
+                                    {articleSearch ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setArticleSearch('');
+                                                fetchArticles(articleTab, '');
+                                            }}
+                                            className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline cursor-pointer"
+                                        >
+                                            <span>Tampilkan Semua Artikel</span>
+                                        </button>
+                                    ) : null}
+                                </div>
                             )}
                         </div>
 

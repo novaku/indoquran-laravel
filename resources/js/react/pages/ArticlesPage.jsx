@@ -8,17 +8,19 @@ import { getWithAuth } from '../utils/apiUtils';
 const ArticlesPage = () => {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [pagination, setPagination] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
+  const [pagination, setPagination] = useState(null);
   const [selectedTag, setSelectedTag] = useState(searchParams.get('tag') || '');
   
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
 
   useEffect(() => {
     const tag = searchParams.get('tag') || '';
+    const query = searchParams.get('search') || '';
     setSelectedTag(tag);
-    fetchArticles(currentPage, searchQuery, tag);
+    setSearchQuery(query);
+    fetchArticles(currentPage, query, tag);
   }, [currentPage, searchParams]);
 
   const fetchArticles = async (page = 1, search = '', tag = '') => {
