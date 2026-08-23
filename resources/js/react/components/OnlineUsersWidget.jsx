@@ -1,126 +1,71 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { motion, useSpring, useTransform } from 'framer-motion';
 import { UsersIcon } from '@heroicons/react/24/outline';
-import { fetchWithAuth } from '../utils/apiUtils';
+import { useOnlineUsersCount } from '../hooks/useOnlineUsers';
 
 /**
- * OnlineUsersWidget - Displays real-time count of online visitors
- * 
- * Features:
- * - Automatically tracks visitor presence via heartbeat
- * - Updates count every 30 seconds
- * - Lightweight and optimized for performance
- * - Shows animated pulse when updating
+ * AnimatedNumber - Smooth spring-based counter animation using Framer Motion
  */
-function OnlineUsersWidget() {
-    const [onlineCount, setOnlineCount] = useState(0);
-    const [isUpdating, setIsUpdating] = useState(false);
-    const [error, setError] = useState(false);
-
-    // Track this visitor and get online count
-    const trackVisitor = async () => {
-        try {
-            setIsUpdating(true);
-            const response = await fetchWithAuth('/api/online-users/track', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to track visitor');
-            }
-
-            const result = await response.json();
-            if (result.status === 'success' && result.data) {
-                setOnlineCount(result.data.online_count || 0);
-                setError(false);
-            }
-        } catch (err) {
-            console.error('Error tracking visitor:', err);
-            setError(true);
-            // Don't update count on error to keep last known value
-        } finally {
-            setTimeout(() => setIsUpdating(false), 500);
-        }
-    };
-
-    // Get current online count without tracking
-    const fetchOnlineCount = async () => {
-        try {
-            setIsUpdating(true);
-            const response = await fetchWithAuth('/api/online-users/count', {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch online count');
-            }
-
-            const result = await response.json();
-            if (result.status === 'success' && result.data) {
-                setOnlineCount(result.data.online_count || 0);
-                setError(false);
-            }
-        } catch (err) {
-            console.error('Error fetching online count:', err);
-            setError(true);
-        } finally {
-            setTimeout(() => setIsUpdating(false), 500);
-        }
-    };
+function AnimatedNumber({ value }) {
+    const spring = useSpring(value, { mass: 0.5, stiffness: 80, damping: 15 });
+    const display = useTransform(spring, (current) =>
+        Math.max(1, Math.round(current)).toLocaleString('id-ID')
+    );
 
     useEffect(() => {
-        // Initial track on mount
-        trackVisitor();
+        spring.set(value);
+    }, [value, spring]);
 
-        // Send heartbeat every 2 minutes (120 seconds)
-        // This is well within the 5-minute threshold to keep user counted as online
-        const heartbeatInterval = setInterval(() => {
-            trackVisitor();
-        }, 120000); // 2 minutes
+    return <motion.span>{display}</motion.span>;
+}
 
-        // Update display count more frequently (every 30 seconds)
-        const updateInterval = setInterval(() => {
-            fetchOnlineCount();
-        }, 30000); // 30 seconds
-
-        // Cleanup on unmount
-        return () => {
-            clearInterval(heartbeatInterval);
-            clearInterval(updateInterval);
-        };
-    }, []); // Empty deps - only run on mount/unmount
+/**
+ * OnlineUsersWidget - Displays real-time count of online visitors with smart polling & tab visibility
+ * 
+ * Features:
+ * - Smart polling via TanStack Query (auto-pause when tab is inactive)
+ * - Animated count transitions via Framer Motion
+ * - Active presence indicator
+ */
+function OnlineUsersWidget({ className = '' }) {
+    const { data: onlineCount = 0, isFetching, isError } = useOnlineUsersCount();
 
     // Don't show widget if there's an error and no count
-    if (error && onlineCount === 0) {
+    if (isError && onlineCount === 0) {
         return null;
     }
 
+    const displayCount = Math.max(1, onlineCount || 1);
+
     return (
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-full shadow-sm">
-            <div className="relative">
-                <UsersIcon className="h-4 w-4 text-green-600" />
-                {isUpdating && (
-                    <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+        <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className={`inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-full shadow-xs hover:border-green-300 transition-all ${className}`}
+        >
+            <div className="relative flex items-center justify-center">
+                <UsersIcon className="h-4 w-4 text-emerald-600" />
+                {isFetching ? (
+                    <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                    </span>
+                ) : (
+                    <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500/80"></span>
                     </span>
                 )}
             </div>
             <div className="flex items-baseline gap-1">
-                <span className="text-sm font-semibold text-green-700">
-                    {onlineCount.toLocaleString('id-ID')}
+                <span className="text-sm font-bold text-emerald-800 tracking-tight">
+                    <AnimatedNumber value={displayCount} />
                 </span>
-                <span className="text-xs text-green-600">
+                <span className="text-xs text-emerald-600 font-medium">
                     online
                 </span>
             </div>
-        </div>
+        </motion.div>
     );
 }
 

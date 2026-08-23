@@ -5,9 +5,21 @@ import './devtools-fix.js';
 // Use named imports for React
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App';
 import ErrorBoundary from './components/ErrorBoundary';
 import * as serviceWorker from './utils/serviceWorker';
+
+// Initialize QueryClient with smart defaults
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            staleTime: 1000 * 10,
+            refetchOnWindowFocus: true,
+            retry: 1,
+        },
+    },
+});
 
 // Handle React DevTools in production
 if (typeof window !== 'undefined' && !window.__REACT_DEVTOOLS_GLOBAL_HOOK__) {
@@ -26,7 +38,9 @@ if (!container) {
         root.render(
             <StrictMode>
                 <ErrorBoundary>
-                    <App />
+                    <QueryClientProvider client={queryClient}>
+                        <App />
+                    </QueryClientProvider>
                 </ErrorBoundary>
             </StrictMode>
         );
@@ -73,7 +87,9 @@ if (import.meta.hot) {
     import.meta.hot.accept('./App', () => {
         root.render(
             <StrictMode>
-                <App />
+                <QueryClientProvider client={queryClient}>
+                    <App />
+                </QueryClientProvider>
             </StrictMode>
         );
     });
