@@ -77,13 +77,52 @@ const ArticlesPage = () => {
     return <LoadingSpinner />;
   }
 
+  const articlesStructuredData = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      'name': 'Artikel Islami & Kajian Al-Quran',
+      'description': 'Kumpulan artikel islami, kajian Al-Quran, tafsir, dan pengetahuan agama Islam untuk memperdalam keimanan Anda.',
+      'url': 'https://indoquran.web.id/artikel',
+      'inLanguage': 'id-ID',
+      'publisher': {
+        '@type': 'Organization',
+        'name': 'IndoQuran',
+        'url': 'https://indoquran.web.id',
+        'logo': {
+          '@type': 'ImageObject',
+          'url': 'https://indoquran.web.id/android-chrome-512x512.png'
+        }
+      }
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      'itemListElement': [
+        {
+          '@type': 'ListItem',
+          'position': 1,
+          'name': 'Beranda',
+          'item': 'https://indoquran.web.id'
+        },
+        {
+          '@type': 'ListItem',
+          'position': 2,
+          'name': 'Artikel',
+          'item': 'https://indoquran.web.id/artikel'
+        }
+      ]
+    }
+  ];
+
   return (
     <>
       <SEOHead
-        title={selectedTag ? `Artikel Tag #${selectedTag} - IndoQuran` : (searchQuery ? `Hasil Pencarian Artikel "${searchQuery}" - IndoQuran` : "Artikel Islami - IndoQuran")}
+        title={selectedTag ? `Artikel Tag #${selectedTag} - IndoQuran` : (searchQuery ? `Hasil Pencarian Artikel "${searchQuery}" - IndoQuran` : "Artikel Islami - Kajian Al-Quran & Pengetahuan Islam | IndoQuran")}
         description={selectedTag ? `Kumpulan artikel islami dan kajian Al-Quran dengan topik #${selectedTag} di IndoQuran.` : "Baca berbagai artikel islami, kajian Al-Quran, dan pengetahuan agama untuk memperdalam pemahaman Islam Anda."}
-        keywords="artikel islam, kajian quran, artikel islami, pengetahuan agama"
+        keywords="artikel islam, kajian quran, artikel islami, pengetahuan agama, tafsir, bacaan islam, indoquran"
         canonicalUrl="https://indoquran.web.id/artikel"
+        structuredData={articlesStructuredData}
         noindex={Boolean(selectedTag || searchQuery || currentPage > 1)}
         robots={selectedTag || searchQuery || currentPage > 1 ? 'noindex, follow' : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'}
       />

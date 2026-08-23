@@ -20,6 +20,7 @@ Route::get('/sitemap-index.xml', [SitemapIndexController::class, 'index'])->name
 Route::get('/sitemap-main.xml', [SitemapIndexController::class, 'mainSitemap'])->name('sitemap.main');
 Route::get('/sitemap-juz.xml', [SitemapIndexController::class, 'juzSitemap'])->name('sitemap.juz');
 Route::get('/sitemap-halaman.xml', [SitemapIndexController::class, 'halamanSitemap'])->name('sitemap.halaman');
+Route::get('/sitemap-artikel.xml', [SitemapIndexController::class, 'artikelSitemap'])->name('sitemap.artikel');
 Route::get('/sitemap-surahs-{group}.xml', [SitemapIndexController::class, 'surahGroupSitemap'])
     ->where('group', '[0-9]+')
     ->name('sitemap.surahs');

@@ -311,7 +311,8 @@ class SitemapController extends Controller
         $robotsTxt .= "# Sitemap references for comprehensive indexing\n";
         $robotsTxt .= "Sitemap: {$baseUrl}/sitemap.xml\n";
         $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-index.xml\n";
-        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-main.xml\n\n";
+        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-main.xml\n";
+        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-artikel.xml\n\n";
         
         // Google-specific optimizations
         $robotsTxt .= "# Google-specific optimizations for Indonesian content\n";
@@ -321,6 +322,7 @@ class SitemapController extends Controller
         
         $robotsTxt .= "User-agent: Googlebot-Image\n";
         $robotsTxt .= "Allow: /images/\n";
+        $robotsTxt .= "Allow: /storage/\n";
         $robotsTxt .= "Allow: /android-chrome-*.png\n";
         $robotsTxt .= "Allow: /apple-touch-icon.png\n";
         $robotsTxt .= "Allow: /favicon.ico\n\n";

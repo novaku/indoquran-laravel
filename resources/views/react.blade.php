@@ -30,6 +30,25 @@
     <meta property="og:image:type" content="image/png">
     <meta property="og:site_name" content="IndoQuran">
     <meta property="og:locale" content="id_ID">
+    @if(isset($articleOpenGraphMeta))
+        @if(!empty($articleOpenGraphMeta['published_time']))
+    <meta property="article:published_time" content="{{ $articleOpenGraphMeta['published_time'] }}">
+        @endif
+        @if(!empty($articleOpenGraphMeta['modified_time']))
+    <meta property="article:modified_time" content="{{ $articleOpenGraphMeta['modified_time'] }}">
+        @endif
+        @if(!empty($articleOpenGraphMeta['author']))
+    <meta property="article:author" content="{{ $articleOpenGraphMeta['author'] }}">
+        @endif
+        @if(!empty($articleOpenGraphMeta['section']))
+    <meta property="article:section" content="{{ $articleOpenGraphMeta['section'] }}">
+        @endif
+        @if(!empty($articleOpenGraphMeta['tags']))
+            @foreach($articleOpenGraphMeta['tags'] as $articleTag)
+    <meta property="article:tag" content="{{ $articleTag }}">
+            @endforeach
+        @endif
+    @endif
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
@@ -248,6 +267,18 @@
         }
     }
     </script>
+
+    @if(isset($articleStructuredData))
+    <script type="application/ld+json">
+    {!! json_encode($articleStructuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+    </script>
+    @endif
+
+    @if(isset($breadcrumbStructuredData))
+    <script type="application/ld+json">
+    {!! json_encode($breadcrumbStructuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+    </script>
+    @endif
 
     @if(app()->environment('local'))
     <!-- Font override for local development to prevent CORS issues -->
@@ -524,6 +555,105 @@
 
                 <div style="text-align: center; margin-top: 1.5rem;">
                     <a href="/halaman" style="display: inline-block; padding: 0.75rem 1.5rem; background: #16a34a; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">&larr; Kembali ke Daftar Halaman</a>
+                </div>
+            </div>
+        @endif
+
+        @if(isset($reactData['currentArticle']) && $reactData['currentArticle'])
+            <div id="ssr-article-detail" style="padding: 3rem 1.5rem; background: #fff; color: #1f2937; max-width: 860px; margin: 0 auto; line-height: 1.8;">
+                <nav aria-label="Breadcrumb" style="margin-bottom: 1.5rem; font-size: 0.875rem; color: #4b5563;">
+                    <a href="/" style="color: #16a34a; text-decoration: none;">Beranda</a>
+                    <span style="margin: 0 0.5rem; color: #9ca3af;">/</span>
+                    <a href="/artikel" style="color: #16a34a; text-decoration: none;">Artikel</a>
+                    <span style="margin: 0 0.5rem; color: #9ca3af;">/</span>
+                    <span style="color: #111827; font-weight: 600;">{{ $reactData['currentArticle']->title }}</span>
+                </nav>
+
+                <article>
+                    <header style="margin-bottom: 2rem;">
+                        <h1 style="font-size: 2.25rem; font-weight: 800; line-height: 1.3; color: #111827; margin-bottom: 1rem;">
+                            {{ $reactData['currentArticle']->title }}
+                        </h1>
+
+                        <div style="display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.875rem; color: #6b7280; margin-bottom: 1.25rem;">
+                            <span>✍️ {{ $reactData['currentArticle']->author->name ?? 'Redaksi IndoQuran' }}</span>
+                            <span>📅 <time datetime="{{ $reactData['currentArticle']->published_at ? $reactData['currentArticle']->published_at->toIso8601String() : '' }}">{{ $reactData['currentArticle']->formatted_date ?? ($reactData['currentArticle']->published_at ? $reactData['currentArticle']->published_at->format('d M Y') : '') }}</time></span>
+                            <span>⏱️ {{ $reactData['currentArticle']->reading_time }} menit baca</span>
+                        </div>
+
+                        @if($reactData['currentArticle']->tags && $reactData['currentArticle']->tags->isNotEmpty())
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem;">
+                                @foreach($reactData['currentArticle']->tags as $tag)
+                                    <a href="/artikel?tag={{ $tag->slug }}" style="display: inline-block; background: #dcfce7; color: #15803d; font-size: 0.8125rem; font-weight: 600; padding: 0.25rem 0.75rem; border-radius: 9999px; text-decoration: none;">
+                                        #{{ $tag->name }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        @endif
+                    </header>
+
+                    @if($reactData['currentArticle']->featured_image_url || $reactData['currentArticle']->featured_image)
+                        <figure style="margin: 0 0 2rem 0;">
+                            <img 
+                                src="{{ $reactData['currentArticle']->featured_image_url ?? asset('storage/' . $reactData['currentArticle']->featured_image) }}" 
+                                alt="{{ $reactData['currentArticle']->title }}" 
+                                style="width: 100%; max-height: 480px; object-fit: cover; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);" 
+                            />
+                        </figure>
+                    @endif
+
+                    <div class="article-body" style="font-size: 1.125rem; color: #374151; margin-bottom: 3rem;">
+                        {!! $reactData['currentArticle']->content !!}
+                    </div>
+
+                    @if(!empty($reactData['relatedArticles']) && $reactData['relatedArticles']->isNotEmpty())
+                        <section style="border-top: 2px solid #f3f4f6; padding-top: 2rem; margin-top: 2rem;">
+                            <h2 style="font-size: 1.5rem; font-weight: 700; color: #111827; margin-bottom: 1.25rem;">Artikel Terkait</h2>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem;">
+                                @foreach($reactData['relatedArticles'] as $related)
+                                    <a href="/artikel/{{ $related->slug }}" style="display: block; padding: 1rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; text-decoration: none; color: inherit; background: #f9fafb;">
+                                        <h3 style="font-size: 1rem; font-weight: 700; color: #111827; margin: 0 0 0.5rem 0;">{{ $related->title }}</h3>
+                                        <p style="font-size: 0.875rem; color: #6b7280; margin: 0;">{{ Str::limit(strip_tags($related->excerpt ?: $related->content), 80) }}</p>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </section>
+                    @endif
+
+                    <div style="text-align: center; margin-top: 2.5rem;">
+                        <a href="/artikel" style="display: inline-block; padding: 0.75rem 1.5rem; background: #16a34a; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">&larr; Lihat Semua Artikel</a>
+                    </div>
+                </article>
+            </div>
+        @endif
+
+        @if(isset($reactData['articles']) && $reactData['articles']->isNotEmpty())
+            <div id="ssr-article-list" style="padding: 3rem 1.5rem; background: #fff; color: #1f2937; max-width: 1100px; margin: 0 auto;">
+                <header style="text-align: center; margin-bottom: 2.5rem;">
+                    <h1 style="font-size: 2.25rem; font-weight: 800; color: #166534; margin-bottom: 0.75rem;">Artikel Islami & Kajian Al-Quran</h1>
+                    <p style="font-size: 1.125rem; color: #4b5563; max-width: 700px; margin: 0 auto;">Kumpulan artikel pilihan, kajian Al-Quran, tafsir, dan pengetahuan Islam untuk memperdalam keimanan dan wawasan religi Anda.</p>
+                </header>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+                    @foreach($reactData['articles'] as $art)
+                        <article style="border: 1px solid #e5e7eb; border-radius: 0.75rem; overflow: hidden; background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
+                            @if($art->featured_image_url || $art->featured_image)
+                                <img src="{{ $art->featured_image_url ?? asset('storage/' . $art->featured_image) }}" alt="{{ $art->title }}" style="width: 100%; height: 180px; object-fit: cover;" loading="lazy" />
+                            @endif
+                            <div style="padding: 1.25rem; flex: 1; display: flex; flex-direction: column;">
+                                <h2 style="font-size: 1.125rem; font-weight: 700; color: #111827; margin: 0 0 0.5rem 0; line-height: 1.4;">
+                                    <a href="/artikel/{{ $art->slug }}" style="color: #111827; text-decoration: none;">{{ $art->title }}</a>
+                                </h2>
+                                <p style="font-size: 0.875rem; color: #4b5563; line-height: 1.6; margin: 0 0 1rem 0; flex: 1;">
+                                    {{ Str::limit(strip_tags($art->excerpt ?: $art->content), 120) }}
+                                </p>
+                                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8125rem; color: #6b7280; border-top: 1px solid #f3f4f6; padding-top: 0.75rem;">
+                                    <span>{{ $art->formatted_date ?? ($art->published_at ? $art->published_at->format('d M Y') : '') }}</span>
+                                    <a href="/artikel/{{ $art->slug }}" style="color: #16a34a; font-weight: 600; text-decoration: none;">Baca Selengkapnya &rarr;</a>
+                                </div>
+                            </div>
+                        </article>
+                    @endforeach
                 </div>
             </div>
         @endif

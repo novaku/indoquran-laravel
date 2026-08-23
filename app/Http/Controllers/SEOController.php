@@ -523,15 +523,95 @@ class SEOController extends Controller
             // Article SEO handling
             if (isset($segments[1])) {
                 $slug = (string) $segments[1];
-                $article = Article::query()->where('slug', $slug)->published()->first();
+                $article = Article::query()->with(['author', 'tags'])->where('slug', $slug)->published()->first();
                 if ($article) {
+                    $articleDescription = Str::limit(strip_tags($article->excerpt ?: $article->content), 160);
+                    $tagNames = $article->tags ? $article->tags->pluck('name')->toArray() : [];
+                    $tagsString = !empty($tagNames) ? implode(', ', $tagNames) : '';
+                    $metaKeywords = "artikel islam, {$article->title}, kajian quran, " . ($tagsString ? "{$tagsString}, " : "") . "indoquran";
+                    $canonicalUrl = "https://indoquran.web.id/artikel/{$slug}";
+                    $ogImage = $article->featured_image_url ?: url('/android-chrome-512x512.png');
+
+                    // Schema.org Article Structured Data (JSON-LD)
+                    $articleStructuredData = [
+                        '@context' => 'https://schema.org',
+                        '@type' => 'Article',
+                        'mainEntityOfPage' => [
+                            '@type' => 'WebPage',
+                            '@id' => $canonicalUrl
+                        ],
+                        'headline' => $article->title,
+                        'description' => $articleDescription,
+                        'image' => [
+                            $ogImage
+                        ],
+                        'datePublished' => $article->published_at ? $article->published_at->toIso8601String() : $article->created_at->toIso8601String(),
+                        'dateModified' => $article->updated_at ? $article->updated_at->toIso8601String() : ($article->published_at ? $article->published_at->toIso8601String() : now()->toIso8601String()),
+                        'author' => [
+                            '@type' => 'Person',
+                            'name' => $article->author ? $article->author->name : 'Redaksi IndoQuran',
+                            'url' => 'https://indoquran.web.id'
+                        ],
+                        'publisher' => [
+                            '@type' => 'Organization',
+                            'name' => 'IndoQuran',
+                            'url' => 'https://indoquran.web.id',
+                            'logo' => [
+                                '@type' => 'ImageObject',
+                                'url' => 'https://indoquran.web.id/android-chrome-512x512.png',
+                                'width' => 512,
+                                'height' => 512
+                            ]
+                        ],
+                        'inLanguage' => 'id-ID',
+                        'articleSection' => 'Kajian Al-Quran & Islam',
+                        'keywords' => $metaKeywords
+                    ];
+
+                    // Schema.org BreadcrumbList Structured Data
+                    $breadcrumbStructuredData = [
+                        '@context' => 'https://schema.org',
+                        '@type' => 'BreadcrumbList',
+                        'itemListElement' => [
+                            [
+                                '@type' => 'ListItem',
+                                'position' => 1,
+                                'name' => 'Beranda',
+                                'item' => 'https://indoquran.web.id'
+                            ],
+                            [
+                                '@type' => 'ListItem',
+                                'position' => 2,
+                                'name' => 'Artikel',
+                                'item' => 'https://indoquran.web.id/artikel'
+                            ],
+                            [
+                                '@type' => 'ListItem',
+                                'position' => 3,
+                                'name' => $article->title,
+                                'item' => $canonicalUrl
+                            ]
+                        ]
+                    ];
+
+                    $articleOpenGraphMeta = [
+                        'published_time' => $article->published_at ? $article->published_at->toIso8601String() : null,
+                        'modified_time' => $article->updated_at ? $article->updated_at->toIso8601String() : null,
+                        'author' => $article->author ? $article->author->name : 'IndoQuran',
+                        'section' => 'Kajian Al-Quran & Islam',
+                        'tags' => $tagNames,
+                    ];
+
                     $seoData = array_merge($seoData, [
-                        'metaTitle' => "{$article->title} - IndoQuran",
-                        'metaDescription' => Str::limit(strip_tags($article->excerpt ?: $article->content), 160),
-                        'metaKeywords' => "artikel islam, {$article->title}, kajian quran, indoquran",
-                        'canonicalUrl' => url("/artikel/{$slug}"),
-                        'ogImage' => $article->featured_image_url ?: url('/android-chrome-512x512.png'),
+                        'metaTitle' => "{$article->title} | IndoQuran",
+                        'metaDescription' => $articleDescription,
+                        'metaKeywords' => $metaKeywords,
+                        'canonicalUrl' => $canonicalUrl,
+                        'ogImage' => $ogImage,
                         'ogType' => 'article',
+                        'articleOpenGraphMeta' => $articleOpenGraphMeta,
+                        'articleStructuredData' => $articleStructuredData,
+                        'breadcrumbStructuredData' => $breadcrumbStructuredData,
                         'robots' => 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'
                     ]);
                 }
@@ -541,12 +621,32 @@ class SEOController extends Controller
                 $tag = $request->get('tag', '');
                 $search = $request->get('search', '');
 
+                $breadcrumbStructuredData = [
+                    '@context' => 'https://schema.org',
+                    '@type' => 'BreadcrumbList',
+                    'itemListElement' => [
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 1,
+                            'name' => 'Beranda',
+                            'item' => 'https://indoquran.web.id'
+                        ],
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 2,
+                            'name' => 'Artikel',
+                            'item' => 'https://indoquran.web.id/artikel'
+                        ]
+                    ]
+                ];
+
                 if ($tag) {
                     $seoData = array_merge($seoData, [
                         'metaTitle' => "Artikel Tag #{$tag} - IndoQuran",
                         'metaDescription' => "Kumpulan artikel islami dan kajian Al-Quran dengan topik #{$tag} di IndoQuran.",
                         'metaKeywords' => "artikel {$tag}, kajian {$tag}, artikel islam, indoquran",
-                        'canonicalUrl' => url('/artikel'),
+                        'canonicalUrl' => 'https://indoquran.web.id/artikel',
+                        'breadcrumbStructuredData' => $breadcrumbStructuredData,
                         'robots' => 'noindex, follow'
                     ]);
                 } elseif ($search) {
@@ -554,7 +654,8 @@ class SEOController extends Controller
                         'metaTitle' => "Hasil Pencarian Artikel \"{$search}\" - IndoQuran",
                         'metaDescription' => "Kumpulan artikel islami yang sesuai dengan pencarian \"{$search}\" di IndoQuran.",
                         'metaKeywords' => "cari artikel, {$search}, artikel islam, indoquran",
-                        'canonicalUrl' => url('/artikel'),
+                        'canonicalUrl' => 'https://indoquran.web.id/artikel',
+                        'breadcrumbStructuredData' => $breadcrumbStructuredData,
                         'robots' => 'noindex, follow'
                     ]);
                 } elseif ($hasFilter) {
@@ -562,15 +663,17 @@ class SEOController extends Controller
                         'metaTitle' => 'Artikel Islami & Kajian Al-Quran | IndoQuran',
                         'metaDescription' => 'Kumpulan artikel islami, kajian Al-Quran, tafsir, dan pengetahuan agama Islam untuk memperdalam keimanan Anda.',
                         'metaKeywords' => 'artikel islam, artikel islami, kajian quran, pengetahuan agama, tafsir, bacaan islam, indoquran',
-                        'canonicalUrl' => url('/artikel'),
+                        'canonicalUrl' => 'https://indoquran.web.id/artikel',
+                        'breadcrumbStructuredData' => $breadcrumbStructuredData,
                         'robots' => 'noindex, follow'
                     ]);
                 } else {
                     $seoData = array_merge($seoData, [
                         'metaTitle' => 'Artikel Islami - Kajian Al-Quran & Pengetahuan Islam | IndoQuran',
-                        'metaDescription' => 'Kumpulan artikel islami, kajian Al-Quran, tafsir, dan pengetahuan agama Islam untuk memperdalam keimanan Anda.',
+                        'metaDescription' => 'Kumpulan artikel islami, kajian Al-Quran, tafsir, dan pengetahuan agama Islam untuk memperdalam keimanan Anda. Baca dan pelajari artikel religi terpercaya.',
                         'metaKeywords' => 'artikel islam, artikel islami, kajian quran, pengetahuan agama, tafsir, bacaan islam, indoquran',
-                        'canonicalUrl' => url('/artikel'),
+                        'canonicalUrl' => 'https://indoquran.web.id/artikel',
+                        'breadcrumbStructuredData' => $breadcrumbStructuredData,
                         'robots' => 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'
                     ]);
                 }
@@ -713,6 +816,29 @@ class SEOController extends Controller
                 'surah_spans' => $surahSpans,
                 'has_ssr_content' => $pageAyahs->isNotEmpty(),
             ];
+        }
+        elseif (isset($segments[0]) && $segments[0] === 'artikel') {
+            if (isset($segments[1])) {
+                $slug = (string) $segments[1];
+                $article = Article::query()->with(['author', 'tags'])->where('slug', $slug)->published()->first();
+                if ($article) {
+                    $reactData['currentArticle'] = $article;
+                    $reactData['relatedArticles'] = Article::query()
+                        ->with(['author', 'tags'])
+                        ->published()
+                        ->where('id', '!=', $article->id)
+                        ->latest('published_at')
+                        ->limit(3)
+                        ->get();
+                }
+            } else {
+                $reactData['articles'] = Article::query()
+                    ->with(['author', 'tags'])
+                    ->published()
+                    ->latest('published_at')
+                    ->limit(12)
+                    ->get();
+            }
         }
 
         return view('react', array_merge($seoData, ['reactData' => $reactData]));

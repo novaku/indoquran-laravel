@@ -116,15 +116,93 @@ const ArticleDetailPage = () => {
     );
   }
 
+  const articleImageUrl = article.featured_image_url || getImageUrl(article.featured_image);
+  const tagNames = article.tags ? article.tags.map((t) => t.name) : [];
+  const tagsString = tagNames.join(', ');
+  const cleanExcerpt = article.excerpt ? article.excerpt.replace(/<[^>]*>?/gm, '').trim() : '';
+  const metaDescription = cleanExcerpt || (article.content ? article.content.replace(/<[^>]*>?/gm, '').slice(0, 160).trim() : article.title);
+
+  const structuredData = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      'mainEntityOfPage': {
+        '@type': 'WebPage',
+        '@id': `https://indoquran.web.id/artikel/${article.slug}`
+      },
+      'headline': article.title,
+      'description': metaDescription,
+      'image': [
+        articleImageUrl.startsWith('http') ? articleImageUrl : `https://indoquran.web.id${articleImageUrl}`
+      ],
+      'datePublished': article.published_at || article.created_at,
+      'dateModified': article.updated_at || article.published_at || article.created_at,
+      'author': {
+        '@type': 'Person',
+        'name': article.author?.name || 'Redaksi IndoQuran',
+        'url': 'https://indoquran.web.id'
+      },
+      'publisher': {
+        '@type': 'Organization',
+        'name': 'IndoQuran',
+        'url': 'https://indoquran.web.id',
+        'logo': {
+          '@type': 'ImageObject',
+          'url': 'https://indoquran.web.id/android-chrome-512x512.png'
+        }
+      },
+      'inLanguage': 'id-ID',
+      'articleSection': 'Kajian Al-Quran & Islam',
+      'keywords': `artikel islam, ${article.title}, kajian quran${tagsString ? ', ' + tagsString : ''}`
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      'itemListElement': [
+        {
+          '@type': 'ListItem',
+          'position': 1,
+          'name': 'Beranda',
+          'item': 'https://indoquran.web.id'
+        },
+        {
+          '@type': 'ListItem',
+          'position': 2,
+          'name': 'Artikel',
+          'item': 'https://indoquran.web.id/artikel'
+        },
+        {
+          '@type': 'ListItem',
+          'position': 3,
+          'name': article.title,
+          'item': `https://indoquran.web.id/artikel/${article.slug}`
+        }
+      ]
+    }
+  ];
+
   return (
     <>
       <SEOHead
-        title={`${article.title} - IndoQuran`}
-        description={article.excerpt || article.title}
-        keywords={`artikel islam, ${article.title}, kajian quran`}
+        title={`${article.title} | IndoQuran`}
+        description={metaDescription}
+        keywords={`artikel islam, ${article.title}, kajian quran${tagsString ? ', ' + tagsString : ''}, indoquran`}
         canonicalUrl={`https://indoquran.web.id/artikel/${article.slug}`}
-        ogImage={article.featured_image_url || getImageUrl(article.featured_image)}
+        ogImage={articleImageUrl}
         ogType="article"
+        structuredData={structuredData}
+        openGraph={{
+          'article:published_time': article.published_at || article.created_at,
+          'article:modified_time': article.updated_at || article.published_at,
+          'article:author': article.author?.name || 'IndoQuran',
+          'article:section': 'Kajian Al-Quran & Islam'
+        }}
+        additionalMeta={[
+          { property: 'article:published_time', content: article.published_at || article.created_at },
+          { property: 'article:modified_time', content: article.updated_at || article.published_at },
+          { property: 'article:author', content: article.author?.name || 'IndoQuran' },
+          { property: 'article:section', content: 'Kajian Al-Quran & Islam' }
+        ]}
       />
 
       <div className="min-h-screen bg-white">
@@ -133,13 +211,13 @@ const ArticleDetailPage = () => {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               {/* Breadcrumb */}
-              <div className="mb-6 text-sm text-gray-600">
-                <Link to="/" className="hover:text-green-600">Home</Link>
+              <nav aria-label="Breadcrumb" className="mb-6 text-sm text-gray-600">
+                <Link to="/" className="hover:text-green-600">Beranda</Link>
                 <span className="mx-2">/</span>
                 <Link to="/artikel" className="hover:text-green-600">Artikel</Link>
                 <span className="mx-2">/</span>
-                <span className="text-gray-900">{article.title}</span>
-              </div>
+                <span className="text-gray-900 font-medium">{article.title}</span>
+              </nav>
 
               {/* Title */}
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">

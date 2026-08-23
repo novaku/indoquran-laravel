@@ -42,6 +42,12 @@ class SitemapIndexController extends Controller
             $baseUrl . '/sitemap-halaman.xml',
             $currentDate
         );
+
+        // Artikel sitemap (all published articles)
+        $xml .= $this->createSitemapEntry(
+            $baseUrl . '/sitemap-artikel.xml',
+            $currentDate
+        );
         
         $xml .= '</sitemapindex>';
         
@@ -234,6 +240,43 @@ class SitemapIndexController extends Controller
                 'changefreq' => 'weekly',
                 'priority' => '0.7'
             ];
+        }
+        
+        return $this->generateSitemapXml($pages);
+    }
+
+    /**
+     * Generate sitemap for Article pages
+     */
+    public function artikelSitemap()
+    {
+        $baseUrl = (app()->environment('production') && !app()->environment(['local', 'development', 'testing']))
+            ? 'https://indoquran.web.id' 
+            : config('app.url');
+            
+        $currentDate = now()->format('Y-m-d');
+        
+        $pages = [
+            [
+                'url' => $baseUrl . '/artikel',
+                'lastmod' => $currentDate,
+                'changefreq' => 'daily',
+                'priority' => '0.9'
+            ]
+        ];
+
+        try {
+            $articles = \App\Models\Article::published()->select('slug', 'updated_at')->get();
+            foreach ($articles as $article) {
+                $pages[] = [
+                    'url' => $baseUrl . '/artikel/' . $article->slug,
+                    'lastmod' => $article->updated_at ? $article->updated_at->format('Y-m-d') : $currentDate,
+                    'changefreq' => 'weekly',
+                    'priority' => '0.85'
+                ];
+            }
+        } catch (\Throwable $e) {
+            // Ignore if table not available
         }
         
         return $this->generateSitemapXml($pages);

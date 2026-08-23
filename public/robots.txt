@@ -66,6 +66,7 @@ Crawl-delay: 1
 Sitemap: https://indoquran.web.id/sitemap.xml
 Sitemap: https://indoquran.web.id/sitemap-index.xml
 Sitemap: https://indoquran.web.id/sitemap-main.xml
+Sitemap: https://indoquran.web.id/sitemap-artikel.xml
 
 # Googlebot specific
 User-agent: Googlebot
@@ -81,6 +82,7 @@ Crawl-delay: 0.5
 
 User-agent: Googlebot-Image
 Allow: /images/
+Allow: /storage/
 Allow: /android-chrome-*.png
 Allow: /apple-touch-icon.png
 Allow: /favicon.ico
