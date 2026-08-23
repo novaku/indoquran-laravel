@@ -16,7 +16,7 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /dashboard/
 
-# Disallow internal search query and pagination URLs (Google Search Central Guidelines)
+# Disallow search and filter URLs
 Disallow: /cari?
 Disallow: /cari/*
 Disallow: /search
@@ -25,20 +25,7 @@ Disallow: /*?*tag=
 Disallow: /*?*search=
 Disallow: /artikel?*
 
-# Disallow tracking parameters
-Disallow: /*?*utm_source=
-Disallow: /*?*utm_medium=
-Disallow: /*?*utm_campaign=
-Disallow: /*?*utm_term=
-Disallow: /*?*utm_content=
-Disallow: /*?*fbclid=
-Disallow: /*?*gclid=
-Disallow: /*?*msclkid=
-Disallow: /*?*ref=
-Disallow: /*?*_ga=
-Disallow: /*?*_gid=
-
-# Allow main landing pages
+# Allow important pages
 Allow: /cari$
 Allow: /surah
 Allow: /surah/

@@ -49,6 +49,7 @@ class GenerateComprehensiveSitemap extends Command
         
         // Generate individual modular sitemap files
         $this->generateMainContentSitemap($baseUrl);
+        $this->generateArtikelSitemap($baseUrl);
         $this->generateJuzSitemap($baseUrl);
         $this->generateHalamanSitemap($baseUrl);
         
@@ -150,6 +151,9 @@ class GenerateComprehensiveSitemap extends Command
         
         // Main content sitemap (static pages + 114 surahs)
         $xml .= $this->createSitemapEntry($baseUrl . '/sitemap-main.xml', $currentDate);
+
+        // Artikel sitemap (all published articles)
+        $xml .= $this->createSitemapEntry($baseUrl . '/sitemap-artikel.xml', $currentDate);
         
         // Juz sitemap (30 Juz)
         $xml .= $this->createSitemapEntry($baseUrl . '/sitemap-juz.xml', $currentDate);
@@ -160,6 +164,43 @@ class GenerateComprehensiveSitemap extends Command
         $xml .= '</sitemapindex>';
         File::put(public_path('sitemap-index.xml'), $xml);
         $this->info('✓ Sitemap index generated');
+    }
+    
+    /**
+     * Generate Artikel sitemap
+     */
+    protected function generateArtikelSitemap($baseUrl)
+    {
+        $this->info('Generating Artikel sitemap...');
+        
+        $currentDate = Carbon::now()->format('Y-m-d');
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
+        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
+        
+        $xml .= $this->createUrlEntry(
+            $baseUrl . '/artikel',
+            $currentDate,
+            'daily',
+            '0.9'
+        );
+
+        try {
+            $articles = \App\Models\Article::published()->select('slug', 'updated_at')->get();
+            foreach ($articles as $article) {
+                $xml .= $this->createUrlEntry(
+                    $baseUrl . '/artikel/' . $article->slug,
+                    $article->updated_at ? $article->updated_at->format('Y-m-d') : $currentDate,
+                    'weekly',
+                    '0.85'
+                );
+            }
+        } catch (\Throwable $e) {
+            // Ignore if table not available
+        }
+        
+        $xml .= '</urlset>';
+        File::put(public_path('sitemap-artikel.xml'), $xml);
+        $this->info('✓ Artikel sitemap generated');
     }
     
     /**
@@ -288,19 +329,39 @@ class GenerateComprehensiveSitemap extends Command
         $this->info('Updating robots.txt...');
         
         $robotsTxt = "User-agent: *\nAllow: /\n\n";
-        $robotsTxt .= "# Disallow private pages\n";
+        $robotsTxt .= "# Disallow private and account pages\n";
         $robotsTxt .= "Disallow: /auth/\n";
         $robotsTxt .= "Disallow: /profile\n";
+        $robotsTxt .= "Disallow: /profil\n";
         $robotsTxt .= "Disallow: /bookmarks\n";
+        $robotsTxt .= "Disallow: /penanda\n";
+        $robotsTxt .= "Disallow: /masuk\n";
+        $robotsTxt .= "Disallow: /daftar\n";
+        $robotsTxt .= "Disallow: /login\n";
+        $robotsTxt .= "Disallow: /register\n";
+        $robotsTxt .= "Disallow: /logout\n";
         $robotsTxt .= "Disallow: /api/\n";
-        $robotsTxt .= "Disallow: /admin/\n\n";
+        $robotsTxt .= "Disallow: /admin/\n";
+        $robotsTxt .= "Disallow: /dashboard/\n\n";
+        $robotsTxt .= "# Disallow search and filter URLs\n";
+        $robotsTxt .= "Disallow: /cari?\n";
+        $robotsTxt .= "Disallow: /cari/*\n";
+        $robotsTxt .= "Disallow: /search\n";
+        $robotsTxt .= "Disallow: /search?\n";
+        $robotsTxt .= "Disallow: /*?*tag=\n";
+        $robotsTxt .= "Disallow: /*?*search=\n";
+        $robotsTxt .= "Disallow: /artikel?*\n\n";
         $robotsTxt .= "# Allow important pages\n";
-        $robotsTxt .= "Allow: /cari\n";
+        $robotsTxt .= "Allow: /cari$\n";
         $robotsTxt .= "Allow: /surah\n";
-        $robotsTxt .= "Allow: /daftar-lengkap\n";
         $robotsTxt .= "Allow: /surah/\n";
+        $robotsTxt .= "Allow: /daftar-lengkap\n";
+        $robotsTxt .= "Allow: /juz\n";
         $robotsTxt .= "Allow: /juz/\n";
+        $robotsTxt .= "Allow: /halaman\n";
         $robotsTxt .= "Allow: /halaman/\n";
+        $robotsTxt .= "Allow: /artikel$\n";
+        $robotsTxt .= "Allow: /artikel/\n";
         $robotsTxt .= "Allow: /asmaul-husna\n";
         $robotsTxt .= "Allow: /tafsir-maudhui\n";
         $robotsTxt .= "Allow: /doa-bersama\n";
@@ -308,16 +369,32 @@ class GenerateComprehensiveSitemap extends Command
         $robotsTxt .= "Allow: /kontak\n";
         $robotsTxt .= "Allow: /donasi\n";
         $robotsTxt .= "Allow: /riwayat-versi\n";
-        $robotsTxt .= "Allow: /kebijakan\n\n";
+        $robotsTxt .= "Allow: /kebijakan\n";
+        $robotsTxt .= "Allow: /amp/\n\n";
         $robotsTxt .= "# Crawl delay for respectful crawling\n";
         $robotsTxt .= "Crawl-delay: 1\n\n";
         $robotsTxt .= "# Sitemaps\n";
         $robotsTxt .= "Sitemap: {$baseUrl}/sitemap.xml\n";
-        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-index.xml\n\n";
-        $robotsTxt .= "# Additional guidelines for major search engines\n";
+        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-index.xml\n";
+        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-main.xml\n";
+        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-artikel.xml\n\n";
+        $robotsTxt .= "# Googlebot specific\n";
         $robotsTxt .= "User-agent: Googlebot\n";
         $robotsTxt .= "Allow: /\n";
-        $robotsTxt .= "Crawl-delay: 1\n\n";
+        $robotsTxt .= "Allow: /cari$\n";
+        $robotsTxt .= "Disallow: /cari?\n";
+        $robotsTxt .= "Disallow: /cari/*\n";
+        $robotsTxt .= "Disallow: /search\n";
+        $robotsTxt .= "Disallow: /search?\n";
+        $robotsTxt .= "Disallow: /api/\n";
+        $robotsTxt .= "Disallow: /admin/\n";
+        $robotsTxt .= "Crawl-delay: 0.5\n\n";
+        $robotsTxt .= "User-agent: Googlebot-Image\n";
+        $robotsTxt .= "Allow: /images/\n";
+        $robotsTxt .= "Allow: /storage/\n";
+        $robotsTxt .= "Allow: /android-chrome-*.png\n";
+        $robotsTxt .= "Allow: /apple-touch-icon.png\n";
+        $robotsTxt .= "Allow: /favicon.ico\n\n";
         $robotsTxt .= "User-agent: Bingbot\n";
         $robotsTxt .= "Allow: /\n";
         $robotsTxt .= "Crawl-delay: 1\n\n";

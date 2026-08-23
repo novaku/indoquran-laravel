@@ -12,10 +12,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // Generate sitemap weekly to keep it up to date
-        $schedule->command('sitemap:generate')->weekly()->withoutOverlapping();
-        
-        // You can add more scheduled tasks here
+        // Generate comprehensive sitemap daily at 02:00
+        $schedule->command('sitemap:generate-comprehensive --production')->dailyAt('02:00')->withoutOverlapping();
     }
 
     /**

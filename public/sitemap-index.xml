@@ -2,14 +2,18 @@
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
     <loc>https://indoquran.web.id/sitemap-main.xml</loc>
-    <lastmod>2026-08-19T12:52:29Z</lastmod>
+    <lastmod>2026-08-23T22:42:02Z</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://indoquran.web.id/sitemap-artikel.xml</loc>
+    <lastmod>2026-08-23T22:42:02Z</lastmod>
   </sitemap>
   <sitemap>
     <loc>https://indoquran.web.id/sitemap-juz.xml</loc>
-    <lastmod>2026-08-19T12:52:29Z</lastmod>
+    <lastmod>2026-08-23T22:42:02Z</lastmod>
   </sitemap>
   <sitemap>
     <loc>https://indoquran.web.id/sitemap-halaman.xml</loc>
-    <lastmod>2026-08-19T12:52:29Z</lastmod>
+    <lastmod>2026-08-23T22:42:02Z</lastmod>
   </sitemap>
 </sitemapindex>
