@@ -30,6 +30,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import OnlineUsersWidget from '../components/OnlineUsersWidget';
+import ArticleHoverCard from '../components/ArticleHoverCard';
 import { Card, Button } from '../components/ui';
 import { fetchWithAuth } from '../utils/apiUtils';
 import { getReadingProgress } from '../services/ReadingProgressService';
@@ -245,7 +246,7 @@ function QuranHomePage() {
         setLoadingArticles(true);
         try {
             const params = new URLSearchParams();
-            params.append('per_page', '4');
+            params.append('per_page', '10');
 
             if (search && search.trim()) {
                 params.append('search', search.trim());
@@ -1087,9 +1088,9 @@ function QuranHomePage() {
                             {/* Article Cards */}
                             {loadingArticles ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {Array.from({ length: 4 }).map((_, i) => (
+                                    {Array.from({ length: 6 }).map((_, i) => (
                                         <div key={i} className="flex gap-3.5 p-3.5 rounded-xl border border-gray-100 bg-gray-50/50 animate-pulse">
-                                            <div className="w-22 sm:w-26 h-22 sm:h-26 bg-gray-200 rounded-xl flex-shrink-0" />
+                                            <div className="w-24 sm:w-28 h-24 sm:h-28 bg-gray-200 rounded-xl flex-shrink-0" />
                                             <div className="flex-1 space-y-2 py-1">
                                                 <div className="h-4 bg-gray-200 rounded w-4/5" />
                                                 <div className="h-3 bg-gray-200 rounded w-full" />
@@ -1101,86 +1102,12 @@ function QuranHomePage() {
                             ) : articles.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {articles.map((article, idx) => (
-                                        <Link
+                                        <ArticleHoverCard
                                             key={article.id}
-                                            to={`/artikel/${article.slug}`}
-                                            className="group relative flex gap-3.5 p-3.5 rounded-xl border border-gray-200/80 bg-white hover:border-emerald-300 hover:bg-emerald-50/20 hover:shadow-xs transition-all duration-200"
-                                        >
-                                            {/* Thumbnail */}
-                                            {article.featured_image_url ? (
-                                                <div className="w-22 sm:w-26 h-22 sm:h-26 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0 relative shadow-2xs">
-                                                    <img
-                                                        src={article.featured_image_url}
-                                                        alt={article.title}
-                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                                        loading="lazy"
-                                                    />
-                                                    {articleTab === 'populer' && idx === 0 && (
-                                                        <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-amber-500/90 backdrop-blur-xs text-[10px] font-bold text-white shadow-xs">
-                                                            #1 Populer
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            ) : (
-                                                <div className="w-22 sm:w-26 h-22 sm:h-26 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-500">
-                                                    <NewspaperIcon className="w-8 h-8 opacity-75 group-hover:scale-110 transition-transform" />
-                                                </div>
-                                            )}
-
-                                            {/* Content */}
-                                            <div className="flex-1 min-w-0 flex flex-col justify-between">
-                                                <div>
-                                                    {/* Tags or Category */}
-                                                    <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                                                        {article.tags && article.tags.length > 0 ? (
-                                                            article.tags.slice(0, 2).map((t) => (
-                                                                <span
-                                                                    key={t.id}
-                                                                    className="text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100"
-                                                                >
-                                                                    #{t.name}
-                                                                </span>
-                                                            ))
-                                                        ) : (
-                                                            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-gray-100 text-gray-600">
-                                                                Wawasan
-                                                            </span>
-                                                        )}
-                                                    </div>
-
-                                                    {/* Title */}
-                                                    <h3 className="font-bold text-sm text-gray-900 group-hover:text-emerald-700 transition-colors line-clamp-2 leading-snug">
-                                                        {article.title}
-                                                    </h3>
-
-                                                    {/* Excerpt */}
-                                                    {article.excerpt && (
-                                                        <p className="text-xs text-gray-500 line-clamp-1 mt-1 leading-relaxed">
-                                                            {article.excerpt}
-                                                        </p>
-                                                    )}
-                                                </div>
-
-                                                {/* Meta Info */}
-                                                <div className="flex items-center gap-2.5 text-[11px] text-gray-400 mt-2 flex-wrap">
-                                                    {article.formatted_date && (
-                                                        <div className="flex items-center gap-1">
-                                                            <ClockIcon className="w-3 h-3 text-gray-400" />
-                                                            <span>{article.formatted_date}</span>
-                                                        </div>
-                                                    )}
-                                                    {article.reading_time && (
-                                                        <span>• {article.reading_time} mnt</span>
-                                                    )}
-                                                    {typeof article.views_count === 'number' && article.views_count > 0 && (
-                                                        <div className="flex items-center gap-1 text-emerald-600/90 font-medium ml-auto">
-                                                            <EyeIcon className="w-3 h-3" />
-                                                            <span>{article.views_count.toLocaleString('id-ID')}</span>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </Link>
+                                            article={article}
+                                            index={idx}
+                                            articleTab={articleTab}
+                                        />
                                     ))}
                                 </div>
                             ) : (
