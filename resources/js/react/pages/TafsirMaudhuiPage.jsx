@@ -9,7 +9,8 @@ import {
     ChevronRightIcon,
     FolderIcon,
     FolderOpenIcon,
-    DocumentTextIcon
+    DocumentTextIcon,
+    ArrowTopRightOnSquareIcon
 } from '@heroicons/react/24/outline';
 import SEOHead from '../components/SEOHead';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -188,12 +189,13 @@ function VerseNode({ verse, level = 0 }) {
             rel="noopener noreferrer"
             className="flex items-center py-1.5 px-3 rounded-md hover:bg-blue-50 group transition-colors"
             style={indentStyle}
+            title={`Buka Surah ${verse.surah}, Ayat ${verse.ayah} di tab baru`}
         >
-            <DocumentTextIcon className="w-3 h-3 text-gray-400 mr-2 flex-shrink-0" />
+            <DocumentTextIcon className="w-3.5 h-3.5 text-gray-400 mr-2 flex-shrink-0 group-hover:text-blue-500 transition-colors" />
             <span className="text-sm text-gray-700 group-hover:text-blue-700 transition-colors">
                 Surah {verse.surah}, Ayat {verse.ayah}
             </span>
-            <ChevronRightIcon className="w-3 h-3 text-gray-300 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+            <ArrowTopRightOnSquareIcon className="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-600 ml-1.5 flex-shrink-0 transition-colors" />
         </Link>
     );
 }
