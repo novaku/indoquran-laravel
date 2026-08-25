@@ -835,6 +835,20 @@
     color: #15803d;
 }
 
+.article-content em,
+.article-content i,
+.prose em,
+.prose i {
+    font-style: italic !important;
+}
+
+.article-content strong,
+.article-content b,
+.prose strong,
+.prose b {
+    font-weight: 600;
+}
+
 /* Scrollbar styling for breadcrumb */
 .scrollbar-hide {
     -ms-overflow-style: none;  /* IE and Edge */
