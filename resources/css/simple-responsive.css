@@ -23,6 +23,25 @@ body {
   line-height: 2;
 }
 
+/* Professional responsive article image styles */
+.article-thumb-wrapper {
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.article-thumb-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+}
+
 /* Mobile-first responsive design */
 @media (max-width: 640px) {
   /* Better touch targets on mobile */

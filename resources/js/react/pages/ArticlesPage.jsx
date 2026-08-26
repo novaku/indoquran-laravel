@@ -196,11 +196,12 @@ const ArticlesPage = () => {
                     className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
                   >
                     {/* Featured Image */}
-                    <div className="h-48 bg-gray-200 overflow-hidden">
+                    <div className="article-thumb-wrapper h-48 bg-gray-100">
                       <img
                         src={article.featured_image_url || getImageUrl(article.featured_image)}
                         alt={article.title}
-                        className="w-full h-full object-cover"
+                        className="article-thumb-img"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
                         onError={(e) => {
                           e.target.src = '/images/default-article.svg';
                         }}

@@ -361,11 +361,12 @@ const ArticleDetailPage = () => {
                       to={`/artikel/${related.slug}`}
                       className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300"
                     >
-                      <div className="h-40 bg-gray-200 overflow-hidden">
+                      <div className="article-thumb-wrapper h-40 bg-gray-100">
                         <img
                           src={getImageUrl(related.featured_image)}
                           alt={related.title}
-                          className="w-full h-full object-cover"
+                          className="article-thumb-img"
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
                           onError={(e) => {
                             e.target.src = '/images/default-article.svg';
                           }}

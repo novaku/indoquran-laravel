@@ -83,11 +83,12 @@ function ArticleHoverCard({ article, index = 0, articleTab = 'terbaru' }) {
             >
                 {/* Thumbnail */}
                 {imageUrl ? (
-                    <div className="w-24 sm:w-28 h-24 sm:h-28 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0 relative shadow-2xs">
+                    <div className="article-thumb-wrapper w-24 sm:w-28 h-24 sm:h-28 rounded-xl shadow-xs border border-gray-100 ring-1 ring-black/5 bg-gray-50">
                         <img
                             src={imageUrl}
                             alt={article.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            className="article-thumb-img group-hover:scale-105 transition-transform duration-300"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
                             loading="lazy"
                             onError={(e) => {
                                 e.target.style.display = 'none';
@@ -98,13 +99,13 @@ function ArticleHoverCard({ article, index = 0, articleTab = 'terbaru' }) {
                             }}
                         />
                         {articleTab === 'populer' && index === 0 && (
-                            <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-amber-500/90 backdrop-blur-xs text-[10px] font-bold text-white shadow-xs">
+                            <span className="absolute top-1.5 left-1.5 z-10 px-1.5 py-0.5 rounded-md bg-amber-500/90 backdrop-blur-xs text-[10px] font-bold text-white shadow-xs">
                                 #1 Populer
                             </span>
                         )}
                     </div>
                 ) : (
-                    <div className="w-24 sm:w-28 h-24 sm:h-28 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-500">
+                    <div className="w-24 sm:w-28 h-24 sm:h-28 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-500 shadow-2xs">
                         <NewspaperIcon className="w-8 h-8 opacity-75 group-hover:scale-110 transition-transform" />
                     </div>
                 )}
@@ -179,13 +180,14 @@ function ArticleHoverCard({ article, index = 0, articleTab = 'terbaru' }) {
                     onMouseLeave={handleMouseLeave}
                 >
                     {/* Header Banner Preview */}
-                    <div className="relative h-44 w-full bg-gradient-to-br from-emerald-800 to-teal-900 overflow-hidden">
+                    <div className="article-thumb-wrapper h-44 w-full bg-gradient-to-br from-emerald-800 to-teal-900">
                         {imageUrl ? (
                             <>
                                 <img
                                     src={imageUrl}
                                     alt={article.title}
-                                    className="w-full h-full object-cover"
+                                    className="article-thumb-img"
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-gray-950/80 via-gray-950/30 to-transparent" />
                             </>

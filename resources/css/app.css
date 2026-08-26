@@ -1,7 +1,25 @@
 @import "tailwindcss";
+@source "../views";
+@source "../js";
 @import "./_fonts.css";
 @import "./simple-responsive.css";
 @import "./pwa-install.css";
+
+/* Professional responsive article image styles */
+.article-thumb-wrapper {
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.article-thumb-img {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+}
 
 /* Custom text shadow utilities for better readability */
 .text-shadow-sm {
