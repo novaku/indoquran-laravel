@@ -1,5 +1,34 @@
 [
   {
+    "version": "2.20.0",
+    "date": "29 Agustus 2026",
+    "type": "feature",
+    "title": "Integrasi Gambar Mushaf Standar Kemenag RI Lokal & Auto-Scroll Navigasi Halaman",
+    "description": "Pembaruan yang menghadirkan penyimpanan lokal seluruh 604 gambar halaman Mushaf Standar Indonesia (Kemenag RI) format WebP beresolusi tinggi, optimasi tampilan auto-width full page yang responsif tanpa ketergantungan koneksi URL eksternal, mekanisme auto-scroll instan ke posisi paling atas pada setiap perpindahan halaman mushaf, serta pembersihan elemen CDN di halaman detail surah.",
+    "changes": [
+      {
+        "type": "feature",
+        "text": "Penyimpanan Lokal 604 Gambar Mushaf Kemenag RI (/images/quran-pages/QK_*.webp) - Seluruh 604 halaman mushaf standar Kementerian Agama RI telah diunduh dan disimpan secara lokal dalam format WebP modern yang ringan, cepat, dan tajam"
+      },
+      {
+        "type": "feature",
+        "text": "Integrasi Mushaf Standar Kemenag di Halaman Detail (/halaman/:page) - Pemuatan gambar mushaf langsung dari aset lokal internal dengan fallback otomatis ke server media resmi Kemenag RI"
+      },
+      {
+        "type": "improvement",
+        "text": "Tampilan Auto-Width Full Page Bersih & Responsif - Gambar mushaf kini otomatis mengisi lebar penuh kontainer secara proporsional dan elegan, dengan penghapusan overlay hover dan modal popup yang mengganggu fokus membaca"
+      },
+      {
+        "type": "improvement",
+        "text": "Auto Scroll to Top Instan pada Navigasi Halaman - Perpindahan halaman mushaf melalui pagination, dropdown, maupun dari katalog halaman (/halaman) kini otomatis melakukan scroll instan ke bagian teratas layar"
+      },
+      {
+        "type": "fix",
+        "text": "Pembersihan Box Informasi CDN URL di Detail Surah - Menghapus kotak tampilan tautan teks CDN gambar ayat pada halaman detail surah (/surah/:id) untuk tampilan antarmuka yang lebih rapi dan bersih"
+      }
+    ]
+  },
+  {
     "version": "2.19.0",
     "date": "29 Agustus 2026",
     "type": "feature",
