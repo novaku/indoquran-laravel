@@ -14,6 +14,13 @@ use Illuminate\Support\Facades\Route;
 // SEO Routes
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
+Route::get('/ads.txt', function () {
+    $path = public_path('ads.txt');
+    if (file_exists($path)) {
+        return response()->file($path, ['Content-Type' => 'text/plain; charset=UTF-8']);
+    }
+    return response("google.com, pub-9994842285785390, DIRECT, f08c47fec0942fa0\n", 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
+})->name('ads.txt');
 
 // Advanced sitemap routes for better organization
 Route::get('/sitemap-index.xml', [SitemapIndexController::class, 'index'])->name('sitemap.index');

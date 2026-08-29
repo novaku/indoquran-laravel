@@ -69,13 +69,17 @@
     <title>{{ $metaTitle ?? 'IndoQuran - Al-Quran Digital Indonesia' }}</title>
 
     <!-- Critical Performance Optimizations -->
+    @if(!request()->is('admin*'))
     <!-- DNS prefetch for external domains (highest priority) - reduced to only used resources -->
     <link rel="dns-prefetch" href="//pagead2.googlesyndication.com">
+    @endif
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
 
+    @if(!request()->is('admin*'))
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9994842285785390" crossorigin="anonymous"></script>
+    @endif
     
     <!-- Preconnect to critical external resources only (fonts) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

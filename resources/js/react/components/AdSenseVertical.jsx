@@ -6,34 +6,32 @@ import PropTypes from 'prop-types';
  * 
  * Komponen untuk menampilkan iklan Google AdSense vertikal
  * Mengikuti best practices dari Google AdSense
- * 
- * @see https://support.google.com/adsense/answer/9274230
  */
 const AdSenseVertical = ({ 
     adSlot = '9427110099',
     adClient = 'ca-pub-9994842285785390',
-    adFormat = 'autorelaxed',
+    adFormat = 'auto',
     style = {},
     className = ''
 }) => {
     const adRef = useRef(null);
-    const hasAdLoaded = useRef(false);
+    const isPushedRef = useRef(false);
 
     useEffect(() => {
-        // Load AdSense script only once
-        if (!hasAdLoaded.current && adRef.current) {
-            try {
-                // Push ad to AdSense queue
-                (window.adsbygoogle = window.adsbygoogle || []).push({});
-                hasAdLoaded.current = true;
-            } catch (error) {
-                console.error('AdSense loading error:', error);
+        if (!isPushedRef.current && adRef.current) {
+            const status = adRef.current.getAttribute('data-adsbygoogle-status');
+            if (!status) {
+                try {
+                    (window.adsbygoogle = window.adsbygoogle || []).push({});
+                    isPushedRef.current = true;
+                } catch (error) {
+                    // Suppress harmless duplicate push errors
+                }
             }
         }
 
-        // Cleanup on unmount
         return () => {
-            hasAdLoaded.current = false;
+            isPushedRef.current = false;
         };
     }, []);
 
@@ -41,7 +39,7 @@ const AdSenseVertical = ({
         <div 
             className={`adsense-container ${className}`}
             style={{
-                minHeight: '320px',
+                minHeight: '280px',
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -56,6 +54,7 @@ const AdSenseVertical = ({
                 data-ad-format={adFormat}
                 data-ad-client={adClient}
                 data-ad-slot={adSlot}
+                data-full-width-responsive="true"
             />
         </div>
     );

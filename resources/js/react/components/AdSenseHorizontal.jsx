@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 /**
  * Google AdSense Horizontal Ad Component
  * 
- * Komponen untuk menampilkan iklan Google AdSense horizontal (auto)
+ * Komponen untuk menampilkan iklan Google AdSense horizontal (auto/responsive)
  * Format iklan: auto (responsive)
  * 
  * @param {string} adSlot - Ad slot ID dari Google AdSense
@@ -19,23 +19,23 @@ const AdSenseHorizontal = ({
     style = {}
 }) => {
     const adRef = useRef(null);
-    const hasAdLoaded = useRef(false);
+    const isPushedRef = useRef(false);
 
     useEffect(() => {
-        // Load AdSense script only once
-        if (!hasAdLoaded.current && adRef.current) {
-            try {
-                // Push ad to AdSense queue
-                (window.adsbygoogle = window.adsbygoogle || []).push({});
-                hasAdLoaded.current = true;
-            } catch (error) {
-                console.error('AdSense loading error:', error);
+        if (!isPushedRef.current && adRef.current) {
+            const status = adRef.current.getAttribute('data-adsbygoogle-status');
+            if (!status) {
+                try {
+                    (window.adsbygoogle = window.adsbygoogle || []).push({});
+                    isPushedRef.current = true;
+                } catch (error) {
+                    // Suppress harmless duplicate push errors during fast route switches
+                }
             }
         }
 
-        // Cleanup on unmount
         return () => {
-            hasAdLoaded.current = false;
+            isPushedRef.current = false;
         };
     }, []);
 

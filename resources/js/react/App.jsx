@@ -8,6 +8,7 @@ import useScrollToTop from './hooks/useScrollToTop.js';
 import useCanonicalURL from './hooks/useCanonicalURL.js';
 import useDynamicTitle from './hooks/useDynamicTitle.js';
 import { useOnlinePresenceTracker } from './hooks/useOnlineUsers.js';
+import useAdSense from './hooks/useAdSense.js';
 
 // Import performance utilities
 import { initializeCSSOptimizations } from './utils/criticalCSS.js';
@@ -225,6 +226,9 @@ const AppContent = memo(() => {
     
     // Track visitor presence across all pages in the app
     useOnlinePresenceTracker();
+    
+    // Ensure Google AdSense initializes on route changes (non-admin)
+    useAdSense();
     
     // Ensure canonical URL consistency for SEO
     const { canonicalUrl } = useCanonicalURL();

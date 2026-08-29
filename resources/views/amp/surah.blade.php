@@ -38,6 +38,17 @@ Surah {{ $surah->name_latin }} ({{ $surah->name_arabic }})
         @endforeach
     </div>
 
+    <div class="ad-container">
+        <amp-ad width="100vw" height="320"
+            type="adsense"
+            data-ad-client="ca-pub-9994842285785390"
+            data-ad-slot="1519827772"
+            data-auto-format="rspv"
+            data-full-width="">
+            <div overflow=""></div>
+        </amp-ad>
+    </div>
+
     <div style="text-align: center; margin-top: 2rem;">
         <a href="{{ url("/surah/{$surah->number}") }}" style="display: inline-block; padding: 10px 20px; background: #1f2937; color: white; text-decoration: none; border-radius: 5px;">
             Lihat Versi Lengkap
