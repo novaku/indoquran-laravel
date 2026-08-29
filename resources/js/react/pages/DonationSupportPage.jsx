@@ -62,6 +62,8 @@ function DonationSupportPage() {
 
     const bankDetails = {
         bank: 'Bank Permata',
+        logo: '/images/donasi/permata.svg',
+        code: '013',
         accountNumber: '9906-4392-60',
         accountName: 'Nova Herdi Kusumah'
     };
@@ -69,7 +71,13 @@ function DonationSupportPage() {
     const eMoneyDetails = {
         number: '0811-110-1024',
         name: 'Nova Herdi Kusumah',
-        providers: ['DANA', 'OVO', 'GOPAY', 'SHOPEE PAY', 'ASTRA PAY']
+        providers: [
+            { name: 'DANA', logo: '/images/donasi/dana.svg' },
+            { name: 'OVO', logo: '/images/donasi/ovo.svg' },
+            { name: 'GOPAY', logo: '/images/donasi/gopay.svg' },
+            { name: 'SHOPEE PAY', logo: '/images/donasi/shopeepay.svg' },
+            { name: 'ASTRA PAY', logo: '/images/donasi/astrapay.svg' }
+        ]
     };
 
     const copyToClipboard = async (text, type) => {
@@ -304,8 +312,18 @@ Wassalamu'alaikum.`
                                     <label className="block text-sm font-semibold text-gray-700 mb-3">
                                         Nama Bank
                                     </label>
-                                    <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                                        <span className="font-semibold text-gray-900 text-lg">{bankDetails.bank}</span>
+                                    <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 flex items-center justify-between gap-4">
+                                        <div>
+                                            <span className="font-bold text-gray-900 text-xl block leading-tight">{bankDetails.bank}</span>
+                                            <span className="text-xs text-gray-500 font-medium mt-1 block">Kode Bank: {bankDetails.code} (Permata)</span>
+                                        </div>
+                                        <div className="bg-white py-2 px-3 rounded-xl border border-gray-200 shadow-xs flex items-center justify-center shrink-0">
+                                            <img 
+                                                src={bankDetails.logo} 
+                                                alt={bankDetails.bank} 
+                                                className="h-8 w-auto max-w-[130px] sm:max-w-[150px] object-contain" 
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 
@@ -368,13 +386,22 @@ Wassalamu'alaikum.`
                                     <label className="block text-sm font-semibold text-gray-700 mb-3">
                                         Platform Tersedia
                                     </label>
-                                    <div className="grid grid-cols-3 gap-2">
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                         {eMoneyDetails.providers.map((provider) => (
                                             <div 
-                                                key={provider}
-                                                className="px-3 py-2 bg-gradient-to-r from-purple-100 to-purple-50 text-purple-800 text-sm rounded-full text-center font-medium border border-purple-200"
+                                                key={provider.name}
+                                                className="flex items-center gap-3 p-2.5 px-3 bg-white rounded-xl border border-gray-200 shadow-xs hover:shadow-md hover:border-purple-300 transition-all duration-200 group"
                                             >
-                                                {provider}
+                                                <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center shrink-0 p-1 border border-gray-100">
+                                                    <img 
+                                                        src={provider.logo} 
+                                                        alt={provider.name} 
+                                                        className="w-full h-full object-contain transition-transform duration-200 group-hover:scale-110" 
+                                                    />
+                                                </div>
+                                                <span className="font-bold text-xs sm:text-sm text-gray-800 group-hover:text-purple-700 transition-colors truncate">
+                                                    {provider.name}
+                                                </span>
                                             </div>
                                         ))}
                                     </div>
