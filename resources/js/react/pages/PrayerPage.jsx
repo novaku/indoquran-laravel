@@ -9,7 +9,9 @@ import {
     IoTrendingUpOutline,
     IoStarOutline,
     IoCheckmarkCircleOutline,
-    IoEyeOutline
+    IoEyeOutline,
+    IoChatbubbleEllipsesOutline,
+    IoShareSocialOutline
 } from 'react-icons/io5';
 import { useAuth } from '../hooks/useAuth';
 import { fetchWithAuth, postWithAuth } from '../utils/apiUtils';
@@ -203,19 +205,64 @@ const PrayerPage = () => {
             />
             
             <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50">
-                {/* Simple Header */}
+                {/* Hero / Header Section with Short Introduction */}
                 <div className="bg-white border-b border-gray-200">
-                    <div className="max-w-3xl mx-auto px-4 py-6">
-                        <div className="flex items-center justify-between">
-                            <h1 className="text-2xl font-bold text-gray-900">Doa Bersama</h1>
+                    <div className="max-w-3xl mx-auto px-4 py-6 sm:py-8">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                            <div>
+                                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-full mb-2 border border-green-100">
+                                    <IoHeartOutline className="w-3.5 h-3.5 text-green-600" />
+                                    <span>Ruang Silaturahmi Spiritual</span>
+                                </div>
+                                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Doa Bersama</h1>
+                                <p className="text-gray-600 text-sm sm:text-base mt-1">
+                                    Saling menitipkan hajat kebaikan, mendoakan sesama, dan mengaminkan doa saudara seiman secara real-time.
+                                </p>
+                            </div>
                             {user && (
                                 <button
                                     onClick={() => setShowForm(!showForm)}
-                                    className="px-6 py-2.5 bg-green-600 text-white rounded-full font-medium hover:bg-green-700 transition-colors shadow-sm"
+                                    className="px-6 py-2.5 bg-green-600 text-white rounded-full font-medium hover:bg-green-700 transition-colors shadow-sm self-start sm:self-auto flex items-center gap-1.5 whitespace-nowrap"
                                 >
-                                    {showForm ? 'Batal' : '+ Kirim Doa'}
+                                    <IoAddOutline className="w-5 h-5" />
+                                    <span>{showForm ? 'Batal' : 'Kirim Doa'}</span>
                                 </button>
                             )}
+                        </div>
+
+                        {/* Feature Highlights Grid */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-gray-100">
+                            <div className="bg-gradient-to-br from-green-50/80 to-white rounded-xl p-3 border border-green-100/80">
+                                <div className="w-8 h-8 rounded-lg bg-green-600 text-white flex items-center justify-center mb-2 shadow-xs">
+                                    <IoHandRightOutline className="w-4 h-4" />
+                                </div>
+                                <h4 className="font-semibold text-gray-900 text-xs sm:text-sm">Kirim Doa & Hajat</h4>
+                                <p className="text-gray-500 text-[11px] sm:text-xs leading-snug mt-0.5">Tulis doa (bisa atas nama pribadi / Hamba Allah)</p>
+                            </div>
+
+                            <div className="bg-gradient-to-br from-red-50/80 to-white rounded-xl p-3 border border-red-100/80">
+                                <div className="w-8 h-8 rounded-lg bg-red-500 text-white flex items-center justify-center mb-2 shadow-xs">
+                                    <IoHeartOutline className="w-4 h-4" />
+                                </div>
+                                <h4 className="font-semibold text-gray-900 text-xs sm:text-sm">Saling Mengaminkan</h4>
+                                <p className="text-gray-500 text-[11px] sm:text-xs leading-snug mt-0.5">Klik Amin untuk menguatkan doa sesama</p>
+                            </div>
+
+                            <div className="bg-gradient-to-br from-blue-50/80 to-white rounded-xl p-3 border border-blue-100/80">
+                                <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center mb-2 shadow-xs">
+                                    <IoChatbubbleEllipsesOutline className="w-4 h-4" />
+                                </div>
+                                <h4 className="font-semibold text-gray-900 text-xs sm:text-sm">Doa Balasan</h4>
+                                <p className="text-gray-500 text-[11px] sm:text-xs leading-snug mt-0.5">Tulis komentar dan doa kebaikan penguat</p>
+                            </div>
+
+                            <div className="bg-gradient-to-br from-emerald-50/80 to-white rounded-xl p-3 border border-emerald-100/80">
+                                <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center mb-2 shadow-xs">
+                                    <IoShareSocialOutline className="w-4 h-4" />
+                                </div>
+                                <h4 className="font-semibold text-gray-900 text-xs sm:text-sm">Bagikan ke WhatsApp</h4>
+                                <p className="text-gray-500 text-[11px] sm:text-xs leading-snug mt-0.5">Sebar doa ke keluarga & grup obrolan</p>
+                            </div>
                         </div>
                     </div>
                 </div>
