@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
  * Google AdSense Horizontal Ad Component
  * 
  * Komponen untuk menampilkan iklan Google AdSense horizontal (auto/responsive)
- * Format iklan: auto (responsive)
+ * Kompatibel dengan semua ukuran layar (mobile, tablet, desktop)
  * 
  * @param {string} adSlot - Ad slot ID dari Google AdSense
  * @param {string} adClient - Ad client ID dari Google AdSense
@@ -41,20 +41,20 @@ const AdSenseHorizontal = ({
 
     return (
         <div 
-            className={`adsense-container ${className}`}
+            className={`adsense-container w-full overflow-hidden ${className}`}
             style={{
                 minHeight: '90px',
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                padding: '0.5rem',
+                padding: '0.25rem',
                 ...style
             }}
         >
             <ins 
                 ref={adRef}
                 className="adsbygoogle"
-                style={{ display: 'block' }}
+                style={{ display: 'block', width: '100%', minWidth: '250px' }}
                 data-ad-client={adClient}
                 data-ad-slot={adSlot}
                 data-ad-format="auto"

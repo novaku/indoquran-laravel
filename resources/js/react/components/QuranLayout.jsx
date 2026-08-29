@@ -29,12 +29,17 @@ function QuranLayout({ children, className = "" }) {
                 {children}
             </main>
 
-            {/* Global Bottom AdSense Banner for all non-admin pages */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 w-full">
-                <AdSenseHorizontal 
-                    adSlot="1519827772" 
-                    className="w-full rounded-xl bg-white shadow-xs border border-gray-100" 
-                />
+            {/* Global Bottom AdSense Banner for all non-admin pages (Desktop & Mobile) */}
+            <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-3 w-full">
+                <div className="w-full bg-white rounded-xl shadow-xs border border-gray-100 overflow-hidden">
+                    <div className="text-[10px] text-center text-gray-400 py-1 border-b border-gray-100 bg-gray-50/60 font-medium">
+                        Iklan
+                    </div>
+                    <AdSenseHorizontal 
+                        adSlot="1519827772" 
+                        className="w-full" 
+                    />
+                </div>
             </div>
             
             <QuranFooter />

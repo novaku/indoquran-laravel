@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 /**
  * Google AdSense Vertical Ad Component
  * 
- * Komponen untuk menampilkan iklan Google AdSense vertikal
- * Mengikuti best practices dari Google AdSense
+ * Komponen untuk menampilkan iklan Google AdSense vertikal / sidebar
+ * Responsif untuk mobile dan desktop
  */
 const AdSenseVertical = ({ 
     adSlot = '9427110099',
@@ -37,20 +37,20 @@ const AdSenseVertical = ({
 
     return (
         <div 
-            className={`adsense-container ${className}`}
+            className={`adsense-container w-full overflow-hidden ${className}`}
             style={{
-                minHeight: '280px',
+                minHeight: '250px',
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                padding: '1rem',
+                padding: '0.5rem',
                 ...style
             }}
         >
             <ins 
                 ref={adRef}
                 className="adsbygoogle"
-                style={{ display: 'block' }}
+                style={{ display: 'block', width: '100%', minWidth: '200px' }}
                 data-ad-format={adFormat}
                 data-ad-client={adClient}
                 data-ad-slot={adSlot}
