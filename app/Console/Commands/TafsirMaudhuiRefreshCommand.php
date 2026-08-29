@@ -59,7 +59,8 @@ class TafsirMaudhuiRefreshCommand extends Command
     {
         $keys = [
             'tafsir_maudhui_all_topics',
-            'tafsir_maudhui_api_topics'
+            'tafsir_maudhui_api_topics',
+            'tafsir_maudhui_popular_topics'
         ];
 
         foreach ($keys as $key) {

@@ -158,7 +158,8 @@ class TafsirMaudhuiController extends Controller
     {
         $keys = [
             'tafsir_maudhui_all_topics',
-            'tafsir_maudhui_api_topics'
+            'tafsir_maudhui_api_topics',
+            'tafsir_maudhui_popular_topics'
         ];
 
         foreach ($keys as $key) {
@@ -169,6 +170,85 @@ class TafsirMaudhuiController extends Controller
         Cache::flush(); // Note: This clears all cache. In production, you might want to be more selective.
 
         return response()->json(['message' => 'Cache cleared successfully']);
+    }
+
+    /**
+     * Get popular/featured tafsir maudhui topics with Redis caching
+     */
+    public function popular(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $cacheKey = 'tafsir_maudhui_popular_topics';
+            $cacheTtl = 86400; // 24 hours
+
+            $popularTopics = [
+                'keluarga' => '👨‍👩‍👧',
+                'tauhid' => '✨',
+                'sabar' => '🕊️',
+                'syukur' => '🌿',
+                'doa' => '🤲',
+                'akhlak' => '💎',
+                'ilmu' => '📚',
+                'hari-akhir' => '⏳',
+                'al-quran' => '📖',
+                'zakat' => '🤝',
+                'ibadah' => '🌙',
+                'iman' => '⭐',
+                'tawakal' => '🌱',
+                'persaudaraan' => '👥',
+                'pemaafan' => '🤍',
+                'pendidikan' => '🎓',
+                'hukum' => '⚖️',
+                'rezeki' => '💰',
+                'shalat' => '🕌',
+                'kematian' => '⌛',
+                'hari-kiamat' => '⚡',
+                'surga' => '🌸',
+                'neraka' => '🔥',
+                'puasa' => '🌙',
+                'haji' => '🕋',
+                'pernikahan' => '💍',
+                'keadilan' => '⚖️',
+                'taubat' => '🌧️',
+                'hidayah' => '🌟',
+            ];
+
+            $topics = Cache::remember($cacheKey, $cacheTtl, function () use ($popularTopics) {
+                $popularSlugs = array_keys($popularTopics);
+
+                $fetched = TafsirMaudhuiTopic::active()
+                    ->withCount('verses')
+                    ->get();
+
+                $sorted = $fetched->sortBy(function ($topic) use ($popularSlugs) {
+                    $index = array_search($topic->slug, $popularSlugs);
+                    return $index !== false ? $index : (1000 - $topic->verses_count);
+                })->take(10);
+
+                return $sorted->map(function ($topic) use ($popularTopics) {
+                    return [
+                        'topic' => $topic->topic,
+                        'label' => $topic->topic,
+                        'slug' => $topic->slug,
+                        'description' => $topic->description,
+                        'verses_count' => $topic->verses_count,
+                        'icon' => $popularTopics[$topic->slug] ?? '📖',
+                    ];
+                })->values()->toArray();
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $topics
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch popular tafsir topics',
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+            ], 500);
+        }
     }
 
     /**

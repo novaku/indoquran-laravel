@@ -1,6 +1,18 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { IoPlayCircleOutline, IoPauseCircleOutline, IoArrowBackOutline, IoArrowForwardOutline, IoAddOutline, IoRemoveOutline, IoReloadOutline, IoBookOutline } from 'react-icons/io5';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { 
+    IoPlayCircleOutline, 
+    IoPauseCircleOutline, 
+    IoArrowBackOutline, 
+    IoArrowForwardOutline, 
+    IoChevronBackOutline, 
+    IoChevronForwardOutline, 
+    IoGridOutline, 
+    IoAddOutline, 
+    IoRemoveOutline, 
+    IoReloadOutline, 
+    IoBookOutline 
+} from 'react-icons/io5';
 import PageTransition from '../components/PageTransition';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
@@ -133,17 +145,33 @@ function PageDetailPage() {
     }, []);
     
     // Navigation handlers
+    const handlePageChange = (targetPage) => {
+        const pageNum = parseInt(targetPage);
+        if (pageNum >= 1 && pageNum <= totalPages) {
+            if (audioElement) {
+                audioElement.pause();
+                setIsAudioPlaying(false);
+                setAudioElement(null);
+                setPlayingAyahId(null);
+            }
+            if (isPlayingAll) {
+                stopAudio();
+            }
+            navigate(`/halaman/${pageNum}`);
+        }
+    };
+
     const handlePrevPage = () => {
         const currentPageNum = parseInt(number);
         if (currentPageNum > 1) {
-            navigate(`/pages/${currentPageNum - 1}`, { replace: true });
+            handlePageChange(currentPageNum - 1);
         }
     };
     
     const handleNextPage = () => {
         const currentPageNum = parseInt(number);
         if (currentPageNum < totalPages) {
-            navigate(`/pages/${currentPageNum + 1}`, { replace: true });
+            handlePageChange(currentPageNum + 1);
         }
     };
     
@@ -312,6 +340,63 @@ function PageDetailPage() {
             <SEOHead {...pageSEO} />
             <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
                 <div className="max-w-6xl mx-auto px-4 py-8 pt-24 pb-20">
+                    {/* Top Navigation Bar: Page Switcher & Pagination */}
+                    <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-md border border-green-100 p-3 sm:p-4 mb-6 transition-all">
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                            {/* Prev Page Button */}
+                            <button
+                                onClick={handlePrevPage}
+                                disabled={currentPageNum <= 1}
+                                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 border border-green-200 bg-white text-green-700 hover:bg-green-50 hover:border-green-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-green-200 shadow-sm"
+                                title={currentPageNum > 1 ? `Ke Halaman ${currentPageNum - 1}` : 'Halaman Pertama'}
+                            >
+                                <IoChevronBackOutline className="w-4 h-4" />
+                                <span>{currentPageNum > 1 ? `Halaman ${currentPageNum - 1}` : 'Awal (Halaman 1)'}</span>
+                            </button>
+
+                            {/* Center: Page Quick Select Dropdown */}
+                            <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
+                                <Link
+                                    to="/halaman"
+                                    className="p-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-green-700 transition-colors"
+                                    title="Daftar Semua 604 Halaman"
+                                >
+                                    <IoGridOutline className="w-4 h-4" />
+                                </Link>
+
+                                <div className="relative flex items-center">
+                                    <select
+                                        value={currentPageNum}
+                                        onChange={(e) => handlePageChange(e.target.value)}
+                                        className="appearance-none font-semibold text-green-800 bg-green-50/80 border border-green-300 hover:border-green-400 rounded-xl px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors cursor-pointer shadow-sm"
+                                    >
+                                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                                            <option key={pageNum} value={pageNum}>
+                                                Halaman {pageNum}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <div className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-green-700">
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Next Page Button */}
+                            <button
+                                onClick={handleNextPage}
+                                disabled={currentPageNum >= totalPages}
+                                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 border border-green-200 bg-white text-green-700 hover:bg-green-50 hover:border-green-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-green-200 shadow-sm"
+                                title={currentPageNum < totalPages ? `Ke Halaman ${currentPageNum + 1}` : 'Halaman Terakhir'}
+                            >
+                                <span>{currentPageNum < totalPages ? `Halaman ${currentPageNum + 1}` : `Akhir (Halaman ${totalPages})`}</span>
+                                <IoChevronForwardOutline className="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
+
                     {/* Header + Controls + Play All — single panel */}
                     <div className="bg-white rounded-3xl shadow-xl p-8 mb-8 border border-green-100">
                         {/* Title row */}

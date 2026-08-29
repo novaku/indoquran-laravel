@@ -205,6 +205,7 @@ Route::get('/stats/public', [\App\Http\Controllers\Api\StatsController::class, '
 
 // Tafsir Maudhui routes
 Route::get('/tafsir-maudhui', [TafsirMaudhuiController::class, 'api']);
+Route::get('/tafsir-maudhui/popular', [TafsirMaudhuiController::class, 'popular']);
 Route::get('/tafsir-maudhui/count', [TafsirMaudhuiController::class, 'count']);
 Route::get('/tafsir-maudhui/random', [TafsirMaudhuiController::class, 'random']);
 
