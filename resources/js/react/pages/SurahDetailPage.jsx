@@ -738,14 +738,10 @@ function SurahDetailPage() {
                 console.log(`🔄 REQUIREMENT 2: URL ayah changed from ${currentAyahNumber} to ${ayahNum}`);
                 console.log(`✅ URL Pattern: /surah/${number}/${ayahNum}`);
                 setCurrentAyahNumber(ayahNum);
+                scrollAyahNavGrid(ayahNum);
                 
-                // Auto-scroll to ayat when coming from external link (like Tafsir Maudhui)
-                // Only scroll if not auto-playing (to avoid interference with sequential playback scrolling)
-                if (!isAutoPlayingSequence) {
-                    setTimeout(() => {
-                        scrollToCurrentAyah(ayahNum);
-                    }, 100);
-                }
+                // Auto-scroll to top so user can read from the top of the surah
+                window.scrollTo({ top: 0, behavior: 'smooth' });
                 
                 // Update reading progress if user is logged in and surah number is available
                 if (user && number) {
@@ -758,12 +754,20 @@ function SurahDetailPage() {
                         });
                 }
             }
-        } else if (!ayahNumber && currentAyahNumber !== 1) {
-            // If no ayah number in URL, default to ayah 1
-            console.log('🔄 No ayah in URL, defaulting to ayah 1');
-            setCurrentAyahNumber(1);
+        } else if (!ayahNumber) {
+            // If no ayah number in URL, default to ayah 1 and scroll to top
+            if (currentAyahNumber !== 1) {
+                console.log('🔄 No ayah in URL, defaulting to ayah 1');
+                setCurrentAyahNumber(1);
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-    }, [ayahNumber, user, number, currentAyahNumber, isAutoPlayingSequence]);
+    }, [ayahNumber, user, number, currentAyahNumber, isAutoPlayingSequence, scrollAyahNavGrid]);
+
+    // Auto-scroll to top when surah or ayah URL param changes
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [number, ayahNumber]);
 
     // Handle URL validation only for invalid ayah numbers (not for navigation interference)
     useEffect(() => {
@@ -804,19 +808,15 @@ function SurahDetailPage() {
         }
     }, [ayahs, loading, number, navigate, ayahNumber, availableAyahNumbers]);
 
-    // Auto-scroll when component is fully loaded (especially for direct links from Tafsir Maudhui)
+    // Auto-scroll to top when component is fully loaded
     useEffect(() => {
-        // Only scroll if we have data loaded and a specific ayah in URL
-        if (!loading && ayahs.length > 0 && ayahNumber && currentAyah) {
-            const ayahNum = parseInt(ayahNumber);
-            console.log(`🎯 Component loaded with ayah ${ayahNum}, performing auto-scroll...`);
-            
-            // Add a delay to ensure DOM is fully rendered
-            setTimeout(() => {
-                scrollToCurrentAyah(ayahNum);
-            }, 200);
+        if (!loading && ayahs.length > 0) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (ayahNumber) {
+                scrollAyahNavGrid(parseInt(ayahNumber));
+            }
         }
-    }, [loading, ayahs.length, ayahNumber, currentAyah, scrollToCurrentAyah]);
+    }, [loading, ayahs.length, ayahNumber, scrollAyahNavGrid]);
 
     const toggleBookmark = async (ayahNum) => {
         const parsedAyahNum = parseInt(ayahNum, 10);

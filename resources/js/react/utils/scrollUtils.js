@@ -36,6 +36,6 @@ export const scrollToPosition = (position) => {
  * @returns {boolean} True if auto-scroll should be disabled
  */
 export const shouldDisableAutoScroll = (pathname) => {
-    // Disable auto-scroll for surah detail pages
-    return /^\/surah\/\d+/.test(pathname);
+    // Auto-scroll to top is enabled for all routes
+    return false;
 };
