@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class Visitor extends Model
 {
@@ -20,23 +21,31 @@ class Visitor extends Model
         'visited_at' => 'datetime'
     ];
 
+    /**
+     * Get daily traffic for the given number of days in a single grouped query.
+     */
     public static function getDailyTraffic($days = 7)
     {
         try {
+            $startDate = now()->subDays($days - 1)->startOfDay();
+            $endDate = now()->endOfDay();
+
+            $grouped = self::where('visited_at', '>=', $startDate)
+                           ->where('visited_at', '<=', $endDate)
+                           ->selectRaw('DATE(visited_at) as visit_date, COUNT(DISTINCT ip_address) as visitors')
+                           ->groupBy('visit_date')
+                           ->pluck('visitors', 'visit_date')
+                           ->toArray();
+
             $data = [];
-            
             for ($i = $days - 1; $i >= 0; $i--) {
                 $date = now()->subDays($i)->format('Y-m-d');
-                $visitors = self::whereDate('visited_at', $date)
-                               ->distinct('ip_address')
-                               ->count('ip_address');
-                
                 $data[] = [
                     'date' => $date,
-                    'visitors' => $visitors
+                    'visitors' => (int) ($grouped[$date] ?? 0)
                 ];
             }
-            
+
             return $data;
         } catch (\Exception $e) {
             Log::error('Error getting daily traffic: ' . $e->getMessage());
@@ -44,34 +53,30 @@ class Visitor extends Model
         }
     }
 
+    /**
+     * Get hourly traffic for today in a single grouped query.
+     */
     public static function getHourlyTraffic()
     {
         try {
+            $startToday = today()->startOfDay();
+            $endToday = today()->endOfDay();
+
+            $grouped = self::where('visited_at', '>=', $startToday)
+                           ->where('visited_at', '<=', $endToday)
+                           ->selectRaw('HOUR(visited_at) as visit_hour, COUNT(DISTINCT ip_address) as visitors')
+                           ->groupBy('visit_hour')
+                           ->pluck('visitors', 'visit_hour')
+                           ->toArray();
+
             $data = [];
-            
             for ($hour = 0; $hour < 24; $hour++) {
-                $nextHour = $hour + 1;
-                if ($nextHour >= 24) {
-                    // For hour 23, check until end of day
-                    $visitors = self::whereDate('visited_at', today())
-                                   ->whereTime('visited_at', '>=', sprintf('%02d:00:00', $hour))
-                                   ->whereTime('visited_at', '<=', '23:59:59')
-                                   ->distinct('ip_address')
-                                   ->count('ip_address');
-                } else {
-                    $visitors = self::whereDate('visited_at', today())
-                                   ->whereTime('visited_at', '>=', sprintf('%02d:00:00', $hour))
-                                   ->whereTime('visited_at', '<', sprintf('%02d:00:00', $nextHour))
-                                   ->distinct('ip_address')
-                                   ->count('ip_address');
-                }
-                
                 $data[] = [
                     'hour' => $hour,
-                    'visitors' => $visitors
+                    'visitors' => (int) ($grouped[$hour] ?? 0)
                 ];
             }
-            
+
             return $data;
         } catch (\Exception $e) {
             Log::error('Error getting hourly traffic: ' . $e->getMessage());
@@ -82,7 +87,8 @@ class Visitor extends Model
     public static function getTodayVisitors()
     {
         try {
-            return self::whereDate('visited_at', today())
+            return self::where('visited_at', '>=', today()->startOfDay())
+                       ->where('visited_at', '<=', today()->endOfDay())
                        ->distinct('ip_address')
                        ->count('ip_address');
         } catch (\Exception $e) {
@@ -94,7 +100,8 @@ class Visitor extends Model
     public static function getWeeklyVisitors()
     {
         try {
-            return self::whereBetween('visited_at', [now()->startOfWeek(), now()->endOfWeek()])
+            return self::where('visited_at', '>=', now()->startOfWeek())
+                       ->where('visited_at', '<=', now()->endOfWeek())
                        ->distinct('ip_address')
                        ->count('ip_address');
         } catch (\Exception $e) {
@@ -106,8 +113,8 @@ class Visitor extends Model
     public static function getMonthlyVisitors()
     {
         try {
-            return self::whereMonth('visited_at', now()->month)
-                       ->whereYear('visited_at', now()->year)
+            return self::where('visited_at', '>=', now()->startOfMonth())
+                       ->where('visited_at', '<=', now()->endOfMonth())
                        ->distinct('ip_address')
                        ->count('ip_address');
         } catch (\Exception $e) {
@@ -132,22 +139,21 @@ class Visitor extends Model
             return self::select('page_url')
                        ->selectRaw('COUNT(*) as visit_count')
                        ->whereNotNull('page_url')
+                       ->where('page_url', '!=', '')
                        ->groupBy('page_url')
                        ->orderByDesc('visit_count')
                        ->take($limit)
                        ->get()
                        ->map(function ($item) {
-                           // Extract meaningful page info
                            $url = parse_url($item->page_url, PHP_URL_PATH);
                            $query = parse_url($item->page_url, PHP_URL_QUERY);
                            
-                           // Determine page type
                            $pageInfo = self::categorizeUrl($url, $query);
                            
                            return [
                                'url' => $item->page_url,
                                'path' => $url,
-                               'visit_count' => $item->visit_count,
+                               'visit_count' => (int) $item->visit_count,
                                'page_type' => $pageInfo['type'],
                                'page_title' => $pageInfo['title'],
                                'surah_number' => $pageInfo['surah_number'] ?? null
@@ -176,17 +182,18 @@ class Visitor extends Model
                        ->map(function ($item) {
                            $path = parse_url($item->page_url, PHP_URL_PATH);
                            preg_match('/\/(surah|surat)\/(\d+)/', $path, $matches);
-                           $surahNumber = $matches[2] ?? null;
+                           $surahNumber = isset($matches[2]) ? (int) $matches[2] : null;
                            
                            return [
                                'surah_number' => $surahNumber,
-                               'visit_count' => $item->visit_count,
+                               'visit_count' => (int) $item->visit_count,
                                'url' => $item->page_url
                            ];
                        })
                        ->filter(function ($item) {
                            return !is_null($item['surah_number']) && $item['surah_number'] >= 1 && $item['surah_number'] <= 114;
-                       });
+                       })
+                       ->values();
         } catch (\Exception $e) {
             Log::error('Error getting popular surahs: ' . $e->getMessage());
             return collect([]);
@@ -240,8 +247,9 @@ class Visitor extends Model
     public static function getYearlyVisitors($year = null)
     {
         try {
-            $year = $year ?? now()->year;
-            return self::whereYear('visited_at', $year)
+            $target = $year ? Carbon::createFromDate($year, 1, 1) : now();
+            return self::where('visited_at', '>=', $target->copy()->startOfYear())
+                       ->where('visited_at', '<=', $target->copy()->endOfYear())
                        ->distinct('ip_address')
                        ->count('ip_address');
         } catch (\Exception $e) {
@@ -266,7 +274,7 @@ class Visitor extends Model
                            return [
                                'referrer' => $item->referrer,
                                'domain' => $domain,
-                               'visit_count' => $item->visit_count
+                               'visit_count' => (int) $item->visit_count
                            ];
                        });
         } catch (\Exception $e) {
@@ -321,26 +329,33 @@ class Visitor extends Model
     public static function getUniqueVisitorsLast($days = 7)
     {
         try {
+            $startDate = now()->subDays($days - 1)->startOfDay();
+            $endDate = now()->endOfDay();
+
+            $grouped = self::where('visited_at', '>=', $startDate)
+                           ->where('visited_at', '<=', $endDate)
+                           ->selectRaw('DATE(visited_at) as visit_date, COUNT(DISTINCT ip_address) as visitors, COUNT(*) as page_views')
+                           ->groupBy('visit_date')
+                           ->get()
+                           ->keyBy('visit_date');
+
             $data = [];
-            
             for ($i = $days - 1; $i >= 0; $i--) {
-                $date = now()->subDays($i);
-                $visitors = self::whereDate('visited_at', $date->format('Y-m-d'))
-                               ->distinct('ip_address')
-                               ->count('ip_address');
-                
-                $pageViews = self::whereDate('visited_at', $date->format('Y-m-d'))
-                               ->count();
-                
+                $dateObj = now()->subDays($i);
+                $dateStr = $dateObj->format('Y-m-d');
+                $record = $grouped->get($dateStr);
+                $visitors = (int) ($record->visitors ?? 0);
+                $pageViews = (int) ($record->page_views ?? 0);
+
                 $data[] = [
-                    'date' => $date->format('Y-m-d'),
-                    'date_formatted' => $date->format('d M Y'),
+                    'date' => $dateStr,
+                    'date_formatted' => $dateObj->format('d M Y'),
                     'visitors' => $visitors,
                     'page_views' => $pageViews,
                     'avg_pages_per_visitor' => $visitors > 0 ? round($pageViews / $visitors, 2) : 0
                 ];
             }
-            
+
             return $data;
         } catch (\Exception $e) {
             Log::error('Error getting unique visitors data: ' . $e->getMessage());

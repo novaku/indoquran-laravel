@@ -54,14 +54,50 @@ class VisitorStatsController extends Controller
      */
     private function getSummaryStats()
     {
+        $today = Visitor::getTodayVisitors();
+        $weekly = Visitor::getWeeklyVisitors();
+        $monthly = Visitor::getMonthlyVisitors();
+        $total = Visitor::getTotalVisitors();
+
+        $yesterday = Visitor::where('visited_at', '>=', now()->subDay()->startOfDay())
+                            ->where('visited_at', '<=', now()->subDay()->endOfDay())
+                            ->distinct('ip_address')
+                            ->count('ip_address');
+
+        $lastWeek = Visitor::where('visited_at', '>=', now()->subWeek()->startOfWeek())
+                           ->where('visited_at', '<=', now()->subWeek()->endOfWeek())
+                           ->distinct('ip_address')
+                           ->count('ip_address');
+
+        $lastMonth = Visitor::where('visited_at', '>=', now()->subMonth()->startOfMonth())
+                            ->where('visited_at', '<=', now()->subMonth()->endOfMonth())
+                            ->distinct('ip_address')
+                            ->count('ip_address');
+
+        $weekDiff = $weekly - $lastWeek;
+        $weekPct = $lastWeek > 0 ? ($weekDiff / $lastWeek) * 100 : 0;
+
+        $monthDiff = $monthly - $lastMonth;
+        $monthPct = $lastMonth > 0 ? ($monthDiff / $lastMonth) * 100 : 0;
+
         return [
-            'today' => Visitor::getTodayVisitors(),
-            'weekly' => Visitor::getWeeklyVisitors(),
-            'monthly' => Visitor::getMonthlyVisitors(),
-            'total' => Visitor::getTotalVisitors(),
-            'yesterday' => $this->getYesterdayVisitors(),
-            'this_week_vs_last_week' => $this->getWeekComparison(),
-            'this_month_vs_last_month' => $this->getMonthComparison()
+            'today' => $today,
+            'weekly' => $weekly,
+            'monthly' => $monthly,
+            'total' => $total,
+            'yesterday' => $yesterday,
+            'this_week_vs_last_week' => [
+                'this_week' => $weekly,
+                'last_week' => $lastWeek,
+                'difference' => $weekDiff,
+                'percentage' => round($weekPct, 2)
+            ],
+            'this_month_vs_last_month' => [
+                'this_month' => $monthly,
+                'last_month' => $lastMonth,
+                'difference' => $monthDiff,
+                'percentage' => round($monthPct, 2)
+            ]
         ];
     }
 
@@ -82,26 +118,32 @@ class VisitorStatsController extends Controller
      */
     private function getWeeklyStats()
     {
+        $startOfRange = now()->subWeeks(11)->startOfWeek();
+        $endOfRange = now()->endOfWeek();
+
+        $grouped = Visitor::where('visited_at', '>=', $startOfRange)
+                          ->where('visited_at', '<=', $endOfRange)
+                          ->selectRaw('YEARWEEK(visited_at, 1) as yw, COUNT(DISTINCT ip_address) as visitors')
+                          ->groupBy('yw')
+                          ->pluck('visitors', 'yw')
+                          ->toArray();
+
         $data = [];
-        
         for ($i = 11; $i >= 0; $i--) {
             $startOfWeek = now()->subWeeks($i)->startOfWeek();
             $endOfWeek = now()->subWeeks($i)->endOfWeek();
-            
-            $visitors = Visitor::whereBetween('visited_at', [$startOfWeek, $endOfWeek])
-                              ->distinct('ip_address')
-                              ->count('ip_address');
-            
+            $yw = (int) $startOfWeek->format('oW');
+
             $data[] = [
                 'week' => $startOfWeek->format('Y-m-d') . ' - ' . $endOfWeek->format('Y-m-d'),
                 'week_number' => $startOfWeek->week,
                 'year' => $startOfWeek->year,
-                'visitors' => $visitors,
+                'visitors' => (int) ($grouped[$yw] ?? 0),
                 'start_date' => $startOfWeek->format('Y-m-d'),
                 'end_date' => $endOfWeek->format('Y-m-d')
             ];
         }
-        
+
         return $data;
     }
 
@@ -112,28 +154,31 @@ class VisitorStatsController extends Controller
      */
     private function getMonthlyStats()
     {
+        $startOfRange = now()->subMonths(11)->startOfMonth();
+
+        $grouped = Visitor::where('visited_at', '>=', $startOfRange)
+                          ->selectRaw("DATE_FORMAT(visited_at, '%Y-%m') as ym, COUNT(DISTINCT ip_address) as visitors")
+                          ->groupBy('ym')
+                          ->pluck('visitors', 'ym')
+                          ->toArray();
+
         $data = [];
-        
         for ($i = 11; $i >= 0; $i--) {
             $date = now()->subMonths($i);
             $month = $date->month;
             $year = $date->year;
-            
-            $visitors = Visitor::whereMonth('visited_at', $month)
-                              ->whereYear('visited_at', $year)
-                              ->distinct('ip_address')
-                              ->count('ip_address');
-            
+            $ym = $date->format('Y-m');
+
             $data[] = [
-                'month' => $date->format('Y-m'),
+                'month' => $ym,
                 'month_name' => $date->format('F Y'),
                 'month_name_id' => $this->getIndonesianMonthName($month) . ' ' . $year,
-                'visitors' => $visitors,
+                'visitors' => (int) ($grouped[$ym] ?? 0),
                 'year' => $year,
                 'month_number' => $month
             ];
         }
-        
+
         return $data;
     }
 
@@ -145,22 +190,23 @@ class VisitorStatsController extends Controller
     private function getYearlyStats()
     {
         $currentYear = now()->year;
+        $startOfRange = now()->subYears(4)->startOfYear();
+
+        $grouped = Visitor::where('visited_at', '>=', $startOfRange)
+                          ->selectRaw('YEAR(visited_at) as yr, COUNT(DISTINCT ip_address) as visitors')
+                          ->groupBy('yr')
+                          ->pluck('visitors', 'yr')
+                          ->toArray();
+
         $data = [];
-        
-        // Get stats for last 5 years
         for ($i = 4; $i >= 0; $i--) {
             $year = $currentYear - $i;
-            
-            $visitors = Visitor::whereYear('visited_at', $year)
-                              ->distinct('ip_address')
-                              ->count('ip_address');
-            
             $data[] = [
                 'year' => $year,
-                'visitors' => $visitors
+                'visitors' => (int) ($grouped[$year] ?? 0)
             ];
         }
-        
+
         return $data;
     }
 
@@ -177,7 +223,7 @@ class VisitorStatsController extends Controller
     /**
      * Get popular pages.
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Support\Collection
      */
     private function getPopularPages()
     {
@@ -187,7 +233,7 @@ class VisitorStatsController extends Controller
     /**
      * Get popular surahs.
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Support\Collection
      */
     private function getPopularSurahs()
     {
@@ -217,102 +263,11 @@ class VisitorStatsController extends Controller
     /**
      * Get referrer statistics.
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Support\Collection
      */
     private function getReferrerStats()
     {
         return Visitor::getTopReferrers(10);
-    }
-
-    /**
-     * Get yesterday's visitor count.
-     *
-     * @return int
-     */
-    private function getYesterdayVisitors()
-    {
-        try {
-            return Visitor::whereDate('visited_at', now()->subDay())
-                          ->distinct('ip_address')
-                          ->count('ip_address');
-        } catch (\Exception $e) {
-            Log::error('Error getting yesterday visitors: ' . $e->getMessage());
-            return 0;
-        }
-    }
-
-    /**
-     * Compare this week with last week.
-     *
-     * @return array
-     */
-    private function getWeekComparison()
-    {
-        try {
-            $thisWeek = Visitor::whereBetween('visited_at', [
-                now()->startOfWeek(),
-                now()->endOfWeek()
-            ])->distinct('ip_address')->count('ip_address');
-
-            $lastWeek = Visitor::whereBetween('visited_at', [
-                now()->subWeek()->startOfWeek(),
-                now()->subWeek()->endOfWeek()
-            ])->distinct('ip_address')->count('ip_address');
-
-            $percentage = $lastWeek > 0 ? (($thisWeek - $lastWeek) / $lastWeek) * 100 : 0;
-
-            return [
-                'this_week' => $thisWeek,
-                'last_week' => $lastWeek,
-                'difference' => $thisWeek - $lastWeek,
-                'percentage' => round($percentage, 2)
-            ];
-        } catch (\Exception $e) {
-            Log::error('Error getting week comparison: ' . $e->getMessage());
-            return [
-                'this_week' => 0,
-                'last_week' => 0,
-                'difference' => 0,
-                'percentage' => 0
-            ];
-        }
-    }
-
-    /**
-     * Compare this month with last month.
-     *
-     * @return array
-     */
-    private function getMonthComparison()
-    {
-        try {
-            $thisMonth = Visitor::whereMonth('visited_at', now()->month)
-                               ->whereYear('visited_at', now()->year)
-                               ->distinct('ip_address')
-                               ->count('ip_address');
-
-            $lastMonth = Visitor::whereMonth('visited_at', now()->subMonth()->month)
-                               ->whereYear('visited_at', now()->subMonth()->year)
-                               ->distinct('ip_address')
-                               ->count('ip_address');
-
-            $percentage = $lastMonth > 0 ? (($thisMonth - $lastMonth) / $lastMonth) * 100 : 0;
-
-            return [
-                'this_month' => $thisMonth,
-                'last_month' => $lastMonth,
-                'difference' => $thisMonth - $lastMonth,
-                'percentage' => round($percentage, 2)
-            ];
-        } catch (\Exception $e) {
-            Log::error('Error getting month comparison: ' . $e->getMessage());
-            return [
-                'this_month' => 0,
-                'last_month' => 0,
-                'difference' => 0,
-                'percentage' => 0
-            ];
-        }
     }
 
     /**
@@ -349,21 +304,26 @@ class VisitorStatsController extends Controller
     public function realtime()
     {
         try {
+            $now = now();
+            $subHour = $now->copy()->subHour();
+            $sub5Min = $now->copy()->subMinutes(5);
+
             // Get visitors in the last hour
-            $lastHour = Visitor::where('visited_at', '>=', now()->subHour())
+            $lastHour = Visitor::where('visited_at', '>=', $subHour)
                               ->distinct('ip_address')
                               ->count('ip_address');
 
             // Get visitors in the last 5 minutes
-            $lastFiveMinutes = Visitor::where('visited_at', '>=', now()->subMinutes(5))
+            $lastFiveMinutes = Visitor::where('visited_at', '>=', $sub5Min)
                                      ->distinct('ip_address')
                                      ->count('ip_address');
 
             // Get top pages in the last hour
-            $topPagesLastHour = Visitor::where('visited_at', '>=', now()->subHour())
+            $topPagesLastHour = Visitor::where('visited_at', '>=', $subHour)
                                       ->select('page_url')
                                       ->selectRaw('COUNT(*) as visit_count')
                                       ->whereNotNull('page_url')
+                                      ->where('page_url', '!=', '')
                                       ->groupBy('page_url')
                                       ->orderByDesc('visit_count')
                                       ->take(5)
@@ -376,7 +336,7 @@ class VisitorStatsController extends Controller
                     'last_five_minutes' => $lastFiveMinutes,
                     'today_total' => Visitor::getTodayVisitors(),
                     'top_pages_last_hour' => $topPagesLastHour,
-                    'timestamp' => now()->toISOString()
+                    'timestamp' => $now->toISOString()
                 ]
             ]);
         } catch (\Exception $e) {
