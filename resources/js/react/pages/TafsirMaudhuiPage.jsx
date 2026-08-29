@@ -10,7 +10,8 @@ import {
     FolderIcon,
     FolderOpenIcon,
     DocumentTextIcon,
-    ArrowTopRightOnSquareIcon
+    ArrowTopRightOnSquareIcon,
+    XMarkIcon
 } from '@heroicons/react/24/outline';
 import SEOHead from '../components/SEOHead';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -466,8 +467,19 @@ function TafsirMaudhuiPage() {
                                 value={searchKeyword}
                                 onChange={(e) => setSearchKeyword(e.target.value)}
                                 placeholder="Cari topik..." 
-                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             />
+                            {searchKeyword && (
+                                <button
+                                    onClick={() => setSearchKeyword('')}
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none p-1 rounded-full hover:bg-gray-100 transition-colors"
+                                    type="button"
+                                    title="Hapus pencarian"
+                                    aria-label="Hapus pencarian"
+                                >
+                                    <XMarkIcon className="w-5 h-5" />
+                                </button>
+                            )}
                         </div>
                     </div>
 
