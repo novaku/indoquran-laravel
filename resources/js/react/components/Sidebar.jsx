@@ -18,7 +18,10 @@ import {
     DocumentIcon,
     ChartBarIcon,
     HomeIcon,
-    BookmarkIcon
+    BookmarkIcon,
+    InformationCircleIcon,
+    EnvelopeIcon,
+    ShieldCheckIcon
 } from '@heroicons/react/24/outline';
 
 function Sidebar({ isOpen, setIsOpen }) {
@@ -29,6 +32,7 @@ function Sidebar({ isOpen, setIsOpen }) {
     const [isMainNavOpen, setIsMainNavOpen] = useState(true);
     const [isQuranOpen, setIsQuranOpen] = useState(true);
     const [isCommunityOpen, setIsCommunityOpen] = useState(true);
+    const [isInfoOpen, setIsInfoOpen] = useState(true);
 
     // Close sidebar when route changes
     useEffect(() => {
@@ -81,6 +85,12 @@ function Sidebar({ isOpen, setIsOpen }) {
         { name: 'Doa Bersama', path: '/doa-bersama', icon: HeartIcon, description: 'Berbagi dan berdoa bersama' },
         { name: 'Keuntungan Member', path: '/member', icon: UserIcon, description: 'Fitur eksklusif untuk member' },
         { name: 'Donasi', path: '/donasi', icon: SparklesIcon, description: 'Dukung pengembangan IndoQuran' },
+    ];
+
+    const infoDropdownItems = [
+        { name: 'Tentang Kami', path: '/tentang', icon: InformationCircleIcon, description: 'Kenali visi dan misi IndoQuran' },
+        { name: 'Kontak & Bantuan', path: '/kontak', icon: EnvelopeIcon, description: 'Hubungi tim dan sampaikan masukan' },
+        { name: 'Kebijakan Privasi', path: '/kebijakan', icon: ShieldCheckIcon, description: 'Kebijakan privasi dan ketentuan' },
     ];
 
     const userNavItems = user ? [
@@ -225,6 +235,38 @@ function Sidebar({ isOpen, setIsOpen }) {
                         {isCommunityOpen && (
                             <div className="mt-1 space-y-1">
                                 {communityDropdownItems.map((item) => (
+                                    <Link
+                                        key={item.path}
+                                        to={item.path}
+                                        className={`flex items-start space-x-3 px-3 py-3 rounded-md text-sm font-medium transition-colors ${
+                                            isActivePath(item.path)
+                                                ? 'bg-green-50 text-green-600'
+                                                : 'text-gray-700 hover:bg-gray-50 hover:text-green-600'
+                                        }`}
+                                    >
+                                        <item.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                                        <div>
+                                            <div className="font-medium">{item.name}</div>
+                                            <div className="text-xs text-gray-500 mt-0.5">{item.description}</div>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Information Section */}
+                    <div className="pt-2">
+                        <button
+                            onClick={() => setIsInfoOpen(!isInfoOpen)}
+                            className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-green-600 transition-colors"
+                        >
+                            <span>Informasi</span>
+                            <ChevronDownIcon className={`w-4 h-4 transition-transform ${isInfoOpen ? 'rotate-180' : ''}`} />
+                        </button>
+                        {isInfoOpen && (
+                            <div className="mt-1 space-y-1">
+                                {infoDropdownItems.map((item) => (
                                     <Link
                                         key={item.path}
                                         to={item.path}

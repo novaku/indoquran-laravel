@@ -36,6 +36,18 @@
       },
       {
         "type": "improvement",
+        "text": "Dynamic Document Title Hook - Implementasi useDynamicTitle untuk memperbarui judul tab browser secara cerdas dan kontekstual pada setiap perpindahan halaman"
+      },
+      {
+        "type": "improvement",
+        "text": "Otomatisasi Multi-Sitemap & Google Search Console Submitter - Sinkronisasi sitemap multi-file (sitemap-main, sitemap-juz, sitemap-halaman, sitemap-artikel) dengan perintah submit otomatis"
+      },
+      {
+        "type": "improvement",
+        "text": "Penyempurnaan Thumbnail & Visual Artikel - Perbaikan aspect ratio gambar sampul artikel, kartu preview, serta optimasi responsivitas di berbagai ukuran layar"
+      },
+      {
+        "type": "improvement",
         "text": "Optimasi Tipografi & Performa Frontend - Penyesuaian konfigurasi font Inter rendering (font-display: swap) dan pembersihan script utilitas yang tidak digunakan"
       }
     ]
