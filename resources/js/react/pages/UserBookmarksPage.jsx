@@ -93,14 +93,8 @@ function UserBookmarksPage() {
             const data = await getUserBookmarks();
             setBookmarks(data || []);
             
-            // By default expand all surahs
-            if (data && data.length > 0) {
-                const initialExpanded = {};
-                data.forEach(item => {
-                    initialExpanded[item.surah_number] = true;
-                });
-                setExpandedSurahs(initialExpanded);
-            }
+            // Default: hide all surahs (collapsed)
+            setExpandedSurahs({});
         } catch (err) {
             console.error('Error loading bookmarks:', err);
             toast.error('Gagal memuat daftar penanda.');
@@ -394,6 +388,23 @@ function UserBookmarksPage() {
 
         return surahList;
     }, [filteredBookmarks, sortBy]);
+
+    const isAllExpanded = useMemo(() => {
+        if (groupedBookmarks.length === 0) return false;
+        return groupedBookmarks.every(g => expandedSurahs[g.surah_number]);
+    }, [groupedBookmarks, expandedSurahs]);
+
+    const toggleAllSurahs = () => {
+        if (isAllExpanded) {
+            setExpandedSurahs({});
+        } else {
+            const allExp = {};
+            groupedBookmarks.forEach(g => {
+                allExp[g.surah_number] = true;
+            });
+            setExpandedSurahs(allExp);
+        }
+    };
 
     return (
         <>
@@ -829,13 +840,34 @@ function UserBookmarksPage() {
                     ) : (
                         /* Grouped Bookmarks by Surah List */
                         <div className="space-y-6">
-                            <div className="flex items-center justify-between text-xs text-gray-500 px-1">
-                                <span>Menampilkan {filteredBookmarks.length} ayat ditandai dari {groupedBookmarks.length} surah</span>
-                                {searchTerm && <span className="font-medium text-emerald-700">Hasil pencarian: "{searchTerm}"</span>}
+                            <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500 px-1">
+                                <div className="flex items-center gap-2">
+                                    <span>Menampilkan <strong>{filteredBookmarks.length}</strong> ayat ditandai dari <strong>{groupedBookmarks.length}</strong> surah</span>
+                                    {searchTerm && <span className="font-medium text-emerald-700">(Pencarian: "{searchTerm}")</span>}
+                                </div>
+                                {groupedBookmarks.length > 0 && (
+                                    <button
+                                        type="button"
+                                        onClick={toggleAllSurahs}
+                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-gray-700 hover:text-emerald-700 hover:border-emerald-300 transition-colors shadow-2xs font-medium text-xs cursor-pointer"
+                                    >
+                                        {isAllExpanded ? (
+                                            <>
+                                                <IoChevronUp className="w-3.5 h-3.5 text-gray-500" />
+                                                <span>Tutup Semua Surah</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <IoChevronDown className="w-3.5 h-3.5 text-emerald-600" />
+                                                <span>Buka Semua Surah</span>
+                                            </>
+                                        )}
+                                    </button>
+                                )}
                             </div>
 
                             {groupedBookmarks.map((group) => {
-                                const isExpanded = expandedSurahs[group.surah_number] ?? true;
+                                const isExpanded = Boolean(expandedSurahs[group.surah_number]);
                                 
                                 return (
                                     <div 
@@ -845,7 +877,17 @@ function UserBookmarksPage() {
                                         {/* Surah Group Header */}
                                         <div 
                                             onClick={() => toggleSurahExpanded(group.surah_number)}
-                                            className="px-5 py-4 bg-gradient-to-r from-emerald-50/70 via-teal-50/40 to-white border-b border-emerald-100 cursor-pointer flex items-center justify-between hover:bg-emerald-100/50 transition-colors select-none"
+                                            className={`px-5 py-4 bg-gradient-to-r from-emerald-50/70 via-teal-50/40 to-white cursor-pointer flex items-center justify-between hover:bg-emerald-100/50 transition-colors select-none ${
+                                                isExpanded ? 'border-b border-emerald-100' : ''
+                                            }`}
+                                            role="button"
+                                            tabIndex={0}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                    e.preventDefault();
+                                                    toggleSurahExpanded(group.surah_number);
+                                                }
+                                            }}
                                         >
                                             <div className="flex items-center gap-3.5">
                                                 <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white font-bold text-sm flex items-center justify-center shadow-sm">
@@ -862,8 +904,10 @@ function UserBookmarksPage() {
                                                             </span>
                                                         )}
                                                     </div>
-                                                    <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
-                                                        <span>{group.ayahs.length} ayat ditandai</span>
+                                                    <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                                                        <span className="font-medium text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-md">
+                                                            {group.ayahs.length} ayat ditandai
+                                                        </span>
                                                         {group.revelation_place && (
                                                             <>
                                                                 <span>•</span>
@@ -874,7 +918,7 @@ function UserBookmarksPage() {
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center gap-3">
+                                            <div className="flex items-center gap-2 sm:gap-3">
                                                 <Link
                                                     to={`/surah/${group.surah_number}`}
                                                     onClick={(e) => e.stopPropagation()}
@@ -883,11 +927,16 @@ function UserBookmarksPage() {
                                                     <span>Buka Surah</span>
                                                     <IoArrowForward className="w-3.5 h-3.5" />
                                                 </Link>
-                                                <div className="p-1 rounded-lg text-gray-400 hover:text-gray-600">
+                                                <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                                                    isExpanded 
+                                                        ? 'bg-emerald-600 text-white shadow-sm' 
+                                                        : 'bg-emerald-50 text-emerald-700 border border-emerald-200/80 hover:bg-emerald-100'
+                                                }`}>
+                                                    <span>{isExpanded ? `Sembunyikan (${group.ayahs.length} Ayat)` : `Tampilkan (${group.ayahs.length} Ayat)`}</span>
                                                     {isExpanded ? (
-                                                        <IoChevronUp className="w-5 h-5" />
+                                                        <IoChevronUp className="w-4 h-4" />
                                                     ) : (
-                                                        <IoChevronDown className="w-5 h-5" />
+                                                        <IoChevronDown className="w-4 h-4" />
                                                     )}
                                                 </div>
                                             </div>
