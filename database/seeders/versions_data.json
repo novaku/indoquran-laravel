@@ -1,5 +1,46 @@
 [
   {
+    "version": "2.19.0",
+    "date": "29 Agustus 2026",
+    "type": "feature",
+    "title": "Jadwal Sholat Realtime, Navigasi Mushaf Modern, Detail Doa & Dzikir, dan Ekspansi Tafsir Maudhui",
+    "description": "Pembaruan besar yang menghadirkan widget Jadwal Sholat otomatis dengan hitung mundur di Beranda, sistem Navigasi Mushaf & Juz modular modern dengan floating controls dan horizontal surah chips, Halaman Detail Doa & Dzikir komprehensif lengkap dengan audio dan riwayat hadits, ekspansi database 8 topik Tafsir Tematik / Maudhui baru, fitur toggle show/hide terjemahan & teks Latin pada daftar Penanda, penambahan logo metode pembayaran digital, serta optimasi SEO BreadcrumbList Schema.org.",
+    "changes": [
+      {
+        "type": "feature",
+        "text": "Jadwal Sholat Realtime & Countdown Otomatis - Penambahan widget jadwal sholat 5 waktu otomatis (Imsak, Subuh, Terbit, Dhuha, Dzuhur, Ashar, Maghrib, Isya) berdasarkan deteksi lokasi GPS / kota pengguna dengan countdown timer interaktif dan fallback offline di Beranda"
+      },
+      {
+        "type": "feature",
+        "text": "Halaman Detail Doa & Dzikir Komprehensif (/doa/:slug) - Halaman khusus per doa/dzikir dengan teks Arab berharakat indah, transliterasi Latin, terjemahan Indonesia, faedah & keutamaan doa, rujukan hadits shahih, audio player lafadz doa, serta integrasi SEO & Schema.org JSON-LD"
+      },
+      {
+        "type": "feature",
+        "text": "Sistem Navigasi Mushaf & Bacaan Modular - Rombak total navigasi halaman mushaf (/halaman/:page) dan Juz (/juz/:juz) dengan Bottom Navigation bar, Floating Actions, Smart Pagination Nav, Jump to Surah Bar, dan smooth auto-scrolling untuk active surah chips"
+      },
+      {
+        "type": "feature",
+        "text": "Ekspansi Database Tafsir Tematik / Maudhui - Penambahan koleksi dan script database generator untuk 8 topik tematik baru: Tauhid & Akidah, Sabar & Ikhlas, Shalat & Zakat, Puasa & Haji, Rezeki & Usaha Halal, Akhlak & Karakter Muslim, Keluarga Sakinah & Parenting Islami, serta Taubat & Istighfar"
+      },
+      {
+        "type": "feature",
+        "text": "Kustomisasi Tampilan Bacaan di Penanda (Bookmarks) - Fitur toggle fleksibel untuk menyembunyikan/menampilkan teks Latin dan Terjemahan pada daftar ayat yang ditandai guna mempermudah hafalan dan muroja'ah"
+      },
+      {
+        "type": "improvement",
+        "text": "Dukungan Metode Pembayaran Donasi & Infaq Digital - Pembaruan halaman /donasi dengan kartu metode pembayaran digital dan logo resmi (QRIS, BCA, Mandiri, BRI, BNI, BSI, Permata, GoPay, OVO, Dana, ShopeePay, AstraPay)"
+      },
+      {
+        "type": "improvement",
+        "text": "Schema.org BreadcrumbList & SEO Optimization - Integrasi metadata breadcrumb terstruktur Schema.org pada surah, juz, dan halaman mushaf untuk meningkatkan sitelinks dan performa perayapan Google SERP"
+      },
+      {
+        "type": "improvement",
+        "text": "Optimasi Tipografi & Performa Frontend - Penyesuaian konfigurasi font Inter rendering (font-display: swap) dan pembersihan script utilitas yang tidak digunakan"
+      }
+    ]
+  },
+  {
     "version": "2.18.0",
     "date": "23 Agustus 2026",
     "type": "feature",
