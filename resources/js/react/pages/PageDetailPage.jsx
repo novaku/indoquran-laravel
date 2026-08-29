@@ -10,7 +10,9 @@ import {
     IoBookOutline,
     IoImageOutline,
     IoEyeOutline,
-    IoEyeOffOutline
+    IoEyeOffOutline,
+    IoCloseOutline,
+    IoOpenOutline
 } from 'react-icons/io5';
 import PageTransition from '../components/PageTransition';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -36,8 +38,9 @@ function PageDetailPage() {
     // Active Surah in viewport & floating nav
     const [activeSurahNumber, setActiveSurahNumber] = useState(null);
     const [showFloatingNav, setShowFloatingNav] = useState(false);
-    const [showMushafImage, setShowMushafImage] = useState(false);
+    const [showMushafImage, setShowMushafImage] = useState(true);
     const [showTranslation, setShowTranslation] = useState(true);
+    const [isImageLoading, setIsImageLoading] = useState(true);
     
     // Audio state
     const [selectedQari, setSelectedQari] = useState('15'); // Default to Alafasy 128kbps
@@ -102,14 +105,22 @@ function PageDetailPage() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, [pageData]);
     
-    // Fetch page data
+    // Fetch page data & scroll to top
     useEffect(() => {
         if (number) {
             stopAudio();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setIsImageLoading(true);
+            window.scrollTo({ top: 0, behavior: 'instant' });
             loadPageData(number);
         }
     }, [number]);
+
+    // Ensure scroll position is at the very top after page data is populated
+    useEffect(() => {
+        if (pageData) {
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+    }, [pageData]);
 
     const loadPageData = async (pageNumber) => {
         try {
@@ -219,6 +230,7 @@ function PageDetailPage() {
         const pageNum = parseInt(targetPage, 10);
         if (pageNum >= 1 && pageNum <= totalPages) {
             stopAudio();
+            window.scrollTo({ top: 0, behavior: 'instant' });
             navigate(`/halaman/${pageNum}`);
         }
     };
@@ -384,6 +396,9 @@ function PageDetailPage() {
     ));
     const juzText = distinctJuzs.length > 0 ? (distinctJuzs.length === 1 ? `Juz ${distinctJuzs[0]}` : `Juz ${distinctJuzs.join(', ')}`) : null;
     const pagePrimarySurah = pageData.surahs[0]?.surah;
+    const pagePadded = String(currentPageNum).padStart(3, '0');
+    const mushafImageUrl = `/images/quran-pages/QK_${pagePadded}.webp`;
+    const fallbackMushafImageUrl = `https://media.qurankemenag.net/khat2/QK_${pagePadded}.webp`;
 
     const pageSEO = {
         title: `Al Quran Halaman ${currentPageNum} (${pagePrimarySurah ? pagePrimarySurah.name_latin : ''}) - Teks Arab & Audio | IndoQuran`,
@@ -576,25 +591,60 @@ function PageDetailPage() {
 
                     {/* Mushaf Image Panel (Collapsible) */}
                     {showMushafImage && (
-                        <div className="bg-white rounded-3xl shadow-xl p-6 mb-8 border border-green-100 animate-fade-in">
-                            <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-base font-bold text-green-800 flex items-center gap-2">
-                                    <IoImageOutline className="w-5 h-5" />
-                                    <span>Gambar Mushaf Madinah — Halaman {currentPageNum}</span>
-                                </h2>
-                                <button
-                                    onClick={() => setShowMushafImage(false)}
-                                    className="text-xs text-gray-500 hover:text-gray-700 cursor-pointer"
-                                >
-                                    Tutup ✕
-                                </button>
+                        <div className="bg-white rounded-3xl shadow-xl p-4 sm:p-6 mb-8 border border-green-100 animate-fade-in">
+                            <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-gray-100">
+                                <div className="flex items-center gap-2.5">
+                                    <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shadow-xs">
+                                        <IoImageOutline className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-base sm:text-lg font-bold text-green-900">
+                                            Gambar Mushaf Standar Kemenag — Halaman {currentPageNum}
+                                        </h2>
+                                        <p className="text-xs text-gray-500">
+                                            Mushaf Standar Indonesia (Kemenag RI) {pagePrimarySurah ? `— Surah ${pagePrimarySurah.name_latin}` : ''}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <a
+                                        href={mushafImageUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer"
+                                        title="Buka Gambar Resolusi Asli di Tab Baru"
+                                    >
+                                        <IoOpenOutline className="w-4 h-4" />
+                                        <span>Buka Gambar Asli</span>
+                                    </a>
+                                    <button
+                                        onClick={() => setShowMushafImage(false)}
+                                        className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+                                        title="Sembunyikan Gambar Mushaf"
+                                    >
+                                        <IoCloseOutline className="w-5 h-5" />
+                                    </button>
+                                </div>
                             </div>
-                            <div className="flex justify-center bg-amber-50/40 p-4 rounded-2xl border border-amber-100">
+                            
+                            <div className="relative flex justify-center items-center bg-gradient-to-b from-amber-50/60 to-emerald-50/40 p-2 sm:p-4 rounded-2xl border border-amber-200/60 shadow-inner overflow-hidden min-h-[300px]">
+                                {isImageLoading && (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-xs z-10">
+                                        <LoadingSpinner size="md" />
+                                        <span className="text-xs text-gray-600 mt-2 font-medium">Memuat Mushaf Halaman {currentPageNum}...</span>
+                                    </div>
+                                )}
                                 <img
-                                    src={`https://cdn.myquran.com/img/page/${currentPageNum}.png`}
-                                    alt={`Halaman ${currentPageNum} Al-Quran`}
-                                    className="max-w-full rounded-xl shadow-md border border-amber-200/60 max-h-[800px] object-contain"
-                                    loading="lazy"
+                                    src={mushafImageUrl}
+                                    alt={`Mushaf Standar Kemenag Halaman ${currentPageNum}`}
+                                    className="w-full h-auto max-w-full rounded-xl shadow-md border border-amber-300/60 object-contain block mx-auto"
+                                    loading="eager"
+                                    onLoad={() => setIsImageLoading(false)}
+                                    onError={(e) => {
+                                        if (e.target.src !== fallbackMushafImageUrl) {
+                                            e.target.src = fallbackMushafImageUrl;
+                                        }
+                                    }}
                                 />
                             </div>
                         </div>

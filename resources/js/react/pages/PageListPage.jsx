@@ -37,6 +37,7 @@ function PageListPage() {
     
     const handlePageClick = useCallback((pageNumber) => {
         try {
+            window.scrollTo({ top: 0, behavior: 'instant' });
             navigate(`/halaman/${pageNumber}`);
         } catch (err) {
             console.error('Navigation error:', err);
@@ -49,6 +50,7 @@ function PageListPage() {
         try {
             const pageNum = parseInt(searchTerm);
             if (pageNum >= 1 && pageNum <= 604) {
+                window.scrollTo({ top: 0, behavior: 'instant' });
                 navigate(`/halaman/${pageNum}`);
             }
         } catch (err) {

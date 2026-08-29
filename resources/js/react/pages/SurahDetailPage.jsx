@@ -1056,11 +1056,6 @@ function SurahDetailPage() {
         return `https://everyayah.com/data/${reciter.subfolder}/${surahStr}${ayahStr}.mp3`;
     };
 
-    const getAyahImageCdnUrl = (surahNumber, ayahNum) => {
-        if (!surahNumber || !ayahNum) return '';
-        return `https://cdn.myquran.com/img/ayah/${surahNumber}_${ayahNum}.png`;
-    };
-
     const playAyah = async (ayahNum) => {
         try {
             setIsAudioLoading(true);
@@ -2784,20 +2779,6 @@ function SurahDetailPage() {
                                         </button>
                                     </div>
 
-                                    </div>
-                                </div>
-
-                                <div className="mb-8 max-w-4xl mx-auto">
-                                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-left">
-                                        <p className="mb-2 text-xs sm:text-sm font-medium text-gray-700">CDN URL Gambar Ayat</p>
-                                        <a
-                                            href={getAyahImageCdnUrl(surah.number, currentAyahNumber)}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="block break-all text-xs sm:text-sm text-blue-700 underline hover:text-blue-900"
-                                        >
-                                            {getAyahImageCdnUrl(surah.number, currentAyahNumber)}
-                                        </a>
                                     </div>
                                 </div>
                             </div>
