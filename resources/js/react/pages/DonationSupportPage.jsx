@@ -386,20 +386,20 @@ Wassalamu'alaikum.`
                                     <label className="block text-sm font-semibold text-gray-700 mb-3">
                                         Platform Tersedia
                                     </label>
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                    <div className="flex flex-wrap gap-2.5">
                                         {eMoneyDetails.providers.map((provider) => (
                                             <div 
                                                 key={provider.name}
-                                                className="flex items-center gap-3 p-2.5 px-3 bg-white rounded-xl border border-gray-200 shadow-xs hover:shadow-md hover:border-purple-300 transition-all duration-200 group"
+                                                className="flex items-center gap-2.5 p-2 px-3 bg-white rounded-xl border border-gray-200 shadow-xs hover:shadow-md hover:border-purple-300 transition-all duration-200 group flex-1 min-w-[135px]"
                                             >
-                                                <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center shrink-0 p-1 border border-gray-100">
+                                                <div className="w-9 h-9 rounded-lg bg-gray-50 flex items-center justify-center shrink-0 p-1 border border-gray-100">
                                                     <img 
                                                         src={provider.logo} 
                                                         alt={provider.name} 
                                                         className="w-full h-full object-contain transition-transform duration-200 group-hover:scale-110" 
                                                     />
                                                 </div>
-                                                <span className="font-bold text-xs sm:text-sm text-gray-800 group-hover:text-purple-700 transition-colors truncate">
+                                                <span className="font-bold text-xs sm:text-sm text-gray-800 group-hover:text-purple-700 transition-colors whitespace-nowrap">
                                                     {provider.name}
                                                 </span>
                                             </div>
