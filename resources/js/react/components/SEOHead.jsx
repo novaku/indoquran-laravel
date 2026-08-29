@@ -1,4 +1,36 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+
+// Helper function to update or create meta tag in <head>
+const updateMetaTag = (selector, attribute, value) => {
+  if (typeof document === 'undefined' || value === undefined || value === null) return;
+  let element = document.querySelector(selector);
+  if (!element) {
+    element = document.createElement('meta');
+    const nameMatch = selector.match(/name="([^"]+)"/);
+    const propMatch = selector.match(/property="([^"]+)"/);
+    if (nameMatch) {
+      element.setAttribute('name', nameMatch[1]);
+    } else if (propMatch) {
+      element.setAttribute('property', propMatch[1]);
+    }
+    document.head.appendChild(element);
+  }
+  element.setAttribute(attribute, value);
+};
+
+// Helper function to update structured data in <head>
+const updateStructuredDataInHead = (data) => {
+  if (typeof document === 'undefined' || !data) return;
+  const existingScripts = document.querySelectorAll('script[type="application/ld+json"][data-react-meta="true"]');
+  existingScripts.forEach(el => el.remove());
+
+  const script = document.createElement('script');
+  script.type = 'application/ld+json';
+  script.setAttribute('data-react-meta', 'true');
+  const jsonContent = Array.isArray(data) ? data : [data];
+  script.textContent = JSON.stringify(jsonContent);
+  document.head.appendChild(script);
+};
 
 /**
  * SEOHead component - combines MetaTags and StructuredData for comprehensive SEO
@@ -30,8 +62,7 @@ function SEOHead({
 }) {
   const baseUrl = 'https://indoquran.web.id';
   
-  // Default SEO values (updated November 2025 for canonical URL consistency)
-  // Note: Canonical tag is managed by useCanonicalURL hook in App.jsx to prevent duplication
+  // Default SEO values (updated for canonical URL consistency and dynamic tab titles)
   const seoDefaults = {
     title: title || 'IndoQuran - Al-Quran Digital Indonesia | Baca & Dengar Al-Quran Online',
     description: description || 'Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia, fitur bookmark, pencarian ayat, audio murottal berkualitas tinggi, dan tafsir lengkap.',
@@ -40,120 +71,67 @@ function SEOHead({
       baseUrl + window.location.pathname + window.location.search : baseUrl),
     ogImage: ogImage || `${baseUrl}/android-chrome-512x512.png`,
     author: author,
-    // FIXED: Proper robots tag strategy for Google Search Console
-    // Only use noindex for genuinely private pages (auth pages, profile)
-    // Public content pages should always be indexed
     robots: robots || (noindex ? 'noindex, nofollow' : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'),
     viewport: viewport || 'width=device-width, initial-scale=1.0',
     themeColor: themeColor || '#2563eb'
   };
 
-  // Generate comprehensive meta tags
-  const generateMetaTags = () => {
-    const metaTags = [];
-    
-    // Basic meta tags
-    metaTags.push(<title key="title">{seoDefaults.title}</title>);
-    metaTags.push(<meta key="description" name="description" content={seoDefaults.description} />);
-    metaTags.push(<meta key="keywords" name="keywords" content={seoDefaults.keywords} />);
-    metaTags.push(<meta key="author" name="author" content={seoDefaults.author} />);
-    metaTags.push(<meta key="robots" name="robots" content={seoDefaults.robots} />);
-    metaTags.push(<meta key="viewport" name="viewport" content={seoDefaults.viewport} />);
-    metaTags.push(<meta key="theme-color" name="theme-color" content={seoDefaults.themeColor} />);
-    
-    // Canonical URL is managed by useCanonicalURL hook to prevent duplication
-    // Do NOT add canonical tag here - it's handled centrally in App.jsx
-    
-    // Open Graph tags
-    const ogTags = {
-      'og:title': seoDefaults.title,
-      'og:description': seoDefaults.description,
-      'og:url': seoDefaults.canonicalUrl,
-      'og:type': ogType,
-      'og:image': seoDefaults.ogImage,
-      'og:site_name': 'IndoQuran',
-      'og:locale': 'id_ID',
-      ...openGraph
-    };
-    
-    Object.entries(ogTags).forEach(([property, content]) => {
-      if (content) {
-        metaTags.push(<meta key={property} property={property} content={content} />);
-      }
-    });
-    
-    // Twitter Card tags
-    const twitterTags = {
-      'twitter:card': 'summary_large_image',
-      'twitter:site': '@indoquran',
-      'twitter:creator': '@indoquran',
-      'twitter:title': seoDefaults.title,
-      'twitter:description': seoDefaults.description,
-      'twitter:image': seoDefaults.ogImage,
-      'twitter:url': seoDefaults.canonicalUrl,
-      ...twitter
-    };
-    
-    Object.entries(twitterTags).forEach(([name, content]) => {
-      if (content) {
-        metaTags.push(<meta key={name} name={name} content={content} />);
-      }
-    });
-    
-    // Apple touch icon and manifest
-    if (appleTouchIcon) {
-      metaTags.push(<link key="apple-touch-icon" rel="apple-touch-icon" href={appleTouchIcon} />);
-    }
-    if (manifestUrl) {
-      metaTags.push(<link key="manifest" rel="manifest" href={manifestUrl} />);
-    }
-    
-    // AMP HTML Link
-    if (ampHtmlUrl) {
-      metaTags.push(<link key="amphtml" rel="amphtml" href={ampHtmlUrl} />);
-    }
-    
-    // Additional meta tags
-    if (Array.isArray(additionalMeta)) {
-      additionalMeta.forEach((meta, index) => {
-        const key = `additional-${index}`;
-        if (meta.property) {
-          metaTags.push(<meta key={key} property={meta.property} content={meta.content} />);
-        } else if (meta.httpEquiv) {
-          metaTags.push(<meta key={key} httpEquiv={meta.httpEquiv} content={meta.content} />);
-        } else {
-          metaTags.push(<meta key={key} name={meta.name} content={meta.content} />);
-        }
-      });
-    }
-    
-    return metaTags;
-  };
+  // Dynamically update document title and head metadata in the browser
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
 
-  // Generate structured data JSON-LD
-  const generateStructuredData = () => {
-    if (!structuredData || (Array.isArray(structuredData) && structuredData.length === 0)) {
-      return null;
+    if (seoDefaults.title) {
+      document.title = seoDefaults.title;
     }
-    
-    const jsonLdContent = Array.isArray(structuredData) ? structuredData : [structuredData];
-    
-    return (
-      <script
-        key="structured-data"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(jsonLdContent, null, 0)
-        }}
-      />
-    );
-  };
-  return (
-    <>
-      {generateMetaTags()}
-      {generateStructuredData()}
-    </>
-  );
+
+    if (seoDefaults.description) {
+      updateMetaTag('meta[name="description"]', 'content', seoDefaults.description);
+      updateMetaTag('meta[property="og:description"]', 'content', seoDefaults.description);
+      updateMetaTag('meta[property="twitter:description"]', 'content', seoDefaults.description);
+    }
+
+    if (seoDefaults.keywords) {
+      updateMetaTag('meta[name="keywords"]', 'content', seoDefaults.keywords);
+    }
+
+    if (seoDefaults.author) {
+      updateMetaTag('meta[name="author"]', 'content', seoDefaults.author);
+    }
+
+    if (seoDefaults.title) {
+      updateMetaTag('meta[property="og:title"]', 'content', seoDefaults.title);
+      updateMetaTag('meta[property="twitter:title"]', 'content', seoDefaults.title);
+    }
+
+    if (seoDefaults.robots) {
+      updateMetaTag('meta[name="robots"]', 'content', seoDefaults.robots);
+    }
+
+    if (seoDefaults.ogImage) {
+      updateMetaTag('meta[property="og:image"]', 'content', seoDefaults.ogImage);
+      updateMetaTag('meta[property="twitter:image"]', 'content', seoDefaults.ogImage);
+    }
+
+    if (ogType) {
+      updateMetaTag('meta[property="og:type"]', 'content', ogType);
+    }
+
+    if (structuredData) {
+      updateStructuredDataInHead(structuredData);
+    }
+  }, [
+    seoDefaults.title,
+    seoDefaults.description,
+    seoDefaults.keywords,
+    seoDefaults.canonicalUrl,
+    seoDefaults.ogImage,
+    seoDefaults.robots,
+    seoDefaults.author,
+    ogType,
+    structuredData
+  ]);
+
+  return null;
 }
 
 // Helper functions for common page types

@@ -3,6 +3,45 @@
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Schedule;
+
+// =============================================================================
+// Laravel Task Scheduling (Cron Jobs)
+// =============================================================================
+
+// 1. SEO & Sitemap: Regenerasi sitemap lengkap setiap hari jam 02:00 pagi
+Schedule::command('sitemap:generate-comprehensive --production')
+    ->dailyAt('02:00')
+    ->withoutOverlapping()
+    ->name('generate-production-sitemaps');
+
+// 2. SEO & Google Indexing: Ping submit sitemap ke Google Search Console setiap Senin jam 06:00 pagi
+Schedule::command('sitemap:submit-to-google')
+    ->weeklyOn(1, '06:00')
+    ->withoutOverlapping()
+    ->name('submit-sitemaps-to-google');
+
+// 3. Performa & Cache: Pre-warming cache Al-Qur'an setiap hari jam 03:00 pagi
+Schedule::command('quran:cache warm-up')
+    ->dailyAt('03:00')
+    ->withoutOverlapping()
+    ->name('warmup-quran-cache');
+
+// 4. Maintenance: Bersihkan token reset password yang kadaluwarsa setiap hari jam 04:00 pagi
+Schedule::command('auth:clear-resets')
+    ->dailyAt('04:00')
+    ->name('clear-expired-password-resets');
+
+// 5. Security & Maintenance: Hapus OTP Admin yang sudah kedaluwarsa (> 2 hari) setiap hari jam 04:15 pagi
+Schedule::call(function () {
+    try {
+        if (class_exists(\App\Models\AdminOtpCode::class)) {
+            \App\Models\AdminOtpCode::where('created_at', '<', now()->subDays(2))->delete();
+        }
+    } catch (\Throwable $e) {
+        // Ignore if table not present
+    }
+})->dailyAt('04:15')->name('cleanup-expired-admin-otp');
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());

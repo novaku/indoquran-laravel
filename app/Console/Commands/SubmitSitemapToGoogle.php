@@ -27,18 +27,15 @@ class SubmitSitemapToGoogle extends Command
         
         $this->info("Submitting sitemaps to Google for domain: {$domain}");
         
-        // List of sitemaps to submit
+        // List of modular sitemaps to submit
         $sitemaps = [
             'sitemap.xml',
             'sitemap-index.xml',
             'sitemap-main.xml',
-            'sitemap-juz.xml'
+            'sitemap-artikel.xml',
+            'sitemap-juz.xml',
+            'sitemap-halaman.xml',
         ];
-        
-        // Add surah group sitemaps
-        for ($i = 1; $i <= 6; $i++) {
-            $sitemaps[] = "sitemap-surahs-{$i}.xml";
-        }
         
         $this->info("Total sitemaps to submit: " . count($sitemaps));
         
