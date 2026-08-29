@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { IoListOutline } from 'react-icons/io5';
 
 /**
@@ -16,6 +16,29 @@ export default function QuranSurahJumpBar({
     allUnitsCount,
     allUnitsLabel = 'Pilih Halaman'
 }) {
+    const chipRefs = useRef({});
+    const chipContainerRef = useRef(null);
+
+    // Auto-scroll horizontal chip list to keep active surah chip visible/centered
+    useEffect(() => {
+        if (activeSurahNumber && chipRefs.current[activeSurahNumber] && chipContainerRef.current) {
+            const activeElement = chipRefs.current[activeSurahNumber];
+            const container = chipContainerRef.current;
+            
+            const elementRect = activeElement.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+            
+            // If the element is outside or partially outside container view, scroll horizontally
+            if (elementRect.left < containerRect.left || elementRect.right > containerRect.right) {
+                activeElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest',
+                    inline: 'center'
+                });
+            }
+        }
+    }, [activeSurahNumber]);
+
     if (!surahs || surahs.length === 0) return null;
 
     const firstSurah = surahs[0]?.surah;
@@ -66,7 +89,10 @@ export default function QuranSurahJumpBar({
             </div>
 
             {/* Horizontal Scrollable Surah Chips */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 pt-1 scrollbar-thin scrollbar-thumb-green-200 scrollbar-track-transparent">
+            <div 
+                ref={chipContainerRef}
+                className="flex items-center gap-2 overflow-x-auto pb-2 pt-1 scrollbar-thin scrollbar-thumb-green-200 scrollbar-track-transparent scroll-smooth"
+            >
                 {surahs.map((surahData) => {
                     const sNum = surahData.surah?.number;
                     const isActive = activeSurahNumber === sNum;
@@ -77,10 +103,13 @@ export default function QuranSurahJumpBar({
                     return (
                         <button
                             key={sNum}
+                            ref={el => {
+                                if (el) chipRefs.current[sNum] = el;
+                            }}
                             onClick={() => onSurahClick && onSurahClick(sNum)}
-                            className={`flex-shrink-0 inline-flex items-center gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-medium transition-all duration-200 border ${
+                            className={`flex-shrink-0 inline-flex items-center gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-medium transition-all duration-200 border cursor-pointer ${
                                 isActive
-                                    ? 'bg-green-600 text-white border-green-600 shadow-md scale-[1.02]'
+                                    ? 'bg-green-600 text-white border-green-600 shadow-md scale-[1.02] ring-2 ring-green-300'
                                     : 'bg-green-50/60 hover:bg-green-100 text-gray-700 border-green-100 hover:border-green-300'
                             }`}
                             title={`Lompat ke Surah ${surahData.surah?.name_latin} (${rangeText})`}

@@ -141,7 +141,14 @@ function JuzPage() {
     const scrollToSurah = (surahNum) => {
         const el = document.getElementById(`surah-${surahNum}`);
         if (el) {
-            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const headerOffset = 180;
+            const elementPosition = el.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
             setActiveSurahNumber(surahNum);
         }
     };
@@ -542,7 +549,7 @@ function JuzPage() {
                             <div 
                                 key={surahData.surah.number} 
                                 id={`surah-${surahData.surah.number}`}
-                                className="bg-white rounded-3xl shadow-xl border border-green-100 overflow-hidden transition-all"
+                                className="scroll-mt-48 sm:scroll-mt-52 bg-white rounded-3xl shadow-xl border border-green-100 overflow-hidden transition-all"
                             >
                                 {/* Surah Header */}
                                 <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-5 sm:p-6">
