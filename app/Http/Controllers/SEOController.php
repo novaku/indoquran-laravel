@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\Ayah;
+use App\Models\Prayer;
 use App\Models\Surah;
 use App\Models\TafsirMaudhuiTopic;
 use Illuminate\Http\Request;
@@ -526,13 +527,37 @@ class SEOController extends Controller
             ]);
         }
         elseif (isset($segments[0]) && $segments[0] === 'doa-bersama') {
-            // Prayer page SEO
-            $seoData = array_merge($seoData, [
-                'metaTitle' => 'Doa Bersama - Komunitas Doa Muslim - IndoQuran',
-                'metaDescription' => 'Bergabunglah dengan komunitas doa Muslim di IndoQuran. Buat dan bagikan doa, beri dukungan kepada sesama Muslim, serta temukan kekuatan dalam doa bersama.',
-                'metaKeywords' => 'doa bersama, komunitas doa, doa muslim, doa islam, permintaan doa, dukungan doa, indoquran doa',
-                'canonicalUrl' => url('/doa-bersama')
-            ]);
+            if (isset($segments[1]) && is_numeric($segments[1])) {
+                $prayer = Prayer::with('user')->find($segments[1]);
+                if ($prayer) {
+                    $authorName = $prayer->is_anonymous ? 'Hamba Allah' : ($prayer->user->name ?? 'Saudara Seiman');
+                    $contentSnippet = Str::limit($prayer->content, 140);
+                    $titleSnippet = Str::limit($prayer->title ?: $prayer->content, 50);
+
+                    $seoData = array_merge($seoData, [
+                        'metaTitle' => "Doa dari {$authorName}: \"{$titleSnippet}\" - Doa Bersama | IndoQuran",
+                        'metaDescription' => "\"{$contentSnippet}\" - Mari bersama-sama mengaminkan doa dari {$authorName} di komunitas Doa Bersama IndoQuran.",
+                        'metaKeywords' => "doa bersama, doa {$authorName}, doa islam, amin doa, komunitas muslim indoquran",
+                        'canonicalUrl' => url('/doa-bersama/' . $prayer->id),
+                        'ogType' => 'article'
+                    ]);
+                } else {
+                    $seoData = array_merge($seoData, [
+                        'metaTitle' => 'Doa Bersama - Komunitas Doa Muslim - IndoQuran',
+                        'metaDescription' => 'Bergabunglah dengan komunitas doa Muslim di IndoQuran. Buat dan bagikan doa, beri dukungan kepada sesama Muslim, serta temukan kekuatan dalam doa bersama.',
+                        'metaKeywords' => 'doa bersama, komunitas doa, doa muslim, doa islam, permintaan doa, dukungan doa, indoquran doa',
+                        'canonicalUrl' => url('/doa-bersama')
+                    ]);
+                }
+            } else {
+                // Prayer page SEO
+                $seoData = array_merge($seoData, [
+                    'metaTitle' => 'Doa Bersama - Komunitas Doa Muslim - IndoQuran',
+                    'metaDescription' => 'Bergabunglah dengan komunitas doa Muslim di IndoQuran. Buat dan bagikan doa, beri dukungan kepada sesama Muslim, serta temukan kekuatan dalam doa bersama.',
+                    'metaKeywords' => 'doa bersama, komunitas doa, doa muslim, doa islam, permintaan doa, dukungan doa, indoquran doa',
+                    'canonicalUrl' => url('/doa-bersama')
+                ]);
+            }
         }
         elseif (isset($segments[0]) && $segments[0] === 'asmaul-husna') {
             // Asmaul Husna page SEO - NEW (Based on search queries)

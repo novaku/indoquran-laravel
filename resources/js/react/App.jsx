@@ -96,6 +96,9 @@ const PageDetailPage = lazy(() =>
 const PrayerPage = lazy(() => 
   import(/* webpackChunkName: "prayer" */ './pages/PrayerPage')
 );
+const PrayerDetailPage = lazy(() => 
+  import(/* webpackChunkName: "prayer" */ './pages/PrayerDetailPage')
+);
 const AsmaulHusnaPage = lazy(() => 
   import(/* webpackChunkName: "asmaul-husna" */ './pages/AsmaulHusnaPage')
 );
@@ -366,6 +369,7 @@ const AppContent = memo(() => {
                         <Route path="/tafsir-maudhui/:slug" element={<TafsirMaudhuiPage />} />
                         <Route path="/asmaul-husna" element={<AsmaulHusnaPage />} />
                         <Route path="/doa-bersama" element={<PrayerPage />} />
+                        <Route path="/doa-bersama/:id" element={<PrayerDetailPage />} />
                         <Route path="/tentang" element={<AboutPage />} />
                         <Route path="/kontak" element={<ContactPage />} />
                         <Route path="/donasi" element={<DonationPage />} />
