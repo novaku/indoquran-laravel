@@ -40,6 +40,7 @@ import SEOHead from '../components/SEOHead';
 import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseInline from '../components/AdSenseInline';
 import AdSenseHorizontal from '../components/AdSenseHorizontal';
+import TafsirSurahSection from '../components/TafsirSurahSection';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
@@ -239,6 +240,7 @@ function SurahDetailPage() {
     const [selectionPosition, setSelectionPosition] = useState({ x: 0, y: 0 });
     const [showActionsMenu, setShowActionsMenu] = useState(false);
     const [showEnglishTranslation, setShowEnglishTranslation] = useState(false);
+    const [showInAyahTafsir, setShowInAyahTafsir] = useState(false);
     const [showAyahTafsirDetail, setShowAyahTafsirDetail] = useState(true);
     const [showSurahTafsirDetail, setShowSurahTafsirDetail] = useState(true);
 
@@ -2667,6 +2669,68 @@ function SurahDetailPage() {
                                     </div>
                                 )}
 
+                                {/* SECTION 4.5: Tafsir Ringkas Ayat Aktif */}
+                                {currentAyah.tafsir && (
+                                    <div className="mb-4 max-w-3xl mx-auto bg-emerald-50/70 border border-emerald-200/90 rounded-2xl p-4 text-left shadow-2xs transition-all">
+                                        <div className="flex items-center justify-between gap-3">
+                                            <div className="flex items-center gap-2">
+                                                <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-emerald-600 text-white text-xs font-bold shadow-2xs">
+                                                    📖
+                                                </span>
+                                                <p className="text-xs font-bold text-emerald-900 uppercase tracking-wide flex items-center gap-1.5">
+                                                    <span>Tafsir Ayat</span>
+                                                    <span className="text-emerald-400">•</span>
+                                                    <span className="font-extrabold text-emerald-950">QS. {surah.number}:{currentAyahNumber}</span>
+                                                </p>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowInAyahTafsir((prev) => !prev)}
+                                                    className="rounded-xl border border-emerald-300 bg-white px-3 py-1 text-xs font-bold text-emerald-800 transition hover:bg-emerald-100/80 cursor-pointer shadow-2xs"
+                                                >
+                                                    {showInAyahTafsir ? 'Sembunyikan Tafsir' : 'Buka Tafsir Ayat'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {showInAyahTafsir && (
+                                            <div className="mt-3 pt-3 border-t border-emerald-200/70 animate-fadeIn">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className="text-[11px] font-semibold text-emerald-700">
+                                                        Sumber: Tafsir Ringkas Kemenag RI
+                                                    </span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={async () => {
+                                                            try {
+                                                                await navigator.clipboard.writeText(currentAyah.tafsir);
+                                                                const alertDiv = document.createElement('div');
+                                                                alertDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-all text-sm font-medium';
+                                                                alertDiv.textContent = '✅ Tafsir berhasil disalin!';
+                                                                document.body.appendChild(alertDiv);
+                                                                setTimeout(() => {
+                                                                    alertDiv.style.opacity = '0';
+                                                                    setTimeout(() => {
+                                                                        if (document.body.contains(alertDiv)) {
+                                                                            document.body.removeChild(alertDiv);
+                                                                        }
+                                                                    }, 300);
+                                                                }, 2000);
+                                                            } catch (e) {}
+                                                        }}
+                                                        className="text-[11px] font-semibold text-emerald-800 hover:text-emerald-950 underline cursor-pointer"
+                                                    >
+                                                        Salin Teks
+                                                    </button>
+                                                </div>
+                                                <p className="text-sm sm:text-base text-emerald-950 leading-relaxed whitespace-pre-line">
+                                                    {currentAyah.tafsir}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
                                 {/* SECTION 5: Penanda & Catatan Ayat */}
                                 <div className="mb-4 max-w-3xl mx-auto relative overflow-hidden rounded-2xl border border-emerald-300/80 bg-gradient-to-br from-emerald-50/90 via-white/95 to-teal-50/90 p-4 sm:p-5 shadow-xs shadow-emerald-900/5 transition-all duration-300 hover:shadow-md hover:border-emerald-400 text-left">
                                     {/* Decorative background ambient glow */}
@@ -3056,121 +3120,17 @@ function SurahDetailPage() {
                     />
                 </div>
 
-                {/* Surah Details Section */}
-                <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg mt-6">
-                    <div className="text-center mb-6">
-                        {/* Surah Title */}
-                        <div className="mb-4">
-                            <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                                {surah.name_latin || surah.name_english}
-                            </h1>
-                            <div className="flex justify-center items-center mb-2">
-                                <p className="font-arabic text-gray-800 leading-loose" 
-                                   dir="rtl"
-                                   style={{ 
-                                       fontSize: `${fontSize + 20}px`
-                                   }}>
-                                    {surah.name_arabic}
-                                </p>
-                            </div>
-                            <p className="text-lg text-gray-600">
-                                {surah.name_indonesian}
-                            </p>
-                        </div>
-
-                        {/* Surah Info */}
-                        <div className="flex justify-center items-center space-x-6 text-sm text-gray-600 mb-4">
-                            <div className="flex items-center space-x-2">
-                                <span className="font-medium">Surah ke-{surah.number}</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <span>{maxAyahNumber} ayat</span>
-                            </div>
-                            {surah.revelation_place && (
-                                <div className="flex items-center space-x-2">
-                                    <span>{surah.revelation_place}</span>
-                                </div>
-                            )}
-                        </div>
-
-                        <p className="text-sm text-gray-500 mt-3">
-                            Gunakan tombol panel detail untuk berbagi, dan menu aksi di pojok kanan atas untuk salin teks atau bookmark ayat.
-                        </p>
-
-                        <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3">
-                            <button
-                                onClick={() => shareAyah(currentAyahNumber)}
-                                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors text-sm font-medium"
-                            >
-                                <ShareIcon className="w-4 h-4" />
-                                Bagikan Ayat Ini
-                            </button>
-
-                            <button
-                                onClick={shareSurah}
-                                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors text-sm font-medium"
-                            >
-                                <ShareIcon className="w-4 h-4" />
-                                Bagikan Surah
-                            </button>
-                        </div>
-
-                        <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3">
-                            <button
-                                onClick={() => setShowSurahTafsirDetail((prev) => !prev)}
-                                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors text-sm font-medium"
-                            >
-                                <DocumentTextIcon className="w-4 h-4" />
-                                {showSurahTafsirDetail ? 'Sembunyikan Detail Tafsir Surah' : 'Tampilkan Detail Tafsir Surah'}
-                            </button>
-
-                            <button
-                                onClick={() => setShowAyahTafsirDetail((prev) => !prev)}
-                                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-green-200 bg-green-50 text-green-700 hover:bg-green-100 transition-colors text-sm font-medium"
-                            >
-                                <BookOpenIcon className="w-4 h-4" />
-                                {showAyahTafsirDetail ? 'Sembunyikan Detail Tafsir Ayat' : 'Tampilkan Detail Tafsir Ayat'}
-                            </button>
-                        </div>
-
-                        {showSurahTafsirDetail && (
-                            <div className="mt-4 text-left bg-blue-50 border border-blue-100 rounded-xl p-4">
-                                <h4 className="text-sm font-semibold text-blue-800 mb-2">
-                                    Tafsir Surah {surah.name_latin || surah.name_english}
-                                </h4>
-                                {(surah.description_long || surah.description_short || surah.description) ? (
-                                    <div
-                                        className="text-sm text-blue-900 leading-relaxed prose prose-sm max-w-none"
-                                        dangerouslySetInnerHTML={{
-                                            __html: surah.description_long || surah.description_short || surah.description
-                                        }}
-                                    />
-                                ) : (
-                                    <p className="text-sm text-blue-700">
-                                        Tafsir atau penjelasan surah belum tersedia.
-                                    </p>
-                                )}
-                            </div>
-                        )}
-
-                        {showAyahTafsirDetail && (
-                            <div className="mt-4 text-left bg-green-50 border border-green-100 rounded-xl p-4">
-                                <h4 className="text-sm font-semibold text-green-800 mb-2">
-                                    Tafsir Ayat {currentAyahNumber}
-                                </h4>
-                                {currentAyah?.tafsir ? (
-                                    <p className="text-sm text-green-900 leading-relaxed whitespace-pre-line">
-                                        {currentAyah.tafsir}
-                                    </p>
-                                ) : (
-                                    <p className="text-sm text-green-700">
-                                        Tafsir ayat ini belum tersedia.
-                                    </p>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                </div>
+                {/* Rich Comprehensive Tafsir Section */}
+                <TafsirSurahSection 
+                    surah={surah}
+                    currentAyah={currentAyah}
+                    currentAyahNumber={currentAyahNumber}
+                    maxAyahNumber={maxAyahNumber}
+                    ayahs={ayahs}
+                    onSelectAyah={(ayahNum) => navigateToAyah(ayahNum)}
+                    onShareAyah={shareAyah}
+                    onShareSurah={shareSurah}
+                />
             </div>
         </div>
         </>
