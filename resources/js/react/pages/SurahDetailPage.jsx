@@ -86,6 +86,77 @@ const QuranCenterFlourish = () => (
     </div>
 );
 
+// Custom Ayah Jump Dropdown to avoid OS-level popup misplacement
+const AyahJumpDropdown = ({ currentAyahNumber, availableAyahNumbers, onSelectAyah }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+    const activeItemRef = useRef(null);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleClickOutside = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('touchstart', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('touchstart', handleClickOutside);
+        };
+    }, [isOpen]);
+
+    useEffect(() => {
+        if (isOpen && activeItemRef.current) {
+            activeItemRef.current.scrollIntoView({ block: 'nearest' });
+        }
+    }, [isOpen]);
+
+    return (
+        <div ref={dropdownRef} className="w-full sm:w-52 relative">
+            <button
+                type="button"
+                onClick={() => setIsOpen(prev => !prev)}
+                className="w-full flex items-center justify-between rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-gray-800 shadow-2xs outline-none transition hover:bg-gray-50 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 cursor-pointer"
+                title="Lompat ke ayat tertentu"
+            >
+                <span>Lompat ke Ayat {currentAyahNumber}</span>
+                <ChevronDownIcon className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isOpen && (
+                <div className="absolute left-0 right-0 top-full mt-1.5 z-40 max-h-56 overflow-y-auto rounded-xl border border-gray-200 bg-white p-1 shadow-xl animate-fadeIn">
+                    {availableAyahNumbers.map((num) => {
+                        const isSelected = parseInt(num, 10) === parseInt(currentAyahNumber, 10);
+                        return (
+                            <button
+                                key={num}
+                                ref={isSelected ? activeItemRef : null}
+                                type="button"
+                                onClick={() => {
+                                    onSelectAyah(num);
+                                    setIsOpen(false);
+                                }}
+                                className={`w-full flex items-center justify-between px-3 py-2 text-xs sm:text-sm rounded-lg transition-colors cursor-pointer text-left ${
+                                    isSelected 
+                                        ? 'bg-emerald-50 text-emerald-800 font-bold' 
+                                        : 'text-gray-700 hover:bg-gray-100 font-medium'
+                                }`}
+                            >
+                                <span>Ayat {num}</span>
+                                {isSelected && (
+                                    <IoCheckmarkOutline className="w-4 h-4 text-emerald-600 font-bold" />
+                                )}
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+    );
+};
+
 // Convert English numerals to Arabic-Indic numerals
 const convertToArabicNumerals = (num) => {
     if (num === null || num === undefined) return '';
@@ -3021,24 +3092,11 @@ function SurahDetailPage() {
                                         </button>
 
                                         {/* Dropdown Lompat Ayat */}
-                                        <div className="w-full sm:w-48 relative">
-                                            <select
-                                                value={currentAyahNumber}
-                                                onChange={(e) => {
-                                                    const selected = parseInt(e.target.value, 10);
-                                                    navigateToAyah(selected);
-                                                }}
-                                                className="w-full appearance-none rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 pr-8 text-xs sm:text-sm font-medium text-gray-800 shadow-2xs outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 cursor-pointer"
-                                                title="Lompat ke ayat tertentu"
-                                            >
-                                                {availableAyahNumbers.map((num) => (
-                                                    <option key={num} value={num}>
-                                                        Lompat ke Ayat {num}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                            <ChevronDownIcon className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                                        </div>
+                                        <AyahJumpDropdown 
+                                            currentAyahNumber={currentAyahNumber}
+                                            availableAyahNumbers={availableAyahNumbers}
+                                            onSelectAyah={navigateToAyah}
+                                        />
 
                                         {/* Tombol Ayat Selanjutnya */}
                                         <button
