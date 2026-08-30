@@ -64,6 +64,28 @@ const WhatsAppIcon = ({ className }) => (
     </svg>
 );
 
+// Islamic Mushaf Corner Ornament for 3D Paper Effect
+const QuranCornerOrnament = ({ className = "" }) => (
+    <svg className={className} width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 37V14C3 7.92487 7.92487 3 14 3H37" stroke="#b45309" strokeWidth="1.5" strokeLinecap="round" strokeOpacity="0.45" />
+        <path d="M7 37V16C7 11.0294 11.0294 7 16 7H37" stroke="#d97706" strokeWidth="0.75" strokeLinecap="round" strokeOpacity="0.35" />
+        <circle cx="15" cy="15" r="3" fill="#d97706" fillOpacity="0.35" />
+        <path d="M15 8V22M8 15H22" stroke="#b45309" strokeWidth="0.75" strokeOpacity="0.35" strokeLinecap="round" />
+        <circle cx="6" cy="6" r="1.5" fill="#f59e0b" fillOpacity="0.6" />
+    </svg>
+);
+
+const QuranCenterFlourish = () => (
+    <div className="flex items-center justify-center gap-2 select-none pointer-events-none opacity-50 py-1">
+        <span className="h-[1px] w-12 sm:w-20 bg-gradient-to-r from-transparent via-amber-400/50 to-amber-600/70" />
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-amber-700">
+            <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="currentColor" fillOpacity="0.6" />
+            <circle cx="12" cy="12" r="2" fill="#d97706" />
+        </svg>
+        <span className="h-[1px] w-12 sm:w-20 bg-gradient-to-l from-transparent via-amber-400/50 to-amber-600/70" />
+    </div>
+);
+
 // Convert English numerals to Arabic-Indic numerals
 const convertToArabicNumerals = (num) => {
     if (num === null || num === undefined) return '';
@@ -2343,42 +2365,56 @@ function SurahDetailPage() {
                                     </div>
                                 </div>
 
-                                <div className="mb-6 rounded-3xl border border-amber-200/70 bg-gradient-to-b from-amber-50/40 via-white to-amber-50/20 p-5 sm:p-7 shadow-xs" id={`ayah-${currentAyahNumber}-arabic`}>
-                                    <div className="text-center" dir="rtl">
-                                        <p 
-                                            ref={currentAyahRef}
-                                            className="font-arabic text-gray-900 font-normal inline select-text tracking-wide"
-                                            style={{ 
-                                                fontSize: `${fontSize + 16}px`,
-                                                lineHeight: '2.4',
-                                                wordSpacing: '0.18em',
-                                                fontFamily: "'AlQuran-IndoPak', 'Scheherazade New', 'Scheherazade', 'Amiri', 'Traditional Arabic', serif"
-                                            }}
-                                        >
-                                            {currentAyah.text_arabic}
-                                            <span 
-                                                className="font-bold text-white select-none inline-flex items-center justify-center mr-3.5 shadow-md transition-transform hover:scale-105"
-                                                dir="ltr"
+                                <div 
+                                    className="quran-paper-3d-card mb-6" 
+                                    id={`ayah-${currentAyahNumber}-arabic`}
+                                >
+                                    {/* Subtle Parchment Watermark Pattern Overlay */}
+                                    <div className="quran-paper-pattern absolute inset-0 pointer-events-none opacity-85" />
+
+                                    {/* 4 Islamic Corner Ornaments for 3D Mushaf Aesthetic */}
+                                    <QuranCornerOrnament className="absolute top-2 left-2 pointer-events-none transform -scale-x-100" />
+                                    <QuranCornerOrnament className="absolute top-2 right-2 pointer-events-none" />
+                                    <QuranCornerOrnament className="absolute bottom-2 left-2 pointer-events-none transform -scale-x-100 -scale-y-100" />
+                                    <QuranCornerOrnament className="absolute bottom-2 right-2 pointer-events-none transform -scale-y-100" />
+
+                                    {/* Inner Decorative Mushaf Frame */}
+                                    <div className="quran-paper-inner-frame relative m-2.5 sm:m-3.5 p-4 sm:p-7 md:p-8 bg-gradient-to-b from-amber-50/30 via-transparent to-amber-100/25">
+                                        <QuranCenterFlourish />
+
+                                        <div className="text-center py-2 sm:py-3.5" dir="rtl">
+                                            <p 
+                                                ref={currentAyahRef}
+                                                className="font-arabic ayah-arabic-ink font-normal inline select-text tracking-wide"
                                                 style={{ 
-                                                    fontSize: `${Math.max(fontSize - 4, 18)}px`,
-                                                    fontFamily: "'Scheherazade New', 'Scheherazade', 'Amiri', 'Traditional Arabic', serif",
-                                                    textShadow: '0 1px 2px rgba(0,0,0,0.3)',
-                                                    background: 'linear-gradient(135deg, #059669, #047857)',
-                                                    minWidth: `${Math.max(fontSize + 16, 44)}px`,
-                                                    minHeight: `${Math.max(fontSize + 16, 44)}px`,
-                                                    padding: '0 8px',
-                                                    borderRadius: '9999px',
-                                                    border: '3px solid white',
-                                                    boxShadow: '0 4px 12px rgba(5, 150, 105, 0.35), 0 0 0 2px rgba(34, 197, 94, 0.3)',
-                                                    verticalAlign: 'middle',
-                                                    direction: 'ltr',
-                                                    unicodeBidi: 'isolate'
+                                                    fontSize: `${fontSize + 16}px`,
+                                                    lineHeight: '2.4',
+                                                    wordSpacing: '0.18em',
+                                                    fontFamily: "'AlQuran-IndoPak', 'Scheherazade New', 'Scheherazade', 'Amiri', 'Traditional Arabic', serif"
                                                 }}
-                                                title={`Ayat ${currentAyahNumber} (${convertToArabicNumerals(currentAyahNumber)})`}
                                             >
-                                                {convertToArabicNumerals(currentAyahNumber)}
-                                            </span>
-                                        </p>
+                                                {currentAyah.text_arabic}
+                                                <span 
+                                                    className="ayah-number-seal-3d font-bold text-white select-none inline-flex items-center justify-center mr-3.5 align-middle cursor-default"
+                                                    dir="ltr"
+                                                    style={{ 
+                                                        fontSize: `${Math.max(fontSize - 4, 18)}px`,
+                                                        fontFamily: "'Scheherazade New', 'Scheherazade', 'Amiri', 'Traditional Arabic', serif",
+                                                        minWidth: `${Math.max(fontSize + 16, 44)}px`,
+                                                        minHeight: `${Math.max(fontSize + 16, 44)}px`,
+                                                        padding: '0 8px',
+                                                        borderRadius: '9999px',
+                                                        direction: 'ltr',
+                                                        unicodeBidi: 'isolate'
+                                                    }}
+                                                    title={`Ayat ${currentAyahNumber} (${convertToArabicNumerals(currentAyahNumber)})`}
+                                                >
+                                                    {convertToArabicNumerals(currentAyahNumber)}
+                                                </span>
+                                            </p>
+                                        </div>
+
+                                        <QuranCenterFlourish />
                                     </div>
                                 </div>
 

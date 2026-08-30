@@ -574,11 +574,12 @@ const TafsirSurahSection = ({
                         {/* Active Ayah Context (Arabic & Translation & Tafsir) */}
                         {activeAyahData ? (
                             <div className="space-y-4">
-                                {/* Arabic Quote Card (High Contrast WCAG AAA Compliant) */}
+                                {/* Arabic Quote Card (3D Paper Parchment Style) */}
                                 {activeAyahData.text_arabic && (
-                                    <div className={`p-5 sm:p-6 rounded-2xl border text-right ${currentTheme.arabicCardBg}`} dir="rtl">
+                                    <div className="quran-paper-3d-card p-5 sm:p-6 text-right relative overflow-hidden" dir="rtl">
+                                        <div className="quran-paper-pattern absolute inset-0 pointer-events-none opacity-70" />
                                         <p 
-                                            className={`font-arabic text-2xl sm:text-3xl ${currentTheme.arabicText} leading-loose select-text`}
+                                            className="font-arabic ayah-arabic-ink relative text-2xl sm:text-3xl leading-loose select-text"
                                             style={{
                                                 fontFamily: "'AlQuran-IndoPak', 'Scheherazade New', 'Scheherazade', 'Amiri', 'Traditional Arabic', serif",
                                                 lineHeight: '2.4'
