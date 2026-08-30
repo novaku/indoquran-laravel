@@ -26,8 +26,10 @@ import SEOHead from '../components/SEOHead';
 import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseInline from '../components/AdSenseInline';
 import AdSenseHorizontal from '../components/AdSenseHorizontal';
+import { scrollToTop } from '../utils/scrollUtils';
 
 const PrayerPage = () => {
+
     const navigate = useNavigate();
     const { user } = useAuth();
     const [prayers, setPrayers] = useState([]);
@@ -81,17 +83,18 @@ const PrayerPage = () => {
 
     // Initial load and filter changes
     useEffect(() => {
+        scrollToTop();
         fetchPrayers(1);
     }, [filters]);
 
     // Handle page change
     const handlePageChange = (page) => {
         if (page !== pagination.current_page) {
+            scrollToTop();
             fetchPrayers(page);
-            // Scroll to top smoothly when page changes
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
+
 
     // Handle form submission
     const handleSubmitPrayer = async (prayerData) => {

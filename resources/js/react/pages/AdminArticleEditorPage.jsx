@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { FaSave, FaArrowLeft, FaImage } from 'react-icons/fa';
 import TipTapEditor from '../components/TipTapEditor';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { scrollToTop } from '../utils/scrollUtils';
 
 const AdminArticleEditorPage = () => {
   const { id } = useParams();
@@ -29,11 +30,13 @@ const AdminArticleEditorPage = () => {
   });
 
   useEffect(() => {
+    scrollToTop();
     if (isEdit) {
       fetchArticle();
     }
     fetchTags();
   }, [id]);
+
 
   // Auto-generate slug from title for new articles
   useEffect(() => {

@@ -28,6 +28,8 @@ import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseInFeed from '../components/AdSenseInFeed';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
+import { scrollToTop } from '../utils/scrollUtils';
+
 
 // Text highlighting utility function
 const highlightText = (text, searchQuery) => {
@@ -225,8 +227,10 @@ function QuranSearchPage() {
             }
         };
 
+        scrollToTop();
         fetchSurahs();
     }, []);
+
 
     // Fetch popular searches on component mount
     useEffect(() => {
@@ -469,9 +473,11 @@ function QuranSearchPage() {
         });
         
         if (newPage !== currentPage && newPage <= maxValidPage && newPage >= 1) {
+            scrollToTop();
             setCurrentPage(newPage);
         }
     };
+
 
     const goToFirstPage = () => goToPage(1);
     const goToLastPage = () => goToPage(totalPages);

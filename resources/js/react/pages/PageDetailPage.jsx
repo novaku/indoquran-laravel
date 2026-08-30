@@ -25,8 +25,10 @@ import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { fetchWithAuth } from '../utils/apiUtils';
+import { scrollToTop } from '../utils/scrollUtils';
 
 function PageDetailPage() {
+
     const { user } = useAuth();
     const { number } = useParams();
     const navigate = useNavigate();
@@ -112,7 +114,7 @@ function PageDetailPage() {
         if (number) {
             stopAudio();
             setIsImageLoading(true);
-            window.scrollTo({ top: 0, behavior: 'instant' });
+            scrollToTop();
             loadPageData(number);
         }
     }, [number]);
@@ -120,9 +122,10 @@ function PageDetailPage() {
     // Ensure scroll position is at the very top after page data is populated
     useEffect(() => {
         if (pageData) {
-            window.scrollTo({ top: 0, behavior: 'instant' });
+            scrollToTop();
         }
     }, [pageData]);
+
 
     const loadPageData = async (pageNumber) => {
         try {

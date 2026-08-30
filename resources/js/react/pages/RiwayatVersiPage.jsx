@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
     CheckCircleIcon, 
     CogIcon, 
@@ -21,6 +21,7 @@ import StructuredData from '../components/StructuredData';
 import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseInline from '../components/AdSenseInline';
 import versionsData from '../../../../database/seeders/versions_data.json';
+import { scrollToTop } from '../utils/scrollUtils';
 
 function RiwayatVersiPage() {
     const versions = versionsData || [];
@@ -29,6 +30,11 @@ function RiwayatVersiPage() {
     });
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedFilter, setSelectedFilter] = useState('all'); // 'all' | 'feature' | 'improvement' | 'fix'
+
+    useEffect(() => {
+        scrollToTop();
+    }, []);
+
 
     const toggleVersion = (versionNumber) => {
         setExpandedVersions(prev => ({

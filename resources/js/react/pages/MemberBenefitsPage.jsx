@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
     IoBookmarkOutline, 
@@ -19,11 +19,17 @@ import SEOHead from '../components/SEOHead';
 import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { Card, Button, Badge, IconBadge, PageHeader, PageContent } from '../components/ui';
+import { scrollToTop } from '../utils/scrollUtils';
 
 function MemberBenefitsPage() {
     const navigate = useNavigate();
     const { isAuthenticated } = useAuth();
     const [hoveredCard, setHoveredCard] = useState(null);
+
+    useEffect(() => {
+        scrollToTop();
+    }, []);
+
 
     const memberBenefits = [
         {

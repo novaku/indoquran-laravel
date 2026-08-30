@@ -9,6 +9,7 @@ import AdSenseInline from '../components/AdSenseInline';
 import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { getWithAuth } from '../utils/apiUtils';
 import { useAuth } from '../hooks/useAuth';
+import { scrollToTop } from '../utils/scrollUtils';
 
 const ArticleDetailPage = () => {
   const { slug } = useParams();
@@ -46,12 +47,14 @@ const ArticleDetailPage = () => {
   }, [user]);
 
   useEffect(() => {
+    scrollToTop();
     fetchArticle();
     fetchRelatedArticles();
   }, [slug]);
 
   const fetchArticle = async () => {
     setLoading(true);
+    scrollToTop();
     try {
       const response = await getWithAuth(`/api/articles/${slug}`);
       const data = await response.json();
@@ -60,8 +63,10 @@ const ArticleDetailPage = () => {
       console.error('Error fetching article:', error);
     } finally {
       setLoading(false);
+      scrollToTop();
     }
   };
+
 
   const fetchRelatedArticles = async () => {
     try {

@@ -6,6 +6,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseInFeed from '../components/AdSenseInFeed';
 import { getWithAuth } from '../utils/apiUtils';
+import { scrollToTop } from '../utils/scrollUtils';
 
 const ArticlesPage = () => {
   const [articles, setArticles] = useState([]);
@@ -18,6 +19,7 @@ const ArticlesPage = () => {
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
 
   useEffect(() => {
+    scrollToTop();
     const tag = searchParams.get('tag') || '';
     const query = searchParams.get('search') || '';
     setSelectedTag(tag);
@@ -27,6 +29,7 @@ const ArticlesPage = () => {
 
   const fetchArticles = async (page = 1, search = '', tag = '') => {
     setLoading(true);
+    scrollToTop();
     try {
       const params = new URLSearchParams({ page: page.toString() });
       if (search) params.append('search', search);
@@ -60,8 +63,9 @@ const ArticlesPage = () => {
     const params = { page: page.toString() };
     if (selectedTag) params.tag = selectedTag;
     setSearchParams(params);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToTop();
   };
+
 
   const clearTagFilter = () => {
     setSelectedTag('');

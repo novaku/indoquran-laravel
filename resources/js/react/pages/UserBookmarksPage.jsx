@@ -38,6 +38,8 @@ import { getReadingProgress } from '../services/ReadingProgressService';
 import { useAuth } from '../hooks/useAuth.jsx';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
+import { scrollToTop } from '../utils/scrollUtils';
+
 import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 
 function UserBookmarksPage() {
@@ -69,8 +71,10 @@ function UserBookmarksPage() {
 
     // Initial data loading
     useEffect(() => {
+        scrollToTop();
         loadBookmarks();
         loadLastRead();
+
 
         // Listen for storage events (e.g., if bookmark is added in another tab/component)
         const handleStorageUpdate = () => {

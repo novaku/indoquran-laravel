@@ -8,6 +8,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
 import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import { fetchWithAuth } from '../utils/apiUtils';
+import { scrollToTop } from '../utils/scrollUtils';
 
 function PageListPage() {
     const navigate = useNavigate();
@@ -17,6 +18,7 @@ function PageListPage() {
     const [searchTerm, setSearchTerm] = useState('');
     
     useEffect(() => {
+        scrollToTop();
         loadPages();
     }, []);
 
@@ -38,7 +40,7 @@ function PageListPage() {
     
     const handlePageClick = useCallback((pageNumber) => {
         try {
-            window.scrollTo({ top: 0, behavior: 'instant' });
+            scrollToTop();
             navigate(`/halaman/${pageNumber}`);
         } catch (err) {
             console.error('Navigation error:', err);
@@ -51,7 +53,7 @@ function PageListPage() {
         try {
             const pageNum = parseInt(searchTerm);
             if (pageNum >= 1 && pageNum <= 604) {
-                window.scrollTo({ top: 0, behavior: 'instant' });
+                scrollToTop();
                 navigate(`/halaman/${pageNum}`);
             }
         } catch (err) {
@@ -59,6 +61,7 @@ function PageListPage() {
             setError('Gagal membuka halaman. Silakan coba lagi.');
         }
     }, [searchTerm, navigate]);
+
 
     const handleSearchChange = useCallback((e) => {
         const value = e.target.value;

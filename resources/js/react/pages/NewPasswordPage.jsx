@@ -11,6 +11,7 @@ import {
 } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
+import { scrollToTop } from '../utils/scrollUtils';
 
 function NewPasswordPage() {
     const navigate = useNavigate();
@@ -30,8 +31,10 @@ function NewPasswordPage() {
     const email = searchParams.get('email');
 
     useEffect(() => {
+        scrollToTop();
         // Validate token on component mount
         const validateToken = async () => {
+
             if (!token || !email) {
                 setTokenValid(false);
                 return;

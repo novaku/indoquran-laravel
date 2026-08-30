@@ -1,21 +1,25 @@
 import React, { useState, useEffect } from 'react';
+import { scrollToTop } from '../utils/scrollUtils';
 
 const PageTransition = ({ children, isLoading = false }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
+    scrollToTop();
     if (!isLoading) {
       setIsAnimating(true);
       const timer = setTimeout(() => {
         setIsVisible(true);
         setIsAnimating(false);
+        scrollToTop();
       }, 50);
       return () => clearTimeout(timer);
     } else {
       setIsVisible(false);
     }
   }, [isLoading]);
+
 
   if (isLoading) {
     return (

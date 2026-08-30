@@ -6,6 +6,7 @@ import { getWithAuth, putWithAuth } from '../utils/apiUtils';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
 import { Card, Button, Input, PageHeader, PageContent } from '../components/ui';
+import { scrollToTop } from '../utils/scrollUtils';
 
 function UserProfilePage() {
     const navigate = useNavigate();
@@ -27,10 +28,12 @@ function UserProfilePage() {
     });
 
     useEffect(() => {
+        scrollToTop();
         if (!user) {
             navigate('/masuk');
             return;
         }
+
         
         setFormData(prev => ({
             ...prev,

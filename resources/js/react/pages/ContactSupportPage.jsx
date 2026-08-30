@@ -19,6 +19,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
 import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseHorizontal from '../components/AdSenseHorizontal';
+import { scrollToTop } from '../utils/scrollUtils';
 
 function ContactSupportPage() {
     const navigate = useNavigate();
@@ -33,6 +34,11 @@ function ContactSupportPage() {
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
+
+    useEffect(() => {
+        scrollToTop();
+    }, []);
+
 
     // Contact options untuk quick access
     const contactOptions = [

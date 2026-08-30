@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
     IoShieldCheckmarkOutline,
@@ -18,9 +18,15 @@ import {
 import SEOHead from '../components/SEOHead';
 import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseHorizontal from '../components/AdSenseHorizontal';
+import { scrollToTop } from '../utils/scrollUtils';
 
 function PrivacyPage() {
     const navigate = useNavigate();
+
+    useEffect(() => {
+        scrollToTop();
+    }, []);
+
 
     // 3 Highlight cards matching ContactSupportPage style
     const privacyHighlights = [

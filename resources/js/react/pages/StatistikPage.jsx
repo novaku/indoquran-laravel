@@ -1,12 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import VisitorStatsHomepage from '../components/VisitorStatsHomepage';
 import SEOHead from '../components/SEOHead';
 import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { Card, Button, PageHeader, PageContent } from '../components/ui';
+import { scrollToTop } from '../utils/scrollUtils';
 
 const StatistikPage = () => {
+    useEffect(() => {
+        scrollToTop();
+    }, []);
+
     const seoData = {
+
         title: 'Statistik Pengunjung - IndoQuran',
         description: 'Lihat statistik dan aktivitas komunitas IndoQuran. Data pengunjung real-time, halaman populer, dan tren bacaan Al-Quran.',
         keywords: 'statistik, pengunjung, komunitas, IndoQuran, data, analitik, Al-Quran',

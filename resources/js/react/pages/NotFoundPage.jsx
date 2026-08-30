@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FiHome, FiBook, FiSearch, FiArrowLeft, FiAlertCircle } from 'react-icons/fi';
 import SEOHead from '../components/SEOHead';
+import { scrollToTop } from '../utils/scrollUtils';
 
 const NotFoundPage = () => {
     const navigate = useNavigate();
@@ -10,6 +11,8 @@ const NotFoundPage = () => {
 
     // Set 404 status code for server-side rendering and crawlers
     useEffect(() => {
+        scrollToTop();
+
         // Send 404 signal to server via meta tag for proper HTTP status
         const metaStatus = document.createElement('meta');
         metaStatus.name = 'prerender-status-code';

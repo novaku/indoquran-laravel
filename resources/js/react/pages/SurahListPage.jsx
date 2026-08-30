@@ -16,6 +16,7 @@ import AdSenseInFeed from '../components/AdSenseInFeed';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
 import { getUserBookmarks } from '../services/BookmarkService';
+import { scrollToTop } from '../utils/scrollUtils';
 
 function SurahListPage() {
     const navigate = useNavigate();
@@ -30,6 +31,7 @@ function SurahListPage() {
     const [selectedSuggestion, setSelectedSuggestion] = useState(-1);
 
     useEffect(() => {
+        scrollToTop();
         loadSurahs();
         loadBookmarks();
 
@@ -41,6 +43,7 @@ function SurahListPage() {
             window.removeEventListener('indoquran_bookmarks_updated', handleBookmarksUpdate);
         };
     }, []);
+
 
     // Handle clicks outside search component
     useEffect(() => {
@@ -80,7 +83,9 @@ function SurahListPage() {
     const loadSurahs = async () => {
         try {
             setLoading(true);
+            scrollToTop();
             setError(null);
+
             
             const token = authUtils.getAuthToken();
             const response = await fetchWithAuth('/api/surahs', {

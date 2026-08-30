@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { scrollToTop } from '../utils/scrollUtils';
 import { 
+
     UsersIcon, 
     ChatBubbleLeftRightIcon, 
     HeartIcon, 
@@ -62,7 +64,9 @@ const AdminDashboard = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        scrollToTop();
         console.log('AdminDashboard useEffect running...');
+
         // Check if admin is logged in
         const storedAdminUser = localStorage.getItem('admin_user');
         if (!storedAdminUser) {

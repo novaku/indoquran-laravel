@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch } from 'react-icons/fa';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { scrollToTop } from '../utils/scrollUtils';
 
 const AdminArticlesPage = () => {
   const [articles, setArticles] = useState([]);
@@ -12,8 +13,10 @@ const AdminArticlesPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    scrollToTop();
     fetchArticles();
   }, [statusFilter]);
+
 
   // Helper function to get CSRF token (same as AdminDashboard)
   const getCsrfToken = async () => {
@@ -46,7 +49,9 @@ const AdminArticlesPage = () => {
 
   const fetchArticles = async (page = 1, search = '') => {
     setLoading(true);
+    scrollToTop();
     try {
+
       const params = new URLSearchParams({ page: page.toString() });
       if (search) params.append('search', search);
       if (statusFilter) params.append('status', statusFilter);

@@ -38,6 +38,8 @@ import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { fetchWithAuth } from '../utils/apiUtils';
 import { getReadingProgress } from '../services/ReadingProgressService';
 import authUtils from '../utils/auth';
+import { scrollToTop } from '../utils/scrollUtils';
+
 
 // Curated daily inspiration verses for tadabbur
 const DAILY_INSPIRATIONS = [
@@ -395,8 +397,10 @@ function QuranHomePage() {
     }, []);
 
     useEffect(() => {
+        scrollToTop();
         const fetchSurahs = async () => {
             try {
+                setLoading(true);
                 const token = authUtils.getAuthToken();
                 const response = await fetchWithAuth('/api/surahs', {
                     headers: {
@@ -427,11 +431,14 @@ function QuranHomePage() {
         fetchSurahs();
     }, []);
 
+    // Ensure scroll position is reset once surahs data is ready
     useEffect(() => {
         if (surahs.length > 0) {
+            scrollToTop();
             fetchPopularSurahs();
         }
     }, [surahs, fetchPopularSurahs]);
+
 
     useEffect(() => {
         fetchArticles('terbaru', '');

@@ -27,6 +27,8 @@ import SEOHead from '../components/SEOHead';
 import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseVertical from '../components/AdSenseVertical';
 import AdSenseInline from '../components/AdSenseInline';
+import { scrollToTop } from '../utils/scrollUtils';
+
 
 const PrayerDetailPage = () => {
     const { id } = useParams();
@@ -85,10 +87,11 @@ const PrayerDetailPage = () => {
     }, [id]);
 
     useEffect(() => {
+        scrollToTop();
         fetchPrayer();
         fetchOtherPrayers();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [fetchPrayer, fetchOtherPrayers]);
+
 
     // Handle Amin toggle
     const handleAminToggle = async () => {

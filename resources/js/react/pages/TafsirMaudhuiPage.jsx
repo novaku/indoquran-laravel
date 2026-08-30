@@ -17,6 +17,8 @@ import SEOHead from '../components/SEOHead';
 import LoadingSpinner from '../components/LoadingSpinner';
 import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseHorizontal from '../components/AdSenseHorizontal';
+import { scrollToTop } from '../utils/scrollUtils';
+
 
 // Tree Node Component
 function TreeNode({ topic, index, isExpanded, onToggle, level = 0, isHighlighted = false }) {
@@ -215,10 +217,14 @@ function TafsirMaudhuiPage() {
 
     // Fetch tafsir data
     useEffect(() => {
+        if (!slug) {
+            scrollToTop();
+        }
         const fetchTafsirData = async () => {
             try {
                 setLoading(true);
                 const response = await fetch('/api/tafsir-maudhui');
+
                 
                 if (!response.ok) {
                     throw new Error('Failed to fetch tafsir data');

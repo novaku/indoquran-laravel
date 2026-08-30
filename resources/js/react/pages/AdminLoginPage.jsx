@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { LockClosedIcon, UserIcon } from '@heroicons/react/24/outline';
+import { scrollToTop } from '../utils/scrollUtils';
 
 const AdminLoginPage = () => {
     const [step, setStep] = useState('email'); // 'email' or 'otp'
@@ -21,7 +22,9 @@ const AdminLoginPage = () => {
 
     // Initialize session on component mount and check for existing admin session
     React.useEffect(() => {
+        scrollToTop();
         const validateAdminSession = async (userData) => {
+
             try {
                 // Get CSRF token first
                 const csrfToken = await getCsrfToken();

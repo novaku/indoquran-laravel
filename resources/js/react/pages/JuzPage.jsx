@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { fetchWithAuth } from '../utils/apiUtils';
+import { scrollToTop } from '../utils/scrollUtils';
 import LoadingSpinner from '../components/LoadingSpinner';
+
 import PageTransition from '../components/PageTransition';
 import SEOHead from '../components/SEOHead';
 import QuranPaginationNav from '../components/QuranPaginationNav';
@@ -111,15 +113,24 @@ function JuzPage() {
         if (number) {
             // Stop audio when switching juz
             stopAudio();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            scrollToTop();
             loadJuzData(number);
         }
     }, [number]);
 
+    // Ensure scroll position is at the very top after juz data is populated
+    useEffect(() => {
+        if (juzData) {
+            scrollToTop();
+        }
+    }, [juzData]);
+
     const loadJuzData = async (juzNumber) => {
         try {
             setLoading(true);
+            scrollToTop();
             setError(null);
+
             
             const response = await fetchWithAuth(`/api/juz/${juzNumber}`);
             const data = await response.json();

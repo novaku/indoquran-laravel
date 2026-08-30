@@ -17,6 +17,7 @@ import { postWithAuth, getAuthToken } from '../utils/apiUtils';
 import { isAuthenticated, authenticatedFetch } from '../utils/auth';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
+import { scrollToTop } from '../utils/scrollUtils';
 
 function ContactSupportPage() {
     const navigate = useNavigate();
@@ -31,6 +32,11 @@ function ContactSupportPage() {
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
+
+    useEffect(() => {
+        scrollToTop();
+    }, []);
+
 
     // Contact options untuk quick access
     const contactOptions = [

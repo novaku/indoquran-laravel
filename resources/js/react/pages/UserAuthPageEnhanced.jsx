@@ -13,6 +13,7 @@ import {
 import { useAuth } from '../hooks/useAuth.jsx';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
+import { scrollToTop } from '../utils/scrollUtils';
 
 function UserAuthPage() {
     const location = useLocation();
@@ -33,6 +34,7 @@ function UserAuthPage() {
     const isRegister = location.pathname === '/daftar';
     
     useEffect(() => {
+        scrollToTop();
         setErrors({});
         setFormData({
             name: '',
@@ -41,6 +43,7 @@ function UserAuthPage() {
             password_confirmation: ''
         });
     }, [location.pathname]);
+
     
     const handleChange = (e) => {
         setFormData({

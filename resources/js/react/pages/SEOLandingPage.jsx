@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import SEOHead from '../components/SEOHead';
 import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import { getPageSEOData, ALL_SURAH_NAMES, HIGH_TRAFFIC_SEARCH_TERMS, USER_REQUESTED_TERMS } from '../utils/seoUtils';
+import { scrollToTop } from '../utils/scrollUtils';
 
 /**
  * SEO Landing Page Component
@@ -13,8 +14,10 @@ function SEOLandingPage() {
     const [surahs, setSurahs] = useState([]);
     
     useEffect(() => {
+        scrollToTop();
         // Load all surahs for comprehensive linking
         fetch('/api/surahs')
+
             .then(response => response.json())
             .then(data => {
                 if (data.success) {

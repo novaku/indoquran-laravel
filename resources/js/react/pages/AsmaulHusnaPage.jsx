@@ -16,6 +16,8 @@ import SEOHead, { getAsmaulHusnaSEO } from '../components/SEOHead';
 import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseInFeed from '../components/AdSenseInFeed';
 import AdSenseHorizontal from '../components/AdSenseHorizontal';
+import { scrollToTop } from '../utils/scrollUtils';
+
 
 // Add custom styles for Arabic calligraphy
 const customStyles = `
@@ -175,7 +177,9 @@ function AsmaulHusnaPage() {
         const fetchAsmaulHusnaData = async () => {
             try {
                 setLoading(true);
+                scrollToTop();
                 const response = await fetch('/api/asmaul-husna');
+
                 
                 if (!response.ok) {
                     throw new Error('Failed to fetch asmaul husna data');

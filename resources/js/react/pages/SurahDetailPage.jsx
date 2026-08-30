@@ -43,6 +43,8 @@ import { useAuth } from '../hooks/useAuth.jsx';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
 import { updateReadingProgress } from '../services/ReadingProgressService';
+import { scrollToTop } from '../utils/scrollUtils';
+
 import { 
     getLocalBookmarks, 
     toggleLocalBookmark, 
@@ -744,7 +746,7 @@ function SurahDetailPage() {
                 scrollAyahNavGrid(ayahNum);
                 
                 // Auto-scroll to top so user can read from the top of the surah
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                scrollToTop();
                 
                 // Update reading progress if user is logged in and surah number is available
                 if (user && number) {
@@ -763,13 +765,13 @@ function SurahDetailPage() {
                 console.log('🔄 No ayah in URL, defaulting to ayah 1');
                 setCurrentAyahNumber(1);
             }
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            scrollToTop();
         }
     }, [ayahNumber, user, number, currentAyahNumber, isAutoPlayingSequence, scrollAyahNavGrid]);
 
     // Auto-scroll to top when surah or ayah URL param changes
     useEffect(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToTop();
     }, [number, ayahNumber]);
 
     // Handle URL validation only for invalid ayah numbers (not for navigation interference)
@@ -814,12 +816,15 @@ function SurahDetailPage() {
     // Auto-scroll to top when component is fully loaded
     useEffect(() => {
         if (!loading && ayahs.length > 0) {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (!ayahNumber || parseInt(ayahNumber) === 1) {
+                scrollToTop();
+            }
             if (ayahNumber) {
                 scrollAyahNavGrid(parseInt(ayahNumber));
             }
         }
     }, [loading, ayahs.length, ayahNumber, scrollAyahNavGrid]);
+
 
     const toggleBookmark = async (ayahNum) => {
         const parsedAyahNum = parseInt(ayahNum, 10);

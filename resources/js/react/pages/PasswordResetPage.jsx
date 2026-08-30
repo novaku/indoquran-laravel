@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
     BookOpenIcon,
@@ -10,6 +10,7 @@ import {
 } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
+import { scrollToTop } from '../utils/scrollUtils';
 
 function PasswordResetPage() {
     const navigate = useNavigate();
@@ -18,6 +19,11 @@ function PasswordResetPage() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
     const [resendCooldown, setResendCooldown] = useState(0);
+
+    useEffect(() => {
+        scrollToTop();
+    }, []);
+
 
     const validateEmail = (email) => {
         return /\S+@\S+\.\S+/.test(email);

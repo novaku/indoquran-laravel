@@ -11,6 +11,7 @@ import AdSenseInFeed from '../components/AdSenseInFeed';
 import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
+import { scrollToTop } from '../utils/scrollUtils';
 
 function JuzIndexPage() {
     const navigate = useNavigate();
@@ -19,8 +20,10 @@ function JuzIndexPage() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        scrollToTop();
         loadJuzList();
     }, []);
+
 
     const loadJuzList = async () => {
         try {

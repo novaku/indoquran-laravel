@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
     IoHeartOutline, 
@@ -18,12 +18,18 @@ import {
 } from 'react-icons/io5';
 import SEOHead from '../components/SEOHead';
 import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
+import { scrollToTop } from '../utils/scrollUtils';
 
 function DonationSupportPage() {
     const navigate = useNavigate();
     const [copiedAccount, setCopiedAccount] = useState(false);
     const [copiedName, setCopiedName] = useState(false);
     const [copiedEMoney, setCopiedEMoney] = useState(false);
+
+    useEffect(() => {
+        scrollToTop();
+    }, []);
+
 
     // Donation impact areas
     const donationImpacts = [

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
     IoInformationCircleOutline, 
@@ -17,9 +17,15 @@ import {
 import SEOHead from '../components/SEOHead';
 import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseHorizontal from '../components/AdSenseHorizontal';
+import { scrollToTop } from '../utils/scrollUtils';
 
 function AboutProjectPage() {
     const navigate = useNavigate();
+
+    useEffect(() => {
+        scrollToTop();
+    }, []);
+
 
     const features = [
         {
