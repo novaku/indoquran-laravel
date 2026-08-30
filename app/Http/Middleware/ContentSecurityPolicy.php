@@ -28,24 +28,26 @@ class ContentSecurityPolicy
                 "img-src 'self' data: blob: https:",
                 "media-src 'self' https: blob: data:",
                 "connect-src 'self' ws://localhost:* ws://127.0.0.1:* http://localhost:* http://127.0.0.1:* https:",
+                "frame-src 'self' blob: https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://*.googleadservices.com https://*.adtrafficquality.google https://googleads.g.doubleclick.net https://tpc.googlesyndication.com",
                 "worker-src 'self' blob: data:",
-                "child-src 'self' blob: data:",
+                "child-src 'self' blob: data: https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://*.googleadservices.com",
                 "manifest-src 'self'",
                 "report-uri /api/csp-violation-report"
             ]);
         } else {
-            // Production CSP (more restrictive) - Allow external Quran APIs for data import
+            // Production CSP (more restrictive) - Allow Google AdSense, Analytics, and Quran APIs
             $csp = implode('; ', [
                 "default-src 'self'",
-                "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://indoquran.web.id https://*.google-analytics.com https://www.google-analytics.com https://www.googletagmanager.com https://tagmanager.google.com https://analytics.google.com https://*.googlesyndication.com https://*.google.com",
-                "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://indoquran.web.id https://*.google-analytics.com https://www.google-analytics.com https://www.googletagmanager.com https://tagmanager.google.com https://analytics.google.com https://*.googlesyndication.com https://*.google.com",
-                "style-src 'self' 'unsafe-inline' https://fonts.bunny.net https://fonts.googleapis.com",
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://indoquran.web.id https://*.google-analytics.com https://www.google-analytics.com https://www.googletagmanager.com https://tagmanager.google.com https://analytics.google.com https://*.googlesyndication.com https://*.google.com https://*.doubleclick.net https://*.googleadservices.com https://*.adtrafficquality.google https://pagead2.googlesyndication.com",
+                "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https://indoquran.web.id https://*.google-analytics.com https://www.google-analytics.com https://www.googletagmanager.com https://tagmanager.google.com https://analytics.google.com https://*.googlesyndication.com https://*.google.com https://*.doubleclick.net https://*.googleadservices.com https://*.adtrafficquality.google https://pagead2.googlesyndication.com",
+                "style-src 'self' 'unsafe-inline' https://fonts.bunny.net https://fonts.googleapis.com https://indoquran.web.id",
                 "font-src 'self' data: blob: https://fonts.bunny.net https://fonts.gstatic.com https://indoquran.web.id",
-                "img-src 'self' data: blob: https://*.google-analytics.com https://www.google-analytics.com https://*.googlesyndication.com https://*.google.com",
-                "media-src 'self' https://*.nos.wjv-1.neo.id https://*.equran.id https://*.equran.nos.wjv-1.neo.id https://*.quranicaudio.com https://*.qurancdn.com https://*.vercel.app *",
-                "connect-src 'self' https://download.quranicaudio.com https://indoquran.web.id https://nominatim.openstreetmap.org https://api.quran.com https://*.google-analytics.com https://www.google-analytics.com https://www.googletagmanager.com https://tagmanager.google.com https://analytics.google.com",
+                "img-src 'self' data: blob: https: https://*.google-analytics.com https://www.google-analytics.com https://*.googlesyndication.com https://*.google.com https://*.doubleclick.net https://*.googleadservices.com",
+                "media-src 'self' https://*.nos.wjv-1.neo.id https://*.equran.id https://*.equran.nos.wjv-1.neo.id https://*.quranicaudio.com https://*.qurancdn.com https://*.vercel.app https://everyayah.com *",
+                "connect-src 'self' https://download.quranicaudio.com https://indoquran.web.id https://nominatim.openstreetmap.org https://api.quran.com https://*.google-analytics.com https://www.google-analytics.com https://www.googletagmanager.com https://tagmanager.google.com https://analytics.google.com https://*.googlesyndication.com https://*.google.com https://*.doubleclick.net https://*.googleadservices.com https://*.adtrafficquality.google https://pagead2.googlesyndication.com",
+                "frame-src 'self' blob: https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://*.googleadservices.com https://*.adtrafficquality.google https://googleads.g.doubleclick.net https://tpc.googlesyndication.com",
                 "worker-src 'self' blob:",
-                "child-src 'self' blob:",
+                "child-src 'self' blob: https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://*.googleadservices.com",
                 "manifest-src 'self'",
                 "frame-ancestors 'none'",
                 "base-uri 'self'",

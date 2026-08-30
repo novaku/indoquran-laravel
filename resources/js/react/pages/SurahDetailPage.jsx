@@ -2087,9 +2087,7 @@ function SurahDetailPage() {
                     // Mobile optimization
                     { name: 'format-detection', content: 'telephone=no' },
                     { name: 'apple-mobile-web-app-capable', content: 'yes' },
-                    { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
-                    // Security
-                    { httpEquiv: 'Content-Security-Policy', content: "default-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; media-src 'self' https:;" }
+                    { name: 'apple-mobile-web-app-status-bar-style', content: 'default' }
                 ]}
                 structuredData={[
                     // Article structured data
