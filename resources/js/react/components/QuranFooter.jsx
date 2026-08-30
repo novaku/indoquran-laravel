@@ -117,33 +117,34 @@ function QuranFooter() {
     const isUserAuthenticated = authUtils.isAuthenticated();
     
     const footerLinks = {
-        'Navigasi': [
+        'Al-Quran & Ibadah': [
             { name: 'Beranda', path: '/' },
-            { name: 'Cari', path: '/cari' },
             { name: 'Daftar Surah', path: '/surah' },
             { name: 'Jelajahi Juz', path: '/juz' },
             { name: 'Jelajahi Halaman', path: '/halaman' },
+            { name: 'Pencarian Ayat', path: '/cari' },
             { name: 'Tafsir Maudhui', path: '/tafsir-maudhui' },
             { name: 'Asmaul Husna', path: '/asmaul-husna' },
             { name: 'Doa Bersama', path: '/doa-bersama' },
         ],
-        'Pelajari': [
-            { name: 'Tentang Kami', path: '/tentang' },
+        'Fitur & Komunitas': [
+            { name: 'Artikel Islami', path: '/artikel' },
+            { name: 'Penanda & Favorit', path: '/penanda' },
             { name: 'Keuntungan Member', path: '/member' },
-            { name: 'Statistik', path: '/statistik' },
-            { name: 'Donasi', path: '/donasi' },
-            { name: 'Riwayat Versi', path: '/riwayat-versi' },
-            { name: 'Kontak', path: '/kontak' },
-            { name: 'Kebijakan Privasi', path: '/kebijakan' },
+            { name: 'Statistik Komunitas', path: '/statistik' },
+            { name: 'Donasi & Dukungan', path: '/donasi' },
         ],
-        'Akun': [
-            // Hanya tampilkan link Masuk dan Buat Akun jika user belum login
-            ...(isUserAuthenticated ? [] : [
+        'Informasi & Akun': [
+            { name: 'Tentang Kami', path: '/tentang' },
+            { name: 'Kontak & Bantuan', path: '/kontak' },
+            { name: 'Kebijakan Privasi', path: '/kebijakan' },
+            { name: 'Riwayat Versi', path: '/riwayat-versi' },
+            ...(isUserAuthenticated ? [
+                { name: 'Profil Saya', path: '/profil' },
+            ] : [
                 { name: 'Masuk', path: '/masuk' },
                 { name: 'Buat Akun', path: '/daftar' },
             ]),
-            { name: 'Penanda Saya', path: '/penanda' },
-            { name: 'Profil Saya', path: '/profil' },
         ]
     };
 
@@ -322,20 +323,27 @@ function QuranFooter() {
                             © {currentYear} IndoQuran. Hak Cipta Dilindungi
                         </div>
                         
-                        <div className="flex items-center space-x-6 text-sm">
-                            <Link 
-                                to="/kebijakan"
-                                onClick={scrollToTop}
-                                className="text-gray-400 hover:text-white transition-colors"
-                            >
-                                Privasi
-                            </Link>
+                        <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 text-sm">
                             <Link 
                                 to="/tentang"
                                 onClick={scrollToTop}
                                 className="text-gray-400 hover:text-white transition-colors"
                             >
-                                Ketentuan
+                                Tentang Kami
+                            </Link>
+                            <Link 
+                                to="/kebijakan"
+                                onClick={scrollToTop}
+                                className="text-gray-400 hover:text-white transition-colors"
+                            >
+                                Kebijakan Privasi
+                            </Link>
+                            <Link 
+                                to="/riwayat-versi"
+                                onClick={scrollToTop}
+                                className="text-gray-400 hover:text-white transition-colors"
+                            >
+                                Riwayat Versi
                             </Link>
                             <Link 
                                 to="/kontak"
