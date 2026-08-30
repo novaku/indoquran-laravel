@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SEOHead from '../components/SEOHead';
+import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import { getPageSEOData, ALL_SURAH_NAMES, HIGH_TRAFFIC_SEARCH_TERMS, USER_REQUESTED_TERMS } from '../utils/seoUtils';
 
 /**
@@ -122,6 +123,9 @@ function SEOLandingPage() {
                         <div className="text-gray-600">Halaman Mushaf</div>
                     </div>
                 </div>
+
+                {/* Top Billboard Ad (Detik.com Pattern) */}
+                <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" />
 
                 {/* All Surahs Grid - SEO optimized with internal links */}
                 <div className="mb-12">

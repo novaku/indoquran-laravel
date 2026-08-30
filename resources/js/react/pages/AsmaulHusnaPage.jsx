@@ -13,6 +13,8 @@ import {
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead, { getAsmaulHusnaSEO } from '../components/SEOHead';
+import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
+import AdSenseInFeed from '../components/AdSenseInFeed';
 
 // Add custom styles for Arabic calligraphy
 const customStyles = `
@@ -496,8 +498,11 @@ function AsmaulHusnaPage() {
                 </div>
             </div>
 
+            {/* Top Billboard Ad (Detik.com Pattern) */}
+            <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" />
+
             {/* Main Content */}
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
                 {/* Stats */}
                 <section className="text-center mb-12">
                     <p className="text-gray-600" itemProp="description">
@@ -511,14 +516,23 @@ function AsmaulHusnaPage() {
                     <meta itemProp="numberOfItems" content={filteredNames.length} />
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredNames.map((name, index) => (
-                            <article
-                                key={name.id}
-                                className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
-                                itemScope 
-                                itemType="https://schema.org/Thing"
-                                itemProp="itemListElement"
-                            >
+                        {filteredNames.map((name, index) => {
+                            const showInFeedAd = index === 5 || (index > 5 && (index + 1) % 15 === 0);
+
+                            return (
+                                <React.Fragment key={name.id}>
+                                    {showInFeedAd && (
+                                        <AdSenseInFeed 
+                                            adSlot="1519827772"
+                                            labelText="IKLAN REKOMENDASI"
+                                        />
+                                    )}
+                                    <article
+                                        className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow flex flex-col justify-between"
+                                        itemScope 
+                                        itemType="https://schema.org/Thing"
+                                        itemProp="itemListElement"
+                                    >
                                 <meta itemProp="position" content={index + 1} />
                                 
                                 {/* Header with number and favorite */}
@@ -664,7 +678,9 @@ function AsmaulHusnaPage() {
                                     </button>
                                 </footer>
                             </article>
-                        ))}
+                        </React.Fragment>
+                    );
+                })}
                     </div>
                 </section>
 

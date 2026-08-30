@@ -15,6 +15,8 @@ import {
     IoCodeSlashOutline
 } from 'react-icons/io5';
 import SEOHead from '../components/SEOHead';
+import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
+import AdSenseHorizontal from '../components/AdSenseHorizontal';
 
 function AboutProjectPage() {
     const navigate = useNavigate();
@@ -91,8 +93,11 @@ function AboutProjectPage() {
                     </div>
                 </div>
 
+                {/* Top Billboard Ad (Detik.com Pattern) */}
+                <AdSenseLeaderboard maxWidth="max-w-6xl" labelText="IKLAN" />
+
                 {/* Main Content */}
-                <div className="max-w-6xl mx-auto px-4 py-16">
+                <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
                     {/* Vision & Mission */}
                     <div className="grid md:grid-cols-2 gap-8 mb-16">
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
@@ -145,6 +150,16 @@ function AboutProjectPage() {
                                 </div>
                             ))}
                         </div>
+                    </div>
+
+                    {/* In-Between Break Banner Ad (Detik.com Pattern) */}
+                    <div className="w-full my-10">
+                        <AdSenseHorizontal 
+                            adSlot="1519827772"
+                            showLabel={true}
+                            labelText="IKLAN REKOMENDASI"
+                            minHeight="90px"
+                        />
                     </div>
 
                     {/* Technology Stack */}

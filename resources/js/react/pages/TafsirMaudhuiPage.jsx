@@ -15,6 +15,8 @@ import {
 } from '@heroicons/react/24/outline';
 import SEOHead from '../components/SEOHead';
 import LoadingSpinner from '../components/LoadingSpinner';
+import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
+import AdSenseHorizontal from '../components/AdSenseHorizontal';
 
 // Tree Node Component
 function TreeNode({ topic, index, isExpanded, onToggle, level = 0, isHighlighted = false }) {
@@ -454,8 +456,11 @@ function TafsirMaudhuiPage() {
                 </div>
             </section>
 
+            {/* Top Billboard Ad (Detik.com Pattern) */}
+            <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" />
+
             {/* Main Content */}
-            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
                 {/* Search and Stats */}
                 <div className="mb-8 space-y-6">
                     {/* Search Box */}
@@ -499,6 +504,16 @@ function TafsirMaudhuiPage() {
                             )}
                         </div>
                     </div>
+                </div>
+
+                {/* In-Between Break Banner Ad (Detik.com Pattern) */}
+                <div className="w-full my-6">
+                    <AdSenseHorizontal 
+                        adSlot="1519827772"
+                        showLabel={true}
+                        labelText="IKLAN REKOMENDASI"
+                        minHeight="90px"
+                    />
                 </div>
 
                 {/* Topics Tree */}

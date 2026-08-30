@@ -3,6 +3,8 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { FaSearch, FaCalendar, FaUser, FaClock, FaEye } from 'react-icons/fa';
 import SEOHead from '../components/SEOHead';
 import LoadingSpinner from '../components/LoadingSpinner';
+import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
+import AdSenseInFeed from '../components/AdSenseInFeed';
 import { getWithAuth } from '../utils/apiUtils';
 
 const ArticlesPage = () => {
@@ -162,8 +164,11 @@ const ArticlesPage = () => {
           </div>
         </div>
 
+        {/* Top Billboard Ad (Detik.com Pattern) */}
+        <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" />
+
         {/* Articles Grid */}
-        <div className="container mx-auto px-4 py-12">
+        <div className="container mx-auto px-4 py-8">
           {/* Tag Filter Indicator */}
           {selectedTag && (
             <div className="mb-6 flex items-center gap-3">
@@ -189,12 +194,21 @@ const ArticlesPage = () => {
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {articles.map((article) => (
-                  <Link
-                    key={article.id}
-                    to={`/artikel/${article.slug}`}
-                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-                  >
+                {articles.map((article, index) => {
+                  const showInFeedAd = index === 2 || (index > 2 && (index + 1) % 6 === 0);
+
+                  return (
+                    <React.Fragment key={article.id}>
+                      {showInFeedAd && (
+                        <AdSenseInFeed 
+                          adSlot="1519827772"
+                          labelText="IKLAN REKOMENDASI"
+                        />
+                      )}
+                      <Link
+                        to={`/artikel/${article.slug}`}
+                        className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between"
+                      >
                     {/* Featured Image */}
                     <div className="article-thumb-wrapper h-48 bg-gray-100">
                       <img
@@ -261,7 +275,9 @@ const ArticlesPage = () => {
                       </div>
                     </div>
                   </Link>
-                ))}
+                </React.Fragment>
+                );
+              })}
               </div>
 
               {/* Pagination */}

@@ -16,6 +16,8 @@ import {
     IoBookmarkOutline
 } from 'react-icons/io5';
 import SEOHead from '../components/SEOHead';
+import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
+import AdSenseHorizontal from '../components/AdSenseHorizontal';
 
 function PrivacyPage() {
     const navigate = useNavigate();
@@ -142,8 +144,11 @@ function PrivacyPage() {
                     </div>
                 </div>
 
+                {/* Top Billboard Ad (Detik.com Pattern) */}
+                <AdSenseLeaderboard maxWidth="max-w-6xl" labelText="IKLAN" className="mt-8" />
+
                 {/* Main Content */}
-                <div className="max-w-6xl mx-auto px-4 py-16">
+                <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
                     <div className="grid lg:grid-cols-3 gap-8">
                         {/* Policy Content (2 cols) */}
                         <div className="lg:col-span-2 space-y-8">

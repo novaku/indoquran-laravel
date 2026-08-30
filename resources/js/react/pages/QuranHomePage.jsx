@@ -32,6 +32,9 @@ import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import OnlineUsersWidget from '../components/OnlineUsersWidget';
 import ArticleHoverCard from '../components/ArticleHoverCard';
 import { Card, Button } from '../components/ui';
+import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
+import AdSenseVertical from '../components/AdSenseVertical';
+import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { fetchWithAuth } from '../utils/apiUtils';
 import { getReadingProgress } from '../services/ReadingProgressService';
 import authUtils from '../utils/auth';
@@ -626,8 +629,14 @@ function QuranHomePage() {
                 </div>
             </section>
 
+            {/* Top Billboard Leaderboard Ad (Detik.com Pattern) */}
+            <AdSenseLeaderboard 
+                maxWidth="max-w-7xl"
+                labelText="IKLAN"
+            />
+
             {/* MAIN CONTENT AREA WITH SIDEBAR */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     
                     {/* Main Content Column (8 cols) */}
@@ -1137,6 +1146,16 @@ function QuranHomePage() {
                             </div>
                         )}
 
+                        {/* In-Feed Break Banner Ad (Detik.com Pattern) */}
+                        <div className="w-full my-6">
+                            <AdSenseHorizontal 
+                                adSlot="1519827772"
+                                showLabel={true}
+                                labelText="IKLAN REKOMENDASI"
+                                minHeight="90px"
+                            />
+                        </div>
+
                         {/* Artikel & Wawasan Islami */}
                         <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-200/90 shadow-2xs">
                             {/* Header */}
@@ -1332,6 +1351,14 @@ function QuranHomePage() {
                             
                             {/* Jadwal Shalat Widget */}
                             <PrayerTimesWidget />
+
+                            {/* Sticky Sidebar AdSense Unit (Detik.com Pattern) */}
+                            <AdSenseVertical 
+                                adSlot="9427110099"
+                                labelText="IKLAN"
+                                minHeight="280px"
+                                isSticky={false}
+                            />
 
                             {/* Informasi Cepat & Struktur Al-Quran */}
                             <div className="bg-white rounded-2xl p-5 border border-gray-200/90 shadow-2xs">

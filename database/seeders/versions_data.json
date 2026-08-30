@@ -1,5 +1,34 @@
 [
   {
+    "version": "2.21.0",
+    "date": "30 Agustus 2026",
+    "type": "feature",
+    "title": "Optimasi Tampilan & Penempatan Iklan Google AdSense Standar Portal Berita (Detik.com Pattern)",
+    "description": "Pembaruan komprehensif pada penataan dan tata letak periklanan Google AdSense yang mengadopsi standar portal berita modern (detik.com). Menghadirkan Top Leaderboard Billboard Banner dengan proteksi Zero-CLS, In-Article / In-Content Ads di sela-sela paragraf artikel dan bacaan ayat, Desktop Sticky Sidebar Ads (300x250/300x600) yang responsif, In-Feed Card Ads pada daftar grid (Surah, Artikel, Doa, Asmaul Husna, Pencarian), serta dukungan penuh mode gelap (dark mode).",
+    "changes": [
+      {
+        "type": "feature",
+        "text": "Billboard / Top Leaderboard Ads (AdSenseLeaderboard) - Banner iklan beresolusi penuh di bagian atas halaman dengan label minimalis 'IKLAN' dan penanganan min-height tetap untuk mencegah layout shift (Zero-CLS)"
+      },
+      {
+        "type": "feature",
+        "text": "In-Article & In-Content Ads (AdSenseInline) - Integrasi iklan sisipan otomatis di tengah-tengah alur bacaan artikel (/artikel/:slug) dan ayat surah (/surah/:id) persis seperti format sisipan artikel detik.com"
+      },
+      {
+        "type": "feature",
+        "text": "Desktop Sticky Sidebar Ads (AdSenseVertical) - Tata letak 2 kolom desktop pada halaman artikel, beranda, dan detail doa dengan kolom kanan sticky yang tetap terlihat saat pengguna membaca ke bawah"
+      },
+      {
+        "type": "feature",
+        "text": "In-Feed Native Grid Ads (AdSenseInFeed) - Penempatan kartu iklan yang menyatu secara harmonis di dalam grid katalog (Daftar Surah, Daftar Artikel, Doa Bersama, Asmaul Husna, dan Hasil Pencarian)"
+      },
+      {
+        "type": "improvement",
+        "text": "Dukungan Penuh Dark Mode & Kompatibilitas Mobile - Seluruh unit kontainer iklan kini memiliki styling elegan di tema terang maupun gelap, serta otomatis menyembunyikan sidebar di layar ponsel tanpa scroll horizontal"
+      }
+    ]
+  },
+  {
     "version": "2.20.0",
     "date": "29 Agustus 2026",
     "type": "feature",

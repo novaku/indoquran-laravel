@@ -36,6 +36,9 @@ import {
 } from 'react-icons/io5';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
+import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
+import AdSenseInline from '../components/AdSenseInline';
+import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
@@ -2272,7 +2275,13 @@ function SurahDetailPage() {
                 </div>
             </div>
 
-            <div className="max-w-6xl mx-auto px-4 py-6">
+            {/* Top Billboard Ad (Detik.com Pattern) */}
+            <AdSenseLeaderboard 
+                maxWidth="max-w-6xl"
+                labelText="IKLAN"
+            />
+
+            <div className="max-w-6xl mx-auto px-4 py-4 sm:py-6">
                 {/* Main Content - Single Ayah Display */}
                 <div className="bg-white rounded-3xl border border-amber-100 p-4 sm:p-6 lg:p-8 shadow-sm mb-6" id="ayah-content">
                     {currentAyah ? (
@@ -2872,6 +2881,9 @@ function SurahDetailPage() {
                     )}
                 </div>
 
+                {/* In-Content Inline Ad (Detik.com Pattern) */}
+                <AdSenseInline labelText="IKLAN" />
+
                 {/* Ayah Grid Navigation */}
                 <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-lg">
                     <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
@@ -2930,6 +2942,16 @@ function SurahDetailPage() {
                             );
                         })}
                     </div>
+                </div>
+
+                {/* Middle Break Leaderboard Ad (Detik.com Pattern) */}
+                <div className="w-full my-6">
+                    <AdSenseHorizontal 
+                        adSlot="1519827772"
+                        showLabel={true}
+                        labelText="IKLAN REKOMENDASI"
+                        minHeight="90px"
+                    />
                 </div>
 
                 {/* Surah Details Section */}

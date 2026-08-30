@@ -6,6 +6,8 @@ import {
 } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
+import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
+import AdSenseInFeed from '../components/AdSenseInFeed';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
 
@@ -116,33 +118,49 @@ function JuzIndexPage() {
 
             {/* Juz List */}
             <div className="max-w-4xl mx-auto px-4 py-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {juzNumbers.map((juz) => (
-                        <button
-                            key={juz.number}
-                            onClick={() => handleJuzClick(juz.number)}
-                            className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:border-green-300 hover:shadow-md transition-all text-left group"
-                        >
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
-                                    <BookOpenIcon className="w-6 h-6 text-green-600" />
-                                </div>
-                                <ChevronRightIcon className="w-5 h-5 text-gray-400 group-hover:text-green-600 transition-colors" />
-                            </div>
-                            
-                            <div>
-                                <h3 className="text-lg font-semibold text-gray-900 group-hover:text-green-700 mb-1">
-                                    Juz {juz.number}
-                                </h3>
-                                <p className="text-sm text-gray-600 mb-2">
-                                    Dimulai dengan {juz.starting_surah}
-                                </p>
-                                <p className="font-arabic text-right text-gray-700">
-                                    {juz.name_arabic}
-                                </p>
-                            </div>
-                        </button>
-                    ))}
+                
+                {/* Top Billboard Ad (Detik.com Pattern) */}
+                <AdSenseLeaderboard maxWidth="max-w-6xl" labelText="IKLAN" />
+
+                {/* Juz Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {juzNumbers.map((juz, index) => {
+                        const showInFeedAd = index === 5 || index === 17;
+
+                        return (
+                            <React.Fragment key={juz.number}>
+                                {showInFeedAd && (
+                                    <AdSenseInFeed 
+                                        adSlot="1519827772"
+                                        labelText="IKLAN REKOMENDASI"
+                                    />
+                                )}
+                                <button
+                                    onClick={() => handleJuzClick(juz.number)}
+                                    className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md hover:border-green-300 transition-all text-left group cursor-pointer"
+                                >
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
+                                            <BookOpenIcon className="w-6 h-6 text-green-600" />
+                                        </div>
+                                        <ChevronRightIcon className="w-5 h-5 text-gray-400 group-hover:text-green-600 transition-colors" />
+                                    </div>
+                                    
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-gray-900 group-hover:text-green-700 mb-1">
+                                            Juz {juz.number}
+                                        </h3>
+                                        <p className="text-sm text-gray-600 mb-2">
+                                            Dimulai dengan {juz.starting_surah}
+                                        </p>
+                                        <p className="font-arabic text-right text-gray-700">
+                                            {juz.name_arabic}
+                                        </p>
+                                    </div>
+                                </button>
+                            </React.Fragment>
+                        );
+                    })}
                 </div>
 
                 {/* Info Section */}

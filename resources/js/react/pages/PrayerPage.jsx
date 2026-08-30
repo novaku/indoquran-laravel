@@ -23,6 +23,8 @@ import PrayerFilters from '../components/PrayerFilters';
 import PrayerSlideshow from '../components/PrayerSlideshow';
 import SimpleSlideshow from '../components/SimpleSlideshow';
 import SEOHead from '../components/SEOHead';
+import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
+import AdSenseInline from '../components/AdSenseInline';
 
 const PrayerPage = () => {
     const navigate = useNavigate();
@@ -267,8 +269,11 @@ const PrayerPage = () => {
                     </div>
                 </div>
 
+                {/* Top Billboard Ad (Detik.com Pattern) */}
+                <AdSenseLeaderboard maxWidth="max-w-3xl" labelText="IKLAN" />
+
                 {/* Main Content */}
-                <div className="max-w-3xl mx-auto px-4 py-8">
+                <div className="max-w-3xl mx-auto px-4 py-6">
                     {/* Login Notice */}
                     {!user && (
                         <div className="bg-white rounded-2xl p-6 mb-6 border border-gray-200">
@@ -354,14 +359,18 @@ const PrayerPage = () => {
                                 )}
                             </div>
                         ) : (
-                            prayers.map((prayer) => (
-                                <PrayerCard
-                                    key={prayer.id}
-                                    prayer={prayer}
-                                    user={user}
-                                    onAminToggle={handleAminToggle}
-                                    onCommentSubmit={handleCommentSubmit}
-                                />
+                            prayers.map((prayer, index) => (
+                                <React.Fragment key={prayer.id}>
+                                    {(index === 3 || (index > 3 && (index + 1) % 6 === 0)) && (
+                                        <AdSenseInline labelText="IKLAN REKOMENDASI" minHeight="100px" />
+                                    )}
+                                    <PrayerCard
+                                        prayer={prayer}
+                                        user={user}
+                                        onAminToggle={handleAminToggle}
+                                        onCommentSubmit={handleCommentSubmit}
+                                    />
+                                </React.Fragment>
                             ))
                         )}
                     </div>

@@ -17,6 +17,7 @@ import { postWithAuth, getAuthToken } from '../utils/apiUtils';
 import { isAuthenticated, authenticatedFetch } from '../utils/auth';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
+import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 
 function ContactSupportPage() {
     const navigate = useNavigate();
@@ -271,8 +272,11 @@ function ContactSupportPage() {
                     </div>
                 </div>
 
+                {/* Top Billboard Ad (Detik.com Pattern) */}
+                <AdSenseLeaderboard maxWidth="max-w-6xl" labelText="IKLAN" className="mt-8" />
+
                 {/* Main Content */}
-                <div className="max-w-6xl mx-auto px-4 py-16">
+                <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
                     <div className="grid lg:grid-cols-2 gap-8">
                         {/* Contact Form */}
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">

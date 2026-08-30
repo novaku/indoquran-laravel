@@ -16,6 +16,7 @@ import {
 } from 'react-icons/io5';
 import { useAuth } from '../hooks/useAuth.jsx';
 import SEOHead from '../components/SEOHead';
+import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import { Card, Button, Badge, IconBadge, PageHeader, PageContent } from '../components/ui';
 
 function MemberBenefitsPage() {
@@ -157,8 +158,11 @@ function MemberBenefitsPage() {
                     </div>
                 </div>
 
+                {/* Top Billboard Ad (Detik.com Pattern) */}
+                <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" />
+
                 {/* Benefits Grid */}
-                <div className="py-12">
+                <div className="py-8 md:py-12">
                     <div className="text-center mb-12">
                         <h2 className="text-4xl font-bold text-gray-900 mb-6">
                             Keuntungan Menjadi Member

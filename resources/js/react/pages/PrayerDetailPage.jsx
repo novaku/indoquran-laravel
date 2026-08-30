@@ -24,6 +24,9 @@ import { useAuth } from '../hooks/useAuth';
 import { fetchWithAuth, postWithAuth } from '../utils/apiUtils';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
+import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
+import AdSenseVertical from '../components/AdSenseVertical';
+import AdSenseInline from '../components/AdSenseInline';
 
 const PrayerDetailPage = () => {
     const { id } = useParams();
@@ -302,7 +305,10 @@ const PrayerDetailPage = () => {
                 ogType="article"
             />
 
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50/50 py-6 sm:py-10">
+            <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50/50 py-4 sm:py-8">
+                {/* Top Billboard Ad (Detik.com Pattern) */}
+                <AdSenseLeaderboard maxWidth="max-w-4xl" labelText="IKLAN" />
+
                 <div className="max-w-4xl mx-auto px-4 sm:px-6">
                     {/* Navigation Header / Breadcrumbs */}
                     <div className="flex items-center justify-between gap-4 mb-6">
@@ -441,6 +447,9 @@ const PrayerDetailPage = () => {
                                 </div>
                             </div>
 
+                            {/* In-Content Inline Ad (Detik.com Pattern) */}
+                            <AdSenseInline labelText="IKLAN" minHeight="100px" />
+
                             {/* Comments Section */}
                             <div className="bg-white rounded-2xl border border-gray-200/90 shadow-sm p-6 sm:p-8">
                                 <div className="flex items-center justify-between gap-2 mb-6 pb-3 border-b border-gray-100">
@@ -571,6 +580,14 @@ const PrayerDetailPage = () => {
 
                         {/* Sidebar Column */}
                         <aside className="lg:col-span-4 space-y-6">
+                            {/* Sticky Sidebar AdSense Unit (Detik.com Pattern) */}
+                            <AdSenseVertical 
+                                adSlot="9427110099"
+                                labelText="IKLAN"
+                                minHeight="250px"
+                                isSticky={false}
+                            />
+
                             {/* CTA Box: Titip Doa Sendiri */}
                             <div className="bg-gradient-to-br from-emerald-800 to-teal-900 text-white rounded-2xl p-6 shadow-md relative overflow-hidden">
                                 <div className="relative z-10 space-y-3">

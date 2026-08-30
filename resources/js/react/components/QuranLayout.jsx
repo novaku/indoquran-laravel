@@ -13,14 +13,14 @@ function QuranLayout({ children, className = "" }) {
 
     if (isAdmin) {
         return (
-            <div className="min-h-screen bg-gray-50">
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
                 {children}
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-50">
+        <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950 transition-colors">
             <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
             <QuranHeader isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
             <Breadcrumb />
@@ -29,17 +29,15 @@ function QuranLayout({ children, className = "" }) {
                 {children}
             </main>
 
-            {/* Global Bottom AdSense Banner for all non-admin pages (Desktop & Mobile) */}
-            <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-3 w-full">
-                <div className="w-full bg-white rounded-xl shadow-xs border border-gray-100 overflow-hidden">
-                    <div className="text-[10px] text-center text-gray-400 py-1 border-b border-gray-100 bg-gray-50/60 font-medium">
-                        Iklan
-                    </div>
-                    <AdSenseHorizontal 
-                        adSlot="1519827772" 
-                        className="w-full" 
-                    />
-                </div>
+            {/* Global Bottom AdSense Banner for all non-admin pages (Desktop & Mobile) ala Detik.com */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full">
+                <AdSenseHorizontal 
+                    adSlot="1519827772" 
+                    className="w-full"
+                    showLabel={true}
+                    labelText="IKLAN"
+                    minHeight="90px"
+                />
             </div>
             
             <QuranFooter />

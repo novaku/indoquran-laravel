@@ -24,6 +24,8 @@ import SearchField from '../components/SearchField';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
 import { Card, Button, Input, Select, Badge, PageContent } from '../components/ui';
+import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
+import AdSenseInFeed from '../components/AdSenseInFeed';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
 
@@ -629,6 +631,9 @@ function QuranSearchPage() {
                 </div>
             </div>
 
+            {/* Top Billboard Ad (Detik.com Pattern) */}
+            <AdSenseLeaderboard maxWidth="max-w-5xl" labelText="IKLAN" />
+
             {/* Main Content */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -844,12 +849,21 @@ function QuranSearchPage() {
                         )}
                         
                         <div className="grid gap-6">
-                            {paginatedResults.map((result, index) => (
-                                /* Enhanced Ayah Result */
-                                <Link
-                                    key={`ayah-${result.surah_number}-${result.ayah_number || result.number}`}
-                                    to={`/surah/${result.surah_number}/${result.ayah_number || result.number}`}
-                                >
+                            {paginatedResults.map((result, index) => {
+                                const showInFeedAd = index === 3 || (index > 3 && (index + 1) % 6 === 0);
+
+                                return (
+                                    <React.Fragment key={`ayah-${result.surah_number}-${result.ayah_number || result.number}`}>
+                                        {showInFeedAd && (
+                                            <AdSenseInFeed 
+                                                adSlot="1519827772"
+                                                labelText="IKLAN REKOMENDASI"
+                                            />
+                                        )}
+                                        {/* Enhanced Ayah Result */}
+                                        <Link
+                                            to={`/surah/${result.surah_number}/${result.ayah_number || result.number}`}
+                                        >
                                     <Card hoverable padding="lg" className="border-gray-200/80 hover:border-emerald-300">
                                         <div className="space-y-4">
                                             <div className="flex items-center justify-between">
@@ -886,7 +900,9 @@ function QuranSearchPage() {
                                         </div>
                                     </Card>
                                 </Link>
-                            ))}
+                            </React.Fragment>
+                        );
+                    })}
                         </div>
                         
                         {/* Enhanced Pagination */}

@@ -11,6 +11,8 @@ import { IoBookmark } from 'react-icons/io5';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
 import { Card, Button, Badge, PageHeader, PageContent } from '../components/ui';
+import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
+import AdSenseInFeed from '../components/AdSenseInFeed';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
 import { getUserBookmarks } from '../services/BookmarkService';
@@ -241,6 +243,9 @@ function SurahListPage() {
                     icon={<BookOpenIcon className="w-8 h-8" />}
                 />
 
+                {/* Top Billboard Ad (Detik.com Pattern) */}
+                <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" />
+
                 <PageContent size="xl">
                     <Card className="mb-6">
                         {/* Search and Filter */}
@@ -364,20 +369,27 @@ function SurahListPage() {
                         </Card>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {filteredSurahs.map((surah) => {
+                            {filteredSurahs.map((surah, index) => {
                                 const surahBookmarks = bookmarksBySurah[surah.number] || [];
                                 const hasBookmarks = surahBookmarks.length > 0;
+                                const showInFeedAd = index === 7 || (index > 7 && (index + 1) % 24 === 0);
 
                                 return (
-                                    <div
-                                        key={surah.number}
-                                        onClick={() => handleSurahClick(surah.number)}
-                                        className={`bg-white rounded-xl border p-5 sm:p-6 hover:shadow-lg transition-all duration-200 cursor-pointer group relative overflow-hidden ${
-                                            hasBookmarks 
-                                                ? 'border-amber-300 hover:border-amber-400 bg-gradient-to-b from-amber-50/20 to-white' 
-                                                : 'border-gray-200 hover:border-green-300'
-                                        }`}
-                                    >
+                                    <React.Fragment key={surah.number}>
+                                        {showInFeedAd && (
+                                            <AdSenseInFeed 
+                                                adSlot="1519827772"
+                                                labelText="IKLAN REKOMENDASI"
+                                            />
+                                        )}
+                                        <div
+                                            onClick={() => handleSurahClick(surah.number)}
+                                            className={`bg-white rounded-xl border p-5 sm:p-6 hover:shadow-lg transition-all duration-200 cursor-pointer group relative overflow-hidden ${
+                                                hasBookmarks 
+                                                    ? 'border-amber-300 hover:border-amber-400 bg-gradient-to-b from-amber-50/20 to-white' 
+                                                    : 'border-gray-200 hover:border-green-300'
+                                            }`}
+                                        >
                                         {/* Surah Header */}
                                         <div className="flex items-start justify-between mb-4 gap-2">
                                             <div className="flex items-center space-x-3 min-w-0 flex-1">
@@ -463,19 +475,20 @@ function SurahListPage() {
 
                                         {/* Action Buttons */}
                                         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                                            <button className="flex items-center space-x-2 text-green-600 hover:text-green-700 transition-colors">
-                                                <BookOpenIcon className="w-4 h-4" />
-                                                <span className="text-sm font-medium">Baca</span>
+                                            <span className="text-sm font-medium text-green-600 group-hover:text-green-700 flex items-center space-x-1">
+                                                <span>Baca Surah</span>
+                                                <span>→</span>
+                                            </span>
+                                            <button
+                                                onClick={(e) => handlePlaySurah(surah.number, e)}
+                                                className="p-2 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-colors cursor-pointer"
+                                                title="Putar Audio"
+                                            >
+                                                <PlayIcon className="w-4 h-4" />
                                             </button>
-                                            
-                                            {surah.audio_urls && (
-                                                <button className="flex items-center space-x-2 text-gray-600 hover:text-green-600 transition-colors">
-                                                    <PlayIcon className="w-4 h-4" />
-                                                    <span className="text-sm">Audio</span>
-                                                </button>
-                                            )}
                                         </div>
                                     </div>
+                                    </React.Fragment>
                                 );
                             })}
                         </div>

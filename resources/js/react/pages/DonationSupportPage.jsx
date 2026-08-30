@@ -17,6 +17,7 @@ import {
     IoInfiniteOutline
 } from 'react-icons/io5';
 import SEOHead from '../components/SEOHead';
+import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 
 function DonationSupportPage() {
     const navigate = useNavigate();
@@ -168,8 +169,11 @@ Wassalamu'alaikum.`
                     </div>
                 </div>
 
+                {/* Top Billboard Ad (Detik.com Pattern) */}
+                <AdSenseLeaderboard maxWidth="max-w-6xl" labelText="IKLAN" />
+
                 {/* Main Content */}
-                <div className="max-w-6xl mx-auto px-4 py-16">
+                <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
                     {/* Donation Impact Areas */}
                     <div className="text-center mb-12">
                         <h2 className="text-3xl font-bold text-gray-900 mb-4">Dampak Donasi Anda</h2>

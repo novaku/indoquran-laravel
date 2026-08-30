@@ -21,6 +21,8 @@ import QuranPaginationNav from '../components/QuranPaginationNav';
 import QuranSurahJumpBar from '../components/QuranSurahJumpBar';
 import QuranFloatingActions from '../components/QuranFloatingActions';
 import QuranBottomNav from '../components/QuranBottomNav';
+import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
+import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { fetchWithAuth } from '../utils/apiUtils';
 
@@ -419,7 +421,10 @@ function PageDetailPage() {
         <PageTransition>
             <SEOHead {...pageSEO} />
             <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
-                <div className="max-w-6xl mx-auto px-4 py-8 pt-24 pb-20">
+                <div className="max-w-5xl mx-auto px-4 py-8 pt-24 pb-20">
+
+                    {/* Top Billboard Ad (Detik.com Pattern) */}
+                    <AdSenseLeaderboard maxWidth="max-w-5xl" labelText="IKLAN" />
 
                     {/* Top Pagination Navigation Component */}
                     <QuranPaginationNav

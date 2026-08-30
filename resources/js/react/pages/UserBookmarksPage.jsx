@@ -38,6 +38,7 @@ import { getReadingProgress } from '../services/ReadingProgressService';
 import { useAuth } from '../hooks/useAuth.jsx';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
+import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 
 function UserBookmarksPage() {
     const navigate = useNavigate();
@@ -530,8 +531,11 @@ function UserBookmarksPage() {
                     </div>
                 </div>
 
+                {/* Top Billboard Ad (Detik.com Pattern) */}
+                <AdSenseLeaderboard maxWidth="max-w-6xl" labelText="IKLAN" className="mt-4" />
+
                 {/* Main Content Area */}
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4 relative z-20">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-2 relative z-20">
                     {/* Guest Sync Banner */}
                     {!user && (
                         <div className="mb-6 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

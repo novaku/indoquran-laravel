@@ -1,6 +1,7 @@
 import React from 'react';
 import VisitorStatsHomepage from '../components/VisitorStatsHomepage';
 import SEOHead from '../components/SEOHead';
+import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import { Card, Button, PageHeader, PageContent } from '../components/ui';
 
 const StatistikPage = () => {
@@ -20,6 +21,9 @@ const StatistikPage = () => {
                     title="📊 Statistik Komunitas IndoQuran"
                     subtitle="Jelajahi data aktivitas komunitas dan lihat bagaimana umat muslim di seluruh dunia menggunakan IndoQuran untuk memperdalam pemahaman Al-Quran"
                 />
+
+                {/* Top Billboard Ad (Detik.com Pattern) */}
+                <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" />
 
                 {/* Info Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
