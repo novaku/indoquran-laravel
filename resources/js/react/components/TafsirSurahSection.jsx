@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { 
     BookOpenIcon, 
-    DocumentTextIcon, 
     ShareIcon, 
     MagnifyingGlassIcon
 } from '@heroicons/react/24/outline';
@@ -141,12 +140,9 @@ const parseSurahDescription = (rawText = '') => {
 
 const TafsirSurahSection = ({
     surah,
-    currentAyah,
-    currentAyahNumber = 1,
     maxAyahNumber = 1,
     onShareSurah
 }) => {
-    const [activeTab, setActiveTab] = useState('surah'); // 'surah' | 'ayah'
     const [fontSizeMode, setFontSizeMode] = useState('normal'); // 'small' | 'normal' | 'large' | 'xlarge'
     const [readingTheme, setReadingTheme] = useState('parchment'); // 'modern' | 'parchment' | 'night'
     const [searchKeyword, setSearchKeyword] = useState('');
@@ -155,10 +151,7 @@ const TafsirSurahSection = ({
     const surahRawDesc = surah?.description_long || surah?.description_short || surah?.description || '';
     const parsedDesc = useMemo(() => parseSurahDescription(surahRawDesc), [surahRawDesc]);
 
-    // Active Ayah is solely tied to currentAyah from top navigation
-    const activeAyahData = currentAyah || null;
-
-    // Filtered points for Surah tab
+    // Filtered points for Kandungan Surah
     const filteredPoints = useMemo(() => {
         if (!searchKeyword.trim()) return parsedDesc.points;
         const kw = searchKeyword.toLowerCase();
@@ -187,10 +180,6 @@ const TafsirSurahSection = ({
                 headingText: 'text-white font-extrabold',
                 cardBg: 'bg-slate-900 border-slate-700 shadow-sm text-slate-100',
                 cardHighlightBg: 'bg-slate-900 border-emerald-500 text-slate-100',
-                arabicCardBg: 'bg-slate-900 border-slate-700 text-emerald-300',
-                arabicText: 'text-emerald-300 font-normal',
-                tabActive: 'bg-emerald-600 text-white font-bold shadow-md',
-                tabInactive: 'text-slate-300 hover:text-white hover:bg-slate-800',
                 inputBg: 'bg-slate-900 border-slate-700 text-white placeholder-slate-400 focus:border-emerald-400',
                 footerBg: 'bg-slate-950 border-slate-800 text-slate-300',
                 copyBtn: 'text-slate-200 hover:text-white hover:bg-slate-800 border-slate-700 bg-slate-800/80'
@@ -207,10 +196,6 @@ const TafsirSurahSection = ({
                 headingText: 'text-stone-950 font-extrabold',
                 cardBg: 'bg-[#FFFDF7] border-amber-300/90 shadow-2xs text-stone-950',
                 cardHighlightBg: 'bg-[#FEFCE8] border-amber-400 text-stone-950',
-                arabicCardBg: 'bg-[#FAF5E6] border-amber-300/90',
-                arabicText: 'text-stone-950 font-normal',
-                tabActive: 'bg-[#1C3E37] text-white font-bold shadow-md',
-                tabInactive: 'text-stone-900 hover:text-black hover:bg-amber-100/90 font-bold',
                 inputBg: 'bg-white border-amber-400 text-stone-950 placeholder-stone-600 focus:border-emerald-800',
                 footerBg: 'bg-[#F3EDE0] border-amber-300 text-stone-800 font-medium',
                 copyBtn: 'text-stone-900 hover:text-black hover:bg-amber-200/80 border-amber-400 bg-amber-100/60'
@@ -227,10 +212,6 @@ const TafsirSurahSection = ({
             headingText: 'text-slate-950 font-extrabold',
             cardBg: 'bg-white border-slate-300 shadow-2xs text-slate-950',
             cardHighlightBg: 'bg-emerald-50 border-emerald-400 text-slate-950',
-            arabicCardBg: 'bg-emerald-50/80 border-emerald-300',
-            arabicText: 'text-slate-950 font-normal',
-            tabActive: 'bg-emerald-800 text-white font-bold shadow-md',
-            tabInactive: 'text-slate-900 hover:text-emerald-950 hover:bg-slate-200 font-bold',
             inputBg: 'bg-white border-slate-300 text-slate-950 placeholder-slate-600 focus:border-emerald-800',
             footerBg: 'bg-slate-100 border-slate-300 text-slate-800 font-medium',
             copyBtn: 'text-slate-900 hover:text-black hover:bg-slate-200 border-slate-300 bg-slate-50'
@@ -248,31 +229,26 @@ const TafsirSurahSection = ({
         }
     };
 
-    // Handle Share WhatsApp for Tafsir
-    const handleShareTafsir = (type = 'surah') => {
-        let text = '';
-        if (type === 'surah') {
-            text = `📖 *TAFSIR & KANDUNGAN SURAH ${surah.name_latin?.toUpperCase()}*\n`;
-            text += `QS. ${surah.number}: ${surah.name_arabic} (${surah.name_indonesian})\n`;
-            text += `Total: ${maxAyahNumber} Ayat • ${surah.revelation_place}\n\n`;
+    // Handle Share WhatsApp for Kandungan Surah
+    const handleShareKandungan = () => {
+        if (!surah) return;
+        let text = `📖 *KANDUNGAN & POKOK SURAH ${surah.name_latin?.toUpperCase()}*\n`;
+        text += `QS. ${surah.number}: ${surah.name_arabic} (${surah.name_indonesian})\n`;
+        text += `Total: ${maxAyahNumber || surah.number_of_ayahs || surah.verses_count} Ayat • ${surah.revelation_place || ''}\n\n`;
+        if (parsedDesc.introText) {
             text += `${parsedDesc.introText.slice(0, 500)}...\n\n`;
-            text += `🔗 Baca Tafsir Selengkapnya di IndoQuran:\n${window.location.origin}/surah/${surah.number}`;
-        } else {
-            text = `📖 *TAFSIR SURAH ${surah.name_latin?.toUpperCase()} - AYAT ${currentAyahNumber}*\n`;
-            text += `QS. ${surah.number}:${currentAyahNumber}\n\n`;
-            if (activeAyahData?.text_arabic) text += `${activeAyahData.text_arabic}\n\n`;
-            if (activeAyahData?.text_indonesian) text += `Artinya: "${activeAyahData.text_indonesian}"\n\n`;
-            if (activeAyahData?.tafsir) text += `*Tafsir:*\n${activeAyahData.tafsir}\n\n`;
-            text += `🔗 Baca di IndoQuran:\n${window.location.origin}/surah/${surah.number}/${currentAyahNumber}`;
         }
+        text += `🔗 Baca Selengkapnya di IndoQuran:\n${window.location.origin}/surah/${surah.number}`;
 
         const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
         window.open(url, '_blank');
     };
 
+    if (!surah) return null;
+
     return (
         <section 
-            id="tafsir-section" 
+            id="kandungan-surah-section" 
             className={`rounded-3xl border transition-colors duration-200 overflow-hidden mt-8 ${currentTheme.wrapper}`}
         >
             {/* 1. Header Banner */}
@@ -282,7 +258,7 @@ const TafsirSurahSection = ({
                         <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/20 backdrop-blur-md text-white border border-white/30 shadow-xs">
                                 <IoSparkles className="w-3.5 h-3.5 text-amber-300" />
-                                <span>Kajian & Tafsir Lengkap</span>
+                                <span>Kandungan & Pokok Surah</span>
                             </span>
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-950/60 text-emerald-100 border border-emerald-400/40">
                                 <span>Sumber: Kemenag RI</span>
@@ -291,7 +267,7 @@ const TafsirSurahSection = ({
 
                         <div className="flex items-baseline gap-3 flex-wrap">
                             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-                                Tafsir {surah.name_latin || surah.name_english}
+                                Kandungan Surah {surah.name_latin || surah.name_english}
                             </h2>
                             <span className="font-arabic text-2xl sm:text-3xl text-emerald-200" dir="rtl">
                                 {surah.name_arabic}
@@ -299,7 +275,7 @@ const TafsirSurahSection = ({
                         </div>
 
                         <p className="text-xs sm:text-sm text-emerald-100 font-medium mt-1 max-w-2xl leading-relaxed">
-                            {surah.name_indonesian ? `"${surah.name_indonesian}"` : ''} • Surah ke-{surah.number} • {maxAyahNumber} Ayat • Diturunkan di {surah.revelation_place || 'Mekah/Madinah'}
+                            {surah.name_indonesian ? `"${surah.name_indonesian}"` : ''} • Surah ke-{surah.number} • {maxAyahNumber || surah.number_of_ayahs || surah.verses_count} Ayat • Diturunkan di {surah.revelation_place || 'Mekah/Madinah'}
                         </p>
                     </div>
 
@@ -307,53 +283,43 @@ const TafsirSurahSection = ({
                     <div className="flex items-center gap-2 flex-wrap">
                         <button
                             type="button"
-                            onClick={() => handleShareTafsir(activeTab === 'ayah' ? 'ayah' : 'surah')}
+                            onClick={handleShareKandungan}
                             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white text-emerald-950 hover:bg-emerald-50 transition-all active:scale-95 cursor-pointer shadow-md"
-                            title="Bagikan tafsir ke WhatsApp"
+                            title="Bagikan kandungan surah ke WhatsApp"
                         >
                             <ShareIcon className="w-4 h-4 text-emerald-800" />
-                            <span>Bagikan Tafsir</span>
+                            <span>Bagikan Kandungan</span>
                         </button>
                     </div>
                 </div>
             </div>
 
-            {/* 2. Reader Control Bar & Tabs */}
+            {/* 2. Reader Control Bar */}
             <div className={`p-4 border-b ${currentTheme.toolbarBg} flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5`}>
-                {/* Tab Switcher - Simple 2 Tabs */}
-                <div className="flex items-center gap-1.5 p-1 rounded-2xl overflow-x-auto bg-black/10">
-                    <button
-                        type="button"
-                        onClick={() => setActiveTab('surah')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
-                            activeTab === 'surah' ? currentTheme.tabActive : currentTheme.tabInactive
-                        }`}
-                    >
+                {/* Title badge */}
+                <div className="flex items-center gap-2">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-emerald-800 text-white shadow-xs">
                         <BookOpenIcon className="w-4 h-4" />
-                        <span>Kandungan Surah</span>
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => setActiveTab('ayah')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
-                            activeTab === 'ayah' ? currentTheme.tabActive : currentTheme.tabInactive
-                        }`}
-                    >
-                        <DocumentTextIcon className="w-4 h-4" />
-                        <span>Tafsir Ayat {currentAyahNumber}</span>
-                    </button>
+                    </span>
+                    <div>
+                        <h3 className={`text-sm sm:text-base font-bold ${currentTheme.headingText}`}>
+                            Intisari & Tema Utama
+                        </h3>
+                        <p className={`text-[11px] ${currentTheme.subText}`}>
+                            Ringkasan dan pokok-pokok ajaran dalam surah
+                        </p>
+                    </div>
                 </div>
 
                 {/* Reader Comfort Preferences (Search, Font Size & High-Contrast Mood) */}
                 <div className="flex items-center justify-between lg:justify-end gap-2.5 flex-wrap">
                     {/* Search Bar */}
-                    <div className="relative flex-1 sm:w-48 lg:w-44">
+                    <div className="relative flex-1 sm:w-48 lg:w-48">
                         <input
                             type="text"
                             value={searchKeyword}
                             onChange={(e) => setSearchKeyword(e.target.value)}
-                            placeholder="Cari tafsir..."
+                            placeholder="Cari dalam kandungan..."
                             className={`w-full text-xs font-semibold rounded-xl pl-8 pr-3 py-1.5 border outline-none transition shadow-2xs ${currentTheme.inputBg}`}
                         />
                         <MagnifyingGlassIcon className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-600" />
@@ -386,7 +352,7 @@ const TafsirSurahSection = ({
                                     fontSizeMode === btn.id
                                         ? 'bg-emerald-700 text-white shadow-xs'
                                         : 'text-stone-900 hover:bg-black/10'
-                                }`}
+                                    }`}
                                 title={`Ukuran Teks: ${btn.id}`}
                             >
                                 {btn.label}
@@ -409,7 +375,7 @@ const TafsirSurahSection = ({
                                     readingTheme === th.id
                                         ? 'bg-emerald-700 text-white shadow-xs'
                                         : 'text-stone-900 hover:bg-black/10'
-                                }`}
+                                    }`}
                                 title={`Mode Kontras: ${th.label}`}
                             >
                                 <span className={`w-2.5 h-2.5 rounded-full border ${th.badgeDot}`} />
@@ -420,238 +386,110 @@ const TafsirSurahSection = ({
                 </div>
             </div>
 
-            {/* 3. Main Content Body */}
-            <div className="p-5 sm:p-8">
-                {/* TAB 1: Kandungan & Tafsir Surah */}
-                {activeTab === 'surah' && (
-                    <div className="space-y-6">
-                        {/* Narrative Intro Card */}
-                        {parsedDesc.introText ? (
-                            <div className={`rounded-2xl p-5 sm:p-7 border ${currentTheme.cardBg}`}>
-                                <div className="flex items-center justify-between gap-3 mb-3.5 border-b pb-3 border-stone-300">
-                                    <div className="flex items-center gap-2">
-                                        <span className="flex items-center justify-center w-7 h-7 rounded-xl bg-emerald-700 text-white text-xs font-bold shadow-xs">
-                                            📖
-                                        </span>
-                                        <h3 className={`text-base sm:text-lg ${currentTheme.headingText}`}>
-                                            Pengantar & Latar Belakang Surah
-                                        </h3>
-                                    </div>
-                                    
-                                    <button
-                                        type="button"
-                                        onClick={() => handleCopy(parsedDesc.introText, 'intro')}
-                                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition cursor-pointer ${currentTheme.copyBtn}`}
-                                        title="Salin pengantar surah"
-                                    >
-                                        {copiedKey === 'intro' ? (
-                                            <>
-                                                <IoCheckmark className="w-4 h-4 text-emerald-600 font-bold" />
-                                                <span className="text-emerald-700 font-extrabold">Tersalin!</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <IoCopyOutline className="w-3.5 h-3.5" />
-                                                <span>Salin</span>
-                                            </>
-                                        )}
-                                    </button>
-                                </div>
-
-                                <div className={`${fontSizeClasses} ${currentTheme.bodyText} text-justify leading-relaxed whitespace-pre-line`}>
-                                    {parsedDesc.introText}
-                                </div>
-                            </div>
-                        ) : (
-                            <p className={`${currentTheme.subText} italic text-center py-6`}>
-                                Penjelasan lengkap untuk Surah ini belum tersedia.
-                            </p>
-                        )}
-
-                        {/* Structured Pokok-Pokok Isi Cards */}
-                        {filteredPoints.length > 0 && (
-                            <div className="mt-8 space-y-4">
-                                <div className="flex items-center justify-between gap-3 pb-2 border-b border-stone-300">
-                                    <div className="flex items-center gap-2">
-                                        <span className="flex items-center justify-center w-7 h-7 rounded-xl bg-amber-600 text-white text-xs font-bold shadow-xs">
-                                            ✨
-                                        </span>
-                                        <div>
-                                            <h3 className={`text-base sm:text-lg ${currentTheme.headingText}`}>
-                                                Pokok-Pokok Kandungan & Tema Utama
-                                            </h3>
-                                            <p className={`text-xs ${currentTheme.subText}`}>
-                                                Ringkasan tema dan bahasan penting dalam surah ini
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-stone-900 text-white shadow-2xs">
-                                        {filteredPoints.length} Tema
-                                    </span>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {filteredPoints.map((pt, idx) => (
-                                        <div
-                                            key={`point-${idx}`}
-                                            className={`rounded-2xl p-5 sm:p-6 border border-l-4 transition-all duration-200 hover:shadow-md ${currentTheme.cardBg} ${pt.meta.border}`}
-                                        >
-                                            <div className="flex items-center justify-between gap-2 mb-3.5">
-                                                <div className="flex items-center gap-2 flex-wrap">
-                                                    <span className="flex items-center justify-center min-w-[28px] h-7 px-2 rounded-lg text-xs font-extrabold bg-stone-950 text-white shadow-2xs">
-                                                        #{pt.number}
-                                                    </span>
-                                                    <span className="text-lg">{pt.meta.icon}</span>
-                                                    <span className={`text-xs px-2.5 py-0.5 rounded-full border shadow-2xs ${pt.meta.badge}`}>
-                                                        {pt.title || pt.meta.label}
-                                                    </span>
-                                                </div>
-
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleCopy(`${pt.title ? pt.title + ':\n' : ''}${pt.content}`, `pt-${idx}`)}
-                                                    className={`p-1.5 rounded-lg border transition cursor-pointer ${currentTheme.copyBtn}`}
-                                                    title="Salin tema ini"
-                                                >
-                                                    {copiedKey === `pt-${idx}` ? (
-                                                        <IoCheckmark className="w-4 h-4 text-emerald-600 font-bold" />
-                                                    ) : (
-                                                        <IoCopyOutline className="w-4 h-4" />
-                                                    )}
-                                                </button>
-                                            </div>
-
-                                            <p className={`${fontSizeClasses} ${currentTheme.bodyText} leading-relaxed`}>
-                                                {pt.content}
-                                            </p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                {/* TAB 2: Tafsir Ayat Aktif (Tied strictly to Top Navigation currentAyahNumber) */}
-                {activeTab === 'ayah' && (
-                    <div className="space-y-6">
-                        {/* Ayah Context Header */}
-                        <div className={`p-4 sm:p-5 rounded-2xl border flex items-center justify-between gap-3 ${currentTheme.cardBg}`}>
-                            <div className="flex items-center gap-2.5">
-                                <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-emerald-700 text-white font-extrabold text-sm shadow-xs">
-                                    {currentAyahNumber}
+            {/* 3. Main Content Body (Kandungan Surah Only) */}
+            <div className="p-5 sm:p-8 space-y-6">
+                {/* Narrative Intro Card */}
+                {parsedDesc.introText ? (
+                    <div className={`rounded-2xl p-5 sm:p-7 border ${currentTheme.cardBg}`}>
+                        <div className="flex items-center justify-between gap-3 mb-3.5 border-b pb-3 border-stone-300">
+                            <div className="flex items-center gap-2">
+                                <span className="flex items-center justify-center w-7 h-7 rounded-xl bg-emerald-700 text-white text-xs font-bold shadow-xs">
+                                    📖
                                 </span>
-                                <div>
-                                    <h3 className={`text-sm sm:text-base ${currentTheme.headingText}`}>
-                                        Tafsir Ayat ke-{currentAyahNumber}
-                                    </h3>
-                                    <p className={`text-xs ${currentTheme.subText}`}>
-                                        Surah {surah.name_latin} • Ayat {currentAyahNumber} dari {maxAyahNumber}
-                                    </p>
-                                </div>
+                                <h3 className={`text-base sm:text-lg ${currentTheme.headingText}`}>
+                                    Pengantar & Latar Belakang Surah
+                                </h3>
                             </div>
-
+                            
                             <button
                                 type="button"
-                                onClick={() => handleCopy(activeAyahData?.tafsir || 'Tafsir belum tersedia', 'ayah-tafsir-header')}
-                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer ${currentTheme.copyBtn}`}
-                                title="Salin tafsir ayat ini"
+                                onClick={() => handleCopy(parsedDesc.introText, 'intro')}
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition cursor-pointer ${currentTheme.copyBtn}`}
+                                title="Salin pengantar surah"
                             >
-                                {copiedKey === 'ayah-tafsir-header' ? (
+                                {copiedKey === 'intro' ? (
                                     <>
                                         <IoCheckmark className="w-4 h-4 text-emerald-600 font-bold" />
-                                        <span className="text-emerald-700 font-bold">Tersalin!</span>
+                                        <span className="text-emerald-700 font-extrabold">Tersalin!</span>
                                     </>
                                 ) : (
                                     <>
                                         <IoCopyOutline className="w-3.5 h-3.5" />
-                                        <span>Salin Tafsir</span>
+                                        <span>Salin</span>
                                     </>
                                 )}
                             </button>
                         </div>
 
-                        {/* Active Ayah Context (Arabic & Translation & Tafsir) */}
-                        {activeAyahData ? (
-                            <div className="space-y-4">
-                                {/* Arabic Quote Card (3D Paper Parchment Style) */}
-                                {activeAyahData.text_arabic && (
-                                    <div className="quran-paper-3d-card p-5 sm:p-6 text-right relative overflow-hidden" dir="rtl">
-                                        <div className="quran-paper-pattern absolute inset-0 pointer-events-none opacity-70" />
-                                        <p 
-                                            className="font-arabic ayah-arabic-ink relative text-2xl sm:text-3xl leading-loose select-text"
-                                            style={{
-                                                fontFamily: "'AlQuran-IndoPak', 'Scheherazade New', 'Scheherazade', 'Amiri', 'Traditional Arabic', serif",
-                                                lineHeight: '2.4'
-                                            }}
-                                        >
-                                            {activeAyahData.text_arabic}
-                                        </p>
-                                    </div>
-                                )}
+                        <div className={`${fontSizeClasses} ${currentTheme.bodyText} text-justify leading-relaxed whitespace-pre-line`}>
+                            {parsedDesc.introText}
+                        </div>
+                    </div>
+                ) : (
+                    <p className={`${currentTheme.subText} italic text-center py-6`}>
+                        Penjelasan kandungan untuk Surah ini belum tersedia.
+                    </p>
+                )}
 
-                                {/* Indonesian Translation Card */}
-                                {activeAyahData.text_indonesian && (
-                                    <div className={`p-4 sm:p-5 rounded-xl border ${currentTheme.cardBg}`}>
-                                        <p className={`text-xs font-extrabold uppercase tracking-wider mb-1 ${currentTheme.subText}`}>
-                                            Terjemahan Ayat {currentAyahNumber}:
-                                        </p>
-                                        <p className={`text-sm sm:text-base ${currentTheme.bodyText} italic leading-relaxed`}>
-                                            "{activeAyahData.text_indonesian}"
-                                        </p>
-                                    </div>
-                                )}
+                {/* Structured Pokok-Pokok Isi Cards */}
+                {filteredPoints.length > 0 && (
+                    <div className="mt-8 space-y-4">
+                        <div className="flex items-center justify-between gap-3 pb-2 border-b border-stone-300">
+                            <div className="flex items-center gap-2">
+                                <span className="flex items-center justify-center w-7 h-7 rounded-xl bg-amber-600 text-white text-xs font-bold shadow-xs">
+                                    ✨
+                                </span>
+                                <div>
+                                    <h3 className={`text-base sm:text-lg ${currentTheme.headingText}`}>
+                                        Pokok-Pokok Kandungan & Tema Utama
+                                    </h3>
+                                    <p className={`text-xs ${currentTheme.subText}`}>
+                                        Ringkasan tema dan bahasan penting dalam surah ini
+                                    </p>
+                                </div>
+                            </div>
+                            <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-stone-900 text-white shadow-2xs">
+                                {filteredPoints.length} Tema
+                            </span>
+                        </div>
 
-                                {/* Verse Tafsir Card */}
-                                <div className={`p-5 sm:p-7 rounded-2xl border ${currentTheme.cardBg}`}>
-                                    <div className="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-stone-200">
-                                        <div className="flex items-center gap-2">
-                                            <span className="flex items-center justify-center w-7 h-7 rounded-xl bg-emerald-800 text-white text-xs font-bold shadow-xs">
-                                                📜
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {filteredPoints.map((pt, idx) => (
+                                <div
+                                    key={`point-${idx}`}
+                                    className={`rounded-2xl p-5 sm:p-6 border border-l-4 transition-all duration-200 hover:shadow-md ${currentTheme.cardBg} ${pt.meta.border}`}
+                                >
+                                    <div className="flex items-center justify-between gap-2 mb-3.5">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <span className="flex items-center justify-center min-w-[28px] h-7 px-2 rounded-lg text-xs font-extrabold bg-stone-950 text-white shadow-2xs">
+                                                #{pt.number}
                                             </span>
-                                            <h4 className={`text-base ${currentTheme.headingText}`}>
-                                                Tafsir Ringkas Kemenag RI
-                                            </h4>
+                                            <span className="text-lg">{pt.meta.icon}</span>
+                                            <span className={`text-xs px-2.5 py-0.5 rounded-full border shadow-2xs ${pt.meta.badge}`}>
+                                                {pt.title || pt.meta.label}
+                                            </span>
                                         </div>
 
                                         <button
                                             type="button"
-                                            onClick={() => handleCopy(activeAyahData?.tafsir || 'Tafsir belum tersedia', 'ayah-tafsir-body')}
-                                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold border transition cursor-pointer ${currentTheme.copyBtn}`}
-                                            title="Salin teks tafsir"
+                                            onClick={() => handleCopy(`${pt.title ? pt.title + ':\n' : ''}${pt.content}`, `pt-${idx}`)}
+                                            className={`p-1.5 rounded-lg border transition cursor-pointer ${currentTheme.copyBtn}`}
+                                            title="Salin tema ini"
                                         >
-                                            {copiedKey === 'ayah-tafsir-body' ? (
-                                                <>
-                                                    <IoCheckmark className="w-4 h-4 text-emerald-600 font-bold" />
-                                                    <span className="text-emerald-700 font-bold">Tersalin!</span>
-                                                </>
+                                            {copiedKey === `pt-${idx}` ? (
+                                                <IoCheckmark className="w-4 h-4 text-emerald-600 font-bold" />
                                             ) : (
-                                                <>
-                                                    <IoCopyOutline className="w-3.5 h-3.5" />
-                                                    <span>Salin</span>
-                                                </>
+                                                <IoCopyOutline className="w-4 h-4" />
                                             )}
                                         </button>
                                     </div>
 
-                                    {activeAyahData?.tafsir ? (
-                                        <div className={`${fontSizeClasses} ${currentTheme.bodyText} leading-relaxed whitespace-pre-line`}>
-                                            {activeAyahData.tafsir}
-                                        </div>
-                                    ) : (
-                                        <p className={`${currentTheme.subText} italic py-4 text-center`}>
-                                            Tafsir untuk ayat {currentAyahNumber} belum tersedia.
-                                        </p>
-                                    )}
+                                    <p className={`${fontSizeClasses} ${currentTheme.bodyText} leading-relaxed`}>
+                                        {pt.content}
+                                    </p>
                                 </div>
-                            </div>
-                        ) : (
-                            <div className={`p-6 rounded-2xl border text-center ${currentTheme.cardBg}`}>
-                                <p className={`${currentTheme.subText} italic`}>
-                                    Pilih nomor ayat pada navigasi di atas untuk melihat tafsir ayat terkait.
-                                </p>
-                            </div>
-                        )}
+                            ))}
+                        </div>
                     </div>
                 )}
             </div>
@@ -660,7 +498,7 @@ const TafsirSurahSection = ({
             <div className={`px-6 py-4 border-t text-xs ${currentTheme.footerBg} flex flex-col sm:flex-row items-center justify-between gap-2`}>
                 <div className="flex items-center gap-1.5">
                     <IoInformationCircleOutline className="w-4 h-4 text-emerald-700" />
-                    <span>Tafsir bersumber dari Al-Qur'an dan Terjemahannya Kementerian Agama Republik Indonesia.</span>
+                    <span>Kandungan surah bersumber dari Al-Qur'an dan Terjemahannya Kementerian Agama Republik Indonesia.</span>
                 </div>
                 <div className="flex items-center gap-3">
                     <button

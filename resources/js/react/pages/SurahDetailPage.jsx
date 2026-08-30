@@ -3283,15 +3283,10 @@ function SurahDetailPage() {
                     />
                 </div>
 
-                {/* Rich Comprehensive Tafsir Section */}
+                {/* Kandungan & Intisari Surah Section */}
                 <TafsirSurahSection 
                     surah={surah}
-                    currentAyah={currentAyah}
-                    currentAyahNumber={currentAyahNumber}
                     maxAyahNumber={maxAyahNumber}
-                    ayahs={ayahs}
-                    onSelectAyah={(ayahNum) => navigateToAyah(ayahNum)}
-                    onShareAyah={shareAyah}
                     onShareSurah={shareSurah}
                 />
             </div>
