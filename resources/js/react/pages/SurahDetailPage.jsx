@@ -65,10 +65,9 @@ const WhatsAppIcon = ({ className }) => (
 
 // Convert English numerals to Arabic-Indic numerals
 const convertToArabicNumerals = (num) => {
+    if (num === null || num === undefined) return '';
     const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-    const result = num.toString().replace(/[0-9]/g, (digit) => arabicNumerals[parseInt(digit)]);
-    console.log(`🔢 Converting ${num} to Arabic numerals: ${result}`);
-    return result;
+    return num.toString().replace(/[0-9]/g, (digit) => arabicNumerals[parseInt(digit, 10)]);
 };
 
 const looksLikeEnglishTranslation = (text) => {
@@ -2354,8 +2353,10 @@ function SurahDetailPage() {
                                                 fontFamily: "'AlQuran-IndoPak', 'Scheherazade New', 'Scheherazade', 'Amiri', 'Traditional Arabic', serif"
                                             }}
                                         >
+                                            {currentAyah.text_arabic}
                                             <span 
-                                                className="font-bold text-white select-none inline-flex items-center justify-center ml-3.5 shadow-md transition-transform hover:scale-105"
+                                                className="font-bold text-white select-none inline-flex items-center justify-center mr-3.5 shadow-md transition-transform hover:scale-105"
+                                                dir="ltr"
                                                 style={{ 
                                                     fontSize: `${Math.max(fontSize - 4, 18)}px`,
                                                     fontFamily: "'Scheherazade New', 'Scheherazade', 'Amiri', 'Traditional Arabic', serif",
@@ -2368,13 +2369,13 @@ function SurahDetailPage() {
                                                     border: '3px solid white',
                                                     boxShadow: '0 4px 12px rgba(5, 150, 105, 0.35), 0 0 0 2px rgba(34, 197, 94, 0.3)',
                                                     verticalAlign: 'middle',
-                                                    direction: 'rtl'
+                                                    direction: 'ltr',
+                                                    unicodeBidi: 'isolate'
                                                 }}
                                                 title={`Ayat ${currentAyahNumber} (${convertToArabicNumerals(currentAyahNumber)})`}
                                             >
                                                 {convertToArabicNumerals(currentAyahNumber)}
                                             </span>
-                                            {currentAyah.text_arabic}
                                         </p>
                                     </div>
                                 </div>
