@@ -1354,7 +1354,7 @@ function QuranHomePage() {
 
                             {/* Sticky Sidebar AdSense Unit (Detik.com Pattern) */}
                             <AdSenseVertical 
-                                adSlot="9427110099"
+                                adSlot="9021708920"
                                 labelText="IKLAN"
                                 minHeight="280px"
                                 isSticky={false}

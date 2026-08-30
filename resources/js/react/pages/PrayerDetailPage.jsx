@@ -582,7 +582,7 @@ const PrayerDetailPage = () => {
                         <aside className="lg:col-span-4 space-y-6">
                             {/* Sticky Sidebar AdSense Unit (Detik.com Pattern) */}
                             <AdSenseVertical 
-                                adSlot="9427110099"
+                                adSlot="9021708920"
                                 labelText="IKLAN"
                                 minHeight="250px"
                                 isSticky={false}

@@ -408,7 +408,7 @@ const ArticleDetailPage = () => {
               <div className="sticky top-24 space-y-6">
                 {/* Vertical Sticky AdSense Unit */}
                 <AdSenseVertical 
-                  adSlot="9427110099"
+                  adSlot="9021708920"
                   labelText="IKLAN"
                   minHeight="300px"
                   isSticky={false}

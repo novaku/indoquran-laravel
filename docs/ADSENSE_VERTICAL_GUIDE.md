@@ -1,10 +1,46 @@
 # Panduan Implementasi Google AdSense Vertikal di IndoQuran
 
-## 📋 Overview
+## 📋 Ringkasan
 
-Dokumentasi ini menjelaskan cara menggunakan komponen `AdSenseVertical` untuk menampilkan iklan Google AdSense vertikal di berbagai halaman IndoQuran.
+Dokumentasi ini menjelaskan konfigurasi dan penggunaan komponen iklan vertikal/sidebar Google AdSense (`AdSenseVertical`) serta unit AMP di seluruh kode aplikasi IndoQuran. Format penempatan ini mengadopsi standar portal berita modern (**Detik.com**) dengan frame minimalis, label `"IKLAN"`, pencegahan pergeseran tata letak (Zero-CLS), dan dukungan mode gelap (*Dark Mode*).
 
-## 🎯 Komponen AdSenseVertical
+---
+
+## 🎯 Konfigurasi Iklan Vertikal Resmi
+
+### 1. Snippet Standar Web (React SPA)
+
+```html
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9994842285785390"
+     crossorigin="anonymous"></script>
+<!-- iklan-vertikal -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9994842285785390"
+     data-ad-slot="9021708920"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+```
+
+### 2. Snippet AMP (Accelerated Mobile Pages)
+
+```html
+<amp-ad width="100vw" height="320"
+     type="adsense"
+     data-ad-client="ca-pub-9994842285785390"
+     data-ad-slot="9021708920"
+     data-auto-format="rspv"
+     data-full-width="">
+  <div overflow=""></div>
+</amp-ad>
+```
+
+---
+
+## 🧩 Komponen `AdSenseVertical`
 
 ### Lokasi File
 ```
@@ -14,325 +50,109 @@ resources/js/react/components/AdSenseVertical.jsx
 ### Props yang Tersedia
 
 | Prop | Type | Default | Deskripsi |
-|------|------|---------|-----------|
-| `adSlot` | string | `'9427110099'` | ID slot iklan dari Google AdSense |
-| `adClient` | string | `'ca-pub-9994842285785390'` | Publisher ID Google AdSense |
-| `adFormat` | string | `'autorelaxed'` | Format iklan (`'auto'`, `'autorelaxed'`, `'rectangle'`, dll) |
-| `fullWidth` | boolean | `true` | Responsive full-width |
-| `style` | object | `{}` | Custom CSS styles |
-| `className` | string | `''` | Custom CSS classes |
-
-### Contoh Penggunaan Dasar
-
-```jsx
-import AdSenseVertical from '../components/AdSenseVertical';
-
-function MyPage() {
-    return (
-        <div>
-            <AdSenseVertical 
-                adSlot="9427110099"
-                adFormat="autorelaxed"
-                fullWidth={true}
-            />
-        </div>
-    );
-}
-```
-
-## 📐 Layout Patterns
-
-### Pattern 1: Sidebar Layout (Recommended untuk Desktop)
-
-Gunakan untuk halaman dengan konten utama di kiri dan sidebar di kanan.
-
-```jsx
-<div className="max-w-7xl mx-auto px-4 py-12">
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Main Content - 8 kolom */}
-        <main className="lg:col-span-8">
-            {/* Konten utama di sini */}
-        </main>
-
-        {/* Sidebar - 4 kolom */}
-        <aside className="lg:col-span-4">
-            <div className="sticky top-4 space-y-6">
-                {/* Iklan Vertikal */}
-                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                    <div className="text-xs text-center text-gray-400 py-2 border-b border-gray-100">
-                        Iklan
-                    </div>
-                    <AdSenseVertical
-                        adSlot="9427110099"
-                        className="min-h-[600px]"
-                    />
-                </div>
-
-                {/* Widget lain */}
-                <div className="bg-white rounded-lg shadow-sm p-4">
-                    {/* Informasi tambahan */}
-                </div>
-            </div>
-        </aside>
-    </div>
-</div>
-```
-
-### Pattern 2: In-Content Placement
-
-Untuk menempatkan iklan di antara konten.
-
-```jsx
-<div className="space-y-8">
-    {/* Konten bagian 1 */}
-    <div>...</div>
-
-    {/* Iklan In-Content */}
-    <div className="my-8">
-        <div className="text-xs text-center text-gray-400 mb-2">
-            Iklan
-        </div>
-        <AdSenseVertical
-            adSlot="9427110099"
-            adFormat="autorelaxed"
-            className="min-h-[250px]"
-        />
-    </div>
-
-    {/* Konten bagian 2 */}
-    <div>...</div>
-</div>
-```
-
-### Pattern 3: Multiple Ads in Sidebar
-
-Untuk sidebar dengan beberapa unit iklan (hati-hati dengan ad density).
-
-```jsx
-<aside className="lg:col-span-4">
-    <div className="sticky top-4 space-y-6">
-        {/* Iklan #1 */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <div className="text-xs text-center text-gray-400 py-2 border-b">
-                Iklan
-            </div>
-            <AdSenseVertical
-                adSlot="9427110099"
-                className="min-h-[600px]"
-            />
-        </div>
-
-        {/* Widget atau konten */}
-        <div className="bg-white rounded-lg shadow-sm p-4">
-            <h3 className="font-semibold mb-3">Informasi</h3>
-            {/* ... */}
-        </div>
-
-        {/* Iklan #2 (opsional) */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <div className="text-xs text-center text-gray-400 py-2 border-b">
-                Iklan
-            </div>
-            <AdSenseVertical
-                adSlot="9427110099"
-                className="min-h-[300px]"
-            />
-        </div>
-    </div>
-</aside>
-```
-
-## 🎨 Styling Best Practices
-
-### Styling Container
-
-```jsx
-<div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
-    <div className="text-xs text-center text-gray-400 py-2 border-b border-gray-100 bg-gray-50">
-        Iklan
-    </div>
-    <AdSenseVertical
-        adSlot="9427110099"
-        className="min-h-[600px]"
-    />
-</div>
-```
-
-### Custom Styling dengan Props
-
-```jsx
-<AdSenseVertical
-    adSlot="9427110099"
-    style={{
-        minHeight: '600px',
-        backgroundColor: '#f9fafb',
-        borderRadius: '8px'
-    }}
-    className="my-custom-class"
-/>
-```
-
-## 📱 Responsive Considerations
-
-### Hide on Mobile (Recommended untuk Sidebar Ads)
-
-```jsx
-<aside className="hidden lg:block lg:col-span-4">
-    {/* Iklan hanya tampil di desktop */}
-    <AdSenseVertical />
-</aside>
-```
-
-### Different Layouts for Mobile/Desktop
-
-```jsx
-{/* Mobile - In-content */}
-<div className="lg:hidden my-6">
-    <AdSenseVertical
-        adFormat="autorelaxed"
-        className="min-h-[250px]"
-    />
-</div>
-
-{/* Desktop - Sidebar */}
-<aside className="hidden lg:block lg:col-span-4">
-    <AdSenseVertical
-        adFormat="autorelaxed"
-        className="min-h-[600px]"
-    />
-</aside>
-```
-
-## ⚠️ Google AdSense Policy Guidelines
-
-### 1. Ad Density (Kepadatan Iklan)
-- **Maximum:** 3 unit iklan per halaman untuk konten pendek
-- **Recommended:** 1-2 unit iklan per layar viewport
-- **Jangan:** Tempatkan terlalu banyak iklan yang mengalahkan konten
-
-### 2. Ad Placement (Penempatan Iklan)
-- ✅ **Allowed:** Sidebar, in-content (setelah beberapa paragraf), footer
-- ❌ **Not Allowed:** Di atas fold tanpa konten, menghalangi navigasi, popup
-- ⚠️ **Careful:** Jangan tempatkan terlalu dekat dengan elemen interaktif
-
-### 3. User Experience
-- Iklan harus diberi label "Iklan" atau "Advertisement"
-- Jangan manipulasi user untuk klik iklan
-- Jangan tempatkan iklan yang mengganggu pembacaan
-- Pastikan konten tetap menjadi fokus utama
-
-### 4. Content Requirements
-- Konten harus original dan berkualitas
-- Minimal 300 kata per halaman
-- Konten harus informatif dan bernilai
-
-## 🔧 Troubleshooting
-
-### Iklan Tidak Muncul
-
-1. **Check AdSense Script Loading**
-```javascript
-// Di browser console
-console.log(window.adsbygoogle);
-// Should not be undefined
-```
-
-2. **Check Ad Unit ID**
-- Pastikan `adSlot` sesuai dengan yang di AdSense dashboard
-- Format: `'9427110099'` (string, bukan number)
-
-3. **Check Publisher ID**
-- Pastikan `adClient` benar: `'ca-pub-9994842285785390'`
-
-4. **Ads.txt File**
-```bash
-curl https://indoquran.web.id/ads.txt
-# Should return: google.com, pub-9994842285785390, DIRECT, f08c47fec0942fa0
-```
-
-### Iklan Tampil Tapi Kosong
-
-Ini normal dan bisa disebabkan oleh:
-- Google masih menganalisa konten
-- Tidak ada advertiser yang cocok
-- User menggunakan Ad Blocker
-- Testing di localhost (ads tidak muncul di development)
-
-### Performance Issues
-
-```jsx
-// Use lazy loading untuk iklan di bawah fold
-import { lazy, Suspense } from 'react';
-
-const AdSenseVertical = lazy(() => import('../components/AdSenseVertical'));
-
-function MyPage() {
-    return (
-        <Suspense fallback={<div className="h-[600px] bg-gray-100 animate-pulse" />}>
-            <AdSenseVertical />
-        </Suspense>
-    );
-}
-```
-
-## 📊 Monitoring & Optimization
-
-### 1. Track Ad Performance
-- Monitor di Google AdSense dashboard
-- Check CTR (Click-Through Rate)
-- Monitor RPM (Revenue Per Mille)
-- Analyze user behavior dengan Google Analytics
-
-### 2. A/B Testing Placements
-- Test different ad positions
-- Compare revenue between layouts
-- Monitor user engagement metrics
-
-### 3. Optimize for Mobile
-- Use responsive ad units
-- Test on different screen sizes
-- Monitor mobile vs desktop performance
-
-## 📝 Halaman yang Sudah Diintegrasikan
-
-### ✅ QuranHomePage
-- Sidebar layout dengan 2 unit iklan vertikal
-- Sticky positioning untuk desktop
-- Hidden pada mobile
-
-### ⏳ Pending Integration
-- SurahDetailPage (complex layout)
-- JuzPage
-- HalamanPage
-- ArtikelPage
-- TafsirMaudhuiPage
-
-## 🚀 Next Steps
-
-1. **Test di Production**
-```bash
-./deploy-production.sh
-```
-
-2. **Monitor AdSense Dashboard**
-- Wait 24-48 hours untuk ads approval
-- Check ad serving status
-- Monitor earnings
-
-3. **Optimize Based on Data**
-- Review performance metrics
-- Adjust ad placements
-- Test different ad formats
-
-## 📚 Resources
-
-- [Google AdSense Help](https://support.google.com/adsense)
-- [Ad Placement Policies](https://support.google.com/adsense/answer/1346295)
-- [Better Ads Standards](https://www.betterads.org/standards/)
-- [AdSense Program Policies](https://support.google.com/adsense/answer/48182)
+| :--- | :--- | :--- | :--- |
+| `adSlot` | `string` | `'9021708920'` | ID slot unit iklan vertikal dari Google AdSense |
+| `adClient` | `string` | `'ca-pub-9994842285785390'` | Publisher ID Google AdSense |
+| `adFormat` | `string` | `'auto'` | Format responsive iklan (`'auto'`, `'rectangle'`, dll) |
+| `showLabel` | `boolean` | `true` | Menampilkan label penanda `"IKLAN"` |
+| `labelText` | `string` | `'IKLAN'` | Teks label penanda unit iklan |
+| `isSticky` | `boolean` | `false` | Menempel pada posisi sticky saat scroll di desktop |
+| `minHeight` | `string` | `'250px'` | Tinggi minimum wadah iklan untuk Zero-CLS |
+| `className` | `string` | `''` | Custom kelas CSS Tailwind tambahan |
+| `style` | `object` | `{}` | Inline CSS styles tambahan |
 
 ---
 
-**Last Updated:** November 8, 2025  
-**Component Version:** 1.0.0  
-**AdSense Publisher ID:** ca-pub-9994842285785390
+## 📐 Contoh Penggunaan & Layout Patterns
+
+### Pattern 1: Sidebar Sticky 2-Kolom (Standar Detik.com pada Desktop)
+
+Digunakan pada halaman detail artikel ([ArticleDetailPage.jsx](file:///Users/novaherdi/Documents/GitHub/indoquran-laravel/resources/js/react/pages/ArticleDetailPage.jsx)), beranda ([QuranHomePage.jsx](file:///Users/novaherdi/Documents/GitHub/indoquran-laravel/resources/js/react/pages/QuranHomePage.jsx)), dan detail doa ([PrayerDetailPage.jsx](file:///Users/novaherdi/Documents/GitHub/indoquran-laravel/resources/js/react/pages/PrayerDetailPage.jsx)):
+
+```jsx
+import React from 'react';
+import AdSenseVertical from '../components/AdSenseVertical';
+
+function ArticlePageLayout() {
+    return (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
+                {/* Kolom Konten Utama (8 Kolom di Layar Besar) */}
+                <main className="lg:col-span-8">
+                    {/* Isi konten artikel atau ayat */}
+                </main>
+
+                {/* Kolom Sidebar (4 Kolom di Layar Besar) */}
+                <aside className="lg:col-span-4 space-y-6">
+                    <div className="sticky top-24 space-y-6">
+                        {/* Unit Iklan Vertikal Sidebar */}
+                        <AdSenseVertical 
+                            adSlot="9021708920"
+                            labelText="IKLAN"
+                            minHeight="300px"
+                            isSticky={false}
+                        />
+
+                        {/* Widget Rekomendasi / Baca Juga */}
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-200/90 dark:border-gray-800 shadow-2xs">
+                            <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-4">
+                                Baca Juga
+                            </h3>
+                            {/* Daftar artikel terkait */}
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    );
+}
+```
+
+### Pattern 2: Template Blade AMP
+
+Penerapan pada template AMP Laravel Blade ([resources/views/amp/surah.blade.php](file:///Users/novaherdi/Documents/GitHub/indoquran-laravel/resources/views/amp/surah.blade.php)):
+
+```blade
+<div class="ad-container" style="margin: 1.5rem 0; text-align: center; border-top: 1px solid #f3f4f6; border-bottom: 1px solid #f3f4f6; padding: 12px 0;">
+    <div style="font-size: 9px; text-transform: uppercase; color: #9ca3af; margin-bottom: 4px; letter-spacing: 1.5px; font-weight: bold;">
+        IKLAN REKOMENDASI
+    </div>
+    <amp-ad width="100vw" height="320"
+        type="adsense"
+        data-ad-client="ca-pub-9994842285785390"
+        data-ad-slot="9021708920"
+        data-auto-format="rspv"
+        data-full-width="">
+        <div overflow=""></div>
+    </amp-ad>
+</div>
+```
+
+---
+
+## 🎨 Best Practices & Kepatuhan Kebijakan
+
+1. **Zero Cumulative Layout Shift (Zero-CLS)**:
+   - Setiap container `AdSenseVertical` membungkus unit iklan dengan `min-height` tetap (misal `minHeight="280px"` atau `"300px"`) agar tidak terjadi pergeseran konten mendadak saat skrip AdSense selesai merender elemen iframe.
+2. **SPA Safe Push Lifecycle**:
+   - Komponen memeriksa `isPushedRef` dan atribut `data-adsbygoogle-status` sebelum memanggil `window.adsbygoogle.push({})` untuk mencegah kesalahan duplikasi push saat navigasi halaman SPA React.
+3. **Pemberian Label Transparan**:
+   - Menampilkan label `"IKLAN"` atau `"IKLAN REKOMENDASI"` dengan styling subtil di bagian atas unit frame.
+4. **Dukungan Dark Mode**:
+   - Frame otomatis menyesuaikan warna latar (`bg-white` ke `dark:bg-gray-900`) dan border (`border-gray-200/80` ke `dark:border-gray-800`).
+
+---
+
+## 📌 Status Integrasi di IndoQuran
+
+- ✅ **QuranHomePage.jsx**: Sidebar utama beranda (`adSlot="9021708920"`).
+- ✅ **ArticleDetailPage.jsx**: Sidebar sticky detail artikel (`adSlot="9021708920"`).
+- ✅ **PrayerDetailPage.jsx**: Sidebar detail doa bersama (`adSlot="9021708920"`).
+- ✅ **resources/views/amp/surah.blade.php**: In-between ayat dan bottom ad unit (`data-ad-slot="9021708920"`).
+
+---
+
+**Terakhir Diperbarui:** 30 Agustus 2026  
+**Versi Komponen:** 2.21.0  
+**Slot ID Vertikal:** `9021708920`  
+**Publisher ID:** `ca-pub-9994842285785390`

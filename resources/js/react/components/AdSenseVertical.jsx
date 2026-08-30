@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
  * Komponen untuk menampilkan iklan Google AdSense vertikal / sidebar (skyscrapers / medium rectangle)
  * Mengadopsi format sidebar detik.com dengan label "IKLAN", border halus, dan dukungan dark mode.
  * 
- * @param {string} adSlot - Ad slot ID dari Google AdSense (default: 9427110099)
+ * @param {string} adSlot - Ad slot ID dari Google AdSense (default: 9021708920)
  * @param {string} adClient - Ad client ID dari Google AdSense
  * @param {string} adFormat - Format iklan (default: 'auto')
  * @param {string} className - Additional CSS classes
@@ -18,7 +18,7 @@ import PropTypes from 'prop-types';
  * @param {string} minHeight - Min height container (default: '250px')
  */
 const AdSenseVertical = ({ 
-    adSlot = '9427110099',
+    adSlot = '9021708920',
     adClient = 'ca-pub-9994842285785390',
     adFormat = 'auto',
     style = {},

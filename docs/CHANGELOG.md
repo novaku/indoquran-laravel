@@ -1,5 +1,40 @@
 # 📝 IndoQuran Changelog
 
+## 🏷️ Version 2.21.0 - Optimasi Iklan Standar Detik.com & Responsive AdSense
+**Release Date:** 30 Agustus 2026  
+**Type:** Feature & UI/UX / Ad Optimization  
+**Impact:** High - Standardisasi penempatan Google AdSense di seluruh 24 halaman web & AMP IndoQuran
+
+- **Billboard / Top Leaderboard Ads (`AdSenseLeaderboard`)**: Banner iklan resolusi penuh di bagian atas halaman dengan label minimalis `IKLAN` dan penanganan Zero-CLS min-height.
+- **In-Article & In-Content Ads (`AdSenseInline`)**: Integrasi iklan sisipan otomatis di tengah-tengah alur bacaan artikel (`/artikel/:slug`) dan ayat surah (`/surah/:id`) mengadopsi format detik.com.
+- **Desktop Sticky Sidebar Ads (`AdSenseVertical`)**: Tata letak 2 kolom desktop pada halaman artikel, beranda, dan detail doa dengan kolom kanan sticky menggunakan slot `9021708920`.
+- **In-Feed Native Grid Ads (`AdSenseInFeed`)**: Penempatan kartu iklan menyatu secara harmonis di dalam grid katalog (Surah, Artikel, Doa, Asmaul Husna, Pencarian).
+- **AMP Ad Unit Optimization**: Pembaruan unit iklan AMP dengan slot `9021708920` dan auto-format responsive.
+
+---
+
+## 🏷️ Version 2.20.0 - Mushaf Lokal Standar Kemenag RI & Auto-Scroll Navigasi
+**Release Date:** 29 Agustus 2026  
+**Type:** Feature & Performance  
+**Impact:** High - Penyimpanan lokal 604 gambar mushaf WebP beresolusi tinggi dan navigasi auto-scroll
+
+- **Penyimpanan Lokal 604 Gambar Mushaf Kemenag RI**: Gambar WebP modern tersimpan di `/images/quran-pages/QK_*.webp` untuk akses cepat tanpa ketergantungan CDN eksternal.
+- **Auto-Scroll to Top Instan**: Navigasi halaman mushaf via pagination dan dropdown otomatis scroll ke bagian teratas.
+- **Pembersihan Box CDN Detail Surah**: Menghapus kotak tampilan CDN pada halaman `/surah/:id` untuk tampilan lebih bersih.
+
+---
+
+## 🏷️ Version 2.19.0 - Jadwal Sholat Realtime, Navigasi Mushaf & Detail Doa
+**Release Date:** 29 Agustus 2026  
+**Type:** Feature & UI  
+**Impact:** High - Widget jadwal sholat GPS realtime, modular mushaf navigation, dan halaman detail doa
+
+- **Jadwal Sholat Realtime & Countdown**: Widget jadwal sholat 5 waktu otomatis berdasarkan lokasi GPS pengguna dengan offline fallback.
+- **Halaman Detail Doa & Dzikir (`/doa/:slug`)**: Teks Arab berharakat, transliterasi Latin, terjemahan, faedah hadits, audio player, dan Schema.org JSON-LD.
+- **Ekspansi Tafsir Maudhui**: Penambahan 8 topik tematik baru di database.
+
+---
+
 ## 🏷️ Version 2.11.4 - Canonical URL Fix (Google Search Console)
 **Release Date:** November 7, 2025  
 **Type:** SEO Bug Fix / Critical  

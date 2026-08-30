@@ -1,238 +1,199 @@
-# Template Penambahan AdSense Sidebar ke Halaman
+# Template Integrasi Google AdSense IndoQuran (Standar Detik.com)
 
-## 🎯 Quick Reference
+## 🎯 Ringkasan
 
-Untuk menambahkan sidebar dengan iklan ke halaman yang sudah ada, ikuti template di bawah ini.
+Dokumentasi ini adalah template acuan baku untuk penempatan periklanan Google AdSense di platform IndoQuran yang mengadopsi standar portal berita modern (**Detik.com**).
 
-## 📋 Template Sidebar dengan Iklan
+---
 
-### 1. Import AdSenseVertical (✅ SUDAH DILAKUKAN)
+## 📦 Komponen AdSense yang Tersedia
 
-Import sudah ditambahkan ke semua file berikut:
-- ✅ ArticlesPage.jsx
-- ✅ ArticleDetailPage.jsx  
-- ✅ AsmaulHusnaPage.jsx
-- ✅ TafsirMaudhuiPage.jsx
-- ✅ QuranSearchPage.jsx
-- ✅ AboutProjectPage.jsx
-- ✅ PrivacyPage.jsx
-- ✅ PrayerPage.jsx
-- ✅ JuzIndexPage.jsx
-- ✅ JuzPage.jsx
-- ✅ SurahListPage.jsx
-- ✅ SurahDetailPage.jsx (import only)
-- ✅ QuranHomePage.jsx
+| Komponen | Kegunaan & Tipe | Default Slot | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `AdSenseLeaderboard.jsx` | **Top Billboard** | `1519827772` | Banner horizontal atas (Zero-CLS, min-h 90px, label `"IKLAN"`). |
+| `AdSenseVertical.jsx` | **Sticky Sidebar** | `9021708920` | Skyscraper / medium rectangle di sidebar desktop. |
+| `AdSenseInline.jsx` | **In-Article / In-Content** | `1519827772` | Sisipan iklan di tengah alur teks atau paragraf artikel. |
+| `AdSenseInFeed.jsx` | **In-Feed Card Grid** | `1519827772` | Unit iklan menyerupai kartu katalog di sela grid item. |
+| `AdSenseHorizontal.jsx` | **Break Banner** | `1519827772` | Banner pemisah konten responsif di tengah atau bawah. |
 
-### 2. Ubah Layout Menjadi Grid
+---
 
-**SEBELUM:**
+## 📋 Pola Integrasi & Template Kode
+
+### 1. Template Top Billboard (`AdSenseLeaderboard`)
+
+Letakkan tepat di atas konten utama atau setelah header halaman:
+
 ```jsx
-<PageContent size="xl">
-    <Card>
-        {/* Konten utama */}
-    </Card>
-</PageContent>
-```
+import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 
-**SESUDAH:**
-```jsx
-<PageContent size="xl">
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Main Content - 8 kolom */}
-        <div className="lg:col-span-8">
-            <Card>
-                {/* Konten utama */}
-            </Card>
+function MyPage() {
+    return (
+        <div>
+            {/* Top Billboard Ad (Detik.com Pattern) */}
+            <AdSenseLeaderboard 
+                maxWidth="max-w-7xl"
+                labelText="IKLAN"
+            />
+
+            {/* Konten Halaman */}
         </div>
-
-        {/* Sidebar - 4 kolom */}
-        <aside className="lg:col-span-4">
-            <div className="sticky top-4 space-y-6">
-                {/* Iklan Vertikal */}
-                <Card padding="none">
-                    <div className="text-xs text-center text-gray-400 py-2 border-b border-gray-100">
-                        Iklan
-                    </div>
-                    <AdSenseVertical
-                        adSlot="9427110099"
-                        className="min-h-[600px]"
-                    />
-                </Card>
-
-                {/* Info Box (Optional) */}
-                <Card>
-                    <h3 className="font-semibold text-gray-900 mb-3">Info</h3>
-                    <div className="space-y-2 text-sm text-gray-600">
-                        {/* Custom content */}
-                    </div>
-                </Card>
-            </div>
-        </aside>
-    </div>
-</PageContent>
-```
-
-### 3. Untuk Halaman Tanpa PageContent
-
-**SEBELUM:**
-```jsx
-<div className="max-w-5xl mx-auto px-4 py-8">
-    <div className="space-y-6">
-        {/* Konten */}
-    </div>
-</div>
-```
-
-**SESUDAH:**
-```jsx
-<div className="max-w-7xl mx-auto px-4 py-8">
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Main Content */}
-        <main className="lg:col-span-8">
-            <div className="space-y-6">
-                {/* Konten */}
-            </div>
-        </main>
-
-        {/* Sidebar */}
-        <aside className="lg:col-span-4">
-            <div className="sticky top-4 space-y-6">
-                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                    <div className="text-xs text-center text-gray-400 py-2 border-b border-gray-100">
-                        Iklan
-                    </div>
-                    <AdSenseVertical
-                        adSlot="9427110099"
-                        className="min-h-[600px]"
-                    />
-                </div>
-            </div>
-        </aside>
-    </div>
-</div>
-```
-
-## 📝 Halaman yang Sudah Diintegrasikan
-
-### ✅ Fully Integrated (dengan sidebar)
-1. **QuranHomePage.jsx** - Sidebar dengan 2 iklan + info box
-2. **SurahListPage.jsx** - Sidebar dengan iklan + info Al-Quran
-
-### 🔧 Import Added (perlu layout integration)
-3. **JuzPage.jsx** - Import ✅ | Layout ⏳
-4. **ArticlesPage.jsx** - Import ✅ | Layout ⏳
-5. **ArticleDetailPage.jsx** - Import ✅ | Layout ⏳
-6. **AsmaulHusnaPage.jsx** - Import ✅ | Layout ⏳
-7. **TafsirMaudhuiPage.jsx** - Import ✅ | Layout ⏳
-8. **QuranSearchPage.jsx** - Import ✅ | Layout ⏳
-9. **AboutProjectPage.jsx** - Import ✅ | Layout ⏳
-10. **PrivacyPage.jsx** - Import ✅ | Layout ⏳
-11. **PrayerPage.jsx** - Import ✅ | Layout ⏳
-12. **JuzIndexPage.jsx** - Import ✅ | Layout ⏳
-
-## 🎨 Variasi Info Box untuk Sidebar
-
-### Untuk Halaman Artikel
-```jsx
-<Card>
-    <h3 className="font-semibold text-gray-900 mb-3">Artikel Terbaru</h3>
-    <div className="space-y-2 text-sm">
-        {/* List artikel */}
-    </div>
-</Card>
-```
-
-### Untuk Halaman Asmaul Husna
-```jsx
-<Card>
-    <h3 className="font-semibold text-gray-900 mb-3">Tentang Asmaul Husna</h3>
-    <div className="space-y-2 text-sm text-gray-600">
-        <p>⭐ 99 Nama Allah SWT</p>
-        <p>📖 Lengkap dengan arti</p>
-        <p>🎧 Audio dalam bahasa Arab</p>
-    </div>
-</Card>
-```
-
-### Untuk Halaman Tafsir
-```jsx
-<Card>
-    <h3 className="font-semibold text-gray-900 mb-3">Tafsir Tematik</h3>
-    <div className="space-y-2 text-sm text-gray-600">
-        <p>📚 Tafsir berdasarkan tema</p>
-        <p>🔍 Mudah dipahami</p>
-        <p>💡 Penjelasan lengkap</p>
-    </div>
-</Card>
-```
-
-## ⚡ Quick Implementation Checklist
-
-Untuk setiap halaman:
-
-- [ ] Import AdSenseVertical (DONE via script)
-- [ ] Cari wrapper div/PageContent
-- [ ] Ubah max-w dari `5xl` ke `7xl` (jika ada)
-- [ ] Wrap content dalam grid 12 kolom
-- [ ] Main content gunakan `lg:col-span-8`
-- [ ] Tambahkan sidebar `lg:col-span-4`
-- [ ] Add sticky positioning pada sidebar
-- [ ] Add AdSenseVertical component
-- [ ] (Optional) Add info box
-- [ ] Test responsive di mobile dan desktop
-
-## 🚀 Priority Order
-
-Berdasarkan traffic dan importance:
-
-1. ✅ **QuranHomePage** - DONE
-2. ✅ **SurahListPage** - DONE  
-3. ⏳ **SurahDetailPage** - Complex, needs careful integration
-4. ⏳ **ArticleDetailPage** - High traffic potential
-5. ⏳ **QuranSearchPage** - High engagement
-6. ⏳ **ArticlesPage** - Medium traffic
-7. ⏳ **AsmaulHusnaPage** - Popular feature
-8. ⏳ **TafsirMaudhuiPage** - Educational content
-9. ⏳ **JuzPage** - Reading feature
-10. ⏳ **JuzIndexPage** - Navigation
-11. ⏳ **PrayerPage** - Utility page
-12. ⏳ **AboutProjectPage** - Info page
-13. ⏳ **PrivacyPage** - Legal page
-
-## 💡 Tips & Best Practices
-
-### Mobile Experience
-- Sidebar otomatis hidden di mobile dengan `lg:col-span-4`
-- Konten tetap full-width di mobile
-- User mobile tidak terganggu dengan iklan
-
-### Performance
-- `sticky top-4` untuk sidebar agar iklan tetap terlihat
-- `min-h-[600px]` untuk iklan vertikal optimal
-- Lazy loading sudah di-handle oleh AdSenseVertical component
-
-### Ad Density
-- 1-2 iklan per halaman (SAFE)
-- Jangan lebih dari 3 unit per halaman
-- Pastikan konten lebih dominan dari iklan
-
-### Testing
-```bash
-# Run development server
-./dev-env.sh
-
-# Access pages:
-# http://localhost:8000/surah
-# http://localhost:8000/artikel
-# http://localhost:8000/asmaul-husna
-# etc.
-
-# Note: Ads won't show in development
-# Deploy to production to see actual ads
+    );
+}
 ```
 
 ---
 
-**Status:** Import added to all priority pages ✅  
-**Next:** Manual layout integration for each page ⏳  
-**ETA:** Can be done incrementally, high-priority pages first
+### 2. Template Layout 2-Kolom dengan Sticky Sidebar (`AdSenseVertical`)
+
+Gunakan untuk halaman berbasis artikel atau halaman berfitur yang memiliki kolom sidebar (8 kolom konten : 4 kolom sidebar):
+
+```jsx
+import AdSenseVertical from '../components/AdSenseVertical';
+
+function ContentWithSidebarPage() {
+    return (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
+                
+                {/* Kolom Konten Utama (8 Kolom) */}
+                <main className="lg:col-span-8">
+                    {/* Konten utama */}
+                </main>
+
+                {/* Kolom Sidebar (4 Kolom) */}
+                <aside className="lg:col-span-4 space-y-6">
+                    <div className="sticky top-24 space-y-6">
+                        {/* Unit Iklan Vertikal Sidebar */}
+                        <AdSenseVertical 
+                            adSlot="9021708920"
+                            labelText="IKLAN"
+                            minHeight="300px"
+                            isSticky={false}
+                        />
+
+                        {/* Widget Rekomendasi / Informasi */}
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-200/90 dark:border-gray-800 shadow-2xs">
+                            <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-3">
+                                Info Tambahan
+                            </h3>
+                            {/* Isi widget */}
+                        </div>
+                    </div>
+                </aside>
+
+            </div>
+        </div>
+    );
+}
+```
+
+---
+
+### 3. Template In-Feed Native Ads pada Card Grid (`AdSenseInFeed`)
+
+Gunakan di dalam perulangan daftar grid kartu katalog (misal di sela item ke-6):
+
+```jsx
+import React from 'react';
+import AdSenseInFeed from '../components/AdSenseInFeed';
+
+function ItemGridPage({ items }) {
+    return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {items.map((item, index) => (
+                <React.Fragment key={item.id}>
+                    {/* Sisipan Iklan In-Feed di Posisi Tertentu */}
+                    {index === 5 && (
+                        <div className="sm:col-span-2 md:col-span-3 lg:col-span-4 my-2">
+                            <AdSenseInFeed 
+                                adSlot="1519827772"
+                                labelText="IKLAN REKOMENDASI"
+                                minHeight="140px"
+                            />
+                        </div>
+                    )}
+
+                    {/* Kartu Item Biasa */}
+                    <div className="p-4 rounded-xl bg-white border">
+                        {item.title}
+                    </div>
+                </React.Fragment>
+            ))}
+        </div>
+    );
+}
+```
+
+---
+
+### 4. Template In-Article Sisipan Konten (`AdSenseInline`)
+
+Gunakan untuk menyisipkan iklan di tengah alur alinea artikel:
+
+```jsx
+import AdSenseInline from '../components/AdSenseInline';
+
+function ArticleContent({ htmlContent }) {
+    const paragraphs = htmlContent.split('</p>');
+    
+    if (paragraphs.length <= 2) {
+        return (
+            <div className="space-y-6">
+                <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+                <AdSenseInline labelText="IKLAN" />
+            </div>
+        );
+    }
+
+    const firstHalf = paragraphs.slice(0, 2).join('</p>') + (paragraphs[1] ? '</p>' : '');
+    const secondHalf = paragraphs.slice(2).join('</p>');
+
+    return (
+        <div className="space-y-6">
+            <div dangerouslySetInnerHTML={{ __html: firstHalf }} />
+            <AdSenseInline labelText="IKLAN" />
+            <div dangerouslySetInnerHTML={{ __html: secondHalf }} />
+        </div>
+    );
+}
+```
+
+---
+
+## 📊 Status Integrasi di Seluruh Halaman (100% Selesai)
+
+| Halaman | Billboard Top | In-Feed / In-Article | Sticky Sidebar | Break Banner |
+| :--- | :---: | :---: | :---: | :---: |
+| **Beranda** (`QuranHomePage.jsx`) | ✅ | — | ✅ (`9021708920`) | ✅ |
+| **Detail Artikel** (`ArticleDetailPage.jsx`) | ✅ | ✅ (`AdSenseInline`) | ✅ (`9021708920`) | ✅ |
+| **Daftar Artikel** (`ArticlesPage.jsx`) | ✅ | ✅ (`AdSenseInFeed`) | — | — |
+| **Detail Surah** (`SurahDetailPage.jsx`) | ✅ | ✅ (`AdSenseInline`) | — | ✅ |
+| **Daftar Surah** (`SurahListPage.jsx`) | ✅ | ✅ (`AdSenseInFeed`) | — | — |
+| **Detail Halaman Mushaf** (`PageDetailPage.jsx`) | ✅ | — | — | ✅ |
+| **Daftar Halaman Mushaf** (`PageListPage.jsx`) | ✅ | — | — | — |
+| **Juz Player** (`JuzPage.jsx`) | ✅ | — | — | ✅ |
+| **Indeks 30 Juz** (`JuzIndexPage.jsx`) | ✅ | ✅ (`AdSenseInFeed`) | — | — |
+| **Tafsir Tematik** (`TafsirMaudhuiPage.jsx`) | ✅ | — | — | ✅ |
+| **Doa Bersama** (`PrayerPage.jsx`) | ✅ | ✅ (`AdSenseInline`) | — | — |
+| **Detail Doa** (`PrayerDetailPage.jsx`) | ✅ | ✅ (`AdSenseInline`) | ✅ (`9021708920`) | — |
+| **Asmaul Husna** (`AsmaulHusnaPage.jsx`) | ✅ | ✅ (`AdSenseInFeed`) | — | — |
+| **Pencarian Al-Quran** (`QuranSearchPage.jsx`) | ✅ | ✅ (`AdSenseInFeed`) | — | — |
+| **Riwayat Versi** (`RiwayatVersiPage.jsx`) | ✅ | ✅ (`AdSenseInline`) | — | — |
+| **Statistik Komunitas** (`StatistikPage.jsx`) | ✅ | — | — | — |
+| **Tentang Proyek** (`AboutProjectPage.jsx`) | ✅ | — | — | ✅ |
+| **Kebijakan Privasi** (`PrivacyPage.jsx`) | ✅ | — | — | — |
+| **Hubungi Kami** (`ContactSupportPage.jsx`) | ✅ | — | — | — |
+| **Donasi & Infaq** (`DonationSupportPage.jsx`) | ✅ | — | — | — |
+| **Keuntungan Member** (`MemberBenefitsPage.jsx`) | ✅ | — | — | — |
+| **Penanda / Bookmark** (`UserBookmarksPage.jsx`) | ✅ | — | — | — |
+| **SEO Landing Page** (`SEOLandingPage.jsx`) | ✅ | — | — | — |
+| **AMP Surah** (`surah.blade.php`) | ✅ | ✅ (`9021708920`) | — | ✅ (`9021708920`) |
+
+---
+
+## ⚡ Panduan Kepatuhan & Performa
+
+1. **Zero-CLS**: Seluruh unit iklan memiliki reserved `minHeight` (`min-h-[90px]`, `min-h-[250px]`, `min-h-[280px]`) sehingga layout tidak bergeser saat iklan dimuat secara asinkron.
+2. **Kepatuhan Kebijakan**: Halaman login, register, ganti password, dashboard admin, dan halaman 404 **dilarang dipasangi iklan**.
+3. **Pemberian Label Transparan**: Semua unit menampilkan teks `"IKLAN"` atau `"IKLAN REKOMENDASI"`.
