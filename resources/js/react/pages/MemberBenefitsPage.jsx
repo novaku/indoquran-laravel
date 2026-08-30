@@ -17,6 +17,7 @@ import {
 import { useAuth } from '../hooks/useAuth.jsx';
 import SEOHead from '../components/SEOHead';
 import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
+import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { Card, Button, Badge, IconBadge, PageHeader, PageContent } from '../components/ui';
 
 function MemberBenefitsPage() {
@@ -159,7 +160,7 @@ function MemberBenefitsPage() {
                 </div>
 
                 {/* Top Billboard Ad (Detik.com Pattern) */}
-                <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" />
+                <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" className="my-4 sm:my-6" />
 
                 {/* Benefits Grid */}
                 <div className="py-8 md:py-12">
@@ -207,6 +208,16 @@ function MemberBenefitsPage() {
                             );
                         })}
                     </div>
+                </div>
+
+                {/* Break Banner Ad (Detik.com Pattern) */}
+                <div className="w-full my-8">
+                    <AdSenseHorizontal 
+                        adSlot="1519827772"
+                        showLabel={true}
+                        labelText="IKLAN"
+                        minHeight="90px"
+                    />
                 </div>
 
                 {/* How It Works Section */}
@@ -326,6 +337,16 @@ function MemberBenefitsPage() {
                             </p>
                         </Card>
                     </div>
+                </div>
+
+                {/* Bottom Break Ad (Detik.com Pattern) */}
+                <div className="w-full my-8">
+                    <AdSenseHorizontal 
+                        adSlot="1519827772"
+                        showLabel={true}
+                        labelText="IKLAN REKOMENDASI"
+                        minHeight="90px"
+                    />
                 </div>
             </PageContent>
         </>

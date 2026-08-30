@@ -457,10 +457,10 @@ function TafsirMaudhuiPage() {
             </section>
 
             {/* Top Billboard Ad (Detik.com Pattern) */}
-            <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" />
+            <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" className="my-4 sm:my-6" />
 
             {/* Main Content */}
-            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
+            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
                 {/* Search and Stats */}
                 <div className="mb-8 space-y-6">
                     {/* Search Box */}
@@ -481,7 +481,7 @@ function TafsirMaudhuiPage() {
                                     type="button"
                                     title="Hapus pencarian"
                                     aria-label="Hapus pencarian"
-                                >
+                                    >
                                     <XMarkIcon className="w-5 h-5" />
                                 </button>
                             )}
@@ -504,16 +504,6 @@ function TafsirMaudhuiPage() {
                             )}
                         </div>
                     </div>
-                </div>
-
-                {/* In-Between Break Banner Ad (Detik.com Pattern) */}
-                <div className="w-full my-6">
-                    <AdSenseHorizontal 
-                        adSlot="1519827772"
-                        showLabel={true}
-                        labelText="IKLAN REKOMENDASI"
-                        minHeight="90px"
-                    />
                 </div>
 
                 {/* Topics Tree */}
@@ -576,17 +566,28 @@ function TafsirMaudhuiPage() {
                             <div className="space-y-2">
                                 {Object.entries(groupedTopics)
                                     .sort(([a], [b]) => a.localeCompare(b))
-                                    .map(([letter, topics]) => (
-                                        <LetterGroup
-                                            key={letter}
-                                            letter={letter}
-                                            topics={topics}
-                                            expandedTopics={expandedTopics}
-                                            toggleExpanded={toggleExpanded}
-                                            expandedGroups={expandedGroups}
-                                            toggleGroupExpanded={toggleGroupExpanded}
-                                            highlightedTopicIndex={highlightedTopicIndex}
-                                        />
+                                    .map(([letter, topics], groupIndex) => (
+                                        <React.Fragment key={letter}>
+                                            {groupIndex === 4 && (
+                                                <div className="my-6">
+                                                    <AdSenseHorizontal 
+                                                        adSlot="1519827772"
+                                                        showLabel={true}
+                                                        labelText="IKLAN REKOMENDASI"
+                                                        minHeight="90px"
+                                                    />
+                                                </div>
+                                            )}
+                                            <LetterGroup
+                                                letter={letter}
+                                                topics={topics}
+                                                expandedTopics={expandedTopics}
+                                                toggleExpanded={toggleExpanded}
+                                                expandedGroups={expandedGroups}
+                                                toggleGroupExpanded={toggleGroupExpanded}
+                                                highlightedTopicIndex={highlightedTopicIndex}
+                                            />
+                                        </React.Fragment>
                                     ))
                                 }
                             </div>
@@ -611,6 +612,16 @@ function TafsirMaudhuiPage() {
                         </div>
                     </div>
                 )}
+
+                {/* Bottom Break Ad (Detik.com Pattern) */}
+                <div className="w-full my-8">
+                    <AdSenseHorizontal 
+                        adSlot="1519827772"
+                        showLabel={true}
+                        labelText="IKLAN"
+                        minHeight="90px"
+                    />
+                </div>
 
                 {/* Back to top button */}
                 {filteredTopics.length > 10 && (

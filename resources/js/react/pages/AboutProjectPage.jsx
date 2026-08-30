@@ -94,7 +94,7 @@ function AboutProjectPage() {
                 </div>
 
                 {/* Top Billboard Ad (Detik.com Pattern) */}
-                <AdSenseLeaderboard maxWidth="max-w-6xl" labelText="IKLAN" />
+                <AdSenseLeaderboard maxWidth="max-w-6xl" labelText="IKLAN" className="my-4 sm:my-6" />
 
                 {/* Main Content */}
                 <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
@@ -258,6 +258,16 @@ function AboutProjectPage() {
                                 </a>
                             </div>
                         </div>
+                    </div>
+
+                    {/* Bottom Break Ad (Detik.com Pattern) */}
+                    <div className="w-full my-8">
+                        <AdSenseHorizontal 
+                            adSlot="1519827772"
+                            showLabel={true}
+                            labelText="IKLAN"
+                            minHeight="90px"
+                        />
                     </div>
                 </div>
             </div>

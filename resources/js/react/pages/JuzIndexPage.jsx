@@ -8,6 +8,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
 import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseInFeed from '../components/AdSenseInFeed';
+import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
 
@@ -104,28 +105,26 @@ function JuzIndexPage() {
 
             {/* Header */}
             <div className="bg-white border-b border-gray-200">
-                <div className="max-w-4xl mx-auto px-4 py-6">
-                    <div className="text-center">
-                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                            Jelajahi berdasarkan Juz (Para)
-                        </h1>
-                        <p className="text-gray-600">
-                            Al-Quran dibagi menjadi 30 Juz (juga disebut Para) untuk memudahkan pembacaan
-                        </p>
-                    </div>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+                    <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-3">
+                        Jelajahi Al-Quran berdasarkan Juz (Para)
+                    </h1>
+                    <p className="text-gray-600 text-sm md:text-base max-w-2xl mx-auto">
+                        Al-Quran dibagi menjadi 30 Juz (Para) terstruktur untuk memudahkan target tilawah harian dan tadarus khatam Al-Quran.
+                    </p>
                 </div>
             </div>
 
-            {/* Juz List */}
-            <div className="max-w-4xl mx-auto px-4 py-6">
-                
-                {/* Top Billboard Ad (Detik.com Pattern) */}
-                <AdSenseLeaderboard maxWidth="max-w-6xl" labelText="IKLAN" />
+            {/* Top Billboard Ad (Detik.com Pattern) */}
+            <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" className="my-4 sm:my-6" />
 
+            {/* Juz List */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                
                 {/* Juz Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {juzNumbers.map((juz, index) => {
-                        const showInFeedAd = index === 5 || index === 17;
+                        const showInFeedAd = index === 6 || index === 18;
 
                         return (
                             <React.Fragment key={juz.number}>
@@ -133,28 +132,34 @@ function JuzIndexPage() {
                                     <AdSenseInFeed 
                                         adSlot="1519827772"
                                         labelText="IKLAN REKOMENDASI"
+                                        className="h-full"
                                     />
                                 )}
                                 <button
                                     onClick={() => handleJuzClick(juz.number)}
-                                    className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md hover:border-green-300 transition-all text-left group cursor-pointer"
+                                    className="bg-white rounded-xl p-6 shadow-sm border border-gray-200/90 hover:shadow-md hover:border-green-400 transition-all text-left group cursor-pointer flex flex-col justify-between"
                                 >
                                     <div className="flex items-center justify-between mb-4">
-                                        <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
-                                            <BookOpenIcon className="w-6 h-6 text-green-600" />
+                                        <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center group-hover:bg-green-600 transition-colors">
+                                            <BookOpenIcon className="w-6 h-6 text-green-700 group-hover:text-white transition-colors" />
                                         </div>
-                                        <ChevronRightIcon className="w-5 h-5 text-gray-400 group-hover:text-green-600 transition-colors" />
+                                        <div className="flex items-center gap-1 text-xs text-gray-400 group-hover:text-green-600 font-medium transition-colors">
+                                            <span>Buka</span>
+                                            <ChevronRightIcon className="w-4 h-4" />
+                                        </div>
                                     </div>
                                     
                                     <div>
-                                        <h3 className="text-lg font-semibold text-gray-900 group-hover:text-green-700 mb-1">
-                                            Juz {juz.number}
-                                        </h3>
-                                        <p className="text-sm text-gray-600 mb-2">
-                                            Dimulai dengan {juz.starting_surah}
-                                        </p>
-                                        <p className="font-arabic text-right text-gray-700">
-                                            {juz.name_arabic}
+                                        <div className="flex items-baseline justify-between mb-1">
+                                            <h3 className="text-xl font-bold text-gray-900 group-hover:text-green-700 transition-colors">
+                                                Juz {juz.number}
+                                            </h3>
+                                            <p className="font-arabic text-xl font-bold text-gray-700 group-hover:text-green-800">
+                                                {juz.name_arabic}
+                                            </p>
+                                        </div>
+                                        <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                                            Dimulai dari <span className="font-semibold text-gray-700">{juz.starting_surah}</span>
                                         </p>
                                     </div>
                                 </button>
@@ -163,36 +168,50 @@ function JuzIndexPage() {
                     })}
                 </div>
 
+                {/* Bottom Break Ad before Info Section */}
+                <div className="my-8">
+                    <AdSenseHorizontal 
+                        adSlot="1519827772"
+                        showLabel={true}
+                        labelText="IKLAN"
+                        minHeight="90px"
+                    />
+                </div>
+
                 {/* Info Section */}
-                <div className="mt-12 bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4">Tentang Juz (Para)</h2>
-                    <div className="space-y-4 text-gray-700">
+                <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200/80">
+                    <h2 className="text-xl font-bold text-gray-900 mb-4">Tentang 30 Juz Al-Quran</h2>
+                    <div className="space-y-4 text-sm text-gray-600 leading-relaxed">
                         <p>
-                            Juz (juga dikenal sebagai Para di beberapa daerah) adalah salah satu dari tiga puluh bagian Al-Quran. 
-                            Pembagian ini dibuat untuk membantu umat Muslim membaca seluruh Al-Quran dalam waktu satu bulan, 
-                            dengan membaca satu Juz per hari.
+                            Juz (juga dikenal sebagai Para) adalah salah satu dari tiga puluh bagian Al-Quran yang sama panjangnya. 
+                            Pembagian ini dibuat untuk membantu umat Muslim membaca seluruh Al-Quran dalam waktu satu bulan (khatam), 
+                            dengan membaca satu Juz per hari secara konsisten.
                         </p>
                         <p>
-                            Setiap Juz berisi sekitar 20 halaman dalam Mushaf standar (teks Al-Quran), 
-                            sehingga mudah untuk dibaca setiap hari selama Ramadan atau studi rutin.
+                            Setiap Juz berisi sekitar 20 halaman dalam Mushaf Standar Indonesia / Madinah, 
+                            sehingga sangat cocok untuk jadwal tilawah harian selama bulan suci Ramadan maupun hari-hari biasa.
                         </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                            <div className="bg-gray-50 rounded-lg p-4">
-                                <h3 className="font-semibold text-gray-900 mb-2">Fakta Singkat</h3>
-                                <ul className="text-sm space-y-1">
-                                    <li>• Total 30 Juz</li>
-                                    <li>• ~20 halaman setiap Juz</li>
-                                    <li>• Sempurna untuk bacaan bulanan</li>
-                                    <li>• Digunakan selama Ramadan</li>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 pt-4 border-t border-gray-100">
+                            <div className="bg-gray-50/80 rounded-xl p-4 border border-gray-100">
+                                <h3 className="font-bold text-gray-900 text-sm mb-2 flex items-center gap-2">
+                                    <span>📊</span> Fakta Singkat
+                                </h3>
+                                <ul className="text-xs text-gray-600 space-y-1.5">
+                                    <li>• Total 30 Juz (114 Surah, 6.236 Ayat)</li>
+                                    <li>• Rata-rata 20 halaman per Juz (604 halaman mushaf)</li>
+                                    <li>• Ideal untuk program tilawah 1 bulan khatam</li>
+                                    <li>• Dilengkapi teks Arab, transliterasi Latin, dan terjemahan resmi</li>
                                 </ul>
                             </div>
-                            <div className="bg-gray-50 rounded-lg p-4">
-                                <h3 className="font-semibold text-gray-900 mb-2">Tips Membaca</h3>
-                                <ul className="text-sm space-y-1">
-                                    <li>• Baca satu Juz setiap hari</li>
-                                    <li>• Luangkan waktu untuk pelafalan</li>
-                                    <li>• Renungkan maknanya</li>
-                                    <li>• Gunakan audio untuk bacaan yang benar</li>
+                            <div className="bg-gray-50/80 rounded-xl p-4 border border-gray-100">
+                                <h3 className="font-bold text-gray-900 text-sm mb-2 flex items-center gap-2">
+                                    <span>💡</span> Tips Tadarus Harian
+                                </h3>
+                                <ul className="text-xs text-gray-600 space-y-1.5">
+                                    <li>• Alokasikan waktu tetap 20-30 menit setiap hari</li>
+                                    <li>• Dengarkan audio murottal untuk membetulkan makhraj & tajwid</li>
+                                    <li>• Baca dan renungkan makna terjemahan bahasa Indonesia</li>
+                                    <li>• Gunakan fitur bookmark/penanda untuk mencatat progres bacaan</li>
                                 </ul>
                             </div>
                         </div>
@@ -203,17 +222,17 @@ function JuzIndexPage() {
                 <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
                     <Link
                         to="/surah"
-                        className="flex items-center justify-center space-x-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                        className="flex items-center justify-center space-x-2 px-6 py-3 bg-white border border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors shadow-2xs text-sm"
                     >
-                        <BookOpenIcon className="w-5 h-5" />
+                        <BookOpenIcon className="w-5 h-5 text-green-600" />
                         <span>Jelajahi berdasarkan Surah</span>
                     </Link>
                     <Link
                         to="/halaman"
-                        className="flex items-center justify-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                        className="flex items-center justify-center space-x-2 px-6 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-colors shadow-xs text-sm"
                     >
                         <BookOpenIcon className="w-5 h-5" />
-                        <span>Jelajahi berdasarkan Halaman</span>
+                        <span>Jelajahi berdasarkan Halaman Mushaf</span>
                     </Link>
                 </div>
             </div>

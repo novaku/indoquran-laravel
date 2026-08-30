@@ -18,6 +18,7 @@ import { isAuthenticated, authenticatedFetch } from '../utils/auth';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
 import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
+import AdSenseHorizontal from '../components/AdSenseHorizontal';
 
 function ContactSupportPage() {
     const navigate = useNavigate();
@@ -273,7 +274,7 @@ function ContactSupportPage() {
                 </div>
 
                 {/* Top Billboard Ad (Detik.com Pattern) */}
-                <AdSenseLeaderboard maxWidth="max-w-6xl" labelText="IKLAN" className="mt-8" />
+                <AdSenseLeaderboard maxWidth="max-w-6xl" labelText="IKLAN" className="my-6" />
 
                 {/* Main Content */}
                 <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
@@ -509,6 +510,16 @@ function ContactSupportPage() {
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    {/* Bottom Break Ad (Detik.com Pattern) */}
+                    <div className="w-full my-8">
+                        <AdSenseHorizontal 
+                            adSlot="1519827772"
+                            showLabel={true}
+                            labelText="IKLAN"
+                            minHeight="90px"
+                        />
                     </div>
                 </div>
             </div>

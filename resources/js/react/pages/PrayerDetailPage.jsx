@@ -307,7 +307,7 @@ const PrayerDetailPage = () => {
 
             <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50/50 py-4 sm:py-8">
                 {/* Top Billboard Ad (Detik.com Pattern) */}
-                <AdSenseLeaderboard maxWidth="max-w-4xl" labelText="IKLAN" />
+                <AdSenseLeaderboard maxWidth="max-w-4xl" labelText="IKLAN" className="my-4 sm:my-6" />
 
                 <div className="max-w-4xl mx-auto px-4 sm:px-6">
                     {/* Navigation Header / Breadcrumbs */}

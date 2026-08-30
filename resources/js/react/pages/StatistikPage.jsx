@@ -2,6 +2,7 @@ import React from 'react';
 import VisitorStatsHomepage from '../components/VisitorStatsHomepage';
 import SEOHead from '../components/SEOHead';
 import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
+import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { Card, Button, PageHeader, PageContent } from '../components/ui';
 
 const StatistikPage = () => {
@@ -23,7 +24,7 @@ const StatistikPage = () => {
                 />
 
                 {/* Top Billboard Ad (Detik.com Pattern) */}
-                <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" />
+                <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" className="my-4 sm:my-6" />
 
                 {/* Info Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -73,8 +74,18 @@ const StatistikPage = () => {
                 {/* Main Statistics Component */}
                 <VisitorStatsHomepage />
 
+                {/* Break Banner Ad (Detik.com Pattern) */}
+                <div className="w-full my-8">
+                    <AdSenseHorizontal 
+                        adSlot="1519827772"
+                        showLabel={true}
+                        labelText="IKLAN"
+                        minHeight="90px"
+                    />
+                </div>
+
                 {/* Community Message */}
-                <div className="mt-12 bg-gradient-to-r from-green-600 to-blue-600 rounded-lg text-white p-8 text-center">
+                <div className="mt-8 bg-gradient-to-r from-green-600 to-blue-600 rounded-lg text-white p-8 text-center">
                     <h2 className="text-2xl font-bold mb-4">
                         Bergabunglah dengan Komunitas Kami! 🤝
                     </h2>
@@ -120,6 +131,16 @@ const StatistikPage = () => {
                         </ul>
                     </div>
                 </Card>
+
+                {/* Bottom Break Ad (Detik.com Pattern) */}
+                <div className="w-full my-8">
+                    <AdSenseHorizontal 
+                        adSlot="1519827772"
+                        showLabel={true}
+                        labelText="IKLAN REKOMENDASI"
+                        minHeight="90px"
+                    />
+                </div>
             </PageContent>
         </>
     );

@@ -25,6 +25,7 @@ import SimpleSlideshow from '../components/SimpleSlideshow';
 import SEOHead from '../components/SEOHead';
 import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseInline from '../components/AdSenseInline';
+import AdSenseHorizontal from '../components/AdSenseHorizontal';
 
 const PrayerPage = () => {
     const navigate = useNavigate();
@@ -270,7 +271,7 @@ const PrayerPage = () => {
                 </div>
 
                 {/* Top Billboard Ad (Detik.com Pattern) */}
-                <AdSenseLeaderboard maxWidth="max-w-3xl" labelText="IKLAN" />
+                <AdSenseLeaderboard maxWidth="max-w-3xl" labelText="IKLAN" className="my-4 sm:my-6" />
 
                 {/* Main Content */}
                 <div className="max-w-3xl mx-auto px-4 py-6">
@@ -374,6 +375,18 @@ const PrayerPage = () => {
                             ))
                         )}
                     </div>
+
+                    {/* Bottom Break Ad */}
+                    {!loading && prayers.length > 0 && (
+                        <div className="my-6">
+                            <AdSenseHorizontal 
+                                adSlot="1519827772"
+                                showLabel={true}
+                                labelText="IKLAN"
+                                minHeight="90px"
+                            />
+                        </div>
+                    )}
 
                     {/* Pagination */}
                     {pagination.last_page > 1 && !loading && prayers.length > 0 && (

@@ -545,17 +545,27 @@ function JuzPage() {
 
                     {/* Surahs and Ayahs */}
                     <div className="space-y-8">
-                        {juzData.surahs.map((surahData) => {
+                        {juzData.surahs.map((surahData, sIndex) => {
                             const firstAyah = surahData.ayahs[0]?.ayah_number;
                             const lastAyah = surahData.ayahs[surahData.ayahs.length - 1]?.ayah_number;
                             const rangeText = firstAyah === lastAyah ? `Ayat ${firstAyah}` : `Ayat ${firstAyah} - ${lastAyah}`;
 
                             return (
-                            <div 
-                                key={surahData.surah.number} 
-                                id={`surah-${surahData.surah.number}`}
-                                className="scroll-mt-48 sm:scroll-mt-52 bg-white rounded-3xl shadow-xl border border-green-100 overflow-hidden transition-all"
-                            >
+                            <React.Fragment key={surahData.surah.number}>
+                                {sIndex > 0 && sIndex % 2 === 0 && (
+                                    <div className="my-6">
+                                        <AdSenseHorizontal 
+                                            adSlot="1519827772"
+                                            showLabel={true}
+                                            labelText="IKLAN REKOMENDASI"
+                                            minHeight="90px"
+                                        />
+                                    </div>
+                                )}
+                                <div 
+                                    id={`surah-${surahData.surah.number}`}
+                                    className="scroll-mt-48 sm:scroll-mt-52 bg-white rounded-3xl shadow-xl border border-green-100 overflow-hidden transition-all"
+                                >
                                 {/* Surah Header */}
                                 <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-5 sm:p-6">
                                     <div className="flex items-center justify-between">
@@ -691,8 +701,19 @@ function JuzPage() {
                                     </div>
                                 </div>
                             </div>
+                            </React.Fragment>
                             );
                         })}
+                    </div>
+
+                    {/* Bottom Break Ad before Navigation Card */}
+                    <div className="my-8">
+                        <AdSenseHorizontal 
+                            adSlot="1519827772"
+                            showLabel={true}
+                            labelText="IKLAN"
+                            minHeight="90px"
+                        />
                     </div>
 
                     {/* Bottom Completion & Navigation Card Component */}
