@@ -157,6 +157,92 @@ const AyahJumpDropdown = ({ currentAyahNumber, availableAyahNumbers, onSelectAya
     );
 };
 
+// Custom Qari Selector Dropdown to avoid OS-level popup misplacement
+const QariSelectorDropdown = ({ selectedQari, availableReciters, recitersLoading, onSelectQari }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+    const activeItemRef = useRef(null);
+
+    const selectedReciter = availableReciters.find((reciter) => String(reciter.id) === String(selectedQari));
+
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleClickOutside = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('touchstart', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('touchstart', handleClickOutside);
+        };
+    }, [isOpen]);
+
+    useEffect(() => {
+        if (isOpen && activeItemRef.current) {
+            activeItemRef.current.scrollIntoView({ block: 'nearest' });
+        }
+    }, [isOpen]);
+
+    return (
+        <div ref={dropdownRef} className="relative w-full sm:w-56">
+            <button
+                type="button"
+                id="ayah-top-audio-reciter"
+                disabled={recitersLoading || availableReciters.length === 0}
+                onClick={() => setIsOpen(prev => !prev)}
+                className="w-full flex items-center justify-between rounded-xl border border-emerald-200/90 bg-white/95 px-3 py-1.5 text-xs font-semibold text-gray-800 shadow-2xs outline-none transition hover:bg-emerald-50/50 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:bg-gray-100 cursor-pointer"
+                title="Pilih Qari Murottal"
+            >
+                <span className="truncate mr-1.5 text-left">
+                    {recitersLoading ? 'Memuat qari...' : (selectedReciter?.name || 'Pilih Qari')}
+                </span>
+                <ChevronDownIcon className={`h-3.5 w-3.5 flex-shrink-0 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isOpen && (
+                <div className="absolute right-0 left-0 sm:left-auto sm:w-64 top-full mt-1.5 z-40 max-h-60 overflow-y-auto rounded-xl border border-emerald-200 bg-white p-1 shadow-xl animate-fadeIn">
+                    {availableReciters.length > 0 ? (
+                        availableReciters.map((reciter) => {
+                            const isSelected = String(reciter.id) === String(selectedQari);
+                            return (
+                                <button
+                                    key={reciter.id}
+                                    ref={isSelected ? activeItemRef : null}
+                                    type="button"
+                                    onClick={() => {
+                                        onSelectQari(reciter.id);
+                                        setIsOpen(false);
+                                    }}
+                                    className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg transition-colors cursor-pointer text-left ${
+                                        isSelected 
+                                            ? 'bg-emerald-50 text-emerald-900 font-bold' 
+                                            : 'text-gray-700 hover:bg-gray-100 font-medium'
+                                    }`}
+                                >
+                                    <div className="flex flex-col pr-2">
+                                        <span className="truncate">{reciter.name}</span>
+                                        {reciter.bitrate && (
+                                            <span className="text-[10px] text-gray-400 font-normal">{reciter.bitrate}</span>
+                                        )}
+                                    </div>
+                                    {isSelected && (
+                                        <IoCheckmarkOutline className="w-4 h-4 flex-shrink-0 text-emerald-600 font-bold" />
+                                    )}
+                                </button>
+                            );
+                        })
+                    ) : (
+                        <div className="p-3 text-xs text-gray-500 text-center">Qari tidak tersedia</div>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+};
+
 // Convert English numerals to Arabic-Indic numerals
 const convertToArabicNumerals = (num) => {
     if (num === null || num === undefined) return '';
@@ -2539,29 +2625,12 @@ function SurahDetailPage() {
 
                                                     {/* Qari Selector */}
                                                     <div className="flex items-center gap-2 self-start sm:self-auto w-full sm:w-auto">
-                                                        <div className="relative w-full sm:w-52">
-                                                            <select
-                                                                id="ayah-top-audio-reciter"
-                                                                value={selectedQari}
-                                                                onChange={(event) => setSelectedQari(event.target.value)}
-                                                                disabled={recitersLoading || availableReciters.length === 0}
-                                                                className="w-full appearance-none rounded-xl border border-emerald-200/90 bg-white/90 px-3 py-1.5 pr-8 text-xs font-medium text-gray-800 shadow-2xs outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:bg-gray-100 cursor-pointer"
-                                                                title="Pilih Qari Murottal"
-                                                            >
-                                                                {recitersLoading ? (
-                                                                    <option value="">Memuat qari...</option>
-                                                                ) : availableReciters.length > 0 ? (
-                                                                    availableReciters.map((reciter) => (
-                                                                        <option key={reciter.id} value={reciter.id}>
-                                                                            {reciter.name}
-                                                                        </option>
-                                                                    ))
-                                                                ) : (
-                                                                    <option value="">Qari tidak tersedia</option>
-                                                                )}
-                                                            </select>
-                                                            <ChevronDownIcon className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
-                                                        </div>
+                                                        <QariSelectorDropdown
+                                                            selectedQari={selectedQari}
+                                                            availableReciters={availableReciters}
+                                                            recitersLoading={recitersLoading}
+                                                            onSelectQari={(qariId) => setSelectedQari(qariId)}
+                                                        />
                                                     </div>
                                                 </div>
 
