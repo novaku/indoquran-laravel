@@ -2523,56 +2523,53 @@ function SurahDetailPage() {
                                 </div>
 
                                 <div 
-                                    className="quran-paper-3d-card mb-6" 
+                                    className="mb-6 w-full rounded-2xl border border-gray-200/90 bg-white p-5 sm:p-7 md:p-8 shadow-xs hover:shadow-sm transition-all duration-200" 
                                     id={`ayah-${currentAyahNumber}-arabic`}
                                 >
-                                    {/* Subtle Parchment Watermark Pattern Overlay */}
-                                    <div className="quran-paper-pattern absolute inset-0 pointer-events-none opacity-85" />
-
-                                    {/* 4 Islamic Corner Ornaments for 3D Mushaf Aesthetic */}
-                                    <QuranCornerOrnament className="absolute top-2 left-2 pointer-events-none transform -scale-x-100" />
-                                    <QuranCornerOrnament className="absolute top-2 right-2 pointer-events-none" />
-                                    <QuranCornerOrnament className="absolute bottom-2 left-2 pointer-events-none transform -scale-x-100 -scale-y-100" />
-                                    <QuranCornerOrnament className="absolute bottom-2 right-2 pointer-events-none transform -scale-y-100" />
-
-                                    {/* Inner Decorative Mushaf Frame */}
-                                    <div className="quran-paper-inner-frame relative m-2.5 sm:m-3.5 p-4 sm:p-7 md:p-8 bg-gradient-to-b from-amber-50/30 via-transparent to-amber-100/25">
-                                        <QuranCenterFlourish />
-
-                                        <div className="text-center py-2 sm:py-3.5" dir="rtl">
-                                            <p 
-                                                ref={currentAyahRef}
-                                                className="font-arabic ayah-arabic-ink font-normal inline select-text tracking-wide"
+                                    <div className="text-center py-2 sm:py-3.5" dir="rtl">
+                                        <p 
+                                            ref={currentAyahRef}
+                                            className="font-arabic ayah-arabic-ink font-normal inline select-text tracking-wide"
+                                            style={{ 
+                                                fontSize: `${fontSize + 16}px`,
+                                                lineHeight: '2.4',
+                                                wordSpacing: '0.18em',
+                                                fontFamily: "'AlQuran-IndoPak', 'Scheherazade New', 'Scheherazade', 'Amiri', 'Traditional Arabic', serif"
+                                            }}
+                                        >
+                                            {currentAyah.text_arabic}
+                                            <span 
+                                                className="ayah-number-seal-3d font-bold text-white select-none inline-flex items-center justify-center mr-3.5 align-middle cursor-default"
+                                                dir="ltr"
                                                 style={{ 
-                                                    fontSize: `${fontSize + 16}px`,
-                                                    lineHeight: '2.4',
-                                                    wordSpacing: '0.18em',
-                                                    fontFamily: "'AlQuran-IndoPak', 'Scheherazade New', 'Scheherazade', 'Amiri', 'Traditional Arabic', serif"
+                                                    fontSize: `${Math.max(fontSize - 4, 18)}px`,
+                                                    fontFamily: "'Scheherazade New', 'Scheherazade', 'Amiri', 'Traditional Arabic', serif",
+                                                    minWidth: `${Math.max(fontSize + 16, 44)}px`,
+                                                    minHeight: `${Math.max(fontSize + 16, 44)}px`,
+                                                    padding: '0 8px',
+                                                    borderRadius: '9999px',
+                                                    direction: 'ltr',
+                                                    unicodeBidi: 'isolate'
                                                 }}
+                                                title={`Ayat ${currentAyahNumber} (${convertToArabicNumerals(currentAyahNumber)})`}
                                             >
-                                                {currentAyah.text_arabic}
-                                                <span 
-                                                    className="ayah-number-seal-3d font-bold text-white select-none inline-flex items-center justify-center mr-3.5 align-middle cursor-default"
-                                                    dir="ltr"
-                                                    style={{ 
-                                                        fontSize: `${Math.max(fontSize - 4, 18)}px`,
-                                                        fontFamily: "'Scheherazade New', 'Scheherazade', 'Amiri', 'Traditional Arabic', serif",
-                                                        minWidth: `${Math.max(fontSize + 16, 44)}px`,
-                                                        minHeight: `${Math.max(fontSize + 16, 44)}px`,
-                                                        padding: '0 8px',
-                                                        borderRadius: '9999px',
-                                                        direction: 'ltr',
-                                                        unicodeBidi: 'isolate'
-                                                    }}
-                                                    title={`Ayat ${currentAyahNumber} (${convertToArabicNumerals(currentAyahNumber)})`}
-                                                >
-                                                    {convertToArabicNumerals(currentAyahNumber)}
-                                                </span>
+                                                {convertToArabicNumerals(currentAyahNumber)}
+                                            </span>
+                                        </p>
+                                    </div>
+
+                                    {/* Transliterasi Latin - Langsung di bawah Teks Arab */}
+                                    {displayedLatinText && (
+                                        <div className="text-center pt-3.5 pb-1 border-t border-gray-100 mt-3 sm:mt-4" dir="ltr">
+                                            <p className="text-[11px] sm:text-xs font-bold text-emerald-800/80 uppercase tracking-wider mb-1.5 flex items-center justify-center gap-1.5 select-none">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block" />
+                                                <span>Transliterasi Latin</span>
+                                            </p>
+                                            <p className="text-sm sm:text-base md:text-lg text-gray-700 font-medium italic leading-relaxed select-text w-full mx-auto px-2">
+                                                {displayedLatinText}
                                             </p>
                                         </div>
-
-                                        <QuranCenterFlourish />
-                                    </div>
+                                    )}
                                 </div>
 
                                 {/* SECTION 1: Audio Murottal */}
@@ -2582,7 +2579,7 @@ function SurahDetailPage() {
                                     const isThisAyahLoading = isAudioLoading || (isSurahAudioLoading && isAutoPlayingSequence && parseInt(activeSurahAyahNumber, 10) === parseInt(currentAyahNumber, 10));
 
                                     return (
-                                        <div className="mb-4 max-w-3xl mx-auto rounded-2xl border border-emerald-200/90 bg-gradient-to-br from-emerald-50/95 via-white/95 to-teal-50/90 p-4 sm:p-5 shadow-xs shadow-emerald-900/5 transition-all duration-300 hover:shadow-md hover:border-emerald-300 text-left">
+                                        <div className="mb-4 w-full mx-auto rounded-2xl border border-emerald-200/90 bg-gradient-to-br from-emerald-50/95 via-white/95 to-teal-50/90 p-4 sm:p-5 shadow-xs shadow-emerald-900/5 transition-all duration-300 hover:shadow-md hover:border-emerald-300 text-left">
                                             <div className="flex flex-col gap-3.5">
                                                 {/* Header Row: Title, Equalizer/Status, & Qari Dropdown */}
                                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-emerald-100/90">
@@ -2770,29 +2767,9 @@ function SurahDetailPage() {
                                     );
                                 })()}
 
-                                {/* SECTION 2: Transliterasi Latin */}
-                                {displayedLatinText && (
-                                    <div className="mb-4 max-w-3xl mx-auto rounded-xl border border-slate-200/90 bg-slate-50/80 p-4 text-left shadow-2xs">
-                                        <div className="flex items-center justify-between gap-2 mb-2">
-                                            <p className="text-xs font-bold text-slate-700 uppercase tracking-wide flex items-center gap-1.5">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-slate-500" />
-                                                <span>Transliterasi Latin</span>
-                                                <span className="text-slate-400">•</span>
-                                                <span className="text-slate-900 font-extrabold">Ayat {currentAyahNumber}</span>
-                                            </p>
-                                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-200/80 text-slate-700">
-                                                QS. {surah.number}:{currentAyahNumber}
-                                            </span>
-                                        </div>
-                                        <p className="text-sm sm:text-base text-slate-700 italic leading-relaxed">
-                                            {displayedLatinText}
-                                        </p>
-                                    </div>
-                                )}
-
-                                {/* SECTION 3: Terjemahan Indonesia */}
+                                {/* SECTION 2: Terjemahan Indonesia */}
                                 {currentAyah.text_indonesian && (
-                                    <div className="mb-4 max-w-3xl mx-auto bg-amber-50/90 border border-amber-200/90 rounded-xl p-4 text-left shadow-2xs">
+                                    <div className="mb-4 w-full bg-amber-50/90 border border-amber-200/90 rounded-xl p-4 text-left shadow-2xs">
                                         <div className="flex items-center justify-between gap-2 mb-2">
                                             <p className="text-xs font-bold text-amber-800 uppercase tracking-wide flex items-center gap-1.5">
                                                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
@@ -2821,7 +2798,7 @@ function SurahDetailPage() {
 
                                 {/* SECTION 4: Terjemahan Inggris (English Translation) */}
                                 {displayedEnglishText && (
-                                    <div className="mb-4 max-w-3xl mx-auto bg-blue-50/90 border border-blue-200/90 rounded-xl p-4 text-left shadow-2xs">
+                                    <div className="mb-4 w-full bg-blue-50/90 border border-blue-200/90 rounded-xl p-4 text-left shadow-2xs">
                                         <div className="mb-2 flex items-center justify-between gap-3">
                                             <p className="text-xs font-bold text-blue-800 uppercase tracking-wide flex items-center gap-1.5">
                                                 <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
@@ -2847,7 +2824,7 @@ function SurahDetailPage() {
 
                                 {/* SECTION 4.5: Tafsir Ringkas Ayat Aktif */}
                                 {currentAyah.tafsir && (
-                                    <div className="mb-4 max-w-3xl mx-auto bg-emerald-50/70 border border-emerald-200/90 rounded-2xl p-4 text-left shadow-2xs transition-all">
+                                    <div className="mb-4 w-full bg-emerald-50/70 border border-emerald-200/90 rounded-2xl p-4 text-left shadow-2xs transition-all">
                                         <div className="flex items-center justify-between gap-3">
                                             <div className="flex items-center gap-2">
                                                 <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-emerald-600 text-white text-xs font-bold shadow-2xs">
@@ -2908,7 +2885,7 @@ function SurahDetailPage() {
                                 )}
 
                                 {/* SECTION 5: Penanda & Catatan Ayat */}
-                                <div className="mb-4 max-w-3xl mx-auto relative overflow-hidden rounded-2xl border border-emerald-300/80 bg-gradient-to-br from-emerald-50/90 via-white/95 to-teal-50/90 p-4 sm:p-5 shadow-xs shadow-emerald-900/5 transition-all duration-300 hover:shadow-md hover:border-emerald-400 text-left">
+                                <div className="mb-4 w-full relative overflow-hidden rounded-2xl border border-emerald-300/80 bg-gradient-to-br from-emerald-50/90 via-white/95 to-teal-50/90 p-4 sm:p-5 shadow-xs shadow-emerald-900/5 transition-all duration-300 hover:shadow-md hover:border-emerald-400 text-left">
                                     {/* Decorative background ambient glow */}
                                     <div className="absolute -top-12 -right-12 w-36 h-36 rounded-full bg-gradient-to-br from-emerald-400/15 via-teal-400/10 to-transparent blur-2xl pointer-events-none" />
                                     <div className="absolute -bottom-12 -left-12 w-36 h-36 rounded-full bg-gradient-to-tr from-teal-400/15 via-emerald-400/10 to-transparent blur-2xl pointer-events-none" />
@@ -3129,7 +3106,7 @@ function SurahDetailPage() {
                                 </div>
 
                                 {/* SECTION 6: Navigasi Ayat & Surah */}
-                                <div className="mb-6 max-w-3xl mx-auto rounded-2xl border border-gray-200/90 bg-gradient-to-br from-gray-50/90 via-white to-gray-50/90 p-4 sm:p-5 shadow-xs text-left">
+                                <div className="mb-6 w-full rounded-2xl border border-gray-200/90 bg-gradient-to-br from-gray-50/90 via-white to-gray-50/90 p-4 sm:p-5 shadow-xs text-left">
                                     {/* Section Header */}
                                     <div className="flex items-center justify-between gap-2 pb-3 mb-3.5 border-b border-gray-200/80">
                                         <div className="flex items-center gap-2">
