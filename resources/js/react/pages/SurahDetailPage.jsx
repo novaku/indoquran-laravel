@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { 
     PlayIcon, 
@@ -2098,91 +2098,62 @@ function SurahDetailPage() {
     }, [audioElement, surahAudioElement]);
 
     const navigateToAyah = useCallback(async (ayahNum) => {
-        // Check if navigation is already in progress
-        if (isNavigatingRef.current) {
-            console.log('⏳ Navigation already in progress, skipping');
-            return;
-        }
+        const targetAyah = parseInt(ayahNum, 10);
+        if (!targetAyah || isNaN(targetAyah)) return;
 
         // Validate that the ayah number exists in our data
-        if (!availableAyahNumbers.includes(ayahNum)) {
-            console.warn(`🚨 Ayah ${ayahNum} not found in available ayahs`);
+        if (availableAyahNumbers.length > 0 && !availableAyahNumbers.includes(targetAyah)) {
+            console.warn(`🚨 Ayah ${targetAyah} not found in available ayahs`);
             return;
         }
 
-        // Set navigation flag to prevent race conditions
-        isNavigatingRef.current = true;
-        console.log(`🚀 REQUIREMENT 2: Updating URL to /surah/${number}/${ayahNum}`);
+        console.log(`🚀 Updating active ayah to: ${targetAyah}`);
+        
+        // Immediate UI update
+        setCurrentAyahNumber(targetAyah);
+        setActiveTab('ayat');
+        scrollAyahNavGrid(targetAyah);
 
         try {
-            // REQUIREMENT 2: Navigate to the new URL based on surah and ayah number
-            navigate(`/surah/${number}/${ayahNum}`);
-            console.log(`✅ URL successfully updated to: /surah/${number}/${ayahNum}`);
+            // Update URL
+            navigate(`/surah/${number}/${targetAyah}`);
             
             // Update reading progress if user is logged in
-            if (user) {
-                try {
-                    await updateReadingProgress(parseInt(number), ayahNum);
-                    console.log(`📖 Reading progress updated for surah ${number}, ayah ${ayahNum}`);
-                } catch (error) {
-                    console.error('❌ Error updating reading progress:', error);
-                }
+            if (user && number) {
+                updateReadingProgress(parseInt(number, 10), targetAyah).catch(err => {
+                    console.error('❌ Error updating reading progress:', err);
+                });
             }
             
-            // Use improved scroll function
+            // Scroll to the active ayah card
             setTimeout(() => {
-                scrollToCurrentAyah(ayahNum);
-            }, 300);
-            
-            // Reset navigation flag after a reasonable delay
-            setTimeout(() => {
-                isNavigatingRef.current = false;
-                console.log(`✅ Navigation to ayah ${ayahNum} completed`);
-            }, 800); // Increased from 500ms to 800ms for better reliability
+                scrollToCurrentAyah(targetAyah);
+            }, 100);
             
         } catch (error) {
             console.error('❌ Navigation error:', error);
-            isNavigatingRef.current = false; // Reset flag immediately on error
         }
-    }, [availableAyahNumbers, number, navigate, user, scrollToCurrentAyah]);
+    }, [availableAyahNumbers, number, navigate, user, scrollToCurrentAyah, scrollAyahNavGrid]);
 
     const goToPreviousAyah = useCallback(() => {
-        const currentIndex = availableAyahNumbers.indexOf(currentAyahNumber);
-        
-        // Check if we're already navigating
-        if (isNavigatingRef.current) {
-            console.log('⏳ Previous navigation already in progress, skipping');
-            return;
-        }
+        const currentInt = parseInt(currentAyahNumber, 10);
+        const currentIndex = availableAyahNumbers.indexOf(currentInt);
         
         if (currentIndex > 0) {
             const previousAyahNumber = availableAyahNumbers[currentIndex - 1];
-            console.log(`⬅️ REQUIREMENT 2: Going to previous ayah: ${currentAyahNumber} → ${previousAyahNumber}`);
-            console.log(`📍 Previous URL will be: /surah/${number}/${previousAyahNumber}`);
             navigateToAyah(previousAyahNumber);
-        } else {
-            console.log('⏹️ Already at first ayah, cannot go previous');
         }
-    }, [currentAyahNumber, availableAyahNumbers, navigateToAyah, number]);
+    }, [currentAyahNumber, availableAyahNumbers, navigateToAyah]);
 
     const goToNextAyah = useCallback(() => {
-        const currentIndex = availableAyahNumbers.indexOf(currentAyahNumber);
-        
-        // Check if we're already navigating
-        if (isNavigatingRef.current) {
-            console.log('⏳ Next navigation already in progress, skipping');
-            return;
-        }
+        const currentInt = parseInt(currentAyahNumber, 10);
+        const currentIndex = availableAyahNumbers.indexOf(currentInt);
         
         if (currentIndex >= 0 && currentIndex < availableAyahNumbers.length - 1) {
             const nextAyahNumber = availableAyahNumbers[currentIndex + 1];
-            console.log(`➡️ REQUIREMENT 2: Going to next ayah: ${currentAyahNumber} → ${nextAyahNumber}`);
-            console.log(`📍 Next URL will be: /surah/${number}/${nextAyahNumber}`);
             navigateToAyah(nextAyahNumber);
-        } else {
-            console.log('⏹️ Already at last ayah, cannot go next');
         }
-    }, [currentAyahNumber, availableAyahNumbers, navigateToAyah, number]);
+    }, [currentAyahNumber, availableAyahNumbers, navigateToAyah]);
 
     const navigateToSurah = (surahNum) => {
         if (surahNum >= 1 && surahNum <= 114) {
@@ -3182,7 +3153,7 @@ function SurahDetailPage() {
                                 className="grid grid-cols-6 sm:grid-cols-10 md:grid-cols-12 lg:grid-cols-15 gap-2 max-h-72 overflow-y-auto p-1 scroll-smooth"
                             >
                                 {availableAyahNumbers.map((ayahNum) => {
-                                    const isCurrentAyah = ayahNum === currentAyahNumber;
+                                    const isCurrentAyah = parseInt(ayahNum, 10) === parseInt(currentAyahNumber, 10);
                                     const isBookmarked = bookmarkedAyahs.has(ayahNum) || bookmarkedAyahs.has(parseInt(ayahNum, 10)) || bookmarkedAyahs.has(String(ayahNum));
                                     return (
                                         <div 
@@ -3191,9 +3162,9 @@ function SurahDetailPage() {
                                             className="relative"
                                         >
                                             <button
+                                                type="button"
                                                 onClick={() => {
                                                     navigateToAyah(ayahNum);
-                                                    handleSwitchTab('ayat');
                                                 }}
                                                 className={`
                                                     w-full aspect-square rounded-xl text-xs sm:text-sm font-semibold transition-all relative flex items-center justify-center cursor-pointer
