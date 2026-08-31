@@ -7,7 +7,12 @@ import {
     PlayIcon,
     StarIcon
 } from '@heroicons/react/24/outline';
-import { IoBookmark } from 'react-icons/io5';
+import { 
+    IoBookmark, 
+    IoDocumentTextOutline, 
+    IoListOutline,
+    IoSparkles
+} from 'react-icons/io5';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
 import { Card, Button, Badge, PageHeader, PageContent } from '../components/ui';
@@ -478,18 +483,27 @@ function SurahListPage() {
                                             </div>
                                         )}
 
-                                        {/* Action Buttons */}
-                                        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                                            <span className="text-sm font-medium text-green-600 group-hover:text-green-700 flex items-center space-x-1">
+                                        {/* Action Buttons: 2 Links Only (Baca Surah & Kandungan Surah) */}
+                                        <div className="pt-3.5 border-t border-gray-100 mt-auto grid grid-cols-2 gap-2">
+                                            {/* Button 1: Baca Surah (Pergi langsung ke /surah/:number) */}
+                                            <span className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-emerald-600 group-hover:bg-emerald-700 transition-all shadow-xs group-hover:shadow-sm text-center">
+                                                <BookOpenIcon className="w-4 h-4 shrink-0" />
                                                 <span>Baca Surah</span>
                                                 <span>→</span>
                                             </span>
+
+                                            {/* Button 2: Kandungan Surah (Pergi ke /surah/:number?tab=kandungan) */}
                                             <button
-                                                onClick={(e) => handlePlaySurah(surah.number, e)}
-                                                className="p-2 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-colors cursor-pointer"
-                                                title="Putar Audio"
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    navigate(`/surah/${surah.number}?tab=kandungan`);
+                                                }}
+                                                className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-300 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-95 text-center"
+                                                title={`Lihat info latar belakang & kandungan Surah ${surah.name_latin}`}
                                             >
-                                                <PlayIcon className="w-4 h-4" />
+                                                <IoDocumentTextOutline className="w-4 h-4 text-amber-600 shrink-0" />
+                                                <span>Kandungan Surah</span>
                                             </button>
                                         </div>
                                     </div>
