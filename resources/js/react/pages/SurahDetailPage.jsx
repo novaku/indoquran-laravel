@@ -2523,23 +2523,23 @@ function SurahDetailPage() {
                                 </div>
 
                                 <div 
-                                    className="mb-6 w-full rounded-2xl border border-gray-200/90 bg-white p-5 sm:p-7 md:p-8 shadow-xs hover:shadow-sm transition-all duration-200" 
+                                    className="mb-6 w-full rounded-2xl border border-gray-200/90 bg-white px-6 sm:px-10 md:px-12 py-8 sm:py-10 shadow-xs hover:shadow-sm transition-all duration-200" 
                                     id={`ayah-${currentAyahNumber}-arabic`}
                                 >
-                                    <div className="text-center py-2 sm:py-3.5" dir="rtl">
+                                    <div className="w-full text-center flex flex-col items-center justify-center py-2 sm:py-4 px-2 sm:px-6" dir="rtl">
                                         <p 
                                             ref={currentAyahRef}
-                                            className="font-arabic ayah-arabic-ink font-normal inline select-text tracking-wide"
+                                            className="font-arabic ayah-arabic-ink font-normal block text-center select-text tracking-wide w-full"
                                             style={{ 
                                                 fontSize: `${fontSize + 16}px`,
-                                                lineHeight: '2.4',
+                                                lineHeight: '2.6',
                                                 wordSpacing: '0.18em',
                                                 fontFamily: "'AlQuran-IndoPak', 'Scheherazade New', 'Scheherazade', 'Amiri', 'Traditional Arabic', serif"
                                             }}
                                         >
                                             {currentAyah.text_arabic}
                                             <span 
-                                                className="ayah-number-seal-3d font-bold text-white select-none inline-flex items-center justify-center mr-3.5 align-middle cursor-default"
+                                                className="ayah-number-seal-3d font-bold text-white select-none inline-flex items-center justify-center mr-4 ml-2 align-middle cursor-default"
                                                 dir="ltr"
                                                 style={{ 
                                                     fontSize: `${Math.max(fontSize - 4, 18)}px`,
@@ -2560,12 +2560,12 @@ function SurahDetailPage() {
 
                                     {/* Transliterasi Latin - Langsung di bawah Teks Arab */}
                                     {displayedLatinText && (
-                                        <div className="text-center pt-3.5 pb-1 border-t border-gray-100 mt-3 sm:mt-4" dir="ltr">
-                                            <p className="text-[11px] sm:text-xs font-bold text-emerald-800/80 uppercase tracking-wider mb-1.5 flex items-center justify-center gap-1.5 select-none">
+                                        <div className="w-full text-center pt-5 pb-1 border-t border-gray-100 mt-6 sm:mt-8" dir="ltr">
+                                            <p className="text-[11px] sm:text-xs font-bold text-emerald-800/80 uppercase tracking-wider mb-2 flex items-center justify-center gap-1.5 select-none">
                                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block" />
                                                 <span>Transliterasi Latin</span>
                                             </p>
-                                            <p className="text-sm sm:text-base md:text-lg text-gray-700 font-medium italic leading-relaxed select-text w-full mx-auto px-2">
+                                            <p className="text-base sm:text-lg md:text-xl text-gray-700 font-medium italic leading-relaxed select-text max-w-4xl mx-auto px-4">
                                                 {displayedLatinText}
                                             </p>
                                         </div>
