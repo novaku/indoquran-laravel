@@ -32,10 +32,16 @@ return [
         'https://indoquran.web.id',
     ],
 
+    // 'allowed_origins_patterns' => [
+    //     'http://localhost:*',
+    //     'http://127.0.0.1:*',
+    //     'https://*.indoquran.web.id',
+    // ],
+
     'allowed_origins_patterns' => [
-        'http://localhost:*',
-        'http://127.0.0.1:*',
-        'https://*.indoquran.web.id',
+        '#^http://localhost(:\d+)?$#',
+        '#^http://127\.0\.0\.1(:\d+)?$#',
+        '#^https://.*\.indoquran\.web\.id$#',
     ],
 
     'allowed_headers' => [
