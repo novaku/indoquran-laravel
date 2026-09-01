@@ -188,10 +188,8 @@ body {
   text-align: right;
 }
 
-/* Better dark mode support (if needed later) */
-@media (prefers-color-scheme: dark) {
-  .dark-mode-auto {
-    background-color: #1f2937;
-    color: #f9fafb;
-  }
+/* Dark mode support (class-based only) */
+.dark .dark-mode-auto {
+  background-color: #1f2937;
+  color: #f9fafb;
 }

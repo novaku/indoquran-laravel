@@ -1,8 +1,20 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 @source "../views";
 @source "../js";
 @import "./_fonts.css";
 @import "./pwa-install.css";
+
+/* Prevent automatic dark mode from browser / Chrome Auto Dark */
+:root {
+    color-scheme: only light;
+}
+
+html, body {
+    color-scheme: only light;
+    background-color: #ffffff;
+    color: #111827;
+}
 
 /* ==========================================================================
    1. Arabic Typography

@@ -128,15 +128,13 @@
     }
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-    .pwa-install-modal {
-        background-color: rgba(0, 0, 0, 0.8);
-    }
-    
-    .pwa-install-banner {
-        background: linear-gradient(135deg, #166534, #15803d);
-    }
+/* Dark mode support (class-based only) */
+.dark .pwa-install-modal {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.dark .pwa-install-banner {
+    background: linear-gradient(135deg, #166534, #15803d);
 }
 
 /* Reduced motion support */
