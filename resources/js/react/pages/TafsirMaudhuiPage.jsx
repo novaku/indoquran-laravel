@@ -442,25 +442,17 @@ function TafsirMaudhuiPage() {
         <div className="min-h-screen bg-gray-50">
             <SEOHead {...seoData} />
             
-            {/* Hero Section */}
-            <section className="bg-gradient-to-r from-blue-600 to-green-600 text-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                    <div className="text-center">
-                        <div className="flex justify-center mb-6">
-                            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg">
-                                <AcademicCapIcon className="w-8 h-8 text-blue-600" />
-                            </div>
-                        </div>
-                        <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                            Tafsir Maudhui
-                        </h1>
-                        <p className="text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
-                            Jelajahi topik-topik penting dalam Al-Quran melalui struktur hierarkis yang terorganisir. 
-                            Temukan ayat-ayat berdasarkan tema dan pelajari pesan-pesan Al-Quran secara tematik.
-                        </p>
-                    </div>
+            {/* Header */}
+            <div className="bg-white border-b border-gray-200">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+                    <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-3">
+                        Tafsir Maudhui
+                    </h1>
+                    <p className="text-gray-600 text-sm md:text-base max-w-2xl mx-auto">
+                        Jelajahi topik-topik penting dalam Al-Quran melalui struktur tematik hierarkis untuk memperdalam pemahaman ayat-ayat Al-Quran.
+                    </p>
                 </div>
-            </section>
+            </div>
 
             {/* Top Billboard Ad (Detik.com Pattern) */}
             <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" className="my-4 sm:my-6" />

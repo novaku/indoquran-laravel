@@ -23,11 +23,20 @@ const StatistikPage = () => {
     return (
         <>
             <SEOHead {...seoData} />
-            <PageContent>
-                <PageHeader
-                    title="📊 Statistik Komunitas IndoQuran"
-                    subtitle="Jelajahi data aktivitas komunitas dan lihat bagaimana umat muslim di seluruh dunia menggunakan IndoQuran untuk memperdalam pemahaman Al-Quran"
-                />
+            <div className="min-h-screen bg-gray-50">
+                {/* Header */}
+                <div className="bg-white border-b border-gray-200">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+                        <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-3">
+                            Statistik Komunitas IndoQuran
+                        </h1>
+                        <p className="text-gray-600 text-sm md:text-base max-w-2xl mx-auto">
+                            Jelajahi data aktivitas komunitas dan lihat bagaimana umat muslim di seluruh dunia menggunakan IndoQuran untuk memperdalam pemahaman Al-Quran.
+                        </p>
+                    </div>
+                </div>
+
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
                 {/* Top Billboard Ad (Detik.com Pattern) */}
                 <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" className="my-4 sm:my-6" />
@@ -91,22 +100,22 @@ const StatistikPage = () => {
                 </div>
 
                 {/* Community Message */}
-                <div className="mt-8 bg-gradient-to-r from-green-600 to-blue-600 rounded-lg text-white p-8 text-center">
-                    <h2 className="text-2xl font-bold mb-4">
+                <div className="mt-8 bg-white border border-gray-200 rounded-2xl p-8 text-center shadow-xs">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-3">
                         Bergabunglah dengan Komunitas Kami! 🤝
                     </h2>
-                    <p className="text-lg mb-6 text-green-100">
+                    <p className="text-base text-gray-600 mb-6 max-w-2xl mx-auto">
                         Jadilah bagian dari komunitas muslim yang aktif dalam mempelajari Al-Quran. 
                         Setiap kunjungan Anda berkontribusi dalam membangun komunitas yang lebih kuat.
                     </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
                         <a href="/daftar">
-                            <Button variant="secondary" size="lg">
+                            <Button variant="primary" size="md" className="bg-green-600 hover:bg-green-700 text-white shadow-xs">
                                 📝 Daftar Sekarang
                             </Button>
                         </a>
                         <a href="/surah">
-                            <Button variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white hover:text-green-600">
+                            <Button variant="outline" size="md" className="border border-gray-300 text-gray-700 hover:bg-gray-50">
                                 📖 Mulai Membaca
                             </Button>
                         </a>
@@ -147,7 +156,8 @@ const StatistikPage = () => {
                         minHeight="90px"
                     />
                 </div>
-            </PageContent>
+            </div>
+        </div>
         </>
     );
 };

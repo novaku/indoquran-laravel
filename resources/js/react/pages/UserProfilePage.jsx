@@ -110,12 +110,18 @@ function UserProfilePage() {
                 description="Kelola informasi akun dan preferensi Anda"
             />
             
-            <div className="min-h-screen bg-gray-50 pt-16">
+            <div className="min-h-screen bg-gray-50">
                 {/* Header */}
-                <PageHeader
-                    title="Profil Saya"
-                    icon={<IoPersonOutline className="w-6 h-6" />}
-                />
+                <div className="bg-white border-b border-gray-200">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+                        <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-2">
+                            Profil Saya
+                        </h1>
+                        <p className="text-gray-600 text-sm md:text-base max-w-2xl mx-auto">
+                            Kelola informasi akun dan preferensi IndoQuran Anda
+                        </p>
+                    </div>
+                </div>
 
                 {/* Content */}
                 <PageContent size="md">

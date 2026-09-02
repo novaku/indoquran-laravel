@@ -74,28 +74,16 @@ function AboutProjectPage() {
                 description="Pelajari lebih lanjut tentang IndoQuran, platform digital untuk membaca dan mempelajari Al-Quran dengan terjemahan bahasa Indonesia"
             />
             
-            <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-white pt-16">
-                {/* Hero Header */}
-                <div className="relative bg-gradient-to-r from-green-600 to-green-700 overflow-hidden">
-                    <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-                    <div className="relative max-w-6xl mx-auto px-4 py-16 text-center">
-                        <div className="inline-flex items-center justify-center w-20 h-20 bg-white bg-opacity-20 rounded-full mb-6">
-                            <IoInformationCircleOutline className="w-10 h-10 text-white" />
-                        </div>
-                        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            <div className="min-h-screen bg-gray-50">
+                {/* Header */}
+                <div className="bg-white border-b border-gray-200">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+                        <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-3">
                             Tentang IndoQuran
                         </h1>
-                        <p className="text-xl text-green-100 max-w-3xl mx-auto leading-relaxed">
+                        <p className="text-gray-600 text-sm md:text-base max-w-2xl mx-auto">
                             Platform Al-Quran Digital Modern untuk Umat Islam Indonesia
                         </p>
-                        
-                        {/* Decorative Islamic Pattern */}
-                        <div className="absolute top-0 right-0 w-64 h-64 opacity-10">
-                            <div className="w-full h-full bg-white rounded-full transform rotate-45"></div>
-                        </div>
-                        <div className="absolute bottom-0 left-0 w-48 h-48 opacity-10">
-                            <div className="w-full h-full bg-white rounded-full transform -rotate-12"></div>
-                        </div>
                     </div>
                 </div>
 

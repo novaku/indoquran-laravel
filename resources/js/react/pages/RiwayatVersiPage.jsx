@@ -170,18 +170,13 @@ function RiwayatVersiPage() {
             />
             <StructuredData data={structuredData} />
             
-            {/* Header Section - Modern & Clean */}
-            <div className="bg-gradient-to-b from-emerald-50/80 via-white to-gray-50 border-b border-gray-200/80 py-12 lg:py-16">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/70 border border-emerald-200/80 text-emerald-800 text-xs sm:text-sm font-medium shadow-xs">
-                        <RocketLaunchIcon className="w-4 h-4 text-emerald-600" />
-                        <span>Changelog & Pembaruan Sistem</span>
-                    </div>
-
-                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight">
-                        Riwayat <span className="text-emerald-600">Versi IndoQuran</span>
+            {/* Header */}
+            <div className="bg-white border-b border-gray-200 py-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3">
+                    <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-3">
+                        Riwayat Versi IndoQuran
                     </h1>
-                    <p className="text-base sm:text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                    <p className="text-gray-600 text-sm md:text-base max-w-2xl mx-auto">
                         Transparansi dan dokumentasi menyeluruh terhadap setiap penambahan fitur, peningkatan performa, serta perbaikan sistem di platform IndoQuran.
                     </p>
 

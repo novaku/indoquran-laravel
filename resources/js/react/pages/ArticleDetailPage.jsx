@@ -259,7 +259,7 @@ const ArticleDetailPage = () => {
         />
 
         {/* Article Header */}
-        <div className="bg-gradient-to-b from-primary-50/70 to-white dark:from-gray-900 dark:to-gray-950 py-8 md:py-10 border-b border-gray-100 dark:border-gray-850">
+        <div className="bg-white border-b border-gray-200 py-8 md:py-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl">
               {/* Breadcrumb */}

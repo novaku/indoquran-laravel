@@ -420,23 +420,16 @@ function UserBookmarksPage() {
                 canonicalUrl="https://indoquran.web.id/penanda"
             />
             
-            <div className="min-h-screen bg-gradient-to-b from-emerald-50/40 via-gray-50 to-gray-100/60 pb-20">
-                {/* Hero Header Section */}
-                <div className="bg-gradient-to-r from-emerald-800 via-teal-700 to-green-800 text-white shadow-lg relative overflow-hidden">
-                    {/* Islamic geometric pattern backdrop */}
-                    <div className="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
-                    
-                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative z-10">
+            <div className="min-h-screen bg-gray-50 pb-20">
+                {/* Header */}
+                <div className="bg-white border-b border-gray-200">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                             <div>
-                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-emerald-100 text-xs font-semibold backdrop-blur-sm mb-3">
-                                    <IoBookmark className="w-3.5 h-3.5 text-yellow-300" />
-                                    <span>Fitur Penanda & Bacaan</span>
-                                </div>
-                                <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-2">
+                                <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-2">
                                     Penanda & Ayat Favorit
                                 </h1>
-                                <p className="text-emerald-100 text-sm sm:text-base max-w-2xl leading-relaxed">
+                                <p className="text-gray-600 text-sm md:text-base max-w-2xl">
                                     Simpan ayat-ayat pilihan, buat catatan tadabbur, dan lanjutkan bacaan Al-Quran Anda kapan pun dengan mudah.
                                 </p>
                             </div>
@@ -445,15 +438,15 @@ function UserBookmarksPage() {
                             <div className="flex flex-wrap gap-3">
                                 <Link
                                     to="/surah"
-                                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-emerald-800 font-semibold text-sm hover:bg-emerald-50 transition-all shadow-md hover:shadow-lg active:scale-95"
+                                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-all shadow-2xs active:scale-95"
                                 >
-                                    <IoBookOutline className="w-4 h-4 text-emerald-600" />
+                                    <IoBookOutline className="w-4 h-4 text-green-600" />
                                     <span>Jelajahi Al-Quran</span>
                                 </Link>
                                 {!user && (
                                     <Link
                                         to="/masuk"
-                                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600/80 border border-emerald-400/40 text-white font-semibold text-sm hover:bg-emerald-600 transition-all shadow-sm active:scale-95"
+                                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-green-600 text-white font-semibold text-sm hover:bg-green-700 transition-all shadow-xs active:scale-95"
                                     >
                                         <IoSparkles className="w-4 h-4 text-yellow-300" />
                                         <span>Masuk untuk Sinkron</span>
@@ -466,68 +459,68 @@ function UserBookmarksPage() {
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mt-8">
                             <div 
                                 onClick={() => setActiveTab('semua')}
-                                className={`p-4 rounded-2xl cursor-pointer transition-all ${
+                                className={`p-4 rounded-2xl cursor-pointer transition-all border ${
                                     activeTab === 'semua' 
-                                        ? 'bg-white text-gray-900 shadow-lg ring-2 ring-emerald-300' 
-                                        : 'bg-white/10 hover:bg-white/20 text-white backdrop-blur-md'
+                                        ? 'bg-green-50/70 border-green-500 shadow-xs ring-1 ring-green-500' 
+                                        : 'bg-gray-50/80 border-gray-200 hover:bg-gray-100/80'
                                 }`}
                             >
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs font-medium opacity-80">Total Penanda</span>
-                                    <IoBookmark className={`w-5 h-5 ${activeTab === 'semua' ? 'text-emerald-600' : 'text-emerald-200'}`} />
+                                    <span className="text-xs font-medium text-gray-500">Total Penanda</span>
+                                    <IoBookmark className="w-5 h-5 text-green-600" />
                                 </div>
-                                <p className="text-2xl sm:text-3xl font-bold mt-2">{totalCount}</p>
-                                <span className="text-[11px] opacity-75">Ayat ditandai</span>
+                                <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{totalCount}</p>
+                                <span className="text-[11px] text-gray-500">Ayat ditandai</span>
                             </div>
 
                             <div 
                                 onClick={() => setActiveTab('favorit')}
-                                className={`p-4 rounded-2xl cursor-pointer transition-all ${
+                                className={`p-4 rounded-2xl cursor-pointer transition-all border ${
                                     activeTab === 'favorit' 
-                                        ? 'bg-white text-gray-900 shadow-lg ring-2 ring-rose-300' 
-                                        : 'bg-white/10 hover:bg-white/20 text-white backdrop-blur-md'
+                                        ? 'bg-rose-50/70 border-rose-500 shadow-xs ring-1 ring-rose-500' 
+                                        : 'bg-gray-50/80 border-gray-200 hover:bg-gray-100/80'
                                 }`}
                             >
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs font-medium opacity-80">Ayat Favorit</span>
-                                    <IoHeart className={`w-5 h-5 ${activeTab === 'favorit' ? 'text-rose-600' : 'text-rose-300'}`} />
+                                    <span className="text-xs font-medium text-gray-500">Ayat Favorit</span>
+                                    <IoHeart className="w-5 h-5 text-rose-500" />
                                 </div>
-                                <p className="text-2xl sm:text-3xl font-bold mt-2">{favoritesCount}</p>
-                                <span className="text-[11px] opacity-75">Sering dibaca</span>
+                                <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{favoritesCount}</p>
+                                <span className="text-[11px] text-gray-500">Sering dibaca</span>
                             </div>
 
                             <div 
                                 onClick={() => setActiveTab('catatan')}
-                                className={`p-4 rounded-2xl cursor-pointer transition-all ${
+                                className={`p-4 rounded-2xl cursor-pointer transition-all border ${
                                     activeTab === 'catatan' 
-                                        ? 'bg-white text-gray-900 shadow-lg ring-2 ring-amber-300' 
-                                        : 'bg-white/10 hover:bg-white/20 text-white backdrop-blur-md'
+                                        ? 'bg-amber-50/70 border-amber-500 shadow-xs ring-1 ring-amber-500' 
+                                        : 'bg-gray-50/80 border-gray-200 hover:bg-gray-100/80'
                                 }`}
                             >
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs font-medium opacity-80">Catatan Ayat</span>
-                                    <IoPencilOutline className={`w-5 h-5 ${activeTab === 'catatan' ? 'text-amber-600' : 'text-amber-300'}`} />
+                                    <span className="text-xs font-medium text-gray-500">Catatan Ayat</span>
+                                    <IoPencilOutline className="w-5 h-5 text-amber-500" />
                                 </div>
-                                <p className="text-2xl sm:text-3xl font-bold mt-2">{notesCount}</p>
-                                <span className="text-[11px] opacity-75">Tadabbur & Refleksi</span>
+                                <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{notesCount}</p>
+                                <span className="text-[11px] text-gray-500">Tadabbur & Refleksi</span>
                             </div>
 
                             <div 
                                 onClick={() => setActiveTab('terakhir')}
-                                className={`p-4 rounded-2xl cursor-pointer transition-all ${
+                                className={`p-4 rounded-2xl cursor-pointer transition-all border ${
                                     activeTab === 'terakhir' 
-                                        ? 'bg-white text-gray-900 shadow-lg ring-2 ring-blue-300' 
-                                        : 'bg-white/10 hover:bg-white/20 text-white backdrop-blur-md'
+                                        ? 'bg-blue-50/70 border-blue-500 shadow-xs ring-1 ring-blue-500' 
+                                        : 'bg-gray-50/80 border-gray-200 hover:bg-gray-100/80'
                                 }`}
                             >
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs font-medium opacity-80">Terakhir Baca</span>
-                                    <IoTimeOutline className={`w-5 h-5 ${activeTab === 'terakhir' ? 'text-blue-600' : 'text-blue-200'}`} />
+                                    <span className="text-xs font-medium text-gray-500">Terakhir Baca</span>
+                                    <IoTimeOutline className="w-5 h-5 text-blue-500" />
                                 </div>
-                                <p className="text-lg sm:text-xl font-bold mt-2 truncate">
+                                <p className="text-lg sm:text-xl font-bold text-gray-900 mt-2 truncate">
                                     {lastRead?.surah?.name_latin || lastRead?.surah?.name_indonesian || (lastRead ? `Surah ${lastRead.surah_number}` : 'Belum Ada')}
                                 </p>
-                                <span className="text-[11px] opacity-75">
+                                <span className="text-[11px] text-gray-500">
                                     {lastRead ? `Ayat ke-${lastRead.ayah_number || 1}` : 'Mulai baca sekarang'}
                                 </span>
                             </div>

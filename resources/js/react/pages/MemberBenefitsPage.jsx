@@ -128,42 +128,39 @@ function MemberBenefitsPage() {
                 keywords="member indoquran, fitur premium, bookmark quran, catatan ayat, progress baca quran, komunitas muslim"
             />
             
-            <PageContent>
-                {/* Hero Section */}
-                <div className="relative bg-gradient-to-r from-green-600 to-blue-600 text-white py-20 -mx-4 sm:-mx-6 lg:-mx-8 mb-12">
-                    <div className="absolute inset-0 bg-black opacity-10"></div>
-                    <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="text-center">
-                            <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                                Bergabunglah Dengan
-                                <span className="block text-yellow-300">Komunitas Muslim</span>
-                            </h1>
-                            <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto text-green-100">
-                                Dapatkan pengalaman membaca Al-Quran yang lebih personal dan bermakna 
-                                dengan fitur-fitur eksklusif untuk member terdaftar
-                            </p>
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="min-h-screen bg-gray-50">
+                {/* Header */}
+                <div className="bg-white border-b border-gray-200">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+                        <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-3">
+                            Keuntungan Menjadi Member IndoQuran
+                        </h1>
+                        <p className="text-gray-600 text-sm md:text-base max-w-2xl mx-auto mb-6">
+                            Dapatkan pengalaman membaca Al-Quran yang lebih personal dan bermakna dengan fitur-fitur eksklusif untuk member terdaftar.
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                            <Button
+                                onClick={handleGetStarted}
+                                variant="primary"
+                                size="md"
+                                className="bg-green-600 hover:bg-green-700 text-white shadow-xs cursor-pointer"
+                            >
+                                {isAuthenticated ? 'Lihat Profil Saya' : 'Daftar Gratis Sekarang'}
+                            </Button>
+                            <Link to="/tentang">
                                 <Button
-                                    onClick={handleGetStarted}
-                                    variant="primary"
-                                    size="lg"
-                                    className="bg-yellow-400 hover:bg-yellow-500 text-green-800 shadow-lg"
+                                    variant="outline"
+                                    size="md"
+                                    className="border border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
                                 >
-                                    {isAuthenticated ? 'Lihat Profil Saya' : 'Daftar Gratis Sekarang'}
+                                    Pelajari Lebih Lanjut
                                 </Button>
-                                <Link to="/tentang">
-                                    <Button
-                                        variant="outline"
-                                        size="lg"
-                                        className="border-2 border-white text-white hover:bg-white hover:text-green-600"
-                                    >
-                                        Pelajari Lebih Lanjut
-                                    </Button>
-                                </Link>
-                            </div>
+                            </Link>
                         </div>
                     </div>
                 </div>
+
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
                 {/* Top Billboard Ad (Detik.com Pattern) */}
                 <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" className="my-4 sm:my-6" />
@@ -269,7 +266,7 @@ function MemberBenefitsPage() {
                 </div>
 
                 {/* CTA Section */}
-                <div className="py-12 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-2xl -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+                <div className="py-12 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-2xl px-4 sm:px-6 lg:px-8">
                     <div className="max-w-4xl mx-auto text-center">
                         <h2 className="text-4xl font-bold mb-6">
                             Siap Memulai Perjalanan Spiritual Anda?
@@ -354,7 +351,8 @@ function MemberBenefitsPage() {
                         minHeight="90px"
                     />
                 </div>
-            </PageContent>
+            </div>
+        </div>
         </>
     );
 }

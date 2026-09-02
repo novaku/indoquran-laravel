@@ -133,19 +133,19 @@ const ArticlesPage = () => {
         robots={selectedTag || searchQuery || currentPage > 1 ? 'noindex, follow' : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'}
       />
 
-      <div className="min-h-screen bg-gradient-to-b from-primary-50 to-white">
+      <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white py-12">
-          <div className="container mx-auto px-4">
-            <h1 className="text-3xl md:text-4xl font-bold text-center mb-4">
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+            <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-3">
               Artikel Islami
             </h1>
-            <p className="text-center text-green-100 max-w-2xl mx-auto">
+            <p className="text-gray-600 text-sm md:text-base max-w-2xl mx-auto mb-6">
               Kumpulan artikel dan kajian untuk memperdalam pemahaman Al-Quran dan Islam
             </p>
             
             {/* Search Form */}
-            <form onSubmit={handleSearch} className="max-w-2xl mx-auto mt-8">
+            <form onSubmit={handleSearch} className="max-w-xl mx-auto">
               <div className="flex gap-2">
                 <div className="flex-1 relative">
                   <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -154,12 +154,12 @@ const ArticlesPage = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Cari artikel..."
-                    className="w-full pl-12 pr-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-300"
+                    className="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="px-6 py-3 bg-white text-green-600 font-semibold rounded-lg hover:bg-green-50 transition-colors"
+                  className="px-5 py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors text-sm shadow-xs cursor-pointer"
                 >
                   Cari
                 </button>

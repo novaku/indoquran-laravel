@@ -108,35 +108,22 @@ function PrivacyPage() {
                 description="Pelajari Kebijakan Privasi IndoQuran: bagaimana kami mengumpulkan, melindungi, dan mengelola data pribadi pengguna dengan aman dan transparan."
             />
             
-            <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-white pt-16">
-                {/* Hero Header */}
-                <div className="relative bg-gradient-to-r from-green-600 to-green-700 overflow-hidden">
-                    <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-                    <div className="relative max-w-6xl mx-auto px-4 py-16 text-center">
-                        <div className="inline-flex items-center justify-center w-20 h-20 bg-white bg-opacity-20 rounded-full mb-6">
-                            <IoShieldCheckmarkOutline className="w-10 h-10 text-white" />
-                        </div>
-                        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            <div className="min-h-screen bg-gray-50">
+                {/* Header */}
+                <div className="bg-white border-b border-gray-200">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+                        <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-3">
                             Kebijakan Privasi
                         </h1>
-                        <p className="text-xl text-green-100 max-w-3xl mx-auto leading-relaxed">
-                            Komitmen IndoQuran dalam menjaga keamanan, kerahasiaan, dan menghormati privasi seluruh umat dan pengguna kami.
+                        <p className="text-gray-600 text-sm md:text-base max-w-2xl mx-auto">
+                            Komitmen IndoQuran dalam menjaga keamanan, kerahasiaan, dan menghormati privasi seluruh pengguna.
                         </p>
-                        
-                        {/* Decorative Elements */}
-                        <div className="absolute top-0 right-0 w-64 h-64 opacity-10">
-                            <div className="w-full h-full bg-white rounded-full transform rotate-45"></div>
-                        </div>
-                        <div className="absolute bottom-0 left-0 w-48 h-48 opacity-10">
-                            <div className="w-full h-full bg-white rounded-full transform -rotate-12"></div>
-                        </div>
                     </div>
                 </div>
 
-                {/* Highlight Cards (Negative Top Margin) */}
-                <div className="relative -mt-8">
-                    <div className="max-w-6xl mx-auto px-4">
-                        <div className="grid md:grid-cols-3 gap-4">
+                {/* Highlight Cards */}
+                <div className="max-w-6xl mx-auto px-4 py-8">
+                    <div className="grid md:grid-cols-3 gap-4">
                             {privacyHighlights.map((item, index) => (
                                 <div key={index} className="bg-white rounded-xl shadow-lg p-6 text-center border border-gray-100">
                                     <div className={`w-12 h-12 ${item.bgColor} rounded-full flex items-center justify-center mx-auto mb-4`}>
@@ -148,7 +135,6 @@ function PrivacyPage() {
                             ))}
                         </div>
                     </div>
-                </div>
 
                 {/* Top Billboard Ad (Detik.com Pattern) */}
                 <AdSenseLeaderboard maxWidth="max-w-6xl" labelText="IKLAN" className="my-6" />
