@@ -558,12 +558,24 @@ function QuranHomePage() {
                             <span>Al-Quran Digital Indonesia & Terjemahan Lengkap</span>
                         </div>
 
-                        {/* Title & Tagline */}
-                        <div className="max-w-3xl space-y-3">
-                            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 tracking-tight">
-                                Indo<span className="text-emerald-600">Quran</span>
-                            </h1>
-                            <p className="text-base sm:text-lg lg:text-xl text-gray-600 font-normal leading-relaxed">
+                        {/* Title & Tagline with IndoQuran Logo */}
+                        <div className="flex flex-col items-center max-w-3xl space-y-4">
+                            <div className="relative group transition-transform duration-300 hover:scale-105">
+                                <picture>
+                                    <source srcSet="/images/logo.webp" type="image/webp" />
+                                    <img
+                                        src="/images/logo.png"
+                                        alt="IndoQuran - Al-Quran Online Indonesia"
+                                        className="h-28 sm:h-36 md:h-44 w-auto object-contain drop-shadow-sm"
+                                        width="190"
+                                        height="210"
+                                        loading="eager"
+                                        decoding="async"
+                                    />
+                                </picture>
+                            </div>
+                            <h1 className="sr-only">IndoQuran - Al-Quran Online Indonesia</h1>
+                            <p className="text-base sm:text-lg lg:text-xl text-gray-600 font-normal leading-relaxed max-w-2xl">
                                 Membaca, mendengar murottal, dan mentadabburi ayat-ayat suci Al-Quran dengan tampilan yang tenang, bersih, dan informatif.
                             </p>
                         </div>

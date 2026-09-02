@@ -136,11 +136,15 @@ function UserAuthPage() {
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                 {/* Logo */}
                 <div className="flex justify-center">
-                    <Link to="/" className="flex items-center space-x-2">
-                        <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
-                            <BookOpenIcon className="w-7 h-7 text-white" />
-                        </div>
-                        <span className="text-2xl font-bold text-gray-900">IndoQuran</span>
+                    <Link to="/" className="flex items-center space-x-2.5 group">
+                        <img 
+                            src="/images/logo-icon.webp" 
+                            alt="IndoQuran Logo" 
+                            className="w-12 h-12 object-contain transition-transform group-hover:scale-105"
+                            width="48"
+                            height="48"
+                        />
+                        <span className="text-2xl font-bold text-gray-900 group-hover:text-emerald-600 transition-colors">IndoQuran</span>
                     </Link>
                 </div>
                 

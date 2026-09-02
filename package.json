@@ -2,7 +2,7 @@
     "$schema": "https://json.schemastore.org/package.json",
     "private": true,
     "type": "module",
-    "version": "2.21.0",
+    "version": "2.22.0",
     "scripts": {
         "build": "vite build --mode production",
         "build:analyze": "vite build --mode production && npx vite-bundle-analyzer",

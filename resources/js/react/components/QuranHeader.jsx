@@ -89,12 +89,16 @@ function QuranHeader({ isSidebarOpen, setIsSidebarOpen }) {
                     <div className="flex items-center flex-1 justify-center md:justify-start md:ml-4">
                         <Link 
                             to="/" 
-                            className="flex items-center space-x-2 group"
+                            className="flex items-center space-x-2.5 group"
                         >
-                            <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-                                <BookOpenIcon className="w-5 h-5 text-white" />
-                            </div>
-                            <span className="text-xl font-bold text-gray-900 group-hover:text-green-600 transition-colors">
+                            <img 
+                                src="/images/logo-icon.webp" 
+                                alt="IndoQuran Logo" 
+                                className="w-8 h-8 object-contain transition-transform duration-200 group-hover:scale-110"
+                                width="32"
+                                height="32"
+                            />
+                            <span className="text-xl font-bold text-gray-900 group-hover:text-emerald-600 transition-colors">
                                 IndoQuran
                             </span>
                         </Link>

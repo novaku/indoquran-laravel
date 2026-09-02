@@ -1,5 +1,38 @@
 [
   {
+    "version": "2.22.0",
+    "date": "2 September 2026",
+    "type": "feature",
+    "title": "Integrasi Identitas Visual Brand Baru: Logo Resmi IndoQuran & Multi-Format Favicon Sistem",
+    "description": "Pembaruan identitas visual menyeluruh pada platform IndoQuran dengan mengintegrasikan logo resmi beresolusi tinggi dan aset grafis modern. Menghadirkan logo utama pada Hero Section Beranda, logo emblem pada Navbar, Footer, serta seluruh halaman autentikasi pengguna, didukung dengan generasi favicon multi-resolusi (ICO, PNG 16x16, 32x32, 48x48, WebP), Apple Touch Icon (180x180), dan ikon PWA Android Chrome (192x192 & 512x512) dengan latar belakang transparan yang tajam dan responsif.",
+    "changes": [
+      {
+        "type": "feature",
+        "text": "Integrasi Logo Resmi IndoQuran di Beranda (QuranHomePage) - Penempatan logo utama IndoQuran berformat WebP/PNG transparan dengan efek hover dinamis dan rasio visual yang seimbang pada Hero Section Beranda"
+      },
+      {
+        "type": "feature",
+        "text": "Sistem Multi-Format Favicon & Ikon Web Lengkap - Pembaruan favicon multi-resolusi /favicon.ico (16, 32, 48px), favicon-16x16, favicon-32x32 dalam format PNG & WebP untuk tampilan tab browser yang jernih dan profesional"
+      },
+      {
+        "type": "feature",
+        "text": "Dukungan Ikon PWA & Perangkat Mobile (Apple & Android) - Pemasangan Apple Touch Icon 180x180 dan Android Chrome Web App Icons (192x192 & 512x512) berformat PNG & WebP untuk integrasi bookmark homescreen dan PWA"
+      },
+      {
+        "type": "improvement",
+        "text": "Standardisasi Branding Navigasi & Footer (QuranHeader & QuranFooter) - Mengganti ikon buku generik dengan emblem logo resmi IndoQuran pada bilah navigasi atas dan bagian footer"
+      },
+      {
+        "type": "improvement",
+        "text": "Penyelarasan Logo pada Halaman Autentikasi & Akun - Mengintegrasikan logo IndoQuran baru pada halaman Masuk (Login), Daftar (Register), Lupa Password, dan Reset Password"
+      },
+      {
+        "type": "improvement",
+        "text": "Dukungan Favicon pada Halaman AMP - Menambahkan meta tag dan link favicon resolusi tinggi pada template Google AMP (app.blade.php)"
+      }
+    ]
+  },
+  {
     "version": "2.21.0",
     "date": "30 Agustus 2026",
     "type": "feature",

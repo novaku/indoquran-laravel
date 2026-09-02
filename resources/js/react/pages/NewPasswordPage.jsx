@@ -215,9 +215,13 @@ function NewPasswordPage() {
                 {/* Logo */}
                 <div className="flex justify-center">
                     <Link to="/" className="flex items-center space-x-3 group">
-                        <div className="w-14 h-14 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
-                            <BookOpenIcon className="w-8 h-8 text-white" />
-                        </div>
+                        <img 
+                            src="/images/logo-icon.webp" 
+                            alt="IndoQuran Logo" 
+                            className="w-14 h-14 object-contain transition-transform group-hover:scale-105"
+                            width="56"
+                            height="56"
+                        />
                         <span className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
                             IndoQuran
                         </span>

@@ -4,6 +4,10 @@
     <meta charset="utf-8">
     <title>{{ trim($__env->yieldContent('title')) }} - IndoQuran AMP</title>
     <link rel="canonical" href="{{ trim($__env->yieldContent('canonical')) }}">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
     <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
     <meta name="color-scheme" content="only light">

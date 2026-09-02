@@ -184,12 +184,16 @@ function QuranFooter() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {/* Brand Section */}
                         <div className="lg:col-span-1">
-                            <div className="flex items-center space-x-2 mb-4">
-                                <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-                                    <BookOpenIcon className="w-5 h-5 text-white" />
-                                </div>
-                                <span className="text-xl font-bold">IndoQuran</span>
-                            </div>
+                            <Link to="/" className="inline-flex items-center space-x-2.5 mb-4 group">
+                                <img 
+                                    src="/images/logo-icon.webp" 
+                                    alt="IndoQuran Logo" 
+                                    className="w-8 h-8 object-contain transition-transform group-hover:scale-110"
+                                    width="32"
+                                    height="32"
+                                />
+                                <span className="text-xl font-bold group-hover:text-emerald-400 transition-colors">IndoQuran</span>
+                            </Link>
                             <p className="text-gray-300 mb-6 text-sm leading-relaxed">
                                 Baca, Dengarkan, Cari, dan Renungkan Al-Quran. 
                                 IndoQuran didedikasikan untuk membantu umat dalam mendalami 

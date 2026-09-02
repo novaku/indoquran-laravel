@@ -132,15 +132,15 @@ function RiwayatVersiPage() {
         "@context": "https://schema.org",
         "@type": "WebPage",
         "name": "Riwayat Versi - IndoQuran",
-        "description": "Catatan perubahan dan pembaruan versi platform Al-Quran digital IndoQuran dengan Jadwal Sholat Realtime, Navigasi Mushaf Modern, Detail Doa & Dzikir, Tafsir Maudhui, Bookmark, dan PWA",
+        "description": "Catatan perubahan dan pembaruan versi platform Al-Quran digital IndoQuran dengan Logo Resmi Baru, Jadwal Sholat Realtime, Navigasi Mushaf Modern, Detail Doa & Dzikir, Tafsir Maudhui, Bookmark, dan PWA",
         "url": `${window.location.origin}/riwayat-versi`,
-        "dateModified": "2026-08-29",
+        "dateModified": "2026-09-02",
         "mainEntity": {
             "@type": "SoftwareApplication",
             "name": "IndoQuran",
             "applicationCategory": "Religious Application",
             "operatingSystem": "Web Browser",
-            "softwareVersion": latestVersion?.version || "2.19.0",
+            "softwareVersion": latestVersion?.version || "2.22.0",
             "releaseNotes": latestVersion?.description || "",
             "installUrl": window.location.origin,
             "applicationSubCategory": "Progressive Web App",
@@ -164,8 +164,8 @@ function RiwayatVersiPage() {
         <div className="min-h-screen bg-gray-50/70 text-gray-800">
             <SEOHead 
                 title="Riwayat Versi - Changelog Lengkap IndoQuran ✅"
-                description="Catatan lengkap perjalanan pembaruan IndoQuran: Jadwal Sholat Realtime, Navigasi Mushaf Modern, Detail Doa & Dzikir, Tafsir Tematik Maudhui, Penanda & Bookmark, dan PWA."
-                keywords="indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi, indoquran 2.19.0, jadwal sholat, navigasi mushaf, doa dan dzikir, tafsir maudhui, penanda quran, PWA"
+                description="Catatan lengkap perjalanan pembaruan IndoQuran: Logo Resmi Baru, Jadwal Sholat Realtime, Navigasi Mushaf Modern, Detail Doa & Dzikir, Tafsir Tematik Maudhui, Penanda & Bookmark, dan PWA."
+                keywords="indoquran update, changelog, version history, riwayat versi, pembaruan aplikasi, indoquran 2.22.0, logo indoquran, jadwal sholat, navigasi mushaf, doa dan dzikir, tafsir maudhui, penanda quran, PWA"
                 canonicalUrl={`${window.location.origin}/riwayat-versi`}
             />
             <StructuredData data={structuredData} />
