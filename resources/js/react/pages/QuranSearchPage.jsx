@@ -216,7 +216,7 @@ function QuranSearchPage() {
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedQuery(query);
-        }, 500); // 500ms delay
+        }, 1000); // 1000ms (1 second) debounce delay before sending to backend
 
         return () => clearTimeout(timer);
     }, [query]);

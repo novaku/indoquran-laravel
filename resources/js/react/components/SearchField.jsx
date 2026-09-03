@@ -252,7 +252,7 @@ const SearchField = ({
                 setShowSuggestions(false);
                 setIsSearchLoading(false);
             }
-        }, 500); // Increased debounce delay to 500ms to reduce API calls
+        }, 1000); // 1-second debounce delay for on-type search before sending to backend
     }, [fetchSuggestions]);
 
     // Handle search term changes
