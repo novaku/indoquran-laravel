@@ -361,9 +361,9 @@ class QuranController extends Controller
             ], 400);
         }
         
-        // Build the search query using Indonesian text
+        // Build the search query using Indonesian text (based on space-separated words)
         $searchQuery = Ayah::with('surah:number,name_indonesian,name_arabic,name_latin,revelation_place');
-        $searchQuery->searchIndonesianText($query, false);
+        $searchQuery->searchIndonesianText($query);
         
         // Add revelation place filter if provided
         if ($revelationPlace && in_array($revelationPlace, ['makkah', 'madinah'])) {
@@ -375,26 +375,9 @@ class QuranController extends Controller
         // Add ordering for consistent pagination
         $searchQuery->orderBy('surah_number')->orderBy('ayah_number');
         
-        if ($exact) {
-            $filteredResults = $searchQuery->get()->filter(function ($ayah) use ($query) {
-                return Ayah::matchesExactSearchText($ayah->text_indonesian ?? '', $query);
-            })->values();
-
-            $paginatedResults = new LengthAwarePaginator(
-                $filteredResults->forPage($page, $perPage)->values(),
-                $filteredResults->count(),
-                $perPage,
-                $page,
-                [
-                    'path' => $request->url(),
-                    'query' => $request->query()
-                ]
-            );
-        } else {
-            // Apply pagination with proper appending of query parameters for pagination links
-            $paginatedResults = $searchQuery->paginate($perPage, ['*'], 'page', $page)
-                ->appends($request->only(['q', 'per_page', 'revelation_place', 'exact']));
-        }
+        // Apply pagination with proper appending of query parameters for pagination links
+        $paginatedResults = $searchQuery->paginate($perPage, ['*'], 'page', $page)
+            ->appends($request->only(['q', 'per_page', 'revelation_place', 'exact']));
         
         // Search surah names matching the query
         $surahMatchesQuery = Surah::query()

@@ -27,27 +27,10 @@ class SearchController extends Controller
         
         // Using the custom scope we defined in Ayah model
         $resultsQuery = Ayah::query()->with('surah');
-        $resultsQuery->searchIndonesianText($query, false);
+        $resultsQuery->searchIndonesianText($query);
 
-        if ($exact) {
-            $filteredResults = $resultsQuery->get()->filter(function ($ayah) use ($query) {
-                return Ayah::matchesExactSearchText($ayah->text_indonesian ?? '', $query);
-            })->values();
-
-            $results = new LengthAwarePaginator(
-                $filteredResults->forPage(1, 20)->values(),
-                $filteredResults->count(),
-                20,
-                1,
-                [
-                    'path' => $request->url(),
-                    'query' => $request->query()
-                ]
-            );
-        } else {
-            $results = $resultsQuery->paginate(20)
-                ->appends(['q' => $query, 'exact' => $exact ? '1' : '0']);
-        }
+        $results = $resultsQuery->paginate(20)
+            ->appends(['q' => $query, 'exact' => $exact ? '1' : '0']);
         
         return view('search.results', compact('results', 'query'));
     }
@@ -86,30 +69,13 @@ class SearchController extends Controller
         
         // Using the custom scope we defined in Ayah model
         $resultsQuery = Ayah::query()->with('surah');
-        $resultsQuery->searchIndonesianText($query, false);
+        $resultsQuery->searchIndonesianText($query);
         
         // Add ordering for consistent pagination results
         $resultsQuery->orderBy('surah_number')->orderBy('ayah_number');
         
-        if ($exact) {
-            $filteredResults = $resultsQuery->get()->filter(function ($ayah) use ($query) {
-                return Ayah::matchesExactSearchText($ayah->text_indonesian ?? '', $query);
-            })->values();
-
-            $results = new LengthAwarePaginator(
-                $filteredResults->forPage($page, $perPage)->values(),
-                $filteredResults->count(),
-                $perPage,
-                $page,
-                [
-                    'path' => $request->url(),
-                    'query' => $request->query()
-                ]
-            );
-        } else {
-            $results = $resultsQuery->paginate($perPage, ['*'], 'page', $page)
-                ->appends(['q' => $query, 'per_page' => $perPage, 'exact' => $exact ? '1' : '0']);
-        }
+        $results = $resultsQuery->paginate($perPage, ['*'], 'page', $page)
+            ->appends(['q' => $query, 'per_page' => $perPage, 'exact' => $exact ? '1' : '0']);
         
         // Format the response in a consistent way
         return response()->json([

@@ -63,44 +63,47 @@ class Ayah extends Model
     }
 
     /**
-     * Check if Indonesian text contains all search terms as whole words.
+     * Check if Indonesian text contains the exact search phrase/consecutive words as whole words.
      */
     public static function matchesExactSearchText(?string $text, string $search): bool
     {
         $textValue = trim((string) $text);
-        $searchTerms = array_filter(preg_split('/\s+/u', trim((string) $search)) ?: [], function ($term) {
+        $searchTerms = array_values(array_filter(preg_split('/\s+/u', trim((string) $search)) ?: [], function ($term) {
             return !empty(trim($term));
-        });
+        }));
 
         if ($textValue === '' || empty($searchTerms)) {
             return false;
         }
 
-        foreach ($searchTerms as $term) {
-            $pattern = '/(^|[^a-z0-9])' . preg_quote(trim($term), '/') . '([^a-z0-9]|$)/i';
+        $escapedTerms = array_map(function ($term) {
+            return preg_quote(trim($term), '/');
+        }, $searchTerms);
 
-            if (!preg_match($pattern, $textValue)) {
-                return false;
-            }
-        }
+        // Match terms consecutively in order separated by whitespace, with word boundaries
+        $phrasePattern = implode('\s+', $escapedTerms);
+        $pattern = '/(^|[^a-z0-9])' . $phrasePattern . '([^a-z0-9]|$)/iu';
 
-        return true;
+        return (bool) preg_match($pattern, $textValue);
     }
     
     /**
-     * Scope a query to search ayahs by Indonesian text.
+     * Scope a query to search ayahs by Indonesian text based on terms separated by space.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param string $search
-     * @param bool $exact
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeSearchIndonesianText($query, $search, bool $exact = false)
+    public function scopeSearchIndonesianText($query, $search)
     {
-        $searchTerms = array_filter(preg_split('/\s+/u', trim((string) $search)) ?: [], function($term) {
+        $searchTerms = array_values(array_filter(preg_split('/\s+/u', trim((string) $search)) ?: [], function($term) {
             return !empty(trim($term));
-        });
-        
+        }));
+
+        if (empty($searchTerms)) {
+            return $query;
+        }
+
         // Apply AND condition for each search term
         // This will work like: WHERE text_indonesian LIKE '%term1%' AND text_indonesian LIKE '%term2%'
         foreach ($searchTerms as $term) {

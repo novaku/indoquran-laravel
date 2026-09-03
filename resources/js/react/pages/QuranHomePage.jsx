@@ -32,7 +32,6 @@ import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import OnlineUsersWidget from '../components/OnlineUsersWidget';
 import ArticleHoverCard from '../components/ArticleHoverCard';
 import { Card, Button } from '../components/ui';
-import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseVertical from '../components/AdSenseVertical';
 import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { fetchWithAuth } from '../utils/apiUtils';
@@ -544,10 +543,12 @@ function QuranHomePage() {
             />
 
             {/* HERO SECTION - Sleek, minimalist, eye-catching */}
-            <section className="relative bg-gradient-to-b from-emerald-50/70 via-white to-gray-50/50 border-b border-gray-200/80 overflow-hidden">
-                {/* Subtle decorative background circles */}
-                <div className="absolute -top-24 -left-24 w-96 h-96 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute top-1/2 -right-24 w-96 h-96 bg-teal-100/30 rounded-full blur-3xl pointer-events-none" />
+            <section className="relative bg-gradient-to-b from-emerald-50/70 via-white to-gray-50/50 border-b border-gray-200/80 z-20">
+                {/* Subtle decorative background circles constrained within overflow-hidden layer */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute -top-24 -left-24 w-96 h-96 bg-emerald-100/40 rounded-full blur-3xl" />
+                    <div className="absolute top-1/2 -right-24 w-96 h-96 bg-teal-100/30 rounded-full blur-3xl" />
+                </div>
 
                 <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-12 lg:pt-14 lg:pb-16">
                     <div className="flex flex-col items-center text-center space-y-6">
@@ -619,7 +620,7 @@ function QuranHomePage() {
                         </div>
 
                         {/* Search Field with Quick Chips */}
-                        <div className="max-w-2xl w-full pt-4">
+                        <div className="relative z-30 max-w-2xl w-full pt-4">
                             <SearchField
                                 placeholder="Cari nomor surah, nama ayat, atau terjemahan..."
                                 className="w-full"
@@ -647,12 +648,6 @@ function QuranHomePage() {
                     </div>
                 </div>
             </section>
-
-            {/* Top Billboard Leaderboard Ad (Detik.com Pattern) */}
-            <AdSenseLeaderboard 
-                maxWidth="max-w-7xl"
-                labelText="IKLAN"
-            />
 
             {/* MAIN CONTENT AREA WITH SIDEBAR */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">

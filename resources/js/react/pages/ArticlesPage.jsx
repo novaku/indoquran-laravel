@@ -168,8 +168,10 @@ const ArticlesPage = () => {
           </div>
         </div>
 
-        {/* Top Billboard Ad (Detik.com Pattern) */}
-        <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" />
+        {/* Top Billboard Ad (Detik.com Pattern) - Hidden during search so results are immediately visible */}
+        {!searchQuery && (
+          <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" />
+        )}
 
         {/* Articles Grid */}
         <div className="container mx-auto px-4 py-8">

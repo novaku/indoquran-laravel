@@ -20,6 +20,14 @@ class ApiCacheMiddleware
         
         // Only apply caching to successful GET requests
         if ($request->isMethod('GET') && $response->getStatusCode() === 200) {
+            // In local/testing environment, disable browser caching so changes are immediately testable
+            if (app()->environment('local', 'testing')) {
+                $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate', true);
+                $response->headers->set('Pragma', 'no-cache', true);
+                $response->headers->set('Expires', '0', true);
+                return $response;
+            }
+
             $cacheTime = $this->parseDuration($duration);
             $etag = '"' . md5($response->getContent()) . '"';
             

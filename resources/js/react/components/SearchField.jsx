@@ -5,7 +5,12 @@ import authUtils from '../utils/auth';
 
 const escapeRegExp = (value) => String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-const buildExactWordRegex = (query) => new RegExp(`(^|[^a-z0-9])(${escapeRegExp(query)})([^a-z0-9]|$)`, 'i');
+const buildExactWordRegex = (query) => {
+    const terms = String(query || '').trim().split(/\s+/).filter(Boolean);
+    if (terms.length === 0) return /$^/;
+    const pattern = terms.map(escapeRegExp).join('\\s+');
+    return new RegExp(`(^|[^a-z0-9])(${pattern})([^a-z0-9]|$)`, 'i');
+};
 
 const matchesSearchText = (text, query, exactMatch) => {
     const textValue = String(text || '').toLowerCase();
@@ -39,10 +44,11 @@ const buildHighlightedParts = (text, query, exactMatch) => {
         }
 
         const startIndex = match.index + (match[1] || '').length;
+        const matchedText = match[2] || '';
         return {
             before: textValue.substring(0, startIndex),
-            match: textValue.substring(startIndex, startIndex + searchValue.length),
-            after: textValue.substring(startIndex + searchValue.length)
+            match: matchedText,
+            after: textValue.substring(startIndex + matchedText.length)
         };
     }
 
@@ -165,9 +171,12 @@ const SearchField = ({
             
             const data = await response.json();
             if (data.status === 'success') {
-                const ayahResults = Array.isArray(data.data) ? data.data : [];
+                const rawAyahResults = Array.isArray(data.data) ? data.data : [];
+                const ayahResults = exactSearch
+                    ? rawAyahResults.filter(ayah => matchesSearchText(ayah.text_indonesian, query, true))
+                    : rawAyahResults;
                 
-                if (!Array.isArray(ayahResults)) {
+                if (!Array.isArray(ayahResults) || ayahResults.length === 0) {
                     setSuggestions(surahResults);
                     return;
                 }
@@ -459,7 +468,7 @@ const SearchField = ({
     const currentTheme = themes[theme] || themes.islamic;
 
     return (
-        <div className={`relative w-full ${className}`}>
+        <div className={`relative w-full ${className} ${showSuggestions && searchTerm.length >= 2 ? 'z-40' : ''}`}>
             <form onSubmit={handleSearchSubmit} method="GET" className="flex flex-col">
                 <div className="relative w-full" ref={searchRef}>
                     <svg 
@@ -495,8 +504,9 @@ const SearchField = ({
                     {/* Autocomplete Suggestions */}
                     {!disableAutocomplete && showSuggestions && searchTerm.length >= 2 && (
                         <div 
-                            className={`absolute mt-2 w-full bg-white rounded-xl shadow-lg max-h-96 overflow-y-auto border border-${currentTheme.primaryBorder} z-50`}
+                            className="absolute left-0 right-0 mt-2 w-full bg-white rounded-xl shadow-2xl max-h-[30rem] overflow-y-auto border border-emerald-200/90 z-50"
                             ref={suggestionsRef}
+                            style={{ zIndex: 9999 }}
                         >
                             {isSearchLoading ? (
                                 <div className={`p-4 text-center text-${currentTheme.primaryText}`}>

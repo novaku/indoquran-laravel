@@ -24,25 +24,54 @@ import SearchField from '../components/SearchField';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
 import { Card, Button, Input, Select, Badge, PageContent } from '../components/ui';
-import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseInFeed from '../components/AdSenseInFeed';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
 import { scrollToTop } from '../utils/scrollUtils';
 
 
+// Exact phrase matching utility function
+const matchesExactPhrase = (text, searchQuery) => {
+    if (!text || !searchQuery) return false;
+    const textStr = String(text);
+    const searchWords = String(searchQuery).trim().split(/\s+/).filter(word => word.length > 0);
+    if (searchWords.length === 0) return false;
+
+    const escapedWords = searchWords.map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    const pattern = new RegExp(`(^|[^a-z0-9])(${escapedWords.join('\\s+')})([^a-z0-9]|$)`, 'i');
+    return pattern.test(textStr);
+};
+
 // Text highlighting utility function
-const highlightText = (text, searchQuery) => {
+const highlightText = (text, searchQuery, exact = false) => {
     if (!text || !searchQuery) return text;
     
     const textStr = String(text); // Ensure text is a string
     const query = String(searchQuery).trim();
     if (!query) return textStr;
     
-    // Split search query into individual words and filter out empty strings
     const searchWords = query.split(/\s+/).filter(word => word.length > 0);
-    
     if (searchWords.length === 0) return textStr;
+
+    if (exact) {
+        const escapedWords = searchWords.map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+        const exactRegex = new RegExp(`(${escapedWords.join('\\s+')})`, 'gi');
+        
+        if (!exactRegex.test(textStr)) return textStr;
+        exactRegex.lastIndex = 0;
+        const parts = textStr.split(exactRegex);
+        
+        return parts.map((part, index) => {
+            if (!part) return part;
+            const isMatch = exactRegex.test(part);
+            exactRegex.lastIndex = 0;
+            return isMatch ? (
+                <mark key={index} className="bg-yellow-300 text-yellow-900 px-1 rounded font-medium transition-colors break-words">
+                    {part}
+                </mark>
+            ) : part;
+        });
+    }
     
     // Create a regex that matches any of the search words (case insensitive)
     const escapedWords = searchWords.map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
@@ -404,10 +433,18 @@ function QuranSearchPage() {
         }
     };
 
-    // Sort results (only ayahs now)
-    const sortedResults = useMemo(() => {
-        const results = [...searchResults];
-        
+    // Filter and sort results (with exact match filtering in frontend when exactSearch is active)
+    const displayedResults = useMemo(() => {
+        let results = [...searchResults];
+
+        if (exactSearch && debouncedQuery.trim()) {
+            results = results.filter(ayah => 
+                matchesExactPhrase(ayah.text_indonesian, debouncedQuery) ||
+                matchesExactPhrase(ayah.surah_info?.name_latin, debouncedQuery) ||
+                matchesExactPhrase(ayah.surah_info?.name_indonesian, debouncedQuery)
+            );
+        }
+
         switch (sortBy) {
             case 'surah':
                 // Sort by surah number then ayah number
@@ -440,7 +477,6 @@ function QuranSearchPage() {
                     const bRevelation = b.surah_info?.revelation_place || '';
                     
                     if (aRevelation === bRevelation) {
-                        // If same revelation place, sort by surah number
                         return a.surah_number - b.surah_number;
                     }
                     
@@ -450,11 +486,22 @@ function QuranSearchPage() {
             default:
                 return results;
         }
-    }, [searchResults, sortBy]);
+    }, [searchResults, exactSearch, debouncedQuery, sortBy]);
 
-    // Pagination logic - we're using server-side pagination, so no need to slice
+    const displayedSurahMatches = useMemo(() => {
+        if (!exactSearch || !debouncedQuery.trim()) {
+            return surahMatches;
+        }
+        return surahMatches.filter(surah => 
+            matchesExactPhrase(surah.name_latin, debouncedQuery) ||
+            matchesExactPhrase(surah.name_indonesian, debouncedQuery) ||
+            matchesExactPhrase(surah.name_arabic, debouncedQuery)
+        );
+    }, [surahMatches, exactSearch, debouncedQuery]);
+
+    // Pagination logic - we're using server-side pagination
     const totalPages = Math.ceil(totalResults / resultsPerPage);
-    const paginatedResults = searchResults; // Results are already paginated from the API
+    const paginatedResults = displayedResults;
 
     // Pagination handlers
     const goToPage = (page) => {
@@ -514,6 +561,15 @@ function QuranSearchPage() {
         
         // The debounced query will handle the actual search
     }, [navigate, searchParams, exactSearch]);
+
+    const handleExactMatchChange = useCallback((checked) => {
+        setExactSearch(checked);
+        if (query && query.trim()) {
+            const qParam = `q=${encodeURIComponent(query)}`;
+            const extraParam = checked ? '&exact=1' : '';
+            navigate(`/cari?${qParam}${extraParam}`, { replace: true });
+        }
+    }, [navigate, query]);
 
     const handleSearchSubmit = useCallback((searchQuery) => {
         setQuery(searchQuery);
@@ -618,7 +674,7 @@ function QuranSearchPage() {
                                 value={query || ''}
                                 onChange={handleSearch}
                                 exactMatch={exactSearch}
-                                onExactMatchChange={setExactSearch}
+                                onExactMatchChange={handleExactMatchChange}
                                 showExactSearchToggle={true}
                                 disableAutocomplete={true}
                             />
@@ -636,9 +692,6 @@ function QuranSearchPage() {
                     </div>
                 </div>
             </div>
-
-            {/* Top Billboard Ad (Detik.com Pattern) */}
-            <AdSenseLeaderboard maxWidth="max-w-5xl" labelText="IKLAN" />
 
             {/* Main Content */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -659,7 +712,7 @@ function QuranSearchPage() {
 
                             {totalResults > 0 && (
                                 <Badge variant="default">
-                                    {totalResults} hasil • Halaman {currentPage}/{totalPages}
+                                    {exactSearch ? `${displayedResults.length} hasil (persis)` : `${totalResults} hasil`} • Halaman {currentPage}/{totalPages}
                                 </Badge>
                             )}
                         </div>
@@ -805,7 +858,33 @@ function QuranSearchPage() {
                             </Button>
                         </div>
                     </Card>
-                ) : searchResults.length > 0 ? (
+                ) : query && exactSearch && searchResults.length > 0 && displayedResults.length === 0 ? (
+                    <Card padding="lg" className="text-center py-12">
+                        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <MagnifyingGlassIcon className="w-8 h-8 text-amber-600" />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">
+                            Tidak Ada Hasil yang Sama Persis
+                        </h3>
+                        <p className="text-gray-600 max-w-md mx-auto mb-6 text-sm sm:text-base">
+                            Ditemukan {searchResults.length} ayat yang memuat kata kunci Anda, tetapi tidak ada ayat yang memuat frasa berurutan persis &ldquo;<strong>{debouncedQuery}</strong>&rdquo;.
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                            <Button
+                                onClick={() => handleExactMatchChange(false)}
+                                variant="primary"
+                            >
+                                Tampilkan Semua ({searchResults.length} Hasil)
+                            </Button>
+                            <Button
+                                onClick={clearSearch}
+                                variant="ghost"
+                            >
+                                Hapus Pencarian
+                            </Button>
+                        </div>
+                    </Card>
+                ) : displayedResults.length > 0 ? (
                     /* Search Results */
                     <div className="space-y-8">
                         <div className="flex items-center justify-between">
@@ -813,19 +892,21 @@ function QuranSearchPage() {
                                 Hasil Pencarian
                             </h2>
                             <Badge variant="default">
-                                {((currentPage - 1) * resultsPerPage) + 1}-{Math.min(currentPage * resultsPerPage, totalResults)} dari {totalResults}
+                                {exactSearch 
+                                    ? `${displayedResults.length} hasil persis`
+                                    : `${((currentPage - 1) * resultsPerPage) + 1}-${Math.min(currentPage * resultsPerPage, totalResults)} dari ${totalResults}`}
                             </Badge>
                         </div>
 
                         {/* Surah Matches Section */}
-                        {surahMatches.length > 0 && (
+                        {displayedSurahMatches.length > 0 && (
                             <div>
                                 <h3 className="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
                                     <BookOpenIcon className="w-5 h-5 text-emerald-600" />
                                     Surah Ditemukan
                                 </h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    {surahMatches.map((surah) => (
+                                    {displayedSurahMatches.map((surah) => (
                                         <Link key={surah.number} to={surah.url}>
                                             <Card hoverable padding="md" className="border border-emerald-100 bg-emerald-50/50 hover:bg-emerald-100/60 transition-colors">
                                                 <div className="flex items-center justify-between">
@@ -835,10 +916,10 @@ function QuranSearchPage() {
                                                         </div>
                                                         <div>
                                                             <p className="font-bold text-gray-900">
-                                                                {highlightText(surah.name_latin, debouncedQuery)}
+                                                                {highlightText(surah.name_latin, debouncedQuery, exactSearch)}
                                                             </p>
                                                             <p className="text-sm text-gray-500">
-                                                                {highlightText(surah.name_indonesian, debouncedQuery)} • {surah.total_ayahs} ayat
+                                                                {highlightText(surah.name_indonesian, debouncedQuery, exactSearch)} • {surah.total_ayahs} ayat
                                                             </p>
                                                         </div>
                                                     </div>
@@ -881,10 +962,10 @@ function QuranSearchPage() {
                                                     </div>
                                                     <div>
                                                         <h3 className="font-bold text-gray-900 text-lg">
-                                                            {highlightText(result.surah_info?.name_latin, debouncedQuery)} • Ayat {result.ayah_number || result.number}
+                                                            {highlightText(result.surah_info?.name_latin, debouncedQuery, exactSearch)} • Ayat {result.ayah_number || result.number}
                                                         </h3>
                                                         <p className="text-gray-500 text-sm">
-                                                            {highlightText(result.surah_info?.name_indonesian, debouncedQuery)}
+                                                            {highlightText(result.surah_info?.name_indonesian, debouncedQuery, exactSearch)}
                                                         </p>
                                                         {debouncedQuery && (
                                                             <Badge variant="primary" size="xs" className="mt-1">
@@ -899,7 +980,7 @@ function QuranSearchPage() {
                                                 <div className="text-gray-700 leading-relaxed">
                                                     <span className="font-semibold text-emerald-700 text-xs uppercase tracking-wider">Terjemahan:</span>
                                                     <p className="mt-1.5 text-gray-800 leading-relaxed text-base">
-                                                        "{highlightText(result.text_indonesian, debouncedQuery)}"
+                                                        "{highlightText(result.text_indonesian, debouncedQuery, exactSearch)}"
                                                     </p>
                                                 </div>
                                             </div>
