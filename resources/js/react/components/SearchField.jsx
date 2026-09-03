@@ -615,15 +615,48 @@ const SearchField = ({
 
                 {showExactSearchToggle && (
                     <div className="mt-2.5 flex items-center">
-                        <label className={`inline-flex items-center gap-2 rounded-full border border-${currentTheme.primaryBorder} bg-white px-3 py-1 text-xs font-medium text-gray-700 shadow-2xs cursor-pointer hover:bg-gray-50 transition-colors`}>
-                            <input
-                                type="checkbox"
-                                checked={exactSearch}
-                                onChange={handleExactMatchChange}
-                                className={`h-3.5 w-3.5 rounded border-${currentTheme.primaryBorder} text-emerald-600 focus:ring-emerald-500 cursor-pointer`}
-                            />
-                            <span>Pencarian persis</span>
-                        </label>
+                        <div className="relative group/exact inline-flex items-center">
+                            <label 
+                                title="Hanya menampilkan ayat dengan urutan kata sama persis (misal: 'maha sempurna')"
+                                className={`inline-flex items-center gap-1.5 rounded-full border border-${currentTheme.primaryBorder} bg-white px-3 py-1 text-xs font-medium text-gray-700 shadow-2xs cursor-pointer hover:bg-gray-50 transition-colors select-none`}
+                            >
+                                <input
+                                    type="checkbox"
+                                    checked={exactSearch}
+                                    onChange={handleExactMatchChange}
+                                    className={`h-3.5 w-3.5 rounded border-${currentTheme.primaryBorder} text-emerald-600 focus:ring-emerald-500 cursor-pointer`}
+                                />
+                                <span>Pencarian persis</span>
+                                <svg 
+                                    xmlns="http://www.w3.org/2000/svg" 
+                                    className="h-3.5 w-3.5 text-gray-400 group-hover/exact:text-emerald-600 transition-colors" 
+                                    fill="none" 
+                                    viewBox="0 0 24 24" 
+                                    stroke="currentColor"
+                                    aria-hidden="true"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </label>
+
+                            {/* Floating hover message / tooltip */}
+                            <div className="absolute left-0 top-full mt-2 w-72 p-3 bg-gray-900/95 text-white text-xs rounded-xl shadow-xl backdrop-blur-xs border border-gray-800/80 opacity-0 pointer-events-none group-hover/exact:opacity-100 group-focus-within/exact:opacity-100 transition-all duration-200 z-50 transform origin-top -translate-y-1 group-hover/exact:translate-y-0">
+                                <div className="font-semibold text-emerald-400 flex items-center gap-1.5 mb-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Mode Pencarian Persis
+                                </div>
+                                <p className="text-gray-300 leading-relaxed">
+                                    Hanya menampilkan ayat dengan <strong className="text-white">urutan kata yang sama persis</strong>.
+                                </p>
+                                <div className="mt-1.5 pt-1.5 border-t border-gray-800 text-[11px] text-gray-400">
+                                    Misal: <span className="text-emerald-300 font-mono">"maha sempurna"</span> hanya cocok dengan frasa utuh berurutan, bukan kata terpisah.
+                                </div>
+                                {/* Tooltip Arrow */}
+                                <div className="absolute -top-1 left-6 w-2 h-2 bg-gray-900 rotate-45 border-l border-t border-gray-800" />
+                            </div>
+                        </div>
                     </div>
                 )}
             </form>
