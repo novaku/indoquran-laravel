@@ -81,12 +81,17 @@ class PrayerController extends Controller
 
         $prayers = $query->paginate(10);
 
-        // Add user's amin status for each prayer
+        // Add user's or guest's amin status for each prayer
         $userId = $this->getAuthenticatedUserId($request);
+        $ip = $request->ip();
+        $visitorId = $request->header('X-Visitor-Id') ?: hash('sha256', $ip . '|' . ($request->userAgent() ?? ''));
+
         $prayersArray = $prayers->toArray();
         foreach ($prayersArray['data'] as &$prayer) {
             $prayerModel = Prayer::find($prayer['id']);
-            $prayer['user_has_amin'] = $userId ? $prayerModel->hasAminFromUser($userId) : false;
+            $prayer['user_has_amin'] = $userId 
+                ? $prayerModel->hasAminFromUser($userId) 
+                : $prayerModel->hasAminFromGuest($visitorId, $ip);
         }
 
         return response()->json([
@@ -97,17 +102,11 @@ class PrayerController extends Controller
     }
 
     /**
-     * Store a new prayer
+     * Store a new prayer (authenticated or guest as Hamba Allah)
      */
     public function store(Request $request): JsonResponse
     {
-        // Explicit authentication check
-        if (!Auth::check()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda harus login terlebih dahulu untuk mengirim doa'
-            ], 401);
-        }
+        $userId = $this->getAuthenticatedUserId($request);
 
         $request->validate([
             'title' => 'required|string|max:255',
@@ -116,12 +115,15 @@ class PrayerController extends Controller
             'is_anonymous' => 'boolean'
         ]);
 
+        // If not logged in, user_id is null and prayer is strictly anonymous (Hamba Allah)
+        $isAnonymous = $userId ? $request->boolean('is_anonymous', false) : true;
+
         $prayer = Prayer::create([
-            'user_id' => Auth::id(),
+            'user_id' => $userId,
             'title' => $request->input('title'),
             'content' => $request->input('content'),
             'category' => $request->input('category'),
-            'is_anonymous' => $request->get('is_anonymous', false)
+            'is_anonymous' => $isAnonymous
         ]);
 
         $prayer->load(['user', 'amins', 'comments']);
@@ -132,7 +134,7 @@ class PrayerController extends Controller
         return response()->json([
             'success' => true,
             'data' => $prayer,
-            'message' => 'Doa berhasil dikirim'
+            'message' => $userId ? 'Doa berhasil dikirim ke komunitas' : 'Doa berhasil dikirim ke komunitas sebagai Hamba Allah'
         ], 201);
     }
 
@@ -144,10 +146,15 @@ class PrayerController extends Controller
         $prayer->load(['user', 'amins.user', 'comments.user']);
         $prayer->loadCount(['amins', 'comments']);
 
-        // Add user's amin status
+        // Add user's or guest's amin status
         $userId = $this->getAuthenticatedUserId($request);
+        $ip = $request->ip();
+        $visitorId = $request->header('X-Visitor-Id') ?: hash('sha256', $ip . '|' . ($request->userAgent() ?? ''));
+
         $prayerArray = $prayer->toArray();
-        $prayerArray['user_has_amin'] = $userId ? $prayer->hasAminFromUser($userId) : false;
+        $prayerArray['user_has_amin'] = $userId 
+            ? $prayer->hasAminFromUser($userId) 
+            : $prayer->hasAminFromGuest($visitorId, $ip);
 
         return response()->json([
             'success' => true,
@@ -213,17 +220,33 @@ class PrayerController extends Controller
     }
 
     /**
-     * Toggle amin for a prayer
+     * Toggle amin for a prayer (authenticated user or guest as Hamba Allah)
      */
-    public function toggleAmin(Prayer $prayer): JsonResponse
+    public function toggleAmin(Request $request, Prayer $prayer): JsonResponse
     {
-        $userId = Auth::id();
+        $userId = $this->getAuthenticatedUserId($request);
+        $ip = $request->ip();
+        $visitorId = $request->header('X-Visitor-Id') ?: hash('sha256', $ip . '|' . ($request->userAgent() ?? ''));
         
         DB::beginTransaction();
         try {
-            $existingAmin = PrayerAmin::where('user_id', $userId)
-                ->where('prayer_id', $prayer->id)
-                ->first();
+            if ($userId) {
+                $existingAmin = PrayerAmin::where('user_id', $userId)
+                    ->where('prayer_id', $prayer->id)
+                    ->first();
+            } else {
+                $existingAmin = PrayerAmin::where('prayer_id', $prayer->id)
+                    ->whereNull('user_id')
+                    ->where(function ($query) use ($visitorId, $ip) {
+                        if ($visitorId) {
+                            $query->where('visitor_id', $visitorId);
+                        }
+                        if ($ip) {
+                            $query->orWhere('ip_address', $ip);
+                        }
+                    })
+                    ->first();
+            }
 
             if ($existingAmin) {
                 // Remove amin
@@ -235,11 +258,13 @@ class PrayerController extends Controller
                 // Add amin
                 PrayerAmin::create([
                     'user_id' => $userId,
-                    'prayer_id' => $prayer->id
+                    'prayer_id' => $prayer->id,
+                    'ip_address' => $ip,
+                    'visitor_id' => $visitorId
                 ]);
                 $prayer->increment('amin_count');
                 $hasAmin = true;
-                $message = 'Amin berhasil ditambahkan';
+                $message = $userId ? 'Amin berhasil ditambahkan' : 'Amin berhasil ditambahkan (Hamba Allah)';
             }
 
             DB::commit();
@@ -248,7 +273,7 @@ class PrayerController extends Controller
                 'success' => true,
                 'data' => [
                     'user_has_amin' => $hasAmin,
-                    'amin_count' => $prayer->fresh()->amin_count
+                    'amin_count' => max(0, (int) $prayer->fresh()->amin_count)
                 ],
                 'message' => $message
             ]);
@@ -262,7 +287,7 @@ class PrayerController extends Controller
     }
 
     /**
-     * Add a comment to a prayer
+     * Add a comment to a prayer (authenticated user or guest as Hamba Allah)
      */
     public function addComment(Request $request, Prayer $prayer): JsonResponse
     {
@@ -271,13 +296,16 @@ class PrayerController extends Controller
             'is_anonymous' => 'boolean'
         ]);
 
+        $userId = $this->getAuthenticatedUserId($request);
+        $isAnonymous = $userId ? $request->boolean('is_anonymous', false) : true;
+
         DB::beginTransaction();
         try {
             $comment = PrayerComment::create([
-                'user_id' => Auth::id(),
+                'user_id' => $userId,
                 'prayer_id' => $prayer->id,
                 'content' => $request->input('content'),
-                'is_anonymous' => $request->get('is_anonymous', false)
+                'is_anonymous' => $isAnonymous
             ]);
 
             $prayer->increment('comment_count');
@@ -288,7 +316,7 @@ class PrayerController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $comment,
-                'message' => 'Komentar berhasil ditambahkan'
+                'message' => $userId ? 'Komentar berhasil ditambahkan' : 'Komentar berhasil dikirim sebagai Hamba Allah'
             ], 201);
         } catch (\Exception $e) {
             DB::rollback();

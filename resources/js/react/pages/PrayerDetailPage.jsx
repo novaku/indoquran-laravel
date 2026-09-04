@@ -4,18 +4,13 @@ import {
     IoArrowBackOutline,
     IoHeartOutline, 
     IoHeart, 
-    IoShareSocialOutline, 
-    IoCopyOutline, 
     IoLogoWhatsapp, 
-    IoLogoTwitter,
-    IoPaperPlaneOutline,
     IoChatbubbleEllipsesOutline,
     IoHandRightOutline,
     IoTimeOutline,
     IoPersonOutline,
     IoSparklesOutline,
-    IoAlertCircleOutline,
-    IoCheckmarkOutline
+    IoAlertCircleOutline
 } from 'react-icons/io5';
 import { formatDistanceToNow, format } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
@@ -45,7 +40,6 @@ const PrayerDetailPage = () => {
     const [commentText, setCommentText] = useState('');
     const [commentAnonymous, setCommentAnonymous] = useState(false);
     const [submittingComment, setSubmittingComment] = useState(false);
-    const [copied, setCopied] = useState(false);
 
     // Fetch single prayer
     const fetchPrayer = useCallback(async () => {
@@ -95,11 +89,6 @@ const PrayerDetailPage = () => {
 
     // Handle Amin toggle
     const handleAminToggle = async () => {
-        if (!user) {
-            toast.error('Silakan login terlebih dahulu untuk memberikan amin');
-            return;
-        }
-
         try {
             const response = await postWithAuth(`/api/doa-bersama/${prayer.id}/amin`);
             const data = await response.json();
@@ -125,16 +114,11 @@ const PrayerDetailPage = () => {
         e.preventDefault();
         if (!commentText.trim()) return;
 
-        if (!user) {
-            toast.error('Silakan login untuk mengirim doa balasan');
-            return;
-        }
-
         try {
             setSubmittingComment(true);
             const response = await postWithAuth(`/api/doa-bersama/${prayer.id}/comments`, {
                 content: commentText,
-                is_anonymous: commentAnonymous
+                is_anonymous: !user ? true : commentAnonymous
             });
             const data = await response.json();
 
@@ -146,7 +130,7 @@ const PrayerDetailPage = () => {
                 }));
                 setCommentText('');
                 setCommentAnonymous(false);
-                toast.success('Doa balasan berhasil dikirim');
+                toast.success(data.message || 'Doa balasan berhasil dikirim');
             } else {
                 toast.error(data.message || 'Gagal mengirim komentar');
             }
@@ -168,49 +152,6 @@ const PrayerDetailPage = () => {
         const shareText = `🤲 Doa dari ${authorName}\n\n"${prayer.content}"\n\nAmin ya Rabbal Alamin 🤲\n\nIkut mengaminkan atau titipkan doa bersama di IndoQuran:\n${shareUrl}\n\n- IndoQuran (https://indoquran.web.id)`;
         const encoded = encodeURIComponent(shareText);
         window.open(`https://wa.me/?text=${encoded}`, '_blank');
-    };
-
-    const handleShareTwitter = () => {
-        if (!prayer) return;
-        const tweetText = `🤲 Doa dari ${authorName}:\n"${prayer.content.substring(0, 100)}${prayer.content.length > 100 ? '...' : ''}"\n\nAmin ya Rabbal Alamin 🤲`;
-        const encodedText = encodeURIComponent(tweetText);
-        const encodedUrl = encodeURIComponent(shareUrl);
-        window.open(`https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`, '_blank');
-    };
-
-    const handleShareTelegram = () => {
-        if (!prayer) return;
-        const msg = `🤲 Doa dari ${authorName}:\n\n"${prayer.content}"\n\nAmin ya Rabbal Alamin 🤲`;
-        window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(msg)}`, '_blank');
-    };
-
-    const handleCopyLink = async () => {
-        try {
-            await navigator.clipboard.writeText(shareUrl);
-            setCopied(true);
-            toast.success('Link doa berhasil disalin ke clipboard!');
-            setTimeout(() => setCopied(false), 2500);
-        } catch (err) {
-            toast.error('Gagal menyalin link');
-        }
-    };
-
-    const handleNativeShare = async () => {
-        if (navigator.share && prayer) {
-            try {
-                await navigator.share({
-                    title: `Doa dari ${authorName} - IndoQuran`,
-                    text: `🤲 Doa dari ${authorName}:\n\n"${prayer.content}"\n\nAmin ya Rabbal Alamin 🤲`,
-                    url: shareUrl,
-                });
-            } catch (err) {
-                if (err.name !== 'AbortError') {
-                    handleShareWhatsapp();
-                }
-            }
-        } else {
-            handleShareWhatsapp();
-        }
     };
 
     const formatTimeAgo = (dateString) => {
@@ -406,47 +347,15 @@ const PrayerDetailPage = () => {
                                         )}
                                     </button>
 
-                                    {/* Quick Share Buttons */}
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            onClick={handleShareWhatsapp}
-                                            className="p-2.5 bg-green-50 text-green-700 hover:bg-green-100 rounded-xl border border-green-200 transition-colors shadow-2xs cursor-pointer"
-                                            title="Bagikan ke WhatsApp"
-                                        >
-                                            <IoLogoWhatsapp className="w-5 h-5" />
-                                        </button>
-                                        <button
-                                            onClick={handleShareTelegram}
-                                            className="p-2.5 bg-sky-50 text-sky-700 hover:bg-sky-100 rounded-xl border border-sky-200 transition-colors shadow-2xs cursor-pointer"
-                                            title="Bagikan ke Telegram"
-                                        >
-                                            <IoPaperPlaneOutline className="w-5 h-5" />
-                                        </button>
-                                        <button
-                                            onClick={handleShareTwitter}
-                                            className="p-2.5 bg-gray-50 text-gray-700 hover:bg-gray-100 rounded-xl border border-gray-200 transition-colors shadow-2xs cursor-pointer"
-                                            title="Bagikan ke Twitter / X"
-                                        >
-                                            <IoLogoTwitter className="w-5 h-5" />
-                                        </button>
-                                        <button
-                                            onClick={handleCopyLink}
-                                            className="inline-flex items-center gap-1.5 px-3 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-xl border border-gray-200 text-xs font-medium transition-colors shadow-2xs cursor-pointer"
-                                            title="Salin Tautan Doa"
-                                        >
-                                            {copied ? (
-                                                <>
-                                                    <IoCheckmarkOutline className="w-4 h-4 text-green-600" />
-                                                    <span className="text-green-700 font-semibold">Tersalin!</span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <IoCopyOutline className="w-4 h-4 text-gray-500" />
-                                                    <span>Salin Link</span>
-                                                </>
-                                            )}
-                                        </button>
-                                    </div>
+                                    {/* Share Button (WhatsApp Only) */}
+                                    <button
+                                        onClick={handleShareWhatsapp}
+                                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 rounded-xl border border-emerald-200 transition-colors shadow-2xs font-medium text-xs sm:text-sm cursor-pointer"
+                                        title="Bagikan ke WhatsApp"
+                                    >
+                                        <IoLogoWhatsapp className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
+                                        <span>Bagikan ke WhatsApp</span>
+                                    </button>
                                 </div>
                             </div>
 
@@ -470,31 +379,36 @@ const PrayerDetailPage = () => {
                                 </div>
 
                                 {/* Comment Form */}
-                                {user ? (
                                     <form onSubmit={handleCommentSubmit} className="mb-8">
                                         <div className="flex gap-3 items-start">
                                             <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0 shadow-xs">
-                                                {user.name?.charAt(0)?.toUpperCase() || 'U'}
+                                                {user ? (user.name?.charAt(0)?.toUpperCase() || 'U') : '🤲'}
                                             </div>
                                             <div className="flex-1">
                                                 <textarea
                                                     value={commentText}
                                                     onChange={(e) => setCommentText(e.target.value)}
-                                                    placeholder="Tuliskan doa kebaikan, dukungan, atau balasan amin..."
+                                                    placeholder={user ? "Tuliskan doa kebaikan, dukungan, atau balasan amin..." : "Tuliskan doa kebaikan atau balasan amin sebagai Hamba Allah..."}
                                                     rows={3}
                                                     className="w-full px-4 py-3 bg-gray-50/80 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white text-sm text-gray-800 placeholder-gray-400 transition-all resize-none"
                                                     maxLength={1000}
                                                 />
                                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-2">
-                                                    <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={commentAnonymous}
-                                                            onChange={(e) => setCommentAnonymous(e.target.checked)}
-                                                            className="rounded border-gray-300 text-green-600 focus:ring-green-500"
-                                                        />
-                                                        <span>Kirim sebagai Hamba Allah</span>
-                                                    </label>
+                                                    {user ? (
+                                                        <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={commentAnonymous}
+                                                                onChange={(e) => setCommentAnonymous(e.target.checked)}
+                                                                className="rounded border-gray-300 text-green-600 focus:ring-green-500 cursor-pointer"
+                                                            />
+                                                            <span>Kirim sebagai Hamba Allah</span>
+                                                        </label>
+                                                    ) : (
+                                                        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-800 text-xs font-medium rounded-full border border-emerald-200/70">
+                                                            <span>🤲 Mengirim sebagai Hamba Allah (tanpa akun)</span>
+                                                        </div>
+                                                    )}
                                                     <div className="flex items-center justify-end gap-2">
                                                         <span className="text-[11px] text-gray-400 mr-2">
                                                             {commentText.length}/1000
@@ -503,7 +417,7 @@ const PrayerDetailPage = () => {
                                                             <button
                                                                 type="button"
                                                                 onClick={() => setCommentText('')}
-                                                                className="px-3 py-1.5 text-xs text-gray-500 hover:text-gray-700 font-medium"
+                                                                className="px-3 py-1.5 text-xs text-gray-500 hover:text-gray-700 font-medium cursor-pointer"
                                                             >
                                                                 Batal
                                                             </button>
@@ -511,7 +425,7 @@ const PrayerDetailPage = () => {
                                                         <button
                                                             type="submit"
                                                             disabled={submittingComment || !commentText.trim()}
-                                                            className="px-5 py-2 bg-green-600 text-white rounded-full text-xs font-semibold hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-xs flex items-center gap-1.5"
+                                                            className="px-5 py-2 bg-green-600 text-white rounded-full text-xs font-semibold hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-xs flex items-center gap-1.5 cursor-pointer"
                                                         >
                                                             {submittingComment ? 'Mengirim...' : 'Kirim Doa Balasan'}
                                                         </button>
@@ -520,30 +434,6 @@ const PrayerDetailPage = () => {
                                             </div>
                                         </div>
                                     </form>
-                                ) : (
-                                    <div className="mb-8 bg-gradient-to-br from-green-50/60 to-emerald-50/30 rounded-2xl p-5 border border-green-100 text-center">
-                                        <p className="text-sm font-medium text-gray-800 mb-1">
-                                            Ingin ikut mendoakan atau menuliskan doa balasan?
-                                        </p>
-                                        <p className="text-xs text-gray-500 mb-4">
-                                            Silakan login atau daftar gratis di IndoQuran untuk bergabung dengan komunitas doa.
-                                        </p>
-                                        <div className="flex items-center justify-center gap-3">
-                                            <Link 
-                                                to="/masuk" 
-                                                className="px-5 py-2 bg-green-600 text-white rounded-full text-xs font-semibold hover:bg-green-700 transition-colors shadow-xs"
-                                            >
-                                                Masuk
-                                            </Link>
-                                            <Link 
-                                                to="/auth/register" 
-                                                className="px-5 py-2 bg-white border border-gray-300 text-gray-700 rounded-full text-xs font-semibold hover:bg-gray-50 transition-colors shadow-2xs"
-                                            >
-                                                Daftar
-                                            </Link>
-                                        </div>
-                                    </div>
-                                )}
 
                                 {/* Comments List */}
                                 {prayer.comments && prayer.comments.length > 0 ? (

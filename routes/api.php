@@ -110,11 +110,8 @@ Route::middleware(['simple.auth'])->group(function() {
     });
 
     // Prayer protected routes (Indonesian URLs)
-    Route::post('/doa-bersama', [PrayerController::class, 'store']);
     Route::put('/doa-bersama/{prayer}', [PrayerController::class, 'update']);
     Route::delete('/doa-bersama/{prayer}', [PrayerController::class, 'destroy']);
-    Route::post('/doa-bersama/{prayer}/amin', [PrayerController::class, 'toggleAmin']);
-    Route::post('/doa-bersama/{prayer}/comments', [PrayerController::class, 'addComment']);
     Route::delete('/doa-bersama-comments/{comment}', [PrayerController::class, 'deleteComment']);
 });
 
@@ -186,8 +183,11 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::get('/reading-progress/stats', [App\Http\Controllers\ReadingProgressController::class, 'getStats']);
 });
 
-// Public prayer routes (for viewing without auth) - Indonesian URLs
+// Public prayer routes (for viewing, submitting, amin, and comments) - Indonesian URLs
 Route::get('/doa-bersama', [PrayerController::class, 'index']);
+Route::post('/doa-bersama', [PrayerController::class, 'store']);
+Route::post('/doa-bersama/{prayer}/amin', [PrayerController::class, 'toggleAmin']);
+Route::post('/doa-bersama/{prayer}/comments', [PrayerController::class, 'addComment']);
 Route::get('/doa-bersama/random', [PrayerController::class, 'getRandomPrayer']);
 Route::get('/doa-bersama/{prayer}', [PrayerController::class, 'show']);
 Route::get('/doa-bersama/{prayer}/comments', [PrayerController::class, 'getComments']);

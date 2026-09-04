@@ -70,6 +70,24 @@ class Prayer extends Model
     }
 
     /**
+     * Check if guest has given amin to this prayer
+     */
+    public function hasAminFromGuest($visitorId, $ip): bool
+    {
+        return $this->amins()
+            ->whereNull('user_id')
+            ->where(function ($query) use ($visitorId, $ip) {
+                if ($visitorId) {
+                    $query->where('visitor_id', $visitorId);
+                }
+                if ($ip) {
+                    $query->orWhere('ip_address', $ip);
+                }
+            })
+            ->exists();
+    }
+
+    /**
      * Scope for featured prayers
      */
     public function scopeFeatured($query)
@@ -90,7 +108,7 @@ class Prayer extends Model
      */
     public function getAuthorNameAttribute(): string
     {
-        return $this->is_anonymous ? 'Hamba Allah' : $this->user->name;
+        return ($this->is_anonymous || !$this->user) ? 'Hamba Allah' : ($this->user->name ?? 'Hamba Allah');
     }
 
     /**

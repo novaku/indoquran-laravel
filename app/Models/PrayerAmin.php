@@ -12,7 +12,9 @@ class PrayerAmin extends Model
 
     protected $fillable = [
         'user_id',
-        'prayer_id'
+        'prayer_id',
+        'ip_address',
+        'visitor_id'
     ];
 
     protected $casts = [

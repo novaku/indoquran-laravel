@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { fetchWithAuth } from '../utils/apiUtils';
 
-const PrayerForm = ({ onSubmit, loading, onCancel, initialData }) => {
+const PrayerForm = ({ onSubmit, loading, onCancel, initialData, isGuest = false }) => {
     const [formData, setFormData] = useState({
         title: initialData?.title || '',
         content: initialData?.content || '',
         category: initialData?.category || 'umum',
-        is_anonymous: initialData?.is_anonymous || false
+        is_anonymous: isGuest ? true : (initialData?.is_anonymous || false)
     });
     const [categories, setCategories] = useState([]);
 
@@ -20,10 +20,10 @@ const PrayerForm = ({ onSubmit, loading, onCancel, initialData }) => {
                 title: initialData.title || '',
                 content: initialData.content || '',
                 category: initialData.category || 'umum',
-                is_anonymous: initialData.is_anonymous || false
+                is_anonymous: isGuest ? true : (initialData.is_anonymous || false)
             });
         }
-    }, [initialData]);
+    }, [initialData, isGuest]);
 
     const fetchCategories = async () => {
         try {
@@ -113,19 +113,33 @@ const PrayerForm = ({ onSubmit, loading, onCancel, initialData }) => {
             </div>
 
             {/* Anonymous option */}
-            <div className="flex items-center">
-                <input
-                    type="checkbox"
-                    id="is_anonymous"
-                    name="is_anonymous"
-                    checked={formData.is_anonymous}
-                    onChange={handleChange}
-                    className="h-4 w-4 text-green-600 focus:ring-green-500 rounded border-gray-300"
-                />
-                <label htmlFor="is_anonymous" className="ml-2 block text-sm text-gray-700">
-                    Kirim sebagai anonim (Hamba Allah)
-                </label>
-            </div>
+            {isGuest ? (
+                <div className="flex items-start gap-3 p-3.5 bg-emerald-50 border border-emerald-200/80 rounded-xl text-emerald-900 shadow-2xs">
+                    <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-700 text-base">
+                        🤲
+                    </div>
+                    <div className="flex-1 text-xs sm:text-sm">
+                        <span className="font-semibold text-emerald-950 block">Mengirim sebagai Hamba Allah (Tanpa Akun)</span>
+                        <span className="text-emerald-700 text-xs">
+                            Karena Anda belum masuk ke akun, doa Anda akan otomatis diterbitkan ke komunitas atas nama <strong>Hamba Allah</strong>.
+                        </span>
+                    </div>
+                </div>
+            ) : (
+                <div className="flex items-center">
+                    <input
+                        type="checkbox"
+                        id="is_anonymous"
+                        name="is_anonymous"
+                        checked={formData.is_anonymous}
+                        onChange={handleChange}
+                        className="h-4 w-4 text-green-600 focus:ring-green-500 rounded border-gray-300 cursor-pointer"
+                    />
+                    <label htmlFor="is_anonymous" className="ml-2 block text-sm text-gray-700 cursor-pointer">
+                        Kirim sebagai anonim (Hamba Allah)
+                    </label>
+                </div>
+            )}
 
             {/* Action buttons */}
             <div className="flex justify-end gap-3 pt-4">

@@ -39,12 +39,17 @@ class PrayerComment extends Model
         return $this->belongsTo(Prayer::class);
     }
 
+    protected $appends = [
+        'author_name',
+        'time_ago'
+    ];
+
     /**
      * Get display name for the comment author
      */
     public function getAuthorNameAttribute(): string
     {
-        return $this->is_anonymous ? 'Hamba Allah' : $this->user->name;
+        return ($this->is_anonymous || !$this->user) ? 'Hamba Allah' : ($this->user->name ?? 'Hamba Allah');
     }
 
     /**

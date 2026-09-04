@@ -32,6 +32,7 @@ function UserAuthPage() {
     
     const isLogin = location.pathname === '/masuk';
     const isRegister = location.pathname === '/daftar';
+    const redirectUrl = new URLSearchParams(location.search).get('redirect') || location.state?.from || '/';
     
     useEffect(() => {
         // If user is already an admin, redirect immediately to /admin/dashboard
@@ -125,7 +126,7 @@ function UserAuthPage() {
                 if (isRegister) {
                     console.log('Registration successful! Welcome email sent.');
                 }
-                navigate('/', { replace: true });
+                navigate(redirectUrl, { replace: true });
             } else {
                 setErrors({ submit: result.message || 'Autentikasi gagal' });
             }
@@ -376,7 +377,7 @@ function UserAuthPage() {
 
                         <div className="mt-6 text-center">
                             <Link
-                                to="/"
+                                to={redirectUrl}
                                 className="text-green-600 hover:text-green-700 font-medium"
                             >
                                 Lanjutkan tanpa akun

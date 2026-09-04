@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { id } from 'date-fns/locale';
@@ -7,8 +7,6 @@ import {
     IoHeartOutline, 
     IoHeart, 
     IoChatbubbleEllipsesOutline, 
-    IoShareSocialOutline, 
-    IoCopyOutline, 
     IoLogoWhatsapp, 
     IoOpenOutline,
     IoEllipsisHorizontalOutline
@@ -16,28 +14,9 @@ import {
 
 const PrayerCard = ({ prayer, user, onAminToggle, onCommentSubmit }) => {
     const [showComments, setShowComments] = useState(false);
-    const [showShareMenu, setShowShareMenu] = useState(false);
     const [commentText, setCommentText] = useState('');
     const [commentAnonymous, setCommentAnonymous] = useState(false);
     const [submittingComment, setSubmittingComment] = useState(false);
-    const [copied, setCopied] = useState(false);
-    const shareMenuRef = useRef(null);
-
-    // Close share menu on outside click
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (shareMenuRef.current && !shareMenuRef.current.contains(event.target)) {
-                setShowShareMenu(false);
-            }
-        };
-
-        if (showShareMenu) {
-            document.addEventListener('mousedown', handleClickOutside);
-        }
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [showShareMenu]);
 
     const handleAminClick = () => {
         onAminToggle(prayer.id);
@@ -81,39 +60,6 @@ const PrayerCard = ({ prayer, user, onAminToggle, onCommentSubmit }) => {
         const encodedText = encodeURIComponent(shareText);
         const whatsappUrl = `https://wa.me/?text=${encodedText}`;
         window.open(whatsappUrl, '_blank');
-        setShowShareMenu(false);
-    };
-
-    const handleCopyLink = async () => {
-        try {
-            await navigator.clipboard.writeText(prayerUrl);
-            setCopied(true);
-            toast.success('Link doa berhasil disalin ke clipboard!');
-            setTimeout(() => setCopied(false), 2000);
-        } catch (err) {
-            toast.error('Gagal menyalin link');
-        }
-        setShowShareMenu(false);
-    };
-
-    const handleNativeShare = async () => {
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: `Doa dari ${authorName} - IndoQuran`,
-                    text: `🤲 Doa dari ${authorName}:\n\n"${prayer.content}"\n\nAmin ya Rabbal Alamin 🤲`,
-                    url: prayerUrl,
-                });
-            } catch (err) {
-                // Ignore AbortError if user cancelled
-                if (err.name !== 'AbortError') {
-                    handleShareWhatsapp();
-                }
-            }
-        } else {
-            handleShareWhatsapp();
-        }
-        setShowShareMenu(false);
     };
 
     return (
@@ -157,11 +103,10 @@ const PrayerCard = ({ prayer, user, onAminToggle, onCommentSubmit }) => {
                     {/* Like/Heart Button */}
                     <button
                         onClick={handleAminClick}
-                        disabled={!user}
-                        className={`group flex items-center gap-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                        className={`group flex items-center gap-1.5 transition-colors cursor-pointer ${
                             prayer.user_has_amin ? 'text-red-500 font-semibold' : 'text-gray-500 hover:text-red-500'
                         }`}
-                        title={!user ? 'Login untuk memberikan amin' : prayer.user_has_amin ? 'Batalkan amin' : 'Klik untuk memberikan amin'}
+                        title={prayer.user_has_amin ? 'Batalkan amin' : 'Klik untuk memberikan amin (Hamba Allah)'}
                     >
                         {prayer.user_has_amin ? (
                             <IoHeart className="w-5 h-5 text-red-500 scale-110 transition-transform" />
@@ -176,7 +121,7 @@ const PrayerCard = ({ prayer, user, onAminToggle, onCommentSubmit }) => {
                     {/* Comment Button */}
                     <button
                         onClick={() => setShowComments(!showComments)}
-                        className="group flex items-center gap-1.5 text-gray-500 hover:text-green-600 transition-colors"
+                        className="group flex items-center gap-1.5 text-gray-500 hover:text-green-600 transition-colors cursor-pointer"
                         title="Lihat komentar"
                     >
                         <IoChatbubbleEllipsesOutline className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -185,55 +130,15 @@ const PrayerCard = ({ prayer, user, onAminToggle, onCommentSubmit }) => {
                         </span>
                     </button>
 
-                    {/* Share Menu Trigger */}
-                    <div className="relative" ref={shareMenuRef}>
-                        <button
-                            onClick={() => setShowShareMenu(!showShareMenu)}
-                            className="group flex items-center gap-1.5 text-gray-500 hover:text-blue-600 transition-colors"
-                            title="Bagikan doa"
-                        >
-                            <IoShareSocialOutline className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                            <span className="text-xs">Bagikan</span>
-                        </button>
-
-                        {/* Share Popup Dropdown */}
-                        {showShareMenu && (
-                            <div className="absolute left-0 bottom-full mb-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-30 animate-fadeIn text-sm">
-                                <button
-                                    onClick={handleShareWhatsapp}
-                                    className="w-full px-3.5 py-2 text-left text-gray-700 hover:bg-green-50 hover:text-green-700 flex items-center gap-2.5 transition-colors"
-                                >
-                                    <IoLogoWhatsapp className="w-4 h-4 text-green-600" />
-                                    <span>Kirim ke WhatsApp</span>
-                                </button>
-                                <button
-                                    onClick={handleCopyLink}
-                                    className="w-full px-3.5 py-2 text-left text-gray-700 hover:bg-gray-50 hover:text-gray-900 flex items-center gap-2.5 transition-colors"
-                                >
-                                    <IoCopyOutline className="w-4 h-4 text-gray-500" />
-                                    <span>{copied ? 'Link Tersalin!' : 'Salin Tautan Doa'}</span>
-                                </button>
-                                {typeof navigator !== 'undefined' && navigator.share && (
-                                    <button
-                                        onClick={handleNativeShare}
-                                        className="w-full px-3.5 py-2 text-left text-gray-700 hover:bg-gray-50 hover:text-gray-900 flex items-center gap-2.5 transition-colors"
-                                    >
-                                        <IoShareSocialOutline className="w-4 h-4 text-blue-600" />
-                                        <span>Bagikan lainnya...</span>
-                                    </button>
-                                )}
-                                <div className="border-t border-gray-100 my-1"></div>
-                                <Link
-                                    to={`/doa-bersama/${prayer.id}`}
-                                    onClick={() => setShowShareMenu(false)}
-                                    className="w-full px-3.5 py-2 text-left text-gray-600 hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-2.5 transition-colors text-xs font-medium"
-                                >
-                                    <IoOpenOutline className="w-4 h-4 text-emerald-600" />
-                                    <span>Buka Halaman Doa Ini</span>
-                                </Link>
-                            </div>
-                        )}
-                    </div>
+                    {/* Share Button (WhatsApp Only) */}
+                    <button
+                        onClick={handleShareWhatsapp}
+                        className="group flex items-center gap-1.5 text-gray-500 hover:text-emerald-600 transition-colors cursor-pointer"
+                        title="Bagikan ke WhatsApp"
+                    >
+                        <IoLogoWhatsapp className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
+                        <span className="text-xs">WhatsApp</span>
+                    </button>
                 </div>
 
                 {/* Direct Link to Single Prayer Page */}
@@ -251,74 +156,58 @@ const PrayerCard = ({ prayer, user, onAminToggle, onCommentSubmit }) => {
             {showComments && (
                 <div className="mt-6 pt-6 border-t border-gray-100 pl-[60px]">
                     {/* Comment Form */}
-                    {user ? (
-                        <form onSubmit={handleCommentSubmit} className="mb-6">
-                            <div className="flex gap-3">
-                                <div className="w-10 h-10 bg-gradient-to-br from-gray-300 to-gray-400 rounded-full flex items-center justify-center text-white font-medium text-sm flex-shrink-0">
-                                    {user.name?.charAt(0)?.toUpperCase() || 'U'}
-                                </div>
-                                <div className="flex-1">
-                                    <input
-                                        type="text"
-                                        value={commentText}
-                                        onChange={(e) => setCommentText(e.target.value)}
-                                        placeholder="Tulis komentar atau doa balasan..."
-                                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm text-gray-800 placeholder-gray-400"
-                                        maxLength={1000}
-                                    />
-                                    {commentText.trim() && (
-                                        <div className="flex items-center justify-between gap-3 mt-3">
+                    <form onSubmit={handleCommentSubmit} className="mb-6">
+                        <div className="flex gap-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-gray-300 to-gray-400 rounded-full flex items-center justify-center text-white font-medium text-sm flex-shrink-0 shadow-2xs">
+                                {user ? (user.name?.charAt(0)?.toUpperCase() || 'U') : '🤲'}
+                            </div>
+                            <div className="flex-1">
+                                <input
+                                    type="text"
+                                    value={commentText}
+                                    onChange={(e) => setCommentText(e.target.value)}
+                                    placeholder={user ? "Tulis komentar atau doa balasan..." : "Tulis doa balasan sebagai Hamba Allah..."}
+                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm text-gray-800 placeholder-gray-400"
+                                    maxLength={1000}
+                                />
+                                {commentText.trim() && (
+                                    <div className="flex items-center justify-between gap-3 mt-3 flex-wrap">
+                                        {user ? (
                                             <label className="flex items-center gap-2 text-xs text-gray-500 cursor-pointer">
                                                 <input
                                                     type="checkbox"
                                                     checked={commentAnonymous}
                                                     onChange={(e) => setCommentAnonymous(e.target.checked)}
-                                                    className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                                                    className="rounded border-gray-300 text-green-600 focus:ring-green-500 cursor-pointer"
                                                 />
                                                 <span>Kirim sebagai Hamba Allah</span>
                                             </label>
-                                            <div className="flex items-center gap-2">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setCommentText('')}
-                                                    className="text-xs text-gray-500 hover:text-gray-700 font-medium px-3 py-1.5"
-                                                >
-                                                    Batal
-                                                </button>
-                                                <button
-                                                    type="submit"
-                                                    disabled={submittingComment}
-                                                    className="px-4 py-1.5 bg-green-600 text-white rounded-full text-xs font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                >
-                                                    {submittingComment ? 'Mengirim...' : 'Kirim'}
-                                                </button>
+                                        ) : (
+                                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 text-[11px] font-medium rounded-full border border-emerald-200/70">
+                                                <span>🤲 Mengirim sebagai Hamba Allah</span>
                                             </div>
+                                        )}
+                                        <div className="flex items-center gap-2 ml-auto">
+                                            <button
+                                                type="button"
+                                                onClick={() => setCommentText('')}
+                                                className="text-xs text-gray-500 hover:text-gray-700 font-medium px-3 py-1.5 cursor-pointer"
+                                            >
+                                                Batal
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                disabled={submittingComment}
+                                                className="px-4 py-1.5 bg-green-600 text-white rounded-full text-xs font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-2xs"
+                                            >
+                                                {submittingComment ? 'Mengirim...' : 'Kirim'}
+                                            </button>
                                         </div>
-                                    )}
-                                </div>
-                            </div>
-                        </form>
-                    ) : (
-                        <div className="mb-6 bg-gray-50 rounded-xl p-4 text-center">
-                            <p className="text-sm text-gray-600 mb-3">
-                                Silakan login untuk memberikan komentar / doa balasan
-                            </p>
-                            <div className="flex items-center justify-center gap-3">
-                                <Link 
-                                    to="/masuk" 
-                                    className="px-4 py-2 bg-green-600 text-white rounded-full text-sm font-medium hover:bg-green-700 transition-colors"
-                                >
-                                    Login
-                                </Link>
-                                <Link 
-                                    to="/auth/register" 
-                                    className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-50 transition-colors"
-                                >
-                                    Daftar
-                                </Link>
+                                    </div>
+                                )}
                             </div>
                         </div>
-                    )}
+                    </form>
 
                     {/* Comments List */}
                     {prayer.comments && prayer.comments.length > 0 ? (

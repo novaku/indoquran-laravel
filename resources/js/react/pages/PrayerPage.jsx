@@ -28,7 +28,6 @@ import PrayerFilters from '../components/PrayerFilters';
 import PrayerSlideshow from '../components/PrayerSlideshow';
 import SimpleSlideshow from '../components/SimpleSlideshow';
 import SEOHead from '../components/SEOHead';
-import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseInline from '../components/AdSenseInline';
 import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { scrollToTop } from '../utils/scrollUtils';
@@ -262,35 +261,26 @@ const PrayerPage = () => {
 
     // Handle form submission
     const handleSubmitPrayer = async (prayerData) => {
-        if (!user) {
-            toast.error('Anda harus login terlebih dahulu untuk mengirim doa');
-            return;
-        }
-
         try {
             setSubmitting(true);
-            const response = await postWithAuth('/api/doa-bersama', prayerData);
+            const payload = {
+                ...prayerData,
+                is_anonymous: !user ? true : Boolean(prayerData.is_anonymous)
+            };
+            const response = await postWithAuth('/api/doa-bersama', payload);
             const data = await response.json();
 
             if (data.success) {
-                toast.success('Doa berhasil dikirim ke komunitas');
+                toast.success(data.message || 'Doa berhasil dikirim ke komunitas');
                 setShowForm(false);
                 setFormInitialData(null);
                 fetchPrayers(1);
             } else {
-                if (response.status === 401) {
-                    toast.error('Sesi Anda telah berakhir. Silakan login kembali');
-                } else {
-                    toast.error(data.message || 'Gagal mengirim doa');
-                }
+                toast.error(data.message || 'Gagal mengirim doa');
             }
         } catch (error) {
             console.error('Gagal mengirim doa:', error);
-            if (error.response?.status === 401) {
-                toast.error('Anda harus login untuk mengirim doa');
-            } else {
-                toast.error('Gagal mengirim doa');
-            }
+            toast.error('Gagal mengirim doa');
         } finally {
             setSubmitting(false);
         }
@@ -298,11 +288,6 @@ const PrayerPage = () => {
 
     // Handle amin toggle
     const handleAminToggle = async (prayerId) => {
-        if (!user) {
-            toast.error('Silakan login untuk memberikan amin');
-            return;
-        }
-
         try {
             const response = await postWithAuth(`/api/doa-bersama/${prayerId}/amin`);
             const data = await response.json();
@@ -329,13 +314,12 @@ const PrayerPage = () => {
 
     // Handle comment submission
     const handleCommentSubmit = async (prayerId, commentData) => {
-        if (!user) {
-            toast.error('Silakan login untuk memberikan komentar');
-            return;
-        }
-
         try {
-            const response = await postWithAuth(`/api/doa-bersama/${prayerId}/comments`, commentData);
+            const payload = {
+                ...commentData,
+                is_anonymous: !user ? true : (commentData.is_anonymous || false)
+            };
+            const response = await postWithAuth(`/api/doa-bersama/${prayerId}/comments`, payload);
             const data = await response.json();
 
             if (data.success) {
@@ -348,7 +332,7 @@ const PrayerPage = () => {
                         }
                         : prayer
                 ));
-                toast.success('Komentar berhasil ditambahkan');
+                toast.success(data.message || 'Komentar berhasil ditambahkan');
                 return true;
             } else {
                 toast.error(data.message || 'Gagal menambahkan komentar');
@@ -363,21 +347,15 @@ const PrayerPage = () => {
 
     // Handle using a Selected Prayer into Community Form
     const handleUsePrayerInCommunity = (p) => {
-        if (!user) {
-            toast.error('Silakan masuk (login) untuk mengirim doa ke komunitas');
-            navigate('/masuk');
-            return;
-        }
-
         setFormInitialData({
             title: p.title,
             content: `${p.arabic}\n\nArtinya:\n"${p.translation}"\n\n(Sumber: ${p.source || 'Doa Pilihan'})`,
             category: 'umum',
-            is_anonymous: false
+            is_anonymous: !user ? true : false
         });
         setShowForm(true);
         handleTabChange('komunitas');
-        toast.success(`Doa "${p.title}" telah dimuat ke formulir!`);
+        toast.success(`Doa "${p.title}" telah dimuat ke formulir doa bersama!`);
     };
 
     // Dynamic SEO data
@@ -429,7 +407,7 @@ const PrayerPage = () => {
                                 </p>
                             </div>
                             
-                            {user && activeTab === 'komunitas' && (
+                            {activeTab === 'komunitas' && (
                                 <button
                                     onClick={() => {
                                         if (showForm) setFormInitialData(null);
@@ -490,9 +468,6 @@ const PrayerPage = () => {
                     </div>
                 </div>
 
-                {/* Top Billboard Ad */}
-                <AdSenseLeaderboard maxWidth="max-w-3xl" labelText="IKLAN" className="my-4 sm:my-6" />
-
                 {/* Main Content Area */}
                 <div className="max-w-3xl mx-auto px-4 py-4 sm:py-6">
 
@@ -532,7 +507,7 @@ const PrayerPage = () => {
                     {/* ======================================================= */}
                     {activeTab === 'komunitas' && (
                         <>
-                            {/* Login Notice */}
+                            {/* Login Notice / Guest Option */}
                             {!user && (
                                 <div className="bg-white rounded-2xl p-6 mb-6 border border-gray-200 shadow-2xs">
                                     <div className="flex items-start gap-4">
@@ -542,11 +517,11 @@ const PrayerPage = () => {
                                         <div className="flex-1">
                                             <h3 className="text-lg font-bold text-gray-900 mb-1">Bergabung dengan Komunitas Doa</h3>
                                             <p className="text-gray-600 text-sm mb-4">
-                                                Login untuk mengirim doa, memberikan amin, dan berkomentar
+                                                Masuk untuk menyimpan riwayat doa dan berinteraksi penuh, atau langsung kirim doa tanpa akun sebagai Hamba Allah.
                                             </p>
-                                            <div className="flex gap-3">
+                                            <div className="flex flex-wrap items-center gap-3">
                                                 <button 
-                                                    onClick={() => navigate('/masuk')}
+                                                    onClick={() => navigate('/masuk?redirect=/doa-bersama?tab=komunitas')}
                                                     className="px-5 py-2 bg-green-600 text-white rounded-full font-medium hover:bg-green-700 transition-colors text-sm shadow-2xs cursor-pointer"
                                                 >
                                                     Masuk
@@ -557,6 +532,20 @@ const PrayerPage = () => {
                                                 >
                                                     Daftar
                                                 </button>
+                                                <span className="text-gray-400 text-xs sm:text-sm px-1">atau</span>
+                                                <button 
+                                                    onClick={() => {
+                                                        setShowForm(true);
+                                                        setTimeout(() => {
+                                                            const el = document.getElementById('prayer-form-container');
+                                                            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                                        }, 100);
+                                                    }}
+                                                    className="px-4 py-2 text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-full font-semibold transition-all text-sm shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
+                                                >
+                                                    <IoHandRightOutline className="w-4 h-4 text-emerald-600" />
+                                                    <span>Lanjutkan tanpa akun</span>
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -564,10 +553,17 @@ const PrayerPage = () => {
                             )}
 
                             {/* Prayer Form */}
-                            {showForm && user && (
-                                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
+                            {showForm && (
+                                <div id="prayer-form-container" className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
                                     <div className="flex items-center justify-between mb-4">
-                                        <h2 className="text-xl font-bold text-gray-900">Kirim Doa Baru</h2>
+                                        <div className="flex items-center gap-2">
+                                            <h2 className="text-xl font-bold text-gray-900">Kirim Doa Baru</h2>
+                                            {!user && (
+                                                <span className="text-xs bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full font-semibold border border-emerald-200">
+                                                    Hamba Allah
+                                                </span>
+                                            )}
+                                        </div>
                                         {formInitialData && (
                                             <span className="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full border border-emerald-200 font-medium">
                                                 Memuat dari Doa Pilihan
@@ -578,6 +574,7 @@ const PrayerPage = () => {
                                         onSubmit={handleSubmitPrayer}
                                         loading={submitting}
                                         initialData={formInitialData}
+                                        isGuest={!user}
                                         onCancel={() => {
                                             setShowForm(false);
                                             setFormInitialData(null);
@@ -618,7 +615,7 @@ const PrayerPage = () => {
                                                 : 'Jadilah yang pertama mengirim doa'
                                             }
                                         </p>
-                                        {user && !showForm && (
+                                        {!showForm && (
                                             <button
                                                 onClick={() => setShowForm(true)}
                                                 className="px-6 py-2.5 bg-green-600 text-white rounded-full font-medium hover:bg-green-700 transition-colors shadow-sm cursor-pointer"
