@@ -1,5 +1,46 @@
 [
   {
+    "version": "2.23.0",
+    "date": "4 September 2026",
+    "type": "feature",
+    "title": "Peluncuran Khazanah Doa-Doa Pilihan (200 Doa Otentik) & Sistem Berbagi Tautan Cerdas",
+    "description": "Pembaruan besar pada ekosistem ibadah IndoQuran di halaman Doa Bersama (/doa-bersama) dengan menghadirkan modul Khazanah Doa-Doa Pilihan sebagai tampilan utama (default). Menyediakan koleksi 200 doa otentik dari Al-Qur'an dan As-Sunnah lengkap dengan teks Arab berharakat proporsional, transliterasi Latin, terjemahan Indonesia, rujukan riwayat/sanad terpercaya, fadhilah keutamaan, 10 kategori tematik dinamis, pencarian instan, integrasi tautan berbagi WhatsApp berbasis ID doa spesifik (?doa={id}#doa-{id}) dengan auto-scroll dan penyorotan visual otomatis, pratinjau Rich Card Open Graph interaktif, serta kemampuan memuat doa langsung ke formulir doa komunitas.",
+    "changes": [
+      {
+        "type": "feature",
+        "text": "Modul Khazanah Doa-Doa Pilihan (Default View di /doa-bersama) - Menjadikan tab Doa-Doa Pilihan sebagai tampilan utama saat membuka halaman Doa Bersama, menyuguhkan antarmuka yang tenang dan nyaman untuk membaca, merenungkan, dan mengamalkan doa"
+      },
+      {
+        "type": "feature",
+        "text": "Database Feed 200 Doa Pilihan Otentik (selected_prayers) - Feed koleksi 200 doa shahih dari Al-Qur'an dan hadits nabawi yang terbagi dalam 10 kategori tematik: Doa Sehari-hari (30 doa), Doa Al-Qur'an (22 doa), Doa Para Nabi & Rasul (22 doa), Perlindungan (22 doa), Rezeki & Keberkahan (20 doa), Kesehatan & Kesembuhan (20 doa), Taubat & Istighfar (20 doa), Keluarga & Keturunan (20 doa), Dzikir Pagi & Petang (14 doa), dan Penuntut Ilmu (10 doa)"
+      },
+      {
+        "type": "feature",
+        "text": "Tautan Berbagi WhatsApp & Salin Cerdas Berbasis ID Doa (?doa={id}#doa-{id}) - Setiap doa memiliki tautan unik yang ketika dibuka langsung mengarahkan dan menyorot kartu doa bersangkutan secara mulus (smooth scroll) disertai efek glowing ring dan lencana '✨ Doa yang Dituju'"
+      },
+      {
+        "type": "feature",
+        "text": "Pratinjau Rich Card Open Graph di WhatsApp (SEOController) - Integrasi metadata dinamis server-side Laravel agar link doa yang dibagikan ke WhatsApp dan media sosial memunculkan judul doa dan cuplikan maknanya secara otomatis"
+      },
+      {
+        "type": "feature",
+        "text": "Integrasi 'Kirim ke Doa Bersama' - Tombol aksi praktis pada setiap kartu doa untuk langsung memuat lafadz doa dan terjemahannya ke formulir doa komunitas agar dapat diaminkan bersama jamaah lainnya"
+      },
+      {
+        "type": "improvement",
+        "text": "Antarmuka Dinamis Tanpa Batasan Angka Statis - Tab switcher, pill filter kategori, paginasi, dan status pencarian dirancang bersih dan dinamis mengikuti pertumbuhan data tanpa batasan angka statis"
+      },
+      {
+        "type": "improvement",
+        "text": "Tipografi Kaligrafi Arab & Transliterasi Latin - Penggunaan font Arab proporsional dengan harakat lengkap serta panduan bacaan Latin yang jelas memudahkan pembacaan bagi semua kalangan"
+      },
+      {
+        "type": "improvement",
+        "text": "RESTful API & Filter Cepat Tanpa Reload - Endpoint /api/doa-pilihan dan /api/doa-pilihan/categories dengan dukungan paginasi cerdas, pencarian debounced, dan filter kategori responsif"
+      }
+    ]
+  },
+  {
     "version": "2.22.0",
     "date": "2 September 2026",
     "type": "feature",

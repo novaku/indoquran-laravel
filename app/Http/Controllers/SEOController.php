@@ -119,7 +119,7 @@ class SEOController extends Controller
         }
         
         // Remove unwanted query parameters for canonical URL consistency
-        $allowedQueryParams = ['q', 'page', 'sort', 'reciter', 'tag']; // Only these params are relevant for content
+        $allowedQueryParams = ['q', 'page', 'sort', 'reciter', 'tag', 'tab', 'doa', 'category', 'search']; // Only these params are relevant for content
         $queryString = $request->getQueryString();
         
         if ($queryString) {
@@ -527,7 +527,26 @@ class SEOController extends Controller
             ]);
         }
         elseif (isset($segments[0]) && $segments[0] === 'doa-bersama') {
-            if (isset($segments[1]) && is_numeric($segments[1])) {
+            if ($request->filled('doa') && is_numeric($request->doa)) {
+                $selectedPrayer = \App\Models\SelectedPrayer::find($request->doa);
+                if ($selectedPrayer) {
+                    $transSnippet = Str::limit($selectedPrayer->translation, 140);
+                    $seoData = array_merge($seoData, [
+                        'metaTitle' => "{$selectedPrayer->title} - Doa Pilihan | IndoQuran",
+                        'metaDescription' => "{$selectedPrayer->title}: \"{$transSnippet}\" - Baca doa lengkap dengan teks Arab berharakat, transliterasi Latin, terjemahan Indonesia, dan sumber riwayat di IndoQuran.",
+                        'metaKeywords' => "doa pilihan, {$selectedPrayer->title}, doa al quran, doa hadits, doa islam, doa bersamaindoquran",
+                        'canonicalUrl' => url('/doa-bersama?doa=' . $selectedPrayer->id),
+                        'ogType' => 'article'
+                    ]);
+                } else {
+                    $seoData = array_merge($seoData, [
+                        'metaTitle' => "Koleksi Doa-Doa Pilihan Al-Qur'an & Sunnah Lengkap | IndoQuran",
+                        'metaDescription' => "Koleksi lengkap doa-doa pilihan otentik dari Al-Qur'an dan As-Sunnah lengkap dengan teks Arab berharakat, transliterasi Latin, dan terjemahan Indonesia.",
+                        'metaKeywords' => 'doa bersama, doa pilihan, doa al quran, doa hadits, doa islam, indoquran doa',
+                        'canonicalUrl' => url('/doa-bersama')
+                    ]);
+                }
+            } elseif (isset($segments[1]) && is_numeric($segments[1])) {
                 $prayer = Prayer::with('user')->find($segments[1]);
                 if ($prayer) {
                     $authorName = $prayer->is_anonymous ? 'Hamba Allah' : ($prayer->user->name ?? 'Saudara Seiman');
@@ -550,11 +569,11 @@ class SEOController extends Controller
                     ]);
                 }
             } else {
-                // Prayer page SEO
+                // Prayer page SEO (Default Doa Pilihan)
                 $seoData = array_merge($seoData, [
-                    'metaTitle' => 'Doa Bersama - Komunitas Doa Muslim - IndoQuran',
-                    'metaDescription' => 'Bergabunglah dengan komunitas doa Muslim di IndoQuran. Buat dan bagikan doa, beri dukungan kepada sesama Muslim, serta temukan kekuatan dalam doa bersama.',
-                    'metaKeywords' => 'doa bersama, komunitas doa, doa muslim, doa islam, permintaan doa, dukungan doa, indoquran doa',
+                    'metaTitle' => "Koleksi Doa-Doa Pilihan Al-Qur'an & Sunnah Lengkap | IndoQuran",
+                    'metaDescription' => "Koleksi lengkap doa-doa pilihan otentik dari Al-Qur'an dan As-Sunnah lengkap dengan teks Arab berharakat, transliterasi Latin, dan terjemahan Indonesia.",
+                    'metaKeywords' => 'doa bersama, doa pilihan, doa al quran, doa hadits, doa islam, indoquran doa',
                     'canonicalUrl' => url('/doa-bersama')
                 ]);
             }

@@ -12,6 +12,7 @@ use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PrayerController;
+use App\Http\Controllers\SelectedPrayerController;
 use App\Http\Controllers\TafsirMaudhuiController;
 use App\Http\Controllers\Api\SecurityController;
 use App\Http\Controllers\ArticleController;
@@ -193,6 +194,11 @@ Route::get('/doa-bersama/{prayer}/comments', [PrayerController::class, 'getComme
 Route::get('/kategori-doa', [PrayerController::class, 'getCategories']);
 Route::get('/prayer-images', [PrayerController::class, 'getPrayerImages']);
 Route::get('/dua-bersama/count', [PrayerController::class, 'count']);
+
+// Selected prayers routes (Doa-Doa Pilihan)
+Route::get('/doa-pilihan', [SelectedPrayerController::class, 'index']);
+Route::get('/doa-pilihan/categories', [SelectedPrayerController::class, 'categories']);
+Route::get('/doa-pilihan/{selectedPrayer}', [SelectedPrayerController::class, 'show']);
 
 // Prayer times API endpoint
 Route::get('/prayer-times', [PrayerController::class, 'getPrayerTimes']);

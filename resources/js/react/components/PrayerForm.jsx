@@ -1,18 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { fetchWithAuth } from '../utils/apiUtils';
 
-const PrayerForm = ({ onSubmit, loading, onCancel }) => {
+const PrayerForm = ({ onSubmit, loading, onCancel, initialData }) => {
     const [formData, setFormData] = useState({
-        title: '',
-        content: '',
-        category: 'umum',
-        is_anonymous: false
+        title: initialData?.title || '',
+        content: initialData?.content || '',
+        category: initialData?.category || 'umum',
+        is_anonymous: initialData?.is_anonymous || false
     });
     const [categories, setCategories] = useState([]);
 
     useEffect(() => {
         fetchCategories();
     }, []);
+
+    useEffect(() => {
+        if (initialData) {
+            setFormData({
+                title: initialData.title || '',
+                content: initialData.content || '',
+                category: initialData.category || 'umum',
+                is_anonymous: initialData.is_anonymous || false
+            });
+        }
+    }, [initialData]);
 
     const fetchCategories = async () => {
         try {

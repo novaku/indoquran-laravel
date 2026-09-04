@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
             AsmaulHusnaSeeder::class,
             TagSeeder::class,  // Run tag seeder before article seeder
             ArticleSeeder::class,
+            SelectedPrayerSeeder::class,
         ]);
     }
 }
