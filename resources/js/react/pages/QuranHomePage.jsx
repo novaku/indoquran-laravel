@@ -147,119 +147,101 @@ function QuranHomePage() {
         {
             to: '/surah',
             title: 'Daftar Surah',
-            description: '114 Surah lengkap dari Al-Fatihah hingga An-Nas dengan teks Arab, transliterasi Latin, terjemahan resmi Kemenag RI, dan audio murottal.',
+            subtitle: '114 Surah, teks Arab & murottal',
             badgeText: '114 Surah',
             icon: BookOpenIcon,
             iconBg: 'bg-emerald-50 text-emerald-600 border border-emerald-100',
             badgeBg: 'bg-emerald-50 text-emerald-700 border border-emerald-200/60',
-            borderColor: 'hover:border-emerald-300',
-            hoverBg: 'hover:from-white hover:to-emerald-50/40',
-            actionText: 'Lihat Surah',
-            tags: ['Makkiyah & Madaniyah', 'Audio Murottal', 'Teks Latin']
+            hoverBorder: 'hover:border-emerald-300',
+            hoverBg: 'hover:from-white hover:to-emerald-50/40'
         },
         {
             to: '/juz',
             title: 'Telusuri Juz',
-            description: 'Navigasi 30 Juz Al-Quran tersusun rapi untuk mempermudah target tilawah harian dan tadarus khatam Al-Quran.',
+            subtitle: 'Navigasi 30 Juz & target khatam',
             badgeText: '30 Juz',
             icon: DocumentTextIcon,
             iconBg: 'bg-blue-50 text-blue-600 border border-blue-100',
             badgeBg: 'bg-blue-50 text-blue-700 border border-blue-200/60',
-            borderColor: 'hover:border-blue-300',
-            hoverBg: 'hover:from-white hover:to-blue-50/40',
-            actionText: 'Telusuri Juz',
-            tags: ['Juz 1 s/d 30', 'Target Khatam', 'Urutan Mushaf']
+            hoverBorder: 'hover:border-blue-300',
+            hoverBg: 'hover:from-white hover:to-blue-50/40'
         },
         {
             to: '/halaman',
             title: 'Halaman Mushaf',
-            description: 'Format mushaf standar 604 halaman digital (Mushaf Madinah) dengan tata letak ayat yang akurat dan nyaman dibaca.',
+            subtitle: 'Mushaf Madinah 604 halaman',
             badgeText: '604 Hal',
             icon: BuildingLibraryIcon,
             iconBg: 'bg-purple-50 text-purple-600 border border-purple-100',
             badgeBg: 'bg-purple-50 text-purple-700 border border-purple-200/60',
-            borderColor: 'hover:border-purple-300',
-            hoverBg: 'hover:from-white hover:to-purple-50/40',
-            actionText: 'Buka Halaman',
-            tags: ['Standar Madinah', 'Navigasi Lembar', 'Tampilan Bersih']
+            hoverBorder: 'hover:border-purple-300',
+            hoverBg: 'hover:from-white hover:to-purple-50/40'
         },
         {
             to: '/asmaul-husna',
             title: 'Asmaul Husna',
-            description: '99 nama-nama Allah SWT yang mulia dan agung beserta makna terjemahan, penjelasan, dan dalil Al-Quran.',
+            subtitle: '99 nama agung Allah & maknanya',
             badgeText: '99 Nama',
             icon: StarIcon,
             iconBg: 'bg-amber-50 text-amber-600 border border-amber-100',
             badgeBg: 'bg-amber-50 text-amber-700 border border-amber-200/60',
-            borderColor: 'hover:border-amber-300',
-            hoverBg: 'hover:from-white hover:to-amber-50/40',
-            actionText: 'Lihat Asmaul Husna',
-            tags: ['Arti & Makna', 'Dalil Quran', 'Dzikir Harian']
+            hoverBorder: 'hover:border-amber-300',
+            hoverBg: 'hover:from-white hover:to-amber-50/40'
         },
         {
             to: '/tafsir-maudhui',
             title: 'Tafsir Tematik',
-            description: 'Kumpulan ayat dan kajian mendalam yang dikelompokkan berdasarkan tema aqidah, ibadah, akhlak, dan kehidupan sehari-hari.',
+            subtitle: 'Kajian ayat per topik kehidupan',
             badgeText: 'Tematik',
             icon: AcademicCapIcon,
             iconBg: 'bg-orange-50 text-orange-600 border border-orange-100',
             badgeBg: 'bg-orange-50 text-orange-700 border border-orange-200/60',
-            borderColor: 'hover:border-orange-300',
-            hoverBg: 'hover:from-white hover:to-orange-50/40',
-            actionText: 'Kajian Tematik',
-            tags: ['Kajian Topik', 'Ayat Terkait', 'Tadabbur']
+            hoverBorder: 'hover:border-orange-300',
+            hoverBg: 'hover:from-white hover:to-orange-50/40'
         },
         {
             to: '/doa-bersama',
             title: 'Doa & Dzikir',
-            description: 'Kumpulan doa-doa mustajab dan dzikir harian bersumber dari Al-Quran dan Hadits shahih dengan teks Arab dan artinya.',
+            subtitle: 'Kumpulan doa Quran & Hadits',
             badgeText: 'Doa Harian',
             icon: UserGroupIcon,
             iconBg: 'bg-rose-50 text-rose-600 border border-rose-100',
             badgeBg: 'bg-rose-50 text-rose-700 border border-rose-200/60',
-            borderColor: 'hover:border-rose-300',
-            hoverBg: 'hover:from-white hover:to-rose-50/40',
-            actionText: 'Kumpulan Doa',
-            tags: ['Doa Quran & Sunnah', 'Teks & Arti', 'Amalan Harian']
+            hoverBorder: 'hover:border-rose-300',
+            hoverBg: 'hover:from-white hover:to-rose-50/40'
         },
         {
             to: '/cari',
             title: 'Pencarian Cerdas',
-            description: 'Temukan ayat dengan cepat berdasarkan kata kunci terjemahan bahasa Indonesia, transliterasi Latin, atau nomor surah.',
+            subtitle: 'Cari lafadz Arab, latin & arti',
             badgeText: 'Cari Cepat',
             icon: MagnifyingGlassIcon,
             iconBg: 'bg-teal-50 text-teal-600 border border-teal-100',
             badgeBg: 'bg-teal-50 text-teal-700 border border-teal-200/60',
-            borderColor: 'hover:border-teal-300',
-            hoverBg: 'hover:from-white hover:to-teal-50/40',
-            actionText: 'Mulai Pencarian',
-            tags: ['Kata Kunci', 'Pencarian Tepat', 'Hasil Instan']
+            hoverBorder: 'hover:border-teal-300',
+            hoverBg: 'hover:from-white hover:to-teal-50/40'
         },
         {
             to: '/penanda',
             title: 'Penanda & Progres',
-            description: 'Simpan ayat favorit, tandai ayat terakhir yang dibaca (bookmark), dan pantau kemajuan tilawah Al-Quran Anda.',
+            subtitle: 'Bookmark & riwayat tilawah',
             badgeText: 'Bookmark',
             icon: BookmarkIcon,
             iconBg: 'bg-indigo-50 text-indigo-600 border border-indigo-100',
             badgeBg: 'bg-indigo-50 text-indigo-700 border border-indigo-200/60',
-            borderColor: 'hover:border-indigo-300',
-            hoverBg: 'hover:from-white hover:to-indigo-50/40',
-            actionText: 'Buka Penanda',
-            tags: ['Terakhir Dibaca', 'Ayat Favorit', 'Sinkron Akun']
+            hoverBorder: 'hover:border-indigo-300',
+            hoverBg: 'hover:from-white hover:to-indigo-50/40'
         },
         {
             to: '/artikel',
             title: 'Artikel & Edukasi',
-            description: 'Baca tulisan edukatif seputar tadabbur Al-Quran, hikmah ayat, tajwid, dan khazanah keilmuan Islam terkini.',
+            subtitle: 'Tadabbur, tajwid & wawasan',
             badgeText: 'Khazanah',
             icon: NewspaperIcon,
             iconBg: 'bg-sky-50 text-sky-600 border border-sky-100',
             badgeBg: 'bg-sky-50 text-sky-700 border border-sky-200/60',
-            borderColor: 'hover:border-sky-300',
-            hoverBg: 'hover:from-white hover:to-sky-50/40',
-            actionText: 'Baca Artikel',
-            tags: ['Kajian Islami', 'Tajwid & Adab', 'Inspirasi']
+            hoverBorder: 'hover:border-sky-300',
+            hoverBg: 'hover:from-white hover:to-sky-50/40'
         }
     ];
 
@@ -777,60 +759,58 @@ function QuranHomePage() {
 
                         {/* Fitur & Navigasi Utama (Feature Hub) */}
                         <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-200/90 shadow-2xs">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6 pb-4 border-b border-gray-100">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-gray-100">
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <h2 className="text-xl font-bold text-gray-900">Jelajahi Al-Quran & Fitur</h2>
                                         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-                                            9 Modul Utama
+                                            9 Modul
                                         </span>
                                     </div>
                                     <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                                        Pintasan lengkap menuju seluruh fitur, modul bacaan Al-Quran, kajian tafsir, dan panduan ibadah.
+                                        Pintasan cepat modul bacaan, kajian tafsir, pencarian, dan panduan ibadah.
                                     </p>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-3.5">
                                 {navigationItems.map((item) => {
                                     const Icon = item.icon;
                                     return (
                                         <Link
                                             key={item.to}
                                             to={item.to}
-                                            className={`group p-4 sm:p-5 rounded-2xl border border-gray-200/90 bg-white hover:bg-gradient-to-br ${item.hoverBg || 'hover:from-white hover:to-emerald-50/30'} ${item.borderColor} transition-all duration-200 hover:shadow-xs flex flex-col justify-between`}
+                                            className={`group p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200/90 bg-white hover:bg-gradient-to-br ${item.hoverBg || 'hover:from-white hover:to-emerald-50/30'} ${item.hoverBorder || 'hover:border-emerald-300'} transition-all duration-200 hover:shadow-xs flex flex-row sm:flex-col sm:justify-between items-center sm:items-stretch gap-3 sm:gap-3`}
                                         >
-                                            <div>
-                                                <div className="flex items-center justify-between mb-3.5">
-                                                    <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl ${item.iconBg} flex items-center justify-center transition-transform duration-200 group-hover:scale-105 shadow-2xs`}>
-                                                        <Icon className="w-5 h-5" />
-                                                    </div>
-                                                    <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${item.badgeBg || 'bg-gray-100 text-gray-700'} transition-colors`}>
-                                                        {item.badgeText}
-                                                    </span>
+                                            {/* Top row for desktop, left column for mobile */}
+                                            <div className="flex sm:items-center sm:justify-between flex-shrink-0">
+                                                <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl ${item.iconBg} flex items-center justify-center transition-transform duration-200 group-hover:scale-105 shadow-2xs`}>
+                                                    <Icon className="w-5 h-5" />
                                                 </div>
-                                                <h3 className="font-bold text-gray-900 text-sm sm:text-base group-hover:text-emerald-700 transition-colors">
-                                                    {item.title}
-                                                </h3>
-                                                <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">
-                                                    {item.description}
-                                                </p>
-                                                {item.tags && item.tags.length > 0 && (
-                                                    <div className="mt-3 flex flex-wrap gap-1.5">
-                                                        {item.tags.map((tag, idx) => (
-                                                            <span
-                                                                key={idx}
-                                                                className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-gray-50 border border-gray-200/70 text-gray-600 group-hover:border-emerald-200 group-hover:text-emerald-800 transition-colors"
-                                                            >
-                                                                {tag}
-                                                            </span>
-                                                        ))}
-                                                    </div>
-                                                )}
+                                                <span className={`hidden sm:inline-flex text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${item.badgeBg} transition-colors`}>
+                                                    {item.badgeText}
+                                                </span>
                                             </div>
-                                            <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs font-semibold text-emerald-600 group-hover:text-emerald-700 transition-colors">
-                                                <span>{item.actionText || 'Buka Modul'}</span>
-                                                <ChevronRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+
+                                            {/* Title & subtitle */}
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center justify-between gap-1.5">
+                                                    <h3 className="font-bold text-gray-900 text-sm group-hover:text-emerald-700 transition-colors truncate sm:whitespace-normal">
+                                                        {item.title}
+                                                    </h3>
+                                                    <ChevronRightIcon className="hidden sm:block w-4 h-4 text-gray-400 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all flex-shrink-0" />
+                                                </div>
+                                                <p className="text-xs text-gray-500 mt-0.5 sm:mt-1 truncate sm:line-clamp-1">
+                                                    {item.subtitle}
+                                                </p>
+                                            </div>
+
+                                            {/* Mobile right badge & chevron */}
+                                            <div className="flex sm:hidden items-center gap-2 flex-shrink-0">
+                                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${item.badgeBg}`}>
+                                                    {item.badgeText}
+                                                </span>
+                                                <ChevronRightIcon className="w-4 h-4 text-gray-400 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all" />
                                             </div>
                                         </Link>
                                     );
