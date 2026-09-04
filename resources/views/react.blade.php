@@ -22,7 +22,7 @@
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="{{ $ogType ?? 'website' }}">
-    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:url" content="{{ $canonicalUrl ?? url()->current() }}">
     <meta property="og:title" content="{{ $metaTitle ?? 'IndoQuran - Al-Quran Digital Indonesia' }}">
     <meta property="og:description" content="{{ $metaDescription ?? 'Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia, fitur bookmark, dan audio murottal.' }}">
     <meta property="og:image" content="{{ $ogImage ?? url('/android-chrome-512x512.png') }}">
@@ -55,7 +55,7 @@
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:site" content="@indoquran">
     <meta property="twitter:creator" content="@indoquran">
-    <meta property="twitter:url" content="{{ url()->current() }}">
+    <meta property="twitter:url" content="{{ $canonicalUrl ?? url()->current() }}">
     <meta property="twitter:title" content="{{ $metaTitle ?? 'IndoQuran - Al-Quran Digital Indonesia' }}">
     <meta property="twitter:description" content="{{ $metaDescription ?? 'Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia.' }}">
     <meta property="twitter:image" content="{{ $ogImage ?? url('/android-chrome-512x512.png') }}">
@@ -65,7 +65,7 @@
     <link rel="canonical" href="{{ $canonicalUrl ?? url()->current() }}">
     
     <!-- Additional SEO Links -->
-    <link rel="alternate" hreflang="id" href="{{ url()->current() }}">
+    <link rel="alternate" hreflang="id" href="{{ $canonicalUrl ?? url()->current() }}">
     <link rel="alternate" hreflang="x-default" href="{{ url('/') }}">
     <title>{{ $metaTitle ?? 'IndoQuran - Al-Quran Digital Indonesia' }}</title>
 
