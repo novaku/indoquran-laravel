@@ -28,9 +28,8 @@ class DomainRedirectMiddleware
             $path = $request->getRequestUri(); // Already includes query string
             $newUrl = 'https://indoquran.web.id' . $path;
             
-            // Redirect with status 301 (permanent redirect) and signal search bots not to index redirect URL.
-            return redirect($newUrl, 301)
-                ->header('X-Robots-Tag', 'noindex, nofollow');
+            // Redirect with status 301 (permanent redirect) to primary canonical domain
+            return redirect($newUrl, 301);
         }
         
         return $next($request);
