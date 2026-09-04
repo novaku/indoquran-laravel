@@ -18,7 +18,7 @@ import { scrollToTop } from '../utils/scrollUtils';
 function UserAuthPage() {
     const location = useLocation();
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { login, user, isAdmin } = useAuth();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -34,6 +34,13 @@ function UserAuthPage() {
     const isRegister = location.pathname === '/daftar';
     
     useEffect(() => {
+        // If user is already an admin, redirect immediately to /admin/dashboard
+        const storedAdmin = localStorage.getItem('admin_user');
+        if (isAdmin || (user && user.is_admin) || storedAdmin) {
+            navigate('/admin/dashboard', { replace: true });
+            return;
+        }
+
         scrollToTop();
         setErrors({});
         setFormData({
@@ -42,7 +49,7 @@ function UserAuthPage() {
             password: '',
             password_confirmation: ''
         });
-    }, [location.pathname]);
+    }, [location.pathname, isAdmin, user, navigate]);
 
     
     const handleChange = (e) => {
@@ -107,9 +114,15 @@ function UserAuthPage() {
             const result = await login(formData, isRegister);
             
             if (result.success) {
+                // If user is admin, store admin session and redirect directly to admin dashboard
+                if (result.user && (result.user.is_admin || result.user.isAdmin)) {
+                    localStorage.setItem('admin_user', JSON.stringify(result.user));
+                    navigate('/admin/dashboard', { replace: true });
+                    return;
+                }
+
                 // Show success message for registration
                 if (isRegister) {
-                    // You could show a success toast here if you have a toast system
                     console.log('Registration successful! Welcome email sent.');
                 }
                 navigate('/', { replace: true });

@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { scrollToTop } from '../utils/scrollUtils';
+import { logoutAdmin } from '../utils/adminAuth';
 import { 
 
     UsersIcon, 
@@ -177,8 +178,8 @@ const AdminDashboard = () => {
         }
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('admin_user');
+    const handleLogout = async () => {
+        await logoutAdmin();
         toast.success('Logout berhasil');
         navigate('/admin/login');
     };

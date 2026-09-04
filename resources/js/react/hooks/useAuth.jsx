@@ -39,9 +39,25 @@ export const AuthProvider = ({ children }) => {
             // Get the current token or the one from localStorage
             const currentToken = token || localStorage.getItem('auth_token');
 
-            // If we don't have a token, user is not authenticated
+            // If we don't have a token, check if admin session exists in localStorage
             if (!currentToken) {
+                const adminUser = localStorage.getItem('admin_user');
+                if (adminUser) {
+                    try {
+                        const parsed = JSON.parse(adminUser);
+                        if (parsed && (parsed.is_admin || parsed.id)) {
+                            setUser({ ...parsed, is_admin: true });
+                            setLoading(false);
+                            setIsInitialized(true);
+                            return;
+                        }
+                    } catch (e) {
+                        console.error('Error parsing admin_user in useAuth:', e);
+                    }
+                }
                 setUser(null);
+                setLoading(false);
+                setIsInitialized(true);
                 return;
             }
 
@@ -61,12 +77,28 @@ export const AuthProvider = ({ children }) => {
                 // Check if we have valid user data
                 if (userData && typeof userData === 'object' && userData.id) {
                     setUser(userData);
+                    if (userData.is_admin) {
+                        localStorage.setItem('admin_user', JSON.stringify(userData));
+                    }
                 } else {
                     setUser(null);
                     localStorage.removeItem('auth_token');
                     setToken(null);
                 }
             } else {
+                // If API token check fails, check if admin_user exists before clearing
+                const adminUser = localStorage.getItem('admin_user');
+                if (adminUser) {
+                    try {
+                        const parsed = JSON.parse(adminUser);
+                        if (parsed && (parsed.is_admin || parsed.id)) {
+                            setUser({ ...parsed, is_admin: true });
+                            setLoading(false);
+                            setIsInitialized(true);
+                            return;
+                        }
+                    } catch (e) {}
+                }
                 setUser(null);
                 localStorage.removeItem('auth_token');
                 setToken(null);
@@ -108,6 +140,11 @@ export const AuthProvider = ({ children }) => {
                     localStorage.setItem('auth_token', data.token);
                 }
                 
+                // If user has admin privilege, sync to admin_user in localStorage
+                if (data.user.is_admin) {
+                    localStorage.setItem('admin_user', JSON.stringify(data.user));
+                }
+                
                 setUser(data.user);
                 
                 return { success: true, user: data.user, message: data.message };
@@ -139,6 +176,7 @@ export const AuthProvider = ({ children }) => {
         } finally {
             // Always clear local data regardless of server response
             localStorage.removeItem('auth_token');
+            localStorage.removeItem('admin_user');
             setToken(null);
             setUser(null);
             setLoading(false);
@@ -185,6 +223,8 @@ export const AuthProvider = ({ children }) => {
         token,
         loading,
         isInitialized,
+        isAuthenticated: Boolean(user),
+        isAdmin: Boolean(user && user.is_admin),
         login,
         logout,
         updateUser,

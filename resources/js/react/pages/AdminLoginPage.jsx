@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { LockClosedIcon, UserIcon } from '@heroicons/react/24/outline';
+import { LockClosedIcon, UserIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { scrollToTop } from '../utils/scrollUtils';
 
 const AdminLoginPage = () => {
@@ -376,10 +376,35 @@ const AdminLoginPage = () => {
                     </div>
                 </div>
             ) : (
-            <div className="max-w-md w-full space-y-8">
+            <div className="max-w-md w-full space-y-6">
+                {/* Back to Homepage Navigation Bar */}
+                <div className="flex items-center justify-between pb-1">
+                    <Link
+                        to="/"
+                        className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-emerald-700 bg-white/80 hover:bg-white px-3.5 py-1.5 rounded-full border border-gray-200/80 shadow-xs backdrop-blur-xs transition-all duration-200 group"
+                    >
+                        <ArrowLeftIcon className="w-4 h-4 text-gray-500 group-hover:text-emerald-600 group-hover:-translate-x-0.5 transition-transform" />
+                        <span>Kembali ke Beranda</span>
+                    </Link>
+                    <Link 
+                        to="/" 
+                        className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-emerald-700 transition-colors"
+                        title="Buka Halaman Utama IndoQuran"
+                    >
+                        <img 
+                            src="/images/logo-icon.webp" 
+                            alt="IndoQuran" 
+                            className="w-5 h-5 object-contain"
+                            width="20"
+                            height="20"
+                        />
+                        <span>IndoQuran</span>
+                    </Link>
+                </div>
+
                 {/* Header */}
                 <div className="text-center">
-                    <div className="mx-auto h-16 w-16 bg-emerald-600 rounded-full flex items-center justify-center mb-4">
+                    <div className="mx-auto h-16 w-16 bg-emerald-600 rounded-2xl shadow-md shadow-emerald-600/20 flex items-center justify-center mb-4">
                         <LockClosedIcon className="h-8 w-8 text-white" />
                     </div>
                     <h2 className="text-3xl font-bold text-gray-900 mb-2">
@@ -498,9 +523,9 @@ const AdminLoginPage = () => {
                     </form>
                 </div>
 
-                {/* Security Notice */}
-                <div className="text-center">
-                    <p className="text-sm text-gray-500">
+                {/* Security Notice & Back Option */}
+                <div className="text-center space-y-3">
+                    <p className="text-xs text-gray-500">
                         {step === 'email' 
                             ? 'Halaman ini khusus untuk administrator IndoQuran. Kode OTP akan dikirim ke email yang valid.'
                             : 'Periksa email Anda untuk kode OTP. Kode berlaku selama 1 jam.'
@@ -508,6 +533,15 @@ const AdminLoginPage = () => {
                         <br />
                         Akses tidak sah akan dicatat dan dilaporkan.
                     </p>
+                    <div className="pt-1">
+                        <Link
+                            to="/"
+                            className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 hover:text-emerald-800 transition-colors hover:underline"
+                        >
+                            <ArrowLeftIcon className="w-4 h-4" />
+                            <span>Batal &amp; kembali ke halaman utama</span>
+                        </Link>
+                    </div>
                 </div>
             </div>
             )}

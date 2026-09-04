@@ -173,6 +173,35 @@ class AdminController extends Controller
     }
 
     /**
+     * Handle an admin logout request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function logout(Request $request)
+    {
+        $userId = Auth::id();
+        Log::info('Admin user logout request', [
+            'user_id' => $userId,
+            'session_id' => $request->session()->getId()
+        ]);
+
+        if ($user = Auth::user()) {
+            if (method_exists($user, 'tokens')) {
+                $user->tokens()->delete();
+            }
+        }
+
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return response()->json([
+            'message' => 'Admin logged out successfully'
+        ]);
+    }
+
+    /**
      * Get admin dashboard data.
      *
      * @return \Illuminate\Http\JsonResponse

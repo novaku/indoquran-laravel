@@ -94,6 +94,9 @@ function Sidebar({ isOpen, setIsOpen }) {
     ];
 
     const userNavItems = user ? [
+        ...(user.is_admin ? [
+            { name: 'Panel Admin', path: '/admin/dashboard', icon: Squares2X2Icon, description: 'Kelola website & statistik', isAdminItem: true }
+        ] : []),
         { name: 'Penanda', path: '/penanda', icon: HeartIcon, description: 'Ayat yang telah ditandai' },
         { name: 'Profil', path: '/profil', icon: UserIcon, description: 'Pengaturan akun' },
     ] : [];
@@ -298,7 +301,15 @@ function Sidebar({ isOpen, setIsOpen }) {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="text-sm font-medium text-gray-900 truncate">{user.name}</div>
-                                    <div className="text-xs text-gray-500">Member</div>
+                                    <div className="text-xs text-gray-500 mt-0.5">
+                                        {user.is_admin ? (
+                                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                                Administrator
+                                            </span>
+                                        ) : (
+                                            <span>Member</span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                             <div className="mt-2 space-y-1">
@@ -307,12 +318,14 @@ function Sidebar({ isOpen, setIsOpen }) {
                                         key={item.path}
                                         to={item.path}
                                         className={`flex items-start space-x-3 px-3 py-3 rounded-md text-sm font-medium transition-colors ${
-                                            isActivePath(item.path)
-                                                ? 'bg-green-50 text-green-600'
-                                                : 'text-gray-700 hover:bg-gray-50 hover:text-green-600'
+                                            item.isAdminItem
+                                                ? 'bg-emerald-50 text-emerald-900 font-semibold hover:bg-emerald-100/80 border border-emerald-100'
+                                                : isActivePath(item.path)
+                                                    ? 'bg-green-50 text-green-600'
+                                                    : 'text-gray-700 hover:bg-gray-50 hover:text-green-600'
                                         }`}
                                     >
-                                        <item.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                                        <item.icon className={`w-5 h-5 mt-0.5 flex-shrink-0 ${item.isAdminItem ? 'text-emerald-700' : ''}`} />
                                         <div>
                                             <div className="font-medium">{item.name}</div>
                                             <div className="text-xs text-gray-500 mt-0.5">{item.description}</div>

@@ -5,6 +5,7 @@ import {
     ArrowRightStartOnRectangleIcon
 } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
+import { logoutAdmin } from '../../utils/adminAuth';
 
 const AdminNavbar = () => {
     const navigate = useNavigate();
@@ -21,8 +22,8 @@ const AdminNavbar = () => {
         }
     }, []);
 
-    const handleLogout = () => {
-        localStorage.removeItem('admin_user');
+    const handleLogout = async () => {
+        await logoutAdmin();
         toast.success('Logout berhasil');
         navigate('/admin/login');
     };

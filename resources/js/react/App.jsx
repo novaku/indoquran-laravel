@@ -235,6 +235,7 @@ const AppContent = memo(() => {
     
     // Derived states for cleaner component logic - memoized for performance
     const isAuthenticated = useMemo(() => Boolean(user), [user]);
+    const isAdmin = useMemo(() => Boolean(user && user.is_admin), [user]);
     const isLoading = useMemo(() => loading || !isInitialized, [loading, isInitialized]);
     
     // Advanced performance monitoring (disable console logging to reduce noise)
@@ -427,13 +428,17 @@ const AppContent = memo(() => {
                         <Route 
                             path="/masuk" 
                             element={
-                                isAuthenticated ? <Navigate to="/" replace /> : <AuthPage />
+                                isAuthenticated ? (
+                                    isAdmin ? <Navigate to="/admin/dashboard" replace /> : <Navigate to="/" replace />
+                                ) : <AuthPage />
                             } 
                         />
                         <Route 
                             path="/daftar" 
                             element={
-                                isAuthenticated ? <Navigate to="/" replace /> : <AuthPage />
+                                isAuthenticated ? (
+                                    isAdmin ? <Navigate to="/admin/dashboard" replace /> : <Navigate to="/" replace />
+                                ) : <AuthPage />
                             } 
                         />
                         <Route 

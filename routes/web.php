@@ -76,6 +76,7 @@ Route::get('/admin/session-check', function() {
 Route::get('/admin/csrf-token', [AdminController::class, 'getCsrfToken'])->name('admin.csrf-token');
 Route::post('/admin/send-otp', [AdminController::class, 'sendOtp'])->name('admin.send-otp');
 Route::post('/admin/login', [AdminController::class, 'login']);
+Route::post('/admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
 
 // API routes for Tafsir Maudhui (to be consumed by React)
 Route::get('/api/tafsir-maudhui', [TafsirMaudhuiController::class, 'api'])->name('tafsir-maudhui.api');

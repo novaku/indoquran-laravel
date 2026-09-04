@@ -104,8 +104,13 @@ class LoginController extends Controller
             'user_id' => $user ? $user->id : null
         ]);
         
-        // Simple logout without session handling
+        if ($user && method_exists($user, 'tokens')) {
+            $user->tokens()->delete();
+        }
+
         Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
         
         return response()->json(['message' => 'Logged out successfully']);
     }
