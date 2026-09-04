@@ -403,13 +403,28 @@
 
                 @if(isset($reactData['currentAyah']) && $reactData['currentAyah'])
                     <article id="ssr-ayah-detail" style="margin: 0 auto 2.5rem; border: 2px solid #22c55e; border-radius: 0.75rem; padding: 1.5rem; background: #f0fdf4;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
                             <h3 style="font-size: 1.25rem; font-weight: 700; color: #14532d; margin: 0;">
                                 Ayat {{ $reactData['currentAyah']->ayah_number }} Surah {{ $reactData['currentSurah']->name_latin }}
                             </h3>
-                            <a href="/surah/{{ $reactData['currentSurah']->number }}" style="color: #15803d; font-size: 0.875rem; font-weight: 600; text-decoration: none;">
-                                &larr; Lihat Seluruh Surah
-                            </a>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                @php
+                                    $ssrShareText = "*" . strtoupper($reactData['currentSurah']->name_latin) . " : AYAT " . $reactData['currentAyah']->ayah_number . "*\n"
+                                        . $reactData['currentSurah']->name_arabic . " - Ayat " . $reactData['currentAyah']->ayah_number . "\n\n"
+                                        . $reactData['currentAyah']->text_arabic . "\n\n"
+                                        . (!empty($reactData['currentAyah']->text_latin) ? "_" . $reactData['currentAyah']->text_latin . "_\n\n" : "")
+                                        . (!empty($reactData['currentAyah']->text_indonesian) ? "_" . $reactData['currentAyah']->text_indonesian . "_\n\n" : "")
+                                        . "[ BACA SELENGKAPNYA ]\n" . url("/surah/" . $reactData['currentSurah']->number . "/" . $reactData['currentAyah']->ayah_number) . "\n\n"
+                                        . "INDOQURAN - Baca Al-Qur'an dengan mudah";
+                                    $ssrWaUrl = "https://api.whatsapp.com/send?text=" . rawurlencode($ssrShareText);
+                                @endphp
+                                <a href="{{ $ssrWaUrl }}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.375rem 0.875rem; background: #16a34a; color: white; border-radius: 0.5rem; text-decoration: none; font-size: 0.8125rem; font-weight: 600;">
+                                    Share WhatsApp
+                                </a>
+                                <a href="/surah/{{ $reactData['currentSurah']->number }}" style="color: #15803d; font-size: 0.875rem; font-weight: 600; text-decoration: none;">
+                                    &larr; Lihat Seluruh Surah
+                                </a>
+                            </div>
                         </div>
 
                         <p class="arabic-text" style="font-size: 2.25rem; line-height: 2.3; color: #111827; text-align: right; margin: 0 0 1.25rem 0; direction: rtl;">

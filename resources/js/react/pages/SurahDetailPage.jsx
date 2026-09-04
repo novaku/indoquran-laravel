@@ -1786,9 +1786,9 @@ function SurahDetailPage() {
             shareText += `[ BACA SELENGKAPNYA ]\n${window.location.origin}/surah/${number}/${ayahNum}\n\n`;
             shareText += `INDOQURAN - Baca Al-Qur'an dengan mudah`;
 
-            // Share via WhatsApp only
+            // Share via WhatsApp
             const encodedText = encodeURIComponent(shareText);
-            const whatsappUrl = `https://wa.me/?text=${encodedText}`;
+            const whatsappUrl = `https://api.whatsapp.com/send?text=${encodedText}`;
             
             console.log('📤 Opening WhatsApp share:', {
                 ayahNumber: ayahNum,
@@ -1800,35 +1800,22 @@ function SurahDetailPage() {
             });
             
             try {
-                // Check if device supports WhatsApp app
-                const userAgent = navigator.userAgent;
-                const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-                
-                if (isMobile) {
-                    // Try WhatsApp app first on mobile
-                    const appUrl = `whatsapp://send?text=${encodedText}`;
-                    window.location.href = appUrl;
-                    
-                    // Fallback to web WhatsApp after a delay
-                    setTimeout(() => {
-                        window.open(whatsappUrl, '_blank');
-                    }, 2000);
-                } else {
-                    // Use web WhatsApp on desktop
-                    window.open(whatsappUrl, '_blank');
-                }
-                
+                window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
                 console.log('✅ WhatsApp share initiated successfully');
                 
                 // Show success message
                 const alertDiv = document.createElement('div');
-                alertDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-all text-sm';
-                alertDiv.textContent = '✅ WhatsApp terbuka untuk berbagi ayat!';
+                alertDiv.className = 'fixed top-4 right-4 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-lg z-50 transition-all text-sm font-medium flex items-center gap-2 animate-fadeIn';
+                alertDiv.innerHTML = '<span class="text-base">✅</span><span>WhatsApp terbuka untuk berbagi ayat!</span>';
                 document.body.appendChild(alertDiv);
                 
                 setTimeout(() => {
                     alertDiv.style.opacity = '0';
-                    setTimeout(() => document.body.removeChild(alertDiv), 500);
+                    setTimeout(() => {
+                        if (document.body.contains(alertDiv)) {
+                            document.body.removeChild(alertDiv);
+                        }
+                    }, 500);
                 }, 3000);
                 
             } catch (error) {
@@ -2429,43 +2416,75 @@ function SurahDetailPage() {
                                 </p>
                             </div>
 
-                            <div className="relative actions-menu-container md:hidden">
+                            <div className="flex items-center gap-1.5 md:hidden">
+                                {/* Direct WhatsApp Share Icon for Mobile */}
                                 <button
-                                    onClick={() => setShowActionsMenu((prev) => !prev)}
-                                    className="p-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
-                                    title="Aksi halaman"
+                                    type="button"
+                                    onClick={() => shareAyah(currentAyahNumber)}
+                                    className="p-2 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors border border-emerald-200 shadow-2xs flex items-center justify-center cursor-pointer active:scale-95"
+                                    title="Bagikan Ayat ke WhatsApp"
                                 >
-                                    <EllipsisVerticalIcon className="w-5 h-5" />
+                                    <WhatsAppIcon className="w-5 h-5 text-emerald-600" />
                                 </button>
 
-                                {showActionsMenu && (
-                                    <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
-                                        <button
-                                            onClick={async () => {
-                                                await copyAyahText(currentAyahNumber, 'arabic');
-                                                setShowActionsMenu(false);
-                                            }}
-                                            className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                                        >
-                                            <ClipboardDocumentIcon className="w-4 h-4 text-indigo-600" />
-                                            Salin teks Arab ayat
-                                        </button>
-                                        <button
-                                            onClick={async () => {
-                                                await toggleBookmark(currentAyahNumber);
-                                                setShowActionsMenu(false);
-                                            }}
-                                            className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                                        >
-                                            {bookmarkedAyahs.has(currentAyahNumber) ? (
-                                                <BookmarkSolidIcon className="w-4 h-4 text-emerald-600" />
-                                            ) : (
-                                                <BookmarkOutlineIcon className="w-4 h-4 text-emerald-600" />
-                                            )}
-                                            {bookmarkedAyahs.has(currentAyahNumber) ? 'Hapus penanda ayat' : 'Tandai / Bookmark ayat'}
-                                        </button>
-                                    </div>
-                                )}
+                                <div className="relative actions-menu-container">
+                                    <button
+                                        onClick={() => setShowActionsMenu((prev) => !prev)}
+                                        className="p-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                                        title="Aksi halaman"
+                                    >
+                                        <EllipsisVerticalIcon className="w-5 h-5" />
+                                    </button>
+
+                                    {showActionsMenu && (
+                                        <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
+                                            <button
+                                                onClick={() => {
+                                                    shareAyah(currentAyahNumber);
+                                                    setShowActionsMenu(false);
+                                                }}
+                                                className="w-full px-4 py-3 text-left text-sm hover:bg-emerald-50 text-emerald-800 font-semibold flex items-center gap-2.5 border-b border-gray-100"
+                                            >
+                                                <WhatsAppIcon className="w-4 h-4 text-emerald-600" />
+                                                Bagikan Ayat {currentAyahNumber} ke WhatsApp
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    shareSurah();
+                                                    setShowActionsMenu(false);
+                                                }}
+                                                className="w-full px-4 py-3 text-left text-sm hover:bg-emerald-50 text-emerald-800 font-medium flex items-center gap-2.5 border-b border-gray-100"
+                                            >
+                                                <WhatsAppIcon className="w-4 h-4 text-emerald-600" />
+                                                Bagikan Seluruh Surah ke WhatsApp
+                                            </button>
+                                            <button
+                                                onClick={async () => {
+                                                    await copyAyahText(currentAyahNumber, 'arabic');
+                                                    setShowActionsMenu(false);
+                                                }}
+                                                className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                                            >
+                                                <ClipboardDocumentIcon className="w-4 h-4 text-indigo-600" />
+                                                Salin teks Arab ayat
+                                            </button>
+                                            <button
+                                                onClick={async () => {
+                                                    await toggleBookmark(currentAyahNumber);
+                                                    setShowActionsMenu(false);
+                                                }}
+                                                className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                                            >
+                                                {bookmarkedAyahs.has(currentAyahNumber) ? (
+                                                    <BookmarkSolidIcon className="w-4 h-4 text-emerald-600" />
+                                                ) : (
+                                                    <BookmarkOutlineIcon className="w-4 h-4 text-emerald-600" />
+                                                )}
+                                                {bookmarkedAyahs.has(currentAyahNumber) ? 'Hapus penanda ayat' : 'Tandai / Bookmark ayat'}
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
@@ -2538,6 +2557,17 @@ function SurahDetailPage() {
                                                     </div>
                                                 </div>
 
+                                                {/* Primary WhatsApp Share Button */}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => shareAyah(currentAyahNumber)}
+                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 border border-emerald-600 transition-all shadow-xs hover:shadow active:scale-95 cursor-pointer"
+                                                    title="Bagikan Ayat ini ke WhatsApp"
+                                                >
+                                                    <WhatsAppIcon className="w-3.5 h-3.5 text-white flex-shrink-0" />
+                                                    <span>Share WhatsApp</span>
+                                                </button>
+
                                                 <Link
                                                     to="/penanda"
                                                     className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition shadow-2xs"
@@ -2548,7 +2578,7 @@ function SurahDetailPage() {
                                                 </Link>
                                             </div>
 
-                                            {/* Action Icons: Bookmark, Favorite, Notes, Font Size */}
+                                            {/* Action Icons: Bookmark, Favorite, Notes, Share WhatsApp, Font Size */}
                                             <div className="flex items-center gap-2">
                                                 {/* Ayah Actions (Icons simple di atas huruf Arab) */}
                                                 {(() => {
@@ -2625,6 +2655,16 @@ function SurahDetailPage() {
                                                                 ) : (
                                                                     <IoPencilOutline className="h-3.5 w-3.5" />
                                                                 )}
+                                                            </button>
+
+                                                            {/* Share ke WhatsApp */}
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => shareAyah(currentAyahNumber)}
+                                                                className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 border border-gray-200/80 transition cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
+                                                                title="Bagikan Ayat ke WhatsApp"
+                                                            >
+                                                                <WhatsAppIcon className="h-3.5 w-3.5 text-emerald-600" />
                                                             </button>
                                                         </div>
                                                     );
@@ -2917,6 +2957,17 @@ function SurahDetailPage() {
                                                                                 : 'Putar Surah Lengkap'}
                                                                         </span>
                                                                     </button>
+
+                                                                    {/* WhatsApp Share Button in Audio Bar */}
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => shareAyah(currentAyahNumber)}
+                                                                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold border border-emerald-300/80 bg-white text-emerald-800 hover:bg-emerald-50 hover:border-emerald-400 transition-all duration-200 active:scale-95 shadow-2xs cursor-pointer"
+                                                                        title="Bagikan ayat ini ke WhatsApp"
+                                                                    >
+                                                                        <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                                                                        <span>Share WA</span>
+                                                                    </button>
                                                                 </div>
 
                                                                 {/* Quick Step Buttons for Prev / Next Ayah */}
@@ -2976,9 +3027,20 @@ function SurahDetailPage() {
                                                         <span className="text-amber-400">•</span>
                                                         <span className="text-amber-900 font-extrabold">Ayat {currentAyahNumber}</span>
                                                     </p>
-                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-200/90 text-amber-900 shadow-2xs">
-                                                        QS. {surah.number}:{currentAyahNumber}
-                                                    </span>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => shareAyah(currentAyahNumber)}
+                                                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs transition-all active:scale-95 cursor-pointer"
+                                                            title="Bagikan ayat dan terjemahan ke WhatsApp"
+                                                        >
+                                                            <WhatsAppIcon className="w-3 h-3 text-white" />
+                                                            <span>Share WA</span>
+                                                        </button>
+                                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-200/90 text-amber-900 shadow-2xs">
+                                                            QS. {surah.number}:{currentAyahNumber}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                                 <p className="text-sm sm:text-base text-gray-800 leading-relaxed">
                                                     {renderTranslationWithFootnote(
