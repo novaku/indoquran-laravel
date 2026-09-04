@@ -300,7 +300,17 @@
 </head>
 <body class="font-sans antialiased">
     <div id="app">
-        <!-- Fallback content while React loads -->
+        @php
+            $hasSsrContent = !empty($reactData['surahs']) 
+                || !empty($reactData['currentSurah']) 
+                || !empty($reactData['currentJuz']) 
+                || !empty($reactData['currentPage']) 
+                || !empty($reactData['currentArticle']) 
+                || !empty($reactData['articles']);
+        @endphp
+
+        <!-- Fallback content while React loads (only rendered if no SSR content is pre-rendered) -->
+        @if(!$hasSsrContent)
         <div id="app-loading" style="
             display: flex;
             flex-direction: column;
@@ -332,15 +342,12 @@
                     margin: 0 auto 2rem;
                 "></div>
                 
-                <h1 style="
+                <div style="
                     font-size: 2rem;
                     font-weight: 600;
                     margin: 0 0 1rem 0;
-                    background: linear-gradient(45deg, #ffffff, #f0f9ff);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    background-clip: text;
-                ">IndoQuran</h1>
+                    color: #ffffff;
+                ">IndoQuran</div>
                 
                 <p style="
                     font-size: 1.1rem;
@@ -364,6 +371,7 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- SEO Content (Server Side Rendered) to ensure indexing -->
         @if(isset($reactData['surahs']))
@@ -557,9 +565,27 @@
                     @endif
                 @endif
 
-                <div style="text-align: center; margin-top: 1.5rem;">
-                    <a href="/halaman" style="display: inline-block; padding: 0.75rem 1.5rem; background: #16a34a; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">&larr; Kembali ke Daftar Halaman</a>
-                </div>
+                <nav aria-label="Navigasi Halaman Mushaf" style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb; gap: 0.5rem; flex-wrap: wrap;">
+                    @if($reactData['currentPage']['number'] > 1)
+                        <a href="/halaman/{{ $reactData['currentPage']['number'] - 1 }}" style="padding: 0.6rem 1.2rem; background: #f3f4f6; color: #1f2937; border-radius: 0.5rem; text-decoration: none; font-weight: 600; font-size: 0.875rem;">
+                            &larr; Halaman {{ $reactData['currentPage']['number'] - 1 }}
+                        </a>
+                    @else
+                        <span></span>
+                    @endif
+
+                    <a href="/halaman" style="padding: 0.6rem 1.2rem; background: #16a34a; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 600; font-size: 0.875rem;">
+                        Semua Halaman
+                    </a>
+
+                    @if($reactData['currentPage']['number'] < 604)
+                        <a href="/halaman/{{ $reactData['currentPage']['number'] + 1 }}" style="padding: 0.6rem 1.2rem; background: #f3f4f6; color: #1f2937; border-radius: 0.5rem; text-decoration: none; font-weight: 600; font-size: 0.875rem;">
+                            Halaman {{ $reactData['currentPage']['number'] + 1 }} &rarr;
+                        </a>
+                    @else
+                        <span></span>
+                    @endif
+                </nav>
             </div>
         @endif
 
@@ -713,6 +739,11 @@
             // Check if React app loaded successfully
             function checkAppLoaded() {
                 const appEl = document.getElementById('app');
+                const loadingEl = document.getElementById('app-loading');
+                if (!loadingEl) {
+                    clearTimeout(loadingTimeout);
+                    return true;
+                }
                 if (appEl && appEl.children.length > 1) {
                     // React app has loaded
                     hideLoadingScreen();

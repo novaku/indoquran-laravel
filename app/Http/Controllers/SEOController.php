@@ -609,6 +609,34 @@ class SEOController extends Controller
             // Page detail SEO
             if (isset($segments[1]) && is_numeric($segments[1])) {
                 $pageNumber = (int) $segments[1];
+
+                // Fetch cached page ayahs to build rich, unique meta title and description
+                $pageAyahs = \Illuminate\Support\Facades\Cache::remember("seo_page_ayahs_{$pageNumber}", 86400, function () use ($pageNumber) {
+                    return Ayah::query()
+                        ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian')
+                        ->with('surah:number,name_latin,name_indonesian,name_arabic')
+                        ->where('page', $pageNumber)
+                        ->orderBy('surah_number')
+                        ->orderBy('ayah_number')
+                        ->get();
+                });
+
+                $surahNames = $pageAyahs->pluck('surah.name_latin')->filter()->unique()->values();
+                $surahLabel = $surahNames->isNotEmpty() ? 'Surah ' . $surahNames->implode(', ') : '';
+
+                $surahSpanTexts = $pageAyahs->groupBy('surah_number')->map(function ($grp) {
+                    $first = $grp->first();
+                    $last = $grp->last();
+                    $name = $first?->surah?->name_latin;
+                    if (!$name) return null;
+                    return "{$name} ayat {$first->ayah_number}-{$last->ayah_number}";
+                })->filter()->values();
+                $surahSpanSummary = $surahSpanTexts->isNotEmpty() ? $surahSpanTexts->implode(', ') : '';
+
+                $metaTitle = "Al Quran Halaman {$pageNumber}" . ($surahLabel ? " ({$surahLabel})" : "") . " - Teks Arab & Terjemahan | IndoQuran";
+                $metaDescription = "Baca Al-Quran Halaman {$pageNumber}" . ($surahSpanSummary ? " memuat {$surahSpanSummary}" : "") . " dengan teks Arab jelas, terjemahan bahasa Indonesia, dan audio murottal per ayat.";
+                $metaKeywords = "halaman {$pageNumber}, al quran halaman {$pageNumber}, " . strtolower($surahLabel ? $surahLabel . ', ' : '') . "teks arab halaman {$pageNumber}, mushaf madinah halaman {$pageNumber}, quran digital indonesia";
+
                 $breadcrumbStructuredData = [
                     '@context' => 'https://schema.org',
                     '@type' => 'BreadcrumbList',
@@ -636,9 +664,9 @@ class SEOController extends Controller
 
                 // Specific page SEO
                 $seoData = array_merge($seoData, [
-                    'metaTitle' => "Al Quran Halaman {$pageNumber} - Teks Arab & Audio | IndoQuran",
-                    'metaDescription' => "Baca Al-Quran halaman {$pageNumber} dengan teks Arab jelas, navigasi cepat antar halaman, dan audio murottal per ayat. Cocok untuk tilawah, murajaah, dan hafalan harian.",
-                    'metaKeywords' => "halaman {$pageNumber}, al quran halaman {$pageNumber}, alquran halaman {$pageNumber}, quran halaman {$pageNumber}, teks arab halaman {$pageNumber}, quran digital, al quran indonesia",
+                    'metaTitle' => $metaTitle,
+                    'metaDescription' => $metaDescription,
+                    'metaKeywords' => $metaKeywords,
                     'canonicalUrl' => url("/halaman/{$pageNumber}"),
                     'breadcrumbStructuredData' => $breadcrumbStructuredData,
                     'ogType' => 'article'
@@ -971,10 +999,22 @@ class SEOController extends Controller
                 ->filter()
                 ->values();
 
+            $surahNames = $pageAyahs->pluck('surah.name_latin')->filter()->unique()->values();
+            $surahLabel = $surahNames->isNotEmpty() ? 'Surah ' . $surahNames->implode(', ') : '';
+
+            $surahSpanTexts = $pageAyahs->groupBy('surah_number')->map(function ($grp) {
+                $first = $grp->first();
+                $last = $grp->last();
+                $name = $first?->surah?->name_latin;
+                if (!$name) return null;
+                return "{$name} ayat {$first->ayah_number}-{$last->ayah_number}";
+            })->filter()->values();
+            $surahSpanSummary = $surahSpanTexts->isNotEmpty() ? $surahSpanTexts->implode(', ') : '';
+
             $reactData['currentPage'] = [
                 'number' => $pageNumber,
-                'title' => "Al Quran Halaman {$pageNumber}",
-                'description' => "Akses Al-Quran halaman {$pageNumber} dengan teks Arab jelas untuk bacaan harian, murajaah, dan hafalan.",
+                'title' => "Al Quran Halaman {$pageNumber}" . ($surahLabel ? " ({$surahLabel})" : ""),
+                'description' => "Baca Al-Quran Halaman {$pageNumber}" . ($surahSpanSummary ? " memuat {$surahSpanSummary}" : "") . " dengan teks Arab jelas, terjemahan bahasa Indonesia, dan audio murottal per ayat.",
                 'ayah_previews' => $pageAyahs,
                 'surah_spans' => $surahSpans,
                 'has_ssr_content' => $pageAyahs->isNotEmpty(),

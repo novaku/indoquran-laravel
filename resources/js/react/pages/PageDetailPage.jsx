@@ -348,9 +348,21 @@ function PageDetailPage() {
     if (loading) {
         return (
             <PageTransition isLoading={true}>
+                <SEOHead 
+                    title={`Al Quran Halaman ${currentPageNum} - Teks Arab & Terjemahan | IndoQuran`}
+                    description={`Baca Al-Quran Halaman ${currentPageNum} lengkap dengan teks Arab, terjemahan Indonesia, dan audio murottal per ayat.`}
+                    keywords={`halaman ${currentPageNum}, al quran halaman ${currentPageNum}, mushaf halaman ${currentPageNum}, quran digital, al quran indonesia`}
+                    canonicalUrl={`https://indoquran.web.id/halaman/${currentPageNum}`}
+                />
                 <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
-                    <div className="max-w-6xl mx-auto px-4 py-8 pt-24 pb-20">
-                        <div className="flex justify-center items-center h-64">
+                    <div className="max-w-6xl mx-auto px-4 py-8 pt-24 pb-20 text-center">
+                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                            Al Quran Halaman {currentPageNum}
+                        </h1>
+                        <p className="text-gray-600 mb-8 text-sm sm:text-base">
+                            Memuat ayat-ayat Al-Quran Halaman {currentPageNum}...
+                        </p>
+                        <div className="flex justify-center items-center h-48">
                             <LoadingSpinner size="lg" />
                         </div>
                     </div>
@@ -362,12 +374,17 @@ function PageDetailPage() {
     if (error) {
         return (
             <PageTransition>
+                <SEOHead 
+                    title={`Al Quran Halaman ${currentPageNum} - Teks Arab & Terjemahan | IndoQuran`}
+                    description={`Baca Al-Quran Halaman ${currentPageNum} lengkap dengan teks Arab, terjemahan Indonesia, dan audio murottal per ayat.`}
+                    canonicalUrl={`https://indoquran.web.id/halaman/${currentPageNum}`}
+                />
                 <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
                     <div className="max-w-6xl mx-auto px-4 py-8 pt-24 pb-20">
                         <div className="bg-white rounded-3xl shadow-xl p-8 border border-red-100">
                             <div className="text-center">
                                 <div className="text-red-500 text-6xl mb-4">⚠️</div>
-                                <h2 className="text-2xl font-bold text-red-800 mb-2">Error</h2>
+                                <h2 className="text-2xl font-bold text-red-800 mb-2">Gagal Memuat Data Halaman {currentPageNum}</h2>
                                 <p className="text-red-600 mb-6">{error}</p>
                                 <div className="flex flex-wrap justify-center gap-3">
                                     <button 
