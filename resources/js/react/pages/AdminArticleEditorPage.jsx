@@ -430,25 +430,55 @@ const AdminArticleEditorPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4 max-w-5xl">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex items-center justify-between">
+        <div className="bg-white rounded-xl shadow-xs border border-gray-200 p-6 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <button
+                type="button"
                 onClick={() => navigate('/admin/artikel')}
-                className="p-2 text-gray-600 hover:text-gray-900"
+                className="p-2.5 rounded-lg text-gray-600 hover:text-emerald-700 hover:bg-emerald-50 border border-gray-200 transition-colors cursor-pointer"
+                title="Kembali ke Daftar Artikel"
               >
-                <FaArrowLeft className="text-xl" />
+                <FaArrowLeft className="text-base" />
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {isEdit ? 'Edit Artikel' : 'Artikel Baru'}
-                </h1>
-                <p className="text-gray-600 mt-1">
-                  {isEdit ? 'Perbarui artikel yang sudah ada' : 'Buat artikel baru untuk website'}
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    {isEdit ? 'Edit Artikel' : 'Tulis Artikel Baru'}
+                  </h1>
+                  <span className={`px-2.5 py-0.5 rounded text-xs font-semibold ${
+                    formData.status === 'published' 
+                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
+                      : 'bg-amber-100 text-amber-800 border border-amber-200'
+                  }`}>
+                    {formData.status === 'published' ? 'Terbit' : 'Draft'}
+                  </span>
+                </div>
+                <p className="text-gray-600 mt-1 text-sm">
+                  {isEdit ? 'Perbarui konten artikel dan publikasikan perubahan' : 'Buat dan tulis artikel baru untuk edukasi pembaca IndoQuran'}
                 </p>
               </div>
+            </div>
+
+            <div className="flex items-center gap-3 self-end sm:self-center">
+              <button
+                type="button"
+                onClick={() => navigate('/admin/artikel')}
+                className="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={saving}
+                className="inline-flex items-center gap-2 px-5 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-xs transition-colors cursor-pointer"
+              >
+                <FaSave />
+                <span>{saving ? 'Menyimpan...' : (isEdit ? 'Perbarui' : 'Simpan')}</span>
+              </button>
             </div>
           </div>
         </div>
@@ -746,18 +776,18 @@ const AdminArticleEditorPage = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-end gap-4 sticky bottom-0 bg-gray-50 py-4 border-t border-gray-200 -mx-6 px-6">
+          <div className="flex items-center justify-end gap-4 sticky bottom-0 bg-white/95 backdrop-blur-sm py-4 border-t border-gray-200 -mx-6 px-6 shadow-xs">
             <button
               type="button"
               onClick={() => navigate('/admin/artikel')}
-              className="px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
+              className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md transition-all"
+              className="inline-flex items-center gap-2 px-6 py-2.5 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-xs transition-all cursor-pointer"
             >
               <FaSave />
               <span>{saving ? 'Menyimpan...' : (isEdit ? 'Perbarui Artikel' : 'Simpan Artikel')}</span>

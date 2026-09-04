@@ -6,15 +6,32 @@ import Breadcrumb from './Breadcrumb';
 import Sidebar from './Sidebar';
 import AdSenseHorizontal from './AdSenseHorizontal';
 
+import AdminNavbar from './admin/AdminNavbar';
+import AdminBreadcrumbs from './admin/AdminBreadcrumbs';
+import AdminFooter from './admin/AdminFooter';
+
 function QuranLayout({ children, className = "" }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const location = useLocation();
     const isAdmin = location.pathname.startsWith('/admin');
 
     if (isAdmin) {
+        if (location.pathname === '/admin/login') {
+            return (
+                <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+                    {children}
+                </div>
+            );
+        }
+
         return (
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-                {children}
+            <div className="min-h-screen flex flex-col bg-gray-50 text-gray-900">
+                <AdminNavbar />
+                <AdminBreadcrumbs />
+                <main className={`flex-grow ${className}`}>
+                    {children}
+                </main>
+                <AdminFooter />
             </div>
         );
     }

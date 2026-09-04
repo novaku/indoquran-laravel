@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { scrollToTop } from '../utils/scrollUtils';
@@ -55,7 +55,19 @@ const AdminDashboard = () => {
 
     const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('overview');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const activeTab = searchParams.get('tab') || 'overview';
+
+    const handleTabChange = (tabId) => {
+        const nextParams = new URLSearchParams(searchParams);
+        if (tabId === 'overview') {
+            nextParams.delete('tab');
+        } else {
+            nextParams.set('tab', tabId);
+        }
+        setSearchParams(nextParams, { replace: true });
+    };
+
     const [adminUser, setAdminUser] = useState(null);
     const [replyModal, setReplyModal] = useState({ isOpen: false, contact: null });
     const [replyMessage, setReplyMessage] = useState('');
@@ -361,29 +373,27 @@ const AdminDashboard = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Header */}
-            <div className="bg-white shadow-sm border-b">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center py-4">
+        <div className="min-h-screen bg-gray-50 pb-12">
+            {/* Page Title & Greeting */}
+            <div className="bg-white border-b border-gray-200">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-                            <p className="text-gray-600">Panel administrasi IndoQuran</p>
+                            <h1 className="text-2xl font-bold text-gray-900">Dashboard Utama</h1>
+                            <p className="text-sm text-gray-600 mt-0.5">
+                                Selamat datang, <span className="font-semibold text-emerald-700">{adminUser?.name || 'Administrator'}</span>. Kelola dan pantau seluruh aktivitas website IndoQuran.
+                            </p>
                         </div>
-                        <div className="flex items-center space-x-4">
-                            {adminUser && (
-                                <div className="text-right">
-                                    <p className="text-sm font-medium text-gray-900">{adminUser.name}</p>
-                                    <p className="text-xs text-gray-500">{adminUser.email}</p>
-                                </div>
-                            )}
-                            <button
-                                onClick={handleLogout}
-                                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                        <div className="flex items-center gap-2">
+                            <Link
+                                to="/admin/artikel/baru"
+                                className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 transition shadow-xs"
                             >
-                                <ArrowRightStartOnRectangleIcon className="h-4 w-4 mr-2" />
-                                Logout
-                            </button>
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>Buat Artikel Baru</span>
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -451,8 +461,8 @@ const AdminDashboard = () => {
                         </button>
                         
                         <button
-                            onClick={() => setActiveTab('contacts')}
-                            className="flex items-center p-4 border-2 border-gray-200 rounded-lg hover:border-emerald-500 hover:bg-emerald-50 transition-all group"
+                            onClick={() => handleTabChange('contacts')}
+                            className="flex items-center p-4 border-2 border-gray-200 rounded-lg hover:border-emerald-500 hover:bg-emerald-50 transition-all group cursor-pointer"
                         >
                             <ChatBubbleLeftRightIcon className="h-8 w-8 text-green-500 mr-3 group-hover:text-emerald-600" />
                             <div className="text-left">
@@ -479,12 +489,12 @@ const AdminDashboard = () => {
                                 return (
                                     <button
                                         key={tab.id}
-                                        onClick={() => setActiveTab(tab.id)}
+                                        onClick={() => handleTabChange(tab.id)}
                                         className={`${
                                             activeTab === tab.id
                                                 ? 'border-emerald-500 text-emerald-600'
                                                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                        } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center`}
+                                        } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center cursor-pointer`}
                                     >
                                         <IconComponent className="h-4 w-4 mr-2" />
                                         {tab.label}
