@@ -150,9 +150,22 @@ const SearchField = ({
                     }
                 }));
 
+            // Map common aliases for API search (e.g. Ayat Kursi, Jodoh, Taubat, Sholat)
+            let apiQuery = query;
+            const normalized = query.toLowerCase().trim();
+            if (/^ayat\s+kursi$/i.test(normalized)) {
+                apiQuery = 'kursi';
+            } else if (/^jodoh$/i.test(normalized)) {
+                apiQuery = 'pasangan';
+            } else if (/^taubat$/i.test(normalized)) {
+                apiQuery = 'tobat';
+            } else if (/^sholat$/i.test(normalized)) {
+                apiQuery = 'salat';
+            }
+
             // Then, fetch ayah results from API
             const searchParams = new URLSearchParams({
-                q: query,
+                q: apiQuery,
                 limit: '5'
             });
 

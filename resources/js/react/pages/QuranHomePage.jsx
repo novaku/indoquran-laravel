@@ -37,6 +37,7 @@ import { fetchWithAuth } from '../utils/apiUtils';
 import { getReadingProgress } from '../services/ReadingProgressService';
 import authUtils from '../utils/auth';
 import { scrollToTop } from '../utils/scrollUtils';
+import { getRandomPopularSearches } from '../data/popularSearches';
 
 
 // Curated daily inspiration verses for tadabbur
@@ -101,21 +102,12 @@ const DAILY_INSPIRATIONS = [
 
 const POPULAR_SURAH_NUMBERS = [1, 2, 18, 36, 55, 56, 67];
 
-const QUICK_CHIPS = [
-    { label: 'Al-Fatihah', surahNumber: 1 },
-    { label: 'Al-Baqarah', surahNumber: 2 },
-    { label: 'Al-Kahfi', surahNumber: 18 },
-    { label: 'Yasin', surahNumber: 36 },
-    { label: 'Ar-Rahman', surahNumber: 55 },
-    { label: 'Al-Waqi’ah', surahNumber: 56 },
-    { label: 'Al-Mulk', surahNumber: 67 }
-];
-
 function QuranHomePage() {
     const navigate = useNavigate();
     const { user } = useAuth();
 
     const [surahs, setSurahs] = useState([]);
+    const [popularChips] = useState(() => getRandomPopularSearches(10));
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [recentReading, setRecentReading] = useState(null);
@@ -614,10 +606,12 @@ function QuranHomePage() {
                                 <span className="font-medium mr-1 text-gray-600 flex items-center gap-1">
                                     <TagIcon className="w-3.5 h-3.5 text-emerald-600" /> Populer:
                                 </span>
-                                {QUICK_CHIPS.map((chip) => (
+                                {popularChips.map((chip) => (
                                     <button
-                                        key={chip.surahNumber}
-                                        onClick={() => navigate(`/surah/${chip.surahNumber}`)}
+                                        key={chip.id || chip.label}
+                                        type="button"
+                                        onClick={() => navigate(chip.path)}
+                                        title={chip.description || chip.label}
                                         className="px-2.5 py-1 rounded-md bg-white border border-gray-200 text-gray-700 hover:border-emerald-400 hover:text-emerald-700 hover:bg-emerald-50/50 transition-colors shadow-2xs font-medium cursor-pointer"
                                     >
                                         {chip.label}

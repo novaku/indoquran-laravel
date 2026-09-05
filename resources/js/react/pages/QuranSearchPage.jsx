@@ -8,8 +8,11 @@ import {
     ChevronRightIcon,
     ChevronLeftIcon,
     ChevronDoubleLeftIcon,
-    ChevronDoubleRightIcon
+    ChevronDoubleRightIcon,
+    TagIcon,
+    ArrowPathIcon
 } from '@heroicons/react/24/outline';
+import { getRandomPopularSearches } from '../data/popularSearches';
 import {
     IoSearchOutline,
     IoBookOutline,
@@ -31,7 +34,10 @@ import { scrollToTop } from '../utils/scrollUtils';
 
 
 // Exact phrase matching utility function
-const matchesExactPhrase = (text, searchQuery) => {
+const matchesExactPhrase = (text, searchQuery, ayah = null) => {
+    if (ayah && /^ayat\s+kursi$/i.test(String(searchQuery).trim())) {
+        return Number(ayah.surah_number) === 2 && (Number(ayah.number) === 255 || Number(ayah.ayah_number) === 255);
+    }
     if (!text || !searchQuery) return false;
     const textStr = String(text);
     const searchWords = String(searchQuery).trim().split(/\s+/).filter(word => word.length > 0);
@@ -41,6 +47,8 @@ const matchesExactPhrase = (text, searchQuery) => {
     const pattern = new RegExp(`(^|[^a-z0-9])(${escapedWords.join('\\s+')})([^a-z0-9]|$)`, 'i');
     return pattern.test(textStr);
 };
+
+
 
 // Text highlighting utility function
 const highlightText = (text, searchQuery, exact = false) => {
@@ -133,6 +141,13 @@ function QuranSearchPage() {
     const [showFilters, setShowFilters] = useState(false);
     const [hasInitialSearchRun, setHasInitialSearchRun] = useState(false);
     
+    // 10 random popular searches from the 100 curated list
+    const [popularChips, setPopularChips] = useState(() => getRandomPopularSearches(10));
+
+    const refreshPopularChips = () => {
+        setPopularChips(getRandomPopularSearches(10));
+    };
+    
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
     const [resultsPerPage] = useState(10);
@@ -140,55 +155,59 @@ function QuranSearchPage() {
     const [allExactResults, setAllExactResults] = useState([]);
     const [andTotalCount, setAndTotalCount] = useState(0);
     
-    // Popular searches state
+    // Popular searches state (topik yang paling banyak dicari orang tentang Al-Quran)
     const [popularSearches, setPopularSearches] = useState([
-        'Al-Fatihah', 'Al-Baqarah', 'Ya-Sin', 'Ar-Rahman', 'Al-Kahf', 'Al-Mulk'
+        'Ayat Kursi', 'Rezeki', 'Ketenangan Hati', 'Sabar', 'Al-Kahfi', 'Al-Mulk', 'Ampunan', 'Syukur'
     ]);
 
-    // Search categories untuk quick access
+    // Search categories untuk quick access (Topik paling sering dicari di dunia)
     const searchCategories = [
         {
+            icon: IoSparklesOutline,
+            title: "Tema Kehidupan & Batin",
+            description: "Rezeki, Ketenangan Hati, Sabar, Syukur",
+            bgColor: "bg-emerald-100",
+            iconColor: "text-emerald-600",
+            searches: ["rezeki", "ketenangan hati", "sabar", "syukur"]
+        },
+        {
             icon: IoStarOutline,
-            title: "Surah Populer",
-            description: "Al-Fatihah, Ya-Sin, Ar-Rahman, Al-Kahf",
+            title: "Ayat & Surah Paling Dicari",
+            description: "Ayat Kursi, Al-Kahfi, Al-Mulk, Ya-Sin",
             bgColor: "bg-blue-100",
             iconColor: "text-blue-600",
-            searches: ["Al-Fatihah", "Ya-Sin", "Ar-Rahman", "Al-Kahf"]
+            searches: ["Ayat Kursi", "Al-Kahfi", "Al-Mulk", "Ya-Sin"]
         },
         {
             icon: IoTrendingUpOutline,
-            title: "Pencarian Trending",
-            description: "Ayat-ayat yang sering dicari minggu ini",
+            title: "Doa & Taubat",
+            description: "Ampunan, Doa, Tobat, Kematian",
             bgColor: "bg-green-100",
             iconColor: "text-green-600",
-            searches: ["Al-Baqarah", "Al-Mulk", "Al-Waqiah", "At-Taubah"]
-        },
-        {
-            icon: IoTimeOutline,
-            title: "Surah Pendek",
-            description: "Surah-surah pendek untuk hafalan",
-            bgColor: "bg-purple-100",
-            iconColor: "text-purple-600",
-            searches: ["Al-Ikhlas", "Al-Falaq", "An-Nas", "Al-Lahab"]
+            searches: ["ampunan", "doa", "tobat", "kematian"]
         },
         {
             icon: IoEyeOutline,
-            title: "Surah Pilihan",
-            description: "Rekomendasi surah untuk dibaca",
-            bgColor: "bg-orange-100",
-            iconColor: "text-orange-600",
-            searches: ["Al-Fajr", "Ad-Duha", "Ash-Sharh", "At-Tin"]
+            title: "Keluarga & Hubungan",
+            description: "Pasangan, Kasih Sayang, Keadilan, Kebaikan",
+            bgColor: "bg-purple-100",
+            iconColor: "text-purple-600",
+            searches: ["pasangan", "cinta", "keadilan", "kebaikan"]
         }
     ];
 
     // Function to fetch popular searches from API
     const fetchPopularSearches = useCallback(async () => {
         try {
-            const response = await fetchWithAuth('/api/search/popular?limit=6');
+            const response = await fetchWithAuth('/api/search/popular?limit=10');
             if (response.ok) {
                 const data = await response.json();
                 if (data.status === 'success' && Array.isArray(data.data)) {
-                    setPopularSearches(data.data);
+                    // Filter out single letters or keystroke artifacts from DB
+                    const valid = data.data.filter(t => t && t.trim().length >= 4 && !/^(m|ma|mah|maha\s+[a-z]{1,3})$/i.test(t.trim()));
+                    if (valid.length >= 5) {
+                        setPopularSearches(valid);
+                    }
                 }
             }
         } catch (error) {
@@ -295,8 +314,20 @@ function QuranSearchPage() {
 
     // Helper function to build API URL with filters
     const buildSearchUrl = (searchQuery, page, perPage) => {
+        let apiQuery = searchQuery;
+        const normalized = searchQuery.toLowerCase().trim();
+        if (/^ayat\s+kursi$/i.test(normalized)) {
+            apiQuery = 'kursi';
+        } else if (/^jodoh$/i.test(normalized)) {
+            apiQuery = 'pasangan';
+        } else if (/^taubat$/i.test(normalized)) {
+            apiQuery = 'tobat';
+        } else if (/^sholat$/i.test(normalized)) {
+            apiQuery = 'salat';
+        }
+
         const params = new URLSearchParams({
-            q: searchQuery,
+            q: apiQuery,
             page: page.toString(),
             per_page: perPage.toString()
         });
@@ -387,9 +418,9 @@ function QuranSearchPage() {
                         }));
 
                         const exactMatches = ayahResults.filter(ayah =>
-                            matchesExactPhrase(ayah.text_indonesian, searchQuery) ||
-                            matchesExactPhrase(ayah.surah_info?.name_latin, searchQuery) ||
-                            matchesExactPhrase(ayah.surah_info?.name_indonesian, searchQuery)
+                            matchesExactPhrase(ayah.text_indonesian, searchQuery, ayah) ||
+                            matchesExactPhrase(ayah.surah_info?.name_latin, searchQuery, ayah) ||
+                            matchesExactPhrase(ayah.surah_info?.name_indonesian, searchQuery, ayah)
                         );
 
                         setAllExactResults(exactMatches);
@@ -784,6 +815,29 @@ function QuranSearchPage() {
                                 showExactSearchToggle={true}
                                 disableAutocomplete={true}
                             />
+                            {/* Quick Search / Jump Chips */}
+                            <div className="mt-3 flex items-center justify-center flex-wrap gap-1.5 text-xs text-gray-500">
+                                <span className="font-medium mr-1 text-gray-600 flex items-center gap-1">
+                                    <TagIcon className="w-3.5 h-3.5 text-emerald-600" /> Populer:
+                                </span>
+                                {popularChips.map((chip) => (
+                                    <button
+                                        key={chip.id || chip.label}
+                                        type="button"
+                                        onClick={() => {
+                                            if (chip.path) {
+                                                navigate(chip.path);
+                                            } else if (chip.query) {
+                                                handleSearch(chip.query);
+                                            }
+                                        }}
+                                        title={chip.description || chip.label}
+                                        className="px-2.5 py-1 rounded-md bg-white border border-gray-200 text-gray-700 hover:border-emerald-400 hover:text-emerald-700 hover:bg-emerald-50/50 transition-colors shadow-2xs font-medium cursor-pointer"
+                                    >
+                                        {chip.label}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1206,21 +1260,39 @@ function QuranSearchPage() {
                         <section>
                             <div className="bg-white rounded-2xl shadow-xs border border-gray-200/80 p-8">
                                 <div className="text-center mb-6">
-                                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                                        Pencarian Populer
-                                    </h2>
+                                    <div className="flex items-center justify-center gap-2 mb-2">
+                                        <h2 className="text-2xl font-bold text-gray-900">
+                                            Pencarian Populer Dunia
+                                        </h2>
+                                        <button
+                                            type="button"
+                                            onClick={refreshPopularChips}
+                                            title="Acak 10 pencarian populer lainnya"
+                                            className="p-1.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors cursor-pointer"
+                                        >
+                                            <ArrowPathIcon className="w-5 h-5" />
+                                        </button>
+                                    </div>
                                     <p className="text-gray-600">
-                                        Surah dan ayat yang paling sering dicari pengguna
+                                        Topik kehidupan, doa, dan ayat yang paling banyak dicari dalam Al-Quran (acak dari 100 topik populer)
                                     </p>
                                 </div>
                                 <div className="flex flex-wrap gap-3 justify-center">
-                                    {popularSearches.map((search) => (
+                                    {popularChips.map((item) => (
                                         <button
-                                            key={search}
-                                            onClick={() => handleSearch(search)}
+                                            key={item.id || item.label}
+                                            type="button"
+                                            onClick={() => {
+                                                if (item.path) {
+                                                    navigate(item.path);
+                                                } else if (item.query) {
+                                                    handleSearch(item.query);
+                                                }
+                                            }}
+                                            title={item.description || item.label}
                                             className="px-5 py-2.5 bg-gray-50 border border-gray-200 rounded-full text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 transition-all duration-200 font-medium text-sm shadow-xs hover:shadow-sm"
                                         >
-                                            {search}
+                                            {item.label}
                                         </button>
                                     ))}
                                 </div>
