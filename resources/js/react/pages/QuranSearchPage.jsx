@@ -137,6 +137,8 @@ function QuranSearchPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [resultsPerPage] = useState(10);
     const [totalResults, setTotalResults] = useState(0);
+    const [allExactResults, setAllExactResults] = useState([]);
+    const [andTotalCount, setAndTotalCount] = useState(0);
     
     // Popular searches state
     const [popularSearches, setPopularSearches] = useState([
@@ -274,7 +276,9 @@ function QuranSearchPage() {
             setHasInitialSearchRun(true); // Mark that initial search has run
         } else if (!debouncedQuery.trim()) {
             setSearchResults([]);
+            setAllExactResults([]);
             setTotalResults(0);
+            setAndTotalCount(0);
             setCurrentPage(1);
         }
     }, [debouncedQuery, exactSearch, surahsLoading, surahs.length]);
@@ -283,7 +287,9 @@ function QuranSearchPage() {
     useEffect(() => {
         if (debouncedQuery.trim() && surahs.length > 0 && hasInitialSearchRun) {
             // Only trigger search for page changes after initial search has run
-            performSearch(debouncedQuery.trim(), currentPage);
+            if (!exactSearch) {
+                performSearch(debouncedQuery.trim(), currentPage);
+            }
         }
     }, [currentPage, debouncedQuery, exactSearch, surahs.length, hasInitialSearchRun]);
 
@@ -311,7 +317,9 @@ function QuranSearchPage() {
     const performSearch = async (searchQuery, page = 1) => {
         if (!searchQuery || !searchQuery.trim()) {
             setSearchResults([]);
+            setAllExactResults([]);
             setTotalResults(0);
+            setAndTotalCount(0);
             setLoading(false);
             return;
         }
@@ -325,154 +333,239 @@ function QuranSearchPage() {
                 logSearchTerm(searchQuery.trim());
             }
             
-            // Hanya mencari ayat dari API (tanpa pencarian surah di frontend)
             const token = authUtils.getAuthToken();
-            
-            // Simple direct API call with proper pagination
-            const response = await fetchWithAuth(buildSearchUrl(searchQuery, page, resultsPerPage), {
-                headers: {
-                    'Authorization': token ? `Bearer ${token}` : '',
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                }
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                
-                if (data.status === 'success' && Array.isArray(data.data)) {
-                    // Get total results from API pagination
-                    const apiTotalResults = data.pagination?.total || 0;
-                    
-                    // Process surah matches from API
-                    if (page === 1 && Array.isArray(data.surah_matches)) {
-                        setSurahMatches(data.surah_matches);
-                    } else if (page === 1) {
-                        setSurahMatches([]);
-                    }
+            const authHeaders = {
+                'Authorization': token ? `Bearer ${token}` : '',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            };
 
-                    // Process ayah results with surah info
-                    const ayahResults = data.data.map(ayah => ({
-                        ...ayah,
-                        type: 'ayah',
-                        surah_info: surahs.find(s => s.number === ayah.surah_number) || {
-                            name_latin: `Surah ${ayah.surah_number}`,
-                            name_indonesian: `Surah ${ayah.surah_number}`
+            if (exactSearch) {
+                // Pencarian persis dilakukan di frontend:
+                // Ambil kandidat ayat dari API (per_page maksimum 50), lalu filter phrase persis di frontend
+                const firstBatchUrl = buildSearchUrl(searchQuery, 1, 50);
+                const response = await fetchWithAuth(firstBatchUrl, { headers: authHeaders });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.status === 'success' && Array.isArray(data.data)) {
+                        const apiTotalResults = data.pagination?.total || 0;
+                        setAndTotalCount(apiTotalResults);
+
+                        if (Array.isArray(data.surah_matches)) {
+                            setSurahMatches(data.surah_matches);
+                        } else {
+                            setSurahMatches([]);
                         }
-                    }));
-                    
-                    console.log('API Search Response:', {
-                        searchQuery,
-                        page,
-                        apiTotalResults,
-                        resultsCount: ayahResults.length,
-                        paginationInfo: data.pagination
-                    });
-                    
-                    // Update state with the results
-                    setSearchResults(ayahResults);
-                    setTotalResults(apiTotalResults);
-                    
-                    // Validate current page to ensure it's within bounds
-                    const totalPages = data.pagination?.last_page || Math.ceil(apiTotalResults / resultsPerPage);
-                    
-                    // If we're on a page that exceeds total pages, reset to last valid page
-                    if (page > totalPages && totalPages > 0) {
-                        console.log('Page exceeds total pages, resetting to last valid page:', totalPages);
-                        setCurrentPage(totalPages);
-                        
-                        // Re-run search for the correct page if needed
-                        if (totalPages !== page) {
-                            setTimeout(() => performSearch(searchQuery, totalPages), 100);
-                            return;
+
+                        let allItems = [...data.data];
+                        const lastPage = Math.min(data.pagination?.last_page || Math.ceil(apiTotalResults / 50), 10);
+
+                        if (lastPage > 1) {
+                            const additionalPromises = [];
+                            for (let p = 2; p <= lastPage; p++) {
+                                additionalPromises.push(
+                                    fetchWithAuth(buildSearchUrl(searchQuery, p, 50), { headers: authHeaders })
+                                        .then(res => res.ok ? res.json() : null)
+                                        .then(d => (d && d.status === 'success' && Array.isArray(d.data)) ? d.data : [])
+                                        .catch(() => [])
+                                );
+                            }
+                            const resultsArrays = await Promise.all(additionalPromises);
+                            resultsArrays.forEach(arr => {
+                                allItems = allItems.concat(arr);
+                            });
                         }
-                    }
-                    
-                    // If we got no results but expected some based on total, check page validity
-                    if (ayahResults.length === 0 && apiTotalResults > 0 && page > 1) {
-                        console.log('No results on current page, but total > 0. Checking page validity...');
-                        
-                        const expectedStartIndex = (page - 1) * resultsPerPage;
-                        if (expectedStartIndex >= apiTotalResults) {
-                            // This page is beyond available results, redirect to a valid page
-                            const correctPage = Math.max(1, totalPages);
-                            console.log('Page is beyond available results, redirecting to page:', correctPage);
-                            setCurrentPage(correctPage);
-                            setTimeout(() => performSearch(searchQuery, correctPage), 100);
-                            return;
+
+                        const ayahResults = allItems.map(ayah => ({
+                            ...ayah,
+                            type: 'ayah',
+                            surah_info: surahs.find(s => s.number === ayah.surah_number) || {
+                                name_latin: `Surah ${ayah.surah_number}`,
+                                name_indonesian: `Surah ${ayah.surah_number}`
+                            }
+                        }));
+
+                        const exactMatches = ayahResults.filter(ayah =>
+                            matchesExactPhrase(ayah.text_indonesian, searchQuery) ||
+                            matchesExactPhrase(ayah.surah_info?.name_latin, searchQuery) ||
+                            matchesExactPhrase(ayah.surah_info?.name_indonesian, searchQuery)
+                        );
+
+                        setAllExactResults(exactMatches);
+                        setTotalResults(exactMatches.length);
+                        setSearchResults(exactMatches);
+
+                        const totalPages = Math.ceil(exactMatches.length / resultsPerPage);
+                        if (page > totalPages && totalPages > 0) {
+                            setCurrentPage(totalPages);
+                        } else {
+                            setCurrentPage(page);
                         }
-                    }
-                    
-                    // Refresh popular searches after successful search (only on first page)
-                    if (page === 1 && apiTotalResults > 0) {
-                        fetchPopularSearches();
+
+                        if (page === 1 && exactMatches.length > 0) {
+                            fetchPopularSearches();
+                        }
+                    } else {
+                        setSearchResults([]);
+                        setAllExactResults([]);
+                        setTotalResults(0);
+                        setAndTotalCount(0);
                     }
                 } else {
-                    // API returned success but no data or wrong format
                     setSearchResults([]);
+                    setAllExactResults([]);
                     setSurahMatches([]);
                     setTotalResults(0);
-                    console.warn('API returned success but no valid data format:', data);
+                    setAndTotalCount(0);
+                    setError('Gagal mengambil data dari server. Silakan coba lagi.');
                 }
             } else {
-                // API call failed
-                setSearchResults([]);
-                setSurahMatches([]);
-                setTotalResults(0);
-                console.error('API request failed:', response.status, response.statusText);
-                setError('Gagal mengambil data dari server. Silakan coba lagi.');
+                // Simple direct API call with proper pagination
+                const response = await fetchWithAuth(buildSearchUrl(searchQuery, page, resultsPerPage), {
+                    headers: authHeaders
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data.status === 'success' && Array.isArray(data.data)) {
+                        // Get total results from API pagination
+                        const apiTotalResults = data.pagination?.total || 0;
+                        
+                        // Process surah matches from API
+                        if (page === 1 && Array.isArray(data.surah_matches)) {
+                            setSurahMatches(data.surah_matches);
+                        } else if (page === 1) {
+                            setSurahMatches([]);
+                        }
+
+                        // Process ayah results with surah info
+                        const ayahResults = data.data.map(ayah => ({
+                            ...ayah,
+                            type: 'ayah',
+                            surah_info: surahs.find(s => s.number === ayah.surah_number) || {
+                                name_latin: `Surah ${ayah.surah_number}`,
+                                name_indonesian: `Surah ${ayah.surah_number}`
+                            }
+                        }));
+                        
+                        console.log('API Search Response:', {
+                            searchQuery,
+                            page,
+                            apiTotalResults,
+                            resultsCount: ayahResults.length,
+                            paginationInfo: data.pagination
+                        });
+                        
+                        // Update state with the results
+                        setSearchResults(ayahResults);
+                        setAllExactResults([]);
+                        setTotalResults(apiTotalResults);
+                        setAndTotalCount(0);
+                        
+                        // Validate current page to ensure it's within bounds
+                        const totalPages = data.pagination?.last_page || Math.ceil(apiTotalResults / resultsPerPage);
+                        
+                        // If we're on a page that exceeds total pages, reset to last valid page
+                        if (page > totalPages && totalPages > 0) {
+                            console.log('Page exceeds total pages, resetting to last valid page:', totalPages);
+                            setCurrentPage(totalPages);
+                            
+                            // Re-run search for the correct page if needed
+                            if (totalPages !== page) {
+                                setTimeout(() => performSearch(searchQuery, totalPages), 100);
+                                return;
+                            }
+                        }
+                        
+                        // If we got no results but expected some based on total, check page validity
+                        if (ayahResults.length === 0 && apiTotalResults > 0 && page > 1) {
+                            console.log('No results on current page, but total > 0. Checking page validity...');
+                            
+                            const expectedStartIndex = (page - 1) * resultsPerPage;
+                            if (expectedStartIndex >= apiTotalResults) {
+                                // This page is beyond available results, redirect to a valid page
+                                const correctPage = Math.max(1, totalPages);
+                                console.log('Page is beyond available results, redirecting to page:', correctPage);
+                                setCurrentPage(correctPage);
+                                setTimeout(() => performSearch(searchQuery, correctPage), 100);
+                                return;
+                            }
+                        }
+                        
+                        // Refresh popular searches after successful search (only on first page)
+                        if (page === 1 && apiTotalResults > 0) {
+                            fetchPopularSearches();
+                        }
+                    } else {
+                        // API returned success but no data or wrong format
+                        setSearchResults([]);
+                        setAllExactResults([]);
+                        setSurahMatches([]);
+                        setTotalResults(0);
+                        setAndTotalCount(0);
+                        console.warn('API returned success but no valid data format:', data);
+                    }
+                } else {
+                    // API call failed
+                    setSearchResults([]);
+                    setAllExactResults([]);
+                    setSurahMatches([]);
+                    setTotalResults(0);
+                    setAndTotalCount(0);
+                    console.error('API request failed:', response.status, response.statusText);
+                    setError('Gagal mengambil data dari server. Silakan coba lagi.');
+                }
             }
         } catch (error) {
             console.error('Error performing search:', error);
             setError('Gagal melakukan pencarian. Silakan coba lagi.');
             setSearchResults([]);
+            setAllExactResults([]);
             setSurahMatches([]);
             setTotalResults(0);
+            setAndTotalCount(0);
         } finally {
             setLoading(false);
         }
     };
 
-    // Filter and sort results (with exact match filtering in frontend when exactSearch is active)
+    // Filter and sort results
     const displayedResults = useMemo(() => {
-        let results = [...searchResults];
-
-        if (exactSearch && debouncedQuery.trim()) {
-            results = results.filter(ayah => 
-                matchesExactPhrase(ayah.text_indonesian, debouncedQuery) ||
-                matchesExactPhrase(ayah.surah_info?.name_latin, debouncedQuery) ||
-                matchesExactPhrase(ayah.surah_info?.name_indonesian, debouncedQuery)
-            );
-        }
+        let results = exactSearch ? [...allExactResults] : [...searchResults];
 
         switch (sortBy) {
             case 'surah':
                 // Sort by surah number then ayah number
-                return results.sort((a, b) => {
+                results.sort((a, b) => {
                     const surahDiff = a.surah_number - b.surah_number;
                     return surahDiff !== 0 ? surahDiff : a.ayah_number - b.ayah_number;
                 });
+                break;
                 
             case 'name':
                 // Sort by surah name
-                return results.sort((a, b) => {
+                results.sort((a, b) => {
                     const aName = a.surah_info?.name_latin || `Surah ${a.surah_number}`;
                     const bName = b.surah_info?.name_latin || `Surah ${b.surah_number}`;
                     return aName.localeCompare(bName);
                 });
+                break;
                 
             case 'verses':
                 // Sort by ayah number within same surah, or by surah number
-                return results.sort((a, b) => {
+                results.sort((a, b) => {
                     if (a.surah_number === b.surah_number) {
                         return a.ayah_number - b.ayah_number;
                     }
                     return a.surah_number - b.surah_number;
                 });
+                break;
                 
             case 'revelation':
                 // Sort by revelation place
-                return results.sort((a, b) => {
+                results.sort((a, b) => {
                     const aRevelation = a.surah_info?.revelation_place || '';
                     const bRevelation = b.surah_info?.revelation_place || '';
                     
@@ -482,11 +575,19 @@ function QuranSearchPage() {
                     
                     return aRevelation.localeCompare(bRevelation);
                 });
+                break;
                 
             default:
-                return results;
+                break;
         }
-    }, [searchResults, exactSearch, debouncedQuery, sortBy]);
+
+        if (exactSearch) {
+            const startIndex = (currentPage - 1) * resultsPerPage;
+            return results.slice(startIndex, startIndex + resultsPerPage);
+        }
+
+        return results;
+    }, [searchResults, allExactResults, exactSearch, sortBy, currentPage, resultsPerPage]);
 
     const displayedSurahMatches = useMemo(() => {
         if (!exactSearch || !debouncedQuery.trim()) {
@@ -499,7 +600,7 @@ function QuranSearchPage() {
         );
     }, [surahMatches, exactSearch, debouncedQuery]);
 
-    // Pagination logic - we're using server-side pagination
+    // Pagination logic
     const totalPages = Math.ceil(totalResults / resultsPerPage);
     const paginatedResults = displayedResults;
 
@@ -589,8 +690,10 @@ function QuranSearchPage() {
         setQuery('');
         setDebouncedQuery('');
         setSearchResults([]);
+        setAllExactResults([]);
         setSurahMatches([]);
         setTotalResults(0);
+        setAndTotalCount(0);
         setCurrentPage(1);
         setExactSearch(false);
         navigate('/cari');
@@ -602,8 +705,10 @@ function QuranSearchPage() {
         setQuery('');
         setDebouncedQuery('');
         setSearchResults([]);
+        setAllExactResults([]);
         setSurahMatches([]);
         setTotalResults(0);
+        setAndTotalCount(0);
         setCurrentPage(1);
         setRevelationType('all');
         setSortBy('surah');
@@ -673,21 +778,12 @@ function QuranSearchPage() {
                                 surahs={surahs || []}
                                 value={query || ''}
                                 onChange={handleSearch}
+                                onClear={clearSearch}
                                 exactMatch={exactSearch}
                                 onExactMatchChange={handleExactMatchChange}
                                 showExactSearchToggle={true}
                                 disableAutocomplete={true}
                             />
-                            {query && (
-                                <button
-                                    onClick={clearSearch}
-                                    className="absolute right-3 top-4 text-gray-400 hover:text-gray-600 bg-white rounded-full p-1 shadow-xs transition-colors"
-                                    type="button"
-                                    title="Hapus pencarian"
-                                >
-                                    <XMarkIcon className="w-5 h-5" />
-                                </button>
-                            )}
                         </div>
                     </div>
                 </div>
@@ -712,7 +808,7 @@ function QuranSearchPage() {
 
                             {totalResults > 0 && (
                                 <Badge variant="default">
-                                    {exactSearch ? `${displayedResults.length} hasil (persis)` : `${totalResults} hasil`} • Halaman {currentPage}/{totalPages}
+                                    {totalResults} hasil{exactSearch ? ' (persis)' : ''} • Halaman {currentPage}/{totalPages}
                                 </Badge>
                             )}
                         </div>
@@ -858,7 +954,7 @@ function QuranSearchPage() {
                             </Button>
                         </div>
                     </Card>
-                ) : query && exactSearch && searchResults.length > 0 && displayedResults.length === 0 ? (
+                ) : query && exactSearch && totalResults === 0 && andTotalCount > 0 ? (
                     <Card padding="lg" className="text-center py-12">
                         <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <MagnifyingGlassIcon className="w-8 h-8 text-amber-600" />
@@ -867,14 +963,14 @@ function QuranSearchPage() {
                             Tidak Ada Hasil yang Sama Persis
                         </h3>
                         <p className="text-gray-600 max-w-md mx-auto mb-6 text-sm sm:text-base">
-                            Ditemukan {searchResults.length} ayat yang memuat kata kunci Anda, tetapi tidak ada ayat yang memuat frasa berurutan persis &ldquo;<strong>{debouncedQuery}</strong>&rdquo;.
+                            Ditemukan {andTotalCount} ayat yang memuat kata kunci Anda, tetapi tidak ada ayat yang memuat frasa berurutan persis &ldquo;<strong>{debouncedQuery}</strong>&rdquo;.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-3 justify-center">
                             <Button
                                 onClick={() => handleExactMatchChange(false)}
                                 variant="primary"
                             >
-                                Tampilkan Semua ({searchResults.length} Hasil)
+                                Tampilkan Semua ({andTotalCount} Hasil)
                             </Button>
                             <Button
                                 onClick={clearSearch}
@@ -892,9 +988,9 @@ function QuranSearchPage() {
                                 Hasil Pencarian
                             </h2>
                             <Badge variant="default">
-                                {exactSearch 
-                                    ? `${displayedResults.length} hasil persis`
-                                    : `${((currentPage - 1) * resultsPerPage) + 1}-${Math.min(currentPage * resultsPerPage, totalResults)} dari ${totalResults}`}
+                                {totalPages > 1 
+                                    ? `${((currentPage - 1) * resultsPerPage) + 1}-${Math.min(currentPage * resultsPerPage, totalResults)} dari ${totalResults} hasil${exactSearch ? ' persis' : ''}`
+                                    : `${totalResults} hasil${exactSearch ? ' persis' : ''}`}
                             </Badge>
                         </div>
 
