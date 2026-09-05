@@ -937,7 +937,7 @@ function QuranSearchPage() {
                         
                         <div className="grid gap-6">
                             {paginatedResults.map((result, index) => {
-                                const showInFeedAd = index === 3 || (index > 3 && (index + 1) % 6 === 0);
+                                const showInFeedAd = index === 5;
 
                                 return (
                                     <React.Fragment key={`ayah-${result.surah_number}-${result.ayah_number || result.number}`}>

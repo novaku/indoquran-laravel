@@ -3,10 +3,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { FaCalendar, FaUser, FaClock, FaEye, FaShareAlt, FaFacebookF, FaTwitter, FaWhatsapp, FaLink, FaEdit, FaBookOpen } from 'react-icons/fa';
 import SEOHead from '../components/SEOHead';
 import LoadingSpinner from '../components/LoadingSpinner';
-import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseVertical from '../components/AdSenseVertical';
 import AdSenseInline from '../components/AdSenseInline';
-import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { getWithAuth } from '../utils/apiUtils';
 import { useAuth } from '../hooks/useAuth';
 import { scrollToTop } from '../utils/scrollUtils';
@@ -252,12 +250,6 @@ const ArticleDetailPage = () => {
       />
 
       <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors">
-        {/* Top Billboard Ad (Detik.com Pattern) */}
-        <AdSenseLeaderboard 
-          maxWidth="max-w-7xl"
-          labelText="IKLAN"
-        />
-
         {/* Article Header */}
         <div className="bg-white border-b border-gray-200 py-8 md:py-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -448,16 +440,6 @@ const ArticleDetailPage = () => {
             </aside>
 
           </div>
-        </div>
-
-        {/* Middle Break Leaderboard Ad before Related Articles */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <AdSenseHorizontal 
-            adSlot="1519827772"
-            showLabel={true}
-            labelText="IKLAN REKOMENDASI"
-            minHeight="90px"
-          />
         </div>
 
         {/* Related Articles Section */}

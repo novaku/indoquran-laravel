@@ -19,9 +19,7 @@ import { useAuth } from '../hooks/useAuth';
 import { fetchWithAuth, postWithAuth } from '../utils/apiUtils';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
-import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseVertical from '../components/AdSenseVertical';
-import AdSenseInline from '../components/AdSenseInline';
 import { scrollToTop } from '../utils/scrollUtils';
 
 
@@ -250,9 +248,6 @@ const PrayerDetailPage = () => {
             />
 
             <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50/50 py-4 sm:py-8">
-                {/* Top Billboard Ad (Detik.com Pattern) */}
-                <AdSenseLeaderboard maxWidth="max-w-4xl" labelText="IKLAN" className="my-4 sm:my-6" />
-
                 <div className="max-w-4xl mx-auto px-4 sm:px-6">
                     {/* Navigation Header / Breadcrumbs */}
                     <div className="flex items-center justify-between gap-4 mb-6">
@@ -358,9 +353,6 @@ const PrayerDetailPage = () => {
                                     </button>
                                 </div>
                             </div>
-
-                            {/* In-Content Inline Ad (Detik.com Pattern) */}
-                            <AdSenseInline labelText="IKLAN" minHeight="100px" />
 
                             {/* Comments Section */}
                             <div className="bg-white rounded-2xl border border-gray-200/90 shadow-sm p-6 sm:p-8">

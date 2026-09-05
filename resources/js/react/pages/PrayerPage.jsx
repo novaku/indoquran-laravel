@@ -29,7 +29,6 @@ import PrayerSlideshow from '../components/PrayerSlideshow';
 import SimpleSlideshow from '../components/SimpleSlideshow';
 import SEOHead from '../components/SEOHead';
 import AdSenseInline from '../components/AdSenseInline';
-import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { scrollToTop } from '../utils/scrollUtils';
 
 const PrayerPage = () => {
@@ -627,7 +626,7 @@ const PrayerPage = () => {
                                 ) : (
                                     prayers.map((prayer, index) => (
                                         <React.Fragment key={prayer.id}>
-                                            {(index === 3 || (index > 3 && (index + 1) % 6 === 0)) && (
+                                            {index === 5 && (
                                                 <AdSenseInline labelText="IKLAN REKOMENDASI" minHeight="100px" />
                                             )}
                                             <PrayerCard
@@ -640,18 +639,6 @@ const PrayerPage = () => {
                                     ))
                                 )}
                             </div>
-
-                            {/* Bottom Break Ad */}
-                            {!loading && prayers.length > 0 && (
-                                <div className="my-6">
-                                    <AdSenseHorizontal 
-                                        adSlot="1519827772"
-                                        showLabel={true}
-                                        labelText="IKLAN"
-                                        minHeight="90px"
-                                    />
-                                </div>
-                            )}
 
                             {/* Pagination */}
                             {pagination.last_page > 1 && !loading && prayers.length > 0 && (
@@ -871,7 +858,7 @@ const PrayerPage = () => {
                                 ) : (
                                     selectedPrayers.map((prayer, index) => (
                                         <React.Fragment key={prayer.id}>
-                                            {(index === 3 || (index > 3 && (index + 1) % 6 === 0)) && (
+                                            {index === 5 && (
                                                 <AdSenseInline labelText="IKLAN REKOMENDASI" minHeight="100px" />
                                             )}
                                             <SelectedPrayerCard 

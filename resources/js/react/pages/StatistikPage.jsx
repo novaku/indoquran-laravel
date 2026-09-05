@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react';
 import VisitorStatsHomepage from '../components/VisitorStatsHomepage';
 import SEOHead from '../components/SEOHead';
-import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
-import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { Card, Button, PageHeader, PageContent } from '../components/ui';
 import { scrollToTop } from '../utils/scrollUtils';
 
@@ -37,9 +35,6 @@ const StatistikPage = () => {
                 </div>
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
-                {/* Top Billboard Ad (Detik.com Pattern) */}
-                <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" className="my-4 sm:my-6" />
 
                 {/* Info Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -89,16 +84,6 @@ const StatistikPage = () => {
                 {/* Main Statistics Component */}
                 <VisitorStatsHomepage />
 
-                {/* Break Banner Ad (Detik.com Pattern) */}
-                <div className="w-full my-8">
-                    <AdSenseHorizontal 
-                        adSlot="1519827772"
-                        showLabel={true}
-                        labelText="IKLAN"
-                        minHeight="90px"
-                    />
-                </div>
-
                 {/* Community Message */}
                 <div className="mt-8 bg-white border border-gray-200 rounded-2xl p-8 text-center shadow-xs">
                     <h2 className="text-2xl font-bold text-gray-900 mb-3">
@@ -146,16 +131,6 @@ const StatistikPage = () => {
                         </ul>
                     </div>
                 </Card>
-
-                {/* Bottom Break Ad (Detik.com Pattern) */}
-                <div className="w-full my-8">
-                    <AdSenseHorizontal 
-                        adSlot="1519827772"
-                        showLabel={true}
-                        labelText="IKLAN REKOMENDASI"
-                        minHeight="90px"
-                    />
-                </div>
             </div>
         </div>
         </>

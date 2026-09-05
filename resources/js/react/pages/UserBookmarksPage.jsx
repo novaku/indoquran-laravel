@@ -40,8 +40,6 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
 import { scrollToTop } from '../utils/scrollUtils';
 
-import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
-
 function UserBookmarksPage() {
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -527,9 +525,6 @@ function UserBookmarksPage() {
                         </div>
                     </div>
                 </div>
-
-                {/* Top Billboard Ad (Detik.com Pattern) */}
-                <AdSenseLeaderboard maxWidth="max-w-6xl" labelText="IKLAN" className="mt-4" />
 
                 {/* Main Content Area */}
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-2 relative z-20">

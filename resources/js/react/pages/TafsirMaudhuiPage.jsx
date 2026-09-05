@@ -15,7 +15,6 @@ import {
 } from '@heroicons/react/24/outline';
 import SEOHead from '../components/SEOHead';
 import LoadingSpinner from '../components/LoadingSpinner';
-import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { scrollToTop } from '../utils/scrollUtils';
 
@@ -454,9 +453,6 @@ function TafsirMaudhuiPage() {
                 </div>
             </div>
 
-            {/* Top Billboard Ad (Detik.com Pattern) */}
-            <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" className="my-4 sm:my-6" />
-
             {/* Main Content */}
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
                 {/* Search and Stats */}
@@ -610,16 +606,6 @@ function TafsirMaudhuiPage() {
                         </div>
                     </div>
                 )}
-
-                {/* Bottom Break Ad (Detik.com Pattern) */}
-                <div className="w-full my-8">
-                    <AdSenseHorizontal 
-                        adSlot="1519827772"
-                        showLabel={true}
-                        labelText="IKLAN"
-                        minHeight="90px"
-                    />
-                </div>
 
                 {/* Back to top button */}
                 {filteredTopics.length > 10 && (

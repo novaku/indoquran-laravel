@@ -6,7 +6,6 @@ import {
 } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
-import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import { fetchWithAuth } from '../utils/apiUtils';
 import { scrollToTop } from '../utils/scrollUtils';
 
@@ -158,9 +157,6 @@ function PageListPage() {
                         Total: {pages.length} halaman tersedia
                     </div>
                 </div>
-
-                {/* Top Billboard Ad (Detik.com Pattern) */}
-                <AdSenseLeaderboard maxWidth="max-w-6xl" labelText="IKLAN" />
 
                 {/* Pages Grid */}
                 <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-15 gap-3">

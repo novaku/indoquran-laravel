@@ -33,7 +33,6 @@ import OnlineUsersWidget from '../components/OnlineUsersWidget';
 import ArticleHoverCard from '../components/ArticleHoverCard';
 import { Card, Button } from '../components/ui';
 import AdSenseVertical from '../components/AdSenseVertical';
-import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { fetchWithAuth } from '../utils/apiUtils';
 import { getReadingProgress } from '../services/ReadingProgressService';
 import authUtils from '../utils/auth';
@@ -1139,16 +1138,6 @@ function QuranHomePage() {
                                 </div>
                             </div>
                         )}
-
-                        {/* In-Feed Break Banner Ad (Detik.com Pattern) */}
-                        <div className="w-full my-6">
-                            <AdSenseHorizontal 
-                                adSlot="1519827772"
-                                showLabel={true}
-                                labelText="IKLAN REKOMENDASI"
-                                minHeight="90px"
-                            />
-                        </div>
 
                         {/* Artikel & Wawasan Islami */}
                         <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-200/90 shadow-2xs">

@@ -15,8 +15,6 @@ import {
     IoCodeSlashOutline
 } from 'react-icons/io5';
 import SEOHead from '../components/SEOHead';
-import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
-import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { scrollToTop } from '../utils/scrollUtils';
 
 function AboutProjectPage() {
@@ -87,9 +85,6 @@ function AboutProjectPage() {
                     </div>
                 </div>
 
-                {/* Top Billboard Ad (Detik.com Pattern) */}
-                <AdSenseLeaderboard maxWidth="max-w-6xl" labelText="IKLAN" className="my-4 sm:my-6" />
-
                 {/* Main Content */}
                 <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
                     {/* Vision & Mission */}
@@ -144,16 +139,6 @@ function AboutProjectPage() {
                                 </div>
                             ))}
                         </div>
-                    </div>
-
-                    {/* In-Between Break Banner Ad (Detik.com Pattern) */}
-                    <div className="w-full my-10">
-                        <AdSenseHorizontal 
-                            adSlot="1519827772"
-                            showLabel={true}
-                            labelText="IKLAN REKOMENDASI"
-                            minHeight="90px"
-                        />
                     </div>
 
                     {/* Technology Stack */}
@@ -252,16 +237,6 @@ function AboutProjectPage() {
                                 </a>
                             </div>
                         </div>
-                    </div>
-
-                    {/* Bottom Break Ad (Detik.com Pattern) */}
-                    <div className="w-full my-8">
-                        <AdSenseHorizontal 
-                            adSlot="1519827772"
-                            showLabel={true}
-                            labelText="IKLAN"
-                            minHeight="90px"
-                        />
                     </div>
                 </div>
             </div>

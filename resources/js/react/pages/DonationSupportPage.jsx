@@ -17,7 +17,6 @@ import {
     IoInfiniteOutline
 } from 'react-icons/io5';
 import SEOHead from '../components/SEOHead';
-import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import { scrollToTop } from '../utils/scrollUtils';
 
 function DonationSupportPage() {
@@ -160,9 +159,6 @@ Wassalamu'alaikum.`
                         </button>
                     </div>
                 </div>
-
-                {/* Top Billboard Ad (Detik.com Pattern) */}
-                <AdSenseLeaderboard maxWidth="max-w-6xl" labelText="IKLAN" />
 
                 {/* Main Content */}
                 <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">

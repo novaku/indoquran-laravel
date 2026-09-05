@@ -13,9 +13,6 @@ import {
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead, { getAsmaulHusnaSEO } from '../components/SEOHead';
-import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
-import AdSenseInFeed from '../components/AdSenseInFeed';
-import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { scrollToTop } from '../utils/scrollUtils';
 
 
@@ -503,9 +500,6 @@ function AsmaulHusnaPage() {
                 </div>
             </div>
 
-            {/* Top Billboard Ad (Detik.com Pattern) */}
-            <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" className="my-4 sm:my-6" />
-
             {/* Main Content */}
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
                 {/* Stats */}
@@ -521,19 +515,9 @@ function AsmaulHusnaPage() {
                     <meta itemProp="numberOfItems" content={filteredNames.length} />
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredNames.map((name, index) => {
-                            const showInFeedAd = index === 5 || index === 20 || index === 44 || index === 68 || index === 86;
-
-                            return (
-                                <React.Fragment key={name.id}>
-                                    {showInFeedAd && (
-                                        <AdSenseInFeed 
-                                            adSlot="1519827772"
-                                            labelText="IKLAN REKOMENDASI"
-                                            className="h-full"
-                                        />
-                                    )}
-                                    <article
+                        {filteredNames.map((name, index) => (
+                            <article
+                                key={name.id}
                                         className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow flex flex-col justify-between"
                                         itemScope 
                                         itemType="https://schema.org/Thing"
@@ -684,9 +668,7 @@ function AsmaulHusnaPage() {
                                     </button>
                                 </footer>
                             </article>
-                        </React.Fragment>
-                    );
-                })}
+                        ))}
                     </div>
                 </section>
 
@@ -741,16 +723,6 @@ function AsmaulHusnaPage() {
                         </div>
                     </section>
                 )}
-
-                {/* Break Banner Ad (Detik.com Pattern) */}
-                <div className="w-full my-8">
-                    <AdSenseHorizontal 
-                        adSlot="1519827772"
-                        showLabel={true}
-                        labelText="IKLAN"
-                        minHeight="90px"
-                    />
-                </div>
 
                 {/* Doa Section */}
                 <section className="mt-12 bg-white rounded-2xl p-8 shadow-sm border border-gray-200">

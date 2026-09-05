@@ -3,7 +3,6 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { FaSearch, FaCalendar, FaUser, FaClock, FaEye } from 'react-icons/fa';
 import SEOHead from '../components/SEOHead';
 import LoadingSpinner from '../components/LoadingSpinner';
-import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseInFeed from '../components/AdSenseInFeed';
 import { getWithAuth } from '../utils/apiUtils';
 import { scrollToTop } from '../utils/scrollUtils';
@@ -168,11 +167,6 @@ const ArticlesPage = () => {
           </div>
         </div>
 
-        {/* Top Billboard Ad (Detik.com Pattern) - Hidden during search so results are immediately visible */}
-        {!searchQuery && (
-          <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" />
-        )}
-
         {/* Articles Grid */}
         <div className="container mx-auto px-4 py-8">
           {/* Tag Filter Indicator */}
@@ -201,7 +195,7 @@ const ArticlesPage = () => {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {articles.map((article, index) => {
-                  const showInFeedAd = index === 2 || (index > 2 && (index + 1) % 6 === 0);
+                  const showInFeedAd = index === 5;
 
                   return (
                     <React.Fragment key={article.id}>

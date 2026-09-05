@@ -10,8 +10,6 @@ import QuranPaginationNav from '../components/QuranPaginationNav';
 import QuranSurahJumpBar from '../components/QuranSurahJumpBar';
 import QuranFloatingActions from '../components/QuranFloatingActions';
 import QuranBottomNav from '../components/QuranBottomNav';
-import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
-import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { 
     IoBookOutline, 
     IoAddOutline, 
@@ -410,9 +408,6 @@ function JuzPage() {
             <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
                 <div className="max-w-6xl mx-auto px-4 py-8 pt-24 pb-20">
 
-                    {/* Top Billboard Ad (Detik.com Pattern) */}
-                    <AdSenseLeaderboard maxWidth="max-w-6xl" labelText="IKLAN" />
-
                     {/* Top Pagination Navigation Component */}
                     <QuranPaginationNav
                         unitLabel="Juz"
@@ -563,16 +558,6 @@ function JuzPage() {
 
                             return (
                             <React.Fragment key={surahData.surah.number}>
-                                {sIndex > 0 && sIndex % 2 === 0 && (
-                                    <div className="my-6">
-                                        <AdSenseHorizontal 
-                                            adSlot="1519827772"
-                                            showLabel={true}
-                                            labelText="IKLAN REKOMENDASI"
-                                            minHeight="90px"
-                                        />
-                                    </div>
-                                )}
                                 <div 
                                     id={`surah-${surahData.surah.number}`}
                                     className="scroll-mt-48 sm:scroll-mt-52 bg-white rounded-3xl shadow-xl border border-green-100 overflow-hidden transition-all"
@@ -715,16 +700,6 @@ function JuzPage() {
                             </React.Fragment>
                             );
                         })}
-                    </div>
-
-                    {/* Bottom Break Ad before Navigation Card */}
-                    <div className="my-8">
-                        <AdSenseHorizontal 
-                            adSlot="1519827772"
-                            showLabel={true}
-                            labelText="IKLAN"
-                            minHeight="90px"
-                        />
                     </div>
 
                     {/* Bottom Completion & Navigation Card Component */}

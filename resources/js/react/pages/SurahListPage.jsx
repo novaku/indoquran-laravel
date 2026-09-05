@@ -16,7 +16,6 @@ import {
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
 import { Card, Button, Badge, PageHeader, PageContent } from '../components/ui';
-import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
 import AdSenseInFeed from '../components/AdSenseInFeed';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
@@ -258,9 +257,6 @@ function SurahListPage() {
                     </div>
                 </div>
 
-                {/* Top Billboard Ad (Detik.com Pattern) */}
-                <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" />
-
                 <PageContent size="xl">
                     <Card className="mb-6">
                         {/* Search and Filter */}
@@ -387,7 +383,7 @@ function SurahListPage() {
                             {filteredSurahs.map((surah, index) => {
                                 const surahBookmarks = bookmarksBySurah[surah.number] || [];
                                 const hasBookmarks = surahBookmarks.length > 0;
-                                const showInFeedAd = index === 7 || (index > 7 && (index + 1) % 24 === 0);
+                                const showInFeedAd = index === 11;
 
                                 return (
                                     <React.Fragment key={surah.number}>

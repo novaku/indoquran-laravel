@@ -18,8 +18,6 @@ import {
 } from '@heroicons/react/24/outline';
 import SEOHead from '../components/SEOHead';
 import StructuredData from '../components/StructuredData';
-import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
-import AdSenseInline from '../components/AdSenseInline';
 import versionsData from '../../../../database/seeders/versions_data.json';
 import { scrollToTop } from '../utils/scrollUtils';
 
@@ -191,9 +189,6 @@ function RiwayatVersiPage() {
                 </div>
             </div>
 
-            {/* Top Billboard Ad (Detik.com Pattern) */}
-            <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" />
-
             {/* Main Content Area - Wide 7xl Container */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -287,15 +282,10 @@ function RiwayatVersiPage() {
                                 <div className="space-y-6">
                                     {filteredVersions.map((version, index) => {
                                         const isExpanded = !!expandedVersions[version.version];
-                                        const showInlineAd = index === 1 || (index > 1 && (index + 1) % 5 === 0);
-
                                         return (
-                                            <React.Fragment key={version.version}>
-                                                {showInlineAd && (
-                                                    <AdSenseInline labelText="IKLAN REKOMENDASI" minHeight="90px" />
-                                                )}
-                                                <article 
-                                                    id={`version-${version.version}`}
+                                            <article 
+                                                key={version.version}
+                                                id={`version-${version.version}`}
                                                     className="bg-white rounded-2xl border border-gray-200/90 shadow-2xs overflow-hidden hover:border-emerald-300 hover:shadow-xs transition-all scroll-mt-24"
                                                 >
                                                 {/* Version Header Card */}
@@ -389,8 +379,7 @@ function RiwayatVersiPage() {
                                                         )}
                                                     </div>
                                                 )}
-                                                </article>
-                                            </React.Fragment>
+                                            </article>
                                         );
                                     })}
                                 </div>

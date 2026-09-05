@@ -37,9 +37,6 @@ import {
 } from 'react-icons/io5';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
-import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
-import AdSenseInline from '../components/AdSenseInline';
-import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import TafsirSurahSection from '../components/TafsirSurahSection';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { fetchWithAuth } from '../utils/apiUtils';
@@ -2522,12 +2519,6 @@ function SurahDetailPage() {
                 </div>
             </div>
 
-            {/* Top Billboard Ad (Detik.com Pattern) */}
-            <AdSenseLeaderboard 
-                maxWidth="max-w-6xl"
-                labelText="IKLAN"
-            />
-
             <div className="max-w-6xl mx-auto px-4 py-4 sm:py-6">
                 {/* TAB 1: BACA AYAT (Detail Ayat Aktif) */}
                 {activeTab === 'ayat' && (
@@ -3292,16 +3283,6 @@ function SurahDetailPage() {
                         />
                     </div>
                 )}
-
-                {/* Middle Break Leaderboard Ad (Detik.com Pattern) */}
-                <div className="w-full my-6">
-                    <AdSenseHorizontal 
-                        adSlot="1519827772"
-                        showLabel={true}
-                        labelText="IKLAN REKOMENDASI"
-                        minHeight="90px"
-                    />
-                </div>
             </div>
         </div>
         </>

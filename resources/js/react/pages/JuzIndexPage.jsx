@@ -6,9 +6,6 @@ import {
 } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
-import AdSenseLeaderboard from '../components/AdSenseLeaderboard';
-import AdSenseInFeed from '../components/AdSenseInFeed';
-import AdSenseHorizontal from '../components/AdSenseHorizontal';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
 import { scrollToTop } from '../utils/scrollUtils';
@@ -118,28 +115,15 @@ function JuzIndexPage() {
                 </div>
             </div>
 
-            {/* Top Billboard Ad (Detik.com Pattern) */}
-            <AdSenseLeaderboard maxWidth="max-w-7xl" labelText="IKLAN" className="my-4 sm:my-6" />
-
             {/* Juz List */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 
                 {/* Juz Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {juzNumbers.map((juz, index) => {
-                        const showInFeedAd = index === 6 || index === 18;
-
-                        return (
-                            <React.Fragment key={juz.number}>
-                                {showInFeedAd && (
-                                    <AdSenseInFeed 
-                                        adSlot="1519827772"
-                                        labelText="IKLAN REKOMENDASI"
-                                        className="h-full"
-                                    />
-                                )}
-                                <button
-                                    onClick={() => handleJuzClick(juz.number)}
+                    {juzNumbers.map((juz) => (
+                        <button
+                            key={juz.number}
+                            onClick={() => handleJuzClick(juz.number)}
                                     className="bg-white rounded-xl p-6 shadow-sm border border-gray-200/90 hover:shadow-md hover:border-green-400 transition-all text-left group cursor-pointer flex flex-col justify-between"
                                 >
                                     <div className="flex items-center justify-between mb-4">
@@ -166,19 +150,7 @@ function JuzIndexPage() {
                                         </p>
                                     </div>
                                 </button>
-                            </React.Fragment>
-                        );
-                    })}
-                </div>
-
-                {/* Bottom Break Ad before Info Section */}
-                <div className="my-8">
-                    <AdSenseHorizontal 
-                        adSlot="1519827772"
-                        showLabel={true}
-                        labelText="IKLAN"
-                        minHeight="90px"
-                    />
+                    ))}
                 </div>
 
                 {/* Info Section */}
