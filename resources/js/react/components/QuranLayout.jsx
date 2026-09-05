@@ -53,7 +53,7 @@ function QuranLayout({ children, className = "" }) {
             <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
             <QuranHeader isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
             <Breadcrumb />
-            
+
             <main className={`flex-grow ${className}`}>
                 {children}
             </main>
@@ -61,8 +61,8 @@ function QuranLayout({ children, className = "" }) {
             {/* Global Bottom AdSense Banner for general non-admin pages (Desktop & Mobile) */}
             {!isAdFreePage && (
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full">
-                    <AdSenseHorizontal 
-                        adSlot="1519827772" 
+                    <AdSenseHorizontal
+                        adSlot="1519827772"
                         className="w-full"
                         showLabel={true}
                         labelText="IKLAN"
@@ -70,7 +70,7 @@ function QuranLayout({ children, className = "" }) {
                     />
                 </div>
             )}
-            
+
             <QuranFooter />
         </div>
     );

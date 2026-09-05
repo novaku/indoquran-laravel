@@ -30,117 +30,117 @@ import PerformanceOptimizer from './components/PerformanceOptimizer';
 import { preloadCriticalResources, getPageSEOData, generateHomeSEOKeywords } from './utils/seoUtils';
 
 // Enhanced lazy loading with aggressive code splitting for minimal initial bundle
-const HomePage = lazy(() => 
-  import(/* webpackChunkName: "home", webpackPreload: true */ './pages/QuranHomePage')
+const HomePage = lazy(() =>
+    import(/* webpackChunkName: "home", webpackPreload: true */ './pages/QuranHomePage')
 );
 
 // Core pages (high priority) - preload after main bundle
-const AuthPage = lazy(() => 
-  import(/* webpackChunkName: "auth" */ './pages/UserAuthPage')
+const AuthPage = lazy(() =>
+    import(/* webpackChunkName: "auth" */ './pages/UserAuthPage')
 );
-const PasswordResetPage = lazy(() => 
-  import(/* webpackChunkName: "auth" */ './pages/PasswordResetPage')
+const PasswordResetPage = lazy(() =>
+    import(/* webpackChunkName: "auth" */ './pages/PasswordResetPage')
 );
-const NewPasswordPage = lazy(() => 
-  import(/* webpackChunkName: "auth" */ './pages/NewPasswordPage')
+const NewPasswordPage = lazy(() =>
+    import(/* webpackChunkName: "auth" */ './pages/NewPasswordPage')
 );
-const SurahListPage = lazy(() => 
-  import(/* webpackChunkName: "surah-list", webpackPrefetch: true */ './pages/SurahListPage')
+const SurahListPage = lazy(() =>
+    import(/* webpackChunkName: "surah-list", webpackPrefetch: true */ './pages/SurahListPage')
 );
-const SurahPage = lazy(() => 
-  import(/* webpackChunkName: "surah" */ './pages/SurahDetailPage')
+const SurahPage = lazy(() =>
+    import(/* webpackChunkName: "surah" */ './pages/SurahDetailPage')
 );
-const SearchPage = lazy(() => 
-  import(/* webpackChunkName: "search" */ './pages/QuranSearchPage')
+const SearchPage = lazy(() =>
+    import(/* webpackChunkName: "search" */ './pages/QuranSearchPage')
 );
 
 // User pages (lower priority) - load on demand only
-const BookmarksPage = lazy(() => 
-  import(/* webpackChunkName: "user-features" */ './pages/UserBookmarksPage')
+const BookmarksPage = lazy(() =>
+    import(/* webpackChunkName: "user-features" */ './pages/UserBookmarksPage')
 );
-const ProfilePage = lazy(() => 
-  import(/* webpackChunkName: "user-features" */ './pages/UserProfilePage')
+const ProfilePage = lazy(() =>
+    import(/* webpackChunkName: "user-features" */ './pages/UserProfilePage')
 );
-const MemberBenefitsPage = lazy(() => 
-  import(/* webpackChunkName: "content-pages" */ './pages/MemberBenefitsPage')
+const MemberBenefitsPage = lazy(() =>
+    import(/* webpackChunkName: "content-pages" */ './pages/MemberBenefitsPage')
 );
 
 // Content pages (lowest priority) - highly deferred
-const AboutPage = lazy(() => 
-  import(/* webpackChunkName: "content-pages" */ './pages/AboutProjectPage')
+const AboutPage = lazy(() =>
+    import(/* webpackChunkName: "content-pages" */ './pages/AboutProjectPage')
 );
-const ContactPage = lazy(() => 
-  import(/* webpackChunkName: "content-pages" */ './pages/ContactSupportPage')
+const ContactPage = lazy(() =>
+    import(/* webpackChunkName: "content-pages" */ './pages/ContactSupportPage')
 );
-const DonationPage = lazy(() => 
-  import(/* webpackChunkName: "content-pages" */ './pages/DonationSupportPage')
+const DonationPage = lazy(() =>
+    import(/* webpackChunkName: "content-pages" */ './pages/DonationSupportPage')
 );
-const PrivacyPage = lazy(() => 
-  import(/* webpackChunkName: "content-pages" */ './pages/PrivacyPage')
+const PrivacyPage = lazy(() =>
+    import(/* webpackChunkName: "content-pages" */ './pages/PrivacyPage')
 );
 
 // Juz and Page features (grouped for better caching)
-const JuzListPage = lazy(() => 
-  import(/* webpackChunkName: "juz-pages" */ './pages/JuzIndexPage')
+const JuzListPage = lazy(() =>
+    import(/* webpackChunkName: "juz-pages" */ './pages/JuzIndexPage')
 );
-const JuzPage = lazy(() => 
-  import(/* webpackChunkName: "juz-pages" */ './pages/JuzPage')
+const JuzPage = lazy(() =>
+    import(/* webpackChunkName: "juz-pages" */ './pages/JuzPage')
 );
-const PageListPage = lazy(() => 
-  import(/* webpackChunkName: "page-features" */ './pages/PageListPage')
+const PageListPage = lazy(() =>
+    import(/* webpackChunkName: "page-features" */ './pages/PageListPage')
 );
-const PageDetailPage = lazy(() => 
-  import(/* webpackChunkName: "page-features" */ './pages/PageDetailPage')
+const PageDetailPage = lazy(() =>
+    import(/* webpackChunkName: "page-features" */ './pages/PageDetailPage')
 );
 
 // Special features (deferred loading only when needed)
-const PrayerPage = lazy(() => 
-  import(/* webpackChunkName: "prayer" */ './pages/PrayerPage')
+const PrayerPage = lazy(() =>
+    import(/* webpackChunkName: "prayer" */ './pages/PrayerPage')
 );
-const PrayerDetailPage = lazy(() => 
-  import(/* webpackChunkName: "prayer" */ './pages/PrayerDetailPage')
+const PrayerDetailPage = lazy(() =>
+    import(/* webpackChunkName: "prayer" */ './pages/PrayerDetailPage')
 );
-const AsmaulHusnaPage = lazy(() => 
-  import(/* webpackChunkName: "asmaul-husna" */ './pages/AsmaulHusnaPage')
+const AsmaulHusnaPage = lazy(() =>
+    import(/* webpackChunkName: "asmaul-husna" */ './pages/AsmaulHusnaPage')
 );
-const RiwayatVersiPage = lazy(() => 
-  import(/* webpackChunkName: "version-history" */ './pages/RiwayatVersiPage')
+const RiwayatVersiPage = lazy(() =>
+    import(/* webpackChunkName: "version-history" */ './pages/RiwayatVersiPage')
 );
-const TafsirMaudhuiPage = lazy(() => 
-  import(/* webpackChunkName: "tafsir" */ './pages/TafsirMaudhuiPage')
+const TafsirMaudhuiPage = lazy(() =>
+    import(/* webpackChunkName: "tafsir" */ './pages/TafsirMaudhuiPage')
 );
-const SEOLandingPage = lazy(() => 
-  import(/* webpackChunkName: "seo-landing" */ './pages/SEOLandingPage')
+const SEOLandingPage = lazy(() =>
+    import(/* webpackChunkName: "seo-landing" */ './pages/SEOLandingPage')
 );
 
 // Article pages
-const ArticlesPage = lazy(() => 
-  import(/* webpackChunkName: "articles" */ './pages/ArticlesPage')
+const ArticlesPage = lazy(() =>
+    import(/* webpackChunkName: "articles" */ './pages/ArticlesPage')
 );
-const ArticleDetailPage = lazy(() => 
-  import(/* webpackChunkName: "articles" */ './pages/ArticleDetailPage')
+const ArticleDetailPage = lazy(() =>
+    import(/* webpackChunkName: "articles" */ './pages/ArticleDetailPage')
 );
 
 // Admin pages (separate bundle)
-const AdminLoginPage = lazy(() => 
-  import(/* webpackChunkName: "admin" */ './pages/AdminLoginPage')
+const AdminLoginPage = lazy(() =>
+    import(/* webpackChunkName: "admin" */ './pages/AdminLoginPage')
 );
-const AdminDashboard = lazy(() => 
-  import(/* webpackChunkName: "admin" */ './pages/AdminDashboard')
+const AdminDashboard = lazy(() =>
+    import(/* webpackChunkName: "admin" */ './pages/AdminDashboard')
 );
-const AdminArticlesPage = lazy(() => 
-  import(/* webpackChunkName: "admin-articles" */ './pages/AdminArticlesPage')
+const AdminArticlesPage = lazy(() =>
+    import(/* webpackChunkName: "admin-articles" */ './pages/AdminArticlesPage')
 );
-const AdminArticleEditorPage = lazy(() => 
-  import(/* webpackChunkName: "admin-articles" */ './pages/AdminArticleEditorPage')
+const AdminArticleEditorPage = lazy(() =>
+    import(/* webpackChunkName: "admin-articles" */ './pages/AdminArticleEditorPage')
 );
-const StatistikPage = lazy(() => 
-  import(/* webpackChunkName: "stats" */ './pages/StatistikPage')
+const StatistikPage = lazy(() =>
+    import(/* webpackChunkName: "stats" */ './pages/StatistikPage')
 );
 
 // 404 Not Found Page - loaded on demand for invalid routes
-const NotFoundPage = lazy(() => 
-  import(/* webpackChunkName: "not-found" */ './pages/NotFoundPage')
+const NotFoundPage = lazy(() =>
+    import(/* webpackChunkName: "not-found" */ './pages/NotFoundPage')
 );
 
 // Enhanced redirect components with performance optimizations
@@ -162,26 +162,26 @@ const usePrefetchOptimization = () => {
         enableRoutePreload: true,
         enableHoverPreloadOption: false // Disable hover preload to reduce unused JS
     });
-    
+
     useEffect(() => {
         if (!canPreload) return;
-        
+
         // Only prefetch critical components with strict conditions
         const prefetchCritical = () => {
             // Check connection quality and data saver preference
             const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
             const isSlowConnection = connection && (
-                connection.effectiveType === 'slow-2g' || 
-                connection.effectiveType === '2g' || 
+                connection.effectiveType === 'slow-2g' ||
+                connection.effectiveType === '2g' ||
                 connection.saveData ||
                 connection.downlink < 1.5
             );
-            
+
             // Skip prefetching on slow connections or low memory devices
             if (isSlowConnection || (navigator.deviceMemory && navigator.deviceMemory < 4)) {
                 return;
             }
-            
+
             // Only prefetch most critical pages with intelligent delays
             if ('requestIdleCallback' in window) {
                 requestIdleCallback(() => {
@@ -204,40 +204,40 @@ const usePrefetchOptimization = () => {
 
 // Main app content component with auth-protected routes
 const AppContent = memo(() => {
-    const { 
-        user, 
-        loading, 
+    const {
+        user,
+        loading,
         isInitialized,
-        login, 
-        logout, 
-        updateUser, 
-        refreshUser, 
-        checkAuth 
+        login,
+        logout,
+        updateUser,
+        refreshUser,
+        checkAuth
     } = useAuth();
-    
+
     // Enable intelligent prefetching
     usePrefetchOptimization();
-    
+
     // Auto scroll to top on route changes (except surah detail pages)
     useScrollToTop();
-    
+
     // Dynamically manage document title on route transitions
     useDynamicTitle();
-    
+
     // Track visitor presence across all pages in the app
     useOnlinePresenceTracker();
-    
+
     // Ensure Google AdSense initializes on route changes (non-admin)
     useAdSense();
-    
+
     // Ensure canonical URL consistency for SEO
     const { canonicalUrl } = useCanonicalURL();
-    
+
     // Derived states for cleaner component logic - memoized for performance
     const isAuthenticated = useMemo(() => Boolean(user), [user]);
     const isAdmin = useMemo(() => Boolean(user && user.is_admin), [user]);
     const isLoading = useMemo(() => loading || !isInitialized, [loading, isInitialized]);
-    
+
     // Advanced performance monitoring (disable console logging to reduce noise)
     const { getMetrics, getOptimizationSuggestions } = useAdvancedPerformanceMonitor({
         trackLCP: true,
@@ -246,7 +246,7 @@ const AppContent = memo(() => {
         trackTTFB: true,
         logToConsole: false // Disable console logging to reduce noise
     });
-    
+
     // Optimized initialization for faster FCP/LCP
     useEffect(() => {
         // Prioritize critical CSS and defer everything else
@@ -254,21 +254,21 @@ const AppContent = memo(() => {
             // Initialize only critical CSS immediately
             initializeCSSOptimizations();
         };
-        
+
         // Defer all non-critical initialization
         const initializeNonCritical = () => {
             // Check connection quality before loading heavy features
             const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
             const isSlowConnection = connection && (
-                connection.effectiveType === 'slow-2g' || 
-                connection.effectiveType === '2g' || 
+                connection.effectiveType === 'slow-2g' ||
+                connection.effectiveType === '2g' ||
                 connection.saveData
             );
-            
+
             if (!isSlowConnection) {
                 // Initialize resource preloading only on fast connections
                 initializeResourcePreloading();
-                
+
                 // Initialize image optimizations with delay
                 setTimeout(() => {
                     initializeImageOptimizations({
@@ -277,13 +277,13 @@ const AppContent = memo(() => {
                         optimizeFormat: true
                     });
                 }, 1000);
-                
+
                 // Preload critical SEO resources only if performance budget allows
                 setTimeout(() => {
                     preloadCriticalResources();
                 }, 2000);
             }
-            
+
             // Performance monitoring only in development
             if (process.env.NODE_ENV === 'development') {
                 console.log('✅ Performance monitoring available via PerformanceDebugPanel');
@@ -292,7 +292,7 @@ const AppContent = memo(() => {
 
         // Execute critical path immediately
         initializeCriticalPath();
-        
+
         // Defer non-critical initialization with longer delays
         if ('requestIdleCallback' in window) {
             requestIdleCallback(initializeNonCritical, { timeout: 5000 });
@@ -321,7 +321,7 @@ const AppContent = memo(() => {
             zIndex: 9999
         }}>
             <div className="text-center">
-                <div 
+                <div
                     className="rounded-full border-t-2 border-b-2 border-green-600 mx-auto mb-4"
                     style={{
                         width: '3rem',
@@ -385,11 +385,11 @@ const AppContent = memo(() => {
                         <Route path="/surah" element={<SEOLandingPage />} />
                         <Route path="/daftar-lengkap" element={<SEOLandingPage />} />
                         <Route path="/statistik" element={<StatistikPage />} />
-                        
+
                         {/* Article Routes */}
                         <Route path="/artikel" element={<ArticlesPage />} />
                         <Route path="/artikel/:slug" element={<ArticleDetailPage />} />
-                        
+
                         {/* Admin Routes */}
                         <Route path="/admin/login" element={<AdminLoginPage />} />
                         <Route path="/admin/dashboard" element={<AdminDashboard />} />
@@ -397,7 +397,7 @@ const AppContent = memo(() => {
                         <Route path="/admin/artikel/baru" element={<AdminArticleEditorPage />} />
                         <Route path="/admin/artikel/edit/:id" element={<AdminArticleEditorPage />} />
                         <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
-                        
+
                         {/* Backward compatibility redirects */}
                         <Route path="/version-history" element={<Navigate to="/riwayat-versi" replace />} />
                         <Route path="/search" element={<SearchRedirect />} />
@@ -412,55 +412,55 @@ const AppContent = memo(() => {
                         <Route path="/auth/login" element={<Navigate to="/masuk" replace />} />
                         <Route path="/auth/register" element={<Navigate to="/daftar" replace />} />
                         <Route path="/auth/:action" element={<Navigate to="/masuk" replace />} />
-                        
+
                         {/* Bookmarks & Reading Progress Route */}
                         <Route path="/penanda" element={<BookmarksPage user={user} />} />
-                        
+
                         {/* Protected Routes */}
-                        <Route 
-                            path="/profil" 
+                        <Route
+                            path="/profil"
                             element={
                                 isAuthenticated ? <ProfilePage user={user} setUser={setUser} /> : <Navigate to="/masuk" replace />
-                            } 
+                            }
                         />
-                        
+
                         {/* Auth Routes */}
-                        <Route 
-                            path="/masuk" 
+                        <Route
+                            path="/masuk"
                             element={
                                 isAuthenticated ? (
                                     isAdmin ? <Navigate to="/admin/dashboard" replace /> : <Navigate to="/" replace />
                                 ) : <AuthPage />
-                            } 
+                            }
                         />
-                        <Route 
-                            path="/daftar" 
+                        <Route
+                            path="/daftar"
                             element={
                                 isAuthenticated ? (
                                     isAdmin ? <Navigate to="/admin/dashboard" replace /> : <Navigate to="/" replace />
                                 ) : <AuthPage />
-                            } 
+                            }
                         />
-                        <Route 
-                            path="/reset-password" 
+                        <Route
+                            path="/reset-password"
                             element={
                                 isAuthenticated ? <Navigate to="/" replace /> : <PasswordResetPage />
-                            } 
+                            }
                         />
-                        <Route 
-                            path="/password/reset" 
+                        <Route
+                            path="/password/reset"
                             element={
                                 isAuthenticated ? <Navigate to="/" replace /> : <NewPasswordPage />
-                            } 
+                            }
                         />
-                        
+
                         {/* 404 Not Found - Proper 404 status for invalid routes */}
                         <Route path="*" element={<NotFoundPage />} />
                     </Routes>
                 </Suspense>
-                
+
                 {/* Toast Notifications */}
-                <Toaster 
+                <Toaster
                     position="top-right"
                     toastOptions={{
                         duration: 3000,
@@ -485,13 +485,13 @@ const AppContent = memo(() => {
                         },
                     }}
                 />
-                
+
                 {/* Performance Debug Panel (Development Only) */}
                 <PerformanceDebugPanel />
-                
+
                 {/* Performance Optimizer - Critical for Core Web Vitals */}
                 <PerformanceOptimizer />
-                
+
                 {/* PWA Install Promotion - memoized to prevent re-renders */}
                 <PWAInstallPromotion strategy="auto" key="pwa-promotion" />
             </QuranLayout>

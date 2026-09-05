@@ -22,7 +22,9 @@ import {
     HeartIcon,
     FireIcon,
     EyeIcon,
-    XMarkIcon
+    XMarkIcon,
+    WifiIcon,
+    ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../hooks/useAuth.jsx';
 import SearchField from '../components/SearchField';
@@ -35,6 +37,7 @@ import { Card, Button } from '../components/ui';
 import AdSenseVertical from '../components/AdSenseVertical';
 import { fetchWithAuth } from '../utils/apiUtils';
 import { getReadingProgress } from '../services/ReadingProgressService';
+import { getCachedSurahs, fetchSurahsWithFallback } from '../services/SurahDataService';
 import authUtils from '../utils/auth';
 import { scrollToTop } from '../utils/scrollUtils';
 import { getRandomPopularSearches } from '../data/popularSearches';
@@ -106,9 +109,15 @@ function QuranHomePage() {
     const navigate = useNavigate();
     const { user } = useAuth();
 
-    const [surahs, setSurahs] = useState([]);
+    // Instant-load surahs from cache or static fallback data for zero-latency first render
+    const initialSurahState = useMemo(() => getCachedSurahs(), []);
+    const [surahs, setSurahs] = useState(initialSurahState.data || []);
+    const [isFallback, setIsFallback] = useState(false);
+    const [fallbackType, setFallbackType] = useState(null);
+    const [isFallbackDismissed, setIsFallbackDismissed] = useState(false);
+    const [isRetryingSurahs, setIsRetryingSurahs] = useState(false);
     const [popularChips] = useState(() => getRandomPopularSearches(10));
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(() => !initialSurahState.data || initialSurahState.data.length === 0);
     const [error, setError] = useState(null);
     const [recentReading, setRecentReading] = useState(null);
     const [popularSurahs, setPopularSurahs] = useState([]);
@@ -368,40 +377,43 @@ function QuranHomePage() {
         }
     }, []);
 
+    const loadSurahs = useCallback(async (isManualRetry = false) => {
+        if (isManualRetry) {
+            setIsRetryingSurahs(true);
+        }
+        try {
+            const res = await fetchSurahsWithFallback();
+            if (res.data && res.data.length > 0) {
+                setSurahs(res.data);
+            }
+            if (res.isFallback) {
+                setIsFallback(true);
+                setFallbackType(res.fallbackType);
+                setError(res.error);
+            } else {
+                setIsFallback(false);
+                setFallbackType(null);
+                setError(null);
+            }
+        } catch (err) {
+            console.error('Unexpected error loading surahs:', err);
+            const cached = getCachedSurahs();
+            setSurahs(cached.data);
+            setIsFallback(true);
+            setFallbackType(cached.from);
+            setError(err.message || 'Gagal memuat surah');
+        } finally {
+            setLoading(false);
+            if (isManualRetry) {
+                setIsRetryingSurahs(false);
+            }
+        }
+    }, []);
+
     useEffect(() => {
         scrollToTop();
-        const fetchSurahs = async () => {
-            try {
-                setLoading(true);
-                const token = authUtils.getAuthToken();
-                const response = await fetchWithAuth('/api/surahs', {
-                    headers: {
-                        Authorization: token ? `Bearer ${token}` : '',
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch surahs');
-                }
-
-                const result = await response.json();
-                if (result.status === 'success') {
-                    setSurahs(result.data);
-                } else {
-                    throw new Error('Failed to load surahs');
-                }
-            } catch (err) {
-                console.error('Error fetching surahs:', err);
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchSurahs();
-    }, []);
+        loadSurahs(false);
+    }, [loadSurahs]);
 
     // Ensure scroll position is reset once surahs data is ready
     useEffect(() => {
@@ -482,26 +494,10 @@ function QuranHomePage() {
             : POPULAR_SURAH_NUMBERS.slice(0, 6).map((num) => surahs.find((s) => s.number === num)).filter(Boolean);
     }, [surahTab, popularSurahs, surahs]);
 
-    if (loading) {
+    if (loading && surahs.length === 0) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
                 <LoadingSpinner size="lg" />
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-                <Card className="text-center max-w-md p-6">
-                    <p className="text-red-600 font-medium mb-4">Terjadi kesalahan memuat konten</p>
-                    <Button
-                        variant="primary"
-                        onClick={() => window.location.reload()}
-                    >
-                        Coba Lagi
-                    </Button>
-                </Card>
             </div>
         );
     }
@@ -623,6 +619,55 @@ function QuranHomePage() {
                     </div>
                 </div>
             </section>
+
+            {/* GRACEFUL FALLBACK NOTIFICATION BANNER */}
+            {isFallback && !isFallbackDismissed && (
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 p-4 sm:px-5 rounded-2xl bg-amber-50/95 border border-amber-200/90 text-amber-950 shadow-xs backdrop-blur-xs transition-all">
+                        <div className="flex items-start sm:items-center gap-3">
+                            <div className="w-9 h-9 rounded-xl bg-amber-100/90 border border-amber-200 text-amber-800 flex items-center justify-center flex-shrink-0 mt-0.5 sm:mt-0">
+                                <WifiIcon className="w-5 h-5" />
+                            </div>
+                            <div className="space-y-0.5">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-200/80 text-amber-900">
+                                        {fallbackType === 'cache' ? 'Mode Cache' : 'Mode Offline'}
+                                    </span>
+                                    <h4 className="text-xs sm:text-sm font-bold text-amber-900">
+                                        {fallbackType === 'cache'
+                                            ? 'Menampilkan data tersimpan dari kunjungan sebelumnya'
+                                            : 'Koneksi ke server terputus (Menampilkan data lokal Al-Quran)'}
+                                    </h4>
+                                </div>
+                                <p className="text-xs text-amber-800/90">
+                                    Pembaruan data dari server belum berhasil. Anda tetap dapat membaca, mencari, dan membuka seluruh 114 surah dengan normal.
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2 self-end sm:self-center flex-shrink-0">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => loadSurahs(true)}
+                                disabled={isRetryingSurahs}
+                                leftIcon={<ArrowPathIcon className={`w-3.5 h-3.5 ${isRetryingSurahs ? 'animate-spin' : ''}`} />}
+                                className="bg-white/90 hover:bg-white border-amber-300 text-amber-900 text-xs font-semibold shadow-2xs"
+                            >
+                                {isRetryingSurahs ? 'Menghubungkan...' : 'Coba Lagi'}
+                            </Button>
+                            <button
+                                type="button"
+                                onClick={() => setIsFallbackDismissed(true)}
+                                className="p-1.5 rounded-lg text-amber-700 hover:text-amber-950 hover:bg-amber-100/70 transition-colors cursor-pointer"
+                                title="Tutup pemberitahuan ini"
+                                aria-label="Tutup pemberitahuan"
+                            >
+                                <XMarkIcon className="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* MAIN CONTENT AREA WITH SIDEBAR */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
@@ -932,6 +977,21 @@ function QuranHomePage() {
                                             </Link>
                                         );
                                     })
+                                ) : surahs.length === 0 ? (
+                                    <div className="col-span-1 md:col-span-2 text-center p-6 sm:p-8 rounded-xl border border-dashed border-amber-200 bg-amber-50/50">
+                                        <ExclamationTriangleIcon className="w-8 h-8 text-amber-500 mx-auto mb-2" />
+                                        <p className="text-sm font-semibold text-gray-800 mb-1">Daftar surah belum dapat dimuat</p>
+                                        <p className="text-xs text-gray-500 mb-4">Periksa koneksi internet Anda atau coba muat ulang.</p>
+                                        <Button
+                                            variant="primary"
+                                            size="sm"
+                                            onClick={() => loadSurahs(true)}
+                                            disabled={isRetryingSurahs}
+                                            leftIcon={<ArrowPathIcon className={`w-3.5 h-3.5 ${isRetryingSurahs ? 'animate-spin' : ''}`} />}
+                                        >
+                                            {isRetryingSurahs ? 'Memuat...' : 'Coba Lagi'}
+                                        </Button>
+                                    </div>
                                 ) : (
                                     <div className="col-span-1 md:col-span-2 text-center text-sm text-gray-500 border border-dashed border-gray-200 rounded-xl p-6">
                                         Rekomendasi surah belum tersedia saat ini.

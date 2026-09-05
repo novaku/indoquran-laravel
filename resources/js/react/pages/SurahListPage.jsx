@@ -5,7 +5,10 @@ import {
     MagnifyingGlassIcon,
     MapPinIcon,
     PlayIcon,
-    StarIcon
+    StarIcon,
+    WifiIcon,
+    ArrowPathIcon,
+    XMarkIcon
 } from '@heroicons/react/24/outline';
 import { 
     IoBookmark, 
@@ -20,15 +23,21 @@ import AdSenseInFeed from '../components/AdSenseInFeed';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
 import { getUserBookmarks } from '../services/BookmarkService';
+import { getCachedSurahs, fetchSurahsWithFallback } from '../services/SurahDataService';
 import { scrollToTop } from '../utils/scrollUtils';
 
 function SurahListPage() {
     const navigate = useNavigate();
     const searchRef = useRef(null);
-    const [surahs, setSurahs] = useState([]);
+    const initialSurahState = React.useMemo(() => getCachedSurahs(), []);
+    const [surahs, setSurahs] = useState(initialSurahState.data || []);
     const [bookmarksBySurah, setBookmarksBySurah] = useState({});
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(() => !initialSurahState.data || initialSurahState.data.length === 0);
     const [error, setError] = useState(null);
+    const [isFallback, setIsFallback] = useState(false);
+    const [fallbackType, setFallbackType] = useState(null);
+    const [isFallbackDismissed, setIsFallbackDismissed] = useState(false);
+    const [isRetrying, setIsRetrying] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterPlace, setFilterPlace] = useState('all'); // all, makkah, madinah, bookmarked
     const [showSuggestions, setShowSuggestions] = useState(false);
@@ -84,35 +93,37 @@ function SurahListPage() {
         }
     };
 
-    const loadSurahs = async () => {
+    const loadSurahs = async (isManualRetry = false) => {
         try {
-            setLoading(true);
-            scrollToTop();
+            if (isManualRetry) {
+                setIsRetrying(true);
+            }
             setError(null);
-
-            
-            const token = authUtils.getAuthToken();
-            const response = await fetchWithAuth('/api/surahs', {
-                headers: {
-                    'Authorization': token ? `Bearer ${token}` : '',
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                }
-            });
-            
-            if (!response.ok) throw new Error('Failed to fetch surahs');
-            const result = await response.json();
-            
-            if (result.status === 'success') {
-                setSurahs(result.data || []);
+            const res = await fetchSurahsWithFallback();
+            if (res.data && res.data.length > 0) {
+                setSurahs(res.data);
+            }
+            if (res.isFallback) {
+                setIsFallback(true);
+                setFallbackType(res.fallbackType);
+                setError(res.error);
             } else {
-                throw new Error(result.message || 'Failed to load surahs');
+                setIsFallback(false);
+                setFallbackType(null);
+                setError(null);
             }
         } catch (err) {
             console.error('Error loading surahs:', err);
-            setError('Gagal memuat daftar surah. Silakan coba lagi.');
+            const cached = getCachedSurahs();
+            setSurahs(cached.data);
+            setIsFallback(true);
+            setFallbackType(cached.from);
+            setError('Gagal memuat daftar surah terbaru');
         } finally {
             setLoading(false);
+            if (isManualRetry) {
+                setIsRetrying(false);
+            }
         }
     };
 
@@ -208,30 +219,13 @@ function SurahListPage() {
 
     const bookmarkedSurahsCount = Object.keys(bookmarksBySurah).length;
 
-    if (loading) {
+    if (loading && surahs.length === 0) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
                 <div className="text-center">
                     <LoadingSpinner size="lg" />
                     <p className="mt-4 text-gray-600">Memuat daftar surah...</p>
                 </div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <Card className="text-center max-w-md bg-red-50 border-red-200">
-                    <h2 className="text-xl font-bold text-red-800 mb-2">Error</h2>
-                    <p className="text-red-600 mb-4">{error}</p>
-                    <Button
-                        variant="danger"
-                        onClick={loadSurahs}
-                    >
-                        Coba Lagi
-                    </Button>
-                </Card>
             </div>
         );
     }
@@ -256,6 +250,49 @@ function SurahListPage() {
                         </p>
                     </div>
                 </div>
+
+                {/* Graceful Fallback Banner */}
+                {isFallback && !isFallbackDismissed && (
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 shadow-xs">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-800 flex-shrink-0">
+                                    <WifiIcon className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h4 className="text-xs sm:text-sm font-bold">
+                                        {fallbackType === 'cache'
+                                            ? 'Menampilkan data tersimpan dari kunjungan sebelumnya'
+                                            : 'Koneksi ke server terputus (Menampilkan data lokal Al-Quran)'}
+                                    </h4>
+                                    <p className="text-xs text-amber-800/90 mt-0.5">
+                                        Daftar seluruh 114 surah tetap dapat Anda baca dan cari secara normal.
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2 self-end sm:self-center flex-shrink-0">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => loadSurahs(true)}
+                                    disabled={isRetrying}
+                                    leftIcon={<ArrowPathIcon className={`w-3.5 h-3.5 ${isRetrying ? 'animate-spin' : ''}`} />}
+                                    className="bg-white text-xs font-semibold text-amber-900 border-amber-300"
+                                >
+                                    {isRetrying ? 'Menghubungkan...' : 'Coba Lagi'}
+                                </Button>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsFallbackDismissed(true)}
+                                    className="p-1 rounded-lg text-amber-700 hover:bg-amber-100"
+                                    title="Tutup pemberitahuan"
+                                >
+                                    <XMarkIcon className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 <PageContent size="xl">
                     <Card className="mb-6">
