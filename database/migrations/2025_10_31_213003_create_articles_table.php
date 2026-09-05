@@ -11,24 +11,26 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('articles', function (Blueprint $table) {
-            $table->id();
-            $table->string('title');
-            $table->string('slug')->unique();
-            $table->text('excerpt')->nullable();
-            $table->longText('content');
-            $table->string('featured_image')->nullable();
-            $table->foreignId('author_id')->constrained('users')->onDelete('cascade');
-            $table->enum('status', ['draft', 'published'])->default('draft');
-            $table->timestamp('published_at')->nullable();
-            $table->integer('views_count')->default(0);
-            $table->timestamps();
-            
-            // Indexes untuk performa
-            $table->index('status');
-            $table->index('published_at');
-            $table->index(['status', 'published_at']);
-        });
+        if (!Schema::hasTable('articles')) {
+            Schema::create('articles', function (Blueprint $table) {
+                $table->id();
+                $table->string('title');
+                $table->string('slug')->unique();
+                $table->text('excerpt')->nullable();
+                $table->longText('content');
+                $table->string('featured_image')->nullable();
+                $table->foreignId('author_id')->constrained('users')->onDelete('cascade');
+                $table->enum('status', ['draft', 'published'])->default('draft');
+                $table->timestamp('published_at')->nullable();
+                $table->integer('views_count')->default(0);
+                $table->timestamps();
+                
+                // Indexes untuk performa
+                $table->index('status');
+                $table->index('published_at');
+                $table->index(['status', 'published_at']);
+            });
+        }
     }
 
     /**

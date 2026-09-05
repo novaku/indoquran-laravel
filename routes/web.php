@@ -62,6 +62,9 @@ Route::post('/masuk', [LoginController::class, 'login']);
 Route::post('/daftar', [RegisterController::class, 'register']);
 
 // Authentication routes - POST route only (GET route handled by React SPA)
+Route::get('/login', function() {
+    return redirect('/masuk');
+})->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 
 // Admin routes

@@ -11,19 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('article_tag', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('article_id')->constrained()->onDelete('cascade');
-            $table->foreignId('tag_id')->constrained()->onDelete('cascade');
-            $table->timestamps();
-            
-            // Unique constraint untuk mencegah duplikasi
-            $table->unique(['article_id', 'tag_id']);
-            
-            // Index untuk performa query
-            $table->index('article_id');
-            $table->index('tag_id');
-        });
+        if (!Schema::hasTable('article_tag')) {
+            Schema::create('article_tag', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('article_id')->constrained()->onDelete('cascade');
+                $table->foreignId('tag_id')->constrained()->onDelete('cascade');
+                $table->timestamps();
+                
+                // Unique constraint untuk mencegah duplikasi
+                $table->unique(['article_id', 'tag_id']);
+                
+                // Index untuk performa query
+                $table->index('article_id');
+                $table->index('tag_id');
+            });
+        }
     }
 
     /**

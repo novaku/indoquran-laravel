@@ -47,21 +47,6 @@ class RegisterController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Send email verification notification
-        try {
-            $user->sendEmailVerificationNotification();
-            Log::info('Email verification notification sent', [
-                'user_id' => $user->id,
-                'user_email' => $user->email
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Failed to send email verification notification', [
-                'user_id' => $user->id,
-                'user_email' => $user->email,
-                'error' => $e->getMessage()
-            ]);
-        }
-
         Auth::login($user);
 
         // Send welcome email to the new user
@@ -102,8 +87,7 @@ class RegisterController extends Controller
 
         return response()->json([
             'user' => $user,
-            'message' => 'Registration successful. Please check your email to verify your account and get started with IndoQuran.',
-            'email_verification_sent' => true,
+            'message' => 'Pendaftaran berhasil. Selamat datang di IndoQuran.',
             'welcome_email_sent' => true
         ]);
     }

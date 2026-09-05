@@ -43,12 +43,14 @@ class TrackVisitor
 
             $ipAddress = $this->getClientIpAddress($request);
             $userAgent = $request->userAgent();
-            $pageUrl = $request->fullUrl();
-            $referrer = $request->header('referer');
+            $pageUrl = mb_substr($request->fullUrl(), 0, 500);
+            $rawReferrer = $request->header('referer');
+            $referrer = $rawReferrer ? mb_substr($rawReferrer, 0, 500) : null;
             $sessionId = $request->session()->getId();
 
             // Check if this is a unique visit (same IP, same page, within last 30 minutes)
-            $recentVisit = Visitor::where('ip_address', $ipAddress)
+            $recentVisit = Visitor::query()
+                                 ->where('ip_address', $ipAddress)
                                  ->where('page_url', $pageUrl)
                                  ->where('visited_at', '>=', now()->subMinutes(30))
                                  ->exists();
@@ -66,7 +68,7 @@ class TrackVisitor
 
             // Clean up old records (keep only last 90 days)
             if (rand(1, 100) === 1) { // 1% chance to run cleanup
-                Visitor::where('visited_at', '<', now()->subDays(90))->delete();
+                Visitor::query()->where('visited_at', '<', now()->subDays(90))->delete();
             }
 
         } catch (\Exception $e) {

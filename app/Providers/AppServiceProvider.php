@@ -95,11 +95,18 @@ class AppServiceProvider extends ServiceProvider
             }
             
             Redis::enableEvents();
-            // Use UNIX socket in production
-            config(['database.redis.default.socket' => '/home/indoqura/tmp/redis.sock']);
-            config(['database.redis.cache.socket' => '/home/indoqura/tmp/redis.sock']);
-            config(['database.redis.default.host' => null]);
-            config(['database.redis.cache.host' => null]);
+            // Use UNIX socket in production if available, otherwise preserve TCP host/port fallback
+            $redisSocket = env('REDIS_SOCKET', '/home/indoqura/tmp/redis.sock');
+            if ($redisSocket && file_exists($redisSocket)) {
+                config(['database.redis.default.socket' => $redisSocket]);
+                config(['database.redis.cache.socket' => $redisSocket]);
+                config(['database.redis.default.scheme' => 'unix']);
+                config(['database.redis.cache.scheme' => 'unix']);
+                config(['database.redis.default.path' => $redisSocket]);
+                config(['database.redis.cache.path' => $redisSocket]);
+                config(['database.redis.default.host' => null]);
+                config(['database.redis.cache.host' => null]);
+            }
         } else {
             // Development environment - DON'T force any URL schemes
             // Let Laravel use the default APP_URL for local development

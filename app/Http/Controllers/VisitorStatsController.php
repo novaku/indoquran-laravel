@@ -61,17 +61,17 @@ class VisitorStatsController extends Controller
 
         $yesterday = Visitor::where('visited_at', '>=', now()->subDay()->startOfDay())
                             ->where('visited_at', '<=', now()->subDay()->endOfDay())
-                            ->distinct('ip_address')
+                            ->distinct()
                             ->count('ip_address');
 
         $lastWeek = Visitor::where('visited_at', '>=', now()->subWeek()->startOfWeek())
                            ->where('visited_at', '<=', now()->subWeek()->endOfWeek())
-                           ->distinct('ip_address')
+                           ->distinct()
                            ->count('ip_address');
 
         $lastMonth = Visitor::where('visited_at', '>=', now()->subMonth()->startOfMonth())
                             ->where('visited_at', '<=', now()->subMonth()->endOfMonth())
-                            ->distinct('ip_address')
+                            ->distinct()
                             ->count('ip_address');
 
         $weekDiff = $weekly - $lastWeek;
@@ -310,12 +310,12 @@ class VisitorStatsController extends Controller
 
             // Get visitors in the last hour
             $lastHour = Visitor::where('visited_at', '>=', $subHour)
-                              ->distinct('ip_address')
+                              ->distinct()
                               ->count('ip_address');
 
             // Get visitors in the last 5 minutes
             $lastFiveMinutes = Visitor::where('visited_at', '>=', $sub5Min)
-                                     ->distinct('ip_address')
+                                     ->distinct()
                                      ->count('ip_address');
 
             // Get top pages in the last hour

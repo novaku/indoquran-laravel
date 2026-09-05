@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
+/**
+ * @method static \Illuminate\Database\Eloquent\Builder selectRaw(string $expression, array $bindings = [])
+ * @method static \Illuminate\Database\Eloquent\Builder where($column, $operator = null, $value = null, $boolean = 'and')
+ * @mixin \Illuminate\Database\Eloquent\Builder
+ */
 class Visitor extends Model
 {
     protected $fillable = [
@@ -30,7 +35,7 @@ class Visitor extends Model
             $startDate = now()->subDays($days - 1)->startOfDay();
             $endDate = now()->endOfDay();
 
-            $grouped = self::where('visited_at', '>=', $startDate)
+            $grouped = self::query()->where('visited_at', '>=', $startDate)
                            ->where('visited_at', '<=', $endDate)
                            ->selectRaw('DATE(visited_at) as visit_date, COUNT(DISTINCT ip_address) as visitors')
                            ->groupBy('visit_date')
@@ -62,7 +67,7 @@ class Visitor extends Model
             $startToday = today()->startOfDay();
             $endToday = today()->endOfDay();
 
-            $grouped = self::where('visited_at', '>=', $startToday)
+            $grouped = self::query()->where('visited_at', '>=', $startToday)
                            ->where('visited_at', '<=', $endToday)
                            ->selectRaw('HOUR(visited_at) as visit_hour, COUNT(DISTINCT ip_address) as visitors')
                            ->groupBy('visit_hour')
@@ -87,9 +92,9 @@ class Visitor extends Model
     public static function getTodayVisitors()
     {
         try {
-            return self::where('visited_at', '>=', today()->startOfDay())
+            return self::query()->where('visited_at', '>=', today()->startOfDay())
                        ->where('visited_at', '<=', today()->endOfDay())
-                       ->distinct('ip_address')
+                       ->distinct()
                        ->count('ip_address');
         } catch (\Exception $e) {
             Log::error('Error getting today visitors: ' . $e->getMessage());
@@ -100,9 +105,9 @@ class Visitor extends Model
     public static function getWeeklyVisitors()
     {
         try {
-            return self::where('visited_at', '>=', now()->startOfWeek())
+            return self::query()->where('visited_at', '>=', now()->startOfWeek())
                        ->where('visited_at', '<=', now()->endOfWeek())
-                       ->distinct('ip_address')
+                       ->distinct()
                        ->count('ip_address');
         } catch (\Exception $e) {
             Log::error('Error getting weekly visitors: ' . $e->getMessage());
@@ -113,9 +118,9 @@ class Visitor extends Model
     public static function getMonthlyVisitors()
     {
         try {
-            return self::where('visited_at', '>=', now()->startOfMonth())
+            return self::query()->where('visited_at', '>=', now()->startOfMonth())
                        ->where('visited_at', '<=', now()->endOfMonth())
-                       ->distinct('ip_address')
+                       ->distinct()
                        ->count('ip_address');
         } catch (\Exception $e) {
             Log::error('Error getting monthly visitors: ' . $e->getMessage());
@@ -126,7 +131,7 @@ class Visitor extends Model
     public static function getTotalVisitors()
     {
         try {
-            return self::distinct('ip_address')->count('ip_address');
+            return self::distinct()->count('ip_address');
         } catch (\Exception $e) {
             Log::error('Error getting total visitors: ' . $e->getMessage());
             return 0;
@@ -148,7 +153,7 @@ class Visitor extends Model
                            $url = parse_url($item->page_url, PHP_URL_PATH);
                            $query = parse_url($item->page_url, PHP_URL_QUERY);
                            
-                           $pageInfo = self::categorizeUrl($url, $query);
+                           $pageInfo = self::categorizeUrl(is_string($url) ? $url : null, is_string($query) ? $query : null);
                            
                            return [
                                'url' => $item->page_url,
@@ -200,7 +205,14 @@ class Visitor extends Model
         }
     }
 
-    private static function categorizeUrl($path, $query = null)
+    /**
+     * Categorize URL path into page types.
+     *
+     * @param string|null $path
+     * @param string|null $query
+     * @return array<string, mixed>
+     */
+    private static function categorizeUrl(?string $path, ?string $query = null): array
     {
         if (empty($path) || $path === '/') {
             return ['type' => 'homepage', 'title' => 'Beranda'];
@@ -248,9 +260,9 @@ class Visitor extends Model
     {
         try {
             $target = $year ? Carbon::createFromDate($year, 1, 1) : now();
-            return self::where('visited_at', '>=', $target->copy()->startOfYear())
+            return self::query()->where('visited_at', '>=', $target->copy()->startOfYear())
                        ->where('visited_at', '<=', $target->copy()->endOfYear())
-                       ->distinct('ip_address')
+                       ->distinct()
                        ->count('ip_address');
         } catch (\Exception $e) {
             Log::error('Error getting yearly visitors: ' . $e->getMessage());
@@ -286,7 +298,7 @@ class Visitor extends Model
     public static function getBrowserStats()
     {
         try {
-            return self::selectRaw('
+            return self::query()->selectRaw('
                     CASE 
                         WHEN user_agent LIKE "%Chrome%" AND user_agent NOT LIKE "%Edge%" THEN "Chrome"
                         WHEN user_agent LIKE "%Firefox%" THEN "Firefox"
@@ -296,7 +308,7 @@ class Visitor extends Model
                         ELSE "Other"
                     END as browser,
                     COUNT(*) as count
-                ')
+                ', [])
                 ->groupBy('browser')
                 ->orderByDesc('count')
                 ->get();
@@ -309,14 +321,14 @@ class Visitor extends Model
     public static function getDeviceStats()
     {
         try {
-            return self::selectRaw('
+            return self::query()->selectRaw('
                     CASE 
                         WHEN user_agent LIKE "%Mobile%" OR user_agent LIKE "%Android%" OR user_agent LIKE "%iPhone%" THEN "Mobile"
                         WHEN user_agent LIKE "%Tablet%" OR user_agent LIKE "%iPad%" THEN "Tablet"
                         ELSE "Desktop"
                     END as device_type,
                     COUNT(*) as count
-                ')
+                ', [])
                 ->groupBy('device_type')
                 ->orderByDesc('count')
                 ->get();
@@ -332,7 +344,7 @@ class Visitor extends Model
             $startDate = now()->subDays($days - 1)->startOfDay();
             $endDate = now()->endOfDay();
 
-            $grouped = self::where('visited_at', '>=', $startDate)
+            $grouped = self::query()->where('visited_at', '>=', $startDate)
                            ->where('visited_at', '<=', $endDate)
                            ->selectRaw('DATE(visited_at) as visit_date, COUNT(DISTINCT ip_address) as visitors, COUNT(*) as page_views')
                            ->groupBy('visit_date')

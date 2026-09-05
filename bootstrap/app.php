@@ -12,6 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up'
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->redirectGuestsTo('/masuk');
+
         // Add SSL error filtering for local development (highest priority)
         $middleware->web(prepend: [
             \App\Http\Middleware\ExcludeSSLErrorsMiddleware::class,
