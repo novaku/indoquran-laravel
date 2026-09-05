@@ -38,6 +38,7 @@ import { getReadingProgress } from '../services/ReadingProgressService';
 import { useAuth } from '../hooks/useAuth.jsx';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
+import KhatamTrackerCard from '../components/KhatamTrackerCard';
 import { scrollToTop } from '../utils/scrollUtils';
 
 function UserBookmarksPage() {
@@ -695,6 +696,7 @@ function UserBookmarksPage() {
                     ) : activeTab === 'terakhir' ? (
                         /* Terakhir Dibaca (Last Read) Tab View */
                         <div className="space-y-6">
+                            <KhatamTrackerCard />
                             {lastRead ? (
                                 <div className="bg-white rounded-3xl shadow-sm border border-blue-100 overflow-hidden">
                                     <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-6 text-white">

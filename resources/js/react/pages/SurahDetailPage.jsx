@@ -42,6 +42,7 @@ import { useAuth } from '../hooks/useAuth.jsx';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
 import { updateReadingProgress } from '../services/ReadingProgressService';
+import { recordAyahProgress } from '../services/KhatamTrackerService';
 import { scrollToTop } from '../utils/scrollUtils';
 
 import {
@@ -953,15 +954,11 @@ function SurahDetailPage() {
                 // Auto-scroll to top so user can read from the top of the surah
                 scrollToTop();
 
-                // Update reading progress if user is logged in and surah number is available
-                if (user && number) {
-                    updateReadingProgress(parseInt(number), ayahNum)
-                        .then(() => {
-                            console.log('📖 Reading progress updated on URL change:', { surah: number, ayah: ayahNum });
-                        })
-                        .catch(error => {
-                            console.error('❌ Error updating reading progress on URL change:', error);
-                        });
+                // Update reading progress and Khatam Tracker
+                if (number) {
+                    recordAyahProgress(parseInt(number, 10), ayahNum).catch(err => {
+                        console.warn('Could not record ayah progress:', err);
+                    });
                 }
             }
         } else if (!ayahNumber) {
@@ -2100,10 +2097,10 @@ function SurahDetailPage() {
             // Update URL
             navigate(`/surah/${number}/${targetAyah}`);
 
-            // Update reading progress if user is logged in
-            if (user && number) {
-                updateReadingProgress(parseInt(number, 10), targetAyah).catch(err => {
-                    console.error('❌ Error updating reading progress:', err);
+            // Update reading progress and Khatam Tracker
+            if (number) {
+                recordAyahProgress(parseInt(number, 10), targetAyah).catch(err => {
+                    console.warn('Could not record ayah progress:', err);
                 });
             }
 

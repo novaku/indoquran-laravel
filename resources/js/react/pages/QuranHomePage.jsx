@@ -33,6 +33,7 @@ import SEOHead from '../components/SEOHead';
 import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import OnlineUsersWidget from '../components/OnlineUsersWidget';
 import ArticleHoverCard from '../components/ArticleHoverCard';
+import KhatamTrackerCard from '../components/KhatamTrackerCard';
 import { Card, Button } from '../components/ui';
 import AdSenseVertical from '../components/AdSenseVertical';
 import { fetchWithAuth } from '../utils/apiUtils';
@@ -747,53 +748,8 @@ function QuranHomePage() {
                             </div>
                         </div>
 
-                        {/* Lanjutkan Membaca (Only shown if user is logged in or has active reading session) */}
-                        {user && recentReading?.surah && (
-                            <div className="bg-white rounded-2xl p-5 sm:p-6 border border-emerald-100 shadow-sm transition-all hover:shadow-md">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700">
-                                            <BookmarkIcon className="w-4 h-4" />
-                                        </div>
-                                        <div>
-                                            <h2 className="text-lg font-bold text-gray-900">Lanjutkan Membaca</h2>
-                                            <p className="text-xs text-gray-500">Mulai dari ayat terakhir yang Anda baca</p>
-                                        </div>
-                                    </div>
-                                    <Link
-                                        to="/profil"
-                                        className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline"
-                                    >
-                                        Riwayat Lengkap →
-                                    </Link>
-                                </div>
-
-                                <div className="bg-gradient-to-r from-emerald-50/80 via-white to-emerald-50/40 rounded-xl p-4 sm:p-5 border border-emerald-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                    <div className="space-y-1">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-base font-bold text-gray-900">
-                                                {recentReading.surah.name_latin || recentReading.surah.name_english}
-                                            </span>
-                                            <span className="text-xs px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-medium">
-                                                Ayat {recentReading.lastVerse}
-                                            </span>
-                                        </div>
-                                        <p className="text-xs text-gray-500">
-                                            {recentReading.surah.revelation_place} • {(recentReading.surah.total_ayahs ?? recentReading.surah.verses_count) || '-'} Total Ayat
-                                        </p>
-                                    </div>
-                                    <Button
-                                        variant="primary"
-                                        onClick={handleStartReading}
-                                        leftIcon={<PlayIcon className="w-4 h-4" />}
-                                        size="sm"
-                                        className="self-start sm:self-center shadow-xs"
-                                    >
-                                        Buka Bacaan
-                                    </Button>
-                                </div>
-                            </div>
-                        )}
+                        {/* Target Khatam & Tilawah Progress Bar */}
+                        <KhatamTrackerCard />
 
                         {/* Fitur & Navigasi Utama (Feature Hub) */}
                         <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-200/90 shadow-2xs">
