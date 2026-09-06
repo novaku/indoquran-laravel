@@ -1,0 +1,304 @@
+{
+	"info": {
+		"_postman_id": "8fa91234-91bf-4c7b-9e4a-b5e0c7a12345",
+		"name": "IndoQuran - Article API",
+		"description": "Koleksi Postman untuk menguji API pembuatan artikel baru IndoQuran dengan Static API Key Authentication.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Buat Artikel Draf (Draft) - X-API-Key",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "X-API-Key",
+						"value": "{{api_key}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"title\": \"Draf: Memahami Hakikat Syukur dalam Kehidupan\",\n  \"excerpt\": \"Panduan ringkas mengenai tingkatan syukur mulai dari hati, lisan, hingga perbuatan nyata sehari-hari.\",\n  \"content\": \"<p>Syukur adalah salah satu amalan hati yang paling agung. Allah Ta'ala berfirman dalam Al-Quran bahwa jika kita bersyukur, maka Allah pasti akan menambah nikmat-Nya kepada kita.</p>\",\n  \"hashtags\": \"#Tafsir #Syukur #RenunganHati\",\n  \"status\": \"draft\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/articles",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"articles"
+					]
+				},
+				"description": "Membuat artikel dengan status 'draft' sehingga tersimpan di database tetapi belum tampil di halaman publik."
+			},
+			"response": []
+		},
+		{
+			"name": "2. Buat Artikel Published - Bearer Token",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{api_key}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"title\": \"Keutamaan Membaca Surah Al-Kahfi di Hari Jumat\",\n  \"excerpt\": \"Penjelasan mengenai fadhilah membaca surah Al-Kahfi di hari Jumat sebagai penerang antara dua Jumat.\",\n  \"content\": \"<p>Membaca surah Al-Kahfi di hari Jumat merupakan amalan sunnah yang sangat dianjurkan oleh Rasulullah SAW karena akan memberikan cahaya bagi pembacanya.</p>\",\n  \"hashtags\": [\"AlKahfi\", \"HariJumat\", \"Sunnah\"],\n  \"status\": \"published\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/articles",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"articles"
+					]
+				},
+				"description": "Membuat artikel yang langsung berstatus 'published' menggunakan Bearer Token auth dan hashtag berbentuk array."
+			},
+			"response": []
+		},
+		{
+			"name": "3. Buat Artikel Minimal (Otomatis Slug & Excerpt)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "X-API-Key",
+						"value": "{{api_key}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"title\": \"Adab Menuntut Ilmu dalam Islam\",\n  \"content\": \"<p>Menuntut ilmu adalah kewajiban bagi setiap muslim. Para ulama terdahulu sangat memperhatikan adab sebelum mereka mempelajari ilmu agama itu sendiri.</p>\",\n  \"hashtags\": \"#Adab #MenuntutIlmu #Tadabbur\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/articles",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"articles"
+					]
+				},
+				"description": "Payload minimal hanya dengan title, content, dan hashtags. Slug dan excerpt akan dibuat otomatis oleh sistem."
+			},
+			"response": []
+		},
+		{
+			"name": "4. Buat Artikel dengan Short Description",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "X-API-Key",
+						"value": "{{api_key}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"title\": \"Kekuatan Doa di Sepertiga Malam Terakhir\",\n  \"short_desc\": \"Waktu sepertiga malam terakhir adalah saat yang mustajab di mana Allah turun ke langit dunia mengabulkan doa hamba-Nya.\",\n  \"content\": \"<p>Tahajjud dan munajat di sepertiga malam terakhir memiliki kedudukan istimewa dalam menguatkan spiritual seorang muslim.</p>\",\n  \"hashtags\": \"#Tahajjud #DoaMustajab #QiyamulLail\",\n  \"status\": \"published\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/articles",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"articles"
+					]
+				},
+				"description": "Menggunakan properti 'short_desc' atau 'short_description' sebagai alternatif dari 'excerpt'."
+			},
+			"response": []
+		},
+		{
+			"name": "5. Test Unauthorized (Key Salah / Kosong)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "X-API-Key",
+						"value": "invalid_api_key_contoh_salah",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"title\": \"Test Artikel Unauthorized\",\n  \"content\": \"<p>Percobaan pengiriman tanpa key valid.</p>\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/articles",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"articles"
+					]
+				},
+				"description": "Memastikan bahwa API mengembalikan status 401 Unauthorized jika API Key salah atau tidak dikirim."
+			},
+			"response": []
+		},
+		{
+			"name": "6. Lihat Daftar Artikel Publik (GET)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/articles?per_page=10",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"articles"
+					],
+					"query": [
+						{
+							"key": "per_page",
+							"value": "10"
+						}
+					]
+				},
+				"description": "Endpoint publik untuk melihat daftar artikel yang berstatus published."
+			},
+			"response": []
+		},
+		{
+			"name": "7. Lihat Detail Artikel Publik by Slug (GET)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/articles/keutamaan-membaca-surah-al-kahfi-di-hari-jumat",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"articles",
+						"keutamaan-membaca-surah-al-kahfi-di-hari-jumat"
+					]
+				},
+				"description": "Melihat detail artikel published berdasarkan slug URL."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "api_key",
+			"value": "1bb6ff1cc82c503c249ff7a4e91cd7b7b77df4a67cb7b4ac54d5efd117802f2b",
+			"type": "string"
+		}
+	]
+}

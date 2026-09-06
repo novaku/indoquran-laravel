@@ -243,6 +243,12 @@ Route::get('/articles/random', [ArticleController::class, 'random']); // Must be
 Route::get('/articles/{slug}', [ArticleController::class, 'show']);
 Route::get('/articles/{slug}/related', [ArticleController::class, 'related']);
 
+// External API route with static key authentication
+Route::middleware(['static.key'])->group(function() {
+    Route::post('/articles', [ArticleController::class, 'storeApi']);
+    Route::post('/articles/create', [ArticleController::class, 'storeApi']);
+});
+
 // Admin article routes (requires auth and admin role)
 Route::middleware(['auth', 'admin'])->prefix('admin/articles')->group(function() {
     Route::get('/', [ArticleController::class, 'adminIndex']);

@@ -49,6 +49,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'cors.proxy' => \App\Http\Middleware\CorsProxyMiddleware::class, // Add our CORS proxy middleware
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'seo' => \App\Http\Middleware\SEOMiddleware::class,
+            'static.key' => \App\Http\Middleware\StaticApiKeyMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

@@ -41,4 +41,8 @@ return [
         'from_number' => env('WHATSAPP_FROM_NUMBER', '+6281234567890'),
     ],
 
+    'article_api' => [
+        'key' => env('ARTICLE_API_KEY', '1bb6ff1cc82c503c249ff7a4e91cd7b7b77df4a67cb7b4ac54d5efd117802f2b'),
+    ],
+
 ];

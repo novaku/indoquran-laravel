@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\Tag;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -180,6 +181,87 @@ class ArticleController extends Controller
         return response()->json([
             'message' => 'Artikel berhasil dibuat',
             'article' => $article->load(['author:id,name', 'tags'])
+        ], 201);
+    }
+
+    /**
+     * Store a newly created article via static API key
+     */
+    public function storeApi(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:255',
+            'excerpt' => 'nullable|string|max:500',
+            'short_description' => 'nullable|string|max:500',
+            'short_desc' => 'nullable|string|max:500',
+            'content' => 'required|string',
+            'status' => 'nullable|in:draft,published',
+            'published_at' => 'nullable|date',
+            'author_id' => 'nullable|exists:users,id',
+            'featured_image' => 'nullable|string|max:255',
+            'hashtags' => 'nullable',
+            'tags' => 'nullable',
+        ]);
+
+        // Auto-generate slug if not provided, and ensure uniqueness
+        $baseSlug = !empty($validated['slug']) ? Str::slug($validated['slug']) : Str::slug($validated['title']);
+        if (empty($baseSlug)) {
+            $baseSlug = 'artikel-' . time();
+        }
+
+        $slug = $baseSlug;
+        $counter = 1;
+        while (Article::where('slug', $slug)->exists()) {
+            $slug = "{$baseSlug}-" . ($counter++);
+        }
+        $validated['slug'] = $slug;
+
+        // Default status is published
+        $status = $validated['status'] ?? 'published';
+        $validated['status'] = $status;
+
+        // Set published_at if status is published and date not set
+        if ($status === 'published' && empty($validated['published_at'])) {
+            $validated['published_at'] = now();
+        }
+
+        // Support excerpt, short_description, or short_desc (auto-generate from content if empty)
+        $excerpt = $validated['excerpt'] ?? $request->input('short_description') ?? $request->input('short_desc');
+        unset($validated['short_description'], $validated['short_desc']);
+
+        if (empty($excerpt)) {
+            $cleanText = strip_tags($validated['content']);
+            $cleanText = preg_replace('/\s+/', ' ', $cleanText);
+            $excerpt = Str::limit(trim($cleanText), 200, '...');
+        }
+        $validated['excerpt'] = $excerpt;
+
+        // Determine author: provided author_id, authenticated user, admin user, or first user
+        if (empty($validated['author_id'])) {
+            $validated['author_id'] = Auth::id()
+                ?? User::where('is_admin', true)->value('id')
+                ?? User::value('id');
+        }
+
+        // Extract hashtags / tags
+        $rawTags = $request->input('hashtags') ?? $request->input('tags') ?? [];
+        unset($validated['hashtags'], $validated['tags']);
+
+        $article = Article::create($validated);
+
+        // Attach tags if provided
+        if (!empty($rawTags)) {
+            $tagIds = $this->getOrCreateTags($rawTags);
+            if (!empty($tagIds)) {
+                $article->tags()->sync($tagIds);
+            }
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Artikel berhasil dibuat',
+            'data' => $article->load(['author:id,name,email', 'tags:id,name,slug']),
         ], 201);
     }
 
@@ -364,7 +446,7 @@ class ArticleController extends Controller
     /**
      * Helper method to get or create tags (case-insensitive & deduplicated)
      */
-    private function getOrCreateTags(array $tagNames): array
+    private function getOrCreateTags($tagNames): array
     {
         $parsedTagNames = $this->parseRawTags($tagNames);
         $tagIds = [];
