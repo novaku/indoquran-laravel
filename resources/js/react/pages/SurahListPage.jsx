@@ -438,52 +438,50 @@ function SurahListPage() {
                                                     : 'border-gray-200 hover:border-green-300'
                                             }`}
                                         >
-                                        {/* Surah Header */}
-                                        <div className="flex items-center justify-between mb-3 gap-2">
-                                            <div className="flex items-center space-x-3 min-w-0 flex-1">
-                                                <div className="relative shrink-0">
-                                                    <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center text-white font-bold transition-colors ${
-                                                        hasBookmarks
-                                                            ? 'bg-emerald-600 group-hover:bg-emerald-700 ring-2 ring-amber-300'
-                                                            : 'bg-green-600 group-hover:bg-green-700'
-                                                    }`}>
-                                                        {surah.number}
-                                                    </div>
-                                                    {hasBookmarks && (
-                                                        <span 
-                                                            className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-white shadow-sm ring-2 ring-white"
-                                                            title={`${surahBookmarks.length} ayat ditandai di surah ini`}
-                                                        >
-                                                            <IoBookmark className="w-2.5 h-2.5" />
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <div className="min-w-0 flex-1">
-                                                    <h3 className="font-bold text-gray-900 group-hover:text-green-700 transition-colors truncate" title={surah.name_latin}>
-                                                        {surah.name_latin}
-                                                    </h3>
-                                                </div>
-                                            </div>
-                                            
-                                            {/* Badges: Place & Bookmark */}
-                                            <div className="flex flex-col items-end gap-1.5 shrink-0">
-                                                <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${
-                                                    surah.revelation_place?.toLowerCase() === 'makkah' 
-                                                        ? 'bg-orange-100 text-orange-700'
-                                                        : 'bg-blue-100 text-blue-700'
-                                                }`}>
-                                                    <MapPinIcon className="w-3 h-3 shrink-0" />
-                                                    <span>{surah.revelation_place?.toLowerCase() === 'makkah' ? 'Makkiyah' : 'Madaniyah'}</span>
+                                        {/* Top Bar: Badges Tempat Turun & Bookmark (Kanan Atas) */}
+                                        <div className="flex items-center justify-end gap-1.5 mb-2">
+                                            <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${
+                                                surah.revelation_place?.toLowerCase() === 'makkah' 
+                                                    ? 'bg-orange-100 text-orange-700'
+                                                    : 'bg-blue-100 text-blue-700'
+                                            }`}>
+                                                <MapPinIcon className="w-3 h-3 shrink-0" />
+                                                <span>{surah.revelation_place?.toLowerCase() === 'makkah' ? 'Makkiyah' : 'Madaniyah'}</span>
+                                            </span>
+                                            {hasBookmarks && (
+                                                <span 
+                                                    className="inline-flex items-center gap-1 bg-amber-100 border border-amber-300 text-amber-800 px-1.5 py-0.5 rounded-full text-[11px] font-bold shadow-2xs"
+                                                    title={`Ayat ditandai: ${surahBookmarks.sort((a, b) => a - b).join(', ')}`}
+                                                >
+                                                    <IoBookmark className="w-2.5 h-2.5 text-amber-600" />
+                                                    <span>{surahBookmarks.length} ayat</span>
                                                 </span>
+                                            )}
+                                        </div>
+
+                                        {/* Surah Header: Nomor & Nama Latin Surah */}
+                                        <div className="flex items-center space-x-3 mb-3 min-w-0">
+                                            <div className="relative shrink-0">
+                                                <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center text-white font-bold transition-colors ${
+                                                    hasBookmarks
+                                                        ? 'bg-emerald-600 group-hover:bg-emerald-700 ring-2 ring-amber-300'
+                                                        : 'bg-green-600 group-hover:bg-green-700'
+                                                }`}>
+                                                    {surah.number}
+                                                </div>
                                                 {hasBookmarks && (
                                                     <span 
-                                                        className="inline-flex items-center gap-1 bg-amber-100 border border-amber-300 text-amber-800 px-2 py-0.5 rounded-full text-[11px] font-bold shadow-2xs"
-                                                        title={`Ayat ditandai: ${surahBookmarks.sort((a, b) => a - b).join(', ')}`}
+                                                        className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-white shadow-sm ring-2 ring-white"
+                                                        title={`${surahBookmarks.length} ayat ditandai di surah ini`}
                                                     >
-                                                        <IoBookmark className="w-3 h-3 text-amber-600" />
-                                                        <span>{surahBookmarks.length} ayat</span>
+                                                        <IoBookmark className="w-2.5 h-2.5" />
                                                     </span>
                                                 )}
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <h3 className="font-bold text-gray-900 group-hover:text-green-700 transition-colors text-base sm:text-lg leading-snug" title={surah.name_latin}>
+                                                    {surah.name_latin}
+                                                </h3>
                                             </div>
                                         </div>
 
