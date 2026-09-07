@@ -432,14 +432,14 @@ function SurahListPage() {
                                         )}
                                         <div
                                             onClick={() => handleSurahClick(surah.number)}
-                                            className={`bg-white rounded-xl border p-5 sm:p-6 hover:shadow-lg transition-all duration-200 cursor-pointer group relative overflow-hidden ${
+                                            className={`bg-white rounded-xl border p-5 sm:p-6 hover:shadow-lg transition-all duration-200 cursor-pointer group relative overflow-hidden flex flex-col h-full ${
                                                 hasBookmarks 
                                                     ? 'border-amber-300 hover:border-amber-400 bg-gradient-to-b from-amber-50/20 to-white' 
                                                     : 'border-gray-200 hover:border-green-300'
                                             }`}
                                         >
                                         {/* Surah Header */}
-                                        <div className="flex items-start justify-between mb-4 gap-2">
+                                        <div className="flex items-center justify-between mb-3 gap-2">
                                             <div className="flex items-center space-x-3 min-w-0 flex-1">
                                                 <div className="relative shrink-0">
                                                     <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center text-white font-bold transition-colors ${
@@ -459,10 +459,9 @@ function SurahListPage() {
                                                     )}
                                                 </div>
                                                 <div className="min-w-0 flex-1">
-                                                    <h3 className="font-bold text-gray-900 group-hover:text-green-700 transition-colors truncate">
+                                                    <h3 className="font-bold text-gray-900 group-hover:text-green-700 transition-colors truncate" title={surah.name_latin}>
                                                         {surah.name_latin}
                                                     </h3>
-                                                    <p className="text-sm text-gray-500 truncate">{surah.name_indonesian}</p>
                                                 </div>
                                             </div>
                                             
@@ -488,10 +487,13 @@ function SurahListPage() {
                                             </div>
                                         </div>
 
-                                        {/* Arabic Name */}
-                                        <div className="text-center mb-4">
+                                        {/* Arabic Name & Indonesian Meaning */}
+                                        <div className="text-center my-4">
                                             <p className="text-2xl font-arabic text-gray-800 leading-loose" dir="rtl">
                                                 {surah.name_arabic}
+                                            </p>
+                                            <p className="text-sm font-medium text-gray-600 mt-1" title={`Arti: ${surah.name_indonesian}`}>
+                                                {surah.name_indonesian}
                                             </p>
                                         </div>
 
@@ -509,17 +511,26 @@ function SurahListPage() {
                                             </div>
                                         </div>
 
-                                        {/* Description */}
-                                        {surah.description_short && (
-                                            <div className="text-sm text-gray-600 mb-4">
-                                                <p 
-                                                    className="line-clamp-3"
-                                                    dangerouslySetInnerHTML={{ 
-                                                        __html: surah.description_short.replace(/<[^>]*>/g, '').substring(0, 120) + '...'
-                                                    }}
-                                                />
-                                            </div>
-                                        )}
+                                        {/* Description (hanya tampil jika berisi deskripsi/sinopsis unik, bukan duplikasi arti nama surah) */}
+                                        {(() => {
+                                            if (!surah.description_short) return null;
+                                            const cleanDesc = surah.description_short.replace(/<[^>]*>/g, '').trim();
+                                            const isDuplicate = 
+                                                cleanDesc.toLowerCase() === surah.name_indonesian?.trim().toLowerCase() ||
+                                                cleanDesc.toLowerCase() === surah.name_latin?.trim().toLowerCase();
+                                            
+                                            if (isDuplicate || !cleanDesc) return null;
+
+                                            const displayText = cleanDesc.length > 120 ? cleanDesc.substring(0, 120).trim() + '...' : cleanDesc;
+
+                                            return (
+                                                <div className="text-sm text-gray-600 mb-4">
+                                                    <p className="line-clamp-3">
+                                                        {displayText}
+                                                    </p>
+                                                </div>
+                                            );
+                                        })()}
 
                                         {/* Action Buttons: 2 Links Only (Baca Surah & Kandungan Surah) */}
                                         <div className="pt-3.5 border-t border-gray-100 mt-auto grid grid-cols-2 gap-2">
