@@ -60,6 +60,7 @@ if (app()->environment('local', 'development')) {
 // Indonesian language routes - POST routes only (GET routes handled by React SPA)
 Route::post('/masuk', [LoginController::class, 'login']);
 Route::post('/daftar', [RegisterController::class, 'register']);
+Route::post('/auth/google/one-tap', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'handleOneTap']);
 
 // Authentication routes - POST route only (GET route handled by React SPA)
 Route::get('/login', function() {

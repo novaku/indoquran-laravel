@@ -1,5 +1,34 @@
 [
   {
+    "version": "2.24.0",
+    "date": "12 September 2026",
+    "type": "feature",
+    "title": "Integrasi Google One Tap, Tombol Google Sign-In & Manajemen Kredensial Pengguna",
+    "description": "Pembaruan sistem autentikasi IndoQuran dengan menghadirkan integrasi Google Identity Services (GIS). Pengunjung dapat langsung masuk atau mendaftar menggunakan akun Google hanya dengan satu klik melalui popup Google One Tap di seluruh halaman serta tombol resmi 'Lanjutkan dengan Google' di halaman masuk dan daftar. Dilengkapi sinkronisasi profil otomatis (nama, email, avatar), penyimpanan ke tabel users dengan penanganan database yang aman, password default akun 'indoquran', serta panduan kredensial interaktif di halaman profil.",
+    "changes": [
+      {
+        "type": "feature",
+        "text": "Google One Tap Login (Sitewide GIS Prompt) - Popup Google One Tap yang otomatis muncul di sudut kanan atas bagi pengunjung yang belum masuk, memungkinkan autentikasi 1-klik yang mulus dan cepat tanpa perlu mengetik formulir"
+      },
+      {
+        "type": "feature",
+        "text": "Tombol Resmi Google Sign-In di Halaman Autentikasi (/masuk & /daftar) - Penyematan tombol resmi Google Identity Services sebagai alternatif login instan yang nyaman dan terpercaya"
+      },
+      {
+        "type": "feature",
+        "text": "Sinkronisasi Akun & Penyimpanan Otomatis ke Tabel Users - Integrasi backend Laravel (/api/auth/google/one-tap) yang memverifikasi ID token JWT langsung ke server resmi Google dan otomatis menyimpan/memperbarui data pengguna (Google ID, nama, email, dan avatar profil)"
+      },
+      {
+        "type": "improvement",
+        "text": "Password Akun Default 'indoquran' & Panduan Kredensial di Halaman Profil (/profil) - Akun Google secara otomatis dilengkapi password default 'indoquran' serta banner informasi khusus di halaman profil sehingga pengguna tetap memiliki fleksibilitas untuk login manual maupun mengubah password mereka"
+      },
+      {
+        "type": "improvement",
+        "text": "Keamanan CSP & Sanctum Token Integration - Penyesuaian Content Security Policy (CSP) untuk domain accounts.google.com dan foto profil *.googleusercontent.com, serta penerbitan Bearer token Sanctum untuk keamanan sesi SPA"
+      }
+    ]
+  },
+  {
     "version": "2.23.0",
     "date": "4 September 2026",
     "type": "feature",

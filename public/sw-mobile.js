@@ -1,7 +1,7 @@
-const CACHE_NAME = 'indoquran-mobile-v3';
-const STATIC_CACHE = 'static-v3';
-const DYNAMIC_CACHE = 'dynamic-v3';
-const IMAGE_CACHE = 'images-v3';
+const CACHE_NAME = 'indoquran-mobile-v2.24.0';
+const STATIC_CACHE = 'static-v2.24.0';
+const DYNAMIC_CACHE = 'dynamic-v2.24.0';
+const IMAGE_CACHE = 'images-v2.24.0';
 
 // Performance-focused cache limits
 const MAX_STATIC_ITEMS = 50;

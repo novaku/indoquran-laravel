@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v2.0.3';
+const CACHE_VERSION = 'v2.24.0';
 const CACHE_NAME = `indoquran-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `indoquran-runtime-${CACHE_VERSION}`;
 const IMAGE_CACHE = `indoquran-images-${CACHE_VERSION}`;

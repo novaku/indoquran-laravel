@@ -180,7 +180,7 @@ export const IMAGE_OPTIMIZATION = {
 
 // Service worker configuration
 export const SW_CONFIG = {
-  VERSION: '1.2.0',
+  VERSION: '2.24.0',
   CACHE_NAME_PREFIX: 'indoquran-mobile',
   
   // Cache strategies

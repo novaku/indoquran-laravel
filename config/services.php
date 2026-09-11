@@ -45,4 +45,8 @@ return [
         'key' => env('ARTICLE_API_KEY', '1bb6ff1cc82c503c249ff7a4e91cd7b7b77df4a67cb7b4ac54d5efd117802f2b'),
     ],
 
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+    ],
+
 ];

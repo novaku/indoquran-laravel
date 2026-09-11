@@ -9,6 +9,7 @@ use App\Http\Controllers\QuranController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ProfileController;
+use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PrayerController;
@@ -73,6 +74,7 @@ Route::get('/user', function (Request $request) {
 // Auth routes
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
+Route::post('/auth/google/one-tap', [GoogleAuthController::class, 'handleOneTap']);
 
 // Password reset routes (public, no auth required)
 Route::post('/password/reset', [\App\Http\Controllers\Auth\PasswordResetController::class, 'sendResetLink']);

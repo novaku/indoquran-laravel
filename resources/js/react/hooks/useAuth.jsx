@@ -163,6 +163,45 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
+    // Login with Google (credential ID token)
+    const loginWithGoogle = useCallback(async (credential) => {
+        setLoading(true);
+
+        try {
+            const response = await postWithAuth('/api/auth/google/one-tap', { credential });
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Login dengan Google gagal');
+            }
+
+            if (data.user && data.user.id) {
+                if (data.token) {
+                    setToken(data.token);
+                    localStorage.setItem('auth_token', data.token);
+                }
+                
+                if (data.user.is_admin) {
+                    localStorage.setItem('admin_user', JSON.stringify(data.user));
+                }
+
+                setUser(data.user);
+
+                return { success: true, user: data.user, message: data.message };
+            } else {
+                throw new Error('Login berhasil tetapi data pengguna tidak diterima');
+            }
+        } catch (error) {
+            console.error('Google login error:', error);
+            return {
+                success: false,
+                error: error.message || 'Autentikasi Google gagal',
+            };
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
     // Logout function
     const logout = useCallback(async () => {
         setLoading(true);
@@ -226,6 +265,7 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated: Boolean(user),
         isAdmin: Boolean(user && user.is_admin),
         login,
+        loginWithGoogle,
         logout,
         updateUser,
         refreshUser,

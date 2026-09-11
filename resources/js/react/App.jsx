@@ -9,6 +9,7 @@ import useCanonicalURL from './hooks/useCanonicalURL.js';
 import useDynamicTitle from './hooks/useDynamicTitle.js';
 import { useOnlinePresenceTracker } from './hooks/useOnlineUsers.js';
 import useAdSense from './hooks/useAdSense.js';
+import useGoogleOneTap from './hooks/useGoogleOneTap.js';
 
 // Import performance utilities
 import { initializeCSSOptimizations } from './utils/criticalCSS.js';
@@ -229,6 +230,9 @@ const AppContent = memo(() => {
 
     // Ensure Google AdSense initializes on route changes (non-admin)
     useAdSense();
+
+    // Trigger Google One Tap for unauthenticated users
+    useGoogleOneTap();
 
     // Ensure canonical URL consistency for SEO
     const { canonicalUrl } = useCanonicalURL();

@@ -59,7 +59,8 @@ class PWAManager {
                 const existingRegistration = await navigator.serviceWorker.getRegistration('/');
                 if (existingRegistration) {
                     this.registration = existingRegistration;
-                    console.log('PWA: Using existing service worker registration');
+                    this.registration.update();
+                    console.log('PWA: Using existing service worker registration, checking for updates');
                 } else {
                     this.registration = await navigator.serviceWorker.register('/sw-pwa.js', {
                         scope: '/'

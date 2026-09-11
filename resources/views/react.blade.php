@@ -136,7 +136,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v={{ $favVersion }}">
     
     <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="/manifest.json?v=2.24.0">
     
     <!-- PWA iOS Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -148,7 +148,7 @@
     <script src="/anti-injection-security.js"></script>
     
     <!-- PWA Manager -->
-    <script src="/pwa-manager.js"></script>
+    <script src="/pwa-manager.js?v=2.24.0"></script>
     
     <!-- Critical CSS for above-the-fold content -->
     {!! App\Services\PerformanceOptimizationService::getCriticalCSS() !!}
@@ -241,8 +241,12 @@
     
     <!-- Arabic Fonts - Load after page load to avoid blocking -->
     <link rel="stylesheet" href="{{ asset('fonts/arabic-font.css') }}" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="{{ asset('fonts/arabic-font.css') }}"></noscript>
-    
+    <!-- Google Identity Services (One Tap & Sign In) -->
+    <script>
+        window.GOOGLE_CLIENT_ID = "{{ config('services.google.client_id') }}";
+    </script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/react/index.jsx'])
     
