@@ -24,5 +24,7 @@
   "categories": ["education", "lifestyle", "books"],
   "lang": "id",
   "scope": "/",
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "version": "2.25.0"
 }
+
