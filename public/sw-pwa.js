@@ -1,6 +1,7 @@
 // Service Worker for IndoQuran PWA - Enhanced for Installation and Offline Support
 
-const CACHE_NAME = 'indoquran-pwa-v2.24.0';
+const CACHE_NAME = 'indoquran-pwa-v2.25.0';
+
 const STATIC_CACHE_NAME = `${CACHE_NAME}-static`;
 const DYNAMIC_CACHE_NAME = `${CACHE_NAME}-dynamic`;
 const API_CACHE_NAME = `${CACHE_NAME}-api`;

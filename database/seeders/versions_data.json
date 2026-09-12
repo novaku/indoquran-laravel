@@ -1,6 +1,32 @@
 [
   {
+    "version": "2.25.0",
+    "date": "12 September 2026",
+    "type": "feature",
+    "title": "Halaman Syarat & Ketentuan Layanan (Terms of Service) dan Integrasi OAuth Google Cloud",
+    "description": "Peluncuran halaman resmi Syarat dan Ketentuan Layanan (Terms of Service) di IndoQuran (/syarat-ketentuan) untuk melengkapi transparansi hukum, aturan penggunaan, serta pemenuhan persyaratan verifikasi Google Cloud OAuth Consent Screen. Dilengkapi perincian kepatuhan Google Sign-In, hak kekayaan intelektual teks Al-Qur'an terverifikasi Kemenag RI, rute pengalihan multibahasa (/terms, /tos, /ketentuan), serta integrasi navigasi dan SEO menyeluruh.",
+    "changes": [
+      {
+        "type": "feature",
+        "text": "Halaman Resmi Syarat & Ketentuan Layanan (/syarat-ketentuan) - Desain modern, elegan, dan terstruktur yang memuat aturan penggunaan, hak kekayaan intelektual, pedoman komunitas, disclaimer layanan, dan kontak yurisdiksi Indonesia"
+      },
+      {
+        "type": "feature",
+        "text": "Kepatuhan Google Cloud OAuth Consent Screen - Klausul resmi terkait penggunaan akun Google Sign-In, penjelasan cakupan akses profil publik (nama, email, avatar), penegasan tanpa penyimpanan kata sandi pihak ketiga, dan panduan pencabutan izin akun"
+      },
+      {
+        "type": "improvement",
+        "text": "Backward Compatibility & 301 Permanent Redirect - Dukungan rute /terms, /terms-of-service, /tos, dan /ketentuan yang secara otomatis dialihkan ke /syarat-ketentuan baik di server backend Laravel maupun routing React SPA"
+      },
+      {
+        "type": "improvement",
+        "text": "Integrasi Navigasi & Metadata SEO - Menambahkan tautan Syarat & Ketentuan pada Footer dan Sidebar menu, pendaftaran allow crawling di robots.txt, pembaruan Sitemap XML, serta dynamic Open Graph meta tags"
+      }
+    ]
+  },
+  {
     "version": "2.24.0",
+
     "date": "12 September 2026",
     "type": "feature",
     "title": "Integrasi Google One Tap, Tombol Google Sign-In & Manajemen Kredensial Pengguna",
