@@ -279,6 +279,17 @@ export const getPrivacySEO = () => ({
   pageType: 'privacy'
 });
 
+// Helper for Terms of Service page SEO
+export const getTermsSEO = () => ({
+  title: 'Syarat dan Ketentuan Layanan - IndoQuran',
+  description: 'Pelajari syarat dan ketentuan penggunaan layanan Al-Quran digital IndoQuran. Informasi hak, kewajiban, akun, dan aturan pemanfaatan platform.',
+  keywords: 'syarat dan ketentuan, terms of service, ketentuan layanan indoquran, aturan penggunaan, google oauth terms',
+  canonicalUrl: 'https://indoquran.web.id/syarat-ketentuan',
+  ogType: 'website',
+  pageType: 'terms'
+});
+
+
 // Helper for Juz page SEO
 export const getJuzSEO = (juzNumber) => ({
   title: `Juz ${juzNumber} - Teks Arab Al-Quran - IndoQuran`,

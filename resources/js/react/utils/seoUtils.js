@@ -173,6 +173,14 @@ export const generateSitemap = (surahs = []) => {
       contentType: 'legal'
     },
     {
+      url: `${BASE_URL}/syarat-ketentuan`,
+      lastmod: currentDate,
+      changefreq: 'yearly',
+      priority: SEO_PRIORITIES.PRIVACY,
+      contentType: 'legal'
+    },
+
+    {
       url: `${BASE_URL}/riwayat-versi`,
       lastmod: currentDate,
       changefreq: 'monthly',
@@ -257,7 +265,9 @@ Allow: /tentang
 Allow: /kontak
 Allow: /donasi
 Allow: /kebijakan
+Allow: /syarat-ketentuan
 Allow: /riwayat-versi
+
 Allow: /member
 
 # Optimize crawl budget by disallowing ONLY low-value private pages
@@ -646,6 +656,14 @@ export const getPageSEOData = (pageType, data = {}) => {
       seoData.keywords = 'kebijakan privasi indoquran, privacy policy, perlindungan data pengguna, keamanan data, GDPR compliance, privasi indonesia';
       seoData.canonicalUrl = generateCanonicalUrl('/kebijakan');
       break;
+
+    case 'terms':
+      seoData.title = 'Syarat dan Ketentuan Layanan IndoQuran';
+      seoData.description = 'Baca syarat dan ketentuan layanan IndoQuran. Aturan hak, kewajiban, akun pengguna, otentikasi Google, dan panduan pemanfaatan platform Al-Quran digital.';
+      seoData.keywords = 'syarat dan ketentuan indoquran, terms of service, aturan layanan al quran, google oauth terms';
+      seoData.canonicalUrl = generateCanonicalUrl('/syarat-ketentuan');
+      break;
+
 
     default:
       seoData.title = 'IndoQuran - Al-Quran Digital Indonesia Terlengkap';

@@ -162,8 +162,15 @@ class SitemapIndexController extends Controller
                 'lastmod' => $currentDate,
                 'changefreq' => 'yearly',
                 'priority' => '0.3'
+            ],
+            [
+                'url' => $baseUrl . '/syarat-ketentuan',
+                'lastmod' => $currentDate,
+                'changefreq' => 'yearly',
+                'priority' => '0.3'
             ]
         ];
+
         
         // Add surah overview pages (all 114 surahs)
         foreach ($surahs as $surah) {

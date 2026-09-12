@@ -86,7 +86,12 @@ class SEOController extends Controller
                 'search' => 'cari',
                 'about' => 'tentang',
                 'contact' => 'kontak',
-                'privacy' => 'kebijakan'
+                'privacy' => 'kebijakan',
+                'terms' => 'syarat-ketentuan',
+                'terms-of-service' => 'syarat-ketentuan',
+                'tos' => 'syarat-ketentuan',
+                'ketentuan' => 'syarat-ketentuan'
+
             ];
             
             if (array_key_exists($segments[0], $redirectPaths)) {
@@ -258,7 +263,7 @@ class SEOController extends Controller
                 // Features
                 'tafsir-maudhui', 'asmaul-husna', 'doa-bersama',
                 // Static / info pages
-                'tentang', 'kontak', 'donasi', 'kebijakan',
+                'tentang', 'kontak', 'donasi', 'kebijakan', 'syarat-ketentuan',
                 'riwayat-versi', 'member', 'keuntungan-member',
                 'statistik', 'daftar-lengkap',
                 // Auth & user
@@ -269,8 +274,9 @@ class SEOController extends Controller
                 // Articles
                 'artikel',
                 // Legacy redirects handled above but segment still valid
-                'pages', 'search', 'about', 'contact', 'privacy',
+                'pages', 'search', 'about', 'contact', 'privacy', 'terms', 'terms-of-service', 'tos', 'ketentuan',
                 'version-history', 'donation', 'bookmark', 'profile', 'auth',
+
                 // Homepage (empty string / root is handled before this block)
             ];
 
@@ -605,6 +611,16 @@ class SEOController extends Controller
                 'canonicalUrl' => url('/kebijakan')
             ]);
         }
+        elseif (isset($segments[0]) && $segments[0] === 'syarat-ketentuan') {
+            // Terms of Service page SEO
+            $seoData = array_merge($seoData, [
+                'metaTitle' => 'Syarat dan Ketentuan Layanan - IndoQuran',
+                'metaDescription' => 'Baca syarat dan ketentuan layanan IndoQuran. Informasi hak, kewajiban, akun, otentikasi Google, dan aturan pemanfaatan platform Al-Quran digital.',
+                'metaKeywords' => 'syarat dan ketentuan, terms of service, ketentuan layanan indoquran, aturan penggunaan, google oauth',
+                'canonicalUrl' => url('/syarat-ketentuan')
+            ]);
+        }
+
         elseif (isset($segments[0]) && $segments[0] === 'halaman') {
             // Page detail SEO
             if (isset($segments[1]) && is_numeric($segments[1])) {

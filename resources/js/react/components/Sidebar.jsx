@@ -90,7 +90,8 @@ function Sidebar({ isOpen, setIsOpen }) {
     const infoDropdownItems = [
         { name: 'Tentang Kami', path: '/tentang', icon: InformationCircleIcon, description: 'Kenali visi dan misi IndoQuran' },
         { name: 'Kontak & Bantuan', path: '/kontak', icon: EnvelopeIcon, description: 'Hubungi tim dan sampaikan masukan' },
-        { name: 'Kebijakan Privasi', path: '/kebijakan', icon: ShieldCheckIcon, description: 'Kebijakan privasi dan ketentuan' },
+        { name: 'Kebijakan Privasi', path: '/kebijakan', icon: ShieldCheckIcon, description: 'Perlindungan data dan privasi' },
+        { name: 'Syarat & Ketentuan', path: '/syarat-ketentuan', icon: DocumentTextIcon, description: 'Ketentuan layanan dan penggunaan' },
     ];
 
     const userNavItems = user ? [

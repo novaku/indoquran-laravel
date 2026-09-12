@@ -129,6 +129,13 @@ class SitemapController extends Controller
                 'priority' => '0.3'
             ],
             [
+                'url' => $baseUrl . '/syarat-ketentuan',
+                'lastmod' => $currentDate,
+                'changefreq' => 'yearly',
+                'priority' => '0.3'
+            ],
+
+            [
                 'url' => $baseUrl . '/riwayat-versi',
                 'lastmod' => $currentDate,
                 'changefreq' => 'monthly',
@@ -301,7 +308,9 @@ class SitemapController extends Controller
         $robotsTxt .= "Allow: /kontak\n";
         $robotsTxt .= "Allow: /donasi\n";
         $robotsTxt .= "Allow: /kebijakan\n";
+        $robotsTxt .= "Allow: /syarat-ketentuan\n";
         $robotsTxt .= "Allow: /riwayat-versi\n\n";
+
         
         // Crawl delay optimized for server performance
         $robotsTxt .= "# Crawl delay optimized for server performance\n";

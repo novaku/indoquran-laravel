@@ -79,6 +79,10 @@ const DonationPage = lazy(() =>
 const PrivacyPage = lazy(() =>
     import(/* webpackChunkName: "content-pages" */ './pages/PrivacyPage')
 );
+const TermsPage = lazy(() =>
+    import(/* webpackChunkName: "content-pages" */ './pages/TermsPage')
+);
+
 
 // Juz and Page features (grouped for better caching)
 const JuzListPage = lazy(() =>
@@ -385,6 +389,7 @@ const AppContent = memo(() => {
                         <Route path="/member" element={<MemberBenefitsPage />} />
                         <Route path="/keuntungan-member" element={<MemberBenefitsPage />} />
                         <Route path="/kebijakan" element={<PrivacyPage />} />
+                        <Route path="/syarat-ketentuan" element={<TermsPage />} />
                         <Route path="/riwayat-versi" element={<RiwayatVersiPage />} />
                         <Route path="/surah" element={<SEOLandingPage />} />
                         <Route path="/daftar-lengkap" element={<SEOLandingPage />} />
@@ -411,6 +416,11 @@ const AppContent = memo(() => {
                         <Route path="/contact" element={<Navigate to="/kontak" replace />} />
                         <Route path="/donation" element={<Navigate to="/donasi" replace />} />
                         <Route path="/privacy" element={<Navigate to="/kebijakan" replace />} />
+                        <Route path="/terms" element={<Navigate to="/syarat-ketentuan" replace />} />
+                        <Route path="/terms-of-service" element={<Navigate to="/syarat-ketentuan" replace />} />
+                        <Route path="/tos" element={<Navigate to="/syarat-ketentuan" replace />} />
+                        <Route path="/ketentuan" element={<Navigate to="/syarat-ketentuan" replace />} />
+
                         <Route path="/bookmark" element={<Navigate to="/penanda" replace />} />
                         <Route path="/profile" element={<Navigate to="/profil" replace />} />
                         <Route path="/auth/login" element={<Navigate to="/masuk" replace />} />

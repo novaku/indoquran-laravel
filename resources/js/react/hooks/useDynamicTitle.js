@@ -92,6 +92,11 @@ export const getRouteDefaultTitle = (pathname, search = '') => {
         return 'Kebijakan Privasi - IndoQuran';
     }
 
+    if (path === '/syarat-ketentuan' || path === '/ketentuan' || path === '/terms' || path === '/terms-of-service' || path === '/tos') {
+        return 'Syarat dan Ketentuan Layanan - IndoQuran';
+    }
+
+
     if (path === '/riwayat-versi') {
         return 'Riwayat Versi - IndoQuran';
     }

@@ -138,6 +138,7 @@ function QuranFooter() {
             { name: 'Tentang Kami', path: '/tentang' },
             { name: 'Kontak & Bantuan', path: '/kontak' },
             { name: 'Kebijakan Privasi', path: '/kebijakan' },
+            { name: 'Syarat & Ketentuan', path: '/syarat-ketentuan' },
             { name: 'Riwayat Versi', path: '/riwayat-versi' },
             ...(isUserAuthenticated ? [
                 { name: 'Profil Saya', path: '/profil' },
@@ -341,6 +342,13 @@ function QuranFooter() {
                                 className="text-gray-400 hover:text-white transition-colors"
                             >
                                 Kebijakan Privasi
+                            </Link>
+                            <Link 
+                                to="/syarat-ketentuan"
+                                onClick={scrollToTop}
+                                className="text-gray-400 hover:text-white transition-colors"
+                            >
+                                Syarat & Ketentuan
                             </Link>
                             <Link 
                                 to="/riwayat-versi"
