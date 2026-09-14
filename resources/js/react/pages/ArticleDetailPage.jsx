@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { FaCalendar, FaUser, FaClock, FaEye, FaShareAlt, FaFacebookF, FaTwitter, FaWhatsapp, FaLink, FaEdit, FaBookOpen } from 'react-icons/fa';
+import { FaCalendar, FaUser, FaClock, FaEye, FaWhatsapp, FaEdit, FaBookOpen } from 'react-icons/fa';
 import SEOHead from '../components/SEOHead';
 import LoadingSpinner from '../components/LoadingSpinner';
 import AdSenseVertical from '../components/AdSenseVertical';
@@ -16,7 +16,6 @@ const ArticleDetailPage = () => {
   const [article, setArticle] = useState(null);
   const [relatedArticles, setRelatedArticles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showShareMenu, setShowShareMenu] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
   // Check if user is admin (from either regular auth or admin auth)
@@ -82,28 +81,12 @@ const ArticleDetailPage = () => {
     return `/storage/${path}`;
   };
 
-  const shareUrl = window.location.href;
-  const shareTitle = article?.title || '';
-
-  const handleShare = (platform) => {
-    const encodedUrl = encodeURIComponent(shareUrl);
-    const encodedTitle = encodeURIComponent(shareTitle);
-
-    const urls = {
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
-      twitter: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
-      whatsapp: `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`,
-    };
-
-    if (urls[platform]) {
-      window.open(urls[platform], '_blank', 'width=600,height=400');
-    }
-  };
-
-  const copyLink = () => {
-    navigator.clipboard.writeText(shareUrl);
-    alert('Link berhasil disalin!');
-    setShowShareMenu(false);
+  const handleShareWhatsapp = () => {
+    const shareUrl = window.location.href;
+    const shareTitle = article?.title || '';
+    const shareText = `${shareTitle}\n\n${shareUrl}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };
 
   // Helper to split article content for in-article ad placement (detik.com pattern)
@@ -292,48 +275,14 @@ const ArticleDetailPage = () => {
 
               {/* Share & Admin Edit Buttons */}
               <div className="flex items-center gap-3">
-                <div className="relative inline-block">
-                  <button
-                    onClick={() => setShowShareMenu(!showShareMenu)}
-                    className="flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 bg-green-600 text-white text-xs sm:text-sm font-semibold rounded-lg hover:bg-green-700 transition-colors shadow-xs"
-                  >
-                    <FaShareAlt />
-                    <span>Bagikan</span>
-                  </button>
-
-                  {showShareMenu && (
-                    <div className="absolute top-full left-0 mt-2 bg-white dark:bg-gray-800 shadow-lg rounded-xl py-2 z-20 min-w-[200px] border border-gray-100 dark:border-gray-700">
-                      <button
-                        onClick={() => handleShare('facebook')}
-                        className="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3 text-xs sm:text-sm text-gray-700 dark:text-gray-200"
-                      >
-                        <FaFacebookF className="text-blue-600" />
-                        Facebook
-                      </button>
-                      <button
-                        onClick={() => handleShare('twitter')}
-                        className="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3 text-xs sm:text-sm text-gray-700 dark:text-gray-200"
-                      >
-                        <FaTwitter className="text-blue-400" />
-                        Twitter
-                      </button>
-                      <button
-                        onClick={() => handleShare('whatsapp')}
-                        className="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3 text-xs sm:text-sm text-gray-700 dark:text-gray-200"
-                      >
-                        <FaWhatsapp className="text-green-600" />
-                        WhatsApp
-                      </button>
-                      <button
-                        onClick={copyLink}
-                        className="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3 text-xs sm:text-sm text-gray-700 dark:text-gray-200"
-                      >
-                        <FaLink className="text-gray-600 dark:text-gray-400" />
-                        Salin Link
-                      </button>
-                    </div>
-                  )}
-                </div>
+                <button
+                  onClick={handleShareWhatsapp}
+                  className="flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 bg-green-600 text-white text-xs sm:text-sm font-semibold rounded-lg hover:bg-green-700 transition-colors shadow-xs cursor-pointer"
+                  title="Bagikan ke WhatsApp"
+                >
+                  <FaWhatsapp className="text-base sm:text-lg" />
+                  <span>Bagikan ke WhatsApp</span>
+                </button>
 
                 {/* Edit Button - Only visible for admin */}
                 {isAdmin && article && (
