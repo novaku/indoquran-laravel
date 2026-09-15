@@ -14,19 +14,22 @@ class VisitorStatsController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
+            $startDate = $request->query('start_date');
+            $endDate = $request->query('end_date');
+
             $stats = [
                 'summary' => $this->getSummaryStats(),
-                'daily' => $this->getDailyStats(),
+                'daily' => $this->getDailyStats($startDate, $endDate),
                 'weekly' => $this->getWeeklyStats(),
                 'monthly' => $this->getMonthlyStats(),
                 'yearly' => $this->getYearlyStats(),
                 'hourly' => $this->getHourlyStats(),
-                'popular_pages' => $this->getPopularPages(),
-                'popular_surahs' => $this->getPopularSurahs(),
-                'browser_stats' => $this->getBrowserStats(),
+                'popular_pages' => $this->getPopularPages($startDate, $endDate),
+                'popular_surahs' => $this->getPopularSurahs($startDate, $endDate),
+                'browser_stats' => $this->getBrowserStats($startDate, $endDate),
                 'device_stats' => $this->getDeviceStats(),
                 'referrer_stats' => $this->getReferrerStats()
             ];
@@ -106,9 +109,9 @@ class VisitorStatsController extends Controller
      *
      * @return array
      */
-    private function getDailyStats()
+    private function getDailyStats($startDate = null, $endDate = null)
     {
-        return Visitor::getDailyTraffic(30);
+        return Visitor::getDailyTraffic($startDate, $endDate, 30);
     }
 
     /**
@@ -225,9 +228,9 @@ class VisitorStatsController extends Controller
      *
      * @return \Illuminate\Support\Collection
      */
-    private function getPopularPages()
+    private function getPopularPages($startDate = null, $endDate = null)
     {
-        return Visitor::getPopularPages(15);
+        return Visitor::getPopularPages($startDate, $endDate, 15);
     }
 
     /**
@@ -235,9 +238,9 @@ class VisitorStatsController extends Controller
      *
      * @return \Illuminate\Support\Collection
      */
-    private function getPopularSurahs()
+    private function getPopularSurahs($startDate = null, $endDate = null)
     {
-        return Visitor::getPopularSurahs(15);
+        return Visitor::getPopularSurahs($startDate, $endDate, 15);
     }
 
     /**
@@ -245,9 +248,9 @@ class VisitorStatsController extends Controller
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    private function getBrowserStats()
+    private function getBrowserStats($startDate = null, $endDate = null)
     {
-        return Visitor::getBrowserStats();
+        return Visitor::getBrowserStats($startDate, $endDate);
     }
 
     /**

@@ -29,11 +29,14 @@ class Visitor extends Model
     /**
      * Get daily traffic for the given number of days in a single grouped query.
      */
-    public static function getDailyTraffic($days = 7)
+    public static function getDailyTraffic($startDateStr = null, $endDateStr = null, $days = 7)
     {
         try {
-            $startDate = now()->subDays($days - 1)->startOfDay();
-            $endDate = now()->endOfDay();
+            $startDate = $startDateStr ? Carbon::parse($startDateStr)->startOfDay() : now()->subDays($days - 1)->startOfDay();
+            $endDate = $endDateStr ? Carbon::parse($endDateStr)->endOfDay() : now()->endOfDay();
+
+            // Calculate days for the loop if custom dates are provided
+            $loopDays = $startDateStr && $endDateStr ? (int) $startDate->diffInDays($endDate) + 1 : $days;
 
             $grouped = self::query()->where('visited_at', '>=', $startDate)
                            ->where('visited_at', '<=', $endDate)
@@ -43,8 +46,8 @@ class Visitor extends Model
                            ->toArray();
 
             $data = [];
-            for ($i = $days - 1; $i >= 0; $i--) {
-                $date = now()->subDays($i)->format('Y-m-d');
+            for ($i = $loopDays - 1; $i >= 0; $i--) {
+                $date = $endDate->copy()->subDays($i)->format('Y-m-d');
                 $data[] = [
                     'date' => $date,
                     'visitors' => (int) ($grouped[$date] ?? 0)
@@ -138,14 +141,20 @@ class Visitor extends Model
         }
     }
 
-    public static function getPopularPages($limit = 10)
+    public static function getPopularPages($startDateStr = null, $endDateStr = null, $limit = 10)
     {
         try {
-            return self::select('page_url')
+            $query = self::select('page_url')
                        ->selectRaw('COUNT(*) as visit_count')
                        ->whereNotNull('page_url')
-                       ->where('page_url', '!=', '')
-                       ->groupBy('page_url')
+                       ->where('page_url', '!=', '');
+
+            if ($startDateStr && $endDateStr) {
+                $query->where('visited_at', '>=', Carbon::parse($startDateStr)->startOfDay())
+                      ->where('visited_at', '<=', Carbon::parse($endDateStr)->endOfDay());
+            }
+
+            return $query->groupBy('page_url')
                        ->orderByDesc('visit_count')
                        ->take($limit)
                        ->get()
@@ -170,17 +179,23 @@ class Visitor extends Model
         }
     }
 
-    public static function getPopularSurahs($limit = 10)
+    public static function getPopularSurahs($startDateStr = null, $endDateStr = null, $limit = 10)
     {
         try {
-            return self::select('page_url')
+            $query = self::select('page_url')
                        ->selectRaw('COUNT(*) as visit_count')
                        ->whereNotNull('page_url')
-                       ->where(function($query) {
-                           $query->where('page_url', 'LIKE', '%/surah/%')
-                                 ->orWhere('page_url', 'LIKE', '%/surat/%');
-                       })
-                       ->groupBy('page_url')
+                       ->where(function($q) {
+                           $q->where('page_url', 'LIKE', '%/surah/%')
+                             ->orWhere('page_url', 'LIKE', '%/surat/%');
+                       });
+
+            if ($startDateStr && $endDateStr) {
+                $query->where('visited_at', '>=', Carbon::parse($startDateStr)->startOfDay())
+                      ->where('visited_at', '<=', Carbon::parse($endDateStr)->endOfDay());
+            }
+
+            return $query->groupBy('page_url')
                        ->orderByDesc('visit_count')
                        ->take($limit)
                        ->get()
@@ -295,10 +310,10 @@ class Visitor extends Model
         }
     }
 
-    public static function getBrowserStats()
+    public static function getBrowserStats($startDateStr = null, $endDateStr = null)
     {
         try {
-            return self::query()->selectRaw('
+            $query = self::query()->selectRaw('
                     CASE 
                         WHEN user_agent LIKE "%Chrome%" AND user_agent NOT LIKE "%Edge%" THEN "Chrome"
                         WHEN user_agent LIKE "%Firefox%" THEN "Firefox"
@@ -308,8 +323,14 @@ class Visitor extends Model
                         ELSE "Other"
                     END as browser,
                     COUNT(*) as count
-                ', [])
-                ->groupBy('browser')
+                ', []);
+                
+            if ($startDateStr && $endDateStr) {
+                $query->where('visited_at', '>=', Carbon::parse($startDateStr)->startOfDay())
+                      ->where('visited_at', '<=', Carbon::parse($endDateStr)->endOfDay());
+            }
+
+            return $query->groupBy('browser')
                 ->orderByDesc('count')
                 ->get();
         } catch (\Exception $e) {

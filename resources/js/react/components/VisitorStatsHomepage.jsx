@@ -33,10 +33,60 @@ const VisitorStatsHomepage = () => {
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('overview');
 
+    // Date filtering states
+    const [dateFilter, setDateFilter] = useState('7days'); // '7days', '30days', 'this_month', 'custom'
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [isApplyingFilter, setIsApplyingFilter] = useState(false);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const dropdownRef = React.useRef(null);
+
+    React.useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const filterOptions = [
+        { value: '7days', label: '7 Hari Terakhir' },
+        { value: '30days', label: '30 Hari Terakhir' },
+        { value: 'this_month', label: 'Bulan Ini' },
+        { value: 'custom', label: 'Tentukan Tanggal' },
+    ];
+
     // Fetch statistics data
-    const fetchStats = async () => {
+    const fetchStats = async (filterType = dateFilter, start = startDate, end = endDate) => {
         try {
-            const response = await fetch('/api/visitor-stats/');
+            setIsApplyingFilter(true);
+            
+            let queryParams = new URLSearchParams();
+            
+            if (filterType === '7days') {
+                const today = new Date();
+                const pastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+                queryParams.append('start_date', pastWeek.toISOString().split('T')[0]);
+                queryParams.append('end_date', today.toISOString().split('T')[0]);
+            } else if (filterType === '30days') {
+                const today = new Date();
+                const pastMonth = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+                queryParams.append('start_date', pastMonth.toISOString().split('T')[0]);
+                queryParams.append('end_date', today.toISOString().split('T')[0]);
+            } else if (filterType === 'this_month') {
+                const today = new Date();
+                const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                queryParams.append('start_date', firstDay.toISOString().split('T')[0]);
+                queryParams.append('end_date', today.toISOString().split('T')[0]);
+            } else if (filterType === 'custom' && start && end) {
+                queryParams.append('start_date', start);
+                queryParams.append('end_date', end);
+            }
+
+            const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
+            const response = await fetch(`/api/visitor-stats/${queryString}`);
             const data = await response.json();
             
             if (data.success) {
@@ -46,6 +96,8 @@ const VisitorStatsHomepage = () => {
             }
         } catch (err) {
             setError('Gagal mengambil data statistik: ' + err.message);
+        } finally {
+            setIsApplyingFilter(false);
         }
     };
 
@@ -68,7 +120,7 @@ const VisitorStatsHomepage = () => {
         const loadData = async () => {
             setLoading(true);
             try {
-                await fetchStats();
+                await fetchStats(dateFilter);
             } catch (error) {
                 console.error("Error loading stats data:", error);
                 setError("Failed to load stats data. Please try again later.");
@@ -85,6 +137,21 @@ const VisitorStatsHomepage = () => {
         const interval = setInterval(fetchRealtimeStats, 60000); // Update every 1 minute
         return () => clearInterval(interval);
     }, []);
+
+    // Handle filter change
+    const handleFilterChange = (value) => {
+        setDateFilter(value);
+        setIsDropdownOpen(false);
+        if (value !== 'custom') {
+            fetchStats(value, startDate, endDate);
+        }
+    };
+
+    const handleApplyCustomDate = () => {
+        if (startDate && endDate) {
+            fetchStats('custom', startDate, endDate);
+        }
+    };
 
     // Format number with thousand separators
     const formatNumber = (num) => {
@@ -165,14 +232,15 @@ const VisitorStatsHomepage = () => {
 
     // Prepare chart data
     const dailyChartData = {
-        labels: stats?.daily?.slice(-7).map(d => new Date(d.date).toLocaleDateString('id-ID', { 
+        labels: stats?.daily?.map(d => new Date(d.date).toLocaleDateString('id-ID', { 
             weekday: 'short', 
-            day: 'numeric' 
+            day: 'numeric',
+            month: dateFilter === '30days' || dateFilter === 'this_month' || dateFilter === 'custom' ? 'short' : undefined
         })) || [],
         datasets: [
             {
                 label: 'Pengunjung Harian',
-                data: stats?.daily?.slice(-7).map(d => d.visitors) || [],
+                data: stats?.daily?.map(d => d.visitors) || [],
                 borderColor: 'rgb(34, 197, 94)',
                 backgroundColor: 'rgba(34, 197, 94, 0.1)',
                 tension: 0.4,
@@ -214,6 +282,70 @@ const VisitorStatsHomepage = () => {
 
     return (
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+            {/* Filter Section */}
+            <div className="p-6 border-b border-gray-200 bg-white">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <h2 className="text-xl font-bold text-gray-800">Filter Statistik</h2>
+                    <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                        <div className="relative w-full sm:w-48" ref={dropdownRef}>
+                            <button
+                                type="button"
+                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 flex justify-between items-center w-full p-2.5"
+                            >
+                                <span>{filterOptions.find(opt => opt.value === dateFilter)?.label || 'Filter'}</span>
+                                <svg className={`w-4 h-4 ml-2 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            
+                            {isDropdownOpen && (
+                                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                                    <ul className="py-1 text-sm text-gray-700">
+                                        {filterOptions.map((opt) => (
+                                            <li key={opt.value}>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleFilterChange(opt.value)}
+                                                    className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${dateFilter === opt.value ? 'bg-green-50 text-green-600 font-medium' : ''}`}
+                                                >
+                                                    {opt.label}
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+                        
+                        {dateFilter === 'custom' && (
+                            <div className="flex flex-col sm:flex-row gap-2 items-center w-full">
+                                <input 
+                                    type="date" 
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block p-2.5 w-full sm:w-auto flex-1"
+                                />
+                                <span className="text-gray-500 hidden sm:inline">-</span>
+                                <input 
+                                    type="date" 
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block p-2.5 w-full sm:w-auto flex-1"
+                                />
+                                <button 
+                                    onClick={handleApplyCustomDate}
+                                    disabled={!startDate || !endDate || isApplyingFilter}
+                                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition-colors w-full sm:w-auto"
+                                >
+                                    {isApplyingFilter ? 'Memproses...' : 'Terapkan'}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
             {/* Summary Cards */}
             <div className="pt-2 pb-6 px-6 bg-gray-50">
                 {/* Real-time indicator */}
@@ -315,9 +447,14 @@ const VisitorStatsHomepage = () => {
                 {/* Overview Tab */}
                 {activeTab === 'overview' && (
                     <div className="space-y-6">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative">
+                            {isApplyingFilter && (
+                                <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-10 flex items-center justify-center rounded-lg">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                                </div>
+                            )}
                             <div className="bg-gray-50 rounded-lg p-4">
-                                <h3 className="text-lg font-semibold mb-3 text-gray-800">📊 Tren 7 Hari Terakhir</h3>
+                                <h3 className="text-lg font-semibold mb-3 text-gray-800">📊 Tren {dateFilter === '7days' ? '7 Hari Terakhir' : dateFilter === '30days' ? '30 Hari Terakhir' : 'Pengunjung'}</h3>
                                 <div className="h-64">
                                     <Line data={dailyChartData} options={chartOptions} />
                                 </div>
