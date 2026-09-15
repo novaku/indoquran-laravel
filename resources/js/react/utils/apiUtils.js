@@ -29,6 +29,49 @@ export const getAuthHeaders = () => {
     return headers;
 };
 
+let isFetchingGuestToken = false;
+let guestTokenPromise = null;
+
+/**
+ * Ensure a token exists, fetching a guest token if necessary
+ * @returns {Promise<string|null>} The token
+ */
+export const ensureToken = async () => {
+    let token = getAuthToken();
+    if (token) return token;
+
+    if (isFetchingGuestToken) {
+        return guestTokenPromise;
+    }
+
+    isFetchingGuestToken = true;
+    guestTokenPromise = fetch('/api/guest-token', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.token) {
+            localStorage.setItem('auth_token', data.token);
+            localStorage.setItem('is_guest', 'true');
+            return data.token;
+        }
+        return null;
+    })
+    .catch(err => {
+        console.error('Failed to fetch guest token', err);
+        return null;
+    })
+    .finally(() => {
+        isFetchingGuestToken = false;
+    });
+
+    return guestTokenPromise;
+};
+
 /**
  * Get CSRF token from meta tag
  * @returns {string} CSRF token or empty string if not found
@@ -44,6 +87,7 @@ export const getCsrfToken = () => {
  * @returns {Promise<Response>} The fetch response
  */
 export const getWithAuth = async (url, options = {}) => {
+    await ensureToken();
     return fetch(url, {
         method: 'GET',
         headers: {
@@ -62,6 +106,7 @@ export const getWithAuth = async (url, options = {}) => {
  * @returns {Promise<Response>} The fetch response
  */
 export const postWithAuth = async (url, data = {}, options = {}) => {
+    await ensureToken();
     const isFormData = data instanceof FormData;
     const headers = { ...getAuthHeaders(), ...options.headers };
     
@@ -86,6 +131,7 @@ export const postWithAuth = async (url, data = {}, options = {}) => {
  * @returns {Promise<Response>} The fetch response
  */
 export const putWithAuth = async (url, data = {}, options = {}) => {
+    await ensureToken();
     return fetch(url, {
         method: 'PUT',
         headers: {
@@ -104,6 +150,7 @@ export const putWithAuth = async (url, data = {}, options = {}) => {
  * @returns {Promise<Response>} The fetch response
  */
 export const deleteWithAuth = async (url, options = {}) => {
+    await ensureToken();
     return fetch(url, {
         method: 'DELETE',
         headers: {
@@ -121,6 +168,7 @@ export const deleteWithAuth = async (url, options = {}) => {
  * @returns {Promise<Response>} The fetch response
  */
 export const fetchWithAuth = async (url, options = {}) => {
+    await ensureToken();
     return fetch(url, {
         headers: {
             ...getAuthHeaders(),

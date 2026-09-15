@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { authenticatedFetch } from '../utils/auth';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -86,7 +87,7 @@ const VisitorStatsHomepage = () => {
             }
 
             const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
-            const response = await fetch(`/api/visitor-stats/${queryString}`);
+            const response = await authenticatedFetch(`/api/visitor-stats/${queryString}`);
             const data = await response.json();
             
             if (data.success) {
@@ -104,7 +105,7 @@ const VisitorStatsHomepage = () => {
     // Fetch realtime statistics
     const fetchRealtimeStats = async () => {
         try {
-            const response = await fetch('/api/visitor-stats/realtime');
+            const response = await authenticatedFetch('/api/visitor-stats/realtime');
             const data = await response.json();
             
             if (data.success) {

@@ -41,19 +41,21 @@ class LoginController extends Controller
             $isApi = $request->expectsJson() || str_starts_with($request->path(), 'api/');
             
             if ($isApi) {
-                // API login - use token-based authentication
+                // API login - use JWT token-based authentication
                 Log::info('API User logged in successfully', [
                     'user_id' => $user->id,
                     'remember' => $request->boolean('remember'),
                 ]);
                 
-                // Create a token for the user
-                $token = $user->createToken('auth-token')->plainTextToken;
+                // Create a JWT token for the user
+                $token = auth('api')->login($user);
                 
                 return response()->json([
                     'user' => $user,
                     'message' => 'Login successful',
-                    'token' => $token
+                    'token' => $token,
+                    'token_type' => 'bearer',
+                    'expires_in' => auth('api')->factory()->getTTL() * 60
                 ]);
             } else {
                 // Web login - use session-based authentication
@@ -104,6 +106,16 @@ class LoginController extends Controller
             'user_id' => $user ? $user->id : null
         ]);
         
+        $isApi = $request->expectsJson() || str_starts_with($request->path(), 'api/');
+
+        if ($isApi) {
+            try {
+                auth('api')->logout();
+            } catch (\Exception $e) {
+                Log::warning('JWT logout failed: ' . $e->getMessage());
+            }
+        }
+
         if ($user && method_exists($user, 'tokens')) {
             $user->tokens()->delete();
         }

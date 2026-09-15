@@ -1,4 +1,5 @@
 // Authentication utilities for IndoQuran
+import { ensureToken } from './apiUtils';
 
 /**
  * Get the authentication token from localStorage
@@ -75,6 +76,7 @@ export const getAuthHeaders = () => {
  * @returns {Promise<Response>} The fetch response
  */
 export const authenticatedFetch = async (url, options = {}) => {
+  await ensureToken();
   const headers = {
     ...getAuthHeaders(),
     ...options.headers

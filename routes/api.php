@@ -19,78 +19,78 @@ use App\Http\Controllers\Api\SecurityController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\Api\OnlineUsersController;
+use App\Http\Controllers\Api\GuestTokenController;
 
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
 */
 
-// Geocoding proxy
-Route::get('/geocode/reverse', [\App\Http\Controllers\Api\GeocodingController::class, 'reverseGeocode']);
+// ==========================================
+// PUBLIC ROUTES (No JWT required)
+// ==========================================
 
-// Security endpoints
-Route::post('/csp-violation-report', [SecurityController::class, 'cspViolationReport']);
-Route::get('/security/stats', [SecurityController::class, 'getSecurityStats']);
-
-// Core Web Vitals endpoints (for Google Search Console monitoring)
-Route::post('/web-vitals', [\App\Http\Controllers\Api\CoreWebVitalsController::class, 'store']);
-Route::get('/web-vitals/stats', [\App\Http\Controllers\Api\CoreWebVitalsController::class, 'getStats']);
-Route::get('/web-vitals/url', [\App\Http\Controllers\Api\CoreWebVitalsController::class, 'getUrlStats']);
-
-// Online users tracking (realtime visitor count)
-Route::post('/online-users/track', [OnlineUsersController::class, 'track']);
-Route::get('/online-users/count', [OnlineUsersController::class, 'count']);
-// Return authenticated user or null - simplified without session checks
-Route::get('/user', function (Request $request) {
-    // First attempt with regular auth check
-    $user = Auth::user();
-    
-    // If not found, try with token-based auth (fallback)
-    if (!$user && $request->bearerToken()) {
-        $token = $request->bearerToken();
-        $tokenModel = \Laravel\Sanctum\PersonalAccessToken::findToken($token);
-        
-        if ($tokenModel) {
-            $user = $tokenModel->tokenable;
-        }
-    }
-    
-    if ($user) {
-        return response()->json($user);
-    }
-    
-    // Use direct json_encode to ensure proper null response
-    // Laravel's response()->json(null) converts null to {}
-    return response(json_encode(null), 200)
-        ->header('Content-Type', 'application/json');
-});
-
-// Auth routes
+Route::post('/guest-token', [GuestTokenController::class, 'getToken']);
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/auth/google/one-tap', [GoogleAuthController::class, 'handleOneTap']);
 
-// Password reset routes (public, no auth required)
 Route::post('/password/reset', [\App\Http\Controllers\Auth\PasswordResetController::class, 'sendResetLink']);
 Route::post('/password/validate-token', [\App\Http\Controllers\Auth\PasswordResetController::class, 'validateToken']);
 Route::post('/password/reset/confirm', [\App\Http\Controllers\Auth\PasswordResetController::class, 'resetPassword']);
 
-// Contact route (public, no auth required)
-Route::post('/contact', [ContactController::class, 'store']);
+// External API route with static key authentication
+Route::middleware(['static.key'])->group(function() {
+    Route::post('/articles', [ArticleController::class, 'storeApi']);
+    Route::post('/articles/create', [ArticleController::class, 'storeApi']);
+});
 
-// Protected routes - using simple auth middleware
-Route::middleware(['simple.auth'])->group(function() {
+// ==========================================
+// PROTECTED ROUTES (JWT required)
+// ==========================================
+
+Route::middleware(['auth:api'])->group(function () {
+
+    // Return authenticated user or null
+    Route::get('/user', function (Request $request) {
+        try {
+            $user = auth('api')->user();
+            // Do not return the guest user as an authenticated user
+            if ($user && $user->email !== 'guest@indoquran.web.id') {
+                return response()->json($user);
+            }
+        } catch (\Exception $e) {
+            // Token invalid or expired
+        }
+        return response(json_encode(null), 200)->header('Content-Type', 'application/json');
+    });
+
     Route::post('/logout', [LoginController::class, 'logout']);
+
+    // Geocoding proxy
+    Route::get('/geocode/reverse', [\App\Http\Controllers\Api\GeocodingController::class, 'reverseGeocode']);
+
+    // Security endpoints
+    Route::post('/csp-violation-report', [SecurityController::class, 'cspViolationReport']);
+    Route::get('/security/stats', [SecurityController::class, 'getSecurityStats']);
+
+    // Core Web Vitals endpoints
+    Route::post('/web-vitals', [\App\Http\Controllers\Api\CoreWebVitalsController::class, 'store']);
+    Route::get('/web-vitals/stats', [\App\Http\Controllers\Api\CoreWebVitalsController::class, 'getStats']);
+    Route::get('/web-vitals/url', [\App\Http\Controllers\Api\CoreWebVitalsController::class, 'getUrlStats']);
+
+    // Online users tracking
+    Route::post('/online-users/track', [OnlineUsersController::class, 'track']);
+    Route::get('/online-users/count', [OnlineUsersController::class, 'count']);
+
+    // Contact route
+    Route::post('/contact', [ContactController::class, 'store']);
+
+    // Profile & Bookmarks (previously simple.auth)
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::put('/profile', [ProfileController::class, 'update']);
     
-    // Bookmark routes
     Route::prefix('penanda')->group(function() {
         Route::get('/', [BookmarkController::class, 'index']);
         Route::get('/status', [BookmarkController::class, 'getStatus']);
@@ -101,7 +101,6 @@ Route::middleware(['simple.auth'])->group(function() {
         Route::put('/surah/{surahNumber}/ayah/{ayahNumber}/notes', [BookmarkController::class, 'updateNotesByNumbers']);
     });
     
-    // Backward compatibility for old bookmark API routes
     Route::prefix('bookmark')->group(function() {
         Route::get('/', [BookmarkController::class, 'index']);
         Route::get('/status', [BookmarkController::class, 'getStatus']);
@@ -111,167 +110,118 @@ Route::middleware(['simple.auth'])->group(function() {
         Route::put('/surah/ayah/{ayahId}/notes', [BookmarkController::class, 'updateNotes']);
     });
 
-    // Prayer protected routes (Indonesian URLs)
     Route::put('/doa-bersama/{prayer}', [PrayerController::class, 'update']);
     Route::delete('/doa-bersama/{prayer}', [PrayerController::class, 'destroy']);
     Route::delete('/doa-bersama-comments/{comment}', [PrayerController::class, 'deleteComment']);
-});
 
-// Surah routes with caching
-Route::middleware(['api.cache:30d'])->group(function() {
-    Route::get('/surahs', [App\Http\Controllers\QuranController::class, 'getAllSurahs']);
-});
+    // Quran Data (with cache)
+    Route::middleware(['api.cache:30d'])->group(function() {
+        Route::get('/surahs', [App\Http\Controllers\QuranController::class, 'getAllSurahs']);
+        Route::get('/surahs/{number}', [App\Http\Controllers\QuranController::class, 'getSurah'])->where('number', '[0-9]+');
+        Route::get('/surahs/{number}/metadata', [App\Http\Controllers\QuranController::class, 'getSurahMetadata'])->where('number', '[0-9]+');
+        Route::get('/juz', [App\Http\Controllers\QuranController::class, 'getAllJuz']);
+        Route::get('/juz/{number}', [App\Http\Controllers\QuranController::class, 'getJuz'])->where('number', '[0-9]+');
+        Route::get('/ayahs/{surahNumber}/{ayahNumber}', [App\Http\Controllers\QuranController::class, 'getAyah'])->where(['surahNumber' => '[0-9]+', 'ayahNumber' => '[0-9]+']);
+        Route::get('/halaman', [App\Http\Controllers\QuranController::class, 'getAllPages']);
+        Route::get('/halaman/{number}', [App\Http\Controllers\QuranController::class, 'getPage'])->where('number', '[0-9]+');
+        
+        Route::get('/reciters', [App\Http\Controllers\QuranController::class, 'getAllReciters']);
+        Route::get('/reciters/recommended', [App\Http\Controllers\QuranController::class, 'getRecommendedReciters']);
+        Route::get('/reciters/by-style', [App\Http\Controllers\QuranController::class, 'getRecitersByStyle']);
+        Route::get('/reciters/search', [App\Http\Controllers\QuranController::class, 'searchReciters']);
+        
+        Route::get('/audio/ayah/{surahNumber}/{ayahNumber}', [App\Http\Controllers\QuranController::class, 'getAyahAudioUrl'])->where(['surahNumber' => '[0-9]+', 'ayahNumber' => '[0-9]+']);
+        Route::get('/audio/ayah/{surahNumber}/{ayahNumber}/all-reciters', [App\Http\Controllers\QuranController::class, 'getAyahAudioUrlsAllReciters'])->where(['surahNumber' => '[0-9]+', 'ayahNumber' => '[0-9]+']);
+        Route::get('/audio/surah/{surahNumber}', [App\Http\Controllers\QuranController::class, 'getSurahAudioUrls'])->where('surahNumber', '[0-9]+');
+    });
 
-// Random surah route - no caching for randomness
-Route::get('/surahs/random', [App\Http\Controllers\QuranController::class, 'getRandomSurahs']);
+    Route::get('/surahs/random', [App\Http\Controllers\QuranController::class, 'getRandomSurahs']);
 
-Route::middleware(['api.cache:30d'])->group(function() {
-    Route::get('/surahs/{number}', [App\Http\Controllers\QuranController::class, 'getSurah'])->where('number', '[0-9]+');
-    Route::get('/surahs/{number}/metadata', [App\Http\Controllers\QuranController::class, 'getSurahMetadata'])->where('number', '[0-9]+');
-});
+    Route::middleware(['api.cache:7d'])->group(function() {
+        Route::get('/cari', [App\Http\Controllers\QuranController::class, 'searchAyahs']);
+        Route::get('/cari/ayahs', [SearchController::class, 'apiSearch']);
+    });
 
-// Juz routes with caching
-Route::middleware(['api.cache:30d'])->group(function() {
-    Route::get('/juz', [App\Http\Controllers\QuranController::class, 'getAllJuz']);
-});
+    Route::post('/search/log', [App\Http\Controllers\SearchLogController::class, 'logSearch']);
+    Route::get('/search/popular', [App\Http\Controllers\SearchLogController::class, 'getPopularSearches']);
+    Route::get('/search/history', [App\Http\Controllers\SearchLogController::class, 'getSearchHistoryByIp']);
 
-Route::middleware(['api.cache:30d'])->group(function() {
-    Route::get('/juz/{number}', [App\Http\Controllers\QuranController::class, 'getJuz'])->where('number', '[0-9]+');
-});
-
-// Ayah routes with caching
-Route::middleware(['api.cache:30d'])->group(function() {
-    Route::get('/ayahs/{surahNumber}/{ayahNumber}', [App\Http\Controllers\QuranController::class, 'getAyah'])
-        ->where(['surahNumber' => '[0-9]+', 'ayahNumber' => '[0-9]+']);
-});
-
-// Page routes with caching - Indonesian URLs
-Route::middleware(['api.cache:30d'])->group(function() {
-    Route::get('/halaman', [App\Http\Controllers\QuranController::class, 'getAllPages']);
-    Route::get('/halaman/{number}', [App\Http\Controllers\QuranController::class, 'getPage'])->where('number', '[0-9]+');
-});
-
-// Murottal/Reciter routes with caching
-Route::middleware(['api.cache:30d'])->group(function() {
-    Route::get('/reciters', [App\Http\Controllers\QuranController::class, 'getAllReciters']);
-    Route::get('/reciters/recommended', [App\Http\Controllers\QuranController::class, 'getRecommendedReciters']);
-    Route::get('/reciters/by-style', [App\Http\Controllers\QuranController::class, 'getRecitersByStyle']);
-    Route::get('/reciters/search', [App\Http\Controllers\QuranController::class, 'searchReciters']);
-    
-    // Audio URL routes
-    Route::get('/audio/ayah/{surahNumber}/{ayahNumber}', [App\Http\Controllers\QuranController::class, 'getAyahAudioUrl'])
-        ->where(['surahNumber' => '[0-9]+', 'ayahNumber' => '[0-9]+']);
-    Route::get('/audio/ayah/{surahNumber}/{ayahNumber}/all-reciters', [App\Http\Controllers\QuranController::class, 'getAyahAudioUrlsAllReciters'])
-        ->where(['surahNumber' => '[0-9]+', 'ayahNumber' => '[0-9]+']);
-    Route::get('/audio/surah/{surahNumber}', [App\Http\Controllers\QuranController::class, 'getSurahAudioUrls'])
-        ->where('surahNumber', '[0-9]+');
-});
-
-// Search routes with caching - Indonesian URLs
-Route::middleware(['api.cache:7d'])->group(function() {
-    Route::get('/cari', [App\Http\Controllers\QuranController::class, 'searchAyahs']);
-    Route::get('/cari/ayahs', [SearchController::class, 'apiSearch']);
-});
-
-// Search logging routes
-Route::post('/search/log', [App\Http\Controllers\SearchLogController::class, 'logSearch']);
-Route::get('/search/popular', [App\Http\Controllers\SearchLogController::class, 'getPopularSearches']);
-Route::get('/search/history', [App\Http\Controllers\SearchLogController::class, 'getSearchHistoryByIp']);
-
-// Protected reading progress routes
-Route::middleware('auth:sanctum')->group(function() {
+    // Reading Progress
     Route::get('/reading-progress', [App\Http\Controllers\ReadingProgressController::class, 'getProgress']);
     Route::post('/reading-progress', [App\Http\Controllers\ReadingProgressController::class, 'updateProgress']);
     Route::get('/reading-progress/stats', [App\Http\Controllers\ReadingProgressController::class, 'getStats']);
-});
 
-// Public prayer routes (for viewing, submitting, amin, and comments) - Indonesian URLs
-Route::get('/doa-bersama', [PrayerController::class, 'index']);
-Route::post('/doa-bersama', [PrayerController::class, 'store']);
-Route::post('/doa-bersama/{prayer}/amin', [PrayerController::class, 'toggleAmin']);
-Route::post('/doa-bersama/{prayer}/comments', [PrayerController::class, 'addComment']);
-Route::get('/doa-bersama/random', [PrayerController::class, 'getRandomPrayer']);
-Route::get('/doa-bersama/{prayer}', [PrayerController::class, 'show']);
-Route::get('/doa-bersama/{prayer}/comments', [PrayerController::class, 'getComments']);
-Route::get('/kategori-doa', [PrayerController::class, 'getCategories']);
-Route::get('/prayer-images', [PrayerController::class, 'getPrayerImages']);
-Route::get('/dua-bersama/count', [PrayerController::class, 'count']);
+    // Prayers
+    Route::get('/doa-bersama', [PrayerController::class, 'index']);
+    Route::post('/doa-bersama', [PrayerController::class, 'store']);
+    Route::post('/doa-bersama/{prayer}/amin', [PrayerController::class, 'toggleAmin']);
+    Route::post('/doa-bersama/{prayer}/comments', [PrayerController::class, 'addComment']);
+    Route::get('/doa-bersama/random', [PrayerController::class, 'getRandomPrayer']);
+    Route::get('/doa-bersama/{prayer}', [PrayerController::class, 'show']);
+    Route::get('/doa-bersama/{prayer}/comments', [PrayerController::class, 'getComments']);
+    Route::get('/kategori-doa', [PrayerController::class, 'getCategories']);
+    Route::get('/prayer-images', [PrayerController::class, 'getPrayerImages']);
+    Route::get('/dua-bersama/count', [PrayerController::class, 'count']);
 
-// Selected prayers routes (Doa-Doa Pilihan)
-Route::get('/doa-pilihan', [SelectedPrayerController::class, 'index']);
-Route::get('/doa-pilihan/categories', [SelectedPrayerController::class, 'categories']);
-Route::get('/doa-pilihan/{selectedPrayer}', [SelectedPrayerController::class, 'show']);
+    Route::get('/doa-pilihan', [SelectedPrayerController::class, 'index']);
+    Route::get('/doa-pilihan/categories', [SelectedPrayerController::class, 'categories']);
+    Route::get('/doa-pilihan/{selectedPrayer}', [SelectedPrayerController::class, 'show']);
+    Route::get('/prayer-times', [PrayerController::class, 'getPrayerTimes']);
 
-// Prayer times API endpoint
-Route::get('/prayer-times', [PrayerController::class, 'getPrayerTimes']);
+    Route::get('/bookmarks/count', [BookmarkController::class, 'count']);
+    Route::get('/stats/public', [\App\Http\Controllers\Api\StatsController::class, 'getPublicStats']);
 
-// Bookmark count endpoint (public)
-Route::get('/bookmarks/count', [BookmarkController::class, 'count']);
+    // Tafsir Maudhui
+    Route::get('/tafsir-maudhui', [TafsirMaudhuiController::class, 'api']);
+    Route::get('/tafsir-maudhui/popular', [TafsirMaudhuiController::class, 'popular']);
+    Route::get('/tafsir-maudhui/count', [TafsirMaudhuiController::class, 'count']);
+    Route::get('/tafsir-maudhui/random', [TafsirMaudhuiController::class, 'random']);
 
-// Statistics routes
-Route::get('/stats/public', [\App\Http\Controllers\Api\StatsController::class, 'getPublicStats']);
+    // SEO
+    Route::prefix('seo')->group(function() {
+        Route::get('/popular-surahs', [\App\Http\Controllers\Api\SeoApiController::class, 'getPopularSurahs']);
+        Route::get('/surah-faq/{number}', [\App\Http\Controllers\Api\SeoApiController::class, 'getSurahFaq']);
+        Route::get('/page-seo', [\App\Http\Controllers\Api\SeoApiController::class, 'getPageSeo']);
+        Route::get('/search-trends', [\App\Http\Controllers\Api\SeoApiController::class, 'getSearchTrends']);
+    });
 
-// Tafsir Maudhui routes
-Route::get('/tafsir-maudhui', [TafsirMaudhuiController::class, 'api']);
-Route::get('/tafsir-maudhui/popular', [TafsirMaudhuiController::class, 'popular']);
-Route::get('/tafsir-maudhui/count', [TafsirMaudhuiController::class, 'count']);
-Route::get('/tafsir-maudhui/random', [TafsirMaudhuiController::class, 'random']);
+    // Admin routes
+    Route::prefix('admin')->group(function() {
+        Route::post('/send-otp', [\App\Http\Controllers\Auth\AdminController::class, 'sendOtp']);
+        Route::post('/verify-otp', [\App\Http\Controllers\Auth\AdminController::class, 'verifyOtp']);
+        Route::post('/logout', [\App\Http\Controllers\Auth\AdminController::class, 'logout']);
+        Route::get('/dashboard', [\App\Http\Controllers\Auth\AdminController::class, 'dashboard']);
+        Route::post('/contacts/{contact}/mark-read', [\App\Http\Controllers\Auth\AdminController::class, 'markContactAsRead']);
+        Route::post('/contacts/{contact}/reply', [\App\Http\Controllers\Auth\AdminController::class, 'replyToContact']);
+        Route::get('/stats/detailed', [\App\Http\Controllers\Api\StatsController::class, 'getDetailedStats']);
+    });
 
-// SEO API routes
-Route::prefix('seo')->group(function() {
-    Route::get('/popular-surahs', [\App\Http\Controllers\Api\SeoApiController::class, 'getPopularSurahs']);
-    Route::get('/surah-faq/{number}', [\App\Http\Controllers\Api\SeoApiController::class, 'getSurahFaq']);
-    Route::get('/page-seo', [\App\Http\Controllers\Api\SeoApiController::class, 'getPageSeo']);
-    Route::get('/search-trends', [\App\Http\Controllers\Api\SeoApiController::class, 'getSearchTrends']);
-});
+    // Articles
+    Route::get('/articles', [ArticleController::class, 'index']);
+    Route::get('/articles/random', [ArticleController::class, 'random']);
+    Route::get('/articles/{slug}', [ArticleController::class, 'show']);
+    Route::get('/articles/{slug}/related', [ArticleController::class, 'related']);
 
-// Admin routes
-Route::prefix('admin')->group(function() {
-    Route::post('/send-otp', [\App\Http\Controllers\Auth\AdminController::class, 'sendOtp']);
-    Route::post('/verify-otp', [\App\Http\Controllers\Auth\AdminController::class, 'verifyOtp']);
-    Route::post('/logout', [\App\Http\Controllers\Auth\AdminController::class, 'logout']);
-    Route::get('/dashboard', [\App\Http\Controllers\Auth\AdminController::class, 'dashboard']);
-    Route::post('/contacts/{contact}/mark-read', [\App\Http\Controllers\Auth\AdminController::class, 'markContactAsRead']);
-    Route::post('/contacts/{contact}/reply', [\App\Http\Controllers\Auth\AdminController::class, 'replyToContact']);
-    
-    // Detailed stats for admin
-    Route::get('/stats/detailed', [\App\Http\Controllers\Api\StatsController::class, 'getDetailedStats']);
-});
+    Route::middleware(['admin'])->prefix('admin/articles')->group(function() {
+        Route::get('/', [ArticleController::class, 'adminIndex']);
+        Route::get('/{id}/edit', [ArticleController::class, 'edit']);
+        Route::post('/', [ArticleController::class, 'store']);
+        Route::put('/{id}', [ArticleController::class, 'update']);
+        Route::delete('/{id}', [ArticleController::class, 'destroy']);
+        Route::post('/upload-image', [ArticleController::class, 'uploadImage']);
+    });
 
-// Article routes
-// Public routes (anyone can view published articles)
-Route::get('/articles', [ArticleController::class, 'index']);
-Route::get('/articles/random', [ArticleController::class, 'random']); // Must be before {slug} route
-Route::get('/articles/{slug}', [ArticleController::class, 'show']);
-Route::get('/articles/{slug}/related', [ArticleController::class, 'related']);
+    // Tags
+    Route::get('/tags', [TagController::class, 'index']);
+    Route::get('/tags/popular', [TagController::class, 'popular']);
+    Route::get('/tags/{slug}', [TagController::class, 'show']);
+    Route::get('/tags/{slug}/articles', [TagController::class, 'articles']);
 
-// External API route with static key authentication
-Route::middleware(['static.key'])->group(function() {
-    Route::post('/articles', [ArticleController::class, 'storeApi']);
-    Route::post('/articles/create', [ArticleController::class, 'storeApi']);
-});
+    Route::middleware(['admin'])->prefix('admin/tags')->group(function() {
+        Route::get('/', [TagController::class, 'adminIndex']);
+        Route::post('/', [TagController::class, 'store']);
+        Route::put('/{id}', [TagController::class, 'update']);
+        Route::delete('/{id}', [TagController::class, 'destroy']);
+    });
 
-// Admin article routes (requires auth and admin role)
-Route::middleware(['auth', 'admin'])->prefix('admin/articles')->group(function() {
-    Route::get('/', [ArticleController::class, 'adminIndex']);
-    Route::get('/{id}/edit', [ArticleController::class, 'edit']);
-    Route::post('/', [ArticleController::class, 'store']);
-    Route::put('/{id}', [ArticleController::class, 'update']);
-    Route::delete('/{id}', [ArticleController::class, 'destroy']);
-    Route::post('/upload-image', [ArticleController::class, 'uploadImage']);
-});
-
-// Tag routes
-// Public routes (anyone can view tags)
-Route::get('/tags', [TagController::class, 'index']);
-Route::get('/tags/popular', [TagController::class, 'popular']);
-Route::get('/tags/{slug}', [TagController::class, 'show']);
-Route::get('/tags/{slug}/articles', [TagController::class, 'articles']);
-
-// Admin tag routes (requires auth and admin role)
-Route::middleware(['auth', 'admin'])->prefix('admin/tags')->group(function() {
-    Route::get('/', [TagController::class, 'adminIndex']);
-    Route::post('/', [TagController::class, 'store']);
-    Route::put('/{id}', [TagController::class, 'update']);
-    Route::delete('/{id}', [TagController::class, 'destroy']);
 });

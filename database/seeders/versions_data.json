@@ -1,5 +1,26 @@
 [
   {
+    "version": "2.26.0",
+    "date": "15 September 2026",
+    "type": "feature",
+    "title": "Sistem Keamanan API JWT & Guest Token Otomatis",
+    "description": "Pembaruan keamanan menyeluruh dengan mengamankan seluruh endpoint API menggunakan JWT (JSON Web Token). Fitur ini dilengkapi dengan mekanisme Guest Token otomatis yang menjaga fungsionalitas membaca Al-Quran bagi pengunjung yang belum login, sekaligus melindungi API dari percobaan akses eksternal (scraping).",
+    "changes": [
+      {
+        "type": "security",
+        "text": "Proteksi API Penuh (JWT) - Seluruh endpoint data (Surah, Ayat, Doa, dll.) kini dibungkus dengan middleware auth:api yang mewajibkan penyertaan Bearer Token"
+      },
+      {
+        "type": "feature",
+        "text": "Guest Token Otomatis - Sistem pintar di frontend (React) yang otomatis mengambil token sementara bagi pengunjung tanpa akun, memastikan pengalaman membaca tetap lancar tanpa hambatan login"
+      },
+      {
+        "type": "improvement",
+        "text": "Transisi Token Mulus - Pergantian dari Guest Token ke Token Pengguna asli berjalan secara transparan (di belakang layar) setiap kali pengguna melakukan Login atau Logout"
+      }
+    ]
+  },
+  {
     "version": "2.25.0",
     "date": "12 September 2026",
     "type": "feature",

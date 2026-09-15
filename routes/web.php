@@ -96,7 +96,7 @@ Route::get('/api/asmaul-husna/{slug}', [AsmaulHusnaController::class, 'show'])->
 Route::post('/api/asmaul-husna/clear-cache', [AsmaulHusnaController::class, 'clearCache'])->name('asmaul-husna.clear-cache');
 
 // Visitor Statistics API Routes
-Route::prefix('api/visitor-stats')->group(function () {
+Route::prefix('api/visitor-stats')->middleware('auth:api')->group(function () {
     Route::get('/', [App\Http\Controllers\VisitorStatsController::class, 'index'])->name('visitor-stats.index');
     Route::get('/realtime', [App\Http\Controllers\VisitorStatsController::class, 'realtime'])->name('visitor-stats.realtime');
     Route::get('/export', [App\Http\Controllers\VisitorStatsController::class, 'export'])->name('visitor-stats.export');
