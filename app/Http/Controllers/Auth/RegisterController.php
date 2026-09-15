@@ -49,6 +49,10 @@ class RegisterController extends Controller
 
         Auth::login($user);
 
+        /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $guard */
+        $guard = auth('api');
+        $token = $guard->login($user);
+
         // Send welcome email to the new user
         try {
             Mail::to($user->email)->send(new WelcomeNewUser($user));
@@ -87,6 +91,9 @@ class RegisterController extends Controller
 
         return response()->json([
             'user' => $user,
+            'token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => $guard->getTTL() * 60,
             'message' => 'Pendaftaran berhasil. Selamat datang di IndoQuran.',
             'welcome_email_sent' => true
         ]);

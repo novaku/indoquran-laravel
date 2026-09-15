@@ -443,7 +443,7 @@ const AppContent = memo(() => {
                             path="/masuk"
                             element={
                                 isAuthenticated ? (
-                                    isAdmin ? <Navigate to="/admin/dashboard" replace /> : <Navigate to="/" replace />
+                                    isAdmin ? <Navigate to="/admin/dashboard" replace /> : <Navigate to="/profil" replace />
                                 ) : <AuthPage />
                             }
                         />
@@ -451,7 +451,7 @@ const AppContent = memo(() => {
                             path="/daftar"
                             element={
                                 isAuthenticated ? (
-                                    isAdmin ? <Navigate to="/admin/dashboard" replace /> : <Navigate to="/" replace />
+                                    isAdmin ? <Navigate to="/admin/dashboard" replace /> : <Navigate to="/profil" replace />
                                 ) : <AuthPage />
                             }
                         />

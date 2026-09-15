@@ -121,11 +121,15 @@ class GoogleAuthController extends Controller
             }
 
             // Generate API Bearer token for React SPA
-            $token = $user->createToken('auth-token')->plainTextToken;
+            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $guard */
+            $guard = auth('api');
+            $token = $guard->login($user);
 
             return response()->json([
                 'user' => $user,
                 'token' => $token,
+                'token_type' => 'bearer',
+                'expires_in' => $guard->getTTL() * 60,
                 'message' => 'Login dengan Google berhasil.',
             ]);
 

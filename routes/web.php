@@ -66,6 +66,9 @@ Route::post('/auth/google/one-tap', [\App\Http\Controllers\Auth\GoogleAuthContro
 Route::get('/login', function() {
     return redirect('/masuk');
 })->name('login');
+Route::get('/profile', function() {
+    return redirect('/profil');
+})->name('profile.redirect');
 Route::post('/login', [LoginController::class, 'login']);
 
 // Admin routes
@@ -106,7 +109,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
     
     // Profile
-    Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     

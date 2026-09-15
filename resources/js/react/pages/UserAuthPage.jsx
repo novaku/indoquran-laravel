@@ -43,6 +43,12 @@ function UserAuthPage() {
             return;
         }
 
+        // If user is already logged in, redirect to /profil
+        if (user) {
+            navigate(redirectUrl && redirectUrl !== '/' ? redirectUrl : '/profil', { replace: true });
+            return;
+        }
+
         scrollToTop();
         setErrors({});
         setFormData({
@@ -127,7 +133,8 @@ function UserAuthPage() {
                 if (isRegister) {
                     console.log('Registration successful! Welcome email sent.');
                 }
-                navigate(redirectUrl, { replace: true });
+                const targetUrl = redirectUrl && redirectUrl !== '/' ? redirectUrl : '/profil';
+                navigate(targetUrl, { replace: true });
             } else {
                 setErrors({ submit: result.message || 'Autentikasi gagal' });
             }
@@ -382,7 +389,10 @@ function UserAuthPage() {
                                 text={isLogin ? "signin_with" : "signup_with"}
                                 theme="outline"
                                 size="large"
-                                onSuccess={() => navigate(redirectUrl, { replace: true })}
+                                onSuccess={() => {
+                                    const targetUrl = redirectUrl && redirectUrl !== '/' ? redirectUrl : '/profil';
+                                    navigate(targetUrl, { replace: true });
+                                }}
                             />
                         </div>
 
