@@ -86,16 +86,24 @@ export const getCsrfToken = () => {
  * @param {Object} options - Additional fetch options
  * @returns {Promise<Response>} The fetch response
  */
-export const getWithAuth = async (url, options = {}) => {
+export const getWithAuth = async (url, options = {}, isRetry = false) => {
     await ensureToken();
-    return fetch(url, {
+    const response = await fetch(url, {
         method: 'GET',
+        ...options,
         headers: {
             ...getAuthHeaders(),
-            ...options.headers
-        },
-        ...options
+            ...(options.headers || {})
+        }
     });
+
+    if (response.status === 401 && !isRetry) {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('is_guest');
+        return getWithAuth(url, options, true);
+    }
+
+    return response;
 };
 
 /**
@@ -105,22 +113,30 @@ export const getWithAuth = async (url, options = {}) => {
  * @param {Object} options - Additional fetch options
  * @returns {Promise<Response>} The fetch response
  */
-export const postWithAuth = async (url, data = {}, options = {}) => {
+export const postWithAuth = async (url, data = {}, options = {}, isRetry = false) => {
     await ensureToken();
     const isFormData = data instanceof FormData;
-    const headers = { ...getAuthHeaders(), ...options.headers };
+    const headers = { ...getAuthHeaders(), ...(options.headers || {}) };
     
     // Remove Content-Type for FormData to let browser set it with boundary
     if (isFormData) {
         delete headers['Content-Type'];
     }
     
-    return fetch(url, {
+    const response = await fetch(url, {
         method: 'POST',
+        ...options,
         headers,
-        body: isFormData ? data : JSON.stringify(data),
-        ...options
+        body: isFormData ? data : JSON.stringify(data)
     });
+
+    if (response.status === 401 && !isRetry) {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('is_guest');
+        return postWithAuth(url, data, options, true);
+    }
+
+    return response;
 };
 
 /**
@@ -130,17 +146,25 @@ export const postWithAuth = async (url, data = {}, options = {}) => {
  * @param {Object} options - Additional fetch options
  * @returns {Promise<Response>} The fetch response
  */
-export const putWithAuth = async (url, data = {}, options = {}) => {
+export const putWithAuth = async (url, data = {}, options = {}, isRetry = false) => {
     await ensureToken();
-    return fetch(url, {
+    const response = await fetch(url, {
         method: 'PUT',
+        ...options,
         headers: {
             ...getAuthHeaders(),
-            ...options.headers
+            ...(options.headers || {})
         },
-        body: JSON.stringify(data),
-        ...options
+        body: JSON.stringify(data)
     });
+
+    if (response.status === 401 && !isRetry) {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('is_guest');
+        return putWithAuth(url, data, options, true);
+    }
+
+    return response;
 };
 
 /**
@@ -149,16 +173,24 @@ export const putWithAuth = async (url, data = {}, options = {}) => {
  * @param {Object} options - Additional fetch options
  * @returns {Promise<Response>} The fetch response
  */
-export const deleteWithAuth = async (url, options = {}) => {
+export const deleteWithAuth = async (url, options = {}, isRetry = false) => {
     await ensureToken();
-    return fetch(url, {
+    const response = await fetch(url, {
         method: 'DELETE',
+        ...options,
         headers: {
             ...getAuthHeaders(),
-            ...options.headers
-        },
-        ...options
+            ...(options.headers || {})
+        }
     });
+
+    if (response.status === 401 && !isRetry) {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('is_guest');
+        return deleteWithAuth(url, options, true);
+    }
+
+    return response;
 };
 
 /**
@@ -167,13 +199,21 @@ export const deleteWithAuth = async (url, options = {}) => {
  * @param {Object} options - Fetch options
  * @returns {Promise<Response>} The fetch response
  */
-export const fetchWithAuth = async (url, options = {}) => {
+export const fetchWithAuth = async (url, options = {}, isRetry = false) => {
     await ensureToken();
-    return fetch(url, {
+    const response = await fetch(url, {
+        ...options,
         headers: {
             ...getAuthHeaders(),
-            ...options.headers
-        },
-        ...options
+            ...(options.headers || {})
+        }
     });
+
+    if (response.status === 401 && !isRetry) {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('is_guest');
+        return fetchWithAuth(url, options, true);
+    }
+
+    return response;
 };

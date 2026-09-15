@@ -28,13 +28,15 @@ class GuestTokenController extends Controller
             );
 
             // Generate JWT token for the guest user
-            $token = auth('api')->login($guestUser);
+            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $apiAuth */
+            $apiAuth = auth('api');
+            $token = $apiAuth->login($guestUser);
 
             return response()->json([
                 'success' => true,
                 'token' => $token,
                 'token_type' => 'bearer',
-                'expires_in' => auth('api')->factory()->getTTL() * 60,
+                'expires_in' => $apiAuth->factory()->getTTL() * 60,
                 'user_type' => 'guest'
             ]);
         } catch (\Exception $e) {

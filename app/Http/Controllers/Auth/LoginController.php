@@ -48,14 +48,16 @@ class LoginController extends Controller
                 ]);
                 
                 // Create a JWT token for the user
-                $token = auth('api')->login($user);
+                /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $guard */
+                $guard = auth('api');
+                $token = $guard->login($user);
                 
                 return response()->json([
                     'user' => $user,
                     'message' => 'Login successful',
                     'token' => $token,
                     'token_type' => 'bearer',
-                    'expires_in' => auth('api')->factory()->getTTL() * 60
+                    'expires_in' => $guard->getTTL() * 60
                 ]);
             } else {
                 // Web login - use session-based authentication
@@ -110,7 +112,9 @@ class LoginController extends Controller
 
         if ($isApi) {
             try {
-                auth('api')->logout();
+                /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $apiGuard */
+                $apiGuard = auth('api');
+                $apiGuard->logout();
             } catch (\Exception $e) {
                 Log::warning('JWT logout failed: ' . $e->getMessage());
             }

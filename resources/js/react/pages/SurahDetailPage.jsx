@@ -694,7 +694,6 @@ function SurahDetailPage() {
                 // REQUIREMENT 1: Fetch complete surah details and ayahs in one call from API
                 const surahResponse = await fetchWithAuth(`/api/surahs/${number}`, {
                     headers: {
-                        'Authorization': token ? `Bearer ${token}` : '',
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
                     }
@@ -794,7 +793,6 @@ function SurahDetailPage() {
                         try {
                             const bookmarksResponse = await fetchWithAuth('/api/penanda', {
                                 headers: {
-                                    'Authorization': `Bearer ${token}`,
                                     'Content-Type': 'application/json',
                                     'Accept': 'application/json',
                                 }
@@ -880,7 +878,7 @@ function SurahDetailPage() {
                 return;
             }
             try {
-                const response = await fetch(`/api/surahs/${nextNum}`);
+                const response = await fetchWithAuth(`/api/surahs/${nextNum}`);
                 const result = await response.json();
                 if (result.status === 'success' && result.data) {
                     const s = result.data.surah || result.data;
@@ -906,7 +904,7 @@ function SurahDetailPage() {
                 setRecitersLoading(true);
                 console.log('🎙️ Fetching available reciters from API...');
 
-                const response = await fetch('/api/reciters/recommended');
+                const response = await fetchWithAuth('/api/reciters/recommended');
                 const result = await response.json();
 
                 if (result.status === 'success') {
@@ -1053,7 +1051,6 @@ function SurahDetailPage() {
                 const response = await fetchWithAuth(`/api/penanda/surah/${number}/ayah/${parsedAyahNum}/toggle`, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
                     }
@@ -1217,11 +1214,9 @@ function SurahDetailPage() {
 
         if (user && ayahObj?.id) {
             try {
-                const token = authUtils.getAuthToken();
                 await fetchWithAuth(`/api/penanda/surah/ayah/${ayahObj.id}/favorite`, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
                     }
