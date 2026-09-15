@@ -26,6 +26,8 @@ set -e
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Function to display status messages
@@ -41,6 +43,127 @@ log_error() {
 # Function to display warning messages
 log_warning() {
     echo -e "${YELLOW}[$(date '+%Y-%m-%d %H:%M:%S')] WARNING:${NC} $1"
+}
+
+# Deployment & Rollback flags
+ROLLBACK_MODE=false
+ROLLBACK_TARGET=""
+
+# Parse command-line arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --rollback|-r)
+            ROLLBACK_MODE=true
+            if [[ -n "$2" && ! "$2" =~ ^- ]]; then
+                ROLLBACK_TARGET="$2"
+                shift
+            fi
+            shift
+            ;;
+        --help|-h)
+            echo "Usage: ./deploy-production.sh [OPTIONS]"
+            echo ""
+            echo "Options:"
+            echo "  (no args)           Deploy latest code (git pull origin main)"
+            echo "  --rollback, -r      Interactive rollback to previous git commit"
+            echo "  --rollback <N>      Rollback N commits back (e.g. --rollback 1, --rollback 3)"
+            echo "  --rollback <hash>   Rollback to a specific git commit hash"
+            echo "  --help, -h          Show this help message"
+            exit 0
+            ;;
+        *)
+            log_error "Unknown option: $1"
+            echo "Use --help to see available options."
+            exit 1
+            ;;
+    esac
+done
+
+# Rollback handler function
+handle_rollback() {
+    log_message "Memulai proses Git Rollback..."
+    
+    echo ""
+    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${YELLOW}  Git History (10 Commit Terakhir)${NC}"
+    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    
+    local commits=()
+    local hashes=()
+    local idx=1
+    
+    while IFS= read -r line; do
+        if [ -n "$line" ]; then
+            commits+=("$line")
+            hashes+=("$(echo "$line" | awk '{print $1}')")
+            echo -e "  ${CYAN}[$idx]${NC} $line"
+            ((idx++))
+        fi
+    done < <(git log --pretty=format:"%h - %s (%cr oleh %an)" -n 10)
+    
+    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    
+    local target_commit=""
+    
+    if [ -n "$ROLLBACK_TARGET" ]; then
+        if [[ "$ROLLBACK_TARGET" =~ ^[0-9]+$ ]] && [ "$ROLLBACK_TARGET" -ge 1 ] && [ "$ROLLBACK_TARGET" -le "${#hashes[@]}" ]; then
+            target_commit="${hashes[$((ROLLBACK_TARGET - 1))]}"
+            log_message "Pilihan rollback [$ROLLBACK_TARGET]: $target_commit"
+        elif [[ "$ROLLBACK_TARGET" =~ ^[0-9]+$ ]]; then
+            target_commit="HEAD~$ROLLBACK_TARGET"
+            log_message "Rollback mundur $ROLLBACK_TARGET commit (HEAD~$ROLLBACK_TARGET)"
+        else
+            target_commit="$ROLLBACK_TARGET"
+            log_message "Target commit hash / ref: $target_commit"
+        fi
+    else
+        echo "Berapa commit ingin di-rollback?"
+        echo "  - Masukkan nomor urut [1-10] (contoh: 2 untuk rollback ke commit urutan ke-2)"
+        echo "  - Atau masukkan jumlah commit mundur (contoh: 1 untuk 1 commit sebelum HEAD)"
+        echo "  - Atau masukkan commit hash (contoh: 7a8b9c0)"
+        echo "  - Ketik 'q' untuk membatalkan"
+        read -p "Pilihan Anda: " user_choice
+        
+        if [[ "$user_choice" =~ ^[Qq]$ ]] || [ -z "$user_choice" ]; then
+            log_message "Rollback dibatalkan."
+            exit 0
+        fi
+        
+        if [[ "$user_choice" =~ ^[0-9]+$ ]] && [ "$user_choice" -ge 1 ] && [ "$user_choice" -le "${#hashes[@]}" ]; then
+            target_commit="${hashes[$((user_choice - 1))]}"
+            log_message "Memilih commit urutan [$user_choice]: $target_commit"
+        elif [[ "$user_choice" =~ ^[0-9]+$ ]]; then
+            target_commit="HEAD~$user_choice"
+            log_message "Rollback mundur $user_choice commit (HEAD~$user_choice)"
+        else
+            target_commit="$user_choice"
+        fi
+    fi
+    
+    # Validasi commit target
+    if ! git rev-parse --verify "$target_commit" >/dev/null 2>&1; then
+        log_error "Commit '$target_commit' tidak ditemukan di repository git!"
+        exit 1
+    fi
+    
+    local resolved_hash
+    resolved_hash=$(git rev-parse --short "$target_commit")
+    local commit_subject
+    commit_subject=$(git log -1 --pretty=format:"%s" "$target_commit")
+    
+    echo ""
+    log_warning "PERINGATAN: Kode akan di-rollback ke commit: ${CYAN}$resolved_hash${NC} - \"$commit_subject\""
+    read -p "Apakah Anda yakin ingin melanjutkan rollback? (y/n): " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        log_message "Rollback dibatalkan oleh pengguna."
+        exit 0
+    fi
+    
+    log_message "Menjalankan git reset --hard ke $resolved_hash..."
+    git reset --hard "$target_commit" || { log_error "Gagal me-reset git ke $target_commit"; exit 1; }
+    log_message "✓ Berhasil me-rollback git ke $resolved_hash: \"$commit_subject\""
 }
 
 # Emergency cache clear function for ParseError fix
@@ -112,11 +235,28 @@ else
     emergency_cache_clear
 fi
 
+# Check for interactive deployment selection if no args passed
+if [ "$ROLLBACK_MODE" = false ] && [ -t 0 ]; then
+    echo ""
+    echo -e "${CYAN}Pilih tindakan deployment:${NC}"
+    echo "  1) Standard Deploy (Tarik update terbaru dari git origin main) [Default]"
+    echo "  2) Rollback ke commit git history sebelumnya"
+    read -t 5 -p "Pilihan Anda [1/2, default 1 dalam 5 detik]: " deploy_action || deploy_action=1
+    echo ""
+    if [[ "$deploy_action" == "2" ]]; then
+        ROLLBACK_MODE=true
+    fi
+fi
+
 log_message "Starting deployment process..."
 
-# Pull the latest changes from the repository
-log_message "Pulling latest changes from git..."
-git pull origin main || { log_error "Failed to pull from git"; exit 1; }
+if [ "$ROLLBACK_MODE" = true ]; then
+    handle_rollback
+else
+    # Pull the latest changes from the repository
+    log_message "Pulling latest changes from git..."
+    git pull origin main || { log_error "Failed to pull from git"; exit 1; }
+fi
 
 # Generate application key if not exists
 log_message "Ensuring application key exists..."
@@ -126,15 +266,27 @@ if ! grep -q "APP_KEY=" .env || grep -q "APP_KEY=$" .env; then
 fi
 
 # Run database migrations
-log_message "Running database migrations..."
-if php artisan migrate --force 2>&1 | grep -q "Duplicate column"; then
-    log_warning "⚠ Some migrations skipped due to existing columns (this is normal)"
-    log_message "✓ Database schema is up to date"
-elif php artisan migrate --force >/dev/null 2>&1; then
-    log_message "✓ Database migrations completed successfully"
+if [ "$ROLLBACK_MODE" = true ]; then
+    log_message "Rollback mode: checking database migrations..."
+    read -t 5 -p "Jalankan database migration juga? (y/N, default N dalam 5s): " -n 1 -r run_mig || run_mig="n"
+    echo ""
+    if [[ $run_mig =~ ^[Yy]$ ]]; then
+        log_message "Running database migrations..."
+        php artisan migrate --force || log_warning "⚠ Database migrations encountered issues"
+    else
+        log_message "Skipping database migrations during rollback"
+    fi
 else
-    log_warning "⚠ Database migrations encountered issues - check database connection"
-    log_warning "Application may still work with existing schema"
+    log_message "Running database migrations..."
+    if php artisan migrate --force 2>&1 | grep -q "Duplicate column"; then
+        log_warning "⚠ Some migrations skipped due to existing columns (this is normal)"
+        log_message "✓ Database schema is up to date"
+    elif php artisan migrate --force >/dev/null 2>&1; then
+        log_message "✓ Database migrations completed successfully"
+    else
+        log_warning "⚠ Database migrations encountered issues - check database connection"
+        log_warning "Application may still work with existing schema"
+    fi
 fi
 
 # Ensure cache table exists (for fallback caching)
@@ -548,9 +700,17 @@ fi
 log_message "Deployment completed successfully!"
 log_message "Your IndoQuran application should now be running with optimized caching."
 log_message ""
-log_message "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-log_message "  ✅ DEPLOYMENT SUCCESSFUL"
-log_message "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+if [ "$ROLLBACK_MODE" = true ]; then
+    log_message "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    log_message "  ⏪ ROLLBACK COMPLETED SUCCESSFULLY"
+    log_message "  Current Commit: $(git log -1 --pretty=format:"%h - %s (%ad)" --date=short)"
+    log_message "  Untuk kembali ke branch main terbaru: ./deploy-production.sh"
+    log_message "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+else
+    log_message "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    log_message "  ✅ DEPLOYMENT SUCCESSFUL"
+    log_message "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+fi
 log_message ""
 
 current_cache=$(grep "CACHE_STORE=" .env 2>/dev/null | cut -d'=' -f2 || echo "default")
