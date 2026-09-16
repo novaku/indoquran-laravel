@@ -202,14 +202,8 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/articles/{slug}', [ArticleController::class, 'show']);
     Route::get('/articles/{slug}/related', [ArticleController::class, 'related']);
 
-    Route::middleware(['admin'])->prefix('admin/articles')->group(function() {
-        Route::get('/', [ArticleController::class, 'adminIndex']);
-        Route::get('/{id}/edit', [ArticleController::class, 'edit']);
-        Route::post('/', [ArticleController::class, 'store']);
-        Route::put('/{id}', [ArticleController::class, 'update']);
-        Route::delete('/{id}', [ArticleController::class, 'destroy']);
-        Route::post('/upload-image', [ArticleController::class, 'uploadImage']);
-    });
+    // NOTE: Admin article routes dipindah ke web.php (session-based auth)
+    // Route::middleware(['admin'])->prefix('admin/articles') dihapus dari sini
 
     // Tags
     Route::get('/tags', [TagController::class, 'index']);
@@ -217,11 +211,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/tags/{slug}', [TagController::class, 'show']);
     Route::get('/tags/{slug}/articles', [TagController::class, 'articles']);
 
-    Route::middleware(['admin'])->prefix('admin/tags')->group(function() {
-        Route::get('/', [TagController::class, 'adminIndex']);
-        Route::post('/', [TagController::class, 'store']);
-        Route::put('/{id}', [TagController::class, 'update']);
-        Route::delete('/{id}', [TagController::class, 'destroy']);
-    });
+    // NOTE: Admin tag routes dipindah ke web.php (session-based auth)
+    // Route::middleware(['admin'])->prefix('admin/tags') dihapus dari sini
 
 });

@@ -112,7 +112,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     
-    // Admin API routes (protected) - moved to /api/admin/* to avoid conflicts with SPA routes
+    // Admin API routes (protected) - session-based auth (NOT JWT)
     Route::prefix('api/admin')->middleware(['auth', 'admin'])->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.api.dashboard');
         Route::get('/users', [AdminController::class, 'getUsers'])->name('admin.api.users');
@@ -122,6 +122,20 @@ Route::middleware('auth')->group(function () {
         // Contact management routes
         Route::post('/contacts/{contactId}/mark-read', [AdminController::class, 'markContactAsRead'])->name('admin.api.contacts.mark-read');
         Route::post('/contacts/{contactId}/reply', [AdminController::class, 'replyToContact'])->name('admin.api.contacts.reply');
+
+        // Article management routes - session-based (admin panel)
+        Route::get('/articles', [\App\Http\Controllers\ArticleController::class, 'adminIndex'])->name('admin.api.articles.index');
+        Route::get('/articles/{id}/edit', [\App\Http\Controllers\ArticleController::class, 'edit'])->name('admin.api.articles.edit');
+        Route::post('/articles', [\App\Http\Controllers\ArticleController::class, 'store'])->name('admin.api.articles.store');
+        Route::put('/articles/{id}', [\App\Http\Controllers\ArticleController::class, 'update'])->name('admin.api.articles.update');
+        Route::delete('/articles/{id}', [\App\Http\Controllers\ArticleController::class, 'destroy'])->name('admin.api.articles.destroy');
+        Route::post('/articles/upload-image', [\App\Http\Controllers\ArticleController::class, 'uploadImage'])->name('admin.api.articles.upload-image');
+
+        // Tag management routes - session-based (admin panel)
+        Route::get('/tags', [\App\Http\Controllers\TagController::class, 'adminIndex'])->name('admin.api.tags.index');
+        Route::post('/tags', [\App\Http\Controllers\TagController::class, 'store'])->name('admin.api.tags.store');
+        Route::put('/tags/{id}', [\App\Http\Controllers\TagController::class, 'update'])->name('admin.api.tags.update');
+        Route::delete('/tags/{id}', [\App\Http\Controllers\TagController::class, 'destroy'])->name('admin.api.tags.destroy');
     });
 });
 
