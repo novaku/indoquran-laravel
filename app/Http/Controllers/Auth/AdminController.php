@@ -401,17 +401,11 @@ class AdminController extends Controller
             $request->session()->start();
         }
 
-        // Regenerate CSRF token to ensure it's fresh
-        $request->session()->regenerateToken();
-        
+        // JANGAN regenerateToken() di sini!
+        // Memanggil regenerateToken() akan membatalkan token yang ada di sesi aktif
+        // dan menyebabkan semua request berikutnya gagal dengan 419 CSRF mismatch.
+        // Token hanya boleh di-regenerate saat login/logout.
         $csrfToken = csrf_token();
-        
-        Log::info('CSRF token requested', [
-            'session_id' => $request->session()->getId(),
-            'csrf_token' => $csrfToken,
-            'user_agent' => $request->userAgent(),
-            'ip' => $request->ip()
-        ]);
 
         return response()->json([
             'csrf_token' => $csrfToken
