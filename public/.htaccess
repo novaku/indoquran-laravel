@@ -178,11 +178,11 @@ FileETag None
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
     # ------------------------------------------------------------------
-    # 4. Remove trailing slashes (not a directory) – 301 + noindex env var
+    # 4. Remove trailing slashes (not a directory) – 301
     # ------------------------------------------------------------------
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} ^(.+)/$
-    RewriteRule ^ %1 [L,R=301,E=NOINDEX:1]
+    RewriteRule ^ %1 [L,R=301]
 
     # ------------------------------------------------------------------
     # 5. Front controller – pass everything else to Laravel's index.php
@@ -193,10 +193,3 @@ FileETag None
 
 </IfModule>
 
-# ---------------------------------------------------------------------------
-# X-Robots-Tag for trailing-slash redirects (requires mod_headers)
-# Must be outside mod_rewrite block; env var set by rule 4 above is readable here
-# ---------------------------------------------------------------------------
-<IfModule mod_headers.c>
-    Header always set X-Robots-Tag "noindex, nofollow" env=NOINDEX
-</IfModule>
