@@ -22,6 +22,11 @@ export function useGoogleOneTap(options = {}) {
             return;
         }
 
+        // Don't initialize on admin pages
+        if (window.location.pathname.startsWith('/admin')) {
+            return;
+        }
+
         let isMounted = true;
         let retryInterval = null;
 

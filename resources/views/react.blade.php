@@ -243,10 +243,12 @@
     <!-- Arabic Fonts - Load after page load to avoid blocking -->
     <link rel="stylesheet" href="{{ asset('fonts/arabic-font.css') }}" media="print" onload="this.media='all'">
     <!-- Google Identity Services (One Tap & Sign In) -->
+    @if(!request()->is('admin*'))
     <script>
         window.GOOGLE_CLIENT_ID = "{{ config('services.google.client_id') }}";
     </script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    @endif
 
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/react/index.jsx'])

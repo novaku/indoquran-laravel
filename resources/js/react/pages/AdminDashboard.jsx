@@ -566,8 +566,8 @@ const AdminDashboard = () => {
                                                     const height = maxVisitors > 0 ? (day.visitors / maxVisitors) * 100 : 0;
                                                     
                                                     return (
-                                                        <div key={index} className="flex-1 flex flex-col items-center">
-                                                            <div className="w-full flex flex-col items-center">
+                                                        <div key={index} className="flex-1 flex flex-col items-center h-full">
+                                                            <div className="w-full flex-1 flex flex-col justify-end">
                                                                 <div 
                                                                     className="w-full bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-md transition-all duration-300 hover:from-emerald-600 hover:to-emerald-500 relative group"
                                                                     style={{ height: `${height}%`, minHeight: '4px' }}
@@ -577,8 +577,8 @@ const AdminDashboard = () => {
                                                                         {day.visitors} pengunjung
                                                                     </div>
                                                                 </div>
-                                                                <p className="text-xs text-gray-600 mt-2 font-medium">{day.visitors}</p>
                                                             </div>
+                                                            <p className="text-xs text-gray-600 mt-2 font-medium">{day.visitors}</p>
                                                             <p className="text-xs text-gray-500 mt-1 text-center">
                                                                 {new Date(day.date).toLocaleDateString('id-ID', { 
                                                                     weekday: 'short',
@@ -612,8 +612,8 @@ const AdminDashboard = () => {
                                                     const height = maxVisitors > 0 ? (hour.visitors / maxVisitors) * 100 : 0;
                                                     
                                                     return (
-                                                        <div key={index} className="flex-1 flex flex-col items-center">
-                                                            <div className="w-full flex flex-col items-center">
+                                                        <div key={index} className="flex-1 flex flex-col items-center h-full">
+                                                            <div className="w-full flex-1 flex flex-col justify-end">
                                                                 <div 
                                                                     className="w-full bg-gradient-to-t from-blue-500 to-blue-400 rounded-t-md transition-all duration-300 hover:from-blue-600 hover:to-blue-500 relative group"
                                                                     style={{ height: `${height}%`, minHeight: '2px' }}
