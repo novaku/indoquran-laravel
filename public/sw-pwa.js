@@ -1,6 +1,6 @@
 // Service Worker for IndoQuran PWA - Enhanced for Installation and Offline Support
 
-const CACHE_NAME = 'indoquran-pwa-v2.26.0';
+const CACHE_NAME = 'indoquran-pwa-v2.26.1';
 
 const STATIC_CACHE_NAME = `${CACHE_NAME}-static`;
 const DYNAMIC_CACHE_NAME = `${CACHE_NAME}-dynamic`;
@@ -122,6 +122,9 @@ self.addEventListener('fetch', event => {
     
     // Skip Chrome extension requests
     if (url.protocol === 'chrome-extension:') return;
+    
+    // Avoid stale-cache issues during local development
+    if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') return;
     
     event.respondWith(handleFetch(request));
 });

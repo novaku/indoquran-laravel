@@ -7,20 +7,38 @@ const PerformanceOptimizer = () => {
     useEffect(() => {
         // Optimize Cumulative Layout Shift (CLS)
         const optimizeCLS = () => {
-            // 1. Reserve space for images and iframes
+            // 1. Reserve space for images and iframes (large content images only, avoid avatars/icons)
             const optimizeImages = () => {
                 const images = document.querySelectorAll('img:not([width]):not([height])');
                 images.forEach(img => {
+                    // Skip if already loaded, or if image is an avatar/icon or inside rounded element
+                    if (
+                        img.complete ||
+                        img.classList.contains('rounded-full') ||
+                        img.closest('.rounded-full') ||
+                        img.style.height ||
+                        img.style.maxHeight
+                    ) {
+                        return;
+                    }
+
                     if (!img.dataset.optimized) {
-                        // Add default dimensions to prevent layout shift
+                        // Add default dimensions to prevent layout shift for content images
                         img.style.minHeight = '200px';
                         img.style.backgroundColor = '#f3f4f6';
                         img.dataset.optimized = 'true';
                         
-                        img.onload = () => {
+                        const cleanup = () => {
                             img.style.minHeight = '';
                             img.style.backgroundColor = '';
                         };
+
+                        if (img.complete) {
+                            cleanup();
+                        } else {
+                            img.addEventListener('load', cleanup, { once: true });
+                            img.addEventListener('error', cleanup, { once: true });
+                        }
                     }
                 });
             };

@@ -143,11 +143,17 @@ function UserProfilePage() {
                                         <img 
                                             src={user.avatar} 
                                             alt={user.name || 'Avatar'} 
-                                            className="w-16 h-16 rounded-full object-cover border-2 border-emerald-500 shadow-sm"
+                                            width="64"
+                                            height="64"
+                                            className="w-16 h-16 flex-shrink-0 aspect-square rounded-full object-cover border-2 border-emerald-500 shadow-sm"
+                                            style={{ width: '64px', height: '64px', minWidth: '64px', minHeight: '64px', maxWidth: '64px', maxHeight: '64px' }}
                                             referrerPolicy="no-referrer"
                                         />
                                     ) : (
-                                        <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xl border-2 border-emerald-500 shadow-sm">
+                                        <div 
+                                            className="w-16 h-16 flex-shrink-0 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xl border-2 border-emerald-500 shadow-sm"
+                                            style={{ width: '64px', height: '64px', minWidth: '64px', minHeight: '64px', maxWidth: '64px', maxHeight: '64px' }}
+                                        >
                                             {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
                                         </div>
                                     )}
