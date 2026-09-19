@@ -142,13 +142,14 @@ class TagController extends Controller
      */
     public function popular(Request $request)
     {
-        $limit = $request->get('limit', 10);
+        $limit = min((int) $request->get('limit', 15), 50);
         
         $tags = Tag::withCount(['articles' => function($q) {
             $q->where('status', 'published');
         }])
         ->having('articles_count', '>', 0)
         ->orderBy('articles_count', 'desc')
+        ->orderBy('name', 'asc')
         ->limit($limit)
         ->get();
 

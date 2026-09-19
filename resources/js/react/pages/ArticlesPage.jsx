@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { FaSearch, FaCalendar, FaUser, FaClock, FaEye } from 'react-icons/fa';
+import { FaSearch, FaCalendar, FaUser, FaClock, FaEye, FaFire, FaTimes } from 'react-icons/fa';
 import SEOHead from '../components/SEOHead';
 import LoadingSpinner from '../components/LoadingSpinner';
 import AdSenseInFeed from '../components/AdSenseInFeed';
@@ -10,12 +10,34 @@ import { scrollToTop } from '../utils/scrollUtils';
 const ArticlesPage = () => {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [popularTags, setPopularTags] = useState([]);
+  const [loadingTags, setLoadingTags] = useState(true);
+  const [showAllTags, setShowAllTags] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [pagination, setPagination] = useState(null);
   const [selectedTag, setSelectedTag] = useState(searchParams.get('tag') || '');
   
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
+
+  useEffect(() => {
+    fetchPopularTags();
+  }, []);
+
+  const fetchPopularTags = async () => {
+    try {
+      setLoadingTags(true);
+      const response = await getWithAuth('/api/tags/popular?limit=20');
+      if (response.ok) {
+        const data = await response.json();
+        setPopularTags(Array.isArray(data) ? data : []);
+      }
+    } catch (error) {
+      console.error('Error fetching popular tags:', error);
+    } finally {
+      setLoadingTags(false);
+    }
+  };
 
   useEffect(() => {
     scrollToTop();
@@ -54,22 +76,42 @@ const ArticlesPage = () => {
     e.preventDefault();
     const params = { page: '1' };
     if (selectedTag) params.tag = selectedTag;
+    if (searchQuery.trim()) params.search = searchQuery.trim();
     setSearchParams(params);
-    fetchArticles(1, searchQuery, selectedTag);
+
+    if (
+      (searchParams.get('search') || '') === searchQuery.trim() &&
+      (searchParams.get('tag') || '') === selectedTag &&
+      currentPage === 1
+    ) {
+      fetchArticles(1, searchQuery.trim(), selectedTag);
+    }
   };
 
   const handlePageChange = (page) => {
     const params = { page: page.toString() };
     if (selectedTag) params.tag = selectedTag;
+    if (searchQuery.trim()) params.search = searchQuery.trim();
     setSearchParams(params);
     scrollToTop();
   };
 
+  const handleTagClick = (tagSlug) => {
+    if (selectedTag === tagSlug) {
+      // Toggle off
+      clearTagFilter();
+    } else {
+      const params = { page: '1', tag: tagSlug };
+      if (searchQuery.trim()) params.search = searchQuery.trim();
+      setSearchParams(params);
+    }
+  };
 
   const clearTagFilter = () => {
     setSelectedTag('');
-    setSearchParams({ page: '1' });
-    fetchArticles(1, searchQuery, '');
+    const params = { page: '1' };
+    if (searchQuery.trim()) params.search = searchQuery.trim();
+    setSearchParams(params);
   };
 
   const getImageUrl = (path) => {
@@ -77,6 +119,11 @@ const ArticlesPage = () => {
     if (path.startsWith('http')) return path;
     return `/storage/${path}`;
   };
+
+  const activeTagObj = popularTags.find((t) => t.slug === selectedTag);
+  const activeTagName = activeTagObj ? activeTagObj.name : selectedTag;
+  const isSelectedInExtra = !showAllTags && popularTags.slice(10).some((t) => t.slug === selectedTag);
+  const displayedTags = (showAllTags || isSelectedInExtra) ? popularTags : popularTags.slice(0, 10);
 
   if (loading && articles.length === 0) {
     return <LoadingSpinner />;
@@ -123,8 +170,8 @@ const ArticlesPage = () => {
   return (
     <>
       <SEOHead
-        title={selectedTag ? `Artikel Tag #${selectedTag} - IndoQuran` : (searchQuery ? `Hasil Pencarian Artikel "${searchQuery}" - IndoQuran` : "Artikel Islami - Kajian Al-Quran & Pengetahuan Islam | IndoQuran")}
-        description={selectedTag ? `Kumpulan artikel islami dan kajian Al-Quran dengan topik #${selectedTag} di IndoQuran.` : "Baca berbagai artikel islami, kajian Al-Quran, dan pengetahuan agama untuk memperdalam pemahaman Islam Anda."}
+        title={selectedTag ? `Artikel Tag #${activeTagName} - IndoQuran` : (searchQuery ? `Hasil Pencarian Artikel "${searchQuery}" - IndoQuran` : "Artikel Islami - Kajian Al-Quran & Pengetahuan Islam | IndoQuran")}
+        description={selectedTag ? `Kumpulan artikel islami dan kajian Al-Quran dengan topik #${activeTagName} di IndoQuran.` : "Baca berbagai artikel islami, kajian Al-Quran, dan pengetahuan agama untuk memperdalam pemahaman Islam Anda."}
         keywords="artikel islam, kajian quran, artikel islami, pengetahuan agama, tafsir, bacaan islam, indoquran"
         canonicalUrl="https://indoquran.web.id/artikel"
         structuredData={articlesStructuredData}
@@ -164,6 +211,70 @@ const ArticlesPage = () => {
                 </button>
               </div>
             </form>
+
+            {/* Popular Hashtags */}
+            {(loadingTags || popularTags.length > 0) && (
+              <div className="mt-6 max-w-3xl mx-auto">
+                <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2.5">
+                  <FaFire className="text-amber-500 text-xs" />
+                  <span>Hashtag Populer:</span>
+                </div>
+
+                <div className="flex flex-wrap justify-center items-center gap-2">
+                  {loadingTags ? (
+                    [...Array(6)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="h-7 w-20 sm:w-24 bg-gray-200 animate-pulse rounded-full"
+                      />
+                    ))
+                  ) : (
+                    <>
+                      {displayedTags.map((tag) => {
+                        const isSelected = selectedTag === tag.slug;
+                        return (
+                          <button
+                            key={tag.id}
+                            type="button"
+                            onClick={() => handleTagClick(tag.slug)}
+                            className={`group inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
+                              isSelected
+                                ? 'bg-green-600 text-white ring-2 ring-green-600/30 shadow-xs'
+                                : 'bg-gray-100 text-gray-700 hover:bg-green-50 hover:text-green-700 hover:border-green-300 border border-gray-200/80'
+                            }`}
+                            title={`${tag.articles_count} artikel terkait #${tag.name}`}
+                          >
+                            <span className={isSelected ? 'text-green-200 font-bold' : 'text-gray-400 group-hover:text-green-600 font-semibold'}>
+                              #
+                            </span>
+                            <span>{tag.name}</span>
+                            <span
+                              className={`inline-flex items-center justify-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold transition-colors ${
+                                isSelected
+                                  ? 'bg-green-700 text-white'
+                                  : 'bg-white text-gray-600 border border-gray-200 group-hover:bg-green-100 group-hover:text-green-800 group-hover:border-green-200'
+                              }`}
+                            >
+                              {tag.articles_count}
+                            </span>
+                          </button>
+                        );
+                      })}
+
+                      {popularTags.length > 10 && !isSelectedInExtra && (
+                        <button
+                          type="button"
+                          onClick={() => setShowAllTags(!showAllTags)}
+                          className="text-xs text-gray-500 hover:text-green-700 font-medium py-1 px-2.5 rounded-full hover:bg-gray-100 transition-colors cursor-pointer border border-dashed border-gray-300"
+                        >
+                          {showAllTags ? 'Tampilkan Lebih Sedikit' : `+${popularTags.length - 10} lainnya`}
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -171,16 +282,25 @@ const ArticlesPage = () => {
         <div className="container mx-auto px-4 py-8">
           {/* Tag Filter Indicator */}
           {selectedTag && (
-            <div className="mb-6 flex items-center gap-3">
-              <span className="text-gray-600">Filter berdasarkan tag:</span>
-              <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                #{selectedTag}
-              </span>
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs sm:text-sm text-gray-700 font-medium">Menampilkan artikel dengan tag:</span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-green-600 text-white shadow-2xs">
+                  <span>#{activeTagName}</span>
+                  {activeTagObj && typeof activeTagObj.articles_count === 'number' && (
+                    <span className="bg-green-700 text-white px-1.5 py-0.5 rounded-full text-[10px]">
+                      {activeTagObj.articles_count} artikel
+                    </span>
+                  )}
+                </span>
+              </div>
               <button
+                type="button"
                 onClick={clearTagFilter}
-                className="text-sm text-gray-600 hover:text-red-600 underline"
+                className="inline-flex items-center gap-1 text-xs text-red-600 hover:text-red-700 font-medium hover:underline cursor-pointer"
               >
-                Hapus Filter
+                <FaTimes className="text-[10px]" />
+                <span>Hapus Filter</span>
               </button>
             </div>
           )}
