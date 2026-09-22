@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" prefix="og: https://ogp.me/ns#">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ config('services.google.analytics_id', 'G-1JPHVNB3YX') }}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', '{{ config('services.google.analytics_id', 'G-1JPHVNB3YX') }}');
+    </script>
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -74,6 +84,7 @@
     <!-- DNS prefetch for external domains (highest priority) - reduced to only used resources -->
     <link rel="dns-prefetch" href="//pagead2.googlesyndication.com">
     @endif
+    <link rel="dns-prefetch" href="//www.googletagmanager.com">
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
 

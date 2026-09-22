@@ -47,6 +47,7 @@ return [
 
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
+        'analytics_id' => env('GOOGLE_ANALYTICS_ID', 'G-1JPHVNB3YX'),
     ],
 
 ];
