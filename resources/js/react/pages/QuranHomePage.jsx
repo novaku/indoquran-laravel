@@ -504,7 +504,7 @@ function QuranHomePage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 text-gray-800">
+        <div className="min-h-screen bg-gray-50 text-gray-800 no-auto-ads homepage-container">
             <SEOHead
                 title="AlQuran Online Indonesia - Baca, Dengar, Terjemahan | IndoQuran"
                 description="AlQuran online lengkap untuk Indonesia: baca teks Arab, dengarkan audio murottal, dan pelajari terjemahan per ayat di IndoQuran web."
@@ -567,7 +567,7 @@ function QuranHomePage() {
                             >
                                 Mulai Membaca
                             </Button>
-                            <Link to="/juz">
+                            <Link to="/juz" data-google-vignette="false">
                                 <Button
                                     variant="outline"
                                     size="lg"
@@ -577,7 +577,7 @@ function QuranHomePage() {
                                     Telusuri Juz
                                 </Button>
                             </Link>
-                            <Link to="/cari">
+                            <Link to="/cari" data-google-vignette="false">
                                 <Button
                                     variant="ghost"
                                     size="lg"
@@ -774,6 +774,7 @@ function QuranHomePage() {
                                         <Link
                                             key={item.to}
                                             to={item.to}
+                                            data-google-vignette="false"
                                             className={`group p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200/90 bg-white hover:bg-gradient-to-br ${item.hoverBg || 'hover:from-white hover:to-emerald-50/30'} ${item.hoverBorder || 'hover:border-emerald-300'} transition-all duration-200 hover:shadow-xs flex flex-row sm:flex-col sm:justify-between items-center sm:items-stretch gap-3 sm:gap-3`}
                                         >
                                             {/* Top row for desktop, left column for mobile */}
@@ -868,6 +869,7 @@ function QuranHomePage() {
 
                                     <Link
                                         to="/surah"
+                                        data-google-vignette="false"
                                         className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-0.5 ml-1"
                                     >
                                         <span>Semua Surah</span>
@@ -900,6 +902,7 @@ function QuranHomePage() {
                                             <Link
                                                 key={surah.number}
                                                 to={`/surah/${surah.number}`}
+                                                data-google-vignette="false"
                                                 className="group p-4 rounded-xl border border-gray-200/80 bg-white hover:border-emerald-300 hover:bg-emerald-50/40 transition-all duration-200 hover:shadow-xs"
                                             >
                                                 <div className="flex items-center justify-between">
@@ -989,6 +992,7 @@ function QuranHomePage() {
                                         </button>
                                         <Link
                                             to="/tafsir-maudhui"
+                                            data-google-vignette="false"
                                             className="inline-flex items-center gap-1 text-xs font-semibold text-orange-600 hover:text-orange-700 hover:underline px-2 py-1.5"
                                         >
                                             <span>Semua Tema</span>
@@ -1166,6 +1170,7 @@ function QuranHomePage() {
                                 </div>
                                 <Link
                                     to="/artikel"
+                                    data-google-vignette="false"
                                     className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 self-start sm:self-center transition-colors group"
                                 >
                                     <span>Lihat Semua Artikel</span>
@@ -1349,8 +1354,9 @@ function QuranHomePage() {
                             <AdSenseVertical 
                                 adSlot="9021708920"
                                 labelText="IKLAN"
-                                minHeight="280px"
+                                minHeight="250px"
                                 isSticky={false}
+                                fullWidthResponsive={false}
                             />
 
                             {/* Informasi Cepat & Struktur Al-Quran */}

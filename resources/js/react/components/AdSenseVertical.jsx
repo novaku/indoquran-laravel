@@ -16,6 +16,7 @@ import PropTypes from 'prop-types';
  * @param {string} labelText - Teks label iklan (default: 'IKLAN')
  * @param {boolean} isSticky - Apakah menempel saat scroll di desktop (default: false)
  * @param {string} minHeight - Min height container (default: '250px')
+ * @param {boolean} fullWidthResponsive - Apakah iklan melebar penuh (default: false untuk mencegah iklan full-width screen)
  */
 const AdSenseVertical = ({ 
     adSlot = '9021708920',
@@ -26,7 +27,8 @@ const AdSenseVertical = ({
     showLabel = true,
     labelText = 'IKLAN',
     isSticky = false,
-    minHeight = '250px'
+    minHeight = '250px',
+    fullWidthResponsive = false
 }) => {
     const adRef = useRef(null);
     const isPushedRef = useRef(false);
@@ -57,7 +59,7 @@ const AdSenseVertical = ({
             data-ad-format={adFormat}
             data-ad-client={adClient}
             data-ad-slot={adSlot}
-            data-full-width-responsive="true"
+            data-full-width-responsive={fullWidthResponsive ? "true" : "false"}
         />
     );
 
@@ -97,7 +99,8 @@ AdSenseVertical.propTypes = {
     showLabel: PropTypes.bool,
     labelText: PropTypes.string,
     isSticky: PropTypes.bool,
-    minHeight: PropTypes.string
+    minHeight: PropTypes.string,
+    fullWidthResponsive: PropTypes.bool
 };
 
 export default AdSenseVertical;

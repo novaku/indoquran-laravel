@@ -46,9 +46,8 @@ const PWAInstallPromotion = ({ strategy = 'auto' }) => {
                 }
 
                 // Set strategy based on visit count (no page refresh)
-                if (visitCount === 1) {
-                    setCurrentStrategy('modal');
-                } else if (visitCount <= 3) {
+                // Avoid intrusive full-screen modal overlay popups on first visit
+                if (visitCount <= 3) {
                     setCurrentStrategy('banner');
                 } else {
                     setCurrentStrategy('floating');
@@ -67,7 +66,8 @@ const PWAInstallPromotion = ({ strategy = 'auto' }) => {
 
         switch (currentStrategy) {
             case 'modal':
-                return <PWAInstallAd key="modal" />;
+                // Never show full-screen overlay modal, fallback to non-intrusive banner or floating
+                return <PWAInstallBanner key="banner" />;
             case 'banner':
                 return <PWAInstallBanner key="banner" />;
             case 'floating':

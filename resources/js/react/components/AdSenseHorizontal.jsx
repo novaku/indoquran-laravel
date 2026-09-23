@@ -15,6 +15,7 @@ import PropTypes from 'prop-types';
  * @param {boolean} showLabel - Menampilkan label 'IKLAN'
  * @param {string} labelText - Teks label iklan (default: 'IKLAN')
  * @param {string} minHeight - Min height container (default: '90px')
+ * @param {boolean} fullWidthResponsive - Apakah iklan melebar penuh (default: false untuk mencegah iklan full-width screen)
  */
 const AdSenseHorizontal = ({ 
     adSlot = '1519827772',
@@ -23,7 +24,8 @@ const AdSenseHorizontal = ({
     style = {},
     showLabel = false,
     labelText = 'IKLAN',
-    minHeight = '90px'
+    minHeight = '90px',
+    fullWidthResponsive = false
 }) => {
     const adRef = useRef(null);
     const isPushedRef = useRef(false);
@@ -54,7 +56,7 @@ const AdSenseHorizontal = ({
             data-ad-client={adClient}
             data-ad-slot={adSlot}
             data-ad-format="auto"
-            data-full-width-responsive="true"
+            data-full-width-responsive={fullWidthResponsive ? "true" : "false"}
         />
     );
 
@@ -103,7 +105,8 @@ AdSenseHorizontal.propTypes = {
     style: PropTypes.object,
     showLabel: PropTypes.bool,
     labelText: PropTypes.string,
-    minHeight: PropTypes.string
+    minHeight: PropTypes.string,
+    fullWidthResponsive: PropTypes.bool
 };
 
 export default AdSenseHorizontal;

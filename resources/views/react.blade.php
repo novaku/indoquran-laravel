@@ -135,6 +135,11 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
+        /* Prevent Google Auto Ads from inserting unformatted/full-screen/injected ads on homepage */
+        .no-auto-ads .google-auto-placed,
+        .no-auto-ads ins.adsbygoogle[data-anchor-status] {
+            display: none !important;
+        }
     </style>
 
     <!-- Icons with optimized sizes and cache-busting -->
@@ -147,7 +152,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v={{ $favVersion }}">
     
     <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json?v=2.25.0">
+    <link rel="manifest" href="/manifest.json?v=2.27.0">
     
     <!-- PWA iOS Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -400,7 +405,7 @@
                 <h1 style="font-size: 1.875rem; font-weight: 800; margin-bottom: 2rem; text-align: center; color: #166534;">Daftar Surah Al-Quran</h1>
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; max-width: 1200px; margin: 0 auto;">
                     @foreach($reactData['surahs'] as $surah)
-                        <a href="/surah/{{ $surah->number }}" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; text-decoration: none; color: inherit; background-color: #f9fafb; transition: all 0.2s;">
+                        <a href="/surah/{{ $surah->number }}" data-google-vignette="false" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; text-decoration: none; color: inherit; background-color: #f9fafb; transition: all 0.2s;">
                             <div>
                                 <div style="font-weight: 700; color: #111827;">{{ $surah->number }}. {{ $surah->name_latin }}</div>
                                 <div style="font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem;">{{ $surah->name_indonesian }} • {{ $surah->total_ayahs }} Ayat</div>

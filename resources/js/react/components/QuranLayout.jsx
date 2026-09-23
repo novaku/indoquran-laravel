@@ -48,6 +48,9 @@ function QuranLayout({ children, className = "" }) {
         '/daftar'
     ].some(path => location.pathname === path || location.pathname.startsWith(`${path}/`)) || location.pathname.startsWith('/auth');
 
+    // Check if current page is homepage (to reduce ads and prevent stacked ads with sidebar)
+    const isHomePage = location.pathname === '/';
+
     return (
         <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950 transition-colors">
             <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
@@ -58,8 +61,8 @@ function QuranLayout({ children, className = "" }) {
                 {children}
             </main>
 
-            {/* Global Bottom AdSense Banner for general non-admin pages (Desktop & Mobile) */}
-            {!isAdFreePage && (
+            {/* Global Bottom AdSense Banner for general non-admin pages (Desktop & Mobile, excluded on homepage) */}
+            {!isAdFreePage && !isHomePage && (
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full">
                     <AdSenseHorizontal
                         adSlot="1519827772"
