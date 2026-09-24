@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { FaCalendar, FaUser, FaClock, FaEye, FaWhatsapp, FaEdit, FaBookOpen } from 'react-icons/fa';
+import { FaCalendar, FaUser, FaClock, FaEye, FaWhatsapp, FaEdit, FaBookOpen, FaQuoteLeft } from 'react-icons/fa';
 import SEOHead from '../components/SEOHead';
 import LoadingSpinner from '../components/LoadingSpinner';
 import AdSenseVertical from '../components/AdSenseVertical';
@@ -322,6 +322,18 @@ const ArticleDetailPage = () => {
                       Foto/Ilustrasi: {article.title}
                     </p>
                   )}
+                </div>
+              )}
+
+              {/* Excerpt / Ringkasan Artikel */}
+              {article.excerpt && article.excerpt.trim() && (
+                <div className="mb-8 p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-emerald-50/80 via-white to-emerald-50/30 dark:from-emerald-950/30 dark:via-gray-900/60 dark:to-emerald-950/10 border border-emerald-100 dark:border-emerald-900/50 border-l-4 border-l-emerald-600 dark:border-l-emerald-500 shadow-xs relative">
+                  <div className="flex gap-3.5 sm:gap-4 items-start">
+                    <FaQuoteLeft className="text-emerald-600/70 dark:text-emerald-400/60 text-lg sm:text-xl flex-shrink-0 mt-1" />
+                    <p className="text-base sm:text-lg text-gray-700 dark:text-gray-200 leading-relaxed font-medium italic">
+                      {article.excerpt.trim()}
+                    </p>
+                  </div>
                 </div>
               )}
 

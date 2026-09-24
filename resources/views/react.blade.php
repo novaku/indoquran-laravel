@@ -673,6 +673,12 @@
                         </figure>
                     @endif
 
+                    @if(!empty(trim($reactData['currentArticle']->excerpt ?? '')))
+                        <div class="article-excerpt" style="font-size: 1.125rem; font-weight: 500; line-height: 1.75; color: #374151; margin-bottom: 2rem; padding: 1.25rem 1.5rem; background: #f0fdf4; border: 1px solid #dcfce7; border-left: 4px solid #16a34a; border-radius: 0 0.75rem 0.75rem 0; font-style: italic;">
+                            {{ trim($reactData['currentArticle']->excerpt) }}
+                        </div>
+                    @endif
+
                     <div class="article-body" style="font-size: 1.125rem; color: #374151; margin-bottom: 3rem;">
                         {!! $reactData['currentArticle']->content !!}
                     </div>
