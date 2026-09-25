@@ -141,8 +141,12 @@ class ArticleController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->has('title')) {
+            $request->merge(['title' => trim($request->input('title'))]);
+        }
+
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:articles,title',
             'slug' => 'nullable|string|max:255|unique:articles,slug',
             'excerpt' => 'nullable|string|max:500',
             'content' => 'required|string',
@@ -151,6 +155,8 @@ class ArticleController extends Controller
             'published_at' => 'nullable|date',
             'tags' => 'nullable|array',
             'tags.*' => 'nullable|string|max:50'
+        ], [
+            'title.unique' => 'Artikel judul itu sudah ada',
         ]);
 
         // Auto-generate slug if not provided
@@ -189,8 +195,12 @@ class ArticleController extends Controller
      */
     public function storeApi(Request $request)
     {
+        if ($request->has('title')) {
+            $request->merge(['title' => trim($request->input('title'))]);
+        }
+
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:articles,title',
             'slug' => 'nullable|string|max:255',
             'excerpt' => 'nullable|string|max:500',
             'short_description' => 'nullable|string|max:500',
@@ -202,6 +212,8 @@ class ArticleController extends Controller
             'featured_image' => 'nullable|string|max:255',
             'hashtags' => 'nullable',
             'tags' => 'nullable',
+        ], [
+            'title.unique' => 'Artikel judul itu sudah ada',
         ]);
 
         // Auto-generate slug if not provided, and ensure uniqueness
@@ -272,8 +284,12 @@ class ArticleController extends Controller
     {
         $article = Article::findOrFail($id);
 
+        if ($request->has('title')) {
+            $request->merge(['title' => trim($request->input('title'))]);
+        }
+
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:articles,title,' . $id,
             'slug' => 'nullable|string|max:255|unique:articles,slug,' . $id,
             'excerpt' => 'nullable|string|max:500',
             'content' => 'required|string',
@@ -282,6 +298,8 @@ class ArticleController extends Controller
             'published_at' => 'nullable|date',
             'tags' => 'nullable|array',
             'tags.*' => 'nullable|string|max:50'
+        ], [
+            'title.unique' => 'Artikel judul itu sudah ada',
         ]);
 
         // Auto-generate slug if not provided

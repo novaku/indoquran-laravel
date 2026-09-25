@@ -11,7 +11,7 @@ export const getRouteDefaultTitle = (pathname, search = '') => {
     }
 
     if (path === '' || path === '/') {
-        return 'AlQuran Online Indonesia - Baca, Dengar, Terjemahan | IndoQuran';
+        return 'Al-Quran Online Indonesia - Baca, Dengar, Terjemahan | IndoQuran';
     }
 
     if (path === '/surah') {

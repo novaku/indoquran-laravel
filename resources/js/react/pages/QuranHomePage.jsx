@@ -506,7 +506,7 @@ function QuranHomePage() {
     return (
         <div className="min-h-screen bg-gray-50 text-gray-800 no-auto-ads homepage-container">
             <SEOHead
-                title="AlQuran Online Indonesia - Baca, Dengar, Terjemahan | IndoQuran"
+                title="Al-Quran Digital Indonesia - Baca, Dengar, Terjemahan | IndoQuran"
                 description="AlQuran online lengkap untuk Indonesia: baca teks Arab, dengarkan audio murottal, dan pelajari terjemahan per ayat di IndoQuran web."
                 keywords="alquran online, al quran online, indo quran, quran web, al quran indonesia, baca quran online, murottal quran"
                 canonicalUrl="https://indoquran.web.id/"
@@ -522,7 +522,7 @@ function QuranHomePage() {
 
                 <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-12 lg:pt-14 lg:pb-16">
                     <div className="flex flex-col items-center text-center space-y-6">
-                        
+
                         {/* Status / Highlight Badge */}
                         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/70 border border-emerald-200/80 text-emerald-800 text-xs sm:text-sm font-medium shadow-sm transition-transform hover:scale-[1.02]">
                             <SparklesIcon className="w-4 h-4 text-emerald-600" />
@@ -597,7 +597,7 @@ function QuranHomePage() {
                                 surahs={surahs}
                                 showExactSearchToggle={true}
                             />
-                            
+
                             {/* Quick Search / Jump Chips */}
                             <div className="mt-3 flex items-center justify-center flex-wrap gap-1.5 text-xs text-gray-500">
                                 <span className="font-medium mr-1 text-gray-600 flex items-center gap-1">
@@ -673,7 +673,7 @@ function QuranHomePage() {
             {/* MAIN CONTENT AREA WITH SIDEBAR */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    
+
                     {/* Main Content Column (8 cols) */}
                     <main className="lg:col-span-8 space-y-8">
 
@@ -826,31 +826,28 @@ function QuranHomePage() {
                                     <div className="inline-flex rounded-lg bg-gray-100 p-1 text-xs">
                                         <button
                                             onClick={() => setSurahTab('rekomendasi')}
-                                            className={`px-3 py-1.5 rounded-md font-medium transition-all ${
-                                                surahTab === 'rekomendasi'
+                                            className={`px-3 py-1.5 rounded-md font-medium transition-all ${surahTab === 'rekomendasi'
                                                     ? 'bg-white text-emerald-700 shadow-2xs'
                                                     : 'text-gray-600 hover:text-gray-900'
-                                            }`}
+                                                }`}
                                         >
                                             Rekomendasi
                                         </button>
                                         <button
                                             onClick={() => setSurahTab('populer')}
-                                            className={`px-3 py-1.5 rounded-md font-medium transition-all ${
-                                                surahTab === 'populer'
+                                            className={`px-3 py-1.5 rounded-md font-medium transition-all ${surahTab === 'populer'
                                                     ? 'bg-white text-emerald-700 shadow-2xs'
                                                     : 'text-gray-600 hover:text-gray-900'
-                                            }`}
+                                                }`}
                                         >
                                             Populer
                                         </button>
                                         <button
                                             onClick={() => setSurahTab('juz30')}
-                                            className={`px-3 py-1.5 rounded-md font-medium transition-all ${
-                                                surahTab === 'juz30'
+                                            className={`px-3 py-1.5 rounded-md font-medium transition-all ${surahTab === 'juz30'
                                                     ? 'bg-white text-emerald-700 shadow-2xs'
                                                     : 'text-gray-600 hover:text-gray-900'
-                                            }`}
+                                                }`}
                                         >
                                             Juz 30
                                         </button>
@@ -1189,11 +1186,10 @@ function QuranHomePage() {
                                                 setArticleTab('terbaru');
                                                 fetchArticles('terbaru', articleSearch);
                                             }}
-                                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                                                articleTab === 'terbaru'
+                                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${articleTab === 'terbaru'
                                                     ? 'bg-white text-emerald-700 font-semibold shadow-2xs'
                                                     : 'text-gray-600 hover:text-gray-900'
-                                            }`}
+                                                }`}
                                         >
                                             <SparklesIcon className="w-3.5 h-3.5 text-emerald-600" />
                                             <span>Terbaru</span>
@@ -1204,11 +1200,10 @@ function QuranHomePage() {
                                                 setArticleTab('populer');
                                                 fetchArticles('populer', articleSearch);
                                             }}
-                                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                                                articleTab === 'populer'
+                                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${articleTab === 'populer'
                                                     ? 'bg-white text-emerald-700 font-semibold shadow-2xs'
                                                     : 'text-gray-600 hover:text-gray-900'
-                                            }`}
+                                                }`}
                                         >
                                             <FireIcon className="w-3.5 h-3.5 text-amber-500" />
                                             <span>Populer</span>
@@ -1219,11 +1214,10 @@ function QuranHomePage() {
                                                 setArticleTab('rekomendasi');
                                                 fetchArticles('rekomendasi', articleSearch);
                                             }}
-                                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                                                articleTab === 'rekomendasi'
+                                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${articleTab === 'rekomendasi'
                                                     ? 'bg-white text-emerald-700 font-semibold shadow-2xs'
                                                     : 'text-gray-600 hover:text-gray-900'
-                                            }`}
+                                                }`}
                                         >
                                             <StarIcon className="w-3.5 h-3.5 text-amber-400" />
                                             <span>Rekomendasi</span>
@@ -1346,12 +1340,12 @@ function QuranHomePage() {
                     {/* Sidebar Column (4 cols) */}
                     <aside className="lg:col-span-4 space-y-6">
                         <div className="sticky top-20 space-y-6">
-                            
+
                             {/* Jadwal Shalat Widget */}
                             <PrayerTimesWidget />
 
                             {/* Sticky Sidebar AdSense Unit (Detik.com Pattern) */}
-                            <AdSenseVertical 
+                            <AdSenseVertical
                                 adSlot="9021708920"
                                 labelText="IKLAN"
                                 minHeight="250px"

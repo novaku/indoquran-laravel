@@ -405,7 +405,8 @@ const AdminArticleEditorPage = () => {
           return;
         }
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Gagal menyimpan artikel');
+        const errorMessage = (errorData.errors && Object.values(errorData.errors).flat()[0]) || errorData.message || 'Gagal menyimpan artikel';
+        throw new Error(errorMessage);
       }
 
       alert(isEdit ? 'Artikel berhasil diperbarui' : 'Artikel berhasil dibuat');
