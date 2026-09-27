@@ -17,6 +17,7 @@ use App\Http\Controllers\SelectedPrayerController;
 use App\Http\Controllers\TafsirMaudhuiController;
 use App\Http\Controllers\Api\SecurityController;
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\ArticleCommentController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\Api\OnlineUsersController;
 use App\Http\Controllers\Api\GuestTokenController;
@@ -45,6 +46,10 @@ Route::middleware(['static.key'])->group(function() {
     Route::post('/articles', [ArticleController::class, 'storeApi']);
     Route::post('/articles/create', [ArticleController::class, 'storeApi']);
 });
+
+// Article comments public routes (accessible with or without token)
+Route::get('/articles/{slug}/comments', [ArticleCommentController::class, 'getComments']);
+Route::post('/articles/{slug}/comments', [ArticleCommentController::class, 'store']);
 
 // ==========================================
 // PROTECTED ROUTES (JWT required)
@@ -194,6 +199,9 @@ Route::middleware(['auth:api'])->group(function () {
         Route::post('/contacts/{contact}/mark-read', [\App\Http\Controllers\Auth\AdminController::class, 'markContactAsRead']);
         Route::post('/contacts/{contact}/reply', [\App\Http\Controllers\Auth\AdminController::class, 'replyToContact']);
         Route::get('/stats/detailed', [\App\Http\Controllers\Api\StatsController::class, 'getDetailedStats']);
+        Route::get('/article-comments', [ArticleCommentController::class, 'adminIndex']);
+        Route::delete('/article-comments/{id}', [ArticleCommentController::class, 'adminDestroy']);
+        Route::delete('/article-comments/article/{articleId}', [ArticleCommentController::class, 'adminDestroyByArticle']);
     });
 
     // Articles

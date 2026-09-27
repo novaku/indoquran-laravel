@@ -231,6 +231,7 @@ class AdminController extends Controller
             'total_users' => User::count(),
             'total_articles' => \App\Models\Article::count(),
             'published_articles' => \App\Models\Article::where('status', 'published')->count(),
+            'total_article_comments' => \App\Models\ArticleComment::count(),
             'total_contacts' => Contact::count(),
             'total_prayers' => Prayer::count(),
             'total_search_terms' => SearchTerm::count(),

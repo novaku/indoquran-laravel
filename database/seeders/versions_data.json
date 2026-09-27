@@ -1,5 +1,51 @@
 [
   {
+    "version": "2.28.0",
+    "date": "27 September 2026",
+    "type": "feature",
+    "title": "Sistem Komentar Artikel & Panel Moderasi Admin",
+    "description": "Pembaruan komprehensif fitur interaksi artikel dengan menghadirkan sistem komentar untuk pengunjung dan pengguna terdaftar, opsi anonimitas (Hamba Allah), serta antarmuka moderasi dan penghapusan komentar bagi administrator di panel admin (/admin).",
+    "changes": [
+      {
+        "type": "feature",
+        "text": "Komentar Artikel Pengunjung & Member - Pengunjung serta pengguna terdaftar dapat mengirim tanggapan, doa, dan pertanyaan pada setiap artikel IndoQuran"
+      },
+      {
+        "type": "feature",
+        "text": "Opsi Anonimitas (Hamba Allah) - Dukungan privasi penuh di mana pengguna terdaftar maupun pengunjung dapat memilih untuk berkomentar secara anonim dengan identitas 'Hamba Allah'"
+      },
+      {
+        "type": "feature",
+        "text": "Panel Moderasi Komentar Admin (/admin) - Antarmuka khusus di admin dashboard untuk memantau, mencari berdasarkan keyword, memfilter per artikel, dan menghapus komentar yang tidak diinginkan"
+      },
+      {
+        "type": "improvement",
+        "text": "Moderasi Cepat di Detail Artikel - Tombol hapus komentar instan langsung di halaman baca artikel bagi administrator yang sedang login"
+      },
+      {
+        "type": "improvement",
+        "text": "Pembaruan PWA & Service Worker Cache (v2.28.0) - Peningkatan cache versioning PWA untuk memastikan sinkronisasi aset dan pengalaman offline yang optimal"
+      }
+    ]
+  },
+  {
+    "version": "2.27.0",
+    "date": "24 September 2026",
+    "type": "improvement",
+    "title": "Validasi Judul Unik Artikel & Tampilan Excerpt Artikel",
+    "description": "Peningkatan pada editor dan pembaca artikel dengan validasi judul duplikat secara real-time dan tampilan ringkasan (excerpt) bergaya modern pada halaman detail artikel.",
+    "changes": [
+      {
+        "type": "feature",
+        "text": "Tampilan Excerpt Artikel - Menampilkan kutipan/ringkasan artikel di bagian atas isi artikel dengan tipografi elegan"
+      },
+      {
+        "type": "improvement",
+        "text": "Validasi Duplikasi Judul - Sistem pengecekan judul artikel saat penulisan dan penyuntingan untuk mencegah duplikasi konten dan slug"
+      }
+    ]
+  },
+  {
     "version": "2.26.0",
     "date": "15 September 2026",
     "type": "feature",

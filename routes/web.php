@@ -136,6 +136,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/tags', [\App\Http\Controllers\TagController::class, 'store'])->name('admin.api.tags.store');
         Route::put('/tags/{id}', [\App\Http\Controllers\TagController::class, 'update'])->name('admin.api.tags.update');
         Route::delete('/tags/{id}', [\App\Http\Controllers\TagController::class, 'destroy'])->name('admin.api.tags.destroy');
+
+        // Article comments management routes - session-based (admin panel)
+        Route::get('/article-comments', [\App\Http\Controllers\ArticleCommentController::class, 'adminIndex'])->name('admin.api.article-comments.index');
+        Route::delete('/article-comments/{id}', [\App\Http\Controllers\ArticleCommentController::class, 'adminDestroy'])->name('admin.api.article-comments.destroy');
+        Route::delete('/article-comments/article/{articleId}', [\App\Http\Controllers\ArticleCommentController::class, 'adminDestroyByArticle'])->name('admin.api.article-comments.destroy-by-article');
     });
 });
 

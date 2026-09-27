@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch, FaComments } from 'react-icons/fa';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { scrollToTop } from '../utils/scrollUtils';
 
@@ -156,13 +156,22 @@ const AdminArticlesPage = () => {
               <h1 className="text-2xl font-bold text-gray-900">Kelola Artikel</h1>
               <p className="text-gray-600 mt-1">Kelola publikasi, sunting, dan tulis artikel baru untuk website IndoQuran</p>
             </div>
-            <Link
-              to="/admin/artikel/baru"
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors shadow-xs"
-            >
-              <FaPlus className="text-sm" />
-              <span>Tulis Artikel Baru</span>
-            </Link>
+            <div className="flex items-center gap-3">
+              <Link
+                to="/admin/dashboard?tab=comments"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-gray-700 border border-gray-300 font-medium rounded-lg hover:bg-gray-50 transition-colors shadow-xs"
+              >
+                <FaComments className="text-emerald-600 text-sm" />
+                <span>Kelola Komentar</span>
+              </Link>
+              <Link
+                to="/admin/artikel/baru"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors shadow-xs"
+              >
+                <FaPlus className="text-sm" />
+                <span>Tulis Artikel Baru</span>
+              </Link>
+            </div>
           </div>
 
           {/* Filters */}
@@ -284,6 +293,13 @@ const AdminArticlesPage = () => {
                               <FaEye />
                             </Link>
                           )}
+                          <Link
+                            to={`/admin/dashboard?tab=comments&article_id=${article.id}`}
+                            className="p-2 text-teal-600 hover:text-teal-700"
+                            title="Lihat & Moderasi Komentar"
+                          >
+                            <FaComments />
+                          </Link>
                           <Link
                             to={`/admin/artikel/edit/${article.id}`}
                             className="p-2 text-primary-600 hover:text-primary-700"

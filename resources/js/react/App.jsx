@@ -405,6 +405,7 @@ const AppContent = memo(() => {
                         <Route path="/admin/artikel" element={<AdminArticlesPage />} />
                         <Route path="/admin/artikel/baru" element={<AdminArticleEditorPage />} />
                         <Route path="/admin/artikel/edit/:id" element={<AdminArticleEditorPage />} />
+                        <Route path="/admin/komentar" element={<Navigate to="/admin/dashboard?tab=comments" replace />} />
                         <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
 
                         {/* Backward compatibility redirects */}

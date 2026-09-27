@@ -8,6 +8,7 @@ import {
 
     UsersIcon, 
     ChatBubbleLeftRightIcon, 
+    ChatBubbleBottomCenterTextIcon,
     HeartIcon, 
     MagnifyingGlassIcon, 
     BookOpenIcon, 
@@ -23,6 +24,7 @@ import {
     ArrowTrendingUpIcon,
     ClockIcon
 } from '@heroicons/react/24/outline';
+import AdminArticleCommentsTab from '../components/AdminArticleCommentsTab';
 
 const AdminDashboard = () => {
     console.log('AdminDashboard component starting to load...');
@@ -328,6 +330,15 @@ const AdminDashboard = () => {
             link: '/admin/artikel'
         },
         {
+            title: 'Komentar Artikel',
+            value: stats.total_article_comments || 0,
+            subtitle: 'Moderasi komentar',
+            icon: ChatBubbleBottomCenterTextIcon,
+            color: 'bg-teal-500',
+            bgColor: 'bg-teal-50',
+            link: '/admin/dashboard?tab=comments'
+        },
+        {
             title: 'Pesan Kontak',
             value: stats.total_contacts || 0,
             subtitle: `${recentActivities.contacts?.filter(c => !c.is_read)?.length || 0} belum dibaca`,
@@ -436,7 +447,7 @@ const AdminDashboard = () => {
                 {/* Quick Actions */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Aksi Cepat</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <button
                             onClick={() => navigate('/admin/artikel')}
                             className="flex items-center p-4 border-2 border-gray-200 rounded-lg hover:border-emerald-500 hover:bg-emerald-50 transition-all group"
@@ -460,6 +471,17 @@ const AdminDashboard = () => {
                                 <p className="text-sm text-gray-500">Tulis artikel baru</p>
                             </div>
                         </button>
+
+                        <button
+                            onClick={() => handleTabChange('comments')}
+                            className="flex items-center p-4 border-2 border-gray-200 rounded-lg hover:border-emerald-500 hover:bg-emerald-50 transition-all group cursor-pointer"
+                        >
+                            <ChatBubbleBottomCenterTextIcon className="h-8 w-8 text-teal-500 mr-3 group-hover:text-emerald-600" />
+                            <div className="text-left">
+                                <p className="font-semibold text-gray-900">Komentar Artikel</p>
+                                <p className="text-sm text-gray-500">Moderasi komentar</p>
+                            </div>
+                        </button>
                         
                         <button
                             onClick={() => handleTabChange('contacts')}
@@ -477,10 +499,11 @@ const AdminDashboard = () => {
                 {/* Tabs */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200">
                     <div className="border-b border-gray-200">
-                        <nav className="-mb-px flex space-x-8 px-6">
+                        <nav className="-mb-px flex space-x-8 px-6 overflow-x-auto">
                             {[
                                 { id: 'overview', label: 'Ringkasan', icon: ChartBarIcon },
                                 { id: 'traffic', label: 'Traffic Pengunjung', icon: ArrowTrendingUpIcon },
+                                { id: 'comments', label: 'Komentar Artikel', icon: ChatBubbleBottomCenterTextIcon },
                                 { id: 'users', label: 'Pengguna Terbaru', icon: UsersIcon },
                                 { id: 'contacts', label: 'Kontak Terbaru', icon: ChatBubbleLeftRightIcon },
                                 { id: 'prayers', label: 'Doa Terbaru', icon: HeartIcon },
@@ -900,6 +923,11 @@ const AdminDashboard = () => {
                                     )}
                                 </div>
                             </div>
+                        )}
+
+                        {/* Article Comments Tab */}
+                        {activeTab === 'comments' && (
+                            <AdminArticleCommentsTab initialArticleId={searchParams.get('article_id')} />
                         )}
 
                         {/* Searches Tab */}

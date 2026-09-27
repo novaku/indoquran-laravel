@@ -71,6 +71,14 @@ class Article extends Model
     }
 
     /**
+     * Get all comments for this article
+     */
+    public function comments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ArticleComment::class);
+    }
+
+    /**
      * Scope untuk artikel yang sudah dipublish
      */
     public function scopePublished($query)
@@ -93,7 +101,7 @@ class Article extends Model
      */
     public function getReadingTimeAttribute()
     {
-        $wordCount = str_word_count(strip_tags($this->content));
+        $wordCount = str_word_count(strip_tags($this->content ?? ''));
         $minutes = ceil($wordCount / 200);
         return $minutes;
     }

@@ -5,6 +5,7 @@ import SEOHead from '../components/SEOHead';
 import LoadingSpinner from '../components/LoadingSpinner';
 import AdSenseVertical from '../components/AdSenseVertical';
 import AdSenseInline from '../components/AdSenseInline';
+import ArticleCommentsSection from '../components/ArticleCommentsSection';
 import { getWithAuth } from '../utils/apiUtils';
 import { useAuth } from '../hooks/useAuth';
 import { scrollToTop } from '../utils/scrollUtils';
@@ -359,6 +360,13 @@ const ArticleDetailPage = () => {
                   </div>
                 </div>
               )}
+
+              {/* Comments Section */}
+              <ArticleCommentsSection
+                articleSlug={slug}
+                articleId={article.id}
+                isAdmin={isAdmin}
+              />
             </main>
 
             {/* Right Desktop Sticky Sidebar (4 Cols - Ala Detik.com) */}
