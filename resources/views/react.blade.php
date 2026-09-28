@@ -332,7 +332,8 @@
                 || !empty($reactData['currentJuz']) 
                 || !empty($reactData['currentPage']) 
                 || !empty($reactData['currentArticle']) 
-                || !empty($reactData['articles']);
+                || !empty($reactData['articles'])
+                || !empty($reactData['currentTafsirTopic']);
         @endphp
 
         <!-- Fallback content while React loads (only rendered if no SSR content is pre-rendered) -->
@@ -732,6 +733,51 @@
                         </article>
                     @endforeach
                 </div>
+            </div>
+        @endif
+
+        @if(isset($reactData['currentTafsirTopic']) && $reactData['currentTafsirTopic'])
+            <div id="ssr-tafsir-detail" style="padding: 3rem 1.5rem; background: #fff; color: #1f2937; max-width: 860px; margin: 0 auto; line-height: 1.8;">
+                <nav aria-label="Breadcrumb" style="margin-bottom: 1.5rem; font-size: 0.875rem; color: #4b5563;">
+                    <a href="/" style="color: #16a34a; text-decoration: none;">Beranda</a>
+                    <span style="margin: 0 0.5rem; color: #9ca3af;">/</span>
+                    <a href="/tafsir-maudhui" style="color: #16a34a; text-decoration: none;">Tafsir Maudhui</a>
+                    <span style="margin: 0 0.5rem; color: #9ca3af;">/</span>
+                    <span style="color: #111827; font-weight: 600;">{{ $reactData['currentTafsirTopic']->topic }}</span>
+                </nav>
+
+                <article>
+                    <header style="margin-bottom: 2rem;">
+                        <h1 style="font-size: 2.25rem; font-weight: 800; line-height: 1.3; color: #111827; margin-bottom: 1rem;">
+                            Tafsir Maudhui: {{ $reactData['currentTafsirTopic']->topic }}
+                        </h1>
+                        @if(!empty($reactData['currentTafsirTopic']->description))
+                            <p style="font-size: 1.125rem; color: #4b5563; line-height: 1.7; background: #f9fafb; padding: 1.25rem; border-radius: 0.75rem; border: 1px solid #e5e7eb;">
+                                {{ $reactData['currentTafsirTopic']->description }}
+                            </p>
+                        @endif
+                    </header>
+
+                    @if(!empty($reactData['currentTafsirTopic']->verses) && $reactData['currentTafsirTopic']->verses->isNotEmpty())
+                        <section style="margin-top: 2rem;">
+                            <h2 style="font-size: 1.25rem; font-weight: 700; color: #14532d; margin-bottom: 1rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem;">
+                                Ayat-ayat Terkait ({{ $reactData['currentTafsirTopic']->verses->count() }} Ayat)
+                            </h2>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.75rem;">
+                                @foreach($reactData['currentTafsirTopic']->verses as $verse)
+                                    <a href="/surah/{{ $verse->surah_number }}/{{ $verse->ayah_number }}" style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; text-decoration: none; color: #1f2937; background: #fdfdfd;">
+                                        <span style="font-weight: 600; color: #15803d;">Surah {{ $verse->surah_number }}, Ayat {{ $verse->ayah_number }}</span>
+                                        <span style="font-size: 0.8125rem; color: #6b7280;">Buka &rarr;</span>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </section>
+                    @endif
+
+                    <div style="text-align: center; margin-top: 2.5rem;">
+                        <a href="/tafsir-maudhui" style="display: inline-block; padding: 0.75rem 1.5rem; background: #16a34a; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">&larr; Lihat Semua Topik Tafsir</a>
+                    </div>
+                </article>
             </div>
         @endif
     </div>

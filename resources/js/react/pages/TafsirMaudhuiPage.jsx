@@ -399,13 +399,31 @@ function TafsirMaudhuiPage() {
         return allTopicIndices.length > 0 && allTopicIndices.every(index => expandedTopics.has(index));
     }, [groupedTopics, expandedTopics]);
 
+    // Find current topic if slug is present
+    const currentTopic = useMemo(() => {
+        if (!slug || !tafsirData?.topics) return null;
+        return tafsirData.topics.find(t => t.slug === slug);
+    }, [slug, tafsirData]);
+
     // SEO Data
-    const seoData = {
-        title: 'Tafsir Maudhui - Topik-topik dalam Al-Quran | IndoQuran',
-        description: 'Jelajahi topik-topik penting dalam Al-Quran melalui pendekatan tafsir maudhui. Temukan ayat-ayat Al-Quran berdasarkan tema seperti akidah, ibadah, akhlak, muamalah, dan banyak lagi.',
-        keywords: 'tafsir maudhui, topik quran, tema al quran, tafsir tematik, akidah islam, ibadah islam, akhlak islam, muamalah islam, indoquran',
-        canonical: '/tafsir-maudhui'
-    };
+    const seoData = useMemo(() => {
+        if (currentTopic) {
+            return {
+                title: `Tafsir Maudhui: ${currentTopic.topic} - IndoQuran`,
+                description: currentTopic.description || `Kumpulan ayat-ayat Al-Quran dan pembahasan tematik tentang ${currentTopic.topic} dalam Tafsir Maudhui IndoQuran.`,
+                keywords: `tafsir maudhui ${currentTopic.topic}, ayat tentang ${currentTopic.topic}, quran ${currentTopic.topic}, tafsir tematik, indoquran`,
+                canonical: `/tafsir-maudhui/${currentTopic.slug}`,
+                canonicalUrl: `https://indoquran.web.id/tafsir-maudhui/${currentTopic.slug}`
+            };
+        }
+        return {
+            title: 'Tafsir Maudhui - Topik-topik dalam Al-Quran | IndoQuran',
+            description: 'Jelajahi topik-topik penting dalam Al-Quran melalui pendekatan tafsir maudhui. Temukan ayat-ayat Al-Quran berdasarkan tema seperti akidah, ibadah, akhlak, muamalah, dan banyak lagi.',
+            keywords: 'tafsir maudhui, topik quran, tema al quran, tafsir tematik, akidah islam, ibadah islam, akhlak islam, muamalah islam, indoquran',
+            canonical: '/tafsir-maudhui',
+            canonicalUrl: 'https://indoquran.web.id/tafsir-maudhui'
+        };
+    }, [currentTopic]);
 
     if (loading) {
         return (

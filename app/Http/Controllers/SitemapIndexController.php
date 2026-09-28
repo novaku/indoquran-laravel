@@ -196,6 +196,21 @@ class SitemapIndexController extends Controller
         } catch (\Throwable $e) {
             // Ignore if table not available
         }
+
+        // Add active tafsir maudhui topics
+        try {
+            $topics = \App\Models\TafsirMaudhuiTopic::active()->select('slug', 'updated_at')->get();
+            foreach ($topics as $topic) {
+                $pages[] = [
+                    'url' => $baseUrl . '/tafsir-maudhui/' . $topic->slug,
+                    'lastmod' => $topic->updated_at ? $topic->updated_at->format('Y-m-d') : $currentDate,
+                    'changefreq' => 'monthly',
+                    'priority' => '0.75'
+                ];
+            }
+        } catch (\Throwable $e) {
+            // Ignore if table not available
+        }
         
         return $this->generateSitemapXml($pages);
     }

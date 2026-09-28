@@ -202,8 +202,24 @@ class SitemapController extends Controller
                 'priority' => '0.7'
             ];
         }
+
+        // Add Tafsir Maudhui topic pages
+        $tafsirPages = [];
+        try {
+            $topics = \App\Models\TafsirMaudhuiTopic::active()->select('slug', 'updated_at')->get();
+            $tafsirPages = $topics->map(function ($topic) use ($baseUrl, $currentDate) {
+                return [
+                    'url' => $baseUrl . '/tafsir-maudhui/' . $topic->slug,
+                    'lastmod' => $topic->updated_at ? $topic->updated_at->format('Y-m-d') : $currentDate,
+                    'changefreq' => 'monthly',
+                    'priority' => '0.75'
+                ];
+            })->toArray();
+        } catch (\Throwable $e) {
+            // Ignore if table doesn't exist yet
+        }
         
-        $allPages = array_merge($staticPages, $surahPages, $articlePages, $juzPages, $halamanPages);
+        $allPages = array_merge($staticPages, $surahPages, $articlePages, $juzPages, $halamanPages, $tafsirPages);
         
         // Generate XML
         $xml = $this->generateSitemapXml($allPages);

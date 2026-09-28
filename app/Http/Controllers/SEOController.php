@@ -531,13 +531,86 @@ class SEOController extends Controller
         }
         elseif (isset($segments[0]) && $segments[0] === 'tafsir-maudhui') {
             // Tafsir Maudhui page SEO
-            $seoData = array_merge($seoData, [
-                'metaTitle' => 'Tafsir Maudhui - Topik-topik dalam Al-Quran | IndoQuran',
-                'metaDescription' => 'Jelajahi topik-topik penting dalam Al-Quran melalui pendekatan tafsir maudhui. Temukan ayat-ayat Al-Quran berdasarkan tema seperti akidah, ibadah, akhlak, muamalah, dan banyak lagi.',
-                'metaKeywords' => 'tafsir maudhui, topik quran, tema al quran, tafsir tematik, akidah islam, ibadah islam, akhlak islam, muamalah islam, indoquran',
-                'canonicalUrl' => url('/tafsir-maudhui'),
-                'ogType' => 'article'
-            ]);
+            if (isset($segments[1])) {
+                $slug = trim((string) $segments[1]);
+                $topic = TafsirMaudhuiTopic::query()
+                    ->where('slug', $slug)
+                    ->where('is_active', true)
+                    ->first();
+
+                if ($topic) {
+                    $descSnippet = Str::limit(strip_tags($topic->description ?: ''), 155);
+                    $breadcrumbStructuredData = [
+                        '@context' => 'https://schema.org',
+                        '@type' => 'BreadcrumbList',
+                        'itemListElement' => [
+                            [
+                                '@type' => 'ListItem',
+                                'position' => 1,
+                                'name' => 'Beranda',
+                                'item' => 'https://indoquran.web.id'
+                            ],
+                            [
+                                '@type' => 'ListItem',
+                                'position' => 2,
+                                'name' => 'Tafsir Maudhui',
+                                'item' => 'https://indoquran.web.id/tafsir-maudhui'
+                            ],
+                            [
+                                '@type' => 'ListItem',
+                                'position' => 3,
+                                'name' => $topic->topic,
+                                'item' => url("/tafsir-maudhui/{$topic->slug}")
+                            ]
+                        ]
+                    ];
+
+                    $seoData = array_merge($seoData, [
+                        'metaTitle' => "Tafsir Maudhui: {$topic->topic} - Ayat & Penjelasan Al-Quran | IndoQuran",
+                        'metaDescription' => $descSnippet ?: "Kumpulan ayat Al-Quran dan penjelasan tematik mengenai {$topic->topic} dalam Tafsir Maudhui IndoQuran.",
+                        'metaKeywords' => "tafsir maudhui {$topic->topic}, ayat tentang {$topic->topic}, dalil {$topic->topic}, al quran {$topic->topic}, indoquran",
+                        'canonicalUrl' => url("/tafsir-maudhui/{$topic->slug}"),
+                        'breadcrumbStructuredData' => $breadcrumbStructuredData,
+                        'ogType' => 'article'
+                    ]);
+                } else {
+                    $seoData = array_merge($seoData, [
+                        'metaTitle' => 'Tafsir Maudhui - Topik-topik dalam Al-Quran | IndoQuran',
+                        'metaDescription' => 'Jelajahi topik-topik penting dalam Al-Quran melalui pendekatan tafsir maudhui. Temukan ayat-ayat Al-Quran berdasarkan tema seperti akidah, ibadah, akhlak, muamalah, dan banyak lagi.',
+                        'metaKeywords' => 'tafsir maudhui, topik quran, tema al quran, tafsir tematik, akidah islam, ibadah islam, akhlak islam, muamalah islam, indoquran',
+                        'canonicalUrl' => url('/tafsir-maudhui'),
+                        'ogType' => 'article'
+                    ]);
+                }
+            } else {
+                $breadcrumbStructuredData = [
+                    '@context' => 'https://schema.org',
+                    '@type' => 'BreadcrumbList',
+                    'itemListElement' => [
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 1,
+                            'name' => 'Beranda',
+                            'item' => 'https://indoquran.web.id'
+                        ],
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 2,
+                            'name' => 'Tafsir Maudhui',
+                            'item' => 'https://indoquran.web.id/tafsir-maudhui'
+                        ]
+                    ]
+                ];
+
+                $seoData = array_merge($seoData, [
+                    'metaTitle' => 'Tafsir Maudhui - Topik-topik dalam Al-Quran | IndoQuran',
+                    'metaDescription' => 'Jelajahi topik-topik penting dalam Al-Quran melalui pendekatan tafsir maudhui. Temukan ayat-ayat Al-Quran berdasarkan tema seperti akidah, ibadah, akhlak, muamalah, dan banyak lagi.',
+                    'metaKeywords' => 'tafsir maudhui, topik quran, tema al quran, tafsir tematik, akidah islam, ibadah islam, akhlak islam, muamalah islam, indoquran',
+                    'canonicalUrl' => url('/tafsir-maudhui'),
+                    'breadcrumbStructuredData' => $breadcrumbStructuredData,
+                    'ogType' => 'article'
+                ]);
+            }
         }
         elseif (isset($segments[0]) && $segments[0] === 'doa-bersama') {
             if ($request->filled('doa') && is_numeric($request->doa)) {
@@ -1064,6 +1137,16 @@ class SEOController extends Controller
                     ->latest('published_at')
                     ->limit(12)
                     ->get();
+            }
+        }
+        elseif (isset($segments[0]) && $segments[0] === 'tafsir-maudhui') {
+            if (isset($segments[1])) {
+                $slug = trim((string) $segments[1]);
+                $reactData['currentTafsirTopic'] = TafsirMaudhuiTopic::query()
+                    ->with('verses')
+                    ->where('slug', $slug)
+                    ->where('is_active', true)
+                    ->first();
             }
         }
 
