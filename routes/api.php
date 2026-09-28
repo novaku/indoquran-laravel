@@ -51,6 +51,9 @@ Route::middleware(['static.key'])->group(function() {
 Route::get('/articles/{slug}/comments', [ArticleCommentController::class, 'getComments']);
 Route::post('/articles/{slug}/comments', [ArticleCommentController::class, 'store']);
 
+// Public Audio Route for Selected Prayers (Doa Pilihan)
+Route::get('/doa-pilihan/{selectedPrayer}/audio', [SelectedPrayerController::class, 'audio']);
+
 // ==========================================
 // PROTECTED ROUTES (JWT required)
 // ==========================================

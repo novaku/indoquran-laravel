@@ -29,6 +29,18 @@ class SelectedPrayer extends Model
         'updated_at' => 'datetime',
     ];
 
+    protected $appends = [
+        'audio_url',
+    ];
+
+    /**
+     * Get audio URL for Chrome internal audio player
+     */
+    public function getAudioUrlAttribute(): string
+    {
+        return "/storage/audio/doa/doa_{$this->id}.mp3";
+    }
+
     /**
      * Scope for category filter
      */

@@ -1,16 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
     IoCopyOutline, 
     IoCheckmarkOutline, 
     IoLogoWhatsapp, 
     IoBookOutline, 
     IoSparklesOutline, 
-    IoHandRightOutline 
+    IoHandRightOutline,
+    IoVolumeMediumOutline
 } from 'react-icons/io5';
 import { toast } from 'react-hot-toast';
 
 const SelectedPrayerCard = ({ prayer, onUseInCommunity, isHighlighted = false }) => {
     const [copied, setCopied] = useState(false);
+    const audioRef = useRef(null);
+
+    // Pause audio when component unmounts
+    useEffect(() => {
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+            }
+        };
+    }, []);
+
+    const handleAudioPlay = (e) => {
+        // Pause all other audio elements on the page so only one plays at a time
+        document.querySelectorAll('audio').forEach((el) => {
+            if (el !== e.target) {
+                el.pause();
+            }
+        });
+    };
 
     const prayerShareUrl = typeof window !== 'undefined'
         ? `${window.location.origin}/doa-bersama?doa=${prayer.id}#doa-${prayer.id}`
@@ -94,6 +114,30 @@ const SelectedPrayerCard = ({ prayer, onUseInCommunity, isHighlighted = false })
                         </p>
                     </div>
                 )}
+
+                {/* Audio Player for Arabic (Chrome Internal Audio Player) */}
+                <div className="mt-4 pt-3.5 border-t border-emerald-100/70">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                        <span className="text-xs font-semibold text-emerald-900 flex items-center gap-1.5">
+                            <IoVolumeMediumOutline className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                            <span>Audio Pelafalan Arab</span>
+                        </span>
+                        <span className="text-[11px] text-emerald-700/70 font-medium hidden sm:inline">
+                            Pemutar Audio Chrome
+                        </span>
+                    </div>
+                    <audio 
+                        ref={audioRef}
+                        controls 
+                        preload="none"
+                        className="w-full h-10 accent-emerald-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                        onPlay={handleAudioPlay}
+                    >
+                        <source src={prayer.audio_url || `/storage/audio/doa/doa_${prayer.id}.mp3`} type="audio/mpeg" />
+                        <source src={`/api/doa-pilihan/${prayer.id}/audio`} type="audio/mpeg" />
+                        Browser Anda tidak mendukung pemutar audio bawaan.
+                    </audio>
+                </div>
             </div>
 
             {/* Indonesian Translation */}

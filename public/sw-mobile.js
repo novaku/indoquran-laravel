@@ -63,6 +63,11 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  // Audio media and Range requests should bypass ServiceWorker to allow streaming in Chrome internal audio player
+  if (request.headers.has('range') || request.destination === 'audio' || url.pathname.includes('/audio') || /\.(mp3|wav|ogg|m4a)$/i.test(url.pathname)) {
+    return;
+  }
+
   // Strategy selection based on resource type
   if (url.pathname.startsWith('/api/')) {
     // Network first for API calls

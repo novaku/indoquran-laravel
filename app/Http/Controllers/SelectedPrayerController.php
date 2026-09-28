@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SelectedPrayer;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\File;
 
 class SelectedPrayerController extends Controller
 {
@@ -112,5 +113,70 @@ class SelectedPrayerController extends Controller
             'data' => $selectedPrayer,
             'message' => 'Detail doa pilihan berhasil dimuat'
         ]);
+    }
+
+    /**
+     * Stream or generate MP3 audio for selected prayer Arabic text
+     */
+    public function audio(SelectedPrayer $selectedPrayer)
+    {
+        $dir = storage_path('app/public/audio/doa');
+        $filePath = "{$dir}/doa_{$selectedPrayer->id}.mp3";
+
+        if (!file_exists($filePath)) {
+            File::ensureDirectoryExists($dir);
+            $mp3 = $this->generateArabicAudio($selectedPrayer->arabic);
+            if (!empty($mp3)) {
+                file_put_contents($filePath, $mp3);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Audio tidak tersedia untuk doa ini'
+                ], 404);
+            }
+        }
+
+        return response()->file($filePath, [
+            'Content-Type' => 'audio/mpeg',
+            'Accept-Ranges' => 'bytes',
+            'Cache-Control' => 'public, max-age=31536000',
+        ]);
+    }
+
+    /**
+     * Helper to generate Arabic audio via chunked Google Translate TTS
+     */
+    private function generateArabicAudio(string $arabicText): ?string
+    {
+        $words = preg_split('/([،,.؟?!\s]+)/u', $arabicText, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $chunks = [];
+        $current = '';
+        foreach ($words as $part) {
+            if (mb_strlen($current . $part) > 80 && trim($current) !== '') {
+                $chunks[] = trim($current);
+                $current = $part;
+            } else {
+                $current .= $part;
+            }
+        }
+        if (trim($current) !== '') {
+            $chunks[] = trim($current);
+        }
+
+        $mp3 = '';
+        foreach ($chunks as $chunk) {
+            $url = 'https://translate.google.com/translate_tts?ie=UTF-8&tl=ar&client=tw-ob&q=' . urlencode($chunk);
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+            $data = curl_exec($ch);
+            $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            if ($code == 200 && $data) {
+                $mp3 .= $data;
+            }
+        }
+
+        return !empty($mp3) ? $mp3 : null;
     }
 }
