@@ -235,6 +235,13 @@ class SEOController extends Controller
                     $isInvalidRoute = true;
                 } elseif (count($segments) === 2) {
                     $slug = trim((string) $segments[1]);
+
+                    // Redirect legacy /artikel/tag-{tagSlug} to /artikel?tag={tagSlug}
+                    if (str_starts_with($slug, 'tag-')) {
+                        $tagSlug = substr($slug, 4);
+                        return redirect(url('/artikel?tag=' . $tagSlug), 301);
+                    }
+
                     if ($slug === '') {
                         $isInvalidRoute = true;
                     } else {
