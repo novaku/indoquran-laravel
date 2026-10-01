@@ -27,6 +27,12 @@ Schedule::command('quran:cache warm-up')
     ->withoutOverlapping()
     ->name('warmup-quran-cache');
 
+// 3b. Performa & Cache: Pre-warming cache Hadits Nabawi setiap hari jam 03:15 pagi
+Schedule::command('hadits:cache warm-up')
+    ->dailyAt('03:15')
+    ->withoutOverlapping()
+    ->name('warmup-hadits-cache');
+
 // 4. Maintenance: Bersihkan token reset password yang kadaluwarsa setiap hari jam 04:00 pagi
 Schedule::command('auth:clear-resets')
     ->dailyAt('04:00')
@@ -239,10 +245,39 @@ Artisan::command('redis:version-check', function () {
     }
     
     $this->line('Available Redis commands:');
-    $commands = \Artisan::all();
+    $commands = Artisan::all();
     foreach ($commands as $name => $command) {
         if (strpos($name, 'redis:') === 0) {
             $this->line("  - {$name}");
         }
     }
 })->purpose('Check if Redis commands are properly updated');
+
+Artisan::command('hadits:cache {action=warm-up : Action to perform: warm-up, clear}', function (\App\Services\HaditsCacheService $cache) {
+    $action = $this->argument('action');
+
+    if ($action === 'clear') {
+        $this->info('Membersihkan cache Hadits...');
+        $cache->clearAllCache();
+        $this->info('✅ Cache Hadits berhasil dibersihkan.');
+        return 0;
+    }
+
+    $this->info('Memulai warm-up cache Hadits Nabawi...');
+    $catalog = $cache->getCatalog();
+    $this->line("✓ Katalog 11 kitab berhasil dicache ({$catalog['total_hadits']} hadits).");
+
+    $featured = $cache->getFeaturedHadits();
+    if ($featured) {
+        $this->line("✓ Hadits pilihan hari ini berhasil dicache: {$featured['kitab_name']} No. {$featured['id']}.");
+    }
+
+    foreach ($catalog['kitabs'] as $kitab) {
+        $cache->getKitabHadits($kitab['slug'], 1, 20);
+        $cache->getHaditsDetail($kitab['slug'], 1);
+        $this->line("  ✓ {$kitab['name']} (Halaman 1 & Hadits #1) siap dalam cache.");
+    }
+
+    $this->info('✅ Warm-up cache Hadits selesai dengan sukses!');
+    return 0;
+})->purpose('Warm-up or clear Hadits Nabawi cache in Redis');

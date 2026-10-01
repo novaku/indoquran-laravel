@@ -28,6 +28,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\SEOMiddleware::class,
             \App\Http\Middleware\SetProperHttpStatus::class, // Prevent soft 404 errors
         ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'api/*',
+        ]);
         
         $middleware->api(prepend: [
             \Illuminate\Http\Middleware\HandleCors::class,

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use App\Services\HaditsCacheService;
 
 class HaditsController extends Controller
 {
@@ -200,28 +201,23 @@ class HaditsController extends Controller
         return $aliases[$normalized] ?? (isset(self::getKitabCatalog()[$normalized]) ? $normalized : null);
     }
 
+    protected HaditsCacheService $haditsCache;
+
+    public function __construct(HaditsCacheService $haditsCache)
+    {
+        $this->haditsCache = $haditsCache;
+    }
+
     /**
-     * API: Get all books metadata + featured hadith
+     * API: Get all books metadata + featured hadith (Cached)
      */
     public function index()
     {
         try {
-            $kitabs = self::getKitabCatalog();
-            
-            // Get random featured hadith cached for 1 hour
-            $featured = Cache::remember('hadits_featured_daily', 3600, function () {
-                return $this->getFeaturedHadits();
-            });
+            $data = $this->haditsCache->getCatalog();
+            $data['featured'] = $this->haditsCache->getFeaturedHadits();
 
-            $totalHadits = array_sum(array_column($kitabs, 'total'));
-
-            return response()->json([
-                'status' => 'success',
-                'total_hadits' => $totalHadits,
-                'total_kitab' => count($kitabs),
-                'kitabs' => array_values($kitabs),
-                'featured' => $featured
-            ]);
+            return response()->json($data);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -231,61 +227,35 @@ class HaditsController extends Controller
     }
 
     /**
-     * API: Get hadiths from a specific book with pagination, search, and jump
+     * API: Get hadiths from a specific book with pagination, search, and jump (Cached)
      */
     public function showKitab(string $kitab, Request $request)
     {
         $resolved = self::resolveKitabSlug($kitab);
-        $catalog = self::getKitabCatalog();
 
-        if (!$resolved || !isset($catalog[$resolved])) {
+        if (!$resolved) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Kitab hadits tidak ditemukan'
             ], 404);
         }
-
-        $kitabInfo = $catalog[$resolved];
-        $table = $kitabInfo['table'];
 
         $perPage = min(max((int) $request->input('per_page', 20), 5), 50);
         $search = trim((string) $request->input('q', ''));
         $nomor = $request->has('nomor') && is_numeric($request->input('nomor')) ? (int) $request->input('nomor') : null;
+        $page = max((int) $request->input('page', 1), 1);
 
         try {
-            $query = DB::table($table);
+            $result = $this->haditsCache->getKitabHadits($resolved, $page, $perPage, $search, $nomor);
 
-            // If jumping directly to a number without search
-            if ($nomor !== null && empty($search)) {
-                // Determine page containing this hadith ID (since IDs are 1..N)
-                $targetPage = (int) ceil(max($nomor, 1) / $perPage);
-                $request->merge(['page' => $targetPage]);
+            if (!$result) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Kitab hadits tidak ditemukan'
+                ], 404);
             }
 
-            if (!empty($search)) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('terjemah', 'like', '%' . $search . '%')
-                      ->orWhere('arab', 'like', '%' . $search . '%');
-                });
-            }
-
-            $paginator = $query->orderBy('id', 'asc')->paginate($perPage);
-
-            return response()->json([
-                'status' => 'success',
-                'kitab' => $kitabInfo,
-                'search' => $search,
-                'jump_nomor' => $nomor,
-                'pagination' => [
-                    'current_page' => $paginator->currentPage(),
-                    'last_page' => $paginator->lastPage(),
-                    'per_page' => $paginator->perPage(),
-                    'total' => $paginator->total(),
-                    'from' => $paginator->firstItem(),
-                    'to' => $paginator->lastItem(),
-                ],
-                'data' => $paginator->items()
-            ]);
+            return response()->json($result);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -295,47 +265,32 @@ class HaditsController extends Controller
     }
 
     /**
-     * API: Get single hadith detail with prev/next navigation
+     * API: Get single hadith detail with prev/next navigation (Cached)
      */
     public function showHadits(string $kitab, int $nomor)
     {
         $resolved = self::resolveKitabSlug($kitab);
-        $catalog = self::getKitabCatalog();
 
-        if (!$resolved || !isset($catalog[$resolved])) {
+        if (!$resolved) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Kitab hadits tidak ditemukan'
             ], 404);
         }
 
-        $kitabInfo = $catalog[$resolved];
-        $table = $kitabInfo['table'];
-
         try {
-            $hadits = DB::table($table)->where('id', $nomor)->first();
+            $result = $this->haditsCache->getHaditsDetail($resolved, $nomor);
 
-            if (!$hadits) {
+            if (!$result) {
+                $catalog = self::getKitabCatalog();
+                $name = $catalog[$resolved]['name'] ?? $resolved;
                 return response()->json([
                     'status' => 'error',
-                    'message' => "Hadits nomor {$nomor} tidak ditemukan dalam {$kitabInfo['name']}"
+                    'message' => "Hadits nomor {$nomor} tidak ditemukan dalam {$name}"
                 ], 404);
             }
 
-            // Find previous and next IDs
-            $prev = DB::table($table)->where('id', '<', $nomor)->orderBy('id', 'desc')->select('id')->first();
-            $next = DB::table($table)->where('id', '>', $nomor)->orderBy('id', 'asc')->select('id')->first();
-
-            return response()->json([
-                'status' => 'success',
-                'kitab' => $kitabInfo,
-                'hadits' => $hadits,
-                'navigation' => [
-                    'prev_nomor' => $prev?->id,
-                    'next_nomor' => $next?->id,
-                    'total' => $kitabInfo['total']
-                ]
-            ]);
+            return response()->json($result);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -345,7 +300,7 @@ class HaditsController extends Controller
     }
 
     /**
-     * API: Global search Indonesian translation across all or specific hadith book
+     * API: Global search Indonesian translation across all or specific hadith book (Cached)
      */
     public function search(Request $request)
     {
@@ -361,172 +316,14 @@ class HaditsController extends Controller
         $page = max((int) $request->input('page', 1), 1);
         $perPage = min(max((int) $request->input('per_page', 20), 5), 50);
 
-        $catalog = self::getKitabCatalog();
-
-        // Build search callback for flexibility
-        $isExact = (str_starts_with($q, '"') && str_ends_with($q, '"')) || count(explode(' ', $q)) <= 1;
-        $searchPhrase = trim($q, '"');
-        $words = array_slice(preg_split('/\s+/', $searchPhrase, -1, PREG_SPLIT_NO_EMPTY), 0, 5);
-
-        $applySearchFilter = function ($builder) use ($isExact, $searchPhrase, $words) {
-            if ($isExact || count($words) <= 1) {
-                $builder->where('terjemah', 'like', '%' . $searchPhrase . '%');
-            } else {
-                $builder->where(function ($sub) use ($searchPhrase, $words) {
-                    $sub->where('terjemah', 'like', '%' . $searchPhrase . '%')
-                        ->orWhere(function ($allWords) use ($words) {
-                            foreach ($words as $w) {
-                                $allWords->where('terjemah', 'like', '%' . $w . '%');
-                            }
-                        });
-                });
-            }
-        };
-
         try {
-            // Case 1: Search in a specific book
-            if ($kitabParam !== 'all' && !empty($kitabParam)) {
-                $resolved = self::resolveKitabSlug($kitabParam);
-                if (!$resolved || !isset($catalog[$resolved])) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Kitab hadits yang dipilih tidak valid'
-                    ], 400);
-                }
-
-                $kitabInfo = $catalog[$resolved];
-                $table = $kitabInfo['table'];
-
-                $query = DB::table($table);
-                $applySearchFilter($query);
-
-                $total = $query->count();
-                $lastPage = (int) max(ceil($total / $perPage), 1);
-
-                $rawItems = $query->orderBy('id', 'asc')
-                    ->offset(($page - 1) * $perPage)
-                    ->limit($perPage)
-                    ->get();
-
-                $items = $rawItems->map(function ($row) use ($resolved, $kitabInfo) {
-                    return [
-                        'id' => $row->id,
-                        'kitab_slug' => $resolved,
-                        'kitab_name' => $kitabInfo['name'],
-                        'kitab_arab' => $kitabInfo['arab'],
-                        'category' => $kitabInfo['category'],
-                        'arab' => $row->arab,
-                        'terjemah' => $row->terjemah,
-                    ];
-                });
-
-                return response()->json([
-                    'status' => 'success',
-                    'query' => $q,
-                    'kitab_filter' => $resolved,
-                    'kitab_name' => $kitabInfo['name'],
-                    'groups' => [
-                        [
-                            'kitab_slug' => $resolved,
-                            'kitab_name' => $kitabInfo['name'],
-                            'kitab_arab' => $kitabInfo['arab'],
-                            'category' => $kitabInfo['category'],
-                            'total_in_book' => $kitabInfo['total'],
-                            'match_count' => $total,
-                        ]
-                    ],
-                    'pagination' => [
-                        'current_page' => $page,
-                        'last_page' => $lastPage,
-                        'per_page' => $perPage,
-                        'total' => $total,
-                        'from' => $total > 0 ? (($page - 1) * $perPage) + 1 : 0,
-                        'to' => min($page * $perPage, $total),
-                    ],
-                    'data' => $items
-                ]);
-            }
-
-            // Case 2: Search across all 11 books
-            $subqueries = [];
-            foreach ($catalog as $slug => $info) {
-                $sub = DB::table($info['table'])
-                    ->selectRaw('? as kitab_slug, id, arab, terjemah', [$slug]);
-                $applySearchFilter($sub);
-                $subqueries[] = $sub;
-            }
-
-            $first = array_shift($subqueries);
-            foreach ($subqueries as $sub) {
-                $first->unionAll($sub);
-            }
-
-            // Cache grouping breakdown by kitab for 1 hour to keep pagination snappy
-            $cacheKeyGroups = 'hadits_search_groups_' . md5($searchPhrase);
-            $groupsData = Cache::remember($cacheKeyGroups, 3600, function () use ($first, $catalog) {
-                $rawGroups = DB::query()->fromSub($first, 'u')
-                    ->select('kitab_slug', DB::raw('count(*) as total'))
-                    ->groupBy('kitab_slug')
-                    ->get();
-                $groupMap = $rawGroups->pluck('total', 'kitab_slug')->all();
-                $groups = [];
-                $grandTotal = 0;
-                foreach ($catalog as $slug => $info) {
-                    $c = (int) ($groupMap[$slug] ?? 0);
-                    if ($c > 0) {
-                        $groups[] = [
-                            'kitab_slug' => $slug,
-                            'kitab_name' => $info['name'],
-                            'kitab_arab' => $info['arab'],
-                            'category' => $info['category'],
-                            'total_in_book' => $info['total'],
-                            'match_count' => $c,
-                        ];
-                        $grandTotal += $c;
-                    }
-                }
-                return [
-                    'groups' => $groups,
-                    'total' => $grandTotal
-                ];
-            });
-
-            $groups = $groupsData['groups'];
-            $total = $groupsData['total'];
-
-            $lastPage = (int) max(ceil($total / $perPage), 1);
-            $wrapper = DB::query()->fromSub($first, 'u');
-            $rawItems = $wrapper->offset(($page - 1) * $perPage)->limit($perPage)->get();
-
-            $items = $rawItems->map(function ($row) use ($catalog) {
-                $info = $catalog[$row->kitab_slug] ?? null;
-                return [
-                    'id' => $row->id,
-                    'kitab_slug' => $row->kitab_slug,
-                    'kitab_name' => $info ? $info['name'] : $row->kitab_slug,
-                    'kitab_arab' => $info ? $info['arab'] : '',
-                    'category' => $info ? $info['category'] : '',
-                    'arab' => $row->arab,
-                    'terjemah' => $row->terjemah,
-                ];
-            });
-
+            $data = $this->haditsCache->searchHadits($q, $kitabParam, $page, $perPage);
+            return response()->json($data);
+        } catch (\InvalidArgumentException $e) {
             return response()->json([
-                'status' => 'success',
-                'query' => $q,
-                'kitab_filter' => 'all',
-                'kitab_name' => 'Seluruh Kitab (11 Kitab)',
-                'groups' => $groups,
-                'pagination' => [
-                    'current_page' => $page,
-                    'last_page' => $lastPage,
-                    'per_page' => $perPage,
-                    'total' => $total,
-                    'from' => $total > 0 ? (($page - 1) * $perPage) + 1 : 0,
-                    'to' => min($page * $perPage, $total),
-                ],
-                'data' => $items
-            ]);
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 400);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -536,12 +333,12 @@ class HaditsController extends Controller
     }
 
     /**
-     * API: Get a random inspirational hadith
+     * API: Get a random inspirational hadith (Cached hourly)
      */
     public function random()
     {
         try {
-            $hadits = $this->getFeaturedHadits();
+            $hadits = $this->haditsCache->getRandomHadits();
 
             return response()->json([
                 'status' => 'success',
@@ -556,54 +353,23 @@ class HaditsController extends Controller
     }
 
     /**
+     * API: Clear Hadits Cache
+     */
+    public function clearCache(Request $request)
+    {
+        $cleared = $this->haditsCache->clearAllCache();
+
+        return response()->json([
+            'status' => $cleared ? 'success' : 'error',
+            'message' => $cleared ? 'Cache hadits berhasil dibersihkan' : 'Gagal membersihkan cache hadits'
+        ]);
+    }
+
+    /**
      * Internal helper to pick a high-relevance inspirational hadith
      */
     protected function getFeaturedHadits(): ?array
     {
-        // Curated inspirational hadiths or random from Bukhari/Muslim
-        $curatedList = [
-            ['kitab' => 'shahih_bukhari', 'id' => 1, 'theme' => 'Niat & Keikhlasan'],
-            ['kitab' => 'shahih_bukhari', 'id' => 13, 'theme' => 'Mencintai Sesama Saudara'],
-            ['kitab' => 'shahih_bukhari', 'id' => 47, 'theme' => 'Tanda-tanda Orang Munafik'],
-            ['kitab' => 'shahih_muslim', 'id' => 45, 'theme' => 'Agama adalah Nasihat'],
-            ['kitab' => 'shahih_muslim', 'id' => 223, 'theme' => 'Kesucian Sebagian dari Iman'],
-            ['kitab' => 'sunan_tirmidzi', 'id' => 1956, 'theme' => 'Senyum adalah Sedekah'],
-            ['kitab' => 'riyadhus_shalihin', 'id' => 2, 'theme' => 'Kewajiban Taubat'],
-        ];
-
-        $catalog = self::getKitabCatalog();
-        $pick = $curatedList[array_rand($curatedList)];
-
-        if (isset($catalog[$pick['kitab']])) {
-            $kitabInfo = $catalog[$pick['kitab']];
-            $row = DB::table($kitabInfo['table'])->where('id', $pick['id'])->first();
-            if ($row) {
-                return [
-                    'id' => $row->id,
-                    'kitab' => $pick['kitab'],
-                    'kitab_name' => $kitabInfo['name'],
-                    'kitab_arab' => $kitabInfo['arab'],
-                    'theme' => $pick['theme'],
-                    'arab' => $row->arab,
-                    'terjemah' => $row->terjemah
-                ];
-            }
-        }
-
-        // Fallback to first hadith of Bukhari
-        $bukhariRow = DB::table('hadits_shahih_bukhari')->first();
-        if ($bukhariRow) {
-            return [
-                'id' => $bukhariRow->id,
-                'kitab' => 'shahih_bukhari',
-                'kitab_name' => 'Shahih Bukhari',
-                'kitab_arab' => 'صحيح البخاري',
-                'theme' => 'Semua Amal Tergantung Niat',
-                'arab' => $bukhariRow->arab,
-                'terjemah' => $bukhariRow->terjemah
-            ];
-        }
-
-        return null;
+        return $this->haditsCache->getFeaturedHadits();
     }
 }

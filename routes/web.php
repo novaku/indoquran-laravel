@@ -105,12 +105,25 @@ Route::get('/api/asmaul-husna/search', [AsmaulHusnaController::class, 'search'])
 Route::get('/api/asmaul-husna/{slug}', [AsmaulHusnaController::class, 'show'])->name('asmaul-husna.show');
 Route::post('/api/asmaul-husna/clear-cache', [AsmaulHusnaController::class, 'clearCache'])->name('asmaul-husna.clear-cache');
 
-// API routes for Hadits (to be consumed by React)
-Route::get('/api/hadits', [HaditsController::class, 'index'])->name('hadits.api');
-Route::get('/api/hadits/search', [HaditsController::class, 'search'])->name('hadits.search');
-Route::get('/api/hadits/random', [HaditsController::class, 'random'])->name('hadits.random');
-Route::get('/api/hadits/{kitab}', [HaditsController::class, 'showKitab'])->name('hadits.kitab');
-Route::get('/api/hadits/{kitab}/{nomor}', [HaditsController::class, 'showHadits'])->name('hadits.detail');
+// API routes for Hadits (to be consumed by React, with HTTP cache)
+Route::middleware(['api.cache:30d'])->group(function () {
+    Route::get('/api/hadits', [HaditsController::class, 'index'])->name('hadits.api');
+});
+
+Route::middleware(['api.cache:7d'])->group(function () {
+    Route::get('/api/hadits/search', [HaditsController::class, 'search'])->name('hadits.search');
+});
+
+Route::middleware(['api.cache:1h'])->group(function () {
+    Route::get('/api/hadits/random', [HaditsController::class, 'random'])->name('hadits.random');
+});
+
+Route::match(['GET', 'POST'], '/api/hadits/clear-cache', [HaditsController::class, 'clearCache'])->name('hadits.clear-cache');
+
+Route::middleware(['api.cache:30d'])->group(function () {
+    Route::get('/api/hadits/{kitab}', [HaditsController::class, 'showKitab'])->name('hadits.kitab');
+    Route::get('/api/hadits/{kitab}/{nomor}', [HaditsController::class, 'showHadits'])->name('hadits.detail');
+});
 
 // API route for Website News & Notifications (Facebook-style)
 Route::get('/api/notifications', [NotificationController::class, 'index'])->name('notifications.api');
