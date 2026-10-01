@@ -229,6 +229,24 @@ class SEOController extends Controller
                 $isInvalidRoute = true;
             }
 
+            // Hadits route validation
+            if ($segments[0] === 'hadits') {
+                if (count($segments) > 3) {
+                    $isInvalidRoute = true;
+                } elseif (count($segments) >= 2) {
+                    $kitabSlug = $segments[1];
+                    $validKitabs = array_keys(\App\Http\Controllers\HaditsController::getKitabCatalog());
+                    if (!in_array($kitabSlug, $validKitabs, true)) {
+                        $isInvalidRoute = true;
+                    } elseif (count($segments) === 3) {
+                        $nomor = (int) $segments[2];
+                        if ($nomor < 1) {
+                            $isInvalidRoute = true;
+                        }
+                    }
+                }
+            }
+
             // Article route validation
             if ($segments[0] === 'artikel') {
                 if (count($segments) > 2) {
@@ -268,7 +286,7 @@ class SEOController extends Controller
                 // Core Quran content
                 'surah', 'juz', 'halaman', 'cari',
                 // Features
-                'tafsir-maudhui', 'asmaul-husna', 'doa-bersama',
+                'tafsir-maudhui', 'asmaul-husna', 'doa-bersama', 'hadits',
                 // Static / info pages
                 'tentang', 'kontak', 'donasi', 'kebijakan', 'syarat-ketentuan',
                 'riwayat-versi', 'member', 'keuntungan-member',
@@ -672,6 +690,35 @@ class SEOController extends Controller
                 'metaKeywords' => '99 asmaul husna, asmaul husna lengkap, nama allah swt, asmaul husna arab latin, asmaul husna dan artinya, dzikir asmaul husna, audio asmaul husna, nama indah allah, asma allah husna',
                 'canonicalUrl' => url('/asmaul-husna')
             ]);
+        }
+        elseif (isset($segments[0]) && $segments[0] === 'hadits') {
+            // Hadits SEO
+            $catalog = \App\Http\Controllers\HaditsController::getKitabCatalog();
+            if (count($segments) === 1) {
+                $seoData = array_merge($seoData, [
+                    'metaTitle' => 'Koleksi 11 Kitab Hadits Lengkap (Kutubut Tis\'ah & Terjemahan) | IndoQuran',
+                    'metaDescription' => 'Koleksi 11 kitab hadits terlengkap: Shahih Bukhari, Muslim, Abu Daud, Tirmidzi, An-Nasa\'i, Ibnu Majah, Musnad Ahmad, Muwatha Malik, dll. Teks Arab dan terjemahan Indonesia.',
+                    'metaKeywords' => 'hadits, hadits shahih, shahih bukhari, shahih muslim, sunan abu daud, kutubut tisah, hadits nabi, terjemah hadits, hadist indonesia',
+                    'canonicalUrl' => url('/hadits')
+                ]);
+            } elseif (count($segments) === 2 && isset($catalog[$segments[1]])) {
+                $kitab = $catalog[$segments[1]];
+                $seoData = array_merge($seoData, [
+                    'metaTitle' => "Kitab {$kitab['name']} Lengkap Teks Arab & Terjemahan | IndoQuran",
+                    'metaDescription' => "Baca {$kitab['name']} ({$kitab['arab']}) karya {$kitab['author']}. Total {$kitab['total']} hadits lengkap teks Arab dan terjemahan bahasa Indonesia.",
+                    'metaKeywords' => "{$kitab['name']}, hadits {$kitab['name']}, {$kitab['arab']}, baca hadits online, kutubus sittah, terjemah hadits",
+                    'canonicalUrl' => url('/hadits/' . $segments[1])
+                ]);
+            } elseif (count($segments) === 3 && isset($catalog[$segments[1]])) {
+                $kitab = $catalog[$segments[1]];
+                $nomor = (int) $segments[2];
+                $seoData = array_merge($seoData, [
+                    'metaTitle' => "Hadits {$kitab['name']} No. {$nomor} - Teks Arab & Terjemahan | IndoQuran",
+                    'metaDescription' => "Baca Hadits {$kitab['name']} Nomor {$nomor} lengkap dengan teks Arab berharakat dan terjemahan bahasa Indonesia.",
+                    'metaKeywords' => "hadits {$kitab['name']} {$nomor}, hadits no {$nomor}, {$kitab['name']}, teks hadits, terjemah hadits",
+                    'canonicalUrl' => url('/hadits/' . $segments[1] . '/' . $nomor)
+                ]);
+            }
         }
         elseif (isset($segments[0]) && $segments[0] === 'member') {
             // Member benefits page SEO - NEW

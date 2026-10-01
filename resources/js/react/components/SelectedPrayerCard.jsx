@@ -1,36 +1,24 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
     IoCopyOutline, 
     IoCheckmarkOutline, 
     IoLogoWhatsapp, 
     IoBookOutline, 
     IoSparklesOutline, 
-    IoHandRightOutline,
-    IoVolumeMediumOutline
+    IoHandRightOutline
 } from 'react-icons/io5';
+import {
+    PlayIcon as SolidPlayIcon,
+    PauseIcon as SolidPauseIcon
+} from '@heroicons/react/24/solid';
 import { toast } from 'react-hot-toast';
+import { useArabicSpeech } from '../hooks/useArabicSpeech';
+import HaditsAudioPlayer from './HaditsAudioPlayer';
 
-const SelectedPrayerCard = ({ prayer, onUseInCommunity, isHighlighted = false }) => {
+const SelectedPrayerCard = ({ prayer, onUseInCommunity, isHighlighted = false, speech }) => {
     const [copied, setCopied] = useState(false);
-    const audioRef = useRef(null);
-
-    // Pause audio when component unmounts
-    useEffect(() => {
-        return () => {
-            if (audioRef.current) {
-                audioRef.current.pause();
-            }
-        };
-    }, []);
-
-    const handleAudioPlay = (e) => {
-        // Pause all other audio elements on the page so only one plays at a time
-        document.querySelectorAll('audio').forEach((el) => {
-            if (el !== e.target) {
-                el.pause();
-            }
-        });
-    };
+    const localSpeech = useArabicSpeech();
+    const activeSpeech = speech || localSpeech;
 
     const prayerShareUrl = typeof window !== 'undefined'
         ? `${window.location.origin}/doa-bersama?doa=${prayer.id}#doa-${prayer.id}`
@@ -58,7 +46,7 @@ const SelectedPrayerCard = ({ prayer, onUseInCommunity, isHighlighted = false })
         <div 
             id={`doa-${prayer.id}`}
             className={`bg-white rounded-2xl p-5 sm:p-6 transition-all duration-300 relative group overflow-hidden ${
-                isHighlighted
+                isHighlighted || (activeSpeech && activeSpeech.activeId === prayer.id)
                     ? 'ring-2 ring-emerald-500 shadow-xl border-emerald-400 bg-emerald-50/20'
                     : 'hover:shadow-lg border border-emerald-100/80 hover:border-emerald-300'
             }`}
@@ -83,12 +71,51 @@ const SelectedPrayerCard = ({ prayer, onUseInCommunity, isHighlighted = false })
                     )}
                 </div>
 
-                {prayer.source && (
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-50 border border-gray-200/80 text-gray-600 text-xs font-medium">
-                        <IoBookOutline className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>{prayer.source}</span>
-                    </div>
-                )}
+                <div className="flex items-center gap-2 flex-wrap">
+                    {prayer.source && (
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-50 border border-gray-200/80 text-gray-600 text-xs font-medium">
+                            <IoBookOutline className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>{prayer.source}</span>
+                        </div>
+                    )}
+
+                    {/* Play Audio Button (Client-side Web Speech API) */}
+                    {activeSpeech && activeSpeech.isSupported && (
+                        <button
+                            onClick={() => {
+                                if (activeSpeech.activeId === prayer.id) {
+                                    if (activeSpeech.isPlaying) activeSpeech.pause();
+                                    else activeSpeech.resume();
+                                } else {
+                                    activeSpeech.play(prayer.id, prayer.arabic);
+                                }
+                            }}
+                            className={`group inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                                activeSpeech.activeId === prayer.id
+                                    ? 'bg-emerald-600 text-white shadow-xs'
+                                    : 'text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 shadow-2xs hover:shadow-xs'
+                            }`}
+                            title="Putar Audio Pelafalan Arab (Speech Synthesis)"
+                        >
+                            <span className={`flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-md transition-all ${
+                                activeSpeech.activeId === prayer.id
+                                    ? 'bg-white/20 text-white'
+                                    : 'bg-emerald-600 text-white shadow-2xs group-hover:scale-105'
+                            }`}>
+                                {activeSpeech.activeId === prayer.id && activeSpeech.isPlaying ? (
+                                    <SolidPauseIcon className="w-3 h-3 fill-current" />
+                                ) : (
+                                    <SolidPlayIcon className="w-3 h-3 ml-0.5 fill-current" />
+                                )}
+                            </span>
+                            <span>
+                                {activeSpeech.activeId === prayer.id
+                                    ? (activeSpeech.isPlaying ? 'Jeda' : 'Lanjut')
+                                    : 'Putar Audio'}
+                            </span>
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Title */}
@@ -97,7 +124,11 @@ const SelectedPrayerCard = ({ prayer, onUseInCommunity, isHighlighted = false })
             </h3>
 
             {/* Arabic Text Block */}
-            <div className="bg-gradient-to-br from-emerald-50/40 via-teal-50/20 to-transparent rounded-2xl p-5 sm:p-6 border border-emerald-100/70 mb-4">
+            <div className={`bg-gradient-to-br from-emerald-50/40 via-teal-50/20 to-transparent rounded-2xl p-5 sm:p-6 border transition-all mb-4 ${
+                activeSpeech && activeSpeech.activeId === prayer.id
+                    ? 'border-emerald-300 ring-2 ring-emerald-200/60 shadow-xs'
+                    : 'border-emerald-100/70'
+            }`}>
                 <p 
                     className="font-arabic text-right text-2xl sm:text-3xl leading-loose font-normal text-gray-900 select-text"
                     dir="rtl"
@@ -115,29 +146,12 @@ const SelectedPrayerCard = ({ prayer, onUseInCommunity, isHighlighted = false })
                     </div>
                 )}
 
-                {/* Audio Player for Arabic (Chrome Internal Audio Player) */}
-                <div className="mt-4 pt-3.5 border-t border-emerald-100/70">
-                    <div className="flex items-center justify-between gap-2 mb-2">
-                        <span className="text-xs font-semibold text-emerald-900 flex items-center gap-1.5">
-                            <IoVolumeMediumOutline className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                            <span>Audio Pelafalan Arab</span>
-                        </span>
-                        <span className="text-[11px] text-emerald-700/70 font-medium hidden sm:inline">
-                            Pemutar Audio Chrome
-                        </span>
+                {/* Client-side Audio Player (Web Speech API) */}
+                {activeSpeech && activeSpeech.isSupported && activeSpeech.activeId === prayer.id && (
+                    <div className="mt-4 pt-3.5 border-t border-emerald-100/70">
+                        <HaditsAudioPlayer haditsId={prayer.id} speech={activeSpeech} />
                     </div>
-                    <audio 
-                        ref={audioRef}
-                        controls 
-                        preload="none"
-                        className="w-full h-10 accent-emerald-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
-                        onPlay={handleAudioPlay}
-                    >
-                        <source src={prayer.audio_url || `/storage/audio/doa/doa_${prayer.id}.mp3`} type="audio/mpeg" />
-                        <source src={`/api/doa-pilihan/${prayer.id}/audio`} type="audio/mpeg" />
-                        Browser Anda tidak mendukung pemutar audio bawaan.
-                    </audio>
-                </div>
+                )}
             </div>
 
             {/* Indonesian Translation */}

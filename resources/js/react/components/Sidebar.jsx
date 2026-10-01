@@ -75,9 +75,10 @@ function Sidebar({ isOpen, setIsOpen }) {
         { name: 'Daftar Surah', path: '/surah', icon: BookOpenIcon, description: 'Jelajahi 114 surah Al-Quran' },
         { name: 'Juz', path: '/juz', icon: Squares2X2Icon, description: 'Baca berdasarkan juz (para)' },
         { name: 'Halaman', path: '/halaman', icon: DocumentIcon, description: 'Baca berdasarkan halaman mushaf' },
-        { name: 'Penanda & Favorit', path: '/penanda', icon: BookmarkIcon, description: 'Ayat yang telah Anda tandai' },
+        { name: 'Penanda & Favorit', path: '/penanda', icon: BookmarkIcon, description: 'Ayat & Hadits yang telah Anda tandai' },
         { name: 'Asmaul Husna', path: '/asmaul-husna', icon: StarIcon, description: '99 nama indah Allah SWT' },
         { name: 'Tafsir Maudhui', path: '/tafsir-maudhui', icon: AcademicCapIcon, description: 'Topik-topik tematik dalam Al-Quran' },
+        { name: 'Koleksi Hadits', path: '/hadits', icon: BookOpenIcon, description: '11 Kitab hadits mu\'tamad & terjemahan' },
         { name: 'Artikel', path: '/artikel', icon: DocumentTextIcon, description: 'Artikel islami dan kajian Al-Quran' },
     ];
 
@@ -98,7 +99,7 @@ function Sidebar({ isOpen, setIsOpen }) {
         ...(user.is_admin ? [
             { name: 'Panel Admin', path: '/admin/dashboard', icon: Squares2X2Icon, description: 'Kelola website & statistik', isAdminItem: true }
         ] : []),
-        { name: 'Penanda', path: '/penanda', icon: HeartIcon, description: 'Ayat yang telah ditandai' },
+        { name: 'Penanda', path: '/penanda', icon: HeartIcon, description: 'Ayat & Hadits yang telah ditandai' },
         { name: 'Profil', path: '/profil', icon: UserIcon, description: 'Pengaturan akun' },
     ] : [];
 

@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\BookmarkController;
+use App\Http\Controllers\HaditsBookmarkController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PrayerController;
 use App\Http\Controllers\SelectedPrayerController;
@@ -50,9 +51,6 @@ Route::middleware(['static.key'])->group(function() {
 // Article comments public routes (accessible with or without token)
 Route::get('/articles/{slug}/comments', [ArticleCommentController::class, 'getComments']);
 Route::post('/articles/{slug}/comments', [ArticleCommentController::class, 'store']);
-
-// Public Audio Route for Selected Prayers (Doa Pilihan)
-Route::get('/doa-pilihan/{selectedPrayer}/audio', [SelectedPrayerController::class, 'audio']);
 
 // ==========================================
 // PROTECTED ROUTES (JWT required)
@@ -107,6 +105,17 @@ Route::middleware(['auth:api'])->group(function () {
         Route::post('/surah/ayah/{ayahId}/favorite', [BookmarkController::class, 'toggleFavorite']);
         Route::put('/surah/ayah/{ayahId}/notes', [BookmarkController::class, 'updateNotes']);
         Route::put('/surah/{surahNumber}/ayah/{ayahNumber}/notes', [BookmarkController::class, 'updateNotesByNumbers']);
+
+        // Hadits bookmarks
+        Route::prefix('hadits')->group(function() {
+            Route::get('/', [HaditsBookmarkController::class, 'index']);
+            Route::post('/sync', [HaditsBookmarkController::class, 'sync']);
+            Route::get('/{kitab}/status', [HaditsBookmarkController::class, 'getStatus']);
+            Route::post('/{kitab}/{number}/toggle', [HaditsBookmarkController::class, 'toggle']);
+            Route::post('/{kitab}/{number}/favorite', [HaditsBookmarkController::class, 'toggleFavorite']);
+            Route::put('/{kitab}/{number}/notes', [HaditsBookmarkController::class, 'updateNotes']);
+            Route::delete('/{kitab}/{number}', [HaditsBookmarkController::class, 'destroy']);
+        });
     });
     
     Route::prefix('bookmark')->group(function() {
@@ -116,6 +125,17 @@ Route::middleware(['auth:api'])->group(function () {
         Route::post('/surah/{surahNumber}/ayah/{ayahNumber}/toggle', [BookmarkController::class, 'toggleByNumbers']);
         Route::post('/surah/ayah/{ayahId}/favorite', [BookmarkController::class, 'toggleFavorite']);
         Route::put('/surah/ayah/{ayahId}/notes', [BookmarkController::class, 'updateNotes']);
+
+        // Hadits bookmarks alias
+        Route::prefix('hadits')->group(function() {
+            Route::get('/', [HaditsBookmarkController::class, 'index']);
+            Route::post('/sync', [HaditsBookmarkController::class, 'sync']);
+            Route::get('/{kitab}/status', [HaditsBookmarkController::class, 'getStatus']);
+            Route::post('/{kitab}/{number}/toggle', [HaditsBookmarkController::class, 'toggle']);
+            Route::post('/{kitab}/{number}/favorite', [HaditsBookmarkController::class, 'toggleFavorite']);
+            Route::put('/{kitab}/{number}/notes', [HaditsBookmarkController::class, 'updateNotes']);
+            Route::delete('/{kitab}/{number}', [HaditsBookmarkController::class, 'destroy']);
+        });
     });
 
     Route::put('/doa-bersama/{prayer}', [PrayerController::class, 'update']);

@@ -29,6 +29,7 @@ class User extends Authenticatable implements JWTSubject
         'avatar',
         'password',
         'is_admin',
+        'reading_preferences',
     ];
 
     /**
@@ -51,6 +52,7 @@ class User extends Authenticatable implements JWTSubject
         return [
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'reading_preferences' => 'array',
         ];
     }
 
@@ -68,6 +70,14 @@ class User extends Authenticatable implements JWTSubject
     public function ayahBookmarks(): HasMany
     {
         return $this->hasMany(UserAyahBookmark::class);
+    }
+
+    /**
+     * Get the user's hadits bookmarks.
+     */
+    public function haditsBookmarks(): HasMany
+    {
+        return $this->hasMany(UserHaditsBookmark::class);
     }
 
     /**

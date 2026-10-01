@@ -33,7 +33,8 @@ function Breadcrumb() {
         'masuk': 'Masuk',
         'daftar': 'Daftar',
         'admin': 'Admin',
-        'statistik': 'Statistik'
+        'statistik': 'Statistik',
+        'hadits': 'Hadits'
     };
 
     // Don't show breadcrumb on home page only

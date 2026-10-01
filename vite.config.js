@@ -55,8 +55,8 @@ export default defineConfig(({ command, mode }) => {
                     comments: false,
                 },
             },
-            // Reduce chunk size warning limit for mobile optimization
-            chunkSizeWarningLimit: 250,
+            // Optimize chunk size warning limit for modern React SPA
+            chunkSizeWarningLimit: 600,
             // Disable source maps for production to reduce size significantly
             sourcemap: false,
             // Enhanced code splitting for aggressive bundle size reduction
@@ -80,8 +80,13 @@ export default defineConfig(({ command, mode }) => {
                     format: 'es',
                     // Aggressive code splitting to minimize initial bundle
                     manualChunks: (id) => {
-                        // Core React dependencies (critical chunk)
-                        if (id.includes('node_modules/react/') && !id.includes('react-dom')) {
+                        // Core React dependencies & runtime internals
+                        if (
+                            (id.includes('node_modules/react/') && !id.includes('react-dom')) ||
+                            id.includes('react-is') ||
+                            id.includes('scheduler') ||
+                            id.includes('use-sync-external-store')
+                        ) {
                             return 'vendor-react-core';
                         }
                         if (id.includes('node_modules/react-dom')) {
@@ -101,8 +106,16 @@ export default defineConfig(({ command, mode }) => {
                         if (id.includes('react-icons')) {
                             return 'vendor-react-icons';
                         }
-                        // Heavy libraries (separate chunks)
-                        if (id.includes('framer-motion')) {
+                        // TanStack Query (separate chunk)
+                        if (id.includes('@tanstack')) {
+                            return 'vendor-query';
+                        }
+                        // Heavy animation libraries & motion primitives
+                        if (
+                            id.includes('framer-motion') ||
+                            id.includes('motion-dom') ||
+                            id.includes('motion-utils')
+                        ) {
                             return 'vendor-motion';
                         }
                         if (id.includes('date-fns')) {
@@ -117,14 +130,33 @@ export default defineConfig(({ command, mode }) => {
                         if (id.includes('moment')) {
                             return 'vendor-moment';
                         }
-                        if (id.includes('chart.js')) {
+                        if (
+                            id.includes('chart.js') ||
+                            id.includes('react-chartjs-2') ||
+                            id.includes('@kurkle')
+                        ) {
                             return 'vendor-charts';
                         }
-                        // TipTap - WYSIWYG editor (open source)
-                        if (id.includes('@tiptap')) {
+                        // TipTap & ProseMirror suite - WYSIWYG editor (lazy loaded for admin)
+                        if (
+                            id.includes('@tiptap') ||
+                            id.includes('prosemirror') ||
+                            id.includes('orderedmap') ||
+                            id.includes('w3c-keyname') ||
+                            id.includes('rope-sequence') ||
+                            id.includes('crelt')
+                        ) {
                             return 'vendor-editor';
                         }
-                        // Small vendor libs (grouped)
+                        // Web Vitals & Performance metrics
+                        if (id.includes('web-vitals')) {
+                            return 'vendor-vitals';
+                        }
+                        // Alpine.js
+                        if (id.includes('alpinejs')) {
+                            return 'vendor-alpine';
+                        }
+                        // Other small vendor libs (grouped)
                         if (id.includes('node_modules')) {
                             return 'vendor-utils';
                         }

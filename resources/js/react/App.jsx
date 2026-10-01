@@ -108,6 +108,12 @@ const PrayerDetailPage = lazy(() =>
 const AsmaulHusnaPage = lazy(() =>
     import(/* webpackChunkName: "asmaul-husna" */ './pages/AsmaulHusnaPage')
 );
+const HaditsHubPage = lazy(() =>
+    import(/* webpackChunkName: "hadits" */ './pages/HaditsHubPage')
+);
+const HaditsReaderPage = lazy(() =>
+    import(/* webpackChunkName: "hadits" */ './pages/HaditsReaderPage')
+);
 const RiwayatVersiPage = lazy(() =>
     import(/* webpackChunkName: "version-history" */ './pages/RiwayatVersiPage')
 );
@@ -381,6 +387,9 @@ const AppContent = memo(() => {
                         <Route path="/tafsir-maudhui" element={<TafsirMaudhuiPage />} />
                         <Route path="/tafsir-maudhui/:slug" element={<TafsirMaudhuiPage />} />
                         <Route path="/asmaul-husna" element={<AsmaulHusnaPage />} />
+                        <Route path="/hadits" element={<HaditsHubPage />} />
+                        <Route path="/hadits/:kitab" element={<HaditsReaderPage />} />
+                        <Route path="/hadits/:kitab/:nomor" element={<HaditsReaderPage />} />
                         <Route path="/doa-bersama" element={<PrayerPage />} />
                         <Route path="/doa-bersama/:id" element={<PrayerDetailPage />} />
                         <Route path="/tentang" element={<AboutPage />} />

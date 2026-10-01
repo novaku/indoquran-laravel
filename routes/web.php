@@ -9,6 +9,8 @@ use App\Http\Controllers\SitemapIndexController;
 use App\Http\Controllers\SEOController;
 use App\Http\Controllers\TafsirMaudhuiController;
 use App\Http\Controllers\AsmaulHusnaController;
+use App\Http\Controllers\HaditsController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 // SEO Routes
@@ -28,6 +30,11 @@ Route::get('/sitemap-main.xml', [SitemapIndexController::class, 'mainSitemap'])-
 Route::get('/sitemap-juz.xml', [SitemapIndexController::class, 'juzSitemap'])->name('sitemap.juz');
 Route::get('/sitemap-halaman.xml', [SitemapIndexController::class, 'halamanSitemap'])->name('sitemap.halaman');
 Route::get('/sitemap-artikel.xml', [SitemapIndexController::class, 'artikelSitemap'])->name('sitemap.artikel');
+Route::get('/sitemap-hadits.xml', [SitemapIndexController::class, 'haditsIndex'])->name('sitemap.hadits');
+Route::get('/sitemap-hadits-main.xml', [SitemapIndexController::class, 'haditsMainSitemap'])->name('sitemap.hadits.main');
+Route::get('/sitemap-hadits-{kitab}.xml', [SitemapIndexController::class, 'haditsKitabSitemap'])
+    ->where('kitab', '[a-zA-Z0-9_\-]+')
+    ->name('sitemap.hadits.kitab');
 Route::get('/sitemap-surahs-{group}.xml', [SitemapIndexController::class, 'surahGroupSitemap'])
     ->where('group', '[0-9]+')
     ->name('sitemap.surahs');
@@ -97,6 +104,16 @@ Route::get('/api/asmaul-husna', [AsmaulHusnaController::class, 'api'])->name('as
 Route::get('/api/asmaul-husna/search', [AsmaulHusnaController::class, 'search'])->name('asmaul-husna.search');
 Route::get('/api/asmaul-husna/{slug}', [AsmaulHusnaController::class, 'show'])->name('asmaul-husna.show');
 Route::post('/api/asmaul-husna/clear-cache', [AsmaulHusnaController::class, 'clearCache'])->name('asmaul-husna.clear-cache');
+
+// API routes for Hadits (to be consumed by React)
+Route::get('/api/hadits', [HaditsController::class, 'index'])->name('hadits.api');
+Route::get('/api/hadits/search', [HaditsController::class, 'search'])->name('hadits.search');
+Route::get('/api/hadits/random', [HaditsController::class, 'random'])->name('hadits.random');
+Route::get('/api/hadits/{kitab}', [HaditsController::class, 'showKitab'])->name('hadits.kitab');
+Route::get('/api/hadits/{kitab}/{nomor}', [HaditsController::class, 'showHadits'])->name('hadits.detail');
+
+// API route for Website News & Notifications (Facebook-style)
+Route::get('/api/notifications', [NotificationController::class, 'index'])->name('notifications.api');
 
 // Visitor Statistics API Routes
 Route::prefix('api/visitor-stats')->middleware('auth:api')->group(function () {

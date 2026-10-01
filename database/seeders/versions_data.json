@@ -1,5 +1,38 @@
 [
   {
+    "version": "2.30.0",
+    "date": "29 September 2026",
+    "type": "feature",
+    "title": "Koleksi 11 Kitab Hadits Nabawi, Audio Web Speech Arab & Notifikasi Website",
+    "description": "Rilis pembaruan besar yang menghadirkan katalog 11 kitab hadits mu'tamad terlengkap (64.341 hadits), pemutar audio pelafalan bahasa Arab berbasis Web Speech API browser untuk Hadits dan Doa Bersama tanpa konsumsi kuota server, sistem notifikasi kabar terbaru website bergaya Facebook untuk desktop dan mobile, serta pembaruan Service Worker PWA v2.30.0.",
+    "changes": [
+      {
+        "type": "feature",
+        "text": "Koleksi 11 Kitab Hadits Nabawi - Menghadirkan katalog lengkap 11 kitab hadits mu'tamad (Shahih Bukhari, Shahih Muslim, Sunan Abu Daud, Jami' At-Tirmidzi, Sunan An-Nasa'i, Sunan Ibnu Majah, Musnad Ahmad, Muwatha' Malik, Musnad Ad-Darimi, Musnad Asy-Syafi'i, dan Riyadhus Shalihin) memuat 64.341 hadits dengan teks Arab, nomor hadits, dan terjemahan Indonesia"
+      },
+      {
+        "type": "feature",
+        "text": "Hadits Reader & Quick Jump - Antarmuka pembaca hadits yang responsif dengan pencarian kata kunci, lompat cepat nomor hadits, pagination instan, serta fitur salin dan bagikan riwayat hadits"
+      },
+      {
+        "type": "feature",
+        "text": "Audio Pelafalan Arab Web Speech - Dukungan suara pelafalan teks Arab instan langsung di browser pengguna dengan kontrol kecepatan (0.75x, 0.85x, 1.0x), equalizer audio, dan tombol play solid di Hadits dan Doa Bersama"
+      },
+      {
+        "type": "feature",
+        "text": "Sistem Notifikasi Kabar Terbaru (Facebook Style) - Menu popover notifikasi dengan bubble badge unread, filter Semua & Belum Dibaca, penandaan status persisten di local storage, dan tampilan responsif mobile bottom-sheet"
+      },
+      {
+        "type": "improvement",
+        "text": "Highlight Fitur Hadits di Beranda - Banner spotlight showcase interaktif untuk Hadits Nabawi di homepage lengkap dengan pemutar audio instan contoh hadits, tombol aksi utama, dan quick chip pencarian"
+      },
+      {
+        "type": "improvement",
+        "text": "Pembaruan PWA & Service Worker Cache (v2.30.0) - Peningkatan cache versioning Service Worker PWA ke v2.30.0, pembaruan manifest shortcuts, dan pembersihan otomatis cache versi lama"
+      }
+    ]
+  },
+  {
     "version": "2.29.0",
     "date": "28 September 2026",
     "type": "feature",

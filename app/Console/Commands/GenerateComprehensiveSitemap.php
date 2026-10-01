@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Surah;
+use App\Http\Controllers\HaditsController;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\File;
 
@@ -52,6 +53,7 @@ class GenerateComprehensiveSitemap extends Command
         $this->generateArtikelSitemap($baseUrl);
         $this->generateJuzSitemap($baseUrl);
         $this->generateHalamanSitemap($baseUrl);
+        $this->generateHaditsSitemaps($baseUrl);
         
         // Cleanup any obsolete surah group sitemaps
         $this->cleanupLegacySitemaps();
@@ -91,6 +93,7 @@ class GenerateComprehensiveSitemap extends Command
             'donasi' => ['priority' => '0.4', 'changefreq' => 'monthly'],
             'riwayat-versi' => ['priority' => '0.4', 'changefreq' => 'monthly'],
             'kebijakan' => ['priority' => '0.3', 'changefreq' => 'yearly'],
+            'hadits' => ['priority' => '0.9', 'changefreq' => 'weekly'],
         ];
         
         foreach ($staticPages as $path => $config) {
@@ -132,6 +135,16 @@ class GenerateComprehensiveSitemap extends Command
                 '0.7'
             );
         }
+
+        // Add 11 Hadits book pages
+        foreach (HaditsController::getKitabCatalog() as $slug => $kitab) {
+            $xml .= $this->createUrlEntry(
+                $baseUrl . '/hadits/' . $slug,
+                $currentDate,
+                'monthly',
+                '0.85'
+            );
+        }
         
         $xml .= '</urlset>';
         File::put(public_path('sitemap.xml'), $xml);
@@ -160,6 +173,14 @@ class GenerateComprehensiveSitemap extends Command
 
         // Halaman sitemap (604 Mushaf pages)
         $xml .= $this->createSitemapEntry($baseUrl . '/sitemap-halaman.xml', $currentDate);
+
+        // Hadits main sitemap (hub + 11 books)
+        $xml .= $this->createSitemapEntry($baseUrl . '/sitemap-hadits-main.xml', $currentDate);
+
+        // Hadits book sitemaps (all 11 books)
+        foreach (HaditsController::getKitabCatalog() as $slug => $kitab) {
+            $xml .= $this->createSitemapEntry($baseUrl . '/sitemap-hadits-' . $slug . '.xml', $currentDate);
+        }
         
         $xml .= '</sitemapindex>';
         File::put(public_path('sitemap-index.xml'), $xml);
@@ -230,6 +251,7 @@ class GenerateComprehensiveSitemap extends Command
             'donasi' => ['priority' => '0.4', 'changefreq' => 'monthly'],
             'riwayat-versi' => ['priority' => '0.4', 'changefreq' => 'monthly'],
             'kebijakan' => ['priority' => '0.3', 'changefreq' => 'yearly'],
+            'hadits' => ['priority' => '0.9', 'changefreq' => 'weekly'],
         ];
         
         foreach ($staticPages as $path => $config) {
@@ -249,6 +271,16 @@ class GenerateComprehensiveSitemap extends Command
                 $surah->updated_at ? $surah->updated_at->format('Y-m-d') : $currentDate,
                 'weekly',
                 '0.9'
+            );
+        }
+
+        // Add 11 Hadits book pages
+        foreach (HaditsController::getKitabCatalog() as $slug => $kitab) {
+            $xml .= $this->createUrlEntry(
+                $baseUrl . '/hadits/' . $slug,
+                $currentDate,
+                'monthly',
+                '0.85'
             );
         }
         
@@ -307,6 +339,63 @@ class GenerateComprehensiveSitemap extends Command
         $xml .= '</urlset>';
         File::put(public_path('sitemap-halaman.xml'), $xml);
         $this->info('✓ Halaman sitemap generated');
+    }
+
+    /**
+     * Generate Hadits sitemaps (index, main hub, and 11 individual book sitemaps)
+     */
+    protected function generateHaditsSitemaps($baseUrl)
+    {
+        $this->info('Generating Hadits sitemaps...');
+        $currentDate = Carbon::now()->format('Y-m-d');
+        $isoDate = Carbon::now()->format('Y-m-d\TH:i:s\Z');
+        $catalog = HaditsController::getKitabCatalog();
+
+        // 1. Generate sitemap-hadits-main.xml (hub + 11 book pages)
+        $mainXml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
+        $mainXml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
+        $mainXml .= $this->createUrlEntry($baseUrl . '/hadits', $currentDate, 'weekly', '0.9');
+
+        foreach ($catalog as $slug => $kitab) {
+            $mainXml .= $this->createUrlEntry($baseUrl . '/hadits/' . $slug, $currentDate, 'monthly', '0.85');
+        }
+        $mainXml .= '</urlset>';
+        File::put(public_path('sitemap-hadits-main.xml'), $mainXml);
+        $this->info('✓ sitemap-hadits-main.xml generated');
+
+        // 2. Generate individual sitemaps for each of the 11 books
+        foreach ($catalog as $slug => $kitab) {
+            $total = $kitab['total'];
+            $isKutubusSittah = in_array($slug, [
+                'shahih_bukhari', 'shahih_muslim', 'sunan_abu_daud',
+                'sunan_tirmidzi', 'sunan_nasai', 'sunan_ibnu_majah'
+            ], true);
+            $priority = $isKutubusSittah ? '0.75' : '0.70';
+
+            $bookXml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
+            $bookXml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
+
+            for ($i = 1; $i <= $total; $i++) {
+                $bookXml .= $this->createUrlEntry($baseUrl . '/hadits/' . $slug . '/' . $i, $currentDate, 'monthly', $priority);
+            }
+
+            $bookXml .= '</urlset>';
+            File::put(public_path("sitemap-hadits-{$slug}.xml"), $bookXml);
+            $this->info("✓ sitemap-hadits-{$slug}.xml generated ({$total} hadits)");
+        }
+
+        // 3. Generate dedicated sitemap-hadits.xml (Hadits Sitemap Index)
+        $indexXml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
+        $indexXml .= '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
+        $indexXml .= $this->createSitemapEntry($baseUrl . '/sitemap-hadits-main.xml', $isoDate);
+
+        foreach ($catalog as $slug => $kitab) {
+            $indexXml .= $this->createSitemapEntry($baseUrl . "/sitemap-hadits-{$slug}.xml", $isoDate);
+        }
+
+        $indexXml .= '</sitemapindex>';
+        File::put(public_path('sitemap-hadits.xml'), $indexXml);
+        $this->info('✓ sitemap-hadits.xml (Hadits Sitemap Index) generated');
     }
 
     /**
@@ -370,6 +459,8 @@ class GenerateComprehensiveSitemap extends Command
         $robotsTxt .= "Allow: /donasi\n";
         $robotsTxt .= "Allow: /riwayat-versi\n";
         $robotsTxt .= "Allow: /kebijakan\n";
+        $robotsTxt .= "Allow: /hadits\n";
+        $robotsTxt .= "Allow: /hadits/\n";
         $robotsTxt .= "Allow: /amp/\n\n";
         $robotsTxt .= "# Crawl delay for respectful crawling\n";
         $robotsTxt .= "Crawl-delay: 1\n\n";
@@ -377,7 +468,8 @@ class GenerateComprehensiveSitemap extends Command
         $robotsTxt .= "Sitemap: {$baseUrl}/sitemap.xml\n";
         $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-index.xml\n";
         $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-main.xml\n";
-        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-artikel.xml\n\n";
+        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-artikel.xml\n";
+        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-hadits.xml\n\n";
         $robotsTxt .= "# Googlebot specific\n";
         $robotsTxt .= "User-agent: Googlebot\n";
         $robotsTxt .= "Allow: /\n";

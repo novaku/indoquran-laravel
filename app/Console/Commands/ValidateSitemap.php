@@ -27,9 +27,11 @@ class ValidateSitemap extends Command
         $this->newLine();
         
         $isProduction = $this->option('production');
-        $baseUrl = ($isProduction && !app()->environment(['local', 'development', 'testing'])) 
+        $baseUrl = $isProduction 
             ? 'https://indoquran.web.id' 
-            : config('app.url');
+            : ((app()->environment('production') && !app()->environment(['local', 'development', 'testing'])) 
+                ? 'https://indoquran.web.id' 
+                : config('app.url'));
         
         $errors = [];
         $warnings = [];
@@ -40,12 +42,15 @@ class ValidateSitemap extends Command
             'sitemap.xml',
             'sitemap-index.xml',
             'sitemap-main.xml',
-            'sitemap-juz.xml'
+            'sitemap-artikel.xml',
+            'sitemap-juz.xml',
+            'sitemap-halaman.xml',
+            'sitemap-hadits.xml',
+            'sitemap-hadits-main.xml',
         ];
         
-        // Add surah group files
-        for ($i = 1; $i <= 6; $i++) {
-            $requiredFiles[] = "sitemap-surahs-{$i}.xml";
+        foreach (\App\Http\Controllers\HaditsController::getKitabCatalog() as $slug => $kitab) {
+            $requiredFiles[] = "sitemap-hadits-{$slug}.xml";
         }
         
         foreach ($requiredFiles as $file) {

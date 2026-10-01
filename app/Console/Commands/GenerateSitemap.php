@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Surah;
+use App\Http\Controllers\HaditsController;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\File;
 
@@ -79,6 +80,7 @@ class GenerateSitemap extends Command
             'donasi' => ['priority' => '0.4', 'changefreq' => 'monthly'],           // Donation page
             'riwayat-versi' => ['priority' => '0.4', 'changefreq' => 'monthly'],    // Version history page
             'kebijakan' => ['priority' => '0.3', 'changefreq' => 'yearly'],         // Privacy page
+            'hadits' => ['priority' => '0.9', 'changefreq' => 'weekly'],            // Hadits Hub page
         ];
         
         foreach ($staticPages as $path => $config) {
@@ -120,6 +122,16 @@ class GenerateSitemap extends Command
                 $lastMod,
                 'weekly',
                 '0.7'
+            );
+        }
+
+        // Add Hadits book overview pages (11 books)
+        foreach (HaditsController::getKitabCatalog() as $slug => $kitab) {
+            $xml .= $this->createUrlEntry(
+                $baseUrl . '/hadits/' . $slug,
+                $lastMod,
+                'monthly',
+                '0.85'
             );
         }
         

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { 
     IoBookmark, 
     IoBookmarkOutline,
@@ -22,7 +22,8 @@ import {
     IoDocumentTextOutline,
     IoArrowForward,
     IoCheckmarkCircle,
-    IoVolumeMediumOutline
+    IoVolumeMediumOutline,
+    IoLogoWhatsapp
 } from 'react-icons/io5';
 import toast from 'react-hot-toast';
 import { 
@@ -34,6 +35,16 @@ import {
     removeLocalBookmark,
     getLocalLastRead
 } from '../services/BookmarkService';
+import {
+    getUserHaditsBookmarks,
+    getLocalHaditsBookmarks,
+    toggleHaditsFavorite,
+    updateHaditsNotes,
+    removeHaditsBookmark,
+    syncLocalHaditsBookmarksToServer
+} from '../services/HaditsBookmarkService';
+import { useArabicSpeech } from '../hooks/useArabicSpeech';
+import HaditsAudioPlayer from '../components/HaditsAudioPlayer';
 import { getReadingProgress } from '../services/ReadingProgressService';
 import { useAuth } from '../hooks/useAuth.jsx';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -43,9 +54,56 @@ import { scrollToTop } from '../utils/scrollUtils';
 
 function UserBookmarksPage() {
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const { user } = useAuth();
 
-    // Data states
+    // Primary Content Type: 'quran' | 'hadits'
+    const initialContentType = searchParams.get('type') === 'hadits' || searchParams.get('tab') === 'hadits' ? 'hadits' : 'quran';
+    const [contentType, setContentType] = useState(initialContentType);
+
+    const handleSwitchContentType = (type) => {
+        setContentType(type);
+        const newParams = new URLSearchParams(searchParams);
+        if (type === 'hadits') {
+            newParams.set('type', 'hadits');
+        } else {
+            newParams.delete('type');
+            newParams.delete('tab');
+        }
+        setSearchParams(newParams, { replace: true });
+    };
+
+    // Hadits States
+    const [haditsBookmarks, setHaditsBookmarks] = useState([]);
+    const [haditsActiveTab, setHaditsActiveTab] = useState('semua'); // 'semua', 'favorit', 'catatan'
+    const [haditsSearchTerm, setHaditsSearchTerm] = useState('');
+    const [selectedKitabFilter, setSelectedKitabFilter] = useState('all');
+    const [haditsSortBy, setHaditsSortBy] = useState('recent'); // 'recent', 'number'
+    const [expandedKitabs, setExpandedKitabs] = useState({});
+    const [haditsEditingNotes, setHaditsEditingNotes] = useState({});
+    const [haditsTempNotes, setHaditsTempNotes] = useState({});
+    const haditsSpeech = useArabicSpeech();
+
+    const loadHaditsBookmarks = async () => {
+        const cached = getLocalHaditsBookmarks();
+        if (cached && cached.length > 0) {
+            setHaditsBookmarks(cached);
+        }
+
+        try {
+            if (user) {
+                await syncLocalHaditsBookmarksToServer();
+            }
+            const list = await getUserHaditsBookmarks();
+            if (list) {
+                setHaditsBookmarks(list);
+            }
+        } catch (e) {
+            console.error('Failed to load hadits bookmarks:', e);
+        }
+    };
+
+    // Quran Data states
     const [bookmarks, setBookmarks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [lastRead, setLastRead] = useState(null);
@@ -73,21 +131,28 @@ function UserBookmarksPage() {
         scrollToTop();
         loadBookmarks();
         loadLastRead();
-
+        loadHaditsBookmarks();
 
         // Listen for storage events (e.g., if bookmark is added in another tab/component)
         const handleStorageUpdate = () => {
             loadBookmarks();
             loadLastRead();
         };
+        const handleHaditsStorageUpdate = () => {
+            loadHaditsBookmarks();
+        };
+
         window.addEventListener('indoquran_bookmarks_updated', handleStorageUpdate);
+        window.addEventListener('indoquran_hadits_bookmarks_updated', handleHaditsStorageUpdate);
 
         return () => {
             window.removeEventListener('indoquran_bookmarks_updated', handleStorageUpdate);
+            window.removeEventListener('indoquran_hadits_bookmarks_updated', handleHaditsStorageUpdate);
             if (audioRef.current) {
                 audioRef.current.pause();
                 audioRef.current = null;
             }
+            haditsSpeech.stop();
         };
     }, [user]);
 
@@ -410,12 +475,153 @@ function UserBookmarksPage() {
         }
     };
 
+    // Hadits Filter & Grouping calculations
+    const availableKitabs = useMemo(() => {
+        const map = new Map();
+        haditsBookmarks.forEach(b => {
+            if (!map.has(b.kitab_slug)) {
+                map.set(b.kitab_slug, {
+                    slug: b.kitab_slug,
+                    name: b.kitab_name,
+                    arab: b.kitab_arab
+                });
+            }
+        });
+        return Array.from(map.values());
+    }, [haditsBookmarks]);
+
+    const filteredHaditsBookmarks = useMemo(() => {
+        return haditsBookmarks.filter(item => {
+            if (haditsActiveTab === 'favorit' && !item.is_favorite) return false;
+            if (haditsActiveTab === 'catatan' && (!item.notes || !item.notes.trim())) return false;
+            if (selectedKitabFilter !== 'all' && item.kitab_slug !== selectedKitabFilter) return false;
+
+            if (haditsSearchTerm.trim()) {
+                const q = haditsSearchTerm.toLowerCase();
+                const matchNumber = String(item.number).includes(q);
+                const matchKitab = (item.kitab_name || '').toLowerCase().includes(q);
+                const matchTerjemah = (item.terjemah || '').toLowerCase().includes(q);
+                const matchArab = (item.arab || '').includes(q);
+                const matchNotes = (item.notes || '').toLowerCase().includes(q);
+                if (!matchNumber && !matchKitab && !matchTerjemah && !matchArab && !matchNotes) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+    }, [haditsBookmarks, haditsActiveTab, selectedKitabFilter, haditsSearchTerm]);
+
+    const groupedHadits = useMemo(() => {
+        const grouped = filteredHaditsBookmarks.reduce((acc, item) => {
+            const key = item.kitab_slug;
+            if (!acc[key]) {
+                acc[key] = {
+                    kitab_slug: item.kitab_slug,
+                    kitab_name: item.kitab_name,
+                    kitab_arab: item.kitab_arab,
+                    items: []
+                };
+            }
+            acc[key].items.push(item);
+            return acc;
+        }, {});
+
+        const list = Object.values(grouped);
+        list.forEach(g => {
+            if (haditsSortBy === 'number') {
+                g.items.sort((a, b) => Number(a.number) - Number(b.number));
+            } else {
+                g.items.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+            }
+        });
+
+        return list;
+    }, [filteredHaditsBookmarks, haditsSortBy]);
+
+    const isAllKitabsExpanded = useMemo(() => {
+        if (groupedHadits.length === 0) return false;
+        return groupedHadits.every(g => Boolean(expandedKitabs[g.kitab_slug]));
+    }, [groupedHadits, expandedKitabs]);
+
+    const toggleAllKitabs = () => {
+        if (isAllKitabsExpanded) {
+            setExpandedKitabs({});
+        } else {
+            const allOpen = {};
+            groupedHadits.forEach(g => { allOpen[g.kitab_slug] = true; });
+            setExpandedKitabs(allOpen);
+        }
+    };
+
+    const toggleKitabExpanded = (slug) => {
+        setExpandedKitabs(prev => ({
+            ...prev,
+            [slug]: !prev[slug]
+        }));
+    };
+
+    const totalHaditsCount = haditsBookmarks.length;
+    const haditsFavoritesCount = haditsBookmarks.filter(b => b.is_favorite).length;
+    const haditsNotesCount = haditsBookmarks.filter(b => b.notes && b.notes.trim().length > 0).length;
+
+    // Hadits Action Handlers
+    const handleToggleHaditsFavorite = async (item) => {
+        const res = await toggleHaditsFavorite(item.kitab_slug, item.number);
+        toast.success(res.is_favorite ? 'Hadits ditambahkan ke favorit ❤️' : 'Hadits dihapus dari favorit');
+        loadHaditsBookmarks();
+    };
+
+    const handleDeleteHaditsBookmark = async (item) => {
+        await removeHaditsBookmark(item.kitab_slug, item.number);
+        toast.success(`Hadits ${item.kitab_name} #${item.number} dihapus dari penanda`);
+        loadHaditsBookmarks();
+    };
+
+    const startEditingHaditsNotes = (key, currentNotes) => {
+        setHaditsEditingNotes(prev => ({ ...prev, [key]: true }));
+        setHaditsTempNotes(prev => ({ ...prev, [key]: currentNotes || '' }));
+    };
+
+    const cancelEditingHaditsNotes = (key) => {
+        setHaditsEditingNotes(prev => ({ ...prev, [key]: false }));
+    };
+
+    const saveHaditsNotes = async (item) => {
+        const key = `${item.kitab_slug}-${item.number}`;
+        const notes = haditsTempNotes[key] || '';
+        await updateHaditsNotes(item.kitab_slug, item.number, notes);
+        setHaditsEditingNotes(prev => ({ ...prev, [key]: false }));
+        toast.success('Catatan hadits berhasil disimpan ✨');
+        loadHaditsBookmarks();
+    };
+
+    const handleCopyHadits = (item) => {
+        const text = `"${item.terjemah}"\n\n${item.arab}\n\n— Hadits ${item.kitab_name} No. ${item.number} (IndoQuran: https://indoquran.web.id/hadits/${item.kitab_slug}/${item.number})`;
+        navigator.clipboard.writeText(text).then(() => {
+            toast.success(`Hadits No. ${item.number} berhasil disalin!`);
+        }).catch(() => {
+            toast.error('Gagal menyalin hadits');
+        });
+    };
+
+    // Share Hadith directly to WhatsApp only
+    const handleShareHadits = (item) => {
+        const cleanTerjemah = item.terjemah ? item.terjemah.replace(/<[^>]+>/g, '').trim() : '';
+        const shareText = `*Hadits ${item.kitab_name} No. ${item.number}*\n\n"${cleanTerjemah}"\n\n[${item.arab || ''}]\n\nBaca selengkapnya di IndoQuran:\nhttps://indoquran.web.id/hadits/${item.kitab_slug}/${item.number}`;
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+        window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    };
+
     return (
         <>
             <SEOHead 
-                title="Penanda & Bacaan Saya - IndoQuran"
-                description="Kelola dan akses ayat-ayat Al-Quran yang telah Anda tandai, favorit, catatan tadabbur pribadi, serta riwayat bacaan terakhir di IndoQuran."
-                keywords="penanda quran, ayat favorit, simpan ayat al quran, bookmark quran, catatan tadabbur, indoquran penanda, bacaan terakhir"
+                title={contentType === 'hadits' ? "Penanda Hadits Nabawi - IndoQuran" : "Penanda & Ayat Favorit - IndoQuran"}
+                description={contentType === 'hadits' 
+                    ? "Kelola hadits-hadits nabawi yang telah Anda tandai, favoritkan, dan catat faedah tadabbur di IndoQuran."
+                    : "Kelola dan akses ayat-ayat Al-Quran yang telah Anda tandai, favorit, catatan tadabbur pribadi, serta riwayat bacaan terakhir di IndoQuran."
+                }
+                keywords="penanda hadits, bookmark hadits, hadits favorit, penanda quran, ayat favorit, simpan ayat al quran, bookmark quran, catatan tadabbur, indoquran penanda, bacaan terakhir"
                 canonicalUrl="https://indoquran.web.id/penanda"
             />
             
@@ -426,23 +632,35 @@ function UserBookmarksPage() {
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                             <div>
                                 <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-2">
-                                    Penanda & Ayat Favorit
+                                    {contentType === 'hadits' ? 'Penanda & Hadits Favorit' : 'Penanda & Ayat Favorit'}
                                 </h1>
                                 <p className="text-gray-600 text-sm md:text-base max-w-2xl">
-                                    Simpan ayat-ayat pilihan, buat catatan tadabbur, dan lanjutkan bacaan Al-Quran Anda kapan pun dengan mudah.
+                                    {contentType === 'hadits'
+                                        ? 'Simpan hadits-hadits nabawi pilihan dari berbagai kitab induk, dengarkan bacaan lafazh Arab, dan catat faedah tadabbur Anda.'
+                                        : 'Simpan ayat-ayat pilihan, buat catatan tadabbur, dan lanjutkan bacaan Al-Quran Anda kapan pun dengan mudah.'}
                                 </p>
                             </div>
 
                             {/* Quick Action Buttons */}
                             <div className="flex flex-wrap gap-3">
-                                <Link
-                                    to="/surah"
-                                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-all shadow-2xs active:scale-95"
-                                >
-                                    <IoBookOutline className="w-4 h-4 text-green-600" />
-                                    <span>Jelajahi Al-Quran</span>
-                                </Link>
-                                {!user && (
+                                {contentType === 'hadits' ? (
+                                    <Link
+                                        to="/hadits"
+                                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-all shadow-2xs active:scale-95"
+                                    >
+                                        <IoBookOutline className="w-4 h-4 text-emerald-600" />
+                                        <span>Jelajahi Hadits Nabawi</span>
+                                    </Link>
+                                ) : (
+                                    <Link
+                                        to="/surah"
+                                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-all shadow-2xs active:scale-95"
+                                    >
+                                        <IoBookOutline className="w-4 h-4 text-green-600" />
+                                        <span>Jelajahi Al-Quran</span>
+                                    </Link>
+                                )}
+                                {!user && contentType === 'quran' && (
                                     <Link
                                         to="/masuk"
                                         className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-green-600 text-white font-semibold text-sm hover:bg-green-700 transition-all shadow-xs active:scale-95"
@@ -454,83 +672,182 @@ function UserBookmarksPage() {
                             </div>
                         </div>
 
-                        {/* Quick Stats Grid */}
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mt-8">
-                            <div 
-                                onClick={() => setActiveTab('semua')}
-                                className={`p-4 rounded-2xl cursor-pointer transition-all border ${
-                                    activeTab === 'semua' 
-                                        ? 'bg-green-50/70 border-green-500 shadow-xs ring-1 ring-green-500' 
-                                        : 'bg-gray-50/80 border-gray-200 hover:bg-gray-100/80'
+                        {/* Primary Content Switcher: Quran vs Hadits */}
+                        <div className="inline-flex p-1.5 bg-gray-100/90 rounded-2xl border border-gray-200 mt-6 shadow-2xs">
+                            <button
+                                onClick={() => handleSwitchContentType('quran')}
+                                className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
+                                    contentType === 'quran'
+                                        ? 'bg-white text-emerald-800 shadow-xs border border-emerald-100'
+                                        : 'text-gray-600 hover:text-gray-900'
                                 }`}
                             >
-                                <div className="flex items-center justify-between">
-                                    <span className="text-xs font-medium text-gray-500">Total Penanda</span>
-                                    <IoBookmark className="w-5 h-5 text-green-600" />
-                                </div>
-                                <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{totalCount}</p>
-                                <span className="text-[11px] text-gray-500">Ayat ditandai</span>
-                            </div>
-
-                            <div 
-                                onClick={() => setActiveTab('favorit')}
-                                className={`p-4 rounded-2xl cursor-pointer transition-all border ${
-                                    activeTab === 'favorit' 
-                                        ? 'bg-rose-50/70 border-rose-500 shadow-xs ring-1 ring-rose-500' 
-                                        : 'bg-gray-50/80 border-gray-200 hover:bg-gray-100/80'
-                                }`}
-                            >
-                                <div className="flex items-center justify-between">
-                                    <span className="text-xs font-medium text-gray-500">Ayat Favorit</span>
-                                    <IoHeart className="w-5 h-5 text-rose-500" />
-                                </div>
-                                <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{favoritesCount}</p>
-                                <span className="text-[11px] text-gray-500">Sering dibaca</span>
-                            </div>
-
-                            <div 
-                                onClick={() => setActiveTab('catatan')}
-                                className={`p-4 rounded-2xl cursor-pointer transition-all border ${
-                                    activeTab === 'catatan' 
-                                        ? 'bg-amber-50/70 border-amber-500 shadow-xs ring-1 ring-amber-500' 
-                                        : 'bg-gray-50/80 border-gray-200 hover:bg-gray-100/80'
-                                }`}
-                            >
-                                <div className="flex items-center justify-between">
-                                    <span className="text-xs font-medium text-gray-500">Catatan Ayat</span>
-                                    <IoPencilOutline className="w-5 h-5 text-amber-500" />
-                                </div>
-                                <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{notesCount}</p>
-                                <span className="text-[11px] text-gray-500">Tadabbur & Refleksi</span>
-                            </div>
-
-                            <div 
-                                onClick={() => setActiveTab('terakhir')}
-                                className={`p-4 rounded-2xl cursor-pointer transition-all border ${
-                                    activeTab === 'terakhir' 
-                                        ? 'bg-blue-50/70 border-blue-500 shadow-xs ring-1 ring-blue-500' 
-                                        : 'bg-gray-50/80 border-gray-200 hover:bg-gray-100/80'
-                                }`}
-                            >
-                                <div className="flex items-center justify-between">
-                                    <span className="text-xs font-medium text-gray-500">Terakhir Baca</span>
-                                    <IoTimeOutline className="w-5 h-5 text-blue-500" />
-                                </div>
-                                <p className="text-lg sm:text-xl font-bold text-gray-900 mt-2 truncate">
-                                    {lastRead?.surah?.name_latin || lastRead?.surah?.name_indonesian || (lastRead ? `Surah ${lastRead.surah_number}` : 'Belum Ada')}
-                                </p>
-                                <span className="text-[11px] text-gray-500">
-                                    {lastRead ? `Ayat ke-${lastRead.ayah_number || 1}` : 'Mulai baca sekarang'}
+                                <IoBookOutline className={`w-4 h-4 ${contentType === 'quran' ? 'text-emerald-600' : 'text-gray-500'}`} />
+                                <span>Ayat Al-Quran</span>
+                                <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                                    contentType === 'quran' ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-200 text-gray-700'
+                                }`}>
+                                    {totalCount}
                                 </span>
-                            </div>
+                            </button>
+                            <button
+                                onClick={() => handleSwitchContentType('hadits')}
+                                className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
+                                    contentType === 'hadits'
+                                        ? 'bg-white text-emerald-800 shadow-xs border border-emerald-100'
+                                        : 'text-gray-600 hover:text-gray-900'
+                                }`}
+                            >
+                                <IoBookmark className={`w-4 h-4 ${contentType === 'hadits' ? 'text-emerald-600' : 'text-gray-500'}`} />
+                                <span>Hadits Nabawi</span>
+                                <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                                    contentType === 'hadits' ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-200 text-gray-700'
+                                }`}>
+                                    {totalHaditsCount}
+                                </span>
+                            </button>
                         </div>
+
+                        {/* Quick Stats Grid */}
+                        {contentType === 'hadits' ? (
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mt-6">
+                                <div 
+                                    onClick={() => setHaditsActiveTab('semua')}
+                                    className={`p-4 rounded-2xl cursor-pointer transition-all border ${
+                                        haditsActiveTab === 'semua' 
+                                            ? 'bg-emerald-50/70 border-emerald-500 shadow-xs ring-1 ring-emerald-500' 
+                                            : 'bg-gray-50/80 border-gray-200 hover:bg-gray-100/80'
+                                    }`}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-medium text-gray-500">Total Penanda</span>
+                                        <IoBookmark className="w-5 h-5 text-emerald-600" />
+                                    </div>
+                                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{totalHaditsCount}</p>
+                                    <span className="text-[11px] text-gray-500">Hadits ditandai</span>
+                                </div>
+
+                                <div 
+                                    onClick={() => setHaditsActiveTab('favorit')}
+                                    className={`p-4 rounded-2xl cursor-pointer transition-all border ${
+                                        haditsActiveTab === 'favorit' 
+                                            ? 'bg-rose-50/70 border-rose-500 shadow-xs ring-1 ring-rose-500' 
+                                            : 'bg-gray-50/80 border-gray-200 hover:bg-gray-100/80'
+                                    }`}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-medium text-gray-500">Hadits Favorit</span>
+                                        <IoHeart className="w-5 h-5 text-rose-500" />
+                                    </div>
+                                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{haditsFavoritesCount}</p>
+                                    <span className="text-[11px] text-gray-500">Sering dibaca</span>
+                                </div>
+
+                                <div 
+                                    onClick={() => setHaditsActiveTab('catatan')}
+                                    className={`p-4 rounded-2xl cursor-pointer transition-all border ${
+                                        haditsActiveTab === 'catatan' 
+                                            ? 'bg-amber-50/70 border-amber-500 shadow-xs ring-1 ring-amber-500' 
+                                            : 'bg-gray-50/80 border-gray-200 hover:bg-gray-100/80'
+                                    }`}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-medium text-gray-500">Catatan Faidah</span>
+                                        <IoPencilOutline className="w-5 h-5 text-amber-500" />
+                                    </div>
+                                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{haditsNotesCount}</p>
+                                    <span className="text-[11px] text-gray-500">Tadabbur hadits</span>
+                                </div>
+
+                                <div 
+                                    className="p-4 rounded-2xl border bg-gray-50/80 border-gray-200"
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-medium text-gray-500">Kitab Ditandai</span>
+                                        <IoBookOutline className="w-5 h-5 text-teal-600" />
+                                    </div>
+                                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{availableKitabs.length}</p>
+                                    <span className="text-[11px] text-gray-500">Kitab rujukan</span>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mt-8">
+                                <div 
+                                    onClick={() => setActiveTab('semua')}
+                                    className={`p-4 rounded-2xl cursor-pointer transition-all border ${
+                                        activeTab === 'semua' 
+                                            ? 'bg-green-50/70 border-green-500 shadow-xs ring-1 ring-green-500' 
+                                            : 'bg-gray-50/80 border-gray-200 hover:bg-gray-100/80'
+                                    }`}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-medium text-gray-500">Total Penanda</span>
+                                        <IoBookmark className="w-5 h-5 text-green-600" />
+                                    </div>
+                                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{totalCount}</p>
+                                    <span className="text-[11px] text-gray-500">Ayat ditandai</span>
+                                </div>
+
+                                <div 
+                                    onClick={() => setActiveTab('favorit')}
+                                    className={`p-4 rounded-2xl cursor-pointer transition-all border ${
+                                        activeTab === 'favorit' 
+                                            ? 'bg-rose-50/70 border-rose-500 shadow-xs ring-1 ring-rose-500' 
+                                            : 'bg-gray-50/80 border-gray-200 hover:bg-gray-100/80'
+                                    }`}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-medium text-gray-500">Ayat Favorit</span>
+                                        <IoHeart className="w-5 h-5 text-rose-500" />
+                                    </div>
+                                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{favoritesCount}</p>
+                                    <span className="text-[11px] text-gray-500">Sering dibaca</span>
+                                </div>
+
+                                <div 
+                                    onClick={() => setActiveTab('catatan')}
+                                    className={`p-4 rounded-2xl cursor-pointer transition-all border ${
+                                        activeTab === 'catatan' 
+                                            ? 'bg-amber-50/70 border-amber-500 shadow-xs ring-1 ring-amber-500' 
+                                            : 'bg-gray-50/80 border-gray-200 hover:bg-gray-100/80'
+                                    }`}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-medium text-gray-500">Catatan Ayat</span>
+                                        <IoPencilOutline className="w-5 h-5 text-amber-500" />
+                                    </div>
+                                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{notesCount}</p>
+                                    <span className="text-[11px] text-gray-500">Tadabbur & Refleksi</span>
+                                </div>
+
+                                <div 
+                                    onClick={() => setActiveTab('terakhir')}
+                                    className={`p-4 rounded-2xl cursor-pointer transition-all border ${
+                                        activeTab === 'terakhir' 
+                                            ? 'bg-blue-50/70 border-blue-500 shadow-xs ring-1 ring-blue-500' 
+                                            : 'bg-gray-50/80 border-gray-200 hover:bg-gray-100/80'
+                                    }`}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-medium text-gray-500">Terakhir Baca</span>
+                                        <IoTimeOutline className="w-5 h-5 text-blue-500" />
+                                    </div>
+                                    <p className="text-lg sm:text-xl font-bold text-gray-900 mt-2 truncate">
+                                        {lastRead?.surah?.name_latin || lastRead?.surah?.name_indonesian || (lastRead ? `Surah ${lastRead.surah_number}` : 'Belum Ada')}
+                                    </p>
+                                    <span className="text-[11px] text-gray-500">
+                                        {lastRead ? `Ayat ke-${lastRead.ayah_number || 1}` : 'Mulai baca sekarang'}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
                 {/* Main Content Area */}
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-2 relative z-20">
                     {/* Guest Sync Banner */}
-                    {!user && (
+                    {!user && contentType === 'quran' && (
                         <div className="mb-6 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                             <div className="flex items-start gap-3.5">
                                 <div className="p-2.5 rounded-xl bg-amber-100 text-amber-700 flex-shrink-0 mt-0.5">
@@ -562,8 +879,495 @@ function UserBookmarksPage() {
                         </div>
                     )}
 
-                    {/* Navigation Tabs Bar */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-2 sm:p-3 mb-6">
+                    {/* Hadits Content vs Quran Content */}
+                    {contentType === 'hadits' ? (
+                        <div>
+                            {/* Navigation Tabs Bar for Hadits */}
+                            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-2 sm:p-3 mb-6">
+                                <div className="flex flex-wrap items-center justify-between gap-3">
+                                    {/* Tab Buttons */}
+                                    <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+                                        <button
+                                            onClick={() => setHaditsActiveTab('semua')}
+                                            className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all flex items-center gap-2 whitespace-nowrap ${
+                                                haditsActiveTab === 'semua'
+                                                    ? 'bg-emerald-600 text-white shadow-sm'
+                                                    : 'text-gray-600 hover:bg-gray-100'
+                                            }`}
+                                        >
+                                            <IoBookmark className="w-4 h-4" />
+                                            <span>Semua Hadits</span>
+                                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                                haditsActiveTab === 'semua' ? 'bg-white/25 text-white' : 'bg-gray-200 text-gray-700'
+                                            }`}>
+                                                {totalHaditsCount}
+                                            </span>
+                                        </button>
+
+                                        <button
+                                            onClick={() => setHaditsActiveTab('favorit')}
+                                            className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all flex items-center gap-2 whitespace-nowrap ${
+                                                haditsActiveTab === 'favorit'
+                                                    ? 'bg-rose-600 text-white shadow-sm'
+                                                    : 'text-gray-600 hover:bg-gray-100'
+                                            }`}
+                                        >
+                                            <IoHeart className="w-4 h-4" />
+                                            <span>Hadits Favorit</span>
+                                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                                haditsActiveTab === 'favorit' ? 'bg-white/25 text-white' : 'bg-gray-200 text-gray-700'
+                                            }`}>
+                                                {haditsFavoritesCount}
+                                            </span>
+                                        </button>
+
+                                        <button
+                                            onClick={() => setHaditsActiveTab('catatan')}
+                                            className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all flex items-center gap-2 whitespace-nowrap ${
+                                                haditsActiveTab === 'catatan'
+                                                    ? 'bg-amber-600 text-white shadow-sm'
+                                                    : 'text-gray-600 hover:bg-gray-100'
+                                            }`}
+                                        >
+                                            <IoDocumentTextOutline className="w-4 h-4" />
+                                            <span>Catatan Faidah</span>
+                                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                                haditsActiveTab === 'catatan' ? 'bg-white/25 text-white' : 'bg-gray-200 text-gray-700'
+                                            }`}>
+                                                {haditsNotesCount}
+                                            </span>
+                                        </button>
+                                    </div>
+
+                                    {/* Sort Option */}
+                                    <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                                        <span className="text-xs text-gray-500 hidden md:inline">Urutan:</span>
+                                        <select
+                                            value={haditsSortBy}
+                                            onChange={(e) => setHaditsSortBy(e.target.value)}
+                                            className="text-xs bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-gray-700 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
+                                        >
+                                            <option value="recent">Terbaru Ditandai</option>
+                                            <option value="number">Nomor Hadits Terkecil</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* Search & Kitab Filter Bar */}
+                                <div className="mt-3 pt-3 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                                    <div className="relative sm:col-span-8">
+                                        <IoSearchOutline className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                        <input
+                                            type="text"
+                                            placeholder="Cari teks Arab, terjemahan, catatan, atau nomor hadits..."
+                                            value={haditsSearchTerm}
+                                            onChange={(e) => setHaditsSearchTerm(e.target.value)}
+                                            className="w-full pl-9 pr-8 py-2 text-xs sm:text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none bg-gray-50/50"
+                                        />
+                                        {haditsSearchTerm && (
+                                            <button
+                                                onClick={() => setHaditsSearchTerm('')}
+                                                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                                            >
+                                                <IoCloseOutline className="w-4 h-4" />
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div className="sm:col-span-4">
+                                        <select
+                                            value={selectedKitabFilter}
+                                            onChange={(e) => setSelectedKitabFilter(e.target.value)}
+                                            className="w-full py-2 px-3 text-xs sm:text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none bg-gray-50/50 text-gray-700"
+                                        >
+                                            <option value="all">Semua Kitab ({availableKitabs.length})</option>
+                                            {availableKitabs.map(k => (
+                                                <option key={`opt-kitab-${k.slug}`} value={k.slug}>
+                                                    {k.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Hadits List or Empty State */}
+                            {filteredHaditsBookmarks.length === 0 ? (
+                                <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-12 sm:p-16 text-center">
+                                    <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-4">
+                                        <IoBookmarkOutline className="w-8 h-8" />
+                                    </div>
+
+                                    <h3 className="text-gray-900 font-bold text-lg sm:text-xl mb-2">
+                                        {haditsSearchTerm ? 'Hadits Tidak Ditemukan' :
+                                         haditsActiveTab === 'favorit' ? 'Belum Ada Hadits Favorit' :
+                                         haditsActiveTab === 'catatan' ? 'Belum Ada Catatan Hadits' :
+                                         'Belum Ada Hadits Ditandai'}
+                                    </h3>
+
+                                    <p className="text-gray-500 text-sm max-w-md mx-auto mb-6">
+                                        {haditsSearchTerm ? `Tidak ditemukan hadits yang cocok dengan kata kunci "${haditsSearchTerm}".` :
+                                         haditsActiveTab === 'favorit' ? 'Tandai hadits sebagai favorit dengan menekan ikon hati pada hadits yang Anda simpan.' :
+                                         haditsActiveTab === 'catatan' ? 'Tambahkan catatan faidah atau refleksi pada hadits yang Anda tandai.' :
+                                         'Buka katalog hadits dan klik tombol penanda pada hadits yang ingin Anda simpan atau pelajari kembali.'}
+                                    </p>
+
+                                    {haditsSearchTerm ? (
+                                        <button
+                                            onClick={() => { setHaditsSearchTerm(''); setSelectedKitabFilter('all'); }}
+                                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gray-100 text-gray-700 font-medium text-sm hover:bg-gray-200 transition-colors"
+                                        >
+                                            <span>Reset Filter & Pencarian</span>
+                                        </button>
+                                    ) : (
+                                        <Link
+                                            to="/hadits"
+                                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold text-sm hover:bg-emerald-700 transition-colors shadow-sm"
+                                        >
+                                            <IoBookOutline className="w-4 h-4" />
+                                            <span>Jelajahi Hadits Nabawi</span>
+                                        </Link>
+                                    )}
+                                </div>
+                            ) : (
+                                /* Grouped Bookmarks by Kitab List */
+                                <div className="space-y-6">
+                                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500 px-1">
+                                        <div className="flex items-center gap-2">
+                                            <span>Menampilkan <strong>{filteredHaditsBookmarks.length}</strong> hadits ditandai dari <strong>{groupedHadits.length}</strong> kitab</span>
+                                            {haditsSearchTerm && <span className="font-medium text-emerald-700">(Pencarian: "{haditsSearchTerm}")</span>}
+                                        </div>
+                                        {groupedHadits.length > 0 && (
+                                            <button
+                                                type="button"
+                                                onClick={toggleAllKitabs}
+                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-gray-700 hover:text-emerald-700 hover:border-emerald-300 transition-colors shadow-2xs font-medium text-xs cursor-pointer"
+                                            >
+                                                {isAllKitabsExpanded ? (
+                                                    <>
+                                                        <IoChevronUp className="w-3.5 h-3.5 text-gray-500" />
+                                                        <span>Tutup Semua Kitab</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <IoChevronDown className="w-3.5 h-3.5 text-emerald-600" />
+                                                        <span>Buka Semua Kitab</span>
+                                                    </>
+                                                )}
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {groupedHadits.map((group) => {
+                                        const isExpanded = Boolean(expandedKitabs[group.kitab_slug]);
+
+                                        return (
+                                            <div
+                                                key={`kitab-group-${group.kitab_slug}`}
+                                                className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden transition-all duration-200"
+                                            >
+                                                {/* Kitab Group Header */}
+                                                <div
+                                                    onClick={() => toggleKitabExpanded(group.kitab_slug)}
+                                                    className={`px-5 py-4 bg-gradient-to-r from-emerald-50/70 via-teal-50/40 to-white cursor-pointer flex items-center justify-between hover:bg-emerald-100/50 transition-colors select-none ${
+                                                        isExpanded ? 'border-b border-emerald-100' : ''
+                                                    }`}
+                                                    role="button"
+                                                    tabIndex={0}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter' || e.key === ' ') {
+                                                            e.preventDefault();
+                                                            toggleKitabExpanded(group.kitab_slug);
+                                                        }
+                                                    }}
+                                                >
+                                                    <div className="flex items-center gap-3.5">
+                                                        <div className="w-9 h-9 rounded-xl bg-emerald-700 text-white font-bold text-sm flex items-center justify-center shadow-sm">
+                                                            <IoBookOutline className="w-5 h-5" />
+                                                        </div>
+                                                        <div>
+                                                            <div className="flex items-center gap-2">
+                                                                <h2 className="font-bold text-gray-900 text-base sm:text-lg">
+                                                                    Kitab {group.kitab_name}
+                                                                </h2>
+                                                                {group.kitab_arab && (
+                                                                    <span className="font-arabic text-emerald-700 text-lg hidden sm:inline">
+                                                                        {group.kitab_arab}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                                                                <span className="font-medium text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-md">
+                                                                    {group.items.length} hadits ditandai
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-2 sm:gap-3">
+                                                        <Link
+                                                            to={`/hadits/${group.kitab_slug}`}
+                                                            onClick={(e) => e.stopPropagation()}
+                                                            className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-800 bg-emerald-100/80 px-3 py-1.5 rounded-lg hover:bg-emerald-200 transition-colors"
+                                                        >
+                                                            <span>Buka Kitab</span>
+                                                            <IoArrowForward className="w-3.5 h-3.5" />
+                                                        </Link>
+                                                        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                                                            isExpanded 
+                                                                ? 'bg-emerald-600 text-white shadow-sm' 
+                                                                : 'bg-emerald-50 text-emerald-700 border border-emerald-200/80 hover:bg-emerald-100'
+                                                        }`}>
+                                                            <span>{isExpanded ? `Sembunyikan (${group.items.length})` : `Tampilkan (${group.items.length})`}</span>
+                                                            {isExpanded ? (
+                                                                <IoChevronUp className="w-4 h-4" />
+                                                            ) : (
+                                                                <IoChevronDown className="w-4 h-4" />
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Hadits Items in Kitab */}
+                                                {isExpanded && (
+                                                    <div className="divide-y divide-gray-100">
+                                                        {group.items.map((item) => {
+                                                            const itemKey = `${item.kitab_slug}-${item.number}`;
+                                                            const isPlayingThis = haditsSpeech.activeId === (item.id || itemKey);
+                                                            const isFav = Boolean(item.is_favorite);
+                                                            const isEditingThisNote = haditsEditingNotes[itemKey];
+                                                            const hasNotes = Boolean(item.notes && item.notes.trim().length > 0);
+
+                                                            return (
+                                                                <div
+                                                                    key={`hadits-bm-${item.id || itemKey}`}
+                                                                    className="p-5 sm:p-6 hover:bg-gray-50/80 transition-colors"
+                                                                >
+                                                                    {/* Top Badge & Action Bar */}
+                                                                    <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/80 text-emerald-800 font-semibold text-xs border border-emerald-200">
+                                                                                <IoBookmark className="w-3.5 h-3.5 text-emerald-600" />
+                                                                                <span>Hadits #{item.number}</span>
+                                                                            </span>
+                                                                            <span className="text-xs text-gray-500 font-medium">
+                                                                                {item.kitab_name}
+                                                                            </span>
+                                                                            {isFav && (
+                                                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 font-medium text-xs">
+                                                                                    <IoHeart className="w-3 h-3 text-rose-500" />
+                                                                                    <span>Favorit</span>
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+
+                                                                        {/* Action Buttons Bar */}
+                                                                        <div className="flex items-center gap-1 sm:gap-2">
+                                                                            {/* Audio Speech Button */}
+                                                                            {haditsSpeech.isSupported && (
+                                                                                <button
+                                                                                    onClick={() => {
+                                                                                        const activeKey = item.id || itemKey;
+                                                                                        if (haditsSpeech.activeId === activeKey) {
+                                                                                            if (haditsSpeech.isPlaying) haditsSpeech.pause();
+                                                                                            else haditsSpeech.resume();
+                                                                                        } else {
+                                                                                            haditsSpeech.play(activeKey, item.arab);
+                                                                                        }
+                                                                                    }}
+                                                                                    className={`p-2 rounded-xl text-xs font-medium transition-all flex items-center gap-1.5 ${
+                                                                                        isPlayingThis
+                                                                                            ? 'bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-300'
+                                                                                            : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                                                                                    }`}
+                                                                                    title="Dengarkan Lafazh Arab (Speech Synthesis)"
+                                                                                >
+                                                                                    {isPlayingThis && haditsSpeech.isPlaying ? (
+                                                                                        <IoPauseCircle className="w-5 h-5 text-white" />
+                                                                                    ) : (
+                                                                                        <IoPlayCircle className="w-5 h-5 text-emerald-600" />
+                                                                                    )}
+                                                                                    <span className="hidden md:inline">
+                                                                                        {isPlayingThis && haditsSpeech.isPlaying ? 'Jeda Audio' : 'Putar Audio'}
+                                                                                    </span>
+                                                                                </button>
+                                                                            )}
+
+                                                                            {/* Open in Reader */}
+                                                                            <Link
+                                                                                to={`/hadits/${item.kitab_slug}/${item.number}`}
+                                                                                className="p-2 rounded-xl text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors flex items-center gap-1.5"
+                                                                                title="Buka halaman baca hadits ini"
+                                                                            >
+                                                                                <IoBookOutline className="w-4 h-4 text-gray-600" />
+                                                                                <span className="hidden md:inline">Buka Hadits</span>
+                                                                            </Link>
+
+                                                                            {/* Toggle Favorite */}
+                                                                            <button
+                                                                                onClick={() => handleToggleHaditsFavorite(item)}
+                                                                                className={`p-2 rounded-xl transition-colors ${
+                                                                                    isFav
+                                                                                        ? 'text-rose-600 bg-rose-50 hover:bg-rose-100'
+                                                                                        : 'text-gray-400 hover:text-rose-600 hover:bg-rose-50'
+                                                                                }`}
+                                                                                title={isFav ? 'Hapus dari favorit' : 'Tambah ke favorit'}
+                                                                            >
+                                                                                {isFav ? (
+                                                                                    <IoHeart className="w-5 h-5" />
+                                                                                ) : (
+                                                                                    <IoHeartOutline className="w-5 h-5" />
+                                                                                )}
+                                                                            </button>
+
+                                                                            {/* Copy Hadits */}
+                                                                            <button
+                                                                                onClick={() => handleCopyHadits(item)}
+                                                                                className="p-2 rounded-xl text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                                                                                title="Salin hadits"
+                                                                            >
+                                                                                <IoCopyOutline className="w-4 h-4" />
+                                                                            </button>
+
+                                                                            {/* Share Hadits to WhatsApp */}
+                                                                            <button
+                                                                                onClick={() => handleShareHadits(item)}
+                                                                                className="p-2 rounded-xl text-green-600 hover:text-green-700 hover:bg-green-50 transition-colors"
+                                                                                title="Bagikan ke WhatsApp"
+                                                                            >
+                                                                                <IoLogoWhatsapp className="w-4 h-4 text-green-600" />
+                                                                            </button>
+
+                                                                            {/* Delete Bookmark */}
+                                                                            <button
+                                                                                onClick={() => handleDeleteHaditsBookmark(item)}
+                                                                                className="p-2 rounded-xl text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                                                                title="Hapus dari penanda hadits"
+                                                                            >
+                                                                                <IoTrashOutline className="w-4 h-4" />
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {/* Audio Player Bar if active */}
+                                                                    <HaditsAudioPlayer
+                                                                        haditsId={item.id || itemKey}
+                                                                        speech={haditsSpeech}
+                                                                        className="mb-4"
+                                                                    />
+
+                                                                    {/* Arabic Text Display */}
+                                                                    {item.arab && (
+                                                                        <div className="mb-4 p-4 sm:p-5 bg-gradient-to-r from-gray-50/90 to-emerald-50/30 rounded-2xl border border-gray-100">
+                                                                            <p
+                                                                                className="text-right text-2xl sm:text-3xl leading-loose font-arabic text-gray-900 select-text"
+                                                                                dir="rtl"
+                                                                            >
+                                                                                {item.arab}
+                                                                            </p>
+                                                                        </div>
+                                                                    )}
+
+                                                                    {/* Indonesian Translation */}
+                                                                    {item.terjemah && (
+                                                                        <div className="mb-4">
+                                                                            <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 mb-1.5">
+                                                                                Terjemahan Bahasa Indonesia:
+                                                                            </div>
+                                                                            <p className="text-gray-700 text-sm sm:text-base leading-relaxed select-text">
+                                                                                {item.terjemah}
+                                                                            </p>
+                                                                        </div>
+                                                                    )}
+
+                                                                    {/* Notes Tadabbur Section */}
+                                                                    <div className="mt-4 pt-3 border-t border-gray-100">
+                                                                        <div className="flex items-center justify-between mb-2">
+                                                                            <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-700">
+                                                                                <IoPencilOutline className="w-3.5 h-3.5 text-amber-600" />
+                                                                                <span>Catatan Faidah & Tadabbur:</span>
+                                                                            </div>
+
+                                                                            {!isEditingThisNote && (
+                                                                                <button
+                                                                                    onClick={() => startEditingHaditsNotes(itemKey, item.notes)}
+                                                                                    className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 hover:text-emerald-800 hover:underline"
+                                                                                >
+                                                                                    <IoPencilOutline className="w-3.5 h-3.5" />
+                                                                                    <span>{hasNotes ? 'Edit Catatan' : '+ Tambah Catatan'}</span>
+                                                                                </button>
+                                                                            )}
+                                                                        </div>
+
+                                                                        {isEditingThisNote ? (
+                                                                            <div className="space-y-2.5 bg-amber-50/40 p-3.5 rounded-2xl border border-amber-200/80">
+                                                                                <textarea
+                                                                                    value={haditsTempNotes[itemKey] || ''}
+                                                                                    onChange={(e) => setHaditsTempNotes(prev => ({ ...prev, [itemKey]: e.target.value }))}
+                                                                                    placeholder="Tuliskan pelajaran berharga, faidah hadits, atau doa yang terkait..."
+                                                                                    className="w-full p-3 text-xs sm:text-sm border border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none resize-none bg-white"
+                                                                                    rows={3}
+                                                                                    maxLength={1000}
+                                                                                />
+                                                                                <div className="flex items-center justify-between">
+                                                                                    <span className="text-[11px] text-gray-400">
+                                                                                        Maksimal 1000 karakter
+                                                                                    </span>
+                                                                                    <div className="flex items-center gap-2">
+                                                                                        <button
+                                                                                            onClick={() => cancelEditingHaditsNotes(itemKey)}
+                                                                                            className="px-3 py-1.5 text-xs rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
+                                                                                        >
+                                                                                            Batal
+                                                                                        </button>
+                                                                                        <button
+                                                                                            onClick={() => saveHaditsNotes(item)}
+                                                                                            className="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-xs"
+                                                                                        >
+                                                                                            Simpan
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        ) : hasNotes ? (
+                                                                            <div className="p-3.5 bg-gradient-to-r from-amber-50/80 to-yellow-50/40 border-l-4 border-amber-400 rounded-xl text-xs sm:text-sm text-gray-800">
+                                                                                <p className="whitespace-pre-wrap">{item.notes}</p>
+                                                                            </div>
+                                                                        ) : (
+                                                                            <p className="text-xs text-gray-400 italic">
+                                                                                Belum ada catatan untuk hadits ini. Klik "+ Tambah Catatan" untuk menulis faedah Anda.
+                                                                            </p>
+                                                                        )}
+                                                                    </div>
+
+                                                                    {/* Timestamp */}
+                                                                    {item.created_at && (
+                                                                        <div className="mt-3 text-[11px] text-gray-400 flex items-center gap-1">
+                                                                            <IoTimeOutline className="w-3 h-3" />
+                                                                            <span>
+                                                                                Ditandai pada: {new Date(item.created_at).toLocaleDateString('id-ID', {
+                                                                                    year: 'numeric',
+                                                                                    month: 'long',
+                                                                                    day: 'numeric'
+                                                                                })}
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <>
+                            {/* Navigation Tabs Bar */}
+                            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-2 sm:p-3 mb-6">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                             {/* Tab Buttons */}
                             <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
@@ -1156,6 +1960,8 @@ function UserBookmarksPage() {
                                 );
                             })}
                         </div>
+                    )}
+                        </>
                     )}
                 </div>
             </div>

@@ -30,11 +30,13 @@ import SimpleSlideshow from '../components/SimpleSlideshow';
 import SEOHead from '../components/SEOHead';
 import AdSenseInline from '../components/AdSenseInline';
 import { scrollToTop } from '../utils/scrollUtils';
+import { useArabicSpeech } from '../hooks/useArabicSpeech';
 
 const PrayerPage = () => {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const { user } = useAuth();
+    const speech = useArabicSpeech();
 
     // Active Top-level Tab ('pilihan' | 'komunitas') - Default: 'pilihan'
     const activeTab = searchParams.get('tab') === 'komunitas' ? 'komunitas' : 'pilihan';
@@ -238,6 +240,7 @@ const PrayerPage = () => {
 
     // Load selected prayers when tab is 'pilihan' or filters change
     useEffect(() => {
+        speech.stop();
         if (activeTab === 'pilihan') {
             fetchSelectedPrayers(1);
         }
@@ -822,6 +825,7 @@ const PrayerPage = () => {
                                         prayer={targetPrayer}
                                         isHighlighted={true}
                                         onUseInCommunity={handleUsePrayerInCommunity}
+                                        speech={speech}
                                     />
                                 </div>
                             )}
@@ -865,6 +869,7 @@ const PrayerPage = () => {
                                                 prayer={prayer}
                                                 isHighlighted={String(prayer.id) === String(targetDoaId)}
                                                 onUseInCommunity={handleUsePrayerInCommunity}
+                                                speech={speech}
                                             />
                                         </React.Fragment>
                                     ))

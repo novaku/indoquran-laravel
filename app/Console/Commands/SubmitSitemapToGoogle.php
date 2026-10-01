@@ -35,6 +35,8 @@ class SubmitSitemapToGoogle extends Command
             'sitemap-artikel.xml',
             'sitemap-juz.xml',
             'sitemap-halaman.xml',
+            'sitemap-hadits.xml',
+            'sitemap-hadits-main.xml',
         ];
         
         $this->info("Total sitemaps to submit: " . count($sitemaps));

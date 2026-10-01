@@ -25,6 +25,29 @@
   "lang": "id",
   "scope": "/",
   "prefer_related_applications": false,
-  "version": "2.29.0"
+  "version": "2.30.0",
+  "shortcuts": [
+    {
+      "name": "Daftar Surah",
+      "short_name": "Surah",
+      "description": "Buka 114 Surah Al-Quran & Audio",
+      "url": "/surah?utm_source=pwa_shortcut",
+      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Koleksi Hadits Nabawi",
+      "short_name": "Hadits",
+      "description": "11 Kitab Hadits Mu'tamad & Audio Arab",
+      "url": "/hadits?utm_source=pwa_shortcut",
+      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Doa & Dzikir Bersama",
+      "short_name": "Doa Bersama",
+      "description": "Kumpulan Doa Pilihan & Audio",
+      "url": "/doa-bersama?utm_source=pwa_shortcut",
+      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+    }
+  ]
 }
 

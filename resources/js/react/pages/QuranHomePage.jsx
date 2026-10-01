@@ -24,7 +24,8 @@ import {
     EyeIcon,
     XMarkIcon,
     WifiIcon,
-    ExclamationTriangleIcon
+    ExclamationTriangleIcon,
+    SpeakerWaveIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../hooks/useAuth.jsx';
 import SearchField from '../components/SearchField';
@@ -42,6 +43,8 @@ import { getCachedSurahs, fetchSurahsWithFallback } from '../services/SurahDataS
 import authUtils from '../utils/auth';
 import { scrollToTop } from '../utils/scrollUtils';
 import { getRandomPopularSearches } from '../data/popularSearches';
+import { useArabicSpeech } from '../hooks/useArabicSpeech';
+import HaditsAudioPlayer from '../components/HaditsAudioPlayer';
 
 
 // Curated daily inspiration verses for tadabbur
@@ -135,6 +138,52 @@ function QuranHomePage() {
     const [copiedAyah, setCopiedAyah] = useState(false);
     const [dailyInspirationIndex, setDailyInspirationIndex] = useState(0);
 
+    // Audio & sample for Hadits feature highlight
+    const haditsSpeech = useArabicSpeech();
+    const [sampleHadits, setSampleHadits] = useState({
+        kitab: 'shahih_bukhari',
+        kitab_name: 'Shahih Bukhari',
+        kitab_arab: 'صحيح البخاري',
+        number: 1,
+        theme: 'Keutamaan Niat & Keikhlasan',
+        arab: 'إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى، فَمَنْ كَانَتْ هِجْرَتُهُ إِلَى دُنْيَا يُصِيبُهَا أَوْ إِلَى امْرَأَةٍ يَنْكِحُهَا فَهِجْرَتُهُ إِلَى مَا هَاجَرَ إِلَيْهِ',
+        terjemahan: 'Sesungguhnya setiap amalan tergantung pada niatnya, dan sesungguhnya setiap orang akan mendapatkan sesuai dengan apa yang dia niatkan. Barangsiapa yang hijrahnya karena dunia yang ingin diraihnya atau karena wanita yang ingin dinikahinya, maka hijrahnya kepada apa yang ia tuju.'
+    });
+    const [copiedHadits, setCopiedHadits] = useState(false);
+
+    // Fetch dynamic featured hadith if available
+    useEffect(() => {
+        const fetchHaditsFeatured = async () => {
+            try {
+                const res = await fetchWithAuth('/api/hadits');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data?.featured?.arab) {
+                        setSampleHadits({
+                            kitab: data.featured.kitab || 'shahih_bukhari',
+                            kitab_name: data.featured.kitab_name || 'Shahih Bukhari',
+                            kitab_arab: data.featured.kitab_arab || 'صحيح البخاري',
+                            number: data.featured.number || 1,
+                            theme: data.featured.kitab_name ? `Rujukan ${data.featured.kitab_name} #${data.featured.number}` : 'Hadits Pilihan Hari Ini',
+                            arab: data.featured.arab,
+                            terjemahan: data.featured.id || data.featured.terjemahan || ''
+                        });
+                    }
+                }
+            } catch (err) {
+                // Silently fallback to default sample hadith
+            }
+        };
+        fetchHaditsFeatured();
+    }, []);
+
+    const handleCopyHadits = () => {
+        const textToCopy = `${sampleHadits.arab}\n\n"${sampleHadits.terjemahan}"\n(HR. ${sampleHadits.kitab_name}, No. ${sampleHadits.number})\n\nDibaca melalui IndoQuran.web.id/hadits`;
+        navigator.clipboard.writeText(textToCopy);
+        setCopiedHadits(true);
+        setTimeout(() => setCopiedHadits(false), 2500);
+    };
+
     // Pick inspiration based on day of year
     useEffect(() => {
         const today = new Date();
@@ -188,6 +237,18 @@ function QuranHomePage() {
             badgeBg: 'bg-amber-50 text-amber-700 border border-amber-200/60',
             hoverBorder: 'hover:border-amber-300',
             hoverBg: 'hover:from-white hover:to-amber-50/40'
+        },
+        {
+            to: '/hadits',
+            title: 'Koleksi Hadits',
+            subtitle: '11 Kitab hadits mu\'tamad & audio Arab',
+            badgeText: 'FITUR BARU',
+            isNew: true,
+            icon: BookOpenIcon,
+            iconBg: 'bg-emerald-100 text-emerald-700 border border-emerald-300 shadow-2xs',
+            badgeBg: 'bg-emerald-600 text-white font-bold shadow-2xs',
+            hoverBorder: 'border-emerald-400 ring-2 ring-emerald-500/20 shadow-md',
+            hoverBg: 'hover:from-emerald-50/70 hover:to-teal-50/30'
         },
         {
             to: '/tafsir-maudhui',
@@ -506,9 +567,9 @@ function QuranHomePage() {
     return (
         <div className="min-h-screen bg-gray-50 text-gray-800 no-auto-ads homepage-container">
             <SEOHead
-                title="Al-Quran Digital Indonesia - Baca, Dengar, Terjemahan | IndoQuran"
-                description="AlQuran online lengkap untuk Indonesia: baca teks Arab, dengarkan audio murottal, dan pelajari terjemahan per ayat di IndoQuran web."
-                keywords="alquran online, al quran online, indo quran, quran web, al quran indonesia, baca quran online, murottal quran"
+                title="Al-Quran Digital & Hadits Nabawi Online - IndoQuran"
+                description="Pelajari dua sumber pokok pedoman muslim: Al-Qur'an sebagai sumber pertama dan Hadits Nabawi sebagai sumber kedua, lengkap dengan terjemahan dan audio di IndoQuran."
+                keywords="alquran online, hadits nabawi online, dua sumber islam, shahih bukhari, shahih muslim, al quran indonesia, sunnah rasulullah"
                 canonicalUrl="https://indoquran.web.id/"
             />
 
@@ -523,10 +584,24 @@ function QuranHomePage() {
                 <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-12 lg:pt-14 lg:pb-16">
                     <div className="flex flex-col items-center text-center space-y-6">
 
-                        {/* Status / Highlight Badge */}
-                        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/70 border border-emerald-200/80 text-emerald-800 text-xs sm:text-sm font-medium shadow-sm transition-transform hover:scale-[1.02]">
-                            <SparklesIcon className="w-4 h-4 text-emerald-600" />
-                            <span>Al-Quran Digital Indonesia & Terjemahan Lengkap</span>
+                        {/* Status / Highlight Badge & Dual Primary Sources Pill */}
+                        <div className="flex flex-wrap items-center justify-center gap-2.5">
+                            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/70 border border-emerald-200/80 text-emerald-800 text-xs sm:text-sm font-medium shadow-2xs">
+                                <SparklesIcon className="w-4 h-4 text-emerald-600" />
+                                <span>Dua Pedoman Utama Muslim: Al-Qur'an & Hadits Nabawi</span>
+                            </div>
+                            <Link
+                                to="/hadits"
+                                data-google-vignette="false"
+                                className="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 text-white text-xs sm:text-sm font-semibold shadow-sm hover:shadow-md transition-all hover:scale-[1.02]"
+                            >
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-400 text-emerald-950 text-[10px] font-extrabold uppercase tracking-wider">
+                                    <SparklesIcon className="w-3 h-3 text-emerald-950" />
+                                    BARU
+                                </span>
+                                <span>Koleksi 11 Kitab Hadits Nabawi & Audio Arab</span>
+                                <ChevronRightIcon className="w-3.5 h-3.5 text-emerald-200 group-hover:translate-x-0.5 transition-transform" />
+                            </Link>
                         </div>
 
                         {/* Title & Tagline with IndoQuran Logo */}
@@ -547,7 +622,7 @@ function QuranHomePage() {
                             </div>
                             <h1 className="sr-only">IndoQuran - Al-Quran Online Indonesia</h1>
                             <p className="text-base sm:text-lg lg:text-xl text-gray-600 font-normal leading-relaxed max-w-2xl">
-                                Membaca, mendengar murottal, dan mentadabburi ayat-ayat suci Al-Quran dengan tampilan yang tenang, bersih, dan informatif.
+                                Mendalami dua rujukan pokok umat Islam: <strong className="text-gray-900 font-semibold">Al-Qur'an</strong> sebagai sumber pertama dan <strong className="text-gray-900 font-semibold">Hadits Nabawi</strong> sebagai sumber kedua, dalam satu antarmuka yang tenang, bersih, dan tepercaya.
                             </p>
                         </div>
 
@@ -556,7 +631,7 @@ function QuranHomePage() {
                             <OnlineUsersWidget />
                         </div>
 
-                        {/* Primary Action Buttons */}
+                        {/* Primary Action Buttons: Dua Pilihan Utama */}
                         <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                             <Button
                                 variant="primary"
@@ -565,8 +640,18 @@ function QuranHomePage() {
                                 leftIcon={<BookOpenIcon className="w-5 h-5" />}
                                 className="shadow-md shadow-emerald-700/10 hover:shadow-lg transition-all"
                             >
-                                Mulai Membaca
+                                1. Baca Al-Qur'an
                             </Button>
+                            <Link to="/hadits" data-google-vignette="false">
+                                <Button
+                                    variant="outline"
+                                    size="lg"
+                                    leftIcon={<SparklesIcon className="w-5 h-5 text-amber-500" />}
+                                    className="bg-emerald-50/80 hover:bg-emerald-100 border-emerald-300 text-emerald-900 font-semibold shadow-2xs"
+                                >
+                                    2. Hadits Nabawi <span className="ml-1.5 px-1.5 py-0.5 text-[10px] bg-emerald-600 text-white rounded font-bold">BARU</span>
+                                </Button>
+                            </Link>
                             <Link to="/juz" data-google-vignette="false">
                                 <Button
                                     variant="outline"
@@ -603,6 +688,16 @@ function QuranHomePage() {
                                 <span className="font-medium mr-1 text-gray-600 flex items-center gap-1">
                                     <TagIcon className="w-3.5 h-3.5 text-emerald-600" /> Populer:
                                 </span>
+                                <button
+                                    type="button"
+                                    onClick={() => navigate('/hadits')}
+                                    title="Fitur Baru: 11 Kitab Hadits Nabawi Lengkap"
+                                    className="px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-300 text-emerald-800 hover:bg-emerald-100 hover:border-emerald-400 transition-colors shadow-2xs font-bold cursor-pointer inline-flex items-center gap-1"
+                                >
+                                    <SparklesIcon className="w-3 h-3 text-amber-500" />
+                                    <span>Hadits Nabawi</span>
+                                    <span className="px-1 text-[9px] bg-emerald-600 text-white rounded">BARU</span>
+                                </button>
                                 {popularChips.map((chip) => (
                                     <button
                                         key={chip.id || chip.label}
@@ -671,7 +766,272 @@ function QuranHomePage() {
             )}
 
             {/* MAIN CONTENT AREA WITH SIDEBAR */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10 space-y-8">
+                {/* DUA SUMBER UTAMA PEDOMAN HIDUP MUSLIM: AL-QUR'AN & HADITS NABAWI */}
+                <section aria-labelledby="dua-sumber-heading" className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-white via-emerald-50/20 to-white border border-emerald-100/90 p-6 sm:p-8 lg:p-10 shadow-xs">
+                    {/* Subtle ambient lighting */}
+                    <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none" />
+                    <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-teal-100/30 rounded-full blur-3xl pointer-events-none" />
+
+                    <div className="relative z-10 space-y-6 sm:space-y-8">
+                        {/* Section Header with Dalil */}
+                        <div className="text-center max-w-3xl mx-auto space-y-3">
+                            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/80 border border-emerald-200 text-emerald-800 text-xs sm:text-sm font-semibold shadow-2xs">
+                                <SparklesIcon className="w-4 h-4 text-emerald-600" />
+                                <span>DUA PEDOMAN UTAMA UMAT ISLAM</span>
+                            </div>
+
+                            <h2 id="dua-sumber-heading" className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 tracking-tight">
+                                Dua Sumber Pokok Ajaran & Pedoman Hidup Muslim
+                            </h2>
+
+                            <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
+                                Dalam syariat Islam, keselamatan dan kemuliaan hidup berlandaskan pada dua rujukan pokok yang diwariskan oleh Rasulullah ﷺ agar umat senantiasa berada dalam petunjuk yang lurus.
+                            </p>
+
+                            {/* Hadits Dalil Box */}
+                            <div className="mt-4 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-900 via-teal-900 to-emerald-950 text-white shadow-sm border border-emerald-700/50 text-center">
+                                <p className="font-arabic text-lg sm:text-xl text-amber-200 leading-relaxed mb-2" dir="rtl">
+                                    تَرَكْتُ فِيكُمْ أَمْرَيْنِ لَنْ تَضِلُّوا مَا تَمَسَّكْتُمْ بِهِمَا: كِتَابَ اللَّهِ وَسُنَّةَ نَبِيِّهِ
+                                </p>
+                                <p className="text-xs sm:text-sm text-emerald-100 italic">
+                                    "Aku tinggalkan kepada kalian dua perkara. Kalian tidak akan tersesat selama berpegang teguh kepada keduanya: <strong className="text-amber-300 font-semibold">Kitabullah (Al-Qur'an)</strong> dan <strong className="text-amber-300 font-semibold">Sunnah Nabi-Nya (Hadits)</strong>."
+                                </p>
+                                <span className="inline-block mt-2 text-[11px] text-emerald-300/80 font-medium">
+                                    — HR. Malik dalam Al-Muwaththa' (No. 1661) & Al-Hakim (No. 318)
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Dua Pilihan Cards (Grid 2 Cols) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 pt-2">
+                            {/* KARTU 1: AL-QUR'AN (SUMBER PERTAMA) */}
+                            <div className="relative group rounded-2xl sm:rounded-3xl border-2 border-emerald-200/90 bg-gradient-to-br from-emerald-50/50 via-white to-teal-50/20 p-6 sm:p-7 shadow-xs hover:shadow-md hover:border-emerald-400 transition-all duration-300 flex flex-col justify-between">
+                                {/* Watermark Calligraphy */}
+                                <div className="absolute right-4 top-2 font-arabic text-6xl sm:text-7xl font-bold text-emerald-900/5 select-none pointer-events-none" dir="rtl">
+                                    القرآن
+                                </div>
+
+                                <div className="relative z-10 space-y-4">
+                                    {/* Number & Source Badge */}
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="w-8 h-8 rounded-full bg-emerald-600 text-white font-black text-sm flex items-center justify-center shadow-xs">
+                                                1
+                                            </div>
+                                            <span className="px-3 py-1 rounded-full bg-emerald-100 border border-emerald-200 text-emerald-800 text-xs font-bold uppercase tracking-wider">
+                                                Sumber Pokok Pertama
+                                            </span>
+                                        </div>
+                                        <span className="font-arabic text-lg font-bold text-emerald-700">
+                                            القرآن الكريم
+                                        </span>
+                                    </div>
+
+                                    {/* Title & Tagline */}
+                                    <div>
+                                        <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900 group-hover:text-emerald-800 transition-colors">
+                                            Al-Qur'an Al-Karim
+                                        </h3>
+                                        <p className="text-xs sm:text-sm font-semibold text-emerald-700 mt-0.5">
+                                            Kalamullah • Mukjizat Abadi • Petunjuk Utama
+                                        </p>
+                                    </div>
+
+                                    {/* Professional Theological Description */}
+                                    <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                                        Wahyu suci yang diturunkan oleh Allah Ta'ala kepada Nabi Muhammad ﷺ melalui Malaikat Jibril sebagai mukjizat abadi, rujukan hukum tertinggi, syifa' (penawar hati), dan pedoman hidup mutlak bagi seluruh umat manusia.
+                                    </p>
+
+                                    {/* Feature Points */}
+                                    <div className="space-y-2 pt-1 border-t border-emerald-100/80 text-xs text-gray-700">
+                                        <div className="flex items-start gap-2">
+                                            <div className="w-5 h-5 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0 mt-0.5 font-bold">
+                                                ✓
+                                            </div>
+                                            <div>
+                                                <strong className="text-gray-900 font-semibold">114 Surah & 30 Juz:</strong> Teks Arab mushaf standar, transliterasi Latin, dan terjemahan resmi Kemenag RI.
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-2">
+                                            <div className="w-5 h-5 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0 mt-0.5 font-bold">
+                                                ✓
+                                            </div>
+                                            <div>
+                                                <strong className="text-gray-900 font-semibold">Tafsir Tematik (Maudhui):</strong> Pengelompokan dan pendalaman makna ayat berdasarkan konteks persoalan kehidupan.
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-2">
+                                            <div className="w-5 h-5 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0 mt-0.5 font-bold">
+                                                ✓
+                                            </div>
+                                            <div>
+                                                <strong className="text-gray-900 font-semibold">Audio Murottal Per Ayat:</strong> Lantunan merdu para qari internasional untuk menyempurnakan bacaan dan hafalan.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Action Buttons & Quick Nav */}
+                                <div className="relative z-10 pt-5 mt-4 border-t border-emerald-100 space-y-3">
+                                    <Button
+                                        variant="primary"
+                                        size="md"
+                                        onClick={handleStartReading}
+                                        leftIcon={<BookOpenIcon className="w-4 h-4" />}
+                                        rightIcon={<ArrowRightIcon className="w-4 h-4" />}
+                                        className="w-full justify-center shadow-xs font-bold"
+                                    >
+                                        Buka & Baca Al-Qur'an
+                                    </Button>
+
+                                    <div className="flex items-center justify-between gap-2 text-xs">
+                                        <span className="text-gray-500 font-medium">Akses Cepat:</span>
+                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                            <Link
+                                                to="/surah"
+                                                data-google-vignette="false"
+                                                className="px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-emerald-800 hover:border-emerald-400 hover:bg-emerald-50 font-medium transition-colors"
+                                            >
+                                                114 Surah
+                                            </Link>
+                                            <Link
+                                                to="/juz"
+                                                data-google-vignette="false"
+                                                className="px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-emerald-800 hover:border-emerald-400 hover:bg-emerald-50 font-medium transition-colors"
+                                            >
+                                                30 Juz
+                                            </Link>
+                                            <Link
+                                                to="/tafsir-maudhui"
+                                                data-google-vignette="false"
+                                                className="px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-emerald-800 hover:border-emerald-400 hover:bg-emerald-50 font-medium transition-colors"
+                                            >
+                                                Tafsir
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* KARTU 2: HADITS NABAWI (SUMBER KEDUA) */}
+                            <div className="relative group rounded-2xl sm:rounded-3xl border-2 border-teal-200/90 bg-gradient-to-br from-teal-50/50 via-white to-emerald-50/20 p-6 sm:p-7 shadow-xs hover:shadow-md hover:border-teal-400 transition-all duration-300 flex flex-col justify-between">
+                                {/* Watermark Calligraphy */}
+                                <div className="absolute right-4 top-2 font-arabic text-6xl sm:text-7xl font-bold text-teal-900/5 select-none pointer-events-none" dir="rtl">
+                                    الحديث
+                                </div>
+
+                                <div className="relative z-10 space-y-4">
+                                    {/* Number & Source Badge */}
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="w-8 h-8 rounded-full bg-teal-700 text-white font-black text-sm flex items-center justify-center shadow-xs">
+                                                2
+                                            </div>
+                                            <span className="px-3 py-1 rounded-full bg-teal-100 border border-teal-200 text-teal-800 text-xs font-bold uppercase tracking-wider">
+                                                Sumber Pokok Kedua
+                                            </span>
+                                        </div>
+                                        <span className="font-arabic text-lg font-bold text-teal-700">
+                                            الحديث النبوي
+                                        </span>
+                                    </div>
+
+                                    {/* Title & Tagline */}
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900 group-hover:text-teal-800 transition-colors">
+                                                Hadits Nabawi (As-Sunnah)
+                                            </h3>
+                                            <span className="px-2 py-0.5 rounded text-[10px] font-black bg-amber-400 text-emerald-950 uppercase tracking-wide">
+                                                BARU
+                                            </span>
+                                        </div>
+                                        <p className="text-xs sm:text-sm font-semibold text-teal-700 mt-0.5">
+                                            Sabda Rasulullah ﷺ • Penjelas (Bayan) • Teladan Akhlak
+                                        </p>
+                                    </div>
+
+                                    {/* Professional Theological Description */}
+                                    <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                                        Kumpulan sabda (aqwal), perbuatan (af'al), ketetapan (taqrir), dan sifat Rasulullah ﷺ yang berfungsi merinci hukum Al-Qur'an, menuntun tata cara ibadah praktis, serta menjadi teladan akhlak terpuji.
+                                    </p>
+
+                                    {/* Feature Points */}
+                                    <div className="space-y-2 pt-1 border-t border-teal-100/80 text-xs text-gray-700">
+                                        <div className="flex items-start gap-2">
+                                            <div className="w-5 h-5 rounded-md bg-teal-100 text-teal-700 flex items-center justify-center flex-shrink-0 mt-0.5 font-bold">
+                                                ✓
+                                            </div>
+                                            <div>
+                                                <strong className="text-gray-900 font-semibold">11 Kitab Mu'tamad:</strong> Shahih Bukhari, Muslim, Sunan Abu Daud, Tirmidzi, Nasai, Ibnu Majah, dll.
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-2">
+                                            <div className="w-5 h-5 rounded-md bg-teal-100 text-teal-700 flex items-center justify-center flex-shrink-0 mt-0.5 font-bold">
+                                                ✓
+                                            </div>
+                                            <div>
+                                                <strong className="text-gray-900 font-semibold">64.341 Hadits Terverifikasi:</strong> Nomor hadits terstandar, bab pembahasan, serta terjemahan bahasa Indonesia lengkap.
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-2">
+                                            <div className="w-5 h-5 rounded-md bg-teal-100 text-teal-700 flex items-center justify-center flex-shrink-0 mt-0.5 font-bold">
+                                                ✓
+                                            </div>
+                                            <div>
+                                                <strong className="text-gray-900 font-semibold">Pelafalan Audio Teks Arab:</strong> Dengarkan pelafalan bahasa Arab hadits seketika langsung di peramban (browser).
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Action Buttons & Quick Nav */}
+                                <div className="relative z-10 pt-5 mt-4 border-t border-teal-100 space-y-3">
+                                    <Link to="/hadits" data-google-vignette="false" className="block">
+                                        <Button
+                                            variant="primary"
+                                            size="md"
+                                            leftIcon={<BookOpenIcon className="w-4 h-4" />}
+                                            rightIcon={<ArrowRightIcon className="w-4 h-4" />}
+                                            className="w-full justify-center bg-teal-700 hover:bg-teal-800 shadow-xs font-bold"
+                                        >
+                                            Jelajahi 11 Kitab Hadits
+                                        </Button>
+                                    </Link>
+
+                                    <div className="flex items-center justify-between gap-2 text-xs">
+                                        <span className="text-gray-500 font-medium">Kitab Populer:</span>
+                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                            <Link
+                                                to="/hadits/shahih_bukhari"
+                                                data-google-vignette="false"
+                                                className="px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-teal-800 hover:border-teal-400 hover:bg-teal-50 font-medium transition-colors"
+                                            >
+                                                Bukhari
+                                            </Link>
+                                            <Link
+                                                to="/hadits/shahih_muslim"
+                                                data-google-vignette="false"
+                                                className="px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-teal-800 hover:border-teal-400 hover:bg-teal-50 font-medium transition-colors"
+                                            >
+                                                Muslim
+                                            </Link>
+                                            <Link
+                                                to="/hadits/riyadhus_shalihin"
+                                                data-google-vignette="false"
+                                                className="px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-teal-800 hover:border-teal-400 hover:bg-teal-50 font-medium transition-colors"
+                                            >
+                                                Riyadhus Shalihin
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
                     {/* Main Content Column (8 cols) */}
@@ -751,6 +1111,242 @@ function QuranHomePage() {
                         {/* Target Khatam & Tilawah Progress Bar */}
                         <KhatamTrackerCard />
 
+                        {/* FITUR BARU HIGHLIGHT: Koleksi 11 Kitab Hadits Nabawi */}
+                        <div className="relative overflow-hidden bg-gradient-to-br from-emerald-900 via-teal-900 to-slate-900 text-white rounded-3xl p-6 sm:p-7 shadow-lg border border-emerald-700/60">
+                            {/* Ambient Glow & Watermark Calligraphy */}
+                            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-72 h-72 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
+                            <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-72 h-72 bg-teal-400/10 rounded-full blur-3xl pointer-events-none" />
+                            <div className="absolute right-6 top-4 font-arabic text-7xl sm:text-8xl font-black text-white/5 select-none pointer-events-none hidden sm:block" dir="rtl">
+                                الحديث
+                            </div>
+
+                            <div className="relative z-10 space-y-5">
+                                {/* Top Badges & Hub Link */}
+                                <div className="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-emerald-700/60">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400 text-emerald-950 text-xs font-black tracking-wider uppercase shadow-xs">
+                                            <SparklesIcon className="w-3.5 h-3.5 text-emerald-950" />
+                                            FITUR BARU
+                                        </span>
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-800/80 border border-emerald-500/40 text-emerald-200 text-xs font-semibold">
+                                            11 Kitab Hadits Mu'tamad
+                                        </span>
+                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-teal-800/70 border border-teal-500/30 text-teal-200 text-xs font-medium">
+                                            64.341 Hadits
+                                        </span>
+                                    </div>
+
+                                    <Link
+                                        to="/hadits"
+                                        data-google-vignette="false"
+                                        className="inline-flex items-center gap-1 text-xs font-bold text-amber-300 hover:text-amber-200 transition-colors group"
+                                    >
+                                        <span>Buka Hub Hadits</span>
+                                        <ChevronRightIcon className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                                    </Link>
+                                </div>
+
+                                {/* Title & Description */}
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2.5">
+                                        <div className="w-10 h-10 rounded-xl bg-emerald-800/80 border border-emerald-600/50 flex items-center justify-center text-amber-300 shadow-inner flex-shrink-0">
+                                            <BookOpenIcon className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+                                                Koleksi 11 Kitab Hadits Nabawi & Audio Arab
+                                            </h2>
+                                            <p className="text-xs text-emerald-300 font-medium">
+                                                Rujukan shahih & mu'tamad: Shahih Bukhari, Muslim, Sunan Abu Daud, Tirmidzi, dll.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <p className="text-emerald-100/90 text-xs sm:text-sm leading-relaxed max-w-3xl">
+                                        Kini hadir fitur terlengkap untuk mempelajari sunnah dan sabda Rasulullah ﷺ. Jelajahi lebih dari 64.000 hadits dengan terjemahan bahasa Indonesia, navigasi cepat per nomor, serta pelafalan audio teks Arab seketika langsung di browser Anda.
+                                    </p>
+                                </div>
+
+                                {/* 3 Value Pillars */}
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+                                    <div className="bg-emerald-950/40 border border-emerald-600/30 rounded-xl p-3 flex items-start gap-2.5">
+                                        <div className="w-7 h-7 rounded-lg bg-emerald-800/70 text-emerald-300 flex items-center justify-center flex-shrink-0 font-bold">
+                                            📚
+                                        </div>
+                                        <div>
+                                            <div className="font-bold text-emerald-100">64.341 Hadits</div>
+                                            <div className="text-[11px] text-emerald-200/70 mt-0.5">Kutubus Sittah, Musnad Ulama Mazhab & Riyadhus Shalihin</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-emerald-950/40 border border-emerald-600/30 rounded-xl p-3 flex items-start gap-2.5">
+                                        <div className="w-7 h-7 rounded-lg bg-emerald-800/70 text-emerald-300 flex items-center justify-center flex-shrink-0 font-bold">
+                                            🔊
+                                        </div>
+                                        <div>
+                                            <div className="font-bold text-emerald-100">Audio Arab di Browser</div>
+                                            <div className="text-[11px] text-emerald-200/70 mt-0.5">Dengarkan pelafalan Arab instan tanpa kuota backend server</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-emerald-950/40 border border-emerald-600/30 rounded-xl p-3 flex items-start gap-2.5">
+                                        <div className="w-7 h-7 rounded-lg bg-emerald-800/70 text-emerald-300 flex items-center justify-center flex-shrink-0 font-bold">
+                                            🔍
+                                        </div>
+                                        <div>
+                                            <div className="font-bold text-emerald-100">Lompat Nomor Cepat</div>
+                                            <div className="text-[11px] text-emerald-200/70 mt-0.5">Cari nomor hadits atau kata kunci terjemahan dalam hitungan detik</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Sample Hadith Interactive Card */}
+                                <div className="bg-slate-950/50 rounded-2xl p-4 sm:p-5 border border-emerald-500/30 space-y-3">
+                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                        <div className="flex items-center gap-2">
+                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-700/60 border border-emerald-500/40 text-emerald-200 text-xs font-semibold">
+                                                <SparklesIcon className="w-3.5 h-3.5 text-amber-300" />
+                                                {sampleHadits.kitab_name} • Hadits No. {sampleHadits.number}
+                                            </span>
+                                            {sampleHadits.theme && (
+                                                <span className="text-xs text-emerald-300/90 font-medium hidden sm:inline">
+                                                    • {sampleHadits.theme}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <div className="flex items-center gap-2">
+                                            {/* Audio Player Button (Web Speech API) */}
+                                            {haditsSpeech.isSupported && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const activeId = `homepage-hadits-${sampleHadits.number}`;
+                                                        if (haditsSpeech.activeId === activeId) {
+                                                            if (haditsSpeech.isPlaying) haditsSpeech.pause();
+                                                            else haditsSpeech.resume();
+                                                        } else {
+                                                            haditsSpeech.play(activeId, sampleHadits.arab);
+                                                        }
+                                                    }}
+                                                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                                                    title="Dengarkan pelafalan bahasa Arab"
+                                                >
+                                                    {haditsSpeech.activeId === `homepage-hadits-${sampleHadits.number}` && haditsSpeech.isPlaying ? (
+                                                        <>
+                                                            <span className="text-amber-300">⏸</span>
+                                                            <span>Jeda</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <span className="text-amber-300">▶</span>
+                                                            <span>Putar Audio Arab</span>
+                                                        </>
+                                                    )}
+                                                </button>
+                                            )}
+
+                                            {/* Copy Button */}
+                                            <button
+                                                type="button"
+                                                onClick={handleCopyHadits}
+                                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-800/60 hover:bg-emerald-700/80 text-xs text-emerald-200 transition-colors border border-emerald-600/40 cursor-pointer"
+                                                title="Salin hadits & terjemahan"
+                                            >
+                                                {copiedHadits ? (
+                                                    <>
+                                                        <CheckIcon className="w-3.5 h-3.5 text-emerald-300" />
+                                                        <span>Tersalin</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <ClipboardDocumentIcon className="w-3.5 h-3.5" />
+                                                        <span>Salin</span>
+                                                    </>
+                                                )}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Audio Player Bar when Active */}
+                                    <HaditsAudioPlayer
+                                        haditsId={`homepage-hadits-${sampleHadits.number}`}
+                                        speech={haditsSpeech}
+                                        className="mt-1"
+                                    />
+
+                                    {/* Arabic Text */}
+                                    <div className="py-1 text-right">
+                                        <p className="font-arabic text-xl sm:text-2xl text-emerald-50 leading-loose" dir="rtl">
+                                            {sampleHadits.arab}
+                                        </p>
+                                    </div>
+
+                                    {/* Translation */}
+                                    <div className="pt-2 border-t border-emerald-800/60">
+                                        <p className="text-emerald-100/90 text-xs sm:text-sm leading-relaxed italic">
+                                            "{sampleHadits.terjemahan}"
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Popular Kitabs Direct Links Chips */}
+                                <div className="pt-1">
+                                    <span className="text-[11px] font-semibold text-emerald-300/80 uppercase tracking-wider block mb-2">
+                                        Pilih Kitab Hadits Populer:
+                                    </span>
+                                    <div className="flex flex-wrap gap-2">
+                                        {[
+                                            { slug: 'shahih_bukhari', name: 'Shahih Bukhari', count: '7.008 Hadits' },
+                                            { slug: 'shahih_muslim', name: 'Shahih Muslim', count: '5.362 Hadits' },
+                                            { slug: 'riyadhus_shalihin', name: 'Riyadhus Shalihin', count: '372 Bab' },
+                                            { slug: 'sunan_abu_daud', name: 'Sunan Abu Daud', count: '4.590 Hadits' },
+                                            { slug: 'sunan_tirmidzi', name: 'Sunan At-Tirmidzi', count: '3.891 Hadits' },
+                                            { slug: 'sunan_nasai', name: 'Sunan An-Nasa\'i', count: '5.662 Hadits' }
+                                        ].map((book) => (
+                                            <Link
+                                                key={book.slug}
+                                                to={`/hadits/${book.slug}`}
+                                                data-google-vignette="false"
+                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-emerald-500/30 border border-white/10 hover:border-emerald-400 text-xs font-medium text-emerald-100 hover:text-white transition-all shadow-2xs group"
+                                            >
+                                                <span>📖</span>
+                                                <span className="font-semibold">{book.name}</span>
+                                                <span className="text-[10px] text-emerald-300/70 font-normal">({book.count})</span>
+                                                <ChevronRightIcon className="w-3 h-3 text-emerald-300 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Action CTAs */}
+                                <div className="pt-3 border-t border-emerald-700/60 flex flex-wrap items-center justify-between gap-3">
+                                    <div className="flex flex-wrap items-center gap-2.5">
+                                        <Link
+                                            to="/hadits"
+                                            data-google-vignette="false"
+                                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-emerald-950 font-bold text-xs sm:text-sm shadow-md transition-all hover:scale-[1.02]"
+                                        >
+                                            <BookOpenIcon className="w-4 h-4 text-emerald-950" />
+                                            <span>Jelajahi 11 Kitab Hadits</span>
+                                            <ArrowRightIcon className="w-4 h-4" />
+                                        </Link>
+                                        <Link
+                                            to={`/hadits/${sampleHadits.kitab}?jump=${sampleHadits.number}`}
+                                            data-google-vignette="false"
+                                            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-semibold border border-white/15 transition-colors"
+                                        >
+                                            <span>Buka Hadits Ini di Reader</span>
+                                        </Link>
+                                    </div>
+
+                                    <span className="text-xs text-emerald-300/80 font-medium flex items-center gap-1.5">
+                                        <SpeakerWaveIcon className="w-4 h-4 text-amber-300" />
+                                        <span>Didukung Audio Pelafalan Arab</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
                         {/* Fitur & Navigasi Utama (Feature Hub) */}
                         <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-200/90 shadow-2xs">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-gray-100">
@@ -758,11 +1354,11 @@ function QuranHomePage() {
                                     <div className="flex items-center gap-2">
                                         <h2 className="text-xl font-bold text-gray-900">Jelajahi Al-Quran & Fitur</h2>
                                         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-                                            9 Modul
+                                            10 Modul
                                         </span>
                                     </div>
                                     <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                                        Pintasan cepat modul bacaan, kajian tafsir, pencarian, dan panduan ibadah.
+                                        Pintasan cepat modul bacaan, hadits nabawi, kajian tafsir, pencarian, dan panduan ibadah.
                                     </p>
                                 </div>
                             </div>
@@ -775,22 +1371,33 @@ function QuranHomePage() {
                                             key={item.to}
                                             to={item.to}
                                             data-google-vignette="false"
-                                            className={`group p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200/90 bg-white hover:bg-gradient-to-br ${item.hoverBg || 'hover:from-white hover:to-emerald-50/30'} ${item.hoverBorder || 'hover:border-emerald-300'} transition-all duration-200 hover:shadow-xs flex flex-row sm:flex-col sm:justify-between items-center sm:items-stretch gap-3 sm:gap-3`}
+                                            className={`group p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border transition-all duration-200 hover:shadow-xs flex flex-row sm:flex-col sm:justify-between items-center sm:items-stretch gap-3 sm:gap-3 ${
+                                                item.isNew
+                                                    ? 'border-emerald-400 ring-2 ring-emerald-500/20 bg-gradient-to-br from-emerald-50/50 via-white to-amber-50/30 shadow-xs'
+                                                    : `border-gray-200/90 bg-white hover:bg-gradient-to-br ${item.hoverBg || 'hover:from-white hover:to-emerald-50/30'} ${item.hoverBorder || 'hover:border-emerald-300'}`
+                                            }`}
                                         >
                                             {/* Top row for desktop, left column for mobile */}
                                             <div className="flex sm:items-center sm:justify-between flex-shrink-0">
                                                 <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl ${item.iconBg} flex items-center justify-center transition-transform duration-200 group-hover:scale-105 shadow-2xs`}>
                                                     <Icon className="w-5 h-5" />
                                                 </div>
-                                                <span className={`hidden sm:inline-flex text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${item.badgeBg} transition-colors`}>
-                                                    {item.badgeText}
-                                                </span>
+                                                {item.isNew ? (
+                                                    <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-600 text-white shadow-2xs">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-300 animate-ping" />
+                                                        FITUR BARU
+                                                    </span>
+                                                ) : (
+                                                    <span className={`hidden sm:inline-flex text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${item.badgeBg} transition-colors`}>
+                                                        {item.badgeText}
+                                                    </span>
+                                                )}
                                             </div>
 
                                             {/* Title & subtitle */}
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center justify-between gap-1.5">
-                                                    <h3 className="font-bold text-gray-900 text-sm group-hover:text-emerald-700 transition-colors truncate sm:whitespace-normal">
+                                                    <h3 className={`font-bold text-sm transition-colors truncate sm:whitespace-normal ${item.isNew ? 'text-emerald-950 group-hover:text-emerald-700' : 'text-gray-900 group-hover:text-emerald-700'}`}>
                                                         {item.title}
                                                     </h3>
                                                     <ChevronRightIcon className="hidden sm:block w-4 h-4 text-gray-400 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all flex-shrink-0" />
@@ -802,9 +1409,16 @@ function QuranHomePage() {
 
                                             {/* Mobile right badge & chevron */}
                                             <div className="flex sm:hidden items-center gap-2 flex-shrink-0">
-                                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${item.badgeBg}`}>
-                                                    {item.badgeText}
-                                                </span>
+                                                {item.isNew ? (
+                                                    <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white shadow-2xs">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-300 animate-ping" />
+                                                        BARU
+                                                    </span>
+                                                ) : (
+                                                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${item.badgeBg}`}>
+                                                        {item.badgeText}
+                                                    </span>
+                                                )}
                                                 <ChevronRightIcon className="w-4 h-4 text-gray-400 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all" />
                                             </div>
                                         </Link>

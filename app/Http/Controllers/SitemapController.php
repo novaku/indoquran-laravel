@@ -152,6 +152,12 @@ class SitemapController extends Controller
                 'lastmod' => $currentDate,
                 'changefreq' => 'weekly',
                 'priority' => '0.9'
+            ],
+            [
+                'url' => $baseUrl . '/hadits',
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.9'
             ]
         ];
         
@@ -219,7 +225,22 @@ class SitemapController extends Controller
             // Ignore if table doesn't exist yet
         }
         
-        $allPages = array_merge($staticPages, $surahPages, $articlePages, $juzPages, $halamanPages, $tafsirPages);
+        // Add Hadits book overview pages
+        $haditsPages = [];
+        try {
+            foreach (\App\Http\Controllers\HaditsController::getKitabCatalog() as $slug => $kitab) {
+                $haditsPages[] = [
+                    'url' => $baseUrl . '/hadits/' . $slug,
+                    'lastmod' => $currentDate,
+                    'changefreq' => 'monthly',
+                    'priority' => '0.85'
+                ];
+            }
+        } catch (\Throwable $e) {
+            // Ignore if catalog not available
+        }
+        
+        $allPages = array_merge($staticPages, $surahPages, $articlePages, $juzPages, $halamanPages, $tafsirPages, $haditsPages);
         
         // Generate XML
         $xml = $this->generateSitemapXml($allPages);
@@ -325,7 +346,9 @@ class SitemapController extends Controller
         $robotsTxt .= "Allow: /donasi\n";
         $robotsTxt .= "Allow: /kebijakan\n";
         $robotsTxt .= "Allow: /syarat-ketentuan\n";
-        $robotsTxt .= "Allow: /riwayat-versi\n\n";
+        $robotsTxt .= "Allow: /riwayat-versi\n";
+        $robotsTxt .= "Allow: /hadits\n";
+        $robotsTxt .= "Allow: /hadits/\n\n";
 
         
         // Crawl delay optimized for server performance
@@ -337,7 +360,8 @@ class SitemapController extends Controller
         $robotsTxt .= "Sitemap: {$baseUrl}/sitemap.xml\n";
         $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-index.xml\n";
         $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-main.xml\n";
-        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-artikel.xml\n\n";
+        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-artikel.xml\n";
+        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-hadits.xml\n\n";
         
         // Google-specific optimizations
         $robotsTxt .= "# Google-specific optimizations for Indonesian content\n";

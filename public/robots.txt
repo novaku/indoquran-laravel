@@ -16,8 +16,14 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /dashboard/
 
-# Search and filter URLs are handled by meta noindex tag, so we don't block them in robots.txt
-# to allow Googlebot to read the noindex directive and remove them from the index.
+# Disallow search and filter URLs
+Disallow: /cari?
+Disallow: /cari/*
+Disallow: /search
+Disallow: /search?
+Disallow: /*?*tag=
+Disallow: /*?*search=
+Disallow: /artikel?*
 
 # Allow important pages
 Allow: /cari$
@@ -38,6 +44,8 @@ Allow: /kontak
 Allow: /donasi
 Allow: /riwayat-versi
 Allow: /kebijakan
+Allow: /hadits
+Allow: /hadits/
 Allow: /amp/
 
 # Crawl delay for respectful crawling
@@ -48,12 +56,16 @@ Sitemap: https://indoquran.web.id/sitemap.xml
 Sitemap: https://indoquran.web.id/sitemap-index.xml
 Sitemap: https://indoquran.web.id/sitemap-main.xml
 Sitemap: https://indoquran.web.id/sitemap-artikel.xml
+Sitemap: https://indoquran.web.id/sitemap-hadits.xml
 
 # Googlebot specific
 User-agent: Googlebot
 Allow: /
 Allow: /cari$
-# /cari? and other search endpoints are omitted from Disallow to allow crawling of noindex tags
+Disallow: /cari?
+Disallow: /cari/*
+Disallow: /search
+Disallow: /search?
 Disallow: /api/
 Disallow: /admin/
 Crawl-delay: 0.5

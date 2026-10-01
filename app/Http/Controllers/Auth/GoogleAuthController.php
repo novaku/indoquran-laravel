@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Mail\UserRegistrationNotification;
+use App\Mail\WelcomeNewUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class GoogleAuthController extends Controller
 {
@@ -75,28 +78,60 @@ class GoogleAuthController extends Controller
                 ->orWhere('email', $email)
                 ->first();
 
+            $isNewUser = false;
+
             if ($user) {
-                // Update missing Google info
+                // Detect and update any changed or missing information from Google
                 $updates = [];
-                if (empty($user->google_id)) {
-                    $updates['google_id'] = $googleId;
+
+                // Update full name if changed on Google
+                if (!empty($name) && $user->name !== $name) {
+                    $updates['name'] = $name;
                 }
-                if (empty($user->avatar) && !empty($avatar)) {
+
+                // Update profile avatar if changed on Google
+                if (!empty($avatar) && $user->avatar !== $avatar) {
                     $updates['avatar'] = $avatar;
                 }
+
+                // Update Google ID if previously missing or updated
+                if (empty($user->google_id) || $user->google_id !== $googleId) {
+                    $updates['google_id'] = $googleId;
+                }
+
+                // Update email if changed on Google and not already used by another user
+                if (!empty($email) && $user->email !== $email) {
+                    $emailTaken = User::where('email', $email)->where('id', '!=', $user->id)->exists();
+                    if (!$emailTaken) {
+                        $updates['email'] = $email;
+                    }
+                }
+
+                // Set default password if none exists
                 if (empty($user->password)) {
                     $updates['password'] = Hash::make('indoquran');
                 }
+
+                // Persist updates to the database
                 if (!empty($updates)) {
                     $user->update($updates);
-                }
+                    $user = $user->fresh();
 
-                Log::info('Existing user logged in via Google', [
-                    'user_id' => $user->id,
-                    'email' => $user->email,
-                ]);
+                    Log::info('Existing user updated in database from Google login', [
+                        'user_id' => $user->id,
+                        'email' => $user->email,
+                        'updated_fields' => array_keys($updates),
+                    ]);
+                } else {
+                    Log::info('Existing user logged in via Google (no database changes needed)', [
+                        'user_id' => $user->id,
+                        'email' => $user->email,
+                    ]);
+                }
             } else {
-                // Create new user with default password 'indoquran'
+                $isNewUser = true;
+
+                // Save new user information into users table
                 $user = User::create([
                     'name' => $name,
                     'email' => $email,
@@ -106,10 +141,45 @@ class GoogleAuthController extends Controller
                     'is_admin' => false,
                 ]);
 
-                Log::info('New user registered via Google One Tap', [
+                Log::info('New user registered via Google Sign-In / One Tap', [
                     'user_id' => $user->id,
                     'email' => $user->email,
+                    'name' => $user->name,
                 ]);
+
+                // Send welcome email to the newly registered user
+                try {
+                    Mail::to($user->email)->send(new WelcomeNewUser($user));
+                    Log::info('Welcome email sent successfully to new Google user', [
+                        'user_id' => $user->id,
+                        'user_email' => $user->email,
+                        'user_name' => $user->name,
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('Failed to send welcome email to new Google user', [
+                        'user_id' => $user->id,
+                        'user_email' => $user->email,
+                        'user_name' => $user->name,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+
+                // Send email notification to admin about new user registration
+                try {
+                    Mail::to('kontak@indoquran.web.id')->send(new UserRegistrationNotification($user));
+                    Log::info('User registration notification email sent for new Google user', [
+                        'user_id' => $user->id,
+                        'user_email' => $user->email,
+                        'user_name' => $user->name,
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('Failed to send admin notification email for new Google user', [
+                        'user_id' => $user->id,
+                        'user_email' => $user->email,
+                        'user_name' => $user->name,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
             }
 
             // Log user in
@@ -130,7 +200,10 @@ class GoogleAuthController extends Controller
                 'token' => $token,
                 'token_type' => 'bearer',
                 'expires_in' => $guard->getTTL() * 60,
-                'message' => 'Login dengan Google berhasil.',
+                'is_new_user' => $isNewUser,
+                'message' => $isNewUser 
+                    ? 'Pendaftaran dengan Google berhasil. Selamat datang di IndoQuran!' 
+                    : 'Login dengan Google berhasil.',
             ]);
 
         } catch (\Exception $e) {

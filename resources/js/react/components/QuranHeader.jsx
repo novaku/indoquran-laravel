@@ -21,6 +21,7 @@ import {
     ChartBarIcon,
     BookmarkIcon
 } from '@heroicons/react/24/outline';
+import NotificationDropdown from './NotificationDropdown';
 
 function QuranHeader({ isSidebarOpen, setIsSidebarOpen }) {
     const navigate = useNavigate();
@@ -128,6 +129,9 @@ function QuranHeader({ isSidebarOpen, setIsSidebarOpen }) {
                             <BookmarkIcon className="w-5 h-5 text-green-600" />
                             <span className="hidden sm:inline text-xs font-semibold">Penanda</span>
                         </Link>
+
+                        {/* Facebook-style Notification Dropdown */}
+                        <NotificationDropdown />
 
                         {/* User Menu (Desktop) */}
                         {user ? (

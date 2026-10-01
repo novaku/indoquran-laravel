@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Surah;
+use App\Http\Controllers\HaditsController;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -48,6 +49,20 @@ class SitemapIndexController extends Controller
             $baseUrl . '/sitemap-artikel.xml',
             $currentDate
         );
+
+        // Hadits main sitemap (hub and 11 books)
+        $xml .= $this->createSitemapEntry(
+            $baseUrl . '/sitemap-hadits-main.xml',
+            $currentDate
+        );
+
+        // Hadits individual book sitemaps (all 11 books)
+        foreach (HaditsController::getKitabCatalog() as $slug => $kitab) {
+            $xml .= $this->createSitemapEntry(
+                $baseUrl . '/sitemap-hadits-' . $slug . '.xml',
+                $currentDate
+            );
+        }
         
         $xml .= '</sitemapindex>';
         
@@ -168,6 +183,12 @@ class SitemapIndexController extends Controller
                 'lastmod' => $currentDate,
                 'changefreq' => 'yearly',
                 'priority' => '0.3'
+            ],
+            [
+                'url' => $baseUrl . '/hadits',
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.9'
             ]
         ];
 
@@ -179,6 +200,16 @@ class SitemapIndexController extends Controller
                 'lastmod' => $surah->updated_at ? $surah->updated_at->format('Y-m-d') : $currentDate,
                 'changefreq' => 'weekly',
                 'priority' => '0.9'
+            ];
+        }
+
+        // Add 11 Hadits book pages
+        foreach (HaditsController::getKitabCatalog() as $slug => $kitab) {
+            $pages[] = [
+                'url' => $baseUrl . '/hadits/' . $slug,
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.85'
             ];
         }
 
@@ -313,6 +344,118 @@ class SitemapIndexController extends Controller
     }
     
     /**
+     * Generate dedicated XML sitemap index for Hadits
+     * Points to hadits-main.xml and all 11 individual book sitemaps
+     */
+    public function haditsIndex()
+    {
+        $baseUrl = (app()->environment('production') && !app()->environment(['local', 'development', 'testing']))
+            ? 'https://indoquran.web.id' 
+            : config('app.url');
+            
+        $currentDate = now()->toIso8601String();
+        
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        $xml .= '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+        
+        // Main hadits sitemap (hub + 11 books)
+        $xml .= $this->createSitemapEntry(
+            $baseUrl . '/sitemap-hadits-main.xml',
+            $currentDate
+        );
+        
+        // Sitemaps for each of the 11 books
+        foreach (HaditsController::getKitabCatalog() as $slug => $kitab) {
+            $xml .= $this->createSitemapEntry(
+                $baseUrl . '/sitemap-hadits-' . $slug . '.xml',
+                $currentDate
+            );
+        }
+        
+        $xml .= '</sitemapindex>';
+        
+        return response($xml, 200, [
+            'Content-Type' => 'application/xml',
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
+    }
+
+    /**
+     * Generate sitemap for Hadits main hub and 11 book pages
+     */
+    public function haditsMainSitemap()
+    {
+        $baseUrl = (app()->environment('production') && !app()->environment(['local', 'development', 'testing']))
+            ? 'https://indoquran.web.id' 
+            : config('app.url');
+            
+        $currentDate = now()->format('Y-m-d');
+        
+        $pages = [
+            [
+                'url' => $baseUrl . '/hadits',
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.9'
+            ]
+        ];
+        
+        foreach (HaditsController::getKitabCatalog() as $slug => $kitab) {
+            $pages[] = [
+                'url' => $baseUrl . '/hadits/' . $slug,
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.85'
+            ];
+        }
+        
+        return $this->generateSitemapXml($pages);
+    }
+
+    /**
+     * Generate sitemap for individual Hadits book (all hadiths in this book)
+     */
+    public function haditsKitabSitemap(string $kitab)
+    {
+        $resolved = HaditsController::resolveKitabSlug($kitab);
+        if (!$resolved) {
+            abort(404, 'Kitab Hadits tidak ditemukan');
+        }
+        
+        $catalog = HaditsController::getKitabCatalog();
+        $kitabInfo = $catalog[$resolved] ?? null;
+        if (!$kitabInfo) {
+            abort(404, 'Kitab Hadits tidak ditemukan');
+        }
+        
+        $baseUrl = (app()->environment('production') && !app()->environment(['local', 'development', 'testing']))
+            ? 'https://indoquran.web.id' 
+            : config('app.url');
+            
+        $currentDate = now()->format('Y-m-d');
+        $total = $kitabInfo['total'] ?? 0;
+        
+        // Prioritize Kutubus Sittah slightly higher
+        $isKutubusSittah = in_array($resolved, [
+            'shahih_bukhari', 'shahih_muslim', 'sunan_abu_daud',
+            'sunan_tirmidzi', 'sunan_nasai', 'sunan_ibnu_majah'
+        ], true);
+        $priority = $isKutubusSittah ? '0.75' : '0.70';
+        
+        $pages = [];
+        for ($i = 1; $i <= $total; $i++) {
+            $pages[] = [
+                'url' => $baseUrl . '/hadits/' . $resolved . '/' . $i,
+                'lastmod' => $currentDate,
+                'changefreq' => 'monthly',
+                'priority' => $priority
+            ];
+        }
+        
+        return $this->generateSitemapXml($pages);
+    }
+
+    /**
      * Create a sitemap entry for the sitemap index
      */
     private function createSitemapEntry(string $loc, string $lastmod): string
@@ -326,7 +469,7 @@ class SitemapIndexController extends Controller
     /**
      * Generate the XML structure for sitemap
      */
-    private function generateSitemapXml(array $pages): string
+    private function generateSitemapXml(array $pages): Response
     {
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
