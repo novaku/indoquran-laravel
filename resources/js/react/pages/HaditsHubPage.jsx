@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {
     BookOpenIcon,
@@ -45,6 +45,7 @@ import {
 
 export default function HaditsHubPage() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const searchSectionRef = useRef(null);
 
     // Catalog state
@@ -55,10 +56,10 @@ export default function HaditsHubPage() {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [cardJumpNumbers, setCardJumpNumbers] = useState({});
 
-    // Indonesian Hadith Search State
-    const [searchQuery, setSearchQuery] = useState('');
-    const [searchKitab, setSearchKitab] = useState('all');
-    const [isSearching, setIsSearching] = useState(false);
+    // Indonesian Hadith Search State - initial values from GET URL parameters
+    const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
+    const [searchKitab, setSearchKitab] = useState(searchParams.get('kitab') || 'all');
+    const [isSearching, setIsSearching] = useState(Boolean((searchParams.get('q') || '').trim().length >= 2));
     const [searchLoading, setSearchLoading] = useState(false);
     const [searchError, setSearchError] = useState(null);
     const [searchResults, setSearchResults] = useState([]);
@@ -208,10 +209,9 @@ export default function HaditsHubPage() {
     ];
 
     // Execute Indonesian Hadith Search
-    const executeHaditsSearch = async (queryText, kitabScope = 'all', page = 1) => {
+    const executeHaditsSearch = async (queryText, kitabScope = 'all', page = 1, shouldScroll = true) => {
         const cleanQuery = (queryText || '').trim();
         if (!cleanQuery || cleanQuery.length < 2) {
-            toast.error('Ketik minimal 2 karakter untuk mencari hadits');
             return;
         }
 
@@ -242,17 +242,19 @@ export default function HaditsHubPage() {
                 }
 
                 // Scroll smoothly to search results with offset for sticky navbar
-                setTimeout(() => {
-                    if (searchSectionRef.current) {
-                        const headerOffset = 90;
-                        const elementPosition = searchSectionRef.current.getBoundingClientRect().top;
-                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                        window.scrollTo({
-                            top: Math.max(0, offsetPosition),
-                            behavior: 'smooth'
-                        });
-                    }
-                }, 120);
+                if (shouldScroll) {
+                    setTimeout(() => {
+                        if (searchSectionRef.current) {
+                            const headerOffset = 90;
+                            const elementPosition = searchSectionRef.current.getBoundingClientRect().top;
+                            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                            window.scrollTo({
+                                top: Math.max(0, offsetPosition),
+                                behavior: 'smooth'
+                            });
+                        }
+                    }, 120);
+                }
             } else {
                 throw new Error(data.message || 'Pencarian tidak mengembalikan hasil');
             }
@@ -263,35 +265,79 @@ export default function HaditsHubPage() {
         }
     };
 
-    // Trigger Search (checks scope modal if searching all books)
-    const handleTriggerSearch = (queryText, kitabScope) => {
+    // Synchronize and execute search whenever URL GET parameters change (?q=...&kitab=...&page=...)
+    useEffect(() => {
+        const urlQ = (searchParams.get('q') || '').trim();
+        const urlKitab = (searchParams.get('kitab') || 'all').trim();
+        const rawPage = parseInt(searchParams.get('page') || '1', 10);
+        const urlPage = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
+
+        setSearchQuery(urlQ);
+        setSearchKitab(urlKitab);
+
+        if (urlQ.length >= 2) {
+            executeHaditsSearch(urlQ, urlKitab, urlPage, true);
+        } else if (!urlQ && isSearching) {
+            // URL cleared, return to catalog view
+            setIsSearching(false);
+            setSearchResults([]);
+            setSearchPagination(null);
+            setSearchGroups([]);
+            setAllBooksGroups([]);
+            setSearchError(null);
+            setLastExecutedQuery('');
+            setLastExecutedKitab('all');
+        }
+    }, [searchParams]);
+
+    // Update GET URL parameters so results can be bookmarked and shared
+    const updateSearchUrl = (queryText, kitabScope = 'all', page = 1) => {
         const cleanQuery = (queryText || '').trim();
+        const nextParams = new URLSearchParams();
+        if (cleanQuery) {
+            nextParams.set('q', cleanQuery);
+        }
+        if (kitabScope && kitabScope !== 'all') {
+            nextParams.set('kitab', kitabScope);
+        }
+        if (page > 1) {
+            nextParams.set('page', String(page));
+        }
+
+        const targetSearch = nextParams.toString() ? `?${nextParams.toString()}` : '';
+        if (window.location.search === targetSearch) {
+            if (cleanQuery.length >= 2) {
+                executeHaditsSearch(cleanQuery, kitabScope, page, true);
+            }
+        } else {
+            navigate(`/hadits${targetSearch}`);
+        }
+    };
+
+    // Handle Search Form Submit (GET method)
+    const handleSearchSubmit = (e) => {
+        if (e) e.preventDefault();
+        const cleanQuery = (searchQuery || '').trim();
         if (!cleanQuery || cleanQuery.length < 2) {
             toast.error('Ketik minimal 2 karakter untuk mencari hadits');
             return;
         }
 
-        // Check if searching all books and user has not chosen to skip
+        // Check if searching all books and user has not chosen to skip scope recommendation
         const skipModal = localStorage.getItem('indoquran_hadits_skip_scope_modal') === 'true';
-        if (kitabScope === 'all' && !skipModal) {
+        if (searchKitab === 'all' && !skipModal) {
             setPendingSearchQuery(cleanQuery);
             setShowScopeModal(true);
             return;
         }
 
-        executeHaditsSearch(cleanQuery, kitabScope, 1);
-    };
-
-    // Handle Search Form Submit
-    const handleSearchSubmit = (e) => {
-        if (e) e.preventDefault();
-        handleTriggerSearch(searchQuery, searchKitab);
+        updateSearchUrl(cleanQuery, searchKitab, 1);
     };
 
     // Handle Quick Keyword Click
     const handleQuickKeywordClick = (keyword) => {
         setSearchQuery(keyword);
-        handleTriggerSearch(keyword, searchKitab);
+        updateSearchUrl(keyword, searchKitab, 1);
     };
 
     // Modal Action: Choose specific book
@@ -299,10 +345,10 @@ export default function HaditsHubPage() {
         if (rememberScopePreference) {
             localStorage.setItem('indoquran_hadits_skip_scope_modal', 'true');
         }
-        setSearchKitab(modalSelectedKitab);
         setShowScopeModal(false);
         const queryToUse = pendingSearchQuery || searchQuery;
-        executeHaditsSearch(queryToUse, modalSelectedKitab, 1);
+        setSearchKitab(modalSelectedKitab);
+        updateSearchUrl(queryToUse, modalSelectedKitab, 1);
     };
 
     // Modal Action: Proceed with all 11 books
@@ -312,10 +358,11 @@ export default function HaditsHubPage() {
         }
         setShowScopeModal(false);
         const queryToUse = pendingSearchQuery || searchQuery;
-        executeHaditsSearch(queryToUse, 'all', 1);
+        setSearchKitab('all');
+        updateSearchUrl(queryToUse, 'all', 1);
     };
 
-    // Clear Search and return to catalog
+    // Clear Search and return to clean /hadits catalog
     const handleClearSearch = () => {
         setSearchQuery('');
         setSearchKitab('all');
@@ -327,13 +374,32 @@ export default function HaditsHubPage() {
         setSearchError(null);
         setLastExecutedQuery('');
         setLastExecutedKitab('all');
+        navigate('/hadits');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // Handle Page Change
+    // Handle Page Change with GET URL parameter update
     const handlePageChange = (newPage) => {
         if (!searchPagination || newPage < 1 || newPage > searchPagination.last_page) return;
-        executeHaditsSearch(lastExecutedQuery, lastExecutedKitab, newPage);
+        updateSearchUrl(lastExecutedQuery, lastExecutedKitab, newPage);
+    };
+
+    // Copy Search URL for sharing
+    const handleCopySearchUrl = () => {
+        const fullUrl = window.location.href;
+        navigator.clipboard.writeText(fullUrl).then(() => {
+            toast.success('Link hasil pencarian berhasil disalin! Siap dibagikan.', { icon: '🔗' });
+        }).catch(() => {
+            toast.error('Gagal menyalin link');
+        });
+    };
+
+    // Share Search directly to WhatsApp
+    const handleShareSearchWhatsApp = () => {
+        const total = searchPagination?.total ? searchPagination.total.toLocaleString('id-ID') : '';
+        const shareText = `*Hasil Pencarian Hadits IndoQuran*\nKata Kunci: "${lastExecutedQuery}"\nLingkup: ${activeScopeLabel}${total ? `\nJumlah Ditemukan: ${total} hadits` : ''}\n\nBuka hasil pencarian hadits:\n${window.location.href}`;
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+        window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
     };
 
     // Helper to strip HTML tags for clean copy & share text
@@ -527,10 +593,16 @@ export default function HaditsHubPage() {
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             <SEOHead
-                title="Pencarian & Koleksi 11 Kitab Hadits Lengkap (Kutubut Tis'ah & Terjemahan) | IndoQuran"
-                description="Cari teks hadits bahasa Indonesia di seluruh kumpulan hadits atau salah satu kitab hadits: Shahih Bukhari, Muslim, Abu Daud, Tirmidzi, dll. Lengkap dengan teks Arab, terjemahan Indonesia & audio."
-                keywords="cari hadits bahasa indonesia, pencarian hadits, hadits shahih, kutubut tisah, kutubus sittah, shahih bukhari, shahih muslim, sunan abu daud, hadits terjemahan indonesia"
+                title={isSearching && lastExecutedQuery
+                    ? `Pencarian Hadits "${lastExecutedQuery}" (${activeScopeLabel}) | IndoQuran`
+                    : "Pencarian & Koleksi 11 Kitab Hadits Lengkap (Kutubut Tis'ah & Terjemahan) | IndoQuran"}
+                description={isSearching && lastExecutedQuery
+                    ? `Hasil pencarian hadits "${lastExecutedQuery}" pada ${activeScopeLabel}. Menemukan ${searchPagination?.total ? searchPagination.total.toLocaleString('id-ID') : 0} hadits otentik lengkap teks Arab dan terjemahan Indonesia.`
+                    : "Cari teks hadits bahasa Indonesia di seluruh kumpulan hadits atau salah satu kitab hadits: Shahih Bukhari, Muslim, Abu Daud, Tirmidzi, dll. Lengkap dengan teks Arab, terjemahan Indonesia & audio."}
+                keywords={`cari hadits ${lastExecutedQuery || ''}, pencarian hadits, hadits shahih, kutubut tisah, kutubus sittah, shahih bukhari, shahih muslim, sunan abu daud, hadits terjemahan indonesia`}
                 canonicalUrl="https://indoquran.web.id/hadits"
+                noindex={Boolean(isSearching && lastExecutedQuery)}
+                robots={isSearching && lastExecutedQuery ? 'noindex, follow' : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'}
             />
 
             {/* Clean Header Section */}
@@ -548,9 +620,16 @@ export default function HaditsHubPage() {
                         Cari petunjuk dan sabda Rasulullah ﷺ dalam <strong>Bahasa Indonesia</strong> di seluruh kumpulan hadits atau pilih kitab hadits rujukan tertentu.
                     </p>
 
-                    {/* Indonesian Hadith Search Box - Vertical Stack */}
+                    {/* Indonesian Hadith Search Box - Vertical Stack with GET Form */}
                     <div className="max-w-3xl mx-auto bg-gray-50/90 p-2.5 sm:p-3.5 rounded-2xl border border-gray-200/90 shadow-2xs">
-                        <form onSubmit={handleSearchSubmit} className="flex flex-col gap-2.5">
+                        <form
+                            method="GET"
+                            action="/hadits"
+                            onSubmit={handleSearchSubmit}
+                            className="flex flex-col gap-2.5"
+                        >
+                            {/* Hidden input for GET parameters */}
+                            <input type="hidden" name="kitab" value={searchKitab} />
                             {/* Baris 1 (Atas): Dropdown Kitab Hadits */}
                             <div
                                 ref={kitabDropdownRef}
@@ -677,6 +756,7 @@ export default function HaditsHubPage() {
                                     <MagnifyingGlassIcon className="w-4 h-4 text-gray-400 absolute left-3.5 pointer-events-none" />
                                     <input
                                         type="text"
+                                        name="q"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         placeholder="Cari teks bahasa Indonesia (misal: niat, sedekah, sabar)..."
@@ -802,14 +882,38 @@ export default function HaditsHubPage() {
                                     )}
                                 </div>
 
-                                <div className="flex items-center space-x-2">
+                                <div className="flex flex-wrap items-center gap-2">
+                                    {/* Copy Search URL Button */}
                                     <button
+                                        type="button"
+                                        onClick={handleCopySearchUrl}
+                                        className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs transition-colors cursor-pointer"
+                                        title="Salin tautan URL pencarian hadits ini untuk dibagikan"
+                                    >
+                                        <ShareIcon className="w-4 h-4 mr-1.5 text-emerald-600" />
+                                        <span>Salin URL</span>
+                                    </button>
+
+                                    {/* Share via WhatsApp */}
+                                    <button
+                                        type="button"
+                                        onClick={handleShareSearchWhatsApp}
+                                        className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-xl bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 shadow-2xs transition-colors cursor-pointer"
+                                        title="Bagikan hasil pencarian hadits ke WhatsApp"
+                                    >
+                                        <FaWhatsapp className="w-4 h-4 mr-1.5 text-green-600" />
+                                        <span>WhatsApp</span>
+                                    </button>
+
+                                    {/* Reset Button */}
+                                    <button
+                                        type="button"
                                         onClick={handleClearSearch}
                                         className="inline-flex items-center px-3.5 py-2 text-xs font-semibold rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors shadow-2xs cursor-pointer"
                                         title="Kembali ke katalog hadits utama"
                                     >
                                         <ArrowPathIcon className="w-4 h-4 mr-1 text-gray-500" />
-                                        Reset & Kembali ke Utama
+                                        <span>Reset</span>
                                     </button>
                                 </div>
                             </div>
@@ -841,7 +945,7 @@ export default function HaditsHubPage() {
                                             <button
                                                 onClick={() => {
                                                     setSearchKitab('all');
-                                                    executeHaditsSearch(lastExecutedQuery, 'all', 1);
+                                                    updateSearchUrl(lastExecutedQuery, 'all', 1);
                                                 }}
                                                 className="self-start sm:self-auto inline-flex items-center px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-100 hover:bg-emerald-200 text-emerald-900 transition-colors shadow-2xs cursor-pointer"
                                             >
@@ -857,7 +961,7 @@ export default function HaditsHubPage() {
                                         <button
                                             onClick={() => {
                                                 setSearchKitab('all');
-                                                executeHaditsSearch(lastExecutedQuery, 'all', 1);
+                                                updateSearchUrl(lastExecutedQuery, 'all', 1);
                                             }}
                                             className={`text-left p-3.5 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between ${
                                                 lastExecutedKitab === 'all'
@@ -899,7 +1003,7 @@ export default function HaditsHubPage() {
                                                     key={group.kitab_slug}
                                                     onClick={() => {
                                                         setSearchKitab(group.kitab_slug);
-                                                        executeHaditsSearch(lastExecutedQuery, group.kitab_slug, 1);
+                                                        updateSearchUrl(lastExecutedQuery, group.kitab_slug, 1);
                                                     }}
                                                     className={`group text-left p-3.5 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between ${
                                                         isActive
@@ -993,7 +1097,7 @@ export default function HaditsHubPage() {
                                             <button
                                                 onClick={() => {
                                                     setSearchKitab('all');
-                                                    executeHaditsSearch(lastExecutedQuery, 'all', 1);
+                                                    updateSearchUrl(lastExecutedQuery, 'all', 1);
                                                 }}
                                                 className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl shadow-xs"
                                             >

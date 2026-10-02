@@ -124,7 +124,7 @@ class SEOController extends Controller
         }
         
         // Remove unwanted query parameters for canonical URL consistency
-        $allowedQueryParams = ['q', 'page', 'sort', 'reciter', 'tag', 'tab', 'doa', 'category', 'search']; // Only these params are relevant for content
+        $allowedQueryParams = ['q', 'page', 'sort', 'reciter', 'tag', 'tab', 'doa', 'category', 'search', 'kitab']; // Only these params are relevant for content
         $queryString = $request->getQueryString();
         
         if ($queryString) {
@@ -695,12 +695,25 @@ class SEOController extends Controller
             // Hadits SEO
             $catalog = \App\Http\Controllers\HaditsController::getKitabCatalog();
             if (count($segments) === 1) {
-                $seoData = array_merge($seoData, [
-                    'metaTitle' => 'Koleksi 11 Kitab Hadits Lengkap (Kutubut Tis\'ah & Terjemahan) | IndoQuran',
-                    'metaDescription' => 'Koleksi 11 kitab hadits terlengkap: Shahih Bukhari, Muslim, Abu Daud, Tirmidzi, An-Nasa\'i, Ibnu Majah, Musnad Ahmad, Muwatha Malik, dll. Teks Arab dan terjemahan Indonesia.',
-                    'metaKeywords' => 'hadits, hadits shahih, shahih bukhari, shahih muslim, sunan abu daud, kutubut tisah, hadits nabi, terjemah hadits, hadist indonesia',
-                    'canonicalUrl' => url('/hadits')
-                ]);
+                $query = trim((string) $request->get('q', ''));
+                $kitabParam = trim((string) $request->get('kitab', 'all'));
+                if ($query !== '') {
+                    $kitabLabel = ($kitabParam !== 'all' && isset($catalog[$kitabParam])) ? $catalog[$kitabParam]['name'] : 'Seluruh Hadits';
+                    $seoData = array_merge($seoData, [
+                        'metaTitle' => "Pencarian Hadits \"{$query}\" ({$kitabLabel}) - Koleksi Hadits Nabawi | IndoQuran",
+                        'metaDescription' => "Hasil pencarian hadits untuk kata kunci \"{$query}\" pada {$kitabLabel}. Teks hadits lengkap bahasa Arab dan terjemahan bahasa Indonesia di IndoQuran.",
+                        'metaKeywords' => "cari hadits {$query}, pencarian hadits, hadits {$query}, {$kitabLabel}, hadits shahih, kutubut tisah, indoquran",
+                        'canonicalUrl' => url('/hadits'),
+                        'robots' => 'noindex, follow'
+                    ]);
+                } else {
+                    $seoData = array_merge($seoData, [
+                        'metaTitle' => 'Koleksi 11 Kitab Hadits Lengkap (Kutubut Tis\'ah & Terjemahan) | IndoQuran',
+                        'metaDescription' => 'Koleksi 11 kitab hadits terlengkap: Shahih Bukhari, Muslim, Abu Daud, Tirmidzi, An-Nasa\'i, Ibnu Majah, Musnad Ahmad, Muwatha Malik, dll. Teks Arab dan terjemahan Indonesia.',
+                        'metaKeywords' => 'hadits, hadits shahih, shahih bukhari, shahih muslim, sunan abu daud, kutubut tisah, hadits nabi, terjemah hadits, hadist indonesia',
+                        'canonicalUrl' => url('/hadits')
+                    ]);
+                }
             } elseif (count($segments) === 2 && isset($catalog[$segments[1]])) {
                 $kitab = $catalog[$segments[1]];
                 $seoData = array_merge($seoData, [
