@@ -1,183 +1,310 @@
 # IndoQuran 📖
 
 <p align="center">
-  <strong>Platform Al-Quran Digital Modern</strong>
+  <strong>Platform Al-Quran & Hadits Digital Modern</strong>
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/Versi-2.30.0-10B981?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/Laravel-12.x-FF2D20?style=flat-square&logo=laravel" alt="Laravel">
-  <img src="https://img.shields.io/badge/React-19.x-61DAFB?style=flat-square&logo=react" alt="React">
+  <img src="https://img.shields.io/badge/React-18.x-61DAFB?style=flat-square&logo=react" alt="React">
   <img src="https://img.shields.io/badge/TailwindCSS-4.x-38B2AC?style=flat-square&logo=tailwind-css" alt="TailwindCSS">
-  <img src="https://img.shields.io/badge/PHP-8.2+-777BB4?style=flat-square&logo=php" alt="PHP">
+  <img src="https://img.shields.io/badge/PHP-8.4+-777BB4?style=flat-square&logo=php" alt="PHP">
+  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License">
 </p>
 
-Platform digital untuk membaca dan mempelajari Al-Quran dengan terjemahan Indonesia, audio berkualitas tinggi, dan fitur bookmark.
+IndoQuran adalah platform digital modern dan komprehensif untuk membaca, mentadaburi Al-Qur'an (114 Surah), mempelajari Ensiklopedia Hadits Nabawi (11 Kitab Mu'tamad, 64.341 hadits), Tafsir Maudhui, Doa & Dzikir, Asmaul Husna, serta artikel Islami dengan dukungan audio multi-qari, audio pelafalan Arab berbasis Web Speech API, sistem komentar interaktif, dan Progressive Web App (PWA) berkinerja tinggi.
+
+---
 
 ## ✨ Fitur Utama
 
-- **114 Surah Lengkap** - Teks Arab, transliterasi, dan terjemahan Indonesia
-- **79+ Audio Reciters** - Pilihan qari berkualitas tinggi (Husary, Sudais, Alafasy, Abdul Basit, dll)
-- **Pencarian Canggih** - Cari berdasarkan terjemahan dan nomor ayat
-- **Bookmark & Favorit** - Simpan ayat favorit dengan catatan pribadi
-- **Tafsir Maudhui** - Artikel tafsir tematik dengan fitur random
-- **Jadwal Sholat** - Waktu sholat otomatis berdasarkan lokasi
-- **Asmaul Husna** - 99 nama Allah dengan terjemahan
-- **PWA Support** - Install sebagai aplikasi mobile
-- **SEO Optimized** - Canonical URL, structured data, sitemap
-- **Desain Modern** - Responsif untuk desktop, tablet, dan mobile
+### 📖 Al-Qur'an Digital
+- **114 Surah Lengkap** - Teks Arab (Utsmani), transliterasi Latin standar Kemenag, dan terjemahan resmi bahasa Indonesia.
+- **Tab Interaktif Pokok Kandungan & Tema Surah** - Visualisasi tab horizontal untuk membaca kandungan surah dan tema utama dengan tipografi Scheherazade yang nyaman serta tombol navigasi tema.
+- **79+ Pilihan Qari Murottal** - Audio ayat berkualitas tinggi dari qari terkemuka dunia (Misyari Rasyid Al-Afasy, As-Sudais, Al-Husary, Abdul Basit, dll.) via EveryAyah.
+- **Pencarian Cerdas & Cepat** - Cari ayat berdasarkan kata kunci terjemahan, nama surah, atau nomor ayat.
+- **Juz & Halaman Mushaf** - Navigasi per 30 Juz dan 604 Halaman Mushaf standar Madinah/Indonesia.
 
-## 🚀 Quick Start
+### 📚 Ensiklopedia 11 Kitab Hadits Nabawi (64.341 Hadits)
+- **Koleksi 11 Kitab Mu'tamad**:
+  - Shahih Bukhari (7.008 hadits)
+  - Shahih Muslim (5.362 hadits)
+  - Sunan Abu Daud (4.590 hadits)
+  - Jami' At-Tirmidzi (3.956 hadits)
+  - Sunan An-Nasa'i (5.758 hadits)
+  - Sunan Ibnu Majah (4.341 hadits)
+  - Musnad Ahmad (26.363 hadits)
+  - Muwatha' Malik (1.594 hadits)
+  - Musnad Ad-Darimi (3.367 hadits)
+  - Musnad Asy-Syafi'i (1.800 hadits)
+  - Riyadhus Shalihin (372 hadits / bab)
+- **Hadits Reader & Quick Jump** - Antarmuka pembaca hadits yang responsif dengan pagination cepat, lompat langsung ke nomor hadits tertentu, dan pencarian teks riwayat.
+- **Audio Pelafalan Arab (Web Speech API)** - Pemutar suara Arab instan langsung di browser pengguna dengan kontrol kecepatan (0.75x, 0.85x, 1.0x) tanpa menghabiskan kuota server.
+- **Penanda Baca & Catatan Hadits** - Simpan riwayat hadits favorit ke akun pengguna atau penyimpanan lokal dengan catatan refleksi pribadi.
 
-### Prerequisites
-- PHP 8.2+
-- Composer
-- Node.js & NPM
-- MySQL 8.0+
+### 🤲 Doa, Dzikir & Ibadah
+- **Doa Pilihan dengan Audio** - Kumpulan doa harian shahih dilengkapi teks Arab, terjemahan, dan pemutar audio MP3 hasil generator Text-to-Speech (`php artisan doa:generate-audio`).
+- **Doa Bersama Komunitas** - Platform interaktif untuk berbagi doa, saling mengaminkan ('Amin'), dan memberikan dukungan doa antar sesama pengguna.
+- **Jadwal Sholat Otomatis** - Perhitungan waktu sholat akurat berdasarkan deteksi lokasi pengguna (geolokasi).
+- **Asmaul Husna** - 99 nama Allah Subhanahu wa Ta'ala lengkap dengan tulisan Arab, arti, dan dalil Al-Qur'an.
 
-### Installation
+### 📝 Artikel Islami, Tag & Komentar
+- **Artikel Terstruktur & Tag** - Konten artikel Islami tematik dengan tag, hashtag populer, serta cuplikan (excerpt) ringkas.
+- **Sistem Komentar & Opsi Anonim** - Pembaca dan pengguna terdaftar dapat mengirim komentar atau berdiskusi dengan opsi anonimitas ("Hamba Allah").
+- **Panel Moderasi Admin** - Administrator dapat memoderasi, memfilter, dan menghapus komentar serta mengelola artikel langsung melalui editor TipTap Rich Text di `/admin`.
+
+### ⚡ Performa, PWA & Pengalaman Pengguna
+- **Progressive Web App (PWA v2.30.0)** - Dapat diinstall di perangkat Android, iOS, maupun Desktop; dilengkapi Service Worker cerdas untuk akses offline dan pembersihan cache otomatis.
+- **Sistem Notifikasi Website (Facebook Style)** - Popover notifikasi kabar terbaru dan pengumuman dengan indikator badge belum dibaca dan tampilan responsif mobile bottom-sheet.
+- **Autentikasi Modern** - Login dan registrasi cepat menggunakan Google One Tap / Google OAuth, email & kata sandi (JWT Auth), serta login administrator berbasis sesi aman dengan verifikasi OTP.
+- **High-Speed Redis & Multi-tier Caching** - Layanan khusus `HaditsCacheService` dan `QuranCacheService` dengan warm-up otomatis dan fallback database yang cepat.
+- **SEO & Google Search Console Ready** - Dilengkapi Open Graph, Twitter Cards, Schema.org JSON-LD structured data, canonical URL, dan arsitektur sitemap berindeks (`sitemap-index.xml`) mencakup ratusan ribu halaman Al-Qur'an dan Hadits.
+
+---
+
+## 🛠️ Teknologi yang Digunakan
+
+| Komponen | Teknologi | Keterangan |
+|---|---|---|
+| **Backend Framework** | Laravel 12.x | PHP 8.4+ dengan arsitektur RESTful API & Service Layer |
+| **Frontend Framework** | React 18.x + Vite 6 | Single Page Application (SPA) dengan lazy-loading modular |
+| **Styling & UI** | TailwindCSS 4.x | PostCSS, modern typography, Heroicons, dan React Icons |
+| **State & Data Fetching** | TanStack Query v5 & Axios | Data fetching dengan cache dan sinkronisasi otomatis |
+| **Audio Engine** | Web Speech API & EveryAyah | Audio murottal Al-Quran dan TTS bahasa Arab lokal di browser |
+| **Caching & In-Memory** | Redis (Predis) | Multi-tier cache Al-Qur'an, Hadits, API responses, dan rate limiting |
+| **Rich Text Editor** | TipTap Editor | Editor WYSIWYG untuk pembuatan dan pembaruan artikel di panel admin |
+| **Database** | MySQL 8.0+ / MariaDB | Indeks teroptimasi untuk pencarian ayat dan puluhan ribu hadits |
+| **PWA & Offline** | Service Worker v2.30.0 | Offline fallback, asset caching, dan background synchronization |
+
+---
+
+## 🚀 Panduan Memulai Cepat (Quick Start)
+
+### Prasyarat Sistem
+- **PHP**: `^8.4` (disarankan PHP 8.4.15+)
+- **Composer**: `2.x`
+- **Node.js**: `18.x` atau `20.x+` & **NPM**
+- **Database**: MySQL 8.0+, MariaDB 10.5+, atau SQLite
+- **Redis Server**: Sangat disarankan untuk performa cache optimal (bisa via UNIX socket atau TCP port 6379)
+
+### Langkah Instalasi
+
+1. **Clone repository:**
+   ```bash
+   git clone https://github.com/username/indoquran-laravel.git
+   cd indoquran-laravel
+   ```
+
+2. **Install dependensi PHP & Node.js:**
+   ```bash
+   composer install
+   npm install
+   ```
+
+3. **Konfigurasi Environment (`.env`):**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   php artisan jwt:secret
+   ```
+
+   *Sesuaikan kredensial database (`DB_*`), Redis (`REDIS_*`), Google OAuth (`GOOGLE_CLIENT_ID`), dan pengaturan lainnya di dalam file `.env`.*
+
+4. **Jalankan Migrasi & Seeder Database:**
+   ```bash
+   php artisan migrate
+   php artisan db:seed
+   ```
+
+5. **Warm-up Cache Performa (Opsional namun Disarankan):**
+   ```bash
+   php artisan quran:cache warm-up
+   php artisan hadits:cache warm-up
+   ```
+
+6. **Generate Audio Doa Pilihan (Opsional):**
+   ```bash
+   php artisan doa:generate-audio
+   ```
+
+7. **Jalankan Server Pengembangan:**
+
+   *Menggunakan satu perintah terpadu (Laravel Serve + Queue + Pail + Vite):*
+   ```bash
+   composer dev
+   ```
+
+   *Atau menggunakan script menu interaktif:*
+   ```bash
+   ./dev-env.sh
+   ```
+
+   *Atau secara manual di terminal terpisah:*
+   ```bash
+   php artisan serve   # Server API Laravel (http://localhost:8000)
+   npm run dev        # Vite dev server (http://localhost:5173)
+   ```
+
+---
+
+## ⚙️ Perintah Artisan Khusus
+
+Aplikasi dilengkapi berbagai perintah Artisan untuk pemeliharaan data, optimasi cache, dan SEO:
+
 ```bash
-# Clone repository
-git clone https://github.com/username/indoquran-laravel.git
-cd indoquran-laravel
+# Manajemen Cache Hadits Nabawi
+php artisan hadits:cache warm-up    # Melakukan pre-warming katalog & hadits pilihan ke Redis
+php artisan hadits:cache clear      # Membersihkan seluruh cache hadits
 
-# Install dependencies
-composer install
-npm install
+# Manajemen Cache Al-Qur'an
+php artisan quran:cache warm-up     # Pre-warming surah dan ayat populer
+php artisan quran:cache clear       # Membersihkan cache Al-Qur'an
 
-# Setup environment
-cp .env.example .env
-php artisan key:generate
+# Audio Doa
+php artisan doa:generate-audio      # Menghasilkan file audio MP3 pelafalan Doa Pilihan
+php artisan doa:generate-audio --force # Generate ulang seluruh file audio doa
 
-# Setup database
-php artisan migrate
-php artisan db:seed
+# Pengujian & Debug Redis
+php artisan redis:quick-test        # Menguji koneksi Redis via socket/TCP
+php artisan redis:debug             # Menampilkan konfigurasi & status Redis
+php artisan redis:safe-clear        # Membersihkan cache Redis dengan aman
 
-# Start development
-./dev-env.sh
+# SEO & Sitemap
+php artisan sitemap:generate-comprehensive --production  # Regenerasi sitemap lengkap untuk produksi
+php artisan sitemap:submit-to-google                    # Ping sitemap ke Google Search Console
+php artisan sitemap:validate                            # Validasi format sitemap
 ```
 
-## � Production Deployment
+### ⏰ Tugas Terjadwal (Cron Jobs)
+Daftar cron job otomatis yang dikonfigurasi di `routes/console.php`:
+- **02:00 Pagi**: Regenerasi seluruh sitemap komprehensif (`sitemap:generate-comprehensive --production`).
+- **03:00 Pagi**: Pre-warming cache data Al-Qur'an (`quran:cache warm-up`).
+- **03:15 Pagi**: Pre-warming cache katalog dan data Hadits Nabawi (`hadits:cache warm-up`).
+- **04:00 Pagi**: Pembersihan token reset password kadaluwarsa (`auth:clear-resets`).
+- **04:15 Pagi**: Pembersihan kode OTP Admin yang telah kadaluwarsa (> 2 hari).
+- **Senin 06:00 Pagi**: Submit berkala seluruh sitemap index ke Google Search Console.
 
-### For cPanel/Shared Hosting
+---
 
-#### Common Issue: Storage Link Error
-If you encounter this error on cPanel:
-```
-Call to undefined function Illuminate\Filesystem\exec()
-```
+## 🚢 Panduan Deployment Produksi
 
-**Quick Fix:**
-```bash
-# Run the automated fix script
-./fix-storage-link.sh
+### Skema Deployment (cPanel / VPS / Dedicated Server)
 
-# Or manually:
-php create-storage-link.php --force
-```
+Server hosting/produksi umumnya tidak memerlukan Node.js karena aset frontend dibangun (build) secara lokal sebelum diunggah ke server:
 
-See detailed instructions in [docs/CPANEL_DEPLOYMENT.md](docs/CPANEL_DEPLOYMENT.md)
+1. **Build Aset Frontend Secara Lokal:**
+   ```bash
+   npm run build
+   git add public/build
+   git commit -m "feat: build production assets for deployment"
+   git push origin main
+   ```
 
-### Build and Deploy
-```bash
-# 1. Build assets locally (production server has no Node.js)
-./build-production.sh
+2. **Di Server Produksi (via SSH):**
+   ```bash
+   git pull origin main
+   ./deploy-production.sh
+   ```
 
-# 2. Commit build files
-git add public/build
-git commit -m "Build production assets"
-git push origin main
+   Skrip `deploy-production.sh` secara otomatis akan:
+   - Menjalankan migrasi database (`php artisan migrate --force`)
+   - Membersihkan dan mengompilasi ulang cache Laravel (`config`, `route`, `view`)
+   - Memastikan perizinan folder storage (`chmod`/`chown`)
+   - Menjalankan warm-up cache untuk performa seketika
+   - Menyediakan opsi rollback jika dibutuhkan: `./deploy-production.sh --rollback`
 
-# 3. On production server (cPanel/SSH)
-git pull origin main
-./deploy-production.sh
-```
+3. **Pastikan Tautan Storage Terpasang:**
+   ```bash
+   php artisan storage:link
+   ```
 
-## �🛠 Development
+---
 
-### Start Development Server
-```bash
-# Interactive development menu
-./dev-env.sh
+## 📡 Dokumentasi Endpoint API
 
-# Or manually
-php artisan serve    # Laravel server (port 8000)
-npm run dev         # Vite dev server (port 5173)
-```
+### 1. Al-Qur'an & Murottal
+- `GET /api/surahs` - Daftar seluruh 114 surah (dengan metadata)
+- `GET /api/surahs/{number}` - Detail surah beserta ayat, teks Arab, transliterasi, dan terjemahan
+- `GET /api/surahs/{number}/metadata` - Metadata dan pokok kandungan surah
+- `GET /api/juz` & `GET /api/juz/{number}` - Data Al-Qur'an per Juz (1 - 30)
+- `GET /api/halaman` & `GET /api/halaman/{number}` - Data mushaf per Halaman (1 - 604)
+- `GET /api/cari?q={query}` - Pencarian ayat berdasarkan terjemahan
+- `GET /api/reciters` - Daftar 79+ qari murottal
+- `GET /api/audio/ayah/{surah}/{ayah}?reciter={id}` - URL file audio ayat spesifik
 
-### Available Scripts
-- `npm run dev` - Start Vite dev server
-- `npm run build` - Build for production
-- `./dev-env.sh` - Interactive development environment (recommended)
-- `./build-production.sh` - Build optimized production bundle
-- `./test-canonical-url.sh` - Test canonical URL implementation
-- `./test-pwa.sh` - Test PWA functionality
+### 2. Ensiklopedia Hadits Nabawi
+- `GET /api/hadits` - Katalog metadata 11 kitab hadits mu'tamad
+- `GET /api/hadits/{kitab}` - Daftar hadits per kitab dengan dukungan pagination (`?page=1&per_page=20`)
+- `GET /api/hadits/{kitab}/{nomor}` - Detail hadits (teks Arab lengkap, sanad, dan terjemahan)
+- `GET /api/hadits/search?q={query}&kitab={slug}` - Pencarian riwayat hadits berdasarkan kata kunci
+- `GET /api/hadits/random` - Hadits acak harian
 
-## 🔧 Testing & Quality Assurance
+### 3. Tafsir Maudhui & Asmaul Husna
+- `GET /api/tafsir-maudhui` - Daftar artikel tafsir tematik Al-Qur'an
+- `GET /api/tafsir-maudhui/{slug}` - Detail konten tafsir tematik
+- `GET /api/asmaul-husna` - Daftar 99 Asmaul Husna
+- `GET /api/asmaul-husna/{slug}` - Penjelasan detail nama Allah beserta dalil
 
-### SEO Testing
-```bash
-# Test canonical URL consistency
-./test-canonical-url.sh
+### 4. Doa, Dzikir & Sholat
+- `GET /api/doa-pilihan` - Kumpulan doa shahih harian
+- `GET /api/doa-pilihan/{id}` - Detail doa beserta audio pelafalan
+- `GET /api/doa-bersama` - Daftar doa komunitas interaktif
+- `POST /api/doa-bersama` - Kirim permohonan doa baru
+- `POST /api/doa-bersama/{id}/amin` - Mengaminkan permohonan doa
+- `GET /api/prayer-times?latitude={lat}&longitude={lng}` - Jadwal sholat harian berdasarkan koordinat
 
-# Verify sitemap
-curl -s https://indoquran.web.id/sitemap.xml
+### 5. Artikel & Komentar
+- `GET /api/articles` - Daftar artikel Islami terbaru
+- `GET /api/articles/{slug}` - Detail artikel lengkap
+- `GET /api/articles/{slug}/comments` - Daftar komentar pada artikel
+- `POST /api/articles/{slug}/comments` - Kirim tanggapan/komentar (opsi anonim atau profil akun)
+- `GET /api/tags` - Daftar tag dan kategori artikel
 
-# Check robots.txt
-curl -s https://indoquran.web.id/robots.txt
-```
+### 6. Autentikasi & Akun Member
+- `POST /api/masuk` / `/api/login` - Login pengguna via email & kata sandi
+- `POST /api/daftar` / `/api/register` - Registrasi pengguna baru
+- `POST /api/auth/google/one-tap` - Autentikasi otomatis via Google One Tap / Google Credential
+- `GET /api/user` - Data profil pengguna yang sedang login
+- `GET /api/penanda` - Daftar bookmark ayat Al-Qur'an
+- `POST /api/penanda/surah/ayah/{id}/toggle` - Simpan / lepas penanda baca ayat
+- `GET /api/penanda/hadits` - Daftar bookmark hadits pengguna
+- `POST /api/penanda/hadits/{kitab}/{number}/toggle` - Simpan / lepas penanda baca hadits
+- `GET /api/notifications` - Daftar pengumuman dan kabar terkini website
 
-### Performance Testing
-```bash
-# PWA audit
-./test-pwa.sh
+---
 
-# Mobile performance
-npm run performance:mobile
+## 📜 Riwayat Versi & Pembaruan
 
-# Bundle analysis
-npm run bundle:analyze
-```
+Riwayat rilis lengkap dapat diakses secara interaktif langsung melalui halaman web aplikasi di rute **`/riwayat-versi`** yang dilengkapi fitur pencarian versi dan filter tipe perubahan.
 
-## 📡 API Endpoints
+Ringkasan rilis terbaru:
+- **v2.30.0**: Peluncuran Ensiklopedia 11 Kitab Hadits Nabawi (64.341 hadits), pemutar audio pelafalan Arab Web Speech API (Hadits & Doa Bersama), sistem notifikasi kabar terbaru website (Facebook style), layanan `HaditsCacheService`, dan pembaruan PWA v2.30.0.
+- **v2.29.0**: Tampilan tab interaktif horizontal pokok kandungan dan tema utama surah dengan tipografi kaligrafi Scheherazade, tombol navigasi antar-tema, dan pembaruan PWA cache v2.29.0.
+- **v2.28.0**: Sistem komentar artikel untuk publik dan member, dukungan identitas anonim ("Hamba Allah"), serta dashboard moderasi komentar admin (`/admin`).
+- **v2.27.0**: Validasi judul unik artikel secara real-time dan tampilan cuplikan (excerpt) artikel.
 
-### Public Endpoints
-- `GET /api/surahs` - List all surahs
-- `GET /api/surahs/{number}` - Surah with ayahs
-- `GET /api/search?q={query}` - Search ayahs
-- `GET /api/reciters` - List all audio reciters
-- `GET /api/audio/ayah/{surah}/{ayah}?reciter={id}` - Audio URL for ayah
+---
 
-### Protected Endpoints (Requires Auth)
-- `POST /api/penanda/surah/ayah/{id}/toggle` - Toggle bookmark
-- `GET /api/penanda` - Get user bookmarks
-- `GET /api/profile` - Get user profile
-- `PUT /api/profile` - Update user profile
+## 🤝 Berkontribusi
 
-## 📚 Documentation
+Kontribusi pengembangan, koreksi terjemahan, maupun perbaikan bug selalu disambut baik:
 
-- **[CHANGELOG.md](docs/CHANGELOG.md)** - Detailed version history
-- **[CANONICAL_URL_FIX.md](docs/CANONICAL_URL_FIX.md)** - SEO canonical URL implementation
-- **[TAG_FEATURE_DOCUMENTATION.md](docs/TAG_FEATURE_DOCUMENTATION.md)** - Article tagging system
-- **[TIPTAP_MIGRATION.md](docs/TIPTAP_MIGRATION.md)** - Rich text editor migration
-- **[CPANEL_DEPLOYMENT.md](docs/CPANEL_DEPLOYMENT.md)** - cPanel deployment guide
+1. Fork repository ini
+2. Buat branch fitur baru (`git checkout -b feature/fitur-keren`)
+3. Commit perubahan Anda (`git commit -m 'feat: menambahkan fitur keren'`)
+4. Push branch ke repository Anda (`git push origin feature/fitur-keren`)
+5. Ajukan Pull Request
 
-## 🤝 Contributing
+---
 
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/new-feature`)
-3. Commit changes (`git commit -am 'Add new feature'`)
-4. Push to branch (`git push origin feature/new-feature`)
-5. Create Pull Request
+## 📄 Lisensi
 
-## 📄 License
-
-Licensed under the [MIT License](https://opensource.org/licenses/MIT).
+Proyek IndoQuran dirilis di bawah lisensi [MIT License](https://opensource.org/licenses/MIT).
 
 ---
 
 <p align="center">
-  <strong>IndoQuran - Al-Quran dengan teknologi modern</strong><br>
-  <em>"Dan sesungguhnya telah Kami mudahkan Al-Quran untuk pelajaran" - QS. Al-Qamar: 17</em>
+  <strong>IndoQuran - Al-Quran & Hadits dengan Teknologi Modern</strong><br>
+  <em>"Dan sesungguhnya telah Kami mudahkan Al-Quran untuk pelajaran, maka adakah orang yang mengambil pelajaran?" (QS. Al-Qamar: 17)</em>
 </p>
-
-
