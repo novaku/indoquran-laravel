@@ -48,9 +48,21 @@ Route::middleware(['static.key'])->group(function() {
     Route::post('/articles/create', [ArticleController::class, 'storeApi']);
 });
 
+// Articles public routes
+Route::get('/articles', [ArticleController::class, 'index']);
+Route::get('/articles/random', [ArticleController::class, 'random']);
+Route::get('/articles/{slug}', [ArticleController::class, 'show']);
+Route::get('/articles/{slug}/related', [ArticleController::class, 'related']);
+
 // Article comments public routes (accessible with or without token)
 Route::get('/articles/{slug}/comments', [ArticleCommentController::class, 'getComments']);
 Route::post('/articles/{slug}/comments', [ArticleCommentController::class, 'store']);
+
+// Tags public routes
+Route::get('/tags', [TagController::class, 'index']);
+Route::get('/tags/popular', [TagController::class, 'popular']);
+Route::get('/tags/{slug}', [TagController::class, 'show']);
+Route::get('/tags/{slug}/articles', [TagController::class, 'articles']);
 
 // ==========================================
 // PROTECTED ROUTES (JWT required)
@@ -226,23 +238,5 @@ Route::middleware(['auth:api'])->group(function () {
         Route::delete('/article-comments/{id}', [ArticleCommentController::class, 'adminDestroy']);
         Route::delete('/article-comments/article/{articleId}', [ArticleCommentController::class, 'adminDestroyByArticle']);
     });
-
-    // Articles
-    Route::get('/articles', [ArticleController::class, 'index']);
-    Route::get('/articles/random', [ArticleController::class, 'random']);
-    Route::get('/articles/{slug}', [ArticleController::class, 'show']);
-    Route::get('/articles/{slug}/related', [ArticleController::class, 'related']);
-
-    // NOTE: Admin article routes dipindah ke web.php (session-based auth)
-    // Route::middleware(['admin'])->prefix('admin/articles') dihapus dari sini
-
-    // Tags
-    Route::get('/tags', [TagController::class, 'index']);
-    Route::get('/tags/popular', [TagController::class, 'popular']);
-    Route::get('/tags/{slug}', [TagController::class, 'show']);
-    Route::get('/tags/{slug}/articles', [TagController::class, 'articles']);
-
-    // NOTE: Admin tag routes dipindah ke web.php (session-based auth)
-    // Route::middleware(['admin'])->prefix('admin/tags') dihapus dari sini
 
 });

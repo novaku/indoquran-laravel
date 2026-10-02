@@ -80,18 +80,24 @@ const AdminArticleEditorPage = () => {
 
   const fetchTags = async () => {
     try {
+      const authToken = localStorage.getItem('auth_token');
+      const headers = {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      };
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+
       const response = await fetch('/api/tags?all=true', {
         method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
-        },
+        headers,
         credentials: 'same-origin'
       });
       
       if (response.ok) {
         const data = await response.json();
-        setAvailableTags(data);
+        setAvailableTags(Array.isArray(data) ? data : (data.data || []));
       }
     } catch (error) {
       console.error('Error fetching tags:', error);

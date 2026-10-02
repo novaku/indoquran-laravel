@@ -24,7 +24,7 @@ class TagController extends Controller
         }
 
         // Option to get all or paginated
-        if ($request->has('all') && $request->all === 'true') {
+        if ($request->boolean('all') || ($request->has('all') && $request->get('all') === 'true')) {
             $tags = $query->get();
         } else {
             $tags = $query->paginate(20);
@@ -144,10 +144,12 @@ class TagController extends Controller
     {
         $limit = min((int) $request->get('limit', 15), 50);
         
-        $tags = Tag::withCount(['articles' => function($q) {
+        $tags = Tag::whereHas('articles', function($q) {
+            $q->where('status', 'published');
+        })
+        ->withCount(['articles' => function($q) {
             $q->where('status', 'published');
         }])
-        ->having('articles_count', '>', 0)
         ->orderBy('articles_count', 'desc')
         ->orderBy('name', 'asc')
         ->limit($limit)
