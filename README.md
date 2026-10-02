@@ -125,9 +125,11 @@ IndoQuran adalah platform digital modern dan komprehensif untuk membaca, mentada
 
 6. **Jalankan Server Pengembangan:**
 
-   *Menggunakan satu perintah terpadu (Laravel Serve + Queue + Pail + Vite):*
+   *Menggunakan Makefile (Direkomendasikan):*
    ```bash
-   composer dev
+   make dev          # Start Laravel server (port 8000), bersihkan cache & buka browser
+   make dev-servers  # Start Laravel (8000) & Vite (5173) di background
+   make dev-all      # Start server lengkap foreground (Laravel + Queue + Logs + Vite)
    ```
 
    *Atau menggunakan script menu interaktif:*
@@ -135,11 +137,68 @@ IndoQuran adalah platform digital modern dan komprehensif untuk membaca, mentada
    ./dev-env.sh
    ```
 
-   *Atau secara manual di terminal terpisah:*
+   *Atau menggunakan Composer / terminal terpisah:*
    ```bash
+   composer dev        # Server terpadu via concurrently
    php artisan serve   # Server API Laravel (http://localhost:8000)
-   npm run dev        # Vite dev server (http://localhost:5173)
+   npm run dev         # Vite dev server (http://localhost:5173)
    ```
+
+---
+
+## 🛠️ Perintah Makefile Terpadu
+
+Proyek ini menyediakan `Makefile` yang mencakup seluruh alur kerja pengembangan, testing, database, dan pemeliharaan cache (setara dengan menu `dev-env.sh`):
+
+```bash
+make help    # Menampilkan seluruh daftar perintah yang tersedia
+```
+
+### 📋 Daftar Perintah Makefile
+
+| Kategori | Perintah | Deskripsi |
+|---|---|---|
+| **Development** | `make dev` | Start Laravel server (port 8000), bersihkan cache & otomatis buka browser |
+| | `make dev-servers` | Start Laravel & Vite development server di background |
+| | `make dev-all` | Menjalankan server lengkap foreground (Laravel, Queue, Pail, Vite) |
+| | `make serve` | Menjalankan `php artisan serve` |
+| | `make serve-8080` | Menjalankan Laravel server di port 8080 |
+| | `make vite` | Menjalankan Vite development server |
+| | `make build` | Kompilasi aset Vite untuk production (`npm run build`) |
+| | `make watch` | Watcher kompilasi aset Vite realtime |
+| | `make restart` | Restart server development (Laravel & Vite) |
+| | `make stop` | Stop seluruh proses development server |
+| | `make status` | Periksa status port 8000/5173 dan proses aktif |
+| **Setup & Dependencies** | `make setup` | Setup awal proyek (.env, install vendor, app key, migrate, build) |
+| | `make install` | Install dependensi Composer & NPM |
+| | `make update` | Update dependensi Composer & NPM |
+| **Database** | `make migrate` | Menjalankan migrasi database |
+| | `make migrate-fresh` | Reset ulang database dan jalankan seeder (`migrate:fresh --seed`) |
+| | `make migrate-rollback` | Rollback batch migrasi terakhir |
+| | `make seed` | Menjalankan database seeder (`php artisan db:seed`) |
+| **Testing & Kualitas Kode** | `make test` | Menjalankan seluruh test suite (Unit & Feature) |
+| | `make test-unit` | Menjalankan hanya Unit test |
+| | `make test-feature` | Menjalankan hanya Feature test |
+| | `make test-coverage` | Menjalankan test dengan laporan code coverage |
+| | `make pint` | Format style kode PHP dengan Laravel Pint |
+| | `make pint-test` | Periksa style kode PHP tanpa mengubah file |
+| **Cache & Optimasi** | `make refresh` | Refresh total semua cache (Laravel, storage, autoload, Vite) |
+| | `make optimize-dev` | Optimasi cache khusus environment development |
+| | `make clear` | Bersihkan seluruh cache framework (`optimize:clear`) |
+| | `make optimize` | Optimasi cache untuk production |
+| | `make cache-all` | Cache config, route, dan view |
+| | `make cache-quran` | Warm up cache Al-Qur'an (Surah & Ayat) |
+| | `make cache-asmaul` | Refresh cache Asmaul Husna |
+| | `make cache-tafsir` | Refresh cache Tafsir Maudhui |
+| **Sitemap** | `make sitemap` | Generate sitemap standar website |
+| | `make sitemap-all` | Generate sitemap komprehensif (Quran, Hadits, Doa) |
+| | `make sitemap-validate` | Validasi integritas file sitemap XML |
+| **Utilitas & Monitoring** | `make routes` | Menampilkan seluruh daftar route (`route:list`) |
+| | `make tinker` | Buka Laravel REPL shell interaktif |
+| | `make pail` | Pantau log aplikasi secara realtime (Laravel Pail) |
+| | `make logs` | Live stream file log `storage/logs/laravel.log` |
+| | `make logs-clear` | Kosongkan isi file log `storage/logs/laravel.log` |
+| | `make info` | Tampilkan informasi aplikasi Laravel (`php artisan about`) |
 
 ---
 
