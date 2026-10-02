@@ -375,9 +375,23 @@ class QuranController extends Controller
         // Add ordering for consistent pagination
         $searchQuery->orderBy('surah_number')->orderBy('ayah_number');
         
-        // Apply pagination with proper appending of query parameters for pagination links
-        $paginatedResults = $searchQuery->paginate($perPage, ['*'], 'page', $page)
-            ->appends($request->only(['q', 'per_page', 'revelation_place', 'exact']));
+        if ($exact) {
+            $filteredResults = $searchQuery->get()->filter(function ($ayah) use ($query) {
+                return Ayah::matchesExactSearchText($ayah->text_indonesian ?? '', $query);
+            })->values();
+
+            $paginatedResults = new LengthAwarePaginator(
+                $filteredResults->forPage($page, $perPage)->values(),
+                $filteredResults->count(),
+                $perPage,
+                $page,
+                ['path' => $request->url(), 'query' => $request->query()]
+            );
+        } else {
+            // Apply pagination with proper appending of query parameters for pagination links
+            $paginatedResults = $searchQuery->paginate($perPage, ['*'], 'page', $page)
+                ->appends($request->only(['q', 'per_page', 'revelation_place', 'exact']));
+        }
         
         // Search surah names matching the query
         $surahMatchesQuery = Surah::query()

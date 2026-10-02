@@ -44,7 +44,7 @@ IndoQuran adalah platform digital modern dan komprehensif untuk membaca, mentada
 - **Penanda Baca & Catatan Hadits** - Simpan riwayat hadits favorit ke akun pengguna atau penyimpanan lokal dengan catatan refleksi pribadi.
 
 ### 🤲 Doa, Dzikir & Ibadah
-- **Doa Pilihan dengan Audio** - Kumpulan doa harian shahih dilengkapi teks Arab, terjemahan, dan pemutar audio MP3 hasil generator Text-to-Speech (`php artisan doa:generate-audio`).
+- **Doa Pilihan & Audio Pelafalan Arab** - Kumpulan doa harian shahih dilengkapi teks Arab, transliterasi Latin, terjemahan, serta pemutar suara pelafalan Arab instan berbasis Web Speech API (dengan kontrol kecepatan dan visualisasi suara).
 - **Doa Bersama Komunitas** - Platform interaktif untuk berbagi doa, saling mengaminkan ('Amin'), dan memberikan dukungan doa antar sesama pengguna.
 - **Jadwal Sholat Otomatis** - Perhitungan waktu sholat akurat berdasarkan deteksi lokasi pengguna (geolokasi).
 - **Asmaul Husna** - 99 nama Allah Subhanahu wa Ta'ala lengkap dengan tulisan Arab, arti, dan dalil Al-Qur'an.
@@ -123,12 +123,7 @@ IndoQuran adalah platform digital modern dan komprehensif untuk membaca, mentada
    php artisan hadits:cache warm-up
    ```
 
-6. **Generate Audio Doa Pilihan (Opsional):**
-   ```bash
-   php artisan doa:generate-audio
-   ```
-
-7. **Jalankan Server Pengembangan:**
+6. **Jalankan Server Pengembangan:**
 
    *Menggunakan satu perintah terpadu (Laravel Serve + Queue + Pail + Vite):*
    ```bash
@@ -160,10 +155,6 @@ php artisan hadits:cache clear      # Membersihkan seluruh cache hadits
 # Manajemen Cache Al-Qur'an
 php artisan quran:cache warm-up     # Pre-warming surah dan ayat populer
 php artisan quran:cache clear       # Membersihkan cache Al-Qur'an
-
-# Audio Doa
-php artisan doa:generate-audio      # Menghasilkan file audio MP3 pelafalan Doa Pilihan
-php artisan doa:generate-audio --force # Generate ulang seluruh file audio doa
 
 # Pengujian & Debug Redis
 php artisan redis:quick-test        # Menguji koneksi Redis via socket/TCP

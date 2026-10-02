@@ -30,8 +30,8 @@ class WelcomeEmailTest extends TestCase
             'welcome_email_sent' => true
         ]);
 
-        // Assert welcome email was sent
-        Mail::assertSent(WelcomeNewUser::class, function ($mail) use ($userData) {
+        // Assert welcome email was queued
+        Mail::assertQueued(WelcomeNewUser::class, function ($mail) use ($userData) {
             return $mail->user->email === $userData['email'] &&
                    $mail->user->name === $userData['name'];
         });
@@ -85,8 +85,9 @@ class WelcomeEmailTest extends TestCase
     public function test_registration_continues_even_if_welcome_email_fails()
     {
         Mail::shouldReceive('to')
-            ->andReturnSelf()
-            ->shouldReceive('send')
+            ->andReturnSelf();
+
+        Mail::shouldReceive('send')
             ->andThrow(new \Exception('Mail server down'));
 
         $userData = [

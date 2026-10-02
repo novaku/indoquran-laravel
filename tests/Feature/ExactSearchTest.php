@@ -5,22 +5,19 @@ namespace Tests\Feature;
 use App\Models\Ayah;
 use App\Models\Surah;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Tests\TestCase;
 
-class ExactSearchTest extends BaseTestCase
+class ExactSearchTest extends TestCase
 {
     use RefreshDatabase;
-
-    public function createApplication()
-    {
-        return require __DIR__ . '/../../bootstrap/app.php';
-    }
 
     public function test_exact_search_only_returns_whole_word_matches(): void
     {
         $this->createSearchFixtures();
+        $user = \App\Models\User::factory()->create();
+        $token = auth('api')->login($user);
 
-        $response = $this->getJson('/api/cari?q=isa&exact=1');
+        $response = $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/cari?q=isa&exact=1');
 
         $response->assertOk();
         $response->assertJsonPath('query.search_mode', 'EXACT');
@@ -32,8 +29,10 @@ class ExactSearchTest extends BaseTestCase
     public function test_default_search_still_matches_substrings(): void
     {
         $this->createSearchFixtures();
+        $user = \App\Models\User::factory()->create();
+        $token = auth('api')->login($user);
 
-        $response = $this->getJson('/api/cari?q=isa');
+        $response = $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/cari?q=isa');
 
         $response->assertOk();
         $response->assertJsonPath('query.search_mode', 'AND');
@@ -50,7 +49,8 @@ class ExactSearchTest extends BaseTestCase
             'name_arabic' => 'الفاتحة',
             'name_latin' => 'Al-Fatihah',
             'revelation_place' => 'makkah',
-            'description' => 'Fixture surah'
+            'description_short' => 'Fixture surah',
+            'description_long' => 'Fixture surah'
         ]);
 
         Ayah::create([

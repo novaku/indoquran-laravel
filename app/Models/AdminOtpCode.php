@@ -17,6 +17,10 @@ class AdminOtpCode extends Model
         'user_agent',
     ];
 
+    protected $attributes = [
+        'is_used' => false,
+    ];
+
     protected $casts = [
         'expires_at' => 'datetime',
         'used_at' => 'datetime',

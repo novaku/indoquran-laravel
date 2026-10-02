@@ -188,24 +188,19 @@ class QuranCacheService
     private function clearCacheByPattern(string $pattern): void
     {
         try {
-            // Get Redis instance
-            $redis = Cache::getRedis();
-            
-            // Get cache prefix from config
-            $prefix = config('cache.prefix');
-            $fullPattern = $prefix . $pattern;
-            
-            // Get all keys matching the pattern
-            $keys = $redis->keys($fullPattern);
-            
-            if (!empty($keys)) {
-                // Delete all matching keys
-                $redis->del($keys);
-                Log::info('Cleared cache keys by pattern', ['pattern' => $pattern, 'count' => count($keys)]);
+            $store = Cache::getStore();
+            if ($store instanceof \Illuminate\Cache\RedisStore) {
+                $redis = $store->connection();
+                $prefix = config('cache.prefix', '');
+                $fullPattern = $prefix . $pattern;
+                $keys = $redis->keys($fullPattern);
+                if (!empty($keys)) {
+                    $redis->del($keys);
+                    Log::info('Cleared cache keys by pattern', ['pattern' => $pattern, 'count' => count($keys)]);
+                }
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::warning('Failed to clear cache by pattern', ['pattern' => $pattern, 'error' => $e->getMessage()]);
-            // Fallback: try to clear individual cache entries if we can't use Redis directly
         }
     }
     
