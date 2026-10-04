@@ -217,6 +217,8 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/tafsir-maudhui/count', [TafsirMaudhuiController::class, 'count']);
     Route::get('/tafsir-maudhui/random', [TafsirMaudhuiController::class, 'random']);
 
+    Route::get('/hadits/dropdown', [App\Http\Controllers\HaditsController::class, 'dropdown']);
+
     // SEO
     Route::prefix('seo')->group(function() {
         Route::get('/popular-surahs', [\App\Http\Controllers\Api\SeoApiController::class, 'getPopularSurahs']);

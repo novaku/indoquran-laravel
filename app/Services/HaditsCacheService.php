@@ -3,10 +3,12 @@
 namespace App\Services;
 
 use App\Http\Controllers\HaditsController;
+use App\Models\Hadits;
 use Illuminate\Cache\RedisStore;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class HaditsCacheService
 {
@@ -61,6 +63,60 @@ class HaditsCacheService
     }
 
     /**
+     * Get dropdown options matching only existing database tables
+     */
+    public function getDropdownOptions(): array
+    {
+        $cacheKey = $this->getPrefix('catalog') . 'dropdown';
+        $ttl = $this->getTtl('catalog');
+
+        return Cache::remember($cacheKey, $ttl, function () {
+            $rawKitabs = HaditsController::getKitabCatalog();
+            $availableKitabs = [];
+            $totalHadits = 0;
+
+            foreach ($rawKitabs as $slug => $info) {
+                $tableName = $info['table'];
+                if (!Schema::hasTable($tableName)) {
+                    continue;
+                }
+
+                $count = DB::table($tableName)->count();
+                $actualTotal = $count > 0 ? $count : $info['total'];
+                $totalHadits += $actualTotal;
+
+                $availableKitabs[] = [
+                    'slug' => $slug,
+                    'name' => $info['name'],
+                    'arab' => $info['arab'],
+                    'table' => $tableName,
+                    'total' => $actualTotal,
+                    'total_formatted' => number_format($actualTotal, 0, ',', '.') . ' Hadits',
+                    'category' => $info['category'],
+                    'category_label' => $info['category_label'] ?? $info['category'],
+                ];
+            }
+
+            $totalKitab = count($availableKitabs);
+            $totalHaditsFormatted = number_format($totalHadits, 0, ',', '.') . ' hadits';
+
+            return [
+                'status' => 'success',
+                'total_kitab' => $totalKitab,
+                'total_hadits' => $totalHadits,
+                'total_hadits_formatted' => $totalHaditsFormatted,
+                'all_option' => [
+                    'slug' => 'all',
+                    'name' => 'Seluruh Hadits',
+                    'badge' => "{$totalKitab} Kitab",
+                    'description' => "{$totalKitab} Kitab Hadits ({$totalHaditsFormatted})",
+                ],
+                'kitabs' => $availableKitabs,
+            ];
+        });
+    }
+
+    /**
      * Get daily featured hadith with caching
      */
     public function getFeaturedHadits(): ?array
@@ -80,7 +136,6 @@ class HaditsCacheService
                 ['kitab' => 'shahih_muslim', 'id' => 45, 'theme' => 'Agama adalah Nasihat'],
                 ['kitab' => 'shahih_muslim', 'id' => 223, 'theme' => 'Kesucian Sebagian dari Iman'],
                 ['kitab' => 'sunan_tirmidzi', 'id' => 1956, 'theme' => 'Senyum adalah Sedekah'],
-                ['kitab' => 'riyadhus_shalihin', 'id' => 2, 'theme' => 'Kewajiban Taubat'],
             ];
 
             $catalog = HaditsController::getKitabCatalog();
@@ -88,32 +143,56 @@ class HaditsCacheService
 
             if (isset($catalog[$pick['kitab']])) {
                 $kitabInfo = $catalog[$pick['kitab']];
-                $row = DB::table($kitabInfo['table'])->where('id', $pick['id'])->first();
-                if ($row) {
-                    return [
-                        'id' => $row->id,
-                        'kitab' => $pick['kitab'],
-                        'kitab_name' => $kitabInfo['name'],
-                        'kitab_arab' => $kitabInfo['arab'],
-                        'theme' => $pick['theme'],
-                        'arab' => $row->arab,
-                        'terjemah' => $row->terjemah
-                    ];
+                if (Schema::hasTable($kitabInfo['table'])) {
+                    $hasNo = Schema::hasColumn($kitabInfo['table'], 'no');
+                    $query = DB::table($kitabInfo['table']);
+                    if ($hasNo) {
+                        $row = $query->where('no', $pick['id'])->first();
+                    } else {
+                        $row = $query->where('id', $pick['id'])->first();
+                    }
+                    if (!$row && $hasNo) {
+                        $row = DB::table($kitabInfo['table'])->where('id', $pick['id'])->first();
+                    }
+
+                    if ($row) {
+                        return [
+                            'id' => $row->no ?? $row->id,
+                            'no' => $row->no ?? $row->id,
+                            'db_id' => $row->id,
+                            'kitab' => $pick['kitab'],
+                            'kitab_name' => $kitabInfo['name'],
+                            'kitab_arab' => $kitabInfo['arab'],
+                            'kategori' => $row->kategori ?? null,
+                            'theme' => $pick['theme'],
+                            'arab' => $row->arab,
+                            'indonesia' => $row->indonesia ?? '',
+                            'penjelasan' => $row->penjelasan ?? null,
+                        ];
+                    }
                 }
             }
 
             // Fallback to first hadith of Bukhari
-            $bukhariRow = DB::table('hadits_shahih_bukhari')->first();
-            if ($bukhariRow) {
-                return [
-                    'id' => $bukhariRow->id,
-                    'kitab' => 'shahih_bukhari',
-                    'kitab_name' => 'Shahih Bukhari',
-                    'kitab_arab' => 'صحيح البخاري',
-                    'theme' => 'Semua Amal Tergantung Niat',
-                    'arab' => $bukhariRow->arab,
-                    'terjemah' => $bukhariRow->terjemah
-                ];
+            $bukhariTable = Schema::hasTable('hadits_shahih_al_bukhari') ? 'hadits_shahih_al_bukhari' : null;
+
+            if ($bukhariTable) {
+                $bukhariRow = DB::table($bukhariTable)->first();
+                if ($bukhariRow) {
+                    return [
+                        'id' => $bukhariRow->no ?? $bukhariRow->id,
+                        'no' => $bukhariRow->no ?? $bukhariRow->id,
+                        'db_id' => $bukhariRow->id,
+                        'kitab' => 'shahih_bukhari',
+                        'kitab_name' => 'Shahih Bukhari',
+                        'kitab_arab' => 'صحيح البخاري',
+                        'kategori' => $bukhariRow->kategori ?? null,
+                        'theme' => 'Semua Amal Tergantung Niat',
+                        'arab' => $bukhariRow->arab,
+                        'indonesia' => $bukhariRow->indonesia ?? '',
+                        'penjelasan' => $bukhariRow->penjelasan ?? null,
+                    ];
+                }
             }
 
             return null;
@@ -141,23 +220,54 @@ class HaditsCacheService
 
         return Cache::remember($cacheKey, $ttl, function () use ($kitabInfo, $nomor, $resolved) {
             $table = $kitabInfo['table'];
-            $hadits = DB::table($table)->where('id', $nomor)->first();
+            if (!Schema::hasTable($table)) {
+                return null;
+            }
+
+            $hasNo = Schema::hasColumn($table, 'no');
+            $query = DB::table($table);
+
+            if ($hasNo) {
+                $hadits = $query->where('no', $nomor)->first();
+            } else {
+                $hadits = $query->where('id', $nomor)->first();
+            }
+
+            if (!$hadits && $hasNo) {
+                $hadits = DB::table($table)->where('id', $nomor)->first();
+            }
 
             if (!$hadits) {
                 return null;
             }
 
-            // Find previous and next IDs
-            $prev = DB::table($table)->where('id', '<', $nomor)->orderBy('id', 'desc')->select('id')->first();
-            $next = DB::table($table)->where('id', '>', $nomor)->orderBy('id', 'asc')->select('id')->first();
+            $targetNo = $hadits->no ?? $hadits->id;
+            $orderCol = $hasNo ? 'no' : 'id';
+
+            $prev = DB::table($table)->where($orderCol, '<', $targetNo)->orderBy($orderCol, 'desc')->first();
+            $next = DB::table($table)->where($orderCol, '>', $targetNo)->orderBy($orderCol, 'asc')->first();
+
+            $prevNomor = $prev ? ($prev->no ?? $prev->id) : null;
+            $nextNomor = $next ? ($next->no ?? $next->id) : null;
+
+            $haditsObj = (object) [
+                'id' => $hadits->no ?? $hadits->id,
+                'no' => $hadits->no ?? $hadits->id,
+                'db_id' => $hadits->id,
+                'kitab' => $hadits->kitab ?? $kitabInfo['name'],
+                'kategori' => $hadits->kategori ?? null,
+                'arab' => $hadits->arab,
+                'indonesia' => $hadits->indonesia ?? '',
+                'penjelasan' => $hadits->penjelasan ?? null,
+            ];
 
             return [
                 'status' => 'success',
                 'kitab' => $kitabInfo,
-                'hadits' => $hadits,
+                'hadits' => $haditsObj,
                 'navigation' => [
-                    'prev_nomor' => $prev?->id,
-                    'next_nomor' => $next?->id,
+                    'prev_nomor' => $prevNomor,
+                    'next_nomor' => $nextNomor,
                     'total' => $kitabInfo['total']
                 ]
             ];
@@ -197,11 +307,18 @@ class HaditsCacheService
 
         return Cache::remember($cacheKey, $ttl, function () use ($kitabInfo, $perPage, $cleanSearch, $nomor, $targetPage) {
             $table = $kitabInfo['table'];
+            if (!Schema::hasTable($table)) {
+                return null;
+            }
+
+            $hasNo = Schema::hasColumn($table, 'no');
+            $hasPenjelasan = Schema::hasColumn($table, 'penjelasan');
+
             $query = DB::table($table);
 
             if (!empty($cleanSearch)) {
                 $query->where(function ($q) use ($cleanSearch) {
-                    $q->where('terjemah', 'like', '%' . $cleanSearch . '%')
+                    $q->where('indonesia', 'like', '%' . $cleanSearch . '%')
                       ->orWhere('arab', 'like', '%' . $cleanSearch . '%');
                 });
             }
@@ -210,10 +327,24 @@ class HaditsCacheService
             $lastPage = (int) max(ceil($total / $perPage), 1);
             $offset = ($targetPage - 1) * $perPage;
 
-            $items = $query->orderBy('id', 'asc')
+            $orderCol = $hasNo ? 'no' : 'id';
+            $rawItems = $query->orderBy($orderCol, 'asc')
                 ->offset($offset)
                 ->limit($perPage)
                 ->get();
+
+            $items = $rawItems->map(function ($row) {
+                return (object) [
+                    'id' => $row->no ?? $row->id,
+                    'no' => $row->no ?? $row->id,
+                    'db_id' => $row->id,
+                    'kitab' => $row->kitab ?? '',
+                    'kategori' => $row->kategori ?? null,
+                    'arab' => $row->arab,
+                    'indonesia' => $row->indonesia ?? '',
+                    'penjelasan' => $row->penjelasan ?? null,
+                ];
+            });
 
             return [
                 'status' => 'success',
@@ -252,15 +383,15 @@ class HaditsCacheService
             $searchPhrase = trim($q, '"');
             $words = array_slice(preg_split('/\s+/', $searchPhrase, -1, PREG_SPLIT_NO_EMPTY), 0, 5);
 
-            $applySearchFilter = function ($builder) use ($isExact, $searchPhrase, $words) {
+            $applySearchFilter = function ($builder, $transCol = 'indonesia') use ($isExact, $searchPhrase, $words) {
                 if ($isExact || count($words) <= 1) {
-                    $builder->where('terjemah', 'like', '%' . $searchPhrase . '%');
+                    $builder->where($transCol, 'like', '%' . $searchPhrase . '%');
                 } else {
-                    $builder->where(function ($sub) use ($searchPhrase, $words) {
-                        $sub->where('terjemah', 'like', '%' . $searchPhrase . '%')
-                            ->orWhere(function ($allWords) use ($words) {
+                    $builder->where(function ($sub) use ($transCol, $searchPhrase, $words) {
+                        $sub->where($transCol, 'like', '%' . $searchPhrase . '%')
+                            ->orWhere(function ($allWords) use ($words, $transCol) {
                                 foreach ($words as $w) {
-                                    $allWords->where('terjemah', 'like', '%' . $w . '%');
+                                    $allWords->where($transCol, 'like', '%' . $w . '%');
                                 }
                             });
                     });
@@ -277,26 +408,53 @@ class HaditsCacheService
                 $kitabInfo = $catalog[$resolved];
                 $table = $kitabInfo['table'];
 
+                if (!Schema::hasTable($table)) {
+                    return [
+                        'status' => 'success',
+                        'query' => $q,
+                        'kitab_filter' => $resolved,
+                        'kitab_name' => $kitabInfo['name'],
+                        'groups' => [],
+                        'pagination' => [
+                            'current_page' => $page,
+                            'last_page' => 1,
+                            'per_page' => $perPage,
+                            'total' => 0,
+                            'from' => 0,
+                            'to' => 0,
+                        ],
+                        'data' => []
+                    ];
+                }
+
+                $hasNo = Schema::hasColumn($table, 'no');
+                $hasPenjelasan = Schema::hasColumn($table, 'penjelasan');
+
                 $query = DB::table($table);
-                $applySearchFilter($query);
+                $applySearchFilter($query, 'indonesia');
 
                 $total = (clone $query)->count();
                 $lastPage = (int) max(ceil($total / $perPage), 1);
 
-                $rawItems = $query->orderBy('id', 'asc')
+                $orderCol = $hasNo ? 'no' : 'id';
+                $rawItems = $query->orderBy($orderCol, 'asc')
                     ->offset(($page - 1) * $perPage)
                     ->limit($perPage)
                     ->get();
 
                 $items = $rawItems->map(function ($row) use ($resolved, $kitabInfo) {
                     return [
-                        'id' => $row->id,
+                        'id' => $row->no ?? $row->id,
+                        'no' => $row->no ?? $row->id,
+                        'db_id' => $row->id,
                         'kitab_slug' => $resolved,
                         'kitab_name' => $kitabInfo['name'],
                         'kitab_arab' => $kitabInfo['arab'],
                         'category' => $kitabInfo['category'],
+                        'kategori' => $row->kategori ?? null,
                         'arab' => $row->arab,
-                        'terjemah' => $row->terjemah,
+                        'indonesia' => $row->indonesia ?? '',
+                        'penjelasan' => $row->penjelasan ?? null,
                     ];
                 });
 
@@ -327,13 +485,45 @@ class HaditsCacheService
                 ];
             }
 
-            // Case 2: Search across all 11 books
+            // Case 2: Search across available books
             $subqueries = [];
             foreach ($catalog as $slug => $info) {
-                $sub = DB::table($info['table'])
-                    ->selectRaw('? as kitab_slug, id, arab, terjemah', [$slug]);
-                $applySearchFilter($sub);
+                if (!Schema::hasTable($info['table'])) {
+                    continue;
+                }
+                $t = $info['table'];
+                $hasPenjelasan = Schema::hasColumn($t, 'penjelasan');
+                $hasKategori = Schema::hasColumn($t, 'kategori');
+                $hasNo = Schema::hasColumn($t, 'no');
+
+                $noSelect = $hasNo ? 'no' : 'id as no';
+                $kategoriSelect = $hasKategori ? 'kategori' : 'NULL as kategori';
+                $penjelasanSelect = $hasPenjelasan ? 'penjelasan' : 'NULL as penjelasan';
+
+                $sub = DB::table($t)
+                    ->selectRaw("? as kitab_slug, id, {$noSelect}, arab, indonesia, {$penjelasanSelect}, {$kategoriSelect}", [$slug]);
+
+                $applySearchFilter($sub, 'indonesia');
                 $subqueries[] = $sub;
+            }
+
+            if (empty($subqueries)) {
+                return [
+                    'status' => 'success',
+                    'query' => $q,
+                    'kitab_filter' => 'all',
+                    'kitab_name' => 'Seluruh Kitab',
+                    'groups' => [],
+                    'pagination' => [
+                        'current_page' => $page,
+                        'last_page' => 1,
+                        'per_page' => $perPage,
+                        'total' => 0,
+                        'from' => 0,
+                        'to' => 0,
+                    ],
+                    'data' => []
+                ];
             }
 
             $first = array_shift($subqueries);
@@ -381,13 +571,17 @@ class HaditsCacheService
             $items = $rawItems->map(function ($row) use ($catalog) {
                 $info = $catalog[$row->kitab_slug] ?? null;
                 return [
-                    'id' => $row->id,
+                    'id' => $row->no ?? $row->id,
+                    'no' => $row->no ?? $row->id,
+                    'db_id' => $row->id,
                     'kitab_slug' => $row->kitab_slug,
                     'kitab_name' => $info ? $info['name'] : $row->kitab_slug,
                     'kitab_arab' => $info ? $info['arab'] : '',
                     'category' => $info ? $info['category'] : '',
+                    'kategori' => $row->kategori ?? null,
                     'arab' => $row->arab,
-                    'terjemah' => $row->terjemah,
+                    'indonesia' => $row->indonesia ?? '',
+                    'penjelasan' => $row->penjelasan ?? null,
                 ];
             });
 
@@ -395,7 +589,7 @@ class HaditsCacheService
                 'status' => 'success',
                 'query' => $q,
                 'kitab_filter' => 'all',
-                'kitab_name' => 'Seluruh Kitab (11 Kitab)',
+                'kitab_name' => 'Seluruh Kitab Hadits',
                 'groups' => $groups,
                 'pagination' => [
                     'current_page' => $page,
@@ -430,6 +624,7 @@ class HaditsCacheService
     {
         try {
             Cache::forget($this->getPrefix('catalog') . 'summary');
+            Cache::forget($this->getPrefix('catalog') . 'dropdown');
             Cache::forget($this->getPrefix('featured') . 'daily:' . date('Y-m-d'));
             Cache::forget('hadits_featured_daily');
 
@@ -442,6 +637,8 @@ class HaditsCacheService
                 if (!empty($keys)) {
                     $redis->del($keys);
                 }
+            } else {
+                Cache::flush();
             }
 
             return true;

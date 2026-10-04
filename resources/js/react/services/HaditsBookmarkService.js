@@ -89,7 +89,9 @@ export const toggleLocalHaditsBookmark = (haditsData) => {
             kitab_arab: haditsData.kitab_arab || '',
             number: num,
             arab: haditsData.arab || '',
-            terjemah: haditsData.terjemah || haditsData.terjemahan || '',
+            indonesia: haditsData.indonesia || haditsData.terjemah || haditsData.terjemahan || '',
+            penjelasan: haditsData.penjelasan || null,
+            kategori: haditsData.kategori || '',
             is_favorite: Boolean(haditsData.is_favorite),
             notes: haditsData.notes || '',
             created_at: new Date().toISOString()
@@ -180,7 +182,9 @@ export const toggleHaditsBookmark = async (haditsData) => {
                             kitab_arab: haditsData.kitab_arab || '',
                             number: num,
                             arab: haditsData.arab || '',
-                            terjemah: haditsData.terjemah || haditsData.terjemahan || '',
+                            indonesia: haditsData.indonesia || haditsData.terjemah || haditsData.terjemahan || '',
+                            penjelasan: haditsData.penjelasan || null,
+                            kategori: haditsData.kategori || '',
                             is_favorite: false,
                             notes: haditsData.notes || '',
                             created_at: new Date().toISOString()
@@ -251,7 +255,9 @@ export const toggleHaditsFavorite = async (kitabSlug, number, haditsData = null)
                             kitab_arab: haditsData?.kitab_arab || '',
                             number: num,
                             arab: haditsData?.arab || '',
-                            terjemah: haditsData?.terjemah || haditsData?.terjemahan || '',
+                            indonesia: haditsData?.indonesia || haditsData?.terjemah || haditsData?.terjemahan || '',
+                            penjelasan: haditsData?.penjelasan || null,
+                            kategori: haditsData?.kategori || '',
                             is_favorite: true,
                             notes: '',
                             created_at: new Date().toISOString()
@@ -294,7 +300,9 @@ export const toggleHaditsFavorite = async (kitabSlug, number, haditsData = null)
             kitab_arab: haditsData?.kitab_arab || '',
             number: num,
             arab: haditsData?.arab || '',
-            terjemah: haditsData?.terjemah || haditsData?.terjemahan || '',
+            indonesia: haditsData?.indonesia || haditsData?.terjemah || haditsData?.terjemahan || '',
+            penjelasan: haditsData?.penjelasan || null,
+            kategori: haditsData?.kategori || '',
             is_favorite: true,
             notes: '',
             created_at: new Date().toISOString()

@@ -10,7 +10,7 @@ use App\Services\HaditsCacheService;
 class HaditsController extends Controller
 {
     /**
-     * Complete metadata catalog for all 11 Hadits books
+     * Complete metadata catalog for all 7 Hadits books
      */
     public static function getKitabCatalog(): array
     {
@@ -20,8 +20,8 @@ class HaditsController extends Controller
                 'name' => 'Shahih Bukhari',
                 'arab' => 'صحيح البخاري',
                 'author' => 'Imam Al-Bukhari (194 - 256 H)',
-                'table' => 'hadits_shahih_bukhari',
-                'total' => 7008,
+                'table' => 'hadits_shahih_al_bukhari',
+                'total' => 7563,
                 'category' => 'Shahihain',
                 'category_label' => 'Kutubus Sittah & Shahihain',
                 'color' => 'emerald',
@@ -34,7 +34,7 @@ class HaditsController extends Controller
                 'arab' => 'صحيح مسلم',
                 'author' => 'Imam Muslim bin Al-Hajjaj (204 - 261 H)',
                 'table' => 'hadits_shahih_muslim',
-                'total' => 5362,
+                'total' => 3033,
                 'category' => 'Shahihain',
                 'category_label' => 'Kutubus Sittah & Shahihain',
                 'color' => 'teal',
@@ -46,8 +46,8 @@ class HaditsController extends Controller
                 'name' => 'Sunan Abu Daud',
                 'arab' => 'سنن أبي داود',
                 'author' => 'Imam Abu Daud As-Sijistani (202 - 275 H)',
-                'table' => 'hadits_sunan_abu_daud',
-                'total' => 4590,
+                'table' => 'hadits_sunan_abu_dawud',
+                'total' => 5274,
                 'category' => 'Sunan',
                 'category_label' => 'Kutubus Sittah',
                 'color' => 'blue',
@@ -59,8 +59,8 @@ class HaditsController extends Controller
                 'name' => 'Sunan At-Tirmidzi',
                 'arab' => 'جامع الترمذي',
                 'author' => 'Imam At-Tirmidzi (209 - 279 H)',
-                'table' => 'hadits_sunan_tirmidzi',
-                'total' => 3891,
+                'table' => 'hadits_jami_at_tirmidzi',
+                'total' => 3956,
                 'category' => 'Sunan',
                 'category_label' => 'Kutubus Sittah',
                 'color' => 'amber',
@@ -72,8 +72,8 @@ class HaditsController extends Controller
                 'name' => 'Sunan An-Nasa\'i',
                 'arab' => 'سنن النسائي',
                 'author' => 'Imam An-Nasa\'i (215 - 303 H)',
-                'table' => 'hadits_sunan_nasai',
-                'total' => 5662,
+                'table' => 'hadits_sunan_an_nasai',
+                'total' => 5758,
                 'category' => 'Sunan',
                 'category_label' => 'Kutubus Sittah',
                 'color' => 'cyan',
@@ -86,7 +86,7 @@ class HaditsController extends Controller
                 'arab' => 'سنن ابن ماجه',
                 'author' => 'Imam Ibnu Majah (209 - 273 H)',
                 'table' => 'hadits_sunan_ibnu_majah',
-                'total' => 4332,
+                'total' => 4341,
                 'category' => 'Sunan',
                 'category_label' => 'Kutubus Sittah',
                 'color' => 'indigo',
@@ -99,64 +99,12 @@ class HaditsController extends Controller
                 'arab' => 'مسند أحمد',
                 'author' => 'Imam Ahmad bin Hanbal (164 - 241 H)',
                 'table' => 'hadits_musnad_ahmad',
-                'total' => 26363,
+                'total' => 1438,
                 'category' => 'Musnad',
                 'category_label' => 'Kutubut Tis\'ah & Musnad',
                 'color' => 'emerald',
                 'description' => 'Koleksi hadits terbesar dan terlengkap dalam sejarah Islam, dihimpun berdasar nama-nama sahabat Rasulullah SAW.',
                 'featured_range' => [1, 100]
-            ],
-            'muwatho_malik' => [
-                'slug' => 'muwatho_malik',
-                'name' => 'Muwatha\' Malik',
-                'arab' => 'موطأ مالك',
-                'author' => 'Imam Malik bin Anas (93 - 179 H)',
-                'table' => 'hadits_muwatho_malik',
-                'total' => 1594,
-                'category' => 'Tisah',
-                'category_label' => 'Kutubut Tis\'ah & Fikih',
-                'color' => 'violet',
-                'description' => 'Karya tertua perpaduan hadits dan atsar sahabat serta amalan penduduk Madinah Munawwarah oleh pendiri Mazhab Maliki.',
-                'featured_range' => [1, 50]
-            ],
-            'musnad_darimi' => [
-                'slug' => 'musnad_darimi',
-                'name' => 'Musnad Ad-Darimi',
-                'arab' => 'مسند الدارمي',
-                'author' => 'Imam Ad-Darimi (181 - 255 H)',
-                'table' => 'hadits_musnad_darimi',
-                'total' => 3367,
-                'category' => 'Tisah',
-                'category_label' => 'Kutubut Tis\'ah',
-                'color' => 'sky',
-                'description' => 'Memuat muqaddimah bernilai tinggi mengenai keutamaan ilmu, sunnah, serta adab periwayatan hadits.',
-                'featured_range' => [1, 50]
-            ],
-            'musnad_syafii' => [
-                'slug' => 'musnad_syafii',
-                'name' => 'Musnad Asy-Syafi\'i',
-                'arab' => 'مسند الشافعي',
-                'author' => 'Imam Muhammad bin Idris Asy-Syafi\'i (150 - 204 H)',
-                'table' => 'hadits_musnad_syafii',
-                'total' => 1800,
-                'category' => 'Musnad',
-                'category_label' => 'Musnad Ulama Mazhab',
-                'color' => 'rose',
-                'description' => 'Himpunan riwayat hadits yang menjadi dalil istinbath hukum fiqih sang peletak dasar Ushul Fikih Mazhab Syafi\'i.',
-                'featured_range' => [1, 50]
-            ],
-            'riyadhus_shalihin' => [
-                'slug' => 'riyadhus_shalihin',
-                'name' => 'Riyadhus Shalihin',
-                'arab' => 'رياض الصالحين',
-                'author' => 'Imam An-Nawawi (631 - 676 H)',
-                'table' => 'hadits_riyadhus_shalihin',
-                'total' => 372,
-                'category' => 'Kompilasi',
-                'category_label' => 'Adab & Tazkiyatun Nafs',
-                'color' => 'green',
-                'description' => 'Taman orang-orang saleh; memuat 372 bab panduan akhlak, adab, zuhud, dan amalan harian seorang muslim.',
-                'featured_range' => [1, 30]
             ]
         ];
     }
@@ -170,32 +118,29 @@ class HaditsController extends Controller
         $aliases = [
             'bukhari' => 'shahih_bukhari',
             'shahih_bukhari' => 'shahih_bukhari',
+            'shahih_al_bukhari' => 'shahih_bukhari',
+            'al_bukhari' => 'shahih_bukhari',
             'muslim' => 'shahih_muslim',
             'shahih_muslim' => 'shahih_muslim',
             'abu_daud' => 'sunan_abu_daud',
             'abudaud' => 'sunan_abu_daud',
             'sunan_abu_daud' => 'sunan_abu_daud',
+            'sunan_abu_dawud' => 'sunan_abu_daud',
+            'abu_dawud' => 'sunan_abu_daud',
             'tirmidzi' => 'sunan_tirmidzi',
             'at_tirmidzi' => 'sunan_tirmidzi',
             'sunan_tirmidzi' => 'sunan_tirmidzi',
+            'jami_at_tirmidzi' => 'sunan_tirmidzi',
+            'jami_tirmidzi' => 'sunan_tirmidzi',
             'nasai' => 'sunan_nasai',
             'an_nasai' => 'sunan_nasai',
             'sunan_nasai' => 'sunan_nasai',
+            'sunan_an_nasai' => 'sunan_nasai',
             'ibnu_majah' => 'sunan_ibnu_majah',
             'ibnumajah' => 'sunan_ibnu_majah',
             'sunan_ibnu_majah' => 'sunan_ibnu_majah',
             'ahmad' => 'musnad_ahmad',
             'musnad_ahmad' => 'musnad_ahmad',
-            'malik' => 'muwatho_malik',
-            'muwatha' => 'muwatho_malik',
-            'muwatho_malik' => 'muwatho_malik',
-            'darimi' => 'musnad_darimi',
-            'musnad_darimi' => 'musnad_darimi',
-            'syafii' => 'musnad_syafii',
-            'asy_syafii' => 'musnad_syafii',
-            'musnad_syafii' => 'musnad_syafii',
-            'riyadhus_shalihin' => 'riyadhus_shalihin',
-            'riyadhus' => 'riyadhus_shalihin',
         ];
 
         return $aliases[$normalized] ?? (isset(self::getKitabCatalog()[$normalized]) ? $normalized : null);
@@ -222,6 +167,22 @@ class HaditsController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Gagal memuat katalog hadits: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * API: Get dropdown options matching only existing database tables
+     */
+    public function dropdown()
+    {
+        try {
+            $data = $this->haditsCache->getDropdownOptions();
+            return response()->json($data);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal memuat daftar dropdown kitab hadits: ' . $e->getMessage()
             ], 500);
         }
     }

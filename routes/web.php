@@ -108,6 +108,7 @@ Route::post('/api/asmaul-husna/clear-cache', [AsmaulHusnaController::class, 'cle
 // API routes for Hadits (to be consumed by React, with HTTP cache)
 Route::middleware(['api.cache:30d'])->group(function () {
     Route::get('/api/hadits', [HaditsController::class, 'index'])->name('hadits.api');
+    Route::get('/api/hadits/dropdown', [HaditsController::class, 'dropdown'])->name('hadits.dropdown');
 });
 
 Route::middleware(['api.cache:7d'])->group(function () {

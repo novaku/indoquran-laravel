@@ -39,16 +39,23 @@ class UserHaditsBookmark extends Model
         $kitabInfo = $catalog[$this->kitab_slug] ?? null;
 
         $arab = '';
-        $terjemah = '';
+        $indonesia = '';
+        $penjelasan = null;
+        $kategori = '';
 
-        if ($kitabInfo && isset($kitabInfo['table'])) {
-            $hadits = DB::table($kitabInfo['table'])
-                ->where('id', $this->hadits_number)
-                ->first();
+        if ($kitabInfo && isset($kitabInfo['table']) && \Illuminate\Support\Facades\Schema::hasTable($kitabInfo['table'])) {
+            $table = $kitabInfo['table'];
+            $hadits = DB::table($table)->where('no', $this->hadits_number)->first();
+
+            if (!$hadits) {
+                $hadits = DB::table($table)->where('id', $this->hadits_number)->first();
+            }
 
             if ($hadits) {
                 $arab = $hadits->arab ?? '';
-                $terjemah = $hadits->terjemah ?? '';
+                $indonesia = $hadits->indonesia ?? '';
+                $penjelasan = $hadits->penjelasan ?? null;
+                $kategori = $hadits->kategori ?? '';
             }
         }
 
@@ -59,8 +66,10 @@ class UserHaditsBookmark extends Model
             'kitab_name' => $kitabInfo['name'] ?? $this->kitab_slug,
             'kitab_arab' => $kitabInfo['arab'] ?? '',
             'number' => (int) $this->hadits_number,
+            'kategori' => $kategori,
             'arab' => $arab,
-            'terjemah' => $terjemah,
+            'indonesia' => $indonesia,
+            'penjelasan' => $penjelasan,
             'is_favorite' => (bool) $this->is_favorite,
             'notes' => $this->notes ?? '',
             'created_at' => $this->created_at ? $this->created_at->toISOString() : null,

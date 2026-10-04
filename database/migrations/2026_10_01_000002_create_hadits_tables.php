@@ -7,22 +7,18 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Daftar 11 tabel kitab hadits lengkap (Kutubus Sittah, Kutubut Tis'ah & Fikih/Adab)
+     * Daftar 7 tabel kitab hadits lengkap (Kutubus Sittah & Musnad Ahmad)
      *
      * @var array<string>
      */
     protected array $tables = [
-        'hadits_shahih_bukhari',
+        'hadits_shahih_al_bukhari',
         'hadits_shahih_muslim',
-        'hadits_sunan_abu_daud',
-        'hadits_sunan_tirmidzi',
-        'hadits_sunan_nasai',
+        'hadits_sunan_abu_dawud',
+        'hadits_jami_at_tirmidzi',
+        'hadits_sunan_an_nasai',
         'hadits_sunan_ibnu_majah',
         'hadits_musnad_ahmad',
-        'hadits_muwatho_malik',
-        'hadits_musnad_darimi',
-        'hadits_musnad_syafii',
-        'hadits_riyadhus_shalihin',
     ];
 
     /**
@@ -34,9 +30,12 @@ return new class extends Migration
             if (!Schema::hasTable($tableName)) {
                 Schema::create($tableName, function (Blueprint $table) {
                     $table->id();
-                    $table->string('kitab', 200);
+                    $table->unsignedInteger('no')->index();
+                    $table->string('kitab', 255)->default('');
+                    $table->string('kategori', 255)->nullable();
                     $table->longText('arab');
-                    $table->longText('terjemah');
+                    $table->longText('indonesia');
+                    $table->longText('penjelasan')->nullable();
                 });
             }
         }

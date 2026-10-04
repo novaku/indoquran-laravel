@@ -16,12 +16,15 @@ class UserHaditsBookmarkTest extends TestCase
     {
         $user = User::factory()->create();
 
-        // Insert mock hadith row in hadits_shahih_bukhari
-        DB::table('hadits_shahih_bukhari')->insert([
+        // Insert mock hadith row in hadits_shahih_al_bukhari
+        DB::table('hadits_shahih_al_bukhari')->insert([
             'id' => 1,
-            'kitab' => 'Shahih Bukhari',
+            'no' => 1,
+            'kitab' => 'Shahih Al-Bukhari',
+            'kategori' => 'Kitab Permulaan Wahyu',
             'arab' => 'إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ',
-            'terjemah' => 'Sesungguhnya amal perbuatan itu tergantung niatnya',
+            'indonesia' => 'Sesungguhnya amal perbuatan itu tergantung niatnya',
+            'penjelasan' => '<p>Penjelasan niat</p>',
         ]);
 
         $bookmark = UserHaditsBookmark::create([
@@ -40,7 +43,7 @@ class UserHaditsBookmarkTest extends TestCase
         $this->assertEquals('Shahih Bukhari', $enriched['kitab_name']);
         $this->assertEquals(1, $enriched['number']);
         $this->assertStringContainsString('الأَعْمَالُ', $enriched['arab']);
-        $this->assertStringContainsString('niatnya', $enriched['terjemah']);
+        $this->assertStringContainsString('niatnya', $enriched['indonesia']);
         $this->assertTrue($enriched['is_favorite']);
         $this->assertEquals('Hadits tentang niat', $enriched['notes']);
         $this->assertNotNull($enriched['created_at']);
@@ -61,7 +64,7 @@ class UserHaditsBookmarkTest extends TestCase
 
         $this->assertEquals('hadits_kitab_tidak_ada_999', $enriched['id']);
         $this->assertEquals('', $enriched['arab']);
-        $this->assertEquals('', $enriched['terjemah']);
+        $this->assertEquals('', $enriched['indonesia']);
         $this->assertFalse($enriched['is_favorite']);
     }
 

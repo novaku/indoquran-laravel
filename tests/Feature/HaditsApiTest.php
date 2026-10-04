@@ -15,18 +15,24 @@ class HaditsApiTest extends TestCase
         parent::setUp();
 
         // Seed sample hadiths in SQLite test database
-        DB::table('hadits_shahih_bukhari')->insert([
+        DB::table('hadits_shahih_al_bukhari')->insert([
             [
                 'id' => 1,
-                'kitab' => 'Shahih Bukhari',
+                'no' => 1,
+                'kitab' => 'Shahih Al-Bukhari',
+                'kategori' => 'Kitab Permulaan Wahyu',
                 'arab' => 'إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ',
-                'terjemah' => 'Sesungguhnya amal perbuatan itu tergantung niatnya.',
+                'indonesia' => 'Sesungguhnya amal perbuatan itu tergantung niatnya.',
+                'penjelasan' => '<p>Penjelasan hadits niat dan keikhlasan dalam beramal.</p>',
             ],
             [
                 'id' => 2,
-                'kitab' => 'Shahih Bukhari',
+                'no' => 2,
+                'kitab' => 'Shahih Al-Bukhari',
+                'kategori' => 'Kitab Iman',
                 'arab' => 'بُنِيَ الإِسْلاَمُ عَلَى خَمْسٍ',
-                'terjemah' => 'Islam dibangun di atas lima perkara.',
+                'indonesia' => 'Islam dibangun di atas lima perkara.',
+                'penjelasan' => '<p>Penjelasan lima rukun Islam.</p>',
             ],
         ]);
     }
@@ -44,7 +50,32 @@ class HaditsApiTest extends TestCase
                 'kitabs',
             ]);
 
-        $this->assertEquals(11, $response->json('total_kitab'));
+        $this->assertEquals(7, $response->json('total_kitab'));
+        $this->assertNotEmpty($response->json('kitabs'));
+    }
+
+    public function test_get_hadits_dropdown_returns_valid_options(): void
+    {
+        $response = $this->getJson('/api/hadits/dropdown');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('status', 'success')
+            ->assertJsonStructure([
+                'status',
+                'total_kitab',
+                'total_hadits',
+                'all_option' => [
+                    'slug',
+                    'name',
+                    'badge',
+                    'description',
+                ],
+                'kitabs',
+            ]);
+
+        $this->assertEquals(7, $response->json('total_kitab'));
+        $this->assertEquals('Seluruh Hadits', $response->json('all_option.name'));
+        $this->assertEquals('7 Kitab', $response->json('all_option.badge'));
         $this->assertNotEmpty($response->json('kitabs'));
     }
 
@@ -81,7 +112,8 @@ class HaditsApiTest extends TestCase
             ->assertJsonPath('kitab.slug', 'shahih_bukhari');
 
         $this->assertStringContainsString('الأَعْمَالُ', $response->json('hadits.arab'));
-        $this->assertStringContainsString('niatnya', $response->json('hadits.terjemah'));
+        $this->assertStringContainsString('niatnya', $response->json('hadits.indonesia'));
+        $this->assertStringContainsString('keikhlasan', $response->json('hadits.penjelasan'));
     }
 
     public function test_get_hadits_detail_not_found(): void
@@ -118,6 +150,21 @@ class HaditsApiTest extends TestCase
         $results = $response->json('data');
         $this->assertNotEmpty($results);
         $this->assertEquals(1, $results[0]['id']);
+    }
+
+    public function test_search_hadits_targets_indonesia_field(): void
+    {
+        $response = $this->getJson('/api/hadits/search?q=amal&kitab=shahih_bukhari&page=1&per_page=15');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('status', 'success')
+            ->assertJsonPath('kitab_filter', 'shahih_bukhari');
+
+        $data = $response->json('data');
+        $this->assertNotEmpty($data);
+        foreach ($data as $item) {
+            $this->assertStringContainsStringIgnoringCase('amal', $item['indonesia']);
+        }
     }
 
     public function test_clear_cache_hadits(): void

@@ -401,3 +401,63 @@ html, body {
 .animate-slide-up {
     animation: slideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* ==========================================================================
+   7. Hadits Penjelasan (Explanation & Sharh) Content Styling
+   ========================================================================== */
+.hadits-penjelasan-content h2 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #065f46; /* emerald-800 */
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid #d1fae5; /* emerald-100 */
+    display: flex;
+    align-items: center;
+}
+
+.hadits-penjelasan-content h2:first-child {
+    margin-top: 0;
+}
+
+.hadits-penjelasan-content p {
+    font-size: 0.875rem;
+    line-height: 1.7;
+    color: #374151; /* gray-700 */
+    margin-bottom: 0.75rem;
+}
+
+.hadits-penjelasan-content ol,
+.hadits-penjelasan-content ul {
+    font-size: 0.875rem;
+    line-height: 1.7;
+    color: #374151;
+    margin-bottom: 0.85rem;
+}
+
+.hadits-penjelasan-content ol {
+    list-style-type: decimal !important;
+    padding-left: 1.5rem !important;
+}
+
+.hadits-penjelasan-content ul {
+    list-style-type: disc !important;
+    padding-left: 1.5rem !important;
+}
+
+.hadits-penjelasan-content li {
+    margin-bottom: 0.45rem;
+    padding-left: 0.25rem;
+}
+
+.hadits-penjelasan-content strong {
+    font-weight: 600;
+    color: #111827;
+}
+
+.hadits-penjelasan-content em {
+    font-style: italic;
+    color: #047857;
+}
+

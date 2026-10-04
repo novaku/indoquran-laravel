@@ -78,7 +78,7 @@ function Sidebar({ isOpen, setIsOpen }) {
         { name: 'Penanda & Favorit', path: '/penanda', icon: BookmarkIcon, description: 'Ayat & Hadits yang telah Anda tandai' },
         { name: 'Asmaul Husna', path: '/asmaul-husna', icon: StarIcon, description: '99 nama indah Allah SWT' },
         { name: 'Tafsir Maudhui', path: '/tafsir-maudhui', icon: AcademicCapIcon, description: 'Topik-topik tematik dalam Al-Quran' },
-        { name: 'Koleksi Hadits', path: '/hadits', icon: BookOpenIcon, description: '11 Kitab hadits mu\'tamad & terjemahan' },
+        { name: 'Koleksi Hadits', path: '/hadits', icon: BookOpenIcon, description: '7 Kitab hadits mu\'tamad & terjemahan' },
         { name: 'Artikel', path: '/artikel', icon: DocumentTextIcon, description: 'Artikel islami dan kajian Al-Quran' },
     ];
 

@@ -166,7 +166,7 @@ function QuranHomePage() {
                             number: data.featured.number || 1,
                             theme: data.featured.kitab_name ? `Rujukan ${data.featured.kitab_name} #${data.featured.number}` : 'Hadits Pilihan Hari Ini',
                             arab: data.featured.arab,
-                            terjemahan: data.featured.id || data.featured.terjemahan || ''
+                            terjemahan: data.featured.indonesia || data.featured.id || ''
                         });
                     }
                 }
@@ -241,7 +241,7 @@ function QuranHomePage() {
         {
             to: '/hadits',
             title: 'Koleksi Hadits',
-            subtitle: '11 Kitab hadits mu\'tamad & audio Arab',
+            subtitle: '7 Kitab hadits mu\'tamad & audio Arab',
             badgeText: 'FITUR BARU',
             isNew: true,
             icon: BookOpenIcon,
@@ -599,7 +599,7 @@ function QuranHomePage() {
                                     <SparklesIcon className="w-3 h-3 text-emerald-950" />
                                     BARU
                                 </span>
-                                <span>Koleksi 11 Kitab Hadits Nabawi & Audio Arab</span>
+                                <span>Koleksi 7 Kitab Hadits Nabawi & Audio Arab</span>
                                 <ChevronRightIcon className="w-3.5 h-3.5 text-emerald-200 group-hover:translate-x-0.5 transition-transform" />
                             </Link>
                         </div>
@@ -691,7 +691,7 @@ function QuranHomePage() {
                                 <button
                                     type="button"
                                     onClick={() => navigate('/hadits')}
-                                    title="Fitur Baru: 11 Kitab Hadits Nabawi Lengkap"
+                                    title="Fitur Baru: 7 Kitab Hadits Nabawi Lengkap"
                                     className="px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-300 text-emerald-800 hover:bg-emerald-100 hover:border-emerald-400 transition-colors shadow-2xs font-bold cursor-pointer inline-flex items-center gap-1"
                                 >
                                     <SparklesIcon className="w-3 h-3 text-amber-500" />
@@ -964,7 +964,7 @@ function QuranHomePage() {
                                                 ✓
                                             </div>
                                             <div>
-                                                <strong className="text-gray-900 font-semibold">11 Kitab Mu'tamad:</strong> Shahih Bukhari, Muslim, Sunan Abu Daud, Tirmidzi, Nasai, Ibnu Majah, dll.
+                                                <strong className="text-gray-900 font-semibold">7 Kitab Mu'tamad:</strong> Shahih Bukhari, Muslim, Sunan Abu Daud, Tirmidzi, Nasai, Ibnu Majah, Musnad Ahmad.
                                             </div>
                                         </div>
                                         <div className="flex items-start gap-2">
@@ -972,7 +972,7 @@ function QuranHomePage() {
                                                 ✓
                                             </div>
                                             <div>
-                                                <strong className="text-gray-900 font-semibold">64.341 Hadits Terverifikasi:</strong> Nomor hadits terstandar, bab pembahasan, serta terjemahan bahasa Indonesia lengkap.
+                                                <strong className="text-gray-900 font-semibold">31.363 Hadits Terverifikasi:</strong> Nomor hadits terstandar, bab pembahasan, serta penjelasan dan terjemahan bahasa Indonesia lengkap.
                                             </div>
                                         </div>
                                         <div className="flex items-start gap-2">
@@ -996,7 +996,7 @@ function QuranHomePage() {
                                             rightIcon={<ArrowRightIcon className="w-4 h-4" />}
                                             className="w-full justify-center bg-teal-700 hover:bg-teal-800 shadow-xs font-bold"
                                         >
-                                            Jelajahi 11 Kitab Hadits
+                                            Jelajahi 7 Kitab Hadits
                                         </Button>
                                     </Link>
 
@@ -1018,11 +1018,11 @@ function QuranHomePage() {
                                                 Muslim
                                             </Link>
                                             <Link
-                                                to="/hadits/riyadhus_shalihin"
+                                                to="/hadits/sunan_abu_daud"
                                                 data-google-vignette="false"
                                                 className="px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-teal-800 hover:border-teal-400 hover:bg-teal-50 font-medium transition-colors"
                                             >
-                                                Riyadhus Shalihin
+                                                Abu Daud
                                             </Link>
                                         </div>
                                     </div>
@@ -1111,7 +1111,7 @@ function QuranHomePage() {
                         {/* Target Khatam & Tilawah Progress Bar */}
                         <KhatamTrackerCard />
 
-                        {/* FITUR BARU HIGHLIGHT: Koleksi 11 Kitab Hadits Nabawi */}
+                        {/* FITUR BARU HIGHLIGHT: Koleksi 7 Kitab Hadits Nabawi */}
                         <div className="relative overflow-hidden bg-gradient-to-br from-emerald-900 via-teal-900 to-slate-900 text-white rounded-3xl p-6 sm:p-7 shadow-lg border border-emerald-700/60">
                             {/* Ambient Glow & Watermark Calligraphy */}
                             <div className="absolute top-0 right-0 -mr-16 -mt-16 w-72 h-72 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
@@ -1129,10 +1129,10 @@ function QuranHomePage() {
                                             FITUR BARU
                                         </span>
                                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-800/80 border border-emerald-500/40 text-emerald-200 text-xs font-semibold">
-                                            11 Kitab Hadits Mu'tamad
+                                            7 Kitab Hadits Mu'tamad
                                         </span>
                                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-teal-800/70 border border-teal-500/30 text-teal-200 text-xs font-medium">
-                                            64.341 Hadits
+                                            31.363 Hadits
                                         </span>
                                     </div>
 
@@ -1154,7 +1154,7 @@ function QuranHomePage() {
                                         </div>
                                         <div>
                                             <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-                                                Koleksi 11 Kitab Hadits Nabawi & Audio Arab
+                                                Koleksi 7 Kitab Hadits Nabawi & Audio Arab
                                             </h2>
                                             <p className="text-xs text-emerald-300 font-medium">
                                                 Rujukan shahih & mu'tamad: Shahih Bukhari, Muslim, Sunan Abu Daud, Tirmidzi, dll.
@@ -1162,7 +1162,7 @@ function QuranHomePage() {
                                         </div>
                                     </div>
                                     <p className="text-emerald-100/90 text-xs sm:text-sm leading-relaxed max-w-3xl">
-                                        Kini hadir fitur terlengkap untuk mempelajari sunnah dan sabda Rasulullah ﷺ. Jelajahi lebih dari 64.000 hadits dengan terjemahan bahasa Indonesia, navigasi cepat per nomor, serta pelafalan audio teks Arab seketika langsung di browser Anda.
+                                        Kini hadir fitur terlengkap untuk mempelajari sunnah dan sabda Rasulullah ﷺ. Jelajahi 31.363 hadits dari 7 kitab mu'tamad dengan penjelasan dan terjemahan bahasa Indonesia, navigasi cepat per nomor, serta pelafalan audio teks Arab seketika langsung di browser Anda.
                                     </p>
                                 </div>
 
@@ -1173,8 +1173,8 @@ function QuranHomePage() {
                                             📚
                                         </div>
                                         <div>
-                                            <div className="font-bold text-emerald-100">64.341 Hadits</div>
-                                            <div className="text-[11px] text-emerald-200/70 mt-0.5">Kutubus Sittah, Musnad Ulama Mazhab & Riyadhus Shalihin</div>
+                                            <div className="font-bold text-emerald-100">31.363 Hadits</div>
+                                            <div className="text-[11px] text-emerald-200/70 mt-0.5">7 Kitab Hadits Rujukan Utama (Kutubus Sittah & Musnad Ahmad)</div>
                                         </div>
                                     </div>
 
@@ -1296,12 +1296,13 @@ function QuranHomePage() {
                                     </span>
                                     <div className="flex flex-wrap gap-2">
                                         {[
-                                            { slug: 'shahih_bukhari', name: 'Shahih Bukhari', count: '7.008 Hadits' },
-                                            { slug: 'shahih_muslim', name: 'Shahih Muslim', count: '5.362 Hadits' },
-                                            { slug: 'riyadhus_shalihin', name: 'Riyadhus Shalihin', count: '372 Bab' },
-                                            { slug: 'sunan_abu_daud', name: 'Sunan Abu Daud', count: '4.590 Hadits' },
-                                            { slug: 'sunan_tirmidzi', name: 'Sunan At-Tirmidzi', count: '3.891 Hadits' },
-                                            { slug: 'sunan_nasai', name: 'Sunan An-Nasa\'i', count: '5.662 Hadits' }
+                                            { slug: 'shahih_bukhari', name: 'Shahih Bukhari', count: '7.563 Hadits' },
+                                            { slug: 'shahih_muslim', name: 'Shahih Muslim', count: '3.033 Hadits' },
+                                            { slug: 'sunan_abu_daud', name: 'Sunan Abu Daud', count: '5.274 Hadits' },
+                                            { slug: 'sunan_tirmidzi', name: 'Sunan At-Tirmidzi', count: '3.956 Hadits' },
+                                            { slug: 'sunan_nasai', name: 'Sunan An-Nasa\'i', count: '5.758 Hadits' },
+                                            { slug: 'sunan_ibnu_majah', name: 'Sunan Ibnu Majah', count: '4.341 Hadits' },
+                                            { slug: 'musnad_ahmad', name: 'Musnad Ahmad', count: '1.438 Hadits' }
                                         ].map((book) => (
                                             <Link
                                                 key={book.slug}
@@ -1327,7 +1328,7 @@ function QuranHomePage() {
                                             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-emerald-950 font-bold text-xs sm:text-sm shadow-md transition-all hover:scale-[1.02]"
                                         >
                                             <BookOpenIcon className="w-4 h-4 text-emerald-950" />
-                                            <span>Jelajahi 11 Kitab Hadits</span>
+                                            <span>Jelajahi 7 Kitab Hadits</span>
                                             <ArrowRightIcon className="w-4 h-4" />
                                         </Link>
                                         <Link

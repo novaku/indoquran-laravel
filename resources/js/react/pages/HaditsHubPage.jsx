@@ -77,28 +77,42 @@ export default function HaditsHubPage() {
     const [searchGroups, setSearchGroups] = useState([]);
     const [allBooksGroups, setAllBooksGroups] = useState([]);
 
+    // Scope dropdown data from dedicated API (/api/hadits/dropdown)
+    const [dropdownData, setDropdownData] = useState(null);
     const [isKitabDropdownOpen, setIsKitabDropdownOpen] = useState(false);
     const kitabDropdownRef = useRef(null);
 
     // Local Bookmarks & Favorites tracking
     const [localBookmarks, setLocalBookmarks] = useState(getLocalHaditsBookmarks());
 
+    // Show/hide explanation state for search results (default is hidden)
+    const [expandedPenjelasan, setExpandedPenjelasan] = useState({});
+
+    const togglePenjelasan = (itemKey) => {
+        setExpandedPenjelasan(prev => ({
+            ...prev,
+            [itemKey]: !prev[itemKey]
+        }));
+    };
+
     const speech = useArabicSpeech();
+
+    const dropdownKitabs = dropdownData?.kitabs || kitabs;
 
     const selectedKitabInfo = useMemo(() => {
         if (searchKitab === 'all') {
             return {
                 icon: '📚',
-                name: 'Seluruh Hadits',
-                badge: '11 Kitab'
+                name: dropdownData?.all_option?.name || 'Seluruh Hadits',
+                badge: dropdownData?.all_option?.badge || `${dropdownKitabs.length || 7} Kitab`
             };
         }
-        const found = kitabs.find(k => k.slug === searchKitab);
+        const found = dropdownKitabs.find(k => k.slug === searchKitab);
         if (found) {
             return {
                 icon: '📖',
                 name: found.name,
-                badge: found.total.toLocaleString('id-ID')
+                badge: found.total_formatted || found.total?.toLocaleString('id-ID')
             };
         }
         return {
@@ -106,7 +120,7 @@ export default function HaditsHubPage() {
             name: 'Pilih Kitab',
             badge: ''
         };
-    }, [searchKitab, kitabs]);
+    }, [searchKitab, dropdownKitabs, dropdownData]);
 
     // Click outside to close custom kitab dropdown
     useEffect(() => {
@@ -178,15 +192,32 @@ export default function HaditsHubPage() {
         };
     }, []);
 
+    // Fetch dropdown data from new dedicated API matching database tables exactly
+    useEffect(() => {
+        let isMounted = true;
+        fetch('/api/hadits/dropdown')
+            .then(res => res.json())
+            .then(data => {
+                if (isMounted && data.status === 'success') {
+                    setDropdownData(data);
+                }
+            })
+            .catch(err => {
+                console.warn('Failed to load hadits dropdown data:', err);
+            });
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
     // Filter categories for the catalog grid
     const categories = [
         { id: 'all', name: 'Semua Kitab', count: kitabs.length },
         { id: 'Shahihain', name: 'Shahihain', count: kitabs.filter(k => k.category === 'Shahihain').length },
         { id: 'Sunan', name: 'Kutubus Sittah (Sunan)', count: kitabs.filter(k => k.category === 'Sunan').length },
-        { id: 'Musnad', name: 'Musnad', count: kitabs.filter(k => k.category === 'Musnad').length },
-        { id: 'Tisah', name: 'Kutubut Tis\'ah & Fikih', count: kitabs.filter(k => k.category === 'Tisah').length },
-        { id: 'Kompilasi', name: 'Riyadhus Shalihin', count: kitabs.filter(k => k.category === 'Kompilasi').length },
-    ];
+        { id: 'Musnad', name: 'Musnad Ahmad', count: kitabs.filter(k => k.category === 'Musnad').length },
+    ].filter(cat => cat.count > 0 || cat.id === 'all');
 
     // Filtered kitabs by category (or catalog search)
     const filteredKitabs = useMemo(() => {
@@ -502,7 +533,9 @@ export default function HaditsHubPage() {
             kitab_arab: item.kitab_arab || '',
             number: item.id,
             arab: item.arab,
-            terjemah: item.terjemah
+            indonesia: item.indonesia,
+            penjelasan: item.penjelasan,
+            kategori: item.kategori
         });
         setLocalBookmarks(getLocalHaditsBookmarks());
         if (res.is_bookmarked) {
@@ -518,7 +551,9 @@ export default function HaditsHubPage() {
             kitab_name: item.kitab_name,
             kitab_arab: item.kitab_arab || '',
             arab: item.arab,
-            terjemah: item.terjemah
+            indonesia: item.indonesia,
+            penjelasan: item.penjelasan,
+            kategori: item.kategori
         });
         setLocalBookmarks(getLocalHaditsBookmarks());
         if (res.is_favorite) {
@@ -530,7 +565,7 @@ export default function HaditsHubPage() {
 
     // Copy Hadith
     const handleCopyHadits = (item) => {
-        const cleanTerjemah = stripHtml(item.terjemah);
+        const cleanTerjemah = stripHtml(item.indonesia || item.terjemah);
         const textToCopy = `"${cleanTerjemah}"\n\n[${item.arab}]\n\n— ${item.kitab_name} No. ${item.id} (IndoQuran: https://indoquran.web.id/hadits/${item.kitab_slug}/${item.id})`;
         navigator.clipboard.writeText(textToCopy).then(() => {
             toast.success('Hadits berhasil disalin!');
@@ -541,7 +576,7 @@ export default function HaditsHubPage() {
 
     // Share Hadith directly to WhatsApp only
     const handleShareHadits = (item) => {
-        const cleanTerjemah = stripHtml(item.terjemah);
+        const cleanTerjemah = stripHtml(item.indonesia || item.terjemah);
         const shareText = `*Hadits ${item.kitab_name} No. ${item.id}*\n\n"${cleanTerjemah}"\n\n[${item.arab || ''}]\n\nBaca hadits selengkapnya di IndoQuran:\nhttps://indoquran.web.id/hadits/${item.kitab_slug}/${item.id}`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
         window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
@@ -565,7 +600,7 @@ export default function HaditsHubPage() {
     // Copy Featured Hadith
     const handleCopyFeatured = () => {
         if (!featured) return;
-        const cleanTerjemah = stripHtml(featured.terjemah);
+        const cleanTerjemah = stripHtml(featured.indonesia || featured.terjemah || '');
         const textToCopy = `"${cleanTerjemah}"\n\n[${featured.arab}]\n\n— ${featured.kitab_name} No. ${featured.id} (IndoQuran: https://indoquran.web.id/hadits/${featured.kitab}/${featured.id})`;
         navigator.clipboard.writeText(textToCopy).then(() => {
             toast.success('Hadits berhasil disalin!');
@@ -577,7 +612,7 @@ export default function HaditsHubPage() {
     // Share Featured Hadith directly to WhatsApp only
     const handleShareFeatured = () => {
         if (!featured) return;
-        const cleanTerjemah = stripHtml(featured.terjemah);
+        const cleanTerjemah = stripHtml(featured.indonesia || featured.terjemah || '');
         const shareText = `*Hadits ${featured.kitab_name} No. ${featured.id}*\n\n"${cleanTerjemah}"\n\n[${featured.arab || ''}]\n\nBaca hadits selengkapnya di IndoQuran:\nhttps://indoquran.web.id/hadits/${featured.kitab}/${featured.id}`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
         window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
@@ -585,21 +620,21 @@ export default function HaditsHubPage() {
 
     // Get active scope label
     const activeScopeLabel = useMemo(() => {
-        if (lastExecutedKitab === 'all') return 'Seluruh 11 Kitab Hadits';
-        const found = kitabs.find(k => k.slug === lastExecutedKitab);
+        if (lastExecutedKitab === 'all') return `Seluruh ${dropdownData?.total_kitab || kitabs.length || 7} Kitab Hadits`;
+        const found = (dropdownData?.kitabs || kitabs).find(k => k.slug === lastExecutedKitab);
         return found ? found.name : lastExecutedKitab;
-    }, [lastExecutedKitab, kitabs]);
+    }, [lastExecutedKitab, kitabs, dropdownData]);
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             <SEOHead
                 title={isSearching && lastExecutedQuery
                     ? `Pencarian Hadits "${lastExecutedQuery}" (${activeScopeLabel}) | IndoQuran`
-                    : "Pencarian & Koleksi 11 Kitab Hadits Lengkap (Kutubut Tis'ah & Terjemahan) | IndoQuran"}
+                    : "Pencarian & Koleksi 7 Kitab Hadits Lengkap (Kutubus Sittah & Musnad Ahmad) | IndoQuran"}
                 description={isSearching && lastExecutedQuery
                     ? `Hasil pencarian hadits "${lastExecutedQuery}" pada ${activeScopeLabel}. Menemukan ${searchPagination?.total ? searchPagination.total.toLocaleString('id-ID') : 0} hadits otentik lengkap teks Arab dan terjemahan Indonesia.`
                     : "Cari teks hadits bahasa Indonesia di seluruh kumpulan hadits atau salah satu kitab hadits: Shahih Bukhari, Muslim, Abu Daud, Tirmidzi, dll. Lengkap dengan teks Arab, terjemahan Indonesia & audio."}
-                keywords={`cari hadits ${lastExecutedQuery || ''}, pencarian hadits, hadits shahih, kutubut tisah, kutubus sittah, shahih bukhari, shahih muslim, sunan abu daud, hadits terjemahan indonesia`}
+                keywords={`cari hadits ${lastExecutedQuery || ''}, pencarian hadits, hadits shahih, kutubus sittah, musnad ahmad, shahih bukhari, shahih muslim, sunan abu daud, hadits terjemahan indonesia`}
                 canonicalUrl="https://indoquran.web.id/hadits"
                 noindex={Boolean(isSearching && lastExecutedQuery)}
                 robots={isSearching && lastExecutedQuery ? 'noindex, follow' : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'}
@@ -610,7 +645,7 @@ export default function HaditsHubPage() {
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 text-center">
                     <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200 mb-3.5">
                         <SparklesIcon className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>Pencarian Cepat • 64.000+ Hadits Otentik • 11 Kitab Mu'tamad</span>
+                        <span>Pencarian Cepat • 31.000+ Hadits Otentik • 7 Kitab Mu'tamad</span>
                     </div>
 
                     <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900 mb-2.5">
@@ -694,8 +729,12 @@ export default function HaditsHubPage() {
                                                 <div className="flex items-center space-x-2.5">
                                                     <span className="text-base">📚</span>
                                                     <div>
-                                                        <div className="font-semibold text-gray-900 text-sm">Seluruh Hadits</div>
-                                                        <div className="text-xs text-gray-500 font-normal">11 Kitab Mu'tamad (64.300+ hadits)</div>
+                                                        <div className="font-semibold text-gray-900 text-sm">
+                                                            {dropdownData?.all_option?.name || 'Seluruh Hadits'}
+                                                        </div>
+                                                        <div className="text-xs text-gray-500 font-normal">
+                                                            {dropdownData?.all_option?.description || `${dropdownKitabs.length || 7} Kitab Hadits (${(dropdownData?.total_hadits || 31363).toLocaleString('id-ID')} hadits)`}
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 {searchKitab === 'all' && (
@@ -705,7 +744,7 @@ export default function HaditsHubPage() {
 
                                             {/* Kitab Options List */}
                                             <div className="py-1">
-                                                {kitabs.map((k) => {
+                                                {dropdownKitabs.map((k) => {
                                                     const isSelected = searchKitab === k.slug;
                                                     return (
                                                         <button
@@ -727,7 +766,9 @@ export default function HaditsHubPage() {
                                                                 <span className="text-base flex-shrink-0">📖</span>
                                                                 <div className="truncate">
                                                                     <div className="font-semibold text-gray-900 text-sm truncate">{k.name}</div>
-                                                                    <div className="text-xs text-gray-500 font-normal">{k.total.toLocaleString('id-ID')} Hadits</div>
+                                                                    <div className="text-xs text-gray-500 font-normal">
+                                                                        {k.total_formatted || `${k.total?.toLocaleString('id-ID')} Hadits`}
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                             <div className="flex items-center space-x-2 flex-shrink-0">
@@ -833,11 +874,15 @@ export default function HaditsHubPage() {
                     {/* Quick Stats Badges */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-4xl mx-auto mt-6 text-center">
                         <div className="bg-gray-50/80 rounded-xl p-3 border border-gray-200/80 shadow-2xs">
-                            <div className="text-xl sm:text-2xl font-bold text-gray-900">11</div>
+                            <div className="text-xl sm:text-2xl font-bold text-gray-900">
+                                {dropdownData?.total_kitab || kitabs.length || 7}
+                            </div>
                             <div className="text-xs text-gray-500 font-medium mt-0.5">Kitab Hadits</div>
                         </div>
                         <div className="bg-gray-50/80 rounded-xl p-3 border border-gray-200/80 shadow-2xs">
-                            <div className="text-xl sm:text-2xl font-bold text-gray-900">64.300+</div>
+                            <div className="text-xl sm:text-2xl font-bold text-gray-900">
+                                {(dropdownData?.total_hadits || 31363).toLocaleString('id-ID')}
+                            </div>
                             <div className="text-xs text-gray-500 font-medium mt-0.5">Total Hadits</div>
                         </div>
                         <div className="bg-gray-50/80 rounded-xl p-3 border border-gray-200/80 shadow-2xs">
@@ -949,7 +994,7 @@ export default function HaditsHubPage() {
                                                 }}
                                                 className="self-start sm:self-auto inline-flex items-center px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-100 hover:bg-emerald-200 text-emerald-900 transition-colors shadow-2xs cursor-pointer"
                                             >
-                                                <span>Tampilkan Seluruh 11 Kitab</span>
+                                                <span>Tampilkan Seluruh {dropdownData?.total_kitab || kitabs.length || 7} Kitab</span>
                                                 <ArrowRightIcon className="w-3.5 h-3.5 ml-1.5" />
                                             </button>
                                         )}
@@ -977,7 +1022,7 @@ export default function HaditsHubPage() {
                                                         Semua
                                                     </span>
                                                     <span className={`text-xs ${lastExecutedKitab === 'all' ? 'text-emerald-100' : 'text-gray-400'}`}>
-                                                        11 Kitab
+                                                        {kitabs.length || 7} Kitab
                                                     </span>
                                                 </div>
                                                 <div className={`text-xs sm:text-sm font-bold ${lastExecutedKitab === 'all' ? 'text-white' : 'text-gray-900'}`}>
@@ -1244,9 +1289,44 @@ export default function HaditsHubPage() {
                                                         Artinya:
                                                     </span>
                                                     <div className="bg-gray-50/50 p-3 sm:p-4 rounded-xl border border-gray-100">
-                                                        {renderTranslation(item.terjemah, lastExecutedQuery)}
+                                                        {renderTranslation(item.indonesia || item.terjemah, lastExecutedQuery)}
                                                     </div>
                                                 </div>
+
+                                                {/* Hadith Explanation / Penjelasan (Show / Hide, default hidden - only shown if penjelasan is not empty) */}
+                                                {Boolean(item.penjelasan && stripHtml(item.penjelasan).trim().length > 0) && (
+                                                    <div className="mt-3 mb-4 pt-3 border-t border-gray-100">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => togglePenjelasan(`${item.kitab_slug}_${item.id}`)}
+                                                            className="inline-flex items-center space-x-2 text-xs font-semibold px-3 py-1.5 rounded-lg text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 transition-all cursor-pointer"
+                                                            aria-expanded={Boolean(expandedPenjelasan[`${item.kitab_slug}_${item.id}`])}
+                                                        >
+                                                            <BookOpenIcon className="w-4 h-4 text-emerald-600" />
+                                                            <span>
+                                                                {expandedPenjelasan[`${item.kitab_slug}_${item.id}`] ? 'Sembunyikan Penjelasan' : 'Lihat Penjelasan / Syarah Hadits'}
+                                                            </span>
+                                                            <ChevronDownIcon
+                                                                className={`w-3.5 h-3.5 text-emerald-600 transition-transform duration-200 ${
+                                                                    expandedPenjelasan[`${item.kitab_slug}_${item.id}`] ? 'rotate-180' : ''
+                                                                }`}
+                                                            />
+                                                        </button>
+
+                                                        {expandedPenjelasan[`${item.kitab_slug}_${item.id}`] && (
+                                                            <div className="mt-3 p-4 sm:p-5 rounded-xl bg-emerald-50/20 border border-emerald-100/80 text-gray-800 text-sm leading-relaxed shadow-2xs transition-all">
+                                                                <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-emerald-800 mb-3 pb-2 border-b border-emerald-100">
+                                                                    <SparklesIcon className="w-4 h-4 text-emerald-600" />
+                                                                    <span>Penjelasan &amp; Pelajaran Hadits</span>
+                                                                </div>
+                                                                <div
+                                                                    className="hadits-penjelasan-content text-gray-700 leading-relaxed"
+                                                                    dangerouslySetInnerHTML={{ __html: item.penjelasan }}
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
 
                                                 {/* Card Footer Link */}
                                                 <div className="pt-3 border-t border-gray-100 flex items-center justify-between text-xs">
@@ -1391,7 +1471,7 @@ export default function HaditsHubPage() {
 
                             {/* Translation */}
                             <div className="mb-6 font-normal">
-                                {renderTranslation(featured.terjemah)}
+                                {renderTranslation(featured.indonesia || featured.terjemah)}
                             </div>
 
                             {/* Source Info & Direct Action */}
@@ -1412,15 +1492,15 @@ export default function HaditsHubPage() {
                     </div>
                 )}
 
-                {/* Catalogue of 11 Kitabs - Hanya ditampilkan jika tidak sedang melihat hasil pencarian */}
+                {/* Catalogue of 7 Kitabs - Hanya ditampilkan jika tidak sedang melihat hasil pencarian */}
                 {!isSearching && (
                     <>
-                        {/* Section Header: 11 Kitab Hadits */}
+                        {/* Section Header: 7 Kitab Hadits */}
                         <div className="flex flex-wrap items-center justify-between gap-3 mb-6 pt-4">
                             <div>
                                 <h2 className="text-xl font-bold text-gray-900 flex items-center">
                                     <BookOpenIcon className="w-6 h-6 text-emerald-600 mr-2" />
-                                    Katalog 11 Kitab Hadits Lengkap
+                                    Katalog {kitabs.length || 7} Kitab Hadits Lengkap
                                 </h2>
                                 <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
                                     Pilih kitab untuk membaca berurutan dari nomor awal atau lompat langsung ke nomor hadits
@@ -1632,7 +1712,7 @@ export default function HaditsHubPage() {
 
                             {/* Informative text */}
                             <p className="text-xs sm:text-sm text-gray-600 leading-relaxed mb-5">
-                                Anda memilih <strong>Seluruh Hadits (11 Kitab)</strong> yang mencakup lebih dari <strong>64.300+ hadits</strong>. Memilih salah satu kitab hadits rujukan akan memberikan hasil yang <strong>jauh lebih cepat, spesifik, dan terfokus</strong>.
+                                Anda memilih <strong>Seluruh Hadits ({dropdownData?.total_kitab || kitabs.length || 7} Kitab)</strong> yang mencakup <strong>{(dropdownData?.total_hadits || 31363).toLocaleString('id-ID')} hadits</strong>. Memilih salah satu kitab hadits rujukan akan memberikan hasil yang <strong>jauh lebih cepat, spesifik, dan terfokus</strong>.
                             </p>
 
                             {/* Option 1: Choose specific book (Recommended) */}
@@ -1656,9 +1736,9 @@ export default function HaditsHubPage() {
                                         onChange={(e) => setModalSelectedKitab(e.target.value)}
                                         className="flex-1 h-10 pl-3 pr-8 text-sm font-medium bg-white text-gray-800 rounded-xl border border-emerald-300 shadow-2xs focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
                                     >
-                                        {kitabs.map((k) => (
+                                        {(dropdownData?.kitabs || kitabs).map((k) => (
                                             <option key={k.slug} value={k.slug}>
-                                                📖 {k.name} ({k.total.toLocaleString('id-ID')})
+                                                📖 {k.name} ({k.total_formatted || `${k.total?.toLocaleString('id-ID') || 0} Hadits`})
                                             </option>
                                         ))}
                                     </select>
@@ -1673,25 +1753,25 @@ export default function HaditsHubPage() {
                                 </div>
                             </div>
 
-                            {/* Option 2: Search All 11 Books */}
+                            {/* Option 2: Search All Books */}
                             <div className="mb-4 p-3.5 rounded-2xl border border-gray-200/90 bg-gray-50/70 hover:bg-gray-50 transition-colors">
                                 <div className="flex items-center justify-between mb-1">
                                     <span className="text-xs font-semibold text-gray-800 flex items-center">
                                         <ClockIcon className="w-4 h-4 mr-1 text-gray-500 flex-shrink-0" />
-                                        Tetap Cari di Seluruh 11 Kitab
+                                        Tetap Cari di Seluruh {dropdownData?.total_kitab || kitabs.length || 7} Kitab
                                     </span>
                                     <span className="text-[10px] font-medium text-gray-500 bg-gray-200/80 px-2 py-0.5 rounded-full">
                                         🌐 Komprehensif
                                     </span>
                                 </div>
                                 <p className="text-xs text-gray-500 mb-2.5">
-                                    Menelusuri seluruh 11 kitab hadits (membutuhkan waktu proses sedikit lebih lama).
+                                    Menelusuri seluruh {dropdownData?.total_kitab || kitabs.length || 7} kitab hadits (membutuhkan waktu proses sedikit lebih lama).
                                 </p>
                                 <button
                                     onClick={handleConfirmAllKitabs}
                                     className="w-full py-2 px-3 text-xs font-medium text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 rounded-xl transition-colors shadow-2xs cursor-pointer"
                                 >
-                                    Lanjutkan Cari di Seluruh 11 Kitab
+                                    Lanjutkan Cari di Seluruh {dropdownData?.total_kitab || kitabs.length || 7} Kitab
                                 </button>
                             </div>
 

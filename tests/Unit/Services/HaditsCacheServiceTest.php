@@ -45,14 +45,14 @@ class HaditsCacheServiceTest extends TestCase
         $this->assertEquals('hadits:random:', $this->service->getPrefix('random'));
     }
 
-    public function test_get_catalog_returns_11_kitabs_and_is_cached(): void
+    public function test_get_catalog_returns_7_kitabs_and_is_cached(): void
     {
         $catalog = $this->service->getCatalog();
 
         $this->assertEquals('success', $catalog['status']);
-        $this->assertEquals(11, $catalog['total_kitab']);
-        $this->assertEquals(64341, $catalog['total_hadits']);
-        $this->assertCount(11, $catalog['kitabs']);
+        $this->assertEquals(7, $catalog['total_kitab']);
+        $this->assertEquals(31363, $catalog['total_hadits']);
+        $this->assertCount(7, $catalog['kitabs']);
 
         // Verify cache hit
         $cacheKey = $this->service->getPrefix('catalog') . 'summary';
@@ -63,6 +63,17 @@ class HaditsCacheServiceTest extends TestCase
         $this->assertEquals($catalog, $cachedCatalog);
     }
 
+    public function test_get_dropdown_options_returns_only_existing_tables(): void
+    {
+        $dropdown = $this->service->getDropdownOptions();
+
+        $this->assertEquals('success', $dropdown['status']);
+        $this->assertEquals(7, $dropdown['total_kitab']);
+        $this->assertCount(7, $dropdown['kitabs']);
+        $this->assertEquals('Seluruh Hadits', $dropdown['all_option']['name']);
+        $this->assertEquals('7 Kitab', $dropdown['all_option']['badge']);
+    }
+
     public function test_get_kitab_hadits_returns_null_for_invalid_kitab(): void
     {
         $result = $this->service->getKitabHadits('kitab_palsu', 1, 10);
@@ -71,9 +82,9 @@ class HaditsCacheServiceTest extends TestCase
 
     public function test_get_kitab_hadits_with_valid_table(): void
     {
-        DB::table('hadits_shahih_bukhari')->insert([
-            ['id' => 1, 'kitab' => 'Shahih Bukhari', 'arab' => 'إنما الأعمال بالنيات', 'terjemah' => 'Sesungguhnya amal itu tergantung niatnya.'],
-            ['id' => 2, 'kitab' => 'Shahih Bukhari', 'arab' => 'بني الإسلام على خمس', 'terjemah' => 'Islam dibangun di atas lima perkara.'],
+        DB::table('hadits_shahih_al_bukhari')->insert([
+            ['id' => 1, 'no' => 1, 'kitab' => 'Shahih Al-Bukhari', 'kategori' => 'Kitab Niat', 'arab' => 'إنما الأعمال بالنيات', 'indonesia' => 'Sesungguhnya amal itu tergantung niatnya.', 'penjelasan' => '<p>Penjelasan niat</p>'],
+            ['id' => 2, 'no' => 2, 'kitab' => 'Shahih Al-Bukhari', 'kategori' => 'Kitab Iman', 'arab' => 'بني الإسلام على خمس', 'indonesia' => 'Islam dibangun di atas lima perkara.', 'penjelasan' => null],
         ]);
 
         $result = $this->service->getKitabHadits('shahih_bukhari', 1, 2);
@@ -83,7 +94,9 @@ class HaditsCacheServiceTest extends TestCase
         $this->assertEquals('Shahih Bukhari', $result['kitab']['name']);
         $this->assertCount(2, $result['data']);
         $this->assertEquals(1, $result['data'][0]->id);
+        $this->assertEquals(1, $result['data'][0]->no);
         $this->assertEquals('إنما الأعمال بالنيات', $result['data'][0]->arab);
+        $this->assertEquals('<p>Penjelasan niat</p>', $result['data'][0]->penjelasan);
     }
 
     public function test_get_hadits_detail_returns_null_for_invalid_kitab_or_missing_row(): void
@@ -94,11 +107,14 @@ class HaditsCacheServiceTest extends TestCase
 
     public function test_get_hadits_detail_returns_correct_hadith_when_found(): void
     {
-        DB::table('hadits_shahih_bukhari')->insertOrIgnore([
+        DB::table('hadits_shahih_al_bukhari')->insertOrIgnore([
             'id' => 10,
-            'kitab' => 'Shahih Bukhari',
+            'no' => 10,
+            'kitab' => 'Shahih Al-Bukhari',
+            'kategori' => 'Kitab Iman',
             'arab' => 'المسلم من سلم المسلمون من لسانه ويده',
-            'terjemah' => 'Muslim sejati adalah orang yang muslim lainnya selamat dari lidah dan tangannya.'
+            'indonesia' => 'Muslim sejati adalah orang yang muslim lainnya selamat dari lidah dan tangannya.',
+            'penjelasan' => '<p>Penjelasan muslim sejati</p>'
         ]);
 
         $result = $this->service->getHaditsDetail('shahih_bukhari', 10);
@@ -106,15 +122,17 @@ class HaditsCacheServiceTest extends TestCase
         $this->assertNotNull($result);
         $this->assertEquals('success', $result['status']);
         $this->assertEquals(10, $result['hadits']->id);
+        $this->assertEquals(10, $result['hadits']->no);
         $this->assertEquals('Shahih Bukhari', $result['kitab']['name']);
-        $this->assertStringContainsString('Muslim sejati', $result['hadits']->terjemah);
+        $this->assertStringContainsString('Muslim sejati', $result['hadits']->indonesia);
+        $this->assertEquals('<p>Penjelasan muslim sejati</p>', $result['hadits']->penjelasan);
     }
 
     public function test_search_hadits_returns_results_for_single_kitab(): void
     {
-        DB::table('hadits_shahih_bukhari')->insert([
-            ['id' => 100, 'kitab' => 'Shahih Bukhari', 'arab' => 'طلب العلم فريضة', 'terjemah' => 'Menuntut ilmu adalah kewajiban.'],
-            ['id' => 101, 'kitab' => 'Shahih Bukhari', 'arab' => 'الصلاة عماد الدين', 'terjemah' => 'Shalat adalah tiang agama.'],
+        DB::table('hadits_shahih_al_bukhari')->insert([
+            ['id' => 100, 'no' => 100, 'kitab' => 'Shahih Al-Bukhari', 'kategori' => 'Kitab Ilmu', 'arab' => 'طلب العلم فريضة', 'indonesia' => 'Menuntut ilmu adalah kewajiban.', 'penjelasan' => null],
+            ['id' => 101, 'no' => 101, 'kitab' => 'Shahih Al-Bukhari', 'kategori' => 'Kitab Shalat', 'arab' => 'الصلاة عماد الدين', 'indonesia' => 'Shalat adalah tiang agama.', 'penjelasan' => null],
         ]);
 
         $result = $this->service->searchHadits('menuntut ilmu', 'shahih_bukhari', 1, 10);
@@ -127,11 +145,14 @@ class HaditsCacheServiceTest extends TestCase
 
     public function test_get_featured_hadits_and_random_hadits(): void
     {
-        DB::table('hadits_shahih_bukhari')->insertOrIgnore([
+        DB::table('hadits_shahih_al_bukhari')->insertOrIgnore([
             'id' => 1,
-            'kitab' => 'Shahih Bukhari',
+            'no' => 1,
+            'kitab' => 'Shahih Al-Bukhari',
+            'kategori' => 'Kitab Niat',
             'arab' => 'إنما الأعمال بالنيات',
-            'terjemah' => 'Semua amal tergantung niat.'
+            'indonesia' => 'Semua amal tergantung niat.',
+            'penjelasan' => '<p>Penjelasan featured</p>'
         ]);
 
         $featured = $this->service->getFeaturedHadits();
@@ -141,7 +162,7 @@ class HaditsCacheServiceTest extends TestCase
             $this->assertArrayHasKey('kitab', $featured);
             $this->assertArrayHasKey('theme', $featured);
             $this->assertArrayHasKey('arab', $featured);
-            $this->assertArrayHasKey('terjemah', $featured);
+            $this->assertArrayHasKey('indonesia', $featured);
         } else {
             $this->assertNull($featured);
         }

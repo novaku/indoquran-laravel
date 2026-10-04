@@ -84,6 +84,43 @@ function UserBookmarksPage() {
     const [haditsTempNotes, setHaditsTempNotes] = useState({});
     const haditsSpeech = useArabicSpeech();
 
+    // Helper to check if explanation text has meaningful content
+    const hasPenjelasanContent = (text) => {
+        if (!text || typeof text !== 'string') return false;
+        return text.replace(/<[^>]*>/g, '').trim().length > 0;
+    };
+
+    // Show/hide explanation for hadits bookmarks (default is hidden)
+    const [expandedHaditsPenjelasan, setExpandedHaditsPenjelasan] = useState({});
+    const [fetchedPenjelasan, setFetchedPenjelasan] = useState({});
+    const [loadingPenjelasan, setLoadingPenjelasan] = useState({});
+
+    const toggleHaditsPenjelasan = async (itemKey, item) => {
+        const nextState = !expandedHaditsPenjelasan[itemKey];
+        setExpandedHaditsPenjelasan(prev => ({
+            ...prev,
+            [itemKey]: nextState
+        }));
+
+        // If opening and item doesn't have penjelasan in memory/local storage, fetch it on-demand
+        if (nextState && !item.penjelasan && !fetchedPenjelasan[itemKey] && !loadingPenjelasan[itemKey]) {
+            setLoadingPenjelasan(prev => ({ ...prev, [itemKey]: true }));
+            try {
+                const res = await fetch(`/api/hadits/${item.kitab_slug}/${item.number}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data?.data?.penjelasan) {
+                        setFetchedPenjelasan(prev => ({ ...prev, [itemKey]: data.data.penjelasan }));
+                    }
+                }
+            } catch (err) {
+                console.warn('Failed to fetch hadits penjelasan:', err);
+            } finally {
+                setLoadingPenjelasan(prev => ({ ...prev, [itemKey]: false }));
+            }
+        }
+    };
+
     const loadHaditsBookmarks = async () => {
         const cached = getLocalHaditsBookmarks();
         if (cached && cached.length > 0) {
@@ -500,7 +537,7 @@ function UserBookmarksPage() {
                 const q = haditsSearchTerm.toLowerCase();
                 const matchNumber = String(item.number).includes(q);
                 const matchKitab = (item.kitab_name || '').toLowerCase().includes(q);
-                const matchTerjemah = (item.terjemah || '').toLowerCase().includes(q);
+                const matchTerjemah = (item.indonesia || item.terjemah || '').toLowerCase().includes(q);
                 const matchArab = (item.arab || '').includes(q);
                 const matchNotes = (item.notes || '').toLowerCase().includes(q);
                 if (!matchNumber && !matchKitab && !matchTerjemah && !matchArab && !matchNotes) {
@@ -597,7 +634,8 @@ function UserBookmarksPage() {
     };
 
     const handleCopyHadits = (item) => {
-        const text = `"${item.terjemah}"\n\n${item.arab}\n\n— Hadits ${item.kitab_name} No. ${item.number} (IndoQuran: https://indoquran.web.id/hadits/${item.kitab_slug}/${item.number})`;
+        const indo = item.indonesia || item.terjemah || '';
+        const text = `"${indo}"\n\n${item.arab}\n\n— Hadits ${item.kitab_name} No. ${item.number} (IndoQuran: https://indoquran.web.id/hadits/${item.kitab_slug}/${item.number})`;
         navigator.clipboard.writeText(text).then(() => {
             toast.success(`Hadits No. ${item.number} berhasil disalin!`);
         }).catch(() => {
@@ -607,7 +645,8 @@ function UserBookmarksPage() {
 
     // Share Hadith directly to WhatsApp only
     const handleShareHadits = (item) => {
-        const cleanTerjemah = item.terjemah ? item.terjemah.replace(/<[^>]+>/g, '').trim() : '';
+        const indo = item.indonesia || item.terjemah || '';
+        const cleanTerjemah = indo ? indo.replace(/<[^>]+>/g, '').trim() : '';
         const shareText = `*Hadits ${item.kitab_name} No. ${item.number}*\n\n"${cleanTerjemah}"\n\n[${item.arab || ''}]\n\nBaca selengkapnya di IndoQuran:\nhttps://indoquran.web.id/hadits/${item.kitab_slug}/${item.number}`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
         window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
@@ -1269,14 +1308,51 @@ function UserBookmarksPage() {
                                                                     )}
 
                                                                     {/* Indonesian Translation */}
-                                                                    {item.terjemah && (
+                                                                    {(item.indonesia || item.terjemah) && (
                                                                         <div className="mb-4">
                                                                             <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 mb-1.5">
                                                                                 Terjemahan Bahasa Indonesia:
                                                                             </div>
                                                                             <p className="text-gray-700 text-sm sm:text-base leading-relaxed select-text">
-                                                                                {item.terjemah}
+                                                                                {item.indonesia || item.terjemah}
                                                                             </p>
+                                                                        </div>
+                                                                    )}
+
+                                                                    {/* Hadith Explanation / Penjelasan (Show / Hide, default hidden - only shown if penjelasan is not empty) */}
+                                                                    {hasPenjelasanContent(item.penjelasan || fetchedPenjelasan[itemKey]) && (
+                                                                        <div className="mb-4 pt-3 border-t border-gray-100">
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => toggleHaditsPenjelasan(itemKey, item)}
+                                                                                className="inline-flex items-center space-x-2 text-xs font-semibold px-3 py-1.5 rounded-lg text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 transition-all cursor-pointer"
+                                                                                aria-expanded={Boolean(expandedHaditsPenjelasan[itemKey])}
+                                                                            >
+                                                                                <IoBookOutline className="w-4 h-4 text-emerald-600" />
+                                                                                <span>
+                                                                                    {expandedHaditsPenjelasan[itemKey]
+                                                                                        ? 'Sembunyikan Penjelasan'
+                                                                                        : 'Lihat Penjelasan / Syarah Hadits'}
+                                                                                </span>
+                                                                                {expandedHaditsPenjelasan[itemKey] ? (
+                                                                                    <IoChevronUp className="w-3.5 h-3.5 text-emerald-600" />
+                                                                                ) : (
+                                                                                    <IoChevronDown className="w-3.5 h-3.5 text-emerald-600" />
+                                                                                )}
+                                                                            </button>
+
+                                                                            {expandedHaditsPenjelasan[itemKey] && (
+                                                                                <div className="mt-3 p-4 sm:p-5 rounded-xl bg-emerald-50/20 border border-emerald-100/80 text-gray-800 text-sm leading-relaxed shadow-2xs transition-all">
+                                                                                    <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-emerald-800 mb-3 pb-2 border-b border-emerald-100">
+                                                                                        <IoSparkles className="w-4 h-4 text-emerald-600" />
+                                                                                        <span>Penjelasan &amp; Pelajaran Hadits</span>
+                                                                                    </div>
+                                                                                    <div
+                                                                                        className="hadits-penjelasan-content text-gray-700 leading-relaxed text-xs sm:text-sm"
+                                                                                        dangerouslySetInnerHTML={{ __html: item.penjelasan || fetchedPenjelasan[itemKey] }}
+                                                                                    />
+                                                                                </div>
+                                                                            )}
                                                                         </div>
                                                                     )}
 

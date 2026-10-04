@@ -81,6 +81,16 @@ export default function HaditsReaderPage() {
     const [favoriteIds, setFavoriteIds] = useState(new Set());
     const [totalFavoritesCount, setTotalFavoritesCount] = useState(0);
 
+    // Show/hide explanation state (default is hidden)
+    const [expandedPenjelasan, setExpandedPenjelasan] = useState({});
+
+    const togglePenjelasan = (haditsId) => {
+        setExpandedPenjelasan(prev => ({
+            ...prev,
+            [haditsId]: !prev[haditsId]
+        }));
+    };
+
     const refreshBookmarks = async () => {
         const bookmarks = getLocalHaditsBookmarks();
         const ids = new Set(
@@ -138,7 +148,9 @@ export default function HaditsReaderPage() {
             kitab_arab: kitabInfo?.arab,
             number: item.id,
             arab: item.arab,
-            terjemah: item.terjemah
+            indonesia: item.indonesia,
+            penjelasan: item.penjelasan,
+            kategori: item.kategori
         });
 
         if (res.is_bookmarked) {
@@ -159,7 +171,9 @@ export default function HaditsReaderPage() {
             kitab_name: kitabInfo?.name,
             kitab_arab: kitabInfo?.arab,
             arab: item.arab,
-            terjemah: item.terjemah
+            indonesia: item.indonesia,
+            penjelasan: item.penjelasan,
+            kategori: item.kategori
         });
 
         if (res.is_favorite) {
@@ -175,9 +189,9 @@ export default function HaditsReaderPage() {
         refreshBookmarks();
     };
 
-    // Load list of all kitabs for switcher dropdown
+    // Load list of all kitabs for switcher dropdown matching database tables
     useEffect(() => {
-        fetch('/api/hadits')
+        fetch('/api/hadits/dropdown')
             .then(res => res.json())
             .then(data => {
                 if (data.status === 'success') {
@@ -317,7 +331,7 @@ export default function HaditsReaderPage() {
 
     // Copy Hadith Text
     const handleCopy = (haditsItem) => {
-        const textToCopy = `"${stripHtml(haditsItem.terjemah)}"\n\n${haditsItem.arab}\n\n— ${kitabInfo?.name || 'Hadits'} No. ${haditsItem.id} (IndoQuran: https://indoquran.web.id/hadits/${kitabSlug}/${haditsItem.id})`;
+        const textToCopy = `"${stripHtml(haditsItem.indonesia)}"\n\n${haditsItem.arab}\n\n— ${kitabInfo?.name || 'Hadits'} No. ${haditsItem.id} (IndoQuran: https://indoquran.web.id/hadits/${kitabSlug}/${haditsItem.id})`;
         navigator.clipboard.writeText(textToCopy).then(() => {
             toast.success(`Hadits No. ${haditsItem.id} berhasil disalin!`);
         }).catch(() => {
@@ -327,7 +341,7 @@ export default function HaditsReaderPage() {
 
     // Share Hadith directly to WhatsApp only
     const handleShare = (haditsItem) => {
-        const cleanTerjemah = stripHtml(haditsItem.terjemah);
+        const cleanTerjemah = stripHtml(haditsItem.indonesia);
         const shareText = `*Hadits ${kitabInfo?.name} No. ${haditsItem.id}*\n\n"${cleanTerjemah}"\n\n[${haditsItem.arab || ''}]\n\nBaca selengkapnya di IndoQuran:\nhttps://indoquran.web.id/hadits/${kitabSlug}/${haditsItem.id}`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
         window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
@@ -449,7 +463,7 @@ export default function HaditsReaderPage() {
                                                 >
                                                     <div>
                                                         <div className="font-medium">{k.name}</div>
-                                                        <div className="text-[10px] text-gray-400">{k.total.toLocaleString('id-ID')} Hadits</div>
+                                                        <div className="text-[10px] text-gray-400">{k.total_formatted || `${k.total?.toLocaleString('id-ID')} Hadits`}</div>
                                                     </div>
                                                     <span className="font-arabic text-sm text-emerald-800/80">{k.arab}</span>
                                                 </button>
@@ -692,6 +706,11 @@ export default function HaditsReaderPage() {
                                         <span className="text-xs font-semibold text-gray-700">
                                             {kitabInfo?.name}
                                         </span>
+                                        {item.kategori && (
+                                            <span className="hidden sm:inline-flex text-[11px] font-medium text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                                                {item.kategori}
+                                            </span>
+                                        )}
                                     </div>
 
                                     {/* Action Buttons */}
@@ -815,8 +834,43 @@ export default function HaditsReaderPage() {
                                         <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 mb-2">
                                             Terjemahan Bahasa Indonesia:
                                         </div>
-                                        {formatTranslation(item.terjemah)}
+                                        {formatTranslation(item.indonesia)}
                                     </div>
+
+                                    {/* Hadith Explanation / Penjelasan (Show / Hide, default hidden - only shown if penjelasan is not empty) */}
+                                    {Boolean(item.penjelasan && stripHtml(item.penjelasan).trim().length > 0) && (
+                                        <div className="mt-4 pt-3 border-t border-gray-100">
+                                            <button
+                                                type="button"
+                                                onClick={() => togglePenjelasan(item.id)}
+                                                className="inline-flex items-center space-x-2 text-xs font-semibold px-3 py-1.5 rounded-lg text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 transition-all cursor-pointer"
+                                                aria-expanded={Boolean(expandedPenjelasan[item.id])}
+                                            >
+                                                <BookOpenIcon className="w-4 h-4 text-emerald-600" />
+                                                <span>
+                                                    {expandedPenjelasan[item.id] ? 'Sembunyikan Penjelasan' : 'Lihat Penjelasan / Syarah Hadits'}
+                                                </span>
+                                                <ChevronDownIcon
+                                                    className={`w-3.5 h-3.5 text-emerald-600 transition-transform duration-200 ${
+                                                        expandedPenjelasan[item.id] ? 'rotate-180' : ''
+                                                    }`}
+                                                />
+                                            </button>
+
+                                            {expandedPenjelasan[item.id] && (
+                                                <div className="mt-3 p-4 sm:p-5 rounded-xl bg-emerald-50/20 border border-emerald-100/80 text-gray-800 text-sm leading-relaxed shadow-2xs transition-all">
+                                                    <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-emerald-800 mb-3 pb-2 border-b border-emerald-100">
+                                                        <SparklesIcon className="w-4 h-4 text-emerald-600" />
+                                                        <span>Penjelasan &amp; Pelajaran Hadits</span>
+                                                    </div>
+                                                    <div
+                                                        className="hadits-penjelasan-content text-gray-700 leading-relaxed"
+                                                        dangerouslySetInnerHTML={{ __html: item.penjelasan }}
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Footer link on list mode */}

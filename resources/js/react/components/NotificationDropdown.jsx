@@ -34,9 +34,9 @@ const DEFAULT_NOTIFICATIONS = [
         is_featured: true
     },
     {
-        id: 'notif-hadits-11-kitab',
-        title: 'Fitur Baru: Koleksi 11 Kitab Hadits Nabawi',
-        message: 'Telah hadir lebih dari 64.000 hadits dari 11 kitab mu\'tamad (Shahih Bukhari, Muslim, Abu Daud, Tirmidzi, dll.) lengkap dengan teks Arab & terjemahan.',
+        id: 'notif-hadits-7-kitab',
+        title: 'Fitur Baru: Koleksi 7 Kitab Hadits Nabawi',
+        message: 'Telah hadir lebih dari 31.000 hadits dari 7 kitab mu\'tamad (Shahih Bukhari, Muslim, Abu Daud, Tirmidzi, An-Nasa\'i, Ibnu Majah, Musnad Ahmad) lengkap dengan teks Arab & penjelasan.',
         link: '/hadits',
         time_ago: 'Baru saja',
         timestamp: '2026-09-29T15:00:00Z',
@@ -116,7 +116,7 @@ const DEFAULT_NOTIFICATIONS = [
     {
         id: 'notif-version-2-30-0',
         title: 'Pembaruan IndoQuran Versi 2.30.0',
-        message: 'Koleksi 11 Kitab Hadits Nabawi (64rb+ hadits), audio Web Speech Arab instan, notifikasi website, dan pembaruan PWA v2.30.0.',
+        message: 'Koleksi 7 Kitab Hadits Nabawi (31rb+ hadits), audio Web Speech Arab instan, notifikasi website, dan pembaruan PWA v2.30.0.',
         link: '/riwayat-versi',
         time_ago: 'Baru saja',
         timestamp: '2026-09-29T15:30:00Z',

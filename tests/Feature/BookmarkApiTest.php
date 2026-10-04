@@ -51,11 +51,14 @@ class BookmarkApiTest extends TestCase
             'page' => 1,
         ]);
 
-        DB::table('hadits_shahih_bukhari')->insert([
+        DB::table('hadits_shahih_al_bukhari')->insert([
             'id' => 1,
-            'kitab' => 'Shahih Bukhari',
+            'no' => 1,
+            'kitab' => 'Shahih Al-Bukhari',
+            'kategori' => 'Kitab Permulaan Wahyu',
             'arab' => 'إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ',
-            'terjemah' => 'Niat',
+            'indonesia' => 'Niat',
+            'penjelasan' => '<p>Penjelasan niat</p>',
         ]);
     }
 
