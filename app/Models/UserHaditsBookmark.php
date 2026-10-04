@@ -31,7 +31,7 @@ class UserHaditsBookmark extends Model
     }
 
     /**
-     * Enrich bookmark with kitab metadata and hadith content (arab & terjemah)
+     * Enrich bookmark with kitab metadata and hadith content (arab & indonesia)
      */
     public function getEnrichedData(): array
     {

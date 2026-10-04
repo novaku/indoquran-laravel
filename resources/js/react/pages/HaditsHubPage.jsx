@@ -565,8 +565,8 @@ export default function HaditsHubPage() {
 
     // Copy Hadith
     const handleCopyHadits = (item) => {
-        const cleanTerjemah = stripHtml(item.indonesia || item.terjemah);
-        const textToCopy = `"${cleanTerjemah}"\n\n[${item.arab}]\n\n— ${item.kitab_name} No. ${item.id} (IndoQuran: https://indoquran.web.id/hadits/${item.kitab_slug}/${item.id})`;
+        const cleanIndonesia = stripHtml(item.indonesia || '');
+        const textToCopy = `"${cleanIndonesia}"\n\n[${item.arab}]\n\n— ${item.kitab_name} No. ${item.id} (IndoQuran: https://indoquran.web.id/hadits/${item.kitab_slug}/${item.id})`;
         navigator.clipboard.writeText(textToCopy).then(() => {
             toast.success('Hadits berhasil disalin!');
         }).catch(() => {
@@ -576,8 +576,8 @@ export default function HaditsHubPage() {
 
     // Share Hadith directly to WhatsApp only
     const handleShareHadits = (item) => {
-        const cleanTerjemah = stripHtml(item.indonesia || item.terjemah);
-        const shareText = `*Hadits ${item.kitab_name} No. ${item.id}*\n\n"${cleanTerjemah}"\n\n[${item.arab || ''}]\n\nBaca hadits selengkapnya di IndoQuran:\nhttps://indoquran.web.id/hadits/${item.kitab_slug}/${item.id}`;
+        const cleanIndonesia = stripHtml(item.indonesia || '');
+        const shareText = `*Hadits ${item.kitab_name} No. ${item.id}*\n\n"${cleanIndonesia}"\n\n[${item.arab || ''}]\n\nBaca hadits selengkapnya di IndoQuran:\nhttps://indoquran.web.id/hadits/${item.kitab_slug}/${item.id}`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
         window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
     };
@@ -600,8 +600,8 @@ export default function HaditsHubPage() {
     // Copy Featured Hadith
     const handleCopyFeatured = () => {
         if (!featured) return;
-        const cleanTerjemah = stripHtml(featured.indonesia || featured.terjemah || '');
-        const textToCopy = `"${cleanTerjemah}"\n\n[${featured.arab}]\n\n— ${featured.kitab_name} No. ${featured.id} (IndoQuran: https://indoquran.web.id/hadits/${featured.kitab}/${featured.id})`;
+        const cleanIndonesia = stripHtml(featured.indonesia || '');
+        const textToCopy = `"${cleanIndonesia}"\n\n[${featured.arab}]\n\n— ${featured.kitab_name} No. ${featured.id} (IndoQuran: https://indoquran.web.id/hadits/${featured.kitab}/${featured.id})`;
         navigator.clipboard.writeText(textToCopy).then(() => {
             toast.success('Hadits berhasil disalin!');
         }).catch(() => {
@@ -612,8 +612,8 @@ export default function HaditsHubPage() {
     // Share Featured Hadith directly to WhatsApp only
     const handleShareFeatured = () => {
         if (!featured) return;
-        const cleanTerjemah = stripHtml(featured.indonesia || featured.terjemah || '');
-        const shareText = `*Hadits ${featured.kitab_name} No. ${featured.id}*\n\n"${cleanTerjemah}"\n\n[${featured.arab || ''}]\n\nBaca hadits selengkapnya di IndoQuran:\nhttps://indoquran.web.id/hadits/${featured.kitab}/${featured.id}`;
+        const cleanIndonesia = stripHtml(featured.indonesia || '');
+        const shareText = `*Hadits ${featured.kitab_name} No. ${featured.id}*\n\n"${cleanIndonesia}"\n\n[${featured.arab || ''}]\n\nBaca hadits selengkapnya di IndoQuran:\nhttps://indoquran.web.id/hadits/${featured.kitab}/${featured.id}`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
         window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
     };
@@ -1289,7 +1289,7 @@ export default function HaditsHubPage() {
                                                         Artinya:
                                                     </span>
                                                     <div className="bg-gray-50/50 p-3 sm:p-4 rounded-xl border border-gray-100">
-                                                        {renderTranslation(item.indonesia || item.terjemah, lastExecutedQuery)}
+                                                        {renderTranslation(item.indonesia, lastExecutedQuery)}
                                                     </div>
                                                 </div>
 
@@ -1471,7 +1471,7 @@ export default function HaditsHubPage() {
 
                             {/* Translation */}
                             <div className="mb-6 font-normal">
-                                {renderTranslation(featured.indonesia || featured.terjemah)}
+                                {renderTranslation(featured.indonesia)}
                             </div>
 
                             {/* Source Info & Direct Action */}

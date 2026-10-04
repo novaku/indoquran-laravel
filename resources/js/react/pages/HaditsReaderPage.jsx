@@ -148,7 +148,7 @@ export default function HaditsReaderPage() {
             kitab_arab: kitabInfo?.arab,
             number: item.id,
             arab: item.arab,
-            indonesia: item.indonesia,
+            indonesia: item.indonesia || '',
             penjelasan: item.penjelasan,
             kategori: item.kategori
         });
@@ -171,7 +171,7 @@ export default function HaditsReaderPage() {
             kitab_name: kitabInfo?.name,
             kitab_arab: kitabInfo?.arab,
             arab: item.arab,
-            indonesia: item.indonesia,
+            indonesia: item.indonesia || '',
             penjelasan: item.penjelasan,
             kategori: item.kategori
         });
@@ -331,7 +331,7 @@ export default function HaditsReaderPage() {
 
     // Copy Hadith Text
     const handleCopy = (haditsItem) => {
-        const textToCopy = `"${stripHtml(haditsItem.indonesia)}"\n\n${haditsItem.arab}\n\n— ${kitabInfo?.name || 'Hadits'} No. ${haditsItem.id} (IndoQuran: https://indoquran.web.id/hadits/${kitabSlug}/${haditsItem.id})`;
+        const textToCopy = `"${stripHtml(haditsItem.indonesia || '')}"\n\n${haditsItem.arab}\n\n— ${kitabInfo?.name || 'Hadits'} No. ${haditsItem.id} (IndoQuran: https://indoquran.web.id/hadits/${kitabSlug}/${haditsItem.id})`;
         navigator.clipboard.writeText(textToCopy).then(() => {
             toast.success(`Hadits No. ${haditsItem.id} berhasil disalin!`);
         }).catch(() => {
@@ -341,8 +341,8 @@ export default function HaditsReaderPage() {
 
     // Share Hadith directly to WhatsApp only
     const handleShare = (haditsItem) => {
-        const cleanTerjemah = stripHtml(haditsItem.indonesia);
-        const shareText = `*Hadits ${kitabInfo?.name} No. ${haditsItem.id}*\n\n"${cleanTerjemah}"\n\n[${haditsItem.arab || ''}]\n\nBaca selengkapnya di IndoQuran:\nhttps://indoquran.web.id/hadits/${kitabSlug}/${haditsItem.id}`;
+        const cleanIndonesia = stripHtml(haditsItem.indonesia || '');
+        const shareText = `*Hadits ${kitabInfo?.name} No. ${haditsItem.id}*\n\n"${cleanIndonesia}"\n\n[${haditsItem.arab || ''}]\n\nBaca selengkapnya di IndoQuran:\nhttps://indoquran.web.id/hadits/${kitabSlug}/${haditsItem.id}`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
         window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
     };

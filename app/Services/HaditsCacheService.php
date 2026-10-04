@@ -631,11 +631,30 @@ class HaditsCacheService
             // If Redis store is used, flush pattern matching keys
             $store = Cache::getStore();
             if ($store instanceof RedisStore) {
-                $prefix = config('database.redis.options.prefix', '') . config('cache.prefix', '') . 'hadits:';
                 $redis = $store->connection();
-                $keys = $redis->keys($prefix . '*');
+                $cachePrefix = $store->getPrefix();
+
+                // Determine Redis connection prefix (configured in predis or phpredis)
+                $connPrefix = '';
+                if (method_exists($redis, 'getOptions') && $redis->getOptions()->prefix) {
+                    $connPrefix = (string) $redis->getOptions()->prefix->getPrefix();
+                } elseif (defined('\Redis::OPT_PREFIX') && method_exists($redis, 'getOption')) {
+                    $connPrefix = (string) ($redis->getOption(\Redis::OPT_PREFIX) ?: '');
+                }
+                if (empty($connPrefix)) {
+                    $connPrefix = (string) config('database.redis.options.prefix', '');
+                }
+
+                $keys = $redis->keys($cachePrefix . 'hadits:*');
                 if (!empty($keys)) {
-                    $redis->del($keys);
+                    $keysToDelete = array_map(function ($k) use ($connPrefix) {
+                        if ($connPrefix !== '' && str_starts_with($k, $connPrefix)) {
+                            return substr($k, strlen($connPrefix));
+                        }
+                        return $k;
+                    }, $keys);
+
+                    $redis->del($keysToDelete);
                 }
             } else {
                 Cache::flush();

@@ -537,10 +537,10 @@ function UserBookmarksPage() {
                 const q = haditsSearchTerm.toLowerCase();
                 const matchNumber = String(item.number).includes(q);
                 const matchKitab = (item.kitab_name || '').toLowerCase().includes(q);
-                const matchTerjemah = (item.indonesia || item.terjemah || '').toLowerCase().includes(q);
+                const matchIndonesia = (item.indonesia || '').toLowerCase().includes(q);
                 const matchArab = (item.arab || '').includes(q);
                 const matchNotes = (item.notes || '').toLowerCase().includes(q);
-                if (!matchNumber && !matchKitab && !matchTerjemah && !matchArab && !matchNotes) {
+                if (!matchNumber && !matchKitab && !matchIndonesia && !matchArab && !matchNotes) {
                     return false;
                 }
             }
@@ -634,7 +634,7 @@ function UserBookmarksPage() {
     };
 
     const handleCopyHadits = (item) => {
-        const indo = item.indonesia || item.terjemah || '';
+        const indo = item.indonesia || '';
         const text = `"${indo}"\n\n${item.arab}\n\n— Hadits ${item.kitab_name} No. ${item.number} (IndoQuran: https://indoquran.web.id/hadits/${item.kitab_slug}/${item.number})`;
         navigator.clipboard.writeText(text).then(() => {
             toast.success(`Hadits No. ${item.number} berhasil disalin!`);
@@ -645,9 +645,9 @@ function UserBookmarksPage() {
 
     // Share Hadith directly to WhatsApp only
     const handleShareHadits = (item) => {
-        const indo = item.indonesia || item.terjemah || '';
-        const cleanTerjemah = indo ? indo.replace(/<[^>]+>/g, '').trim() : '';
-        const shareText = `*Hadits ${item.kitab_name} No. ${item.number}*\n\n"${cleanTerjemah}"\n\n[${item.arab || ''}]\n\nBaca selengkapnya di IndoQuran:\nhttps://indoquran.web.id/hadits/${item.kitab_slug}/${item.number}`;
+        const indo = item.indonesia || '';
+        const cleanIndonesia = indo ? indo.replace(/<[^>]+>/g, '').trim() : '';
+        const shareText = `*Hadits ${item.kitab_name} No. ${item.number}*\n\n"${cleanIndonesia}"\n\n[${item.arab || ''}]\n\nBaca selengkapnya di IndoQuran:\nhttps://indoquran.web.id/hadits/${item.kitab_slug}/${item.number}`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
         window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
     };
@@ -1308,13 +1308,13 @@ function UserBookmarksPage() {
                                                                     )}
 
                                                                     {/* Indonesian Translation */}
-                                                                    {(item.indonesia || item.terjemah) && (
+                                                                    {Boolean(item.indonesia) && (
                                                                         <div className="mb-4">
                                                                             <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 mb-1.5">
                                                                                 Terjemahan Bahasa Indonesia:
                                                                             </div>
                                                                             <p className="text-gray-700 text-sm sm:text-base leading-relaxed select-text">
-                                                                                {item.indonesia || item.terjemah}
+                                                                                {item.indonesia}
                                                                             </p>
                                                                         </div>
                                                                     )}
