@@ -142,12 +142,6 @@ class SitemapController extends Controller
                 'priority' => '0.4'
             ],
             [
-                'url' => $baseUrl . '/surah',
-                'lastmod' => $currentDate,
-                'changefreq' => 'weekly',
-                'priority' => '0.9'
-            ],
-            [
                 'url' => $baseUrl . '/daftar-lengkap',
                 'lastmod' => $currentDate,
                 'changefreq' => 'weekly',

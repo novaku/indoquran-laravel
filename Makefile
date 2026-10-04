@@ -232,14 +232,14 @@ cache-hadits-status: ## Periksa status dan key cache hadits saat ini
 
 sitemap: ## Generate sitemap standar (dev-env.sh #18)
 	@echo "$(COLOR_WARNING)🗺️  Generating sitemap.xml for IndoQuran website...$(COLOR_RESET)"
-	php artisan sitemap:generate
+	php artisan sitemap:generate --production
 	@echo "$(COLOR_SUCCESS)✅ Sitemap generated successfully!$(COLOR_RESET)"
 
 sitemap-all: ## Generate sitemap komprehensif (termasuk Al-Qur'an, Hadits, Doa, dll.)
-	php artisan sitemap:generate-comprehensive
+	php artisan sitemap:generate-comprehensive --production
 
 sitemap-validate: ## Validasi integritas sitemap XML
-	php artisan sitemap:validate
+	php artisan sitemap:validate --production
 
 ## =========================================================================
 ## Development Tools, Status & Info (dev-env.sh #7, #16, #17, #19, #20)

@@ -50,13 +50,13 @@ class SitemapIndexController extends Controller
             $currentDate
         );
 
-        // Hadits main sitemap (hub and 11 books)
+        // Hadits main sitemap (hub and 7 books)
         $xml .= $this->createSitemapEntry(
             $baseUrl . '/sitemap-hadits-main.xml',
             $currentDate
         );
 
-        // Hadits individual book sitemaps (all 11 books)
+        // Hadits individual book sitemaps (all 7 books)
         foreach (HaditsController::getKitabCatalog() as $slug => $kitab) {
             $xml .= $this->createSitemapEntry(
                 $baseUrl . '/sitemap-hadits-' . $slug . '.xml',
@@ -203,7 +203,7 @@ class SitemapIndexController extends Controller
             ];
         }
 
-        // Add 11 Hadits book pages
+        // Add 7 Hadits book pages
         foreach (HaditsController::getKitabCatalog() as $slug => $kitab) {
             $pages[] = [
                 'url' => $baseUrl . '/hadits/' . $slug,
@@ -345,7 +345,7 @@ class SitemapIndexController extends Controller
     
     /**
      * Generate dedicated XML sitemap index for Hadits
-     * Points to hadits-main.xml and all 11 individual book sitemaps
+     * Points to hadits-main.xml and all 7 individual book sitemaps
      */
     public function haditsIndex()
     {
@@ -358,13 +358,13 @@ class SitemapIndexController extends Controller
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
         
-        // Main hadits sitemap (hub + 11 books)
+        // Main hadits sitemap (hub + 7 books)
         $xml .= $this->createSitemapEntry(
             $baseUrl . '/sitemap-hadits-main.xml',
             $currentDate
         );
         
-        // Sitemaps for each of the 11 books
+        // Sitemaps for each of the 7 books
         foreach (HaditsController::getKitabCatalog() as $slug => $kitab) {
             $xml .= $this->createSitemapEntry(
                 $baseUrl . '/sitemap-hadits-' . $slug . '.xml',
@@ -381,7 +381,7 @@ class SitemapIndexController extends Controller
     }
 
     /**
-     * Generate sitemap for Hadits main hub and 11 book pages
+     * Generate sitemap for Hadits main hub and 7 book pages
      */
     public function haditsMainSitemap()
     {
@@ -433,8 +433,7 @@ class SitemapIndexController extends Controller
             : config('app.url');
             
         $currentDate = now()->format('Y-m-d');
-        $total = $kitabInfo['total'] ?? 0;
-        
+
         // Prioritize Kutubus Sittah slightly higher
         $isKutubusSittah = in_array($resolved, [
             'shahih_bukhari', 'shahih_muslim', 'sunan_abu_daud',
@@ -442,10 +441,23 @@ class SitemapIndexController extends Controller
         ], true);
         $priority = $isKutubusSittah ? '0.75' : '0.70';
         
+        $table = $kitabInfo['table'] ?? null;
+        $numbers = [];
+        if ($table && \Illuminate\Support\Facades\Schema::hasTable($table)) {
+            $hasNo = \Illuminate\Support\Facades\Schema::hasColumn($table, 'no');
+            $col = $hasNo ? 'no' : 'id';
+            $numbers = \Illuminate\Support\Facades\DB::table($table)->orderBy($col, 'asc')->pluck($col)->all();
+        }
+
+        if (empty($numbers)) {
+            $total = $kitabInfo['total'] ?? 0;
+            $numbers = range(1, $total);
+        }
+
         $pages = [];
-        for ($i = 1; $i <= $total; $i++) {
+        foreach ($numbers as $num) {
             $pages[] = [
-                'url' => $baseUrl . '/hadits/' . $resolved . '/' . $i,
+                'url' => $baseUrl . '/hadits/' . $resolved . '/' . $num,
                 'lastmod' => $currentDate,
                 'changefreq' => 'monthly',
                 'priority' => $priority

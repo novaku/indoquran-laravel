@@ -235,13 +235,27 @@ class SEOController extends Controller
                     $isInvalidRoute = true;
                 } elseif (count($segments) >= 2) {
                     $kitabSlug = $segments[1];
-                    $validKitabs = array_keys(\App\Http\Controllers\HaditsController::getKitabCatalog());
-                    if (!in_array($kitabSlug, $validKitabs, true)) {
+                    $catalog = \App\Http\Controllers\HaditsController::getKitabCatalog();
+                    $resolved = \App\Http\Controllers\HaditsController::resolveKitabSlug($kitabSlug);
+
+                    if (!$resolved || !isset($catalog[$resolved])) {
                         $isInvalidRoute = true;
-                    } elseif (count($segments) === 3) {
-                        $nomor = (int) $segments[2];
-                        if ($nomor < 1) {
-                            $isInvalidRoute = true;
+                    } else {
+                        // If alias used (e.g. /hadits/bukhari or /hadits/shahih-bukhari), redirect 301 to canonical
+                        if ($kitabSlug !== $resolved) {
+                            $targetUrl = '/hadits/' . $resolved;
+                            if (isset($segments[2])) {
+                                $targetUrl .= '/' . (int) $segments[2];
+                            }
+                            return redirect(url($targetUrl), 301);
+                        }
+
+                        if (count($segments) === 3) {
+                            $nomor = (int) $segments[2];
+                            $maxNomor = $catalog[$resolved]['total'] ?? 0;
+                            if ($nomor < 1 || ($maxNomor > 0 && $nomor > $maxNomor)) {
+                                $isInvalidRoute = true;
+                            }
                         }
                     }
                 }
@@ -708,9 +722,9 @@ class SEOController extends Controller
                     ]);
                 } else {
                     $seoData = array_merge($seoData, [
-                        'metaTitle' => 'Koleksi 11 Kitab Hadits Lengkap (Kutubut Tis\'ah & Terjemahan) | IndoQuran',
-                        'metaDescription' => 'Koleksi 11 kitab hadits terlengkap: Shahih Bukhari, Muslim, Abu Daud, Tirmidzi, An-Nasa\'i, Ibnu Majah, Musnad Ahmad, Muwatha Malik, dll. Teks Arab dan terjemahan Indonesia.',
-                        'metaKeywords' => 'hadits, hadits shahih, shahih bukhari, shahih muslim, sunan abu daud, kutubut tisah, hadits nabi, terjemah hadits, hadist indonesia',
+                        'metaTitle' => 'Koleksi 7 Kitab Hadits Utama (Kutubus Sittah & Musnad Ahmad) Lengkap | IndoQuran',
+                        'metaDescription' => 'Koleksi 7 kitab hadits shahih terlengkap: Shahih Bukhari, Muslim, Abu Daud, Tirmidzi, An-Nasa\'i, Ibnu Majah, dan Musnad Ahmad. Teks Arab berharakat dan terjemahan bahasa Indonesia.',
+                        'metaKeywords' => 'hadits, hadits shahih, shahih bukhari, shahih muslim, sunan abu daud, kutubus sittah, musnad ahmad, hadits nabi, terjemah hadits, hadist indonesia',
                         'canonicalUrl' => url('/hadits')
                     ]);
                 }

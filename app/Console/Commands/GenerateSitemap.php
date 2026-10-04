@@ -80,6 +80,8 @@ class GenerateSitemap extends Command
             'donasi' => ['priority' => '0.4', 'changefreq' => 'monthly'],           // Donation page
             'riwayat-versi' => ['priority' => '0.4', 'changefreq' => 'monthly'],    // Version history page
             'kebijakan' => ['priority' => '0.3', 'changefreq' => 'yearly'],         // Privacy page
+            'syarat-ketentuan' => ['priority' => '0.3', 'changefreq' => 'yearly'],  // Terms page
+            'artikel' => ['priority' => '0.85', 'changefreq' => 'daily'],           // Article index page
             'hadits' => ['priority' => '0.9', 'changefreq' => 'weekly'],            // Hadits Hub page
         ];
         
@@ -125,7 +127,7 @@ class GenerateSitemap extends Command
             );
         }
 
-        // Add Hadits book overview pages (11 books)
+        // Add Hadits book overview pages (7 books)
         foreach (HaditsController::getKitabCatalog() as $slug => $kitab) {
             $xml .= $this->createUrlEntry(
                 $baseUrl . '/hadits/' . $slug,

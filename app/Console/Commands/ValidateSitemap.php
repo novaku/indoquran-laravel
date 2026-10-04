@@ -62,6 +62,15 @@ class ValidateSitemap extends Command
                 $this->validateSitemapFile($path, $file, $baseUrl, $errors, $warnings);
             }
         }
+
+        // Check for orphaned / obsolete sitemap files
+        $existingHaditsFiles = File::glob(public_path('sitemap-hadits-*.xml'));
+        foreach ($existingHaditsFiles as $file) {
+            $filename = basename($file);
+            if (!in_array($filename, $requiredFiles, true)) {
+                $warnings[] = "Orphaned/obsolete sitemap file detected: {$filename} (not in current catalog)";
+            }
+        }
         
         // Validate robots.txt
         $this->validateRobotsTxt($baseUrl, $errors, $warnings);
@@ -210,6 +219,22 @@ class ValidateSitemap extends Command
             $surahsWithoutAyahs = Surah::whereNull('total_ayahs')->count();
             if ($surahsWithoutAyahs > 0) {
                 $warnings[] = "Database: {$surahsWithoutAyahs} surahs missing total_ayahs count";
+            }
+
+            // Check Hadits tables consistency
+            $catalog = \App\Http\Controllers\HaditsController::getKitabCatalog();
+            foreach ($catalog as $slug => $info) {
+                $table = $info['table'];
+                if (!\Illuminate\Support\Facades\Schema::hasTable($table)) {
+                    $warnings[] = "Database: Missing hadits table '{$table}' for {$info['name']}";
+                } else {
+                    $count = \Illuminate\Support\Facades\DB::table($table)->count();
+                    if ($count === 0) {
+                        $warnings[] = "Database: Hadits table '{$table}' is empty";
+                    } elseif ($count !== $info['total']) {
+                        $warnings[] = "Database: Hadits table '{$table}' has {$count} rows, catalog expects {$info['total']}";
+                    }
+                }
             }
             
         } catch (\Exception $e) {
