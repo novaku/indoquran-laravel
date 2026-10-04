@@ -666,4 +666,59 @@ class HaditsCacheService
             return false;
         }
     }
+
+    /**
+     * Invalidate cache for a specific kitab
+     */
+    public function clearKitabCache(string $kitabSlug): bool
+    {
+        $resolved = HaditsController::resolveKitabSlug($kitabSlug);
+        if (!$resolved) {
+            return false;
+        }
+
+        try {
+            $store = Cache::getStore();
+            if ($store instanceof RedisStore) {
+                $redis = $store->connection();
+                $cachePrefix = $store->getPrefix();
+
+                $connPrefix = '';
+                if (method_exists($redis, 'getOptions') && $redis->getOptions()->prefix) {
+                    $connPrefix = (string) $redis->getOptions()->prefix->getPrefix();
+                } elseif (defined('\Redis::OPT_PREFIX') && method_exists($redis, 'getOption')) {
+                    $connPrefix = (string) ($redis->getOption(\Redis::OPT_PREFIX) ?: '');
+                }
+                if (empty($connPrefix)) {
+                    $connPrefix = (string) config('database.redis.options.prefix', '');
+                }
+
+                $patterns = [
+                    $cachePrefix . "hadits:kitab:{$resolved}:*",
+                    $cachePrefix . "hadits:detail:{$resolved}:*",
+                ];
+
+                foreach ($patterns as $pattern) {
+                    $keys = $redis->keys($pattern);
+                    if (!empty($keys)) {
+                        $keysToDelete = array_map(function ($k) use ($connPrefix) {
+                            if ($connPrefix !== '' && str_starts_with($k, $connPrefix)) {
+                                return substr($k, strlen($connPrefix));
+                            }
+                            return $k;
+                        }, $keys);
+
+                        $redis->del($keysToDelete);
+                    }
+                }
+            } else {
+                Cache::flush();
+            }
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::warning("HaditsCacheService: clearKitabCache failed for {$kitabSlug}", ['error' => $e->getMessage()]);
+            return false;
+        }
+    }
 }

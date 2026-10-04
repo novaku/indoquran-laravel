@@ -174,4 +174,23 @@ class HaditsApiTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonPath('status', 'success');
     }
+
+    public function test_artisan_hadits_cache_commands(): void
+    {
+        $this->artisan('hadits:clear-cache')
+            ->expectsOutputToContain('Seluruh cache hadits berhasil dibersihkan')
+            ->assertExitCode(0);
+
+        $this->artisan('hadits:cache', ['action' => 'status'])
+            ->expectsOutputToContain('Status Cache Hadits')
+            ->assertExitCode(0);
+
+        $this->artisan('hadits:cache', ['action' => 'clear', '--kitab' => 'bukhari'])
+            ->expectsOutputToContain('shahih_bukhari')
+            ->assertExitCode(0);
+
+        $this->artisan('hadits:cache', ['action' => 'invalid_action'])
+            ->assertExitCode(1);
+    }
 }
+

@@ -13,6 +13,7 @@ PORT ?= 8000
         migrate migrate-fresh migrate-rollback seed \
         test test-unit test-feature test-coverage pint pint-test \
         clear refresh optimize optimize-dev cache-all cache-quran cache-asmaul cache-tafsir \
+        cache-hadits cache-hadits-warm cache-hadits-status \
         sitemap sitemap-all sitemap-validate \
         tinker pail logs logs-clear routes status info
 
@@ -166,6 +167,7 @@ refresh: ## Refresh total semua cache, views, autoload, dan frontend (dev-env.sh
 	@php artisan route:clear
 	@php artisan event:clear
 	@php artisan optimize:clear
+	@php artisan hadits:clear-cache > /dev/null 2>&1 || true
 	@echo "$(COLOR_INFO)Clearing bootstrap cache files...$(COLOR_RESET)"
 	@php artisan clear-compiled
 	@echo "$(COLOR_INFO)Removing cached files from storage...$(COLOR_RESET)"
@@ -210,6 +212,19 @@ cache-asmaul: ## Refresh cache Asmaul Husna
 
 cache-tafsir: ## Refresh cache Tafsir Maudhui
 	php artisan tafsir-maudhui:refresh
+
+cache-hadits: ## Bersihkan seluruh cache hadits (katalog, halaman, detail)
+	@echo "$(COLOR_WARNING)🧹 Membersihkan cache hadits...$(COLOR_RESET)"
+	php artisan hadits:clear-cache
+	@echo "$(COLOR_SUCCESS)✅ Cache hadits berhasil dibersihkan!$(COLOR_RESET)"
+
+cache-hadits-warm: ## Pre-warm cache hadits (katalog, dropdown, hal 1 per kitab)
+	@echo "$(COLOR_WARNING)🔥 Memulai warm-up cache hadits...$(COLOR_RESET)"
+	php artisan hadits:cache warm-up
+	@echo "$(COLOR_SUCCESS)✅ Cache warm-up hadits selesai!$(COLOR_RESET)"
+
+cache-hadits-status: ## Periksa status dan key cache hadits saat ini
+	php artisan hadits:cache status
 
 ## =========================================================================
 ## Sitemap (dev-env.sh #18)
