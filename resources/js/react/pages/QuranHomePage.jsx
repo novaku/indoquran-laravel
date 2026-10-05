@@ -352,7 +352,7 @@ function QuranHomePage() {
         setLoadingArticles(true);
         try {
             const params = new URLSearchParams();
-            params.append('per_page', '10');
+            params.append('per_page', '6');
 
             if (search && search.trim()) {
                 params.append('search', search.trim());
