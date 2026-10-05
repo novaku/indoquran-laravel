@@ -342,7 +342,9 @@
             $hasSsrContent = !empty($reactData['surahs']) 
                 || !empty($reactData['currentSurah']) 
                 || !empty($reactData['currentJuz']) 
+                || !empty($reactData['juzList'])
                 || !empty($reactData['currentPage']) 
+                || !empty($reactData['halamanList'])
                 || !empty($reactData['currentArticle']) 
                 || !empty($reactData['articles'])
                 || !empty($reactData['currentTafsirTopic'])
@@ -512,12 +514,26 @@
                             </div>
                             <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">عمّ</span>
                         </a>
-                        <a href="/surah/112" style="background: white; border: 1px solid #86efac; border-radius: 0.5rem; padding: 0.875rem 1rem; text-decoration: none; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
+                        <a href="/juz" style="background: white; border: 1px solid #86efac; border-radius: 0.5rem; padding: 0.875rem 1rem; text-decoration: none; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
                             <div>
-                                <strong style="color: #15803d; font-size: 1rem;">Surat Al-Ikhlas</strong>
-                                <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">Surah ke-112 • 4 Ayat</div>
+                                <strong style="color: #15803d; font-size: 1rem;">Al-Quran Per Juz</strong>
+                                <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">Juz 1 s/d 30 Lengkap</div>
                             </div>
-                            <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">الإخلاص</span>
+                            <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">الأجزاء</span>
+                        </a>
+                        <a href="/halaman" style="background: white; border: 1px solid #86efac; border-radius: 0.5rem; padding: 0.875rem 1rem; text-decoration: none; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="color: #15803d; font-size: 1rem;">Al-Quran Per Halaman</strong>
+                                <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">604 Halaman Mushaf Madinah</div>
+                            </div>
+                            <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">الصفحات</span>
+                        </a>
+                        <a href="/juz/15" style="background: white; border: 1px solid #86efac; border-radius: 0.5rem; padding: 0.875rem 1rem; text-decoration: none; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="color: #15803d; font-size: 1rem;">Juz 15 (Al-Isra & Al-Kahf)</strong>
+                                <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">Hal. 282-301 • 185 Ayat</div>
+                            </div>
+                            <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">١٥</span>
                         </a>
                     </div>
                 </section>
@@ -659,9 +675,9 @@
                         @foreach($reactData['surahAyahs'] as $ayah)
                             <article style="padding: 1.25rem 0; border-bottom: 1px solid #f3f4f6;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                                    <span id="ayah-{{ $ayah->ayah_number }}" style="display: inline-block; background: #e0f2fe; color: #0369a1; font-weight: 700; font-size: 0.875rem; padding: 0.25rem 0.75rem; border-radius: 9999px;">
+                                    <a href="/surah/{{ $reactData['currentSurah']->number }}/{{ $ayah->ayah_number }}" id="ayah-{{ $ayah->ayah_number }}" title="Baca Surah {{ $reactData['currentSurah']->name_latin }} Ayat {{ $ayah->ayah_number }}" style="display: inline-block; background: #e0f2fe; color: #0369a1; font-weight: 700; font-size: 0.875rem; padding: 0.25rem 0.75rem; border-radius: 9999px; text-decoration: none;">
                                         Ayat {{ $ayah->ayah_number }}
-                                    </span>
+                                    </a>
                                 </div>
                                 <p class="arabic-text" style="font-size: 2rem; line-height: 2.2; color: #111827; text-align: right; margin: 0 0 0.75rem 0; direction: rtl;">
                                     {{ $ayah->text_arabic }}
@@ -692,7 +708,69 @@
                 <header style="text-align: center; margin-bottom: 2rem;">
                     <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.75rem; color: #111827;">{{ $reactData['currentJuz']['title'] }}</h1>
                     <p style="font-size: 1.0625rem; color: #4b5563; line-height: 1.8; margin: 0 auto 1rem; max-width: 700px;">{{ $reactData['currentJuz']['description'] }}</p>
+                    @if(!empty($reactData['currentJuz']['metadata']))
+                        <div style="display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem;">
+                            <span style="display: inline-block; background: #f0fdf4; border: 1px solid #86efac; color: #15803d; font-size: 0.875rem; font-weight: 600; padding: 0.35rem 0.85rem; border-radius: 9999px;">
+                                Halaman {{ $reactData['currentJuz']['metadata']['min_page'] }} - {{ $reactData['currentJuz']['metadata']['max_page'] }} (Total {{ $reactData['currentJuz']['metadata']['total_pages'] }} Halaman)
+                            </span>
+                            <span style="display: inline-block; background: #f0fdf4; border: 1px solid #86efac; color: #15803d; font-size: 0.875rem; font-weight: 600; padding: 0.35rem 0.85rem; border-radius: 9999px;">
+                                Total {{ $reactData['currentJuz']['metadata']['total_ayahs'] }} Ayat
+                            </span>
+                        </div>
+                    @endif
                 </header>
+
+                @if(!empty($reactData['currentJuz']['metadata']['surahs']))
+                    <section style="margin: 0 auto 2rem; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.25rem;">
+                        <h2 style="font-size: 1.15rem; font-weight: 700; color: #14532d; margin: 0 0 0.75rem 0;">Daftar Surah dalam Juz {{ $reactData['currentJuz']['number'] }}</h2>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.75rem;">
+                            @foreach($reactData['currentJuz']['metadata']['surahs'] as $surahItem)
+                                <a href="/surah/{{ $surahItem['surah_number'] }}" style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: white; border: 1px solid #e5e7eb; border-radius: 0.5rem; text-decoration: none; color: inherit;">
+                                    <div>
+                                        <strong style="color: #111827; font-size: 0.95rem;">Surah {{ $surahItem['name_latin'] }}</strong>
+                                        <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.2rem;">Ayat {{ $surahItem['from_ayah'] }} - {{ $surahItem['to_ayah'] }}</div>
+                                    </div>
+                                    <span class="arabic-text" style="font-size: 1.25rem; color: #15803d;">{{ $surahItem['name_arabic'] }}</span>
+                                </a>
+                            @endforeach
+                        </div>
+                    </section>
+                @endif
+
+                <!-- FAQ Section for Google Snippets on Juz -->
+                @if(!empty($reactData['currentJuz']['metadata']))
+                    <section style="margin: 0 auto 2rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0.75rem; padding: 1.5rem;">
+                        <h2 style="font-size: 1.2rem; font-weight: 700; color: #14532d; margin: 0 0 1rem 0;">
+                            Pertanyaan Umum Seputar Juz {{ $reactData['currentJuz']['number'] }} (FAQ)
+                        </h2>
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <article>
+                                <h3 style="font-size: 1rem; font-weight: 600; color: #166534; margin: 0 0 0.35rem 0;">
+                                    Juz {{ $reactData['currentJuz']['number'] }} Al-Quran surah apa saja?
+                                </h3>
+                                <p style="font-size: 0.925rem; line-height: 1.6; color: #374151; margin: 0;">
+                                    Juz {{ $reactData['currentJuz']['number'] }} memuat {{ $reactData['currentJuz']['metadata']['surahs_summary'] }}.
+                                </p>
+                            </article>
+                            <article>
+                                <h3 style="font-size: 1rem; font-weight: 600; color: #166534; margin: 0 0 0.35rem 0;">
+                                    Juz {{ $reactData['currentJuz']['number'] }} berapa halaman dan dari halaman berapa sampai berapa?
+                                </h3>
+                                <p style="font-size: 0.925rem; line-height: 1.6; color: #374151; margin: 0;">
+                                    Juz {{ $reactData['currentJuz']['number'] }} terdiri dari {{ $reactData['currentJuz']['metadata']['total_pages'] }} halaman, dimulai dari halaman {{ $reactData['currentJuz']['metadata']['min_page'] }} sampai halaman {{ $reactData['currentJuz']['metadata']['max_page'] }} pada mushaf standar Madinah dan standar Kementerian Agama RI.
+                                </p>
+                            </article>
+                            <article>
+                                <h3 style="font-size: 1rem; font-weight: 600; color: #166534; margin: 0 0 0.35rem 0;">
+                                    Berapa jumlah ayat dalam Juz {{ $reactData['currentJuz']['number'] }}?
+                                </h3>
+                                <p style="font-size: 0.925rem; line-height: 1.6; color: #374151; margin: 0;">
+                                    Juz {{ $reactData['currentJuz']['number'] }} memuat total {{ $reactData['currentJuz']['metadata']['total_ayahs'] }} ayat lengkap teks Arab, transliterasi latin, dan terjemahan bahasa Indonesia.
+                                </p>
+                            </article>
+                        </div>
+                    </section>
+                @endif
 
                 @if(!empty($reactData['currentJuz']['ayahs']) && $reactData['currentJuz']['ayahs']->isNotEmpty())
                     <section style="margin-bottom: 2rem;">
@@ -702,7 +780,9 @@
                         @foreach($reactData['currentJuz']['ayahs'] as $ayah)
                             <article style="padding: 1rem 0; border-bottom: 1px solid #f3f4f6;">
                                 <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem; font-weight: 600;">
-                                    {{ $ayah->surah->name_latin ?? 'Surah' }} ayat {{ $ayah->ayah_number }}
+                                    <a href="/surah/{{ $ayah->surah_number }}/{{ $ayah->ayah_number }}" style="color: #0369a1; text-decoration: none;">
+                                        {{ $ayah->surah->name_latin ?? 'Surah' }} ayat {{ $ayah->ayah_number }}
+                                    </a>
                                 </div>
                                 <p class="arabic-text" style="font-size: 1.85rem; line-height: 2.1; color: #111827; text-align: right; margin: 0 0 0.5rem 0; direction: rtl;">
                                     {{ $ayah->text_arabic }}
@@ -728,11 +808,84 @@
             </div>
         @endif
 
+        @if(isset($reactData['juzList']))
+            <div id="ssr-juz-list" style="padding: 3rem 1.5rem; background: #fff; color: #1f2937; max-width: 960px; margin: 0 auto;">
+                <header style="text-align: center; margin-bottom: 2.5rem;">
+                    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 0.75rem; color: #111827;">Daftar 30 Juz Al-Quran Lengkap</h1>
+                    <p style="font-size: 1.0625rem; color: #4b5563; line-height: 1.8; margin: 0 auto; max-width: 750px;">
+                        Al-Quran terdiri dari 30 Juz, 114 Surah, dan 6.236 Ayat yang terbagi dalam 604 halaman mushaf standar rasm Utsmani Madinah dan standar Kemenag RI. Pilih juz di bawah untuk membaca lengkap teks Arab, latin, terjemahan, dan audio murottal.
+                    </p>
+                </header>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 2.5rem;">
+                    @foreach($reactData['juzList'] as $jNum => $jItem)
+                        <a href="/juz/{{ $jNum }}" style="display: block; padding: 1rem 1.25rem; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.5rem; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                                <strong style="color: #15803d; font-size: 1.05rem;">Juz {{ $jNum }}</strong>
+                                <span style="font-size: 0.8rem; background: #e0f2fe; color: #0369a1; padding: 0.2rem 0.5rem; border-radius: 9999px; font-weight: 600;">Hal. {{ $jItem['min_page'] }}-{{ $jItem['max_page'] }}</span>
+                            </div>
+                            <div style="font-size: 0.875rem; color: #374151; font-weight: 500;">{{ $jItem['surah_names'] }}</div>
+                            <div style="font-size: 0.8rem; color: #6b7280; margin-top: 0.25rem;">{{ $jItem['total_pages'] }} Halaman • {{ $jItem['total_ayahs'] }} Ayat</div>
+                        </a>
+                    @endforeach
+                </div>
+
+                <!-- FAQ Section for 30 Juz / 1 Juz Berapa Halaman -->
+                <section style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0.75rem; padding: 2rem;">
+                    <h2 style="font-size: 1.35rem; font-weight: 700; color: #14532d; margin: 0 0 1.25rem 0; text-align: center;">
+                        Pertanyaan Umum Seputar 30 Juz Al-Quran (FAQ)
+                    </h2>
+                    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                        <article>
+                            <h3 style="font-size: 1.05rem; font-weight: 600; color: #166534; margin: 0 0 0.35rem 0;">
+                                30 juz berapa halaman dalam Al-Quran?
+                            </h3>
+                            <p style="font-size: 0.95rem; line-height: 1.6; color: #374151; margin: 0;">
+                                Al-Quran 30 juz terdiri dari total <strong>604 halaman</strong> pada mushaf standar rasm Utsmani Madinah dan mushaf standar Kementerian Agama Republik Indonesia (Kemenag RI).
+                            </p>
+                        </article>
+                        <article>
+                            <h3 style="font-size: 1.05rem; font-weight: 600; color: #166534; margin: 0 0 0.35rem 0;">
+                                1 juz berapa halaman dalam Al-Quran?
+                            </h3>
+                            <p style="font-size: 0.95rem; line-height: 1.6; color: #374151; margin: 0;">
+                                Rata-rata 1 juz Al-Quran terdiri dari <strong>20 halaman</strong> (10 lembar bolak-balik), kecuali Juz 1 yang terdiri dari 21 halaman dan Juz 30 yang terdiri dari 23 halaman.
+                            </p>
+                        </article>
+                        <article>
+                            <h3 style="font-size: 1.05rem; font-weight: 600; color: #166534; margin: 0 0 0.35rem 0;">
+                                Ada berapa juz, surah, dan ayat dalam Al-Quran?
+                            </h3>
+                            <p style="font-size: 0.95rem; line-height: 1.6; color: #374151; margin: 0;">
+                                Kitab suci Al-Quran terdiri dari <strong>30 Juz</strong>, <strong>114 Surah</strong>, dan <strong>6.236 Ayat</strong>.
+                            </p>
+                        </article>
+                        <article>
+                            <h3 style="font-size: 1.05rem; font-weight: 600; color: #166534; margin: 0 0 0.35rem 0;">
+                                Apa fungsi pembagian juz dalam Al-Quran?
+                            </h3>
+                            <p style="font-size: 0.95rem; line-height: 1.6; color: #374151; margin: 0;">
+                                Pembagian 30 juz dibuat untuk memudahkan umat Islam menyelesaikan tilawah (khatam) Al-Quran secara teratur, khususnya membaca satu juz setiap hari selama satu bulan penuh seperti pada bulan Ramadhan (program One Day One Juz).
+                            </p>
+                        </article>
+                    </div>
+                </section>
+            </div>
+        @endif
+
         @if(isset($reactData['currentPage']))
             <div id="ssr-page-detail" style="padding: 3rem 1.5rem; background: #fff; color: #1f2937; max-width: 860px; margin: 0 auto;">
                 <header style="text-align: center; margin-bottom: 2rem;">
                     <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.75rem; color: #111827;">{{ $reactData['currentPage']['title'] }}</h1>
                     <p style="font-size: 1.0625rem; color: #4b5563; line-height: 1.8; margin: 0 auto; max-width: 700px;">{{ $reactData['currentPage']['description'] }}</p>
+                    <div style="display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem;">
+                        <span style="display: inline-block; background: #f0fdf4; border: 1px solid #86efac; color: #15803d; font-size: 0.875rem; font-weight: 600; padding: 0.35rem 0.85rem; border-radius: 9999px;">
+                            Juz {{ $reactData['currentPage']['juz_number'] ?? '1' }}
+                        </span>
+                        <span style="display: inline-block; background: #f0fdf4; border: 1px solid #86efac; color: #15803d; font-size: 0.875rem; font-weight: 600; padding: 0.35rem 0.85rem; border-radius: 9999px;">
+                            Muka Surat {{ $reactData['currentPage']['number'] }}
+                        </span>
+                    </div>
                 </header>
 
                 @if(!empty($reactData['currentPage']['has_ssr_content']) && !empty($reactData['currentPage']['surah_spans']))
@@ -742,10 +895,35 @@
                             @foreach($reactData['currentPage']['surah_spans'] as $span)
                                 <li>
                                     Surah {{ $span['surah_name_latin'] }} ({{ $span['surah_name_arabic'] }}) ayat {{ $span['from_ayah'] }}-{{ $span['to_ayah'] }}
-                                    <a href="/surah/{{ $span['surah_number'] }}#ayah-{{ $span['from_ayah'] }}" style="margin-left: 0.5rem; color: #166534; text-decoration: none; font-weight: 600;">Baca</a>
+                                    <a href="/surah/{{ $span['surah_number'] }}/{{ $span['from_ayah'] }}" style="margin-left: 0.5rem; color: #166534; text-decoration: none; font-weight: 600;">Baca Ayat</a>
                                 </li>
                             @endforeach
                         </ul>
+                    </section>
+
+                    <!-- FAQ Section for Halaman -->
+                    <section style="margin: 0 auto 1.5rem; max-width: 860px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0.75rem; padding: 1.25rem;">
+                        <h2 style="font-size: 1.125rem; font-weight: 700; color: #14532d; margin: 0 0 0.75rem 0;">
+                            Pertanyaan Umum Halaman {{ $reactData['currentPage']['number'] }} (FAQ)
+                        </h2>
+                        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            <article>
+                                <h3 style="font-size: 0.95rem; font-weight: 600; color: #166534; margin: 0 0 0.25rem 0;">
+                                    Al-Quran Halaman {{ $reactData['currentPage']['number'] }} (muka surat {{ $reactData['currentPage']['number'] }}) memuat surah apa saja?
+                                </h3>
+                                <p style="font-size: 0.9rem; line-height: 1.6; color: #374151; margin: 0;">
+                                    Halaman {{ $reactData['currentPage']['number'] }} memuat {{ $reactData['currentPage']['description'] ?? 'ayat-ayat suci Al-Quran' }}.
+                                </p>
+                            </article>
+                            <article>
+                                <h3 style="font-size: 0.95rem; font-weight: 600; color: #166534; margin: 0 0 0.25rem 0;">
+                                    Halaman {{ $reactData['currentPage']['number'] }} Al-Quran berada di Juz berapa?
+                                </h3>
+                                <p style="font-size: 0.9rem; line-height: 1.6; color: #374151; margin: 0;">
+                                    Halaman {{ $reactData['currentPage']['number'] }} terletak pada Al-Quran Juz {{ $reactData['currentPage']['juz_number'] ?? '1' }}.
+                                </p>
+                            </article>
+                        </div>
                     </section>
 
                     @if(!empty($reactData['currentPage']['ayah_previews']))
@@ -756,7 +934,9 @@
                             @foreach($reactData['currentPage']['ayah_previews'] as $ayah)
                                 <article style="padding: 1rem 0; border-bottom: 1px solid #f3f4f6;">
                                     <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.35rem; font-weight: 600;">
-                                        {{ $ayah->surah->name_latin ?? 'Surah' }} ayat {{ $ayah->ayah_number }}
+                                        <a href="/surah/{{ $ayah->surah_number }}/{{ $ayah->ayah_number }}" style="color: #0369a1; text-decoration: none;">
+                                            {{ $ayah->surah->name_latin ?? 'Surah' }} ayat {{ $ayah->ayah_number }}
+                                        </a>
                                     </div>
                                     <p class="arabic-text" style="font-size: 1.85rem; line-height: 2.1; color: #111827; margin: 0 0 0.5rem 0; direction: rtl; text-align: right;">{{ $ayah->text_arabic }}</p>
                                     @if(!empty($ayah->text_latin))
@@ -796,6 +976,61 @@
                         <span></span>
                     @endif
                 </nav>
+            </div>
+        @endif
+
+        @if(isset($reactData['halamanList']))
+            <div id="ssr-halaman-list" style="padding: 3rem 1.5rem; background: #fff; color: #1f2937; max-width: 960px; margin: 0 auto;">
+                <header style="text-align: center; margin-bottom: 2.5rem;">
+                    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 0.75rem; color: #111827;">Daftar 604 Halaman Al-Quran Mushaf Madinah</h1>
+                    <p style="font-size: 1.0625rem; color: #4b5563; line-height: 1.8; margin: 0 auto; max-width: 750px;">
+                        Akses mushaf Al-Quran standar Madinah dan standar Kemenag RI dari Halaman 1 hingga 604. Dilengkapi navigasi per juz, teks Arab berharakat jelas, transliterasi latin, terjemahan Indonesia, dan audio murottal per ayat.
+                    </p>
+                </header>
+
+                <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 2.5rem;">
+                    <h2 style="font-size: 1.15rem; font-weight: 700; color: #14532d; margin: 0 0 1rem 0;">Navigasi Cepat Halaman Awal Tiap Juz (1 - 30)</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.5rem;">
+                        @foreach($reactData['halamanList']['juz_metadata'] as $jNum => $jMeta)
+                            <a href="/halaman/{{ $jMeta['min_page'] }}" style="display: block; text-align: center; padding: 0.5rem 0.75rem; background: white; border: 1px solid #d1d5db; border-radius: 0.375rem; text-decoration: none; color: #1f2937; font-size: 0.85rem;">
+                                <strong>Juz {{ $jNum }}</strong>: Hal. {{ $jMeta['min_page'] }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- FAQ Section for Halaman -->
+                <section style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0.75rem; padding: 2rem;">
+                    <h2 style="font-size: 1.35rem; font-weight: 700; color: #14532d; margin: 0 0 1.25rem 0; text-align: center;">
+                        Pertanyaan Umum Seputar Halaman Al-Quran (FAQ)
+                    </h2>
+                    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                        <article>
+                            <h3 style="font-size: 1.05rem; font-weight: 600; color: #166534; margin: 0 0 0.35rem 0;">
+                                Berapa jumlah halaman dalam Al-Quran 30 juz?
+                            </h3>
+                            <p style="font-size: 0.95rem; line-height: 1.6; color: #374151; margin: 0;">
+                                Mushaf Al-Quran standar internasional (mushaf Madinah rasm Utsmani) dan standar Kementerian Agama Republik Indonesia memiliki <strong>604 halaman</strong>.
+                            </p>
+                        </article>
+                        <article>
+                            <h3 style="font-size: 1.05rem; font-weight: 600; color: #166534; margin: 0 0 0.35rem 0;">
+                                Berapa lembar dalam Al-Quran 604 halaman?
+                            </h3>
+                            <p style="font-size: 0.95rem; line-height: 1.6; color: #374151; margin: 0;">
+                                Karena setiap lembar terdiri dari dua halaman (depan dan belakang), maka Al-Quran 604 halaman terdiri dari <strong>302 lembar</strong>.
+                            </p>
+                        </article>
+                        <article>
+                            <h3 style="font-size: 1.05rem; font-weight: 600; color: #166534; margin: 0 0 0.35rem 0;">
+                                Apa keuntungan membaca Al-Quran per halaman di IndoQuran?
+                            </h3>
+                            <p style="font-size: 0.95rem; line-height: 1.6; color: #374151; margin: 0;">
+                                Membaca per halaman memudahkan bagi pembaca yang terbiasa dengan mushaf cetak standar Madinah (mushaf pojok). Setiap halaman di IndoQuran menyajikan ayat yang persis sama dengan mushaf cetak, dilengkapi fitur audio murottal dan terjemahan Indonesia per ayat.
+                            </p>
+                        </article>
+                    </div>
+                </section>
             </div>
         @endif
 

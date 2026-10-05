@@ -1,0 +1,1277 @@
+{
+    "1": {
+        "juz": 1,
+        "min_page": 1,
+        "max_page": 21,
+        "total_pages": 21,
+        "total_ayahs": 148,
+        "surahs": [
+            {
+                "surah_number": 1,
+                "name_latin": "Al-Fatihah",
+                "name_arabic": "\u0627\u0644\u0641\u0627\u062a\u062d\u0629",
+                "from_ayah": 1,
+                "to_ayah": 7
+            },
+            {
+                "surah_number": 2,
+                "name_latin": "Al-Baqarah",
+                "name_arabic": "\u0627\u0644\u0628\u0642\u0631\u0629",
+                "from_ayah": 1,
+                "to_ayah": 141
+            }
+        ],
+        "surahs_summary": "Surah Al-Fatihah (ayat 1-7) dan Surah Al-Baqarah (ayat 1-141)",
+        "surah_names": "Al-Fatihah & Al-Baqarah"
+    },
+    "2": {
+        "juz": 2,
+        "min_page": 22,
+        "max_page": 41,
+        "total_pages": 20,
+        "total_ayahs": 111,
+        "surahs": [
+            {
+                "surah_number": 2,
+                "name_latin": "Al-Baqarah",
+                "name_arabic": "\u0627\u0644\u0628\u0642\u0631\u0629",
+                "from_ayah": 142,
+                "to_ayah": 252
+            }
+        ],
+        "surahs_summary": "Surah Al-Baqarah (ayat 142-252)",
+        "surah_names": "Al-Baqarah"
+    },
+    "3": {
+        "juz": 3,
+        "min_page": 42,
+        "max_page": 62,
+        "total_pages": 21,
+        "total_ayahs": 126,
+        "surahs": [
+            {
+                "surah_number": 2,
+                "name_latin": "Al-Baqarah",
+                "name_arabic": "\u0627\u0644\u0628\u0642\u0631\u0629",
+                "from_ayah": 253,
+                "to_ayah": 286
+            },
+            {
+                "surah_number": 3,
+                "name_latin": "Ali 'Imran",
+                "name_arabic": "\u0622\u0644 \u0639\u0645\u0631\u0627\u0646",
+                "from_ayah": 1,
+                "to_ayah": 92
+            }
+        ],
+        "surahs_summary": "Surah Al-Baqarah (ayat 253-286) dan Surah Ali 'Imran (ayat 1-92)",
+        "surah_names": "Al-Baqarah & Ali 'Imran"
+    },
+    "4": {
+        "juz": 4,
+        "min_page": 62,
+        "max_page": 81,
+        "total_pages": 20,
+        "total_ayahs": 131,
+        "surahs": [
+            {
+                "surah_number": 3,
+                "name_latin": "Ali 'Imran",
+                "name_arabic": "\u0622\u0644 \u0639\u0645\u0631\u0627\u0646",
+                "from_ayah": 93,
+                "to_ayah": 200
+            },
+            {
+                "surah_number": 4,
+                "name_latin": "An-Nisa",
+                "name_arabic": "\u0627\u0644\u0646\u0633\u0627\u0621",
+                "from_ayah": 1,
+                "to_ayah": 23
+            }
+        ],
+        "surahs_summary": "Surah Ali 'Imran (ayat 93-200) dan Surah An-Nisa (ayat 1-23)",
+        "surah_names": "Ali 'Imran & An-Nisa"
+    },
+    "5": {
+        "juz": 5,
+        "min_page": 82,
+        "max_page": 101,
+        "total_pages": 20,
+        "total_ayahs": 124,
+        "surahs": [
+            {
+                "surah_number": 4,
+                "name_latin": "An-Nisa",
+                "name_arabic": "\u0627\u0644\u0646\u0633\u0627\u0621",
+                "from_ayah": 24,
+                "to_ayah": 147
+            }
+        ],
+        "surahs_summary": "Surah An-Nisa (ayat 24-147)",
+        "surah_names": "An-Nisa"
+    },
+    "6": {
+        "juz": 6,
+        "min_page": 102,
+        "max_page": 121,
+        "total_pages": 20,
+        "total_ayahs": 110,
+        "surahs": [
+            {
+                "surah_number": 4,
+                "name_latin": "An-Nisa",
+                "name_arabic": "\u0627\u0644\u0646\u0633\u0627\u0621",
+                "from_ayah": 148,
+                "to_ayah": 176
+            },
+            {
+                "surah_number": 5,
+                "name_latin": "Al-Ma'idah",
+                "name_arabic": "\u0627\u0644\u0645\u0627\u0626\u062f\u0629",
+                "from_ayah": 1,
+                "to_ayah": 81
+            }
+        ],
+        "surahs_summary": "Surah An-Nisa (ayat 148-176) dan Surah Al-Ma'idah (ayat 1-81)",
+        "surah_names": "An-Nisa & Al-Ma'idah"
+    },
+    "7": {
+        "juz": 7,
+        "min_page": 121,
+        "max_page": 141,
+        "total_pages": 21,
+        "total_ayahs": 149,
+        "surahs": [
+            {
+                "surah_number": 5,
+                "name_latin": "Al-Ma'idah",
+                "name_arabic": "\u0627\u0644\u0645\u0627\u0626\u062f\u0629",
+                "from_ayah": 82,
+                "to_ayah": 120
+            },
+            {
+                "surah_number": 6,
+                "name_latin": "Al-An'am",
+                "name_arabic": "\u0627\u0644\u0623\u0646\u0639\u0627\u0645",
+                "from_ayah": 1,
+                "to_ayah": 110
+            }
+        ],
+        "surahs_summary": "Surah Al-Ma'idah (ayat 82-120) dan Surah Al-An'am (ayat 1-110)",
+        "surah_names": "Al-Ma'idah & Al-An'am"
+    },
+    "8": {
+        "juz": 8,
+        "min_page": 142,
+        "max_page": 161,
+        "total_pages": 20,
+        "total_ayahs": 142,
+        "surahs": [
+            {
+                "surah_number": 6,
+                "name_latin": "Al-An'am",
+                "name_arabic": "\u0627\u0644\u0623\u0646\u0639\u0627\u0645",
+                "from_ayah": 111,
+                "to_ayah": 165
+            },
+            {
+                "surah_number": 7,
+                "name_latin": "Al-A'raf",
+                "name_arabic": "\u0627\u0644\u0623\u0639\u0631\u0627\u0641",
+                "from_ayah": 1,
+                "to_ayah": 87
+            }
+        ],
+        "surahs_summary": "Surah Al-An'am (ayat 111-165) dan Surah Al-A'raf (ayat 1-87)",
+        "surah_names": "Al-An'am & Al-A'raf"
+    },
+    "9": {
+        "juz": 9,
+        "min_page": 162,
+        "max_page": 181,
+        "total_pages": 20,
+        "total_ayahs": 159,
+        "surahs": [
+            {
+                "surah_number": 7,
+                "name_latin": "Al-A'raf",
+                "name_arabic": "\u0627\u0644\u0623\u0639\u0631\u0627\u0641",
+                "from_ayah": 88,
+                "to_ayah": 206
+            },
+            {
+                "surah_number": 8,
+                "name_latin": "Al-Anfal",
+                "name_arabic": "\u0627\u0644\u0623\u0646\u0641\u0627\u0644",
+                "from_ayah": 1,
+                "to_ayah": 40
+            }
+        ],
+        "surahs_summary": "Surah Al-A'raf (ayat 88-206) dan Surah Al-Anfal (ayat 1-40)",
+        "surah_names": "Al-A'raf & Al-Anfal"
+    },
+    "10": {
+        "juz": 10,
+        "min_page": 182,
+        "max_page": 201,
+        "total_pages": 20,
+        "total_ayahs": 127,
+        "surahs": [
+            {
+                "surah_number": 8,
+                "name_latin": "Al-Anfal",
+                "name_arabic": "\u0627\u0644\u0623\u0646\u0641\u0627\u0644",
+                "from_ayah": 41,
+                "to_ayah": 75
+            },
+            {
+                "surah_number": 9,
+                "name_latin": "At-Tawbah",
+                "name_arabic": "\u0627\u0644\u062a\u0648\u0628\u0629",
+                "from_ayah": 1,
+                "to_ayah": 92
+            }
+        ],
+        "surahs_summary": "Surah Al-Anfal (ayat 41-75) dan Surah At-Tawbah (ayat 1-92)",
+        "surah_names": "Al-Anfal & At-Tawbah"
+    },
+    "11": {
+        "juz": 11,
+        "min_page": 201,
+        "max_page": 221,
+        "total_pages": 21,
+        "total_ayahs": 151,
+        "surahs": [
+            {
+                "surah_number": 9,
+                "name_latin": "At-Tawbah",
+                "name_arabic": "\u0627\u0644\u062a\u0648\u0628\u0629",
+                "from_ayah": 93,
+                "to_ayah": 129
+            },
+            {
+                "surah_number": 10,
+                "name_latin": "Yunus",
+                "name_arabic": "\u064a\u0648\u0646\u0633",
+                "from_ayah": 1,
+                "to_ayah": 109
+            },
+            {
+                "surah_number": 11,
+                "name_latin": "Hud",
+                "name_arabic": "\u0647\u0648\u062f",
+                "from_ayah": 1,
+                "to_ayah": 5
+            }
+        ],
+        "surahs_summary": "Surah At-Tawbah (ayat 93-129), Surah Yunus (ayat 1-109) dan Surah Hud (ayat 1-5)",
+        "surah_names": "At-Tawbah, Yunus & Hud"
+    },
+    "12": {
+        "juz": 12,
+        "min_page": 222,
+        "max_page": 241,
+        "total_pages": 20,
+        "total_ayahs": 170,
+        "surahs": [
+            {
+                "surah_number": 11,
+                "name_latin": "Hud",
+                "name_arabic": "\u0647\u0648\u062f",
+                "from_ayah": 6,
+                "to_ayah": 123
+            },
+            {
+                "surah_number": 12,
+                "name_latin": "Yusuf",
+                "name_arabic": "\u064a\u0648\u0633\u0641",
+                "from_ayah": 1,
+                "to_ayah": 52
+            }
+        ],
+        "surahs_summary": "Surah Hud (ayat 6-123) dan Surah Yusuf (ayat 1-52)",
+        "surah_names": "Hud & Yusuf"
+    },
+    "13": {
+        "juz": 13,
+        "min_page": 242,
+        "max_page": 261,
+        "total_pages": 20,
+        "total_ayahs": 154,
+        "surahs": [
+            {
+                "surah_number": 12,
+                "name_latin": "Yusuf",
+                "name_arabic": "\u064a\u0648\u0633\u0641",
+                "from_ayah": 53,
+                "to_ayah": 111
+            },
+            {
+                "surah_number": 13,
+                "name_latin": "Ar-Ra'd",
+                "name_arabic": "\u0627\u0644\u0631\u0639\u062f",
+                "from_ayah": 1,
+                "to_ayah": 43
+            },
+            {
+                "surah_number": 14,
+                "name_latin": "Ibrahim",
+                "name_arabic": "\u0627\u0628\u0631\u0627\u0647\u064a\u0645",
+                "from_ayah": 1,
+                "to_ayah": 52
+            }
+        ],
+        "surahs_summary": "Surah Yusuf (ayat 53-111), Surah Ar-Ra'd (ayat 1-43) dan Surah Ibrahim (ayat 1-52)",
+        "surah_names": "Yusuf, Ar-Ra'd & Ibrahim"
+    },
+    "14": {
+        "juz": 14,
+        "min_page": 262,
+        "max_page": 281,
+        "total_pages": 20,
+        "total_ayahs": 227,
+        "surahs": [
+            {
+                "surah_number": 15,
+                "name_latin": "Al-Hijr",
+                "name_arabic": "\u0627\u0644\u062d\u062c\u0631",
+                "from_ayah": 1,
+                "to_ayah": 99
+            },
+            {
+                "surah_number": 16,
+                "name_latin": "An-Nahl",
+                "name_arabic": "\u0627\u0644\u0646\u062d\u0644",
+                "from_ayah": 1,
+                "to_ayah": 128
+            }
+        ],
+        "surahs_summary": "Surah Al-Hijr (ayat 1-99) dan Surah An-Nahl (ayat 1-128)",
+        "surah_names": "Al-Hijr & An-Nahl"
+    },
+    "15": {
+        "juz": 15,
+        "min_page": 282,
+        "max_page": 301,
+        "total_pages": 20,
+        "total_ayahs": 185,
+        "surahs": [
+            {
+                "surah_number": 17,
+                "name_latin": "Al-Isra",
+                "name_arabic": "\u0627\u0644\u0625\u0633\u0631\u0627\u0621",
+                "from_ayah": 1,
+                "to_ayah": 111
+            },
+            {
+                "surah_number": 18,
+                "name_latin": "Al-Kahf",
+                "name_arabic": "\u0627\u0644\u0643\u0647\u0641",
+                "from_ayah": 1,
+                "to_ayah": 74
+            }
+        ],
+        "surahs_summary": "Surah Al-Isra (ayat 1-111) dan Surah Al-Kahf (ayat 1-74)",
+        "surah_names": "Al-Isra & Al-Kahf"
+    },
+    "16": {
+        "juz": 16,
+        "min_page": 302,
+        "max_page": 321,
+        "total_pages": 20,
+        "total_ayahs": 269,
+        "surahs": [
+            {
+                "surah_number": 18,
+                "name_latin": "Al-Kahf",
+                "name_arabic": "\u0627\u0644\u0643\u0647\u0641",
+                "from_ayah": 75,
+                "to_ayah": 110
+            },
+            {
+                "surah_number": 19,
+                "name_latin": "Maryam",
+                "name_arabic": "\u0645\u0631\u064a\u0645",
+                "from_ayah": 1,
+                "to_ayah": 98
+            },
+            {
+                "surah_number": 20,
+                "name_latin": "Taha",
+                "name_arabic": "\u0637\u0647",
+                "from_ayah": 1,
+                "to_ayah": 135
+            }
+        ],
+        "surahs_summary": "Surah Al-Kahf (ayat 75-110), Surah Maryam (ayat 1-98) dan Surah Taha (ayat 1-135)",
+        "surah_names": "Al-Kahf, Maryam & Taha"
+    },
+    "17": {
+        "juz": 17,
+        "min_page": 322,
+        "max_page": 341,
+        "total_pages": 20,
+        "total_ayahs": 190,
+        "surahs": [
+            {
+                "surah_number": 21,
+                "name_latin": "Al-Anbya",
+                "name_arabic": "\u0627\u0644\u0623\u0646\u0628\u064a\u0627\u0621",
+                "from_ayah": 1,
+                "to_ayah": 112
+            },
+            {
+                "surah_number": 22,
+                "name_latin": "Al-Hajj",
+                "name_arabic": "\u0627\u0644\u062d\u062c",
+                "from_ayah": 1,
+                "to_ayah": 78
+            }
+        ],
+        "surahs_summary": "Surah Al-Anbya (ayat 1-112) dan Surah Al-Hajj (ayat 1-78)",
+        "surah_names": "Al-Anbya & Al-Hajj"
+    },
+    "18": {
+        "juz": 18,
+        "min_page": 342,
+        "max_page": 361,
+        "total_pages": 20,
+        "total_ayahs": 202,
+        "surahs": [
+            {
+                "surah_number": 23,
+                "name_latin": "Al-Mu'minun",
+                "name_arabic": "\u0627\u0644\u0645\u0624\u0645\u0646\u0648\u0646",
+                "from_ayah": 1,
+                "to_ayah": 118
+            },
+            {
+                "surah_number": 24,
+                "name_latin": "An-Nur",
+                "name_arabic": "\u0627\u0644\u0646\u0648\u0631",
+                "from_ayah": 1,
+                "to_ayah": 64
+            },
+            {
+                "surah_number": 25,
+                "name_latin": "Al-Furqan",
+                "name_arabic": "\u0627\u0644\u0641\u0631\u0642\u0627\u0646",
+                "from_ayah": 1,
+                "to_ayah": 20
+            }
+        ],
+        "surahs_summary": "Surah Al-Mu'minun (ayat 1-118), Surah An-Nur (ayat 1-64) dan Surah Al-Furqan (ayat 1-20)",
+        "surah_names": "Al-Mu'minun, An-Nur & Al-Furqan"
+    },
+    "19": {
+        "juz": 19,
+        "min_page": 362,
+        "max_page": 381,
+        "total_pages": 20,
+        "total_ayahs": 339,
+        "surahs": [
+            {
+                "surah_number": 25,
+                "name_latin": "Al-Furqan",
+                "name_arabic": "\u0627\u0644\u0641\u0631\u0642\u0627\u0646",
+                "from_ayah": 21,
+                "to_ayah": 77
+            },
+            {
+                "surah_number": 26,
+                "name_latin": "Ash-Shu'ara",
+                "name_arabic": "\u0627\u0644\u0634\u0639\u0631\u0627\u0621",
+                "from_ayah": 1,
+                "to_ayah": 227
+            },
+            {
+                "surah_number": 27,
+                "name_latin": "An-Naml",
+                "name_arabic": "\u0627\u0644\u0646\u0645\u0644",
+                "from_ayah": 1,
+                "to_ayah": 55
+            }
+        ],
+        "surahs_summary": "Surah Al-Furqan (ayat 21-77), Surah Ash-Shu'ara (ayat 1-227) dan Surah An-Naml (ayat 1-55)",
+        "surah_names": "Al-Furqan, Ash-Shu'ara & An-Naml"
+    },
+    "20": {
+        "juz": 20,
+        "min_page": 382,
+        "max_page": 401,
+        "total_pages": 20,
+        "total_ayahs": 171,
+        "surahs": [
+            {
+                "surah_number": 27,
+                "name_latin": "An-Naml",
+                "name_arabic": "\u0627\u0644\u0646\u0645\u0644",
+                "from_ayah": 56,
+                "to_ayah": 93
+            },
+            {
+                "surah_number": 28,
+                "name_latin": "Al-Qasas",
+                "name_arabic": "\u0627\u0644\u0642\u0635\u0635",
+                "from_ayah": 1,
+                "to_ayah": 88
+            },
+            {
+                "surah_number": 29,
+                "name_latin": "Al-'Ankabut",
+                "name_arabic": "\u0627\u0644\u0639\u0646\u0643\u0628\u0648\u062a",
+                "from_ayah": 1,
+                "to_ayah": 45
+            }
+        ],
+        "surahs_summary": "Surah An-Naml (ayat 56-93), Surah Al-Qasas (ayat 1-88) dan Surah Al-'Ankabut (ayat 1-45)",
+        "surah_names": "An-Naml, Al-Qasas & Al-'Ankabut"
+    },
+    "21": {
+        "juz": 21,
+        "min_page": 402,
+        "max_page": 421,
+        "total_pages": 20,
+        "total_ayahs": 178,
+        "surahs": [
+            {
+                "surah_number": 29,
+                "name_latin": "Al-'Ankabut",
+                "name_arabic": "\u0627\u0644\u0639\u0646\u0643\u0628\u0648\u062a",
+                "from_ayah": 46,
+                "to_ayah": 69
+            },
+            {
+                "surah_number": 30,
+                "name_latin": "Ar-Rum",
+                "name_arabic": "\u0627\u0644\u0631\u0648\u0645",
+                "from_ayah": 1,
+                "to_ayah": 60
+            },
+            {
+                "surah_number": 31,
+                "name_latin": "Luqman",
+                "name_arabic": "\u0644\u0642\u0645\u0627\u0646",
+                "from_ayah": 1,
+                "to_ayah": 34
+            },
+            {
+                "surah_number": 32,
+                "name_latin": "As-Sajdah",
+                "name_arabic": "\u0627\u0644\u0633\u062c\u062f\u0629",
+                "from_ayah": 1,
+                "to_ayah": 30
+            },
+            {
+                "surah_number": 33,
+                "name_latin": "Al-Ahzab",
+                "name_arabic": "\u0627\u0644\u0623\u062d\u0632\u0627\u0628",
+                "from_ayah": 1,
+                "to_ayah": 30
+            }
+        ],
+        "surahs_summary": "Surah Al-'Ankabut (ayat 46-69), Surah Ar-Rum (ayat 1-60), Surah Luqman (ayat 1-34), Surah As-Sajdah (ayat 1-30) dan Surah Al-Ahzab (ayat 1-30)",
+        "surah_names": "Al-'Ankabut, Ar-Rum, Luqman, As-Sajdah & Al-Ahzab"
+    },
+    "22": {
+        "juz": 22,
+        "min_page": 422,
+        "max_page": 441,
+        "total_pages": 20,
+        "total_ayahs": 169,
+        "surahs": [
+            {
+                "surah_number": 33,
+                "name_latin": "Al-Ahzab",
+                "name_arabic": "\u0627\u0644\u0623\u062d\u0632\u0627\u0628",
+                "from_ayah": 31,
+                "to_ayah": 73
+            },
+            {
+                "surah_number": 34,
+                "name_latin": "Saba",
+                "name_arabic": "\u0633\u0628\u0625",
+                "from_ayah": 1,
+                "to_ayah": 54
+            },
+            {
+                "surah_number": 35,
+                "name_latin": "Fatir",
+                "name_arabic": "\u0641\u0627\u0637\u0631",
+                "from_ayah": 1,
+                "to_ayah": 45
+            },
+            {
+                "surah_number": 36,
+                "name_latin": "Ya-Sin",
+                "name_arabic": "\u064a\u0633",
+                "from_ayah": 1,
+                "to_ayah": 27
+            }
+        ],
+        "surahs_summary": "Surah Al-Ahzab (ayat 31-73), Surah Saba (ayat 1-54), Surah Fatir (ayat 1-45) dan Surah Ya-Sin (ayat 1-27)",
+        "surah_names": "Al-Ahzab, Saba, Fatir & Ya-Sin"
+    },
+    "23": {
+        "juz": 23,
+        "min_page": 442,
+        "max_page": 461,
+        "total_pages": 20,
+        "total_ayahs": 357,
+        "surahs": [
+            {
+                "surah_number": 36,
+                "name_latin": "Ya-Sin",
+                "name_arabic": "\u064a\u0633",
+                "from_ayah": 28,
+                "to_ayah": 83
+            },
+            {
+                "surah_number": 37,
+                "name_latin": "As-Saffat",
+                "name_arabic": "\u0627\u0644\u0635\u0627\u0641\u0627\u062a",
+                "from_ayah": 1,
+                "to_ayah": 182
+            },
+            {
+                "surah_number": 38,
+                "name_latin": "Sad",
+                "name_arabic": "\u0635",
+                "from_ayah": 1,
+                "to_ayah": 88
+            },
+            {
+                "surah_number": 39,
+                "name_latin": "Az-Zumar",
+                "name_arabic": "\u0627\u0644\u0632\u0645\u0631",
+                "from_ayah": 1,
+                "to_ayah": 31
+            }
+        ],
+        "surahs_summary": "Surah Ya-Sin (ayat 28-83), Surah As-Saffat (ayat 1-182), Surah Sad (ayat 1-88) dan Surah Az-Zumar (ayat 1-31)",
+        "surah_names": "Ya-Sin, As-Saffat, Sad & Az-Zumar"
+    },
+    "24": {
+        "juz": 24,
+        "min_page": 462,
+        "max_page": 481,
+        "total_pages": 20,
+        "total_ayahs": 175,
+        "surahs": [
+            {
+                "surah_number": 39,
+                "name_latin": "Az-Zumar",
+                "name_arabic": "\u0627\u0644\u0632\u0645\u0631",
+                "from_ayah": 32,
+                "to_ayah": 75
+            },
+            {
+                "surah_number": 40,
+                "name_latin": "Ghafir",
+                "name_arabic": "\u063a\u0627\u0641\u0631",
+                "from_ayah": 1,
+                "to_ayah": 85
+            },
+            {
+                "surah_number": 41,
+                "name_latin": "Fussilat",
+                "name_arabic": "\u0641\u0635\u0644\u062a",
+                "from_ayah": 1,
+                "to_ayah": 46
+            }
+        ],
+        "surahs_summary": "Surah Az-Zumar (ayat 32-75), Surah Ghafir (ayat 1-85) dan Surah Fussilat (ayat 1-46)",
+        "surah_names": "Az-Zumar, Ghafir & Fussilat"
+    },
+    "25": {
+        "juz": 25,
+        "min_page": 482,
+        "max_page": 502,
+        "total_pages": 21,
+        "total_ayahs": 246,
+        "surahs": [
+            {
+                "surah_number": 41,
+                "name_latin": "Fussilat",
+                "name_arabic": "\u0641\u0635\u0644\u062a",
+                "from_ayah": 47,
+                "to_ayah": 54
+            },
+            {
+                "surah_number": 42,
+                "name_latin": "Ash-Shuraa",
+                "name_arabic": "\u0627\u0644\u0634\u0648\u0631\u0649",
+                "from_ayah": 1,
+                "to_ayah": 53
+            },
+            {
+                "surah_number": 43,
+                "name_latin": "Az-Zukhruf",
+                "name_arabic": "\u0627\u0644\u0632\u062e\u0631\u0641",
+                "from_ayah": 1,
+                "to_ayah": 89
+            },
+            {
+                "surah_number": 44,
+                "name_latin": "Ad-Dukhan",
+                "name_arabic": "\u0627\u0644\u062f\u062e\u0627\u0646",
+                "from_ayah": 1,
+                "to_ayah": 59
+            },
+            {
+                "surah_number": 45,
+                "name_latin": "Al-Jathiyah",
+                "name_arabic": "\u0627\u0644\u062c\u0627\u062b\u064a\u0629",
+                "from_ayah": 1,
+                "to_ayah": 37
+            }
+        ],
+        "surahs_summary": "Surah Fussilat (ayat 47-54), Surah Ash-Shuraa (ayat 1-53), Surah Az-Zukhruf (ayat 1-89), Surah Ad-Dukhan (ayat 1-59) dan Surah Al-Jathiyah (ayat 1-37)",
+        "surah_names": "Fussilat, Ash-Shuraa, Az-Zukhruf, Ad-Dukhan & Al-Jathiyah"
+    },
+    "26": {
+        "juz": 26,
+        "min_page": 502,
+        "max_page": 521,
+        "total_pages": 20,
+        "total_ayahs": 195,
+        "surahs": [
+            {
+                "surah_number": 46,
+                "name_latin": "Al-Ahqaf",
+                "name_arabic": "\u0627\u0644\u0623\u062d\u0642\u0627\u0641",
+                "from_ayah": 1,
+                "to_ayah": 35
+            },
+            {
+                "surah_number": 47,
+                "name_latin": "Muhammad",
+                "name_arabic": "\u0645\u062d\u0645\u062f",
+                "from_ayah": 1,
+                "to_ayah": 38
+            },
+            {
+                "surah_number": 48,
+                "name_latin": "Al-Fath",
+                "name_arabic": "\u0627\u0644\u0641\u062a\u062d",
+                "from_ayah": 1,
+                "to_ayah": 29
+            },
+            {
+                "surah_number": 49,
+                "name_latin": "Al-Hujurat",
+                "name_arabic": "\u0627\u0644\u062d\u062c\u0631\u0627\u062a",
+                "from_ayah": 1,
+                "to_ayah": 18
+            },
+            {
+                "surah_number": 50,
+                "name_latin": "Qaf",
+                "name_arabic": "\u0642",
+                "from_ayah": 1,
+                "to_ayah": 45
+            },
+            {
+                "surah_number": 51,
+                "name_latin": "Adh-Dhariyat",
+                "name_arabic": "\u0627\u0644\u0630\u0627\u0631\u064a\u0627\u062a",
+                "from_ayah": 1,
+                "to_ayah": 30
+            }
+        ],
+        "surahs_summary": "Surah Al-Ahqaf (ayat 1-35), Surah Muhammad (ayat 1-38), Surah Al-Fath (ayat 1-29), Surah Al-Hujurat (ayat 1-18), Surah Qaf (ayat 1-45) dan Surah Adh-Dhariyat (ayat 1-30)",
+        "surah_names": "Al-Ahqaf, Muhammad, Al-Fath, Al-Hujurat, Qaf & Adh-Dhariyat"
+    },
+    "27": {
+        "juz": 27,
+        "min_page": 522,
+        "max_page": 541,
+        "total_pages": 20,
+        "total_ayahs": 399,
+        "surahs": [
+            {
+                "surah_number": 51,
+                "name_latin": "Adh-Dhariyat",
+                "name_arabic": "\u0627\u0644\u0630\u0627\u0631\u064a\u0627\u062a",
+                "from_ayah": 31,
+                "to_ayah": 60
+            },
+            {
+                "surah_number": 52,
+                "name_latin": "At-Tur",
+                "name_arabic": "\u0627\u0644\u0637\u0648\u0631",
+                "from_ayah": 1,
+                "to_ayah": 49
+            },
+            {
+                "surah_number": 53,
+                "name_latin": "An-Najm",
+                "name_arabic": "\u0627\u0644\u0646\u062c\u0645",
+                "from_ayah": 1,
+                "to_ayah": 62
+            },
+            {
+                "surah_number": 54,
+                "name_latin": "Al-Qamar",
+                "name_arabic": "\u0627\u0644\u0642\u0645\u0631",
+                "from_ayah": 1,
+                "to_ayah": 55
+            },
+            {
+                "surah_number": 55,
+                "name_latin": "Ar-Rahman",
+                "name_arabic": "\u0627\u0644\u0631\u062d\u0645\u0646",
+                "from_ayah": 1,
+                "to_ayah": 78
+            },
+            {
+                "surah_number": 56,
+                "name_latin": "Al-Waqi'ah",
+                "name_arabic": "\u0627\u0644\u0648\u0627\u0642\u0639\u0629",
+                "from_ayah": 1,
+                "to_ayah": 96
+            },
+            {
+                "surah_number": 57,
+                "name_latin": "Al-Hadid",
+                "name_arabic": "\u0627\u0644\u062d\u062f\u064a\u062f",
+                "from_ayah": 1,
+                "to_ayah": 29
+            }
+        ],
+        "surahs_summary": "Surah Adh-Dhariyat (ayat 31-60), Surah At-Tur (ayat 1-49), Surah An-Najm (ayat 1-62), Surah Al-Qamar (ayat 1-55), Surah Ar-Rahman (ayat 1-78), Surah Al-Waqi'ah (ayat 1-96) dan Surah Al-Hadid (ayat 1-29)",
+        "surah_names": "Adh-Dhariyat, At-Tur, An-Najm, Al-Qamar, Ar-Rahman, Al-Waqi'ah & Al-Hadid"
+    },
+    "28": {
+        "juz": 28,
+        "min_page": 542,
+        "max_page": 561,
+        "total_pages": 20,
+        "total_ayahs": 137,
+        "surahs": [
+            {
+                "surah_number": 58,
+                "name_latin": "Al-Mujadila",
+                "name_arabic": "\u0627\u0644\u0645\u062c\u0627\u062f\u0644\u0629",
+                "from_ayah": 1,
+                "to_ayah": 22
+            },
+            {
+                "surah_number": 59,
+                "name_latin": "Al-Hashr",
+                "name_arabic": "\u0627\u0644\u062d\u0634\u0631",
+                "from_ayah": 1,
+                "to_ayah": 24
+            },
+            {
+                "surah_number": 60,
+                "name_latin": "Al-Mumtahanah",
+                "name_arabic": "\u0627\u0644\u0645\u0645\u062a\u062d\u0646\u0629",
+                "from_ayah": 1,
+                "to_ayah": 13
+            },
+            {
+                "surah_number": 61,
+                "name_latin": "As-Saf",
+                "name_arabic": "\u0627\u0644\u0635\u0641",
+                "from_ayah": 1,
+                "to_ayah": 14
+            },
+            {
+                "surah_number": 62,
+                "name_latin": "Al-Jumu'ah",
+                "name_arabic": "\u0627\u0644\u062c\u0645\u0639\u0629",
+                "from_ayah": 1,
+                "to_ayah": 11
+            },
+            {
+                "surah_number": 63,
+                "name_latin": "Al-Munafiqun",
+                "name_arabic": "\u0627\u0644\u0645\u0646\u0627\u0641\u0642\u0648\u0646",
+                "from_ayah": 1,
+                "to_ayah": 11
+            },
+            {
+                "surah_number": 64,
+                "name_latin": "At-Taghabun",
+                "name_arabic": "\u0627\u0644\u062a\u063a\u0627\u0628\u0646",
+                "from_ayah": 1,
+                "to_ayah": 18
+            },
+            {
+                "surah_number": 65,
+                "name_latin": "At-Talaq",
+                "name_arabic": "\u0627\u0644\u0637\u0644\u0627\u0642",
+                "from_ayah": 1,
+                "to_ayah": 12
+            },
+            {
+                "surah_number": 66,
+                "name_latin": "At-Tahrim",
+                "name_arabic": "\u0627\u0644\u062a\u062d\u0631\u064a\u0645",
+                "from_ayah": 1,
+                "to_ayah": 12
+            }
+        ],
+        "surahs_summary": "Surah Al-Mujadila (ayat 1-22), Surah Al-Hashr (ayat 1-24), Surah Al-Mumtahanah (ayat 1-13), Surah As-Saf (ayat 1-14), Surah Al-Jumu'ah (ayat 1-11), Surah Al-Munafiqun (ayat 1-11), Surah At-Taghabun (ayat 1-18), Surah At-Talaq (ayat 1-12) dan Surah At-Tahrim (ayat 1-12)",
+        "surah_names": "Al-Mujadila, Al-Hashr, Al-Mumtahanah, As-Saf, Al-Jumu'ah, Al-Munafiqun, At-Taghabun, At-Talaq & At-Tahrim"
+    },
+    "29": {
+        "juz": 29,
+        "min_page": 562,
+        "max_page": 581,
+        "total_pages": 20,
+        "total_ayahs": 431,
+        "surahs": [
+            {
+                "surah_number": 67,
+                "name_latin": "Al-Mulk",
+                "name_arabic": "\u0627\u0644\u0645\u0644\u0643",
+                "from_ayah": 1,
+                "to_ayah": 30
+            },
+            {
+                "surah_number": 68,
+                "name_latin": "Al-Qalam",
+                "name_arabic": "\u0627\u0644\u0642\u0644\u0645",
+                "from_ayah": 1,
+                "to_ayah": 52
+            },
+            {
+                "surah_number": 69,
+                "name_latin": "Al-Haqqah",
+                "name_arabic": "\u0627\u0644\u062d\u0627\u0642\u0629",
+                "from_ayah": 1,
+                "to_ayah": 52
+            },
+            {
+                "surah_number": 70,
+                "name_latin": "Al-Ma'arij",
+                "name_arabic": "\u0627\u0644\u0645\u0639\u0627\u0631\u062c",
+                "from_ayah": 1,
+                "to_ayah": 44
+            },
+            {
+                "surah_number": 71,
+                "name_latin": "Nuh",
+                "name_arabic": "\u0646\u0648\u062d",
+                "from_ayah": 1,
+                "to_ayah": 28
+            },
+            {
+                "surah_number": 72,
+                "name_latin": "Al-Jinn",
+                "name_arabic": "\u0627\u0644\u062c\u0646",
+                "from_ayah": 1,
+                "to_ayah": 28
+            },
+            {
+                "surah_number": 73,
+                "name_latin": "Al-Muzzammil",
+                "name_arabic": "\u0627\u0644\u0645\u0632\u0645\u0644",
+                "from_ayah": 1,
+                "to_ayah": 20
+            },
+            {
+                "surah_number": 74,
+                "name_latin": "Al-Muddaththir",
+                "name_arabic": "\u0627\u0644\u0645\u062f\u062b\u0631",
+                "from_ayah": 1,
+                "to_ayah": 56
+            },
+            {
+                "surah_number": 75,
+                "name_latin": "Al-Qiyamah",
+                "name_arabic": "\u0627\u0644\u0642\u064a\u0627\u0645\u0629",
+                "from_ayah": 1,
+                "to_ayah": 40
+            },
+            {
+                "surah_number": 76,
+                "name_latin": "Al-Insan",
+                "name_arabic": "\u0627\u0644\u0627\u0646\u0633\u0627\u0646",
+                "from_ayah": 1,
+                "to_ayah": 31
+            },
+            {
+                "surah_number": 77,
+                "name_latin": "Al-Mursalat",
+                "name_arabic": "\u0627\u0644\u0645\u0631\u0633\u0644\u0627\u062a",
+                "from_ayah": 1,
+                "to_ayah": 50
+            }
+        ],
+        "surahs_summary": "Surah Al-Mulk (ayat 1-30), Surah Al-Qalam (ayat 1-52), Surah Al-Haqqah (ayat 1-52), Surah Al-Ma'arij (ayat 1-44), Surah Nuh (ayat 1-28), Surah Al-Jinn (ayat 1-28), Surah Al-Muzzammil (ayat 1-20), Surah Al-Muddaththir (ayat 1-56), Surah Al-Qiyamah (ayat 1-40), Surah Al-Insan (ayat 1-31) dan Surah Al-Mursalat (ayat 1-50)",
+        "surah_names": "Al-Mulk, Al-Qalam, Al-Haqqah, Al-Ma'arij, Nuh, Al-Jinn, Al-Muzzammil, Al-Muddaththir, Al-Qiyamah, Al-Insan & Al-Mursalat"
+    },
+    "30": {
+        "juz": 30,
+        "min_page": 582,
+        "max_page": 604,
+        "total_pages": 23,
+        "total_ayahs": 564,
+        "surahs": [
+            {
+                "surah_number": 78,
+                "name_latin": "An-Naba",
+                "name_arabic": "\u0627\u0644\u0646\u0628\u0625",
+                "from_ayah": 1,
+                "to_ayah": 40
+            },
+            {
+                "surah_number": 79,
+                "name_latin": "An-Nazi'at",
+                "name_arabic": "\u0627\u0644\u0646\u0627\u0632\u0639\u0627\u062a",
+                "from_ayah": 1,
+                "to_ayah": 46
+            },
+            {
+                "surah_number": 80,
+                "name_latin": "'Abasa",
+                "name_arabic": "\u0639\u0628\u0633",
+                "from_ayah": 1,
+                "to_ayah": 42
+            },
+            {
+                "surah_number": 81,
+                "name_latin": "At-Takwir",
+                "name_arabic": "\u0627\u0644\u062a\u0643\u0648\u064a\u0631",
+                "from_ayah": 1,
+                "to_ayah": 29
+            },
+            {
+                "surah_number": 82,
+                "name_latin": "Al-Infitar",
+                "name_arabic": "\u0627\u0644\u0625\u0646\u0641\u0637\u0627\u0631",
+                "from_ayah": 1,
+                "to_ayah": 19
+            },
+            {
+                "surah_number": 83,
+                "name_latin": "Al-Mutaffifin",
+                "name_arabic": "\u0627\u0644\u0645\u0637\u0641\u0641\u064a\u0646",
+                "from_ayah": 1,
+                "to_ayah": 36
+            },
+            {
+                "surah_number": 84,
+                "name_latin": "Al-Inshiqaq",
+                "name_arabic": "\u0627\u0644\u0625\u0646\u0634\u0642\u0627\u0642",
+                "from_ayah": 1,
+                "to_ayah": 25
+            },
+            {
+                "surah_number": 85,
+                "name_latin": "Al-Buruj",
+                "name_arabic": "\u0627\u0644\u0628\u0631\u0648\u062c",
+                "from_ayah": 1,
+                "to_ayah": 22
+            },
+            {
+                "surah_number": 86,
+                "name_latin": "At-Tariq",
+                "name_arabic": "\u0627\u0644\u0637\u0627\u0631\u0642",
+                "from_ayah": 1,
+                "to_ayah": 17
+            },
+            {
+                "surah_number": 87,
+                "name_latin": "Al-A'la",
+                "name_arabic": "\u0627\u0644\u0623\u0639\u0644\u0649",
+                "from_ayah": 1,
+                "to_ayah": 19
+            },
+            {
+                "surah_number": 88,
+                "name_latin": "Al-Ghashiyah",
+                "name_arabic": "\u0627\u0644\u063a\u0627\u0634\u064a\u0629",
+                "from_ayah": 1,
+                "to_ayah": 26
+            },
+            {
+                "surah_number": 89,
+                "name_latin": "Al-Fajr",
+                "name_arabic": "\u0627\u0644\u0641\u062c\u0631",
+                "from_ayah": 1,
+                "to_ayah": 30
+            },
+            {
+                "surah_number": 90,
+                "name_latin": "Al-Balad",
+                "name_arabic": "\u0627\u0644\u0628\u0644\u062f",
+                "from_ayah": 1,
+                "to_ayah": 20
+            },
+            {
+                "surah_number": 91,
+                "name_latin": "Ash-Shams",
+                "name_arabic": "\u0627\u0644\u0634\u0645\u0633",
+                "from_ayah": 1,
+                "to_ayah": 15
+            },
+            {
+                "surah_number": 92,
+                "name_latin": "Al-Layl",
+                "name_arabic": "\u0627\u0644\u0644\u064a\u0644",
+                "from_ayah": 1,
+                "to_ayah": 21
+            },
+            {
+                "surah_number": 93,
+                "name_latin": "Ad-Duhaa",
+                "name_arabic": "\u0627\u0644\u0636\u062d\u0649",
+                "from_ayah": 1,
+                "to_ayah": 11
+            },
+            {
+                "surah_number": 94,
+                "name_latin": "Ash-Sharh",
+                "name_arabic": "\u0627\u0644\u0634\u0631\u062d",
+                "from_ayah": 1,
+                "to_ayah": 8
+            },
+            {
+                "surah_number": 95,
+                "name_latin": "At-Tin",
+                "name_arabic": "\u0627\u0644\u062a\u064a\u0646",
+                "from_ayah": 1,
+                "to_ayah": 8
+            },
+            {
+                "surah_number": 96,
+                "name_latin": "Al-'Alaq",
+                "name_arabic": "\u0627\u0644\u0639\u0644\u0642",
+                "from_ayah": 1,
+                "to_ayah": 19
+            },
+            {
+                "surah_number": 97,
+                "name_latin": "Al-Qadr",
+                "name_arabic": "\u0627\u0644\u0642\u062f\u0631",
+                "from_ayah": 1,
+                "to_ayah": 5
+            },
+            {
+                "surah_number": 98,
+                "name_latin": "Al-Bayyinah",
+                "name_arabic": "\u0627\u0644\u0628\u064a\u0646\u0629",
+                "from_ayah": 1,
+                "to_ayah": 8
+            },
+            {
+                "surah_number": 99,
+                "name_latin": "Az-Zalzalah",
+                "name_arabic": "\u0627\u0644\u0632\u0644\u0632\u0644\u0629",
+                "from_ayah": 1,
+                "to_ayah": 8
+            },
+            {
+                "surah_number": 100,
+                "name_latin": "Al-'Adiyat",
+                "name_arabic": "\u0627\u0644\u0639\u0627\u062f\u064a\u0627\u062a",
+                "from_ayah": 1,
+                "to_ayah": 11
+            },
+            {
+                "surah_number": 101,
+                "name_latin": "Al-Qari'ah",
+                "name_arabic": "\u0627\u0644\u0642\u0627\u0631\u0639\u0629",
+                "from_ayah": 1,
+                "to_ayah": 11
+            },
+            {
+                "surah_number": 102,
+                "name_latin": "At-Takathur",
+                "name_arabic": "\u0627\u0644\u062a\u0643\u0627\u062b\u0631",
+                "from_ayah": 1,
+                "to_ayah": 8
+            },
+            {
+                "surah_number": 103,
+                "name_latin": "Al-'Asr",
+                "name_arabic": "\u0627\u0644\u0639\u0635\u0631",
+                "from_ayah": 1,
+                "to_ayah": 3
+            },
+            {
+                "surah_number": 104,
+                "name_latin": "Al-Humazah",
+                "name_arabic": "\u0627\u0644\u0647\u0645\u0632\u0629",
+                "from_ayah": 1,
+                "to_ayah": 9
+            },
+            {
+                "surah_number": 105,
+                "name_latin": "Al-Fil",
+                "name_arabic": "\u0627\u0644\u0641\u064a\u0644",
+                "from_ayah": 1,
+                "to_ayah": 5
+            },
+            {
+                "surah_number": 106,
+                "name_latin": "Quraysh",
+                "name_arabic": "\u0642\u0631\u064a\u0634",
+                "from_ayah": 1,
+                "to_ayah": 4
+            },
+            {
+                "surah_number": 107,
+                "name_latin": "Al-Ma'un",
+                "name_arabic": "\u0627\u0644\u0645\u0627\u0639\u0648\u0646",
+                "from_ayah": 1,
+                "to_ayah": 7
+            },
+            {
+                "surah_number": 108,
+                "name_latin": "Al-Kawthar",
+                "name_arabic": "\u0627\u0644\u0643\u0648\u062b\u0631",
+                "from_ayah": 1,
+                "to_ayah": 3
+            },
+            {
+                "surah_number": 109,
+                "name_latin": "Al-Kafirun",
+                "name_arabic": "\u0627\u0644\u0643\u0627\u0641\u0631\u0648\u0646",
+                "from_ayah": 1,
+                "to_ayah": 6
+            },
+            {
+                "surah_number": 110,
+                "name_latin": "An-Nasr",
+                "name_arabic": "\u0627\u0644\u0646\u0635\u0631",
+                "from_ayah": 1,
+                "to_ayah": 3
+            },
+            {
+                "surah_number": 111,
+                "name_latin": "Al-Masad",
+                "name_arabic": "\u0627\u0644\u0645\u0633\u062f",
+                "from_ayah": 1,
+                "to_ayah": 5
+            },
+            {
+                "surah_number": 112,
+                "name_latin": "Al-Ikhlas",
+                "name_arabic": "\u0627\u0644\u0625\u062e\u0644\u0627\u0635",
+                "from_ayah": 1,
+                "to_ayah": 4
+            },
+            {
+                "surah_number": 113,
+                "name_latin": "Al-Falaq",
+                "name_arabic": "\u0627\u0644\u0641\u0644\u0642",
+                "from_ayah": 1,
+                "to_ayah": 5
+            },
+            {
+                "surah_number": 114,
+                "name_latin": "An-Nas",
+                "name_arabic": "\u0627\u0644\u0646\u0627\u0633",
+                "from_ayah": 1,
+                "to_ayah": 6
+            }
+        ],
+        "surahs_summary": "Surah An-Naba (ayat 1-40), Surah An-Nazi'at (ayat 1-46), Surah 'Abasa (ayat 1-42), Surah At-Takwir (ayat 1-29), Surah Al-Infitar (ayat 1-19), Surah Al-Mutaffifin (ayat 1-36), Surah Al-Inshiqaq (ayat 1-25), Surah Al-Buruj (ayat 1-22), Surah At-Tariq (ayat 1-17), Surah Al-A'la (ayat 1-19), Surah Al-Ghashiyah (ayat 1-26), Surah Al-Fajr (ayat 1-30), Surah Al-Balad (ayat 1-20), Surah Ash-Shams (ayat 1-15), Surah Al-Layl (ayat 1-21), Surah Ad-Duhaa (ayat 1-11), Surah Ash-Sharh (ayat 1-8), Surah At-Tin (ayat 1-8), Surah Al-'Alaq (ayat 1-19), Surah Al-Qadr (ayat 1-5), Surah Al-Bayyinah (ayat 1-8), Surah Az-Zalzalah (ayat 1-8), Surah Al-'Adiyat (ayat 1-11), Surah Al-Qari'ah (ayat 1-11), Surah At-Takathur (ayat 1-8), Surah Al-'Asr (ayat 1-3), Surah Al-Humazah (ayat 1-9), Surah Al-Fil (ayat 1-5), Surah Quraysh (ayat 1-4), Surah Al-Ma'un (ayat 1-7), Surah Al-Kawthar (ayat 1-3), Surah Al-Kafirun (ayat 1-6), Surah An-Nasr (ayat 1-3), Surah Al-Masad (ayat 1-5), Surah Al-Ikhlas (ayat 1-4), Surah Al-Falaq (ayat 1-5) dan Surah An-Nas (ayat 1-6)",
+        "surah_names": "An-Naba, An-Nazi'at, 'Abasa, At-Takwir, Al-Infitar, Al-Mutaffifin, Al-Inshiqaq, Al-Buruj, At-Tariq, Al-A'la, Al-Ghashiyah, Al-Fajr, Al-Balad, Ash-Shams, Al-Layl, Ad-Duhaa, Ash-Sharh, At-Tin, Al-'Alaq, Al-Qadr, Al-Bayyinah, Az-Zalzalah, Al-'Adiyat, Al-Qari'ah, At-Takathur, Al-'Asr, Al-Humazah, Al-Fil, Quraysh, Al-Ma'un, Al-Kawthar, Al-Kafirun, An-Nasr, Al-Masad, Al-Ikhlas, Al-Falaq & An-Nas"
+    }
+}

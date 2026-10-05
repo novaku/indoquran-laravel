@@ -32,17 +32,32 @@ class SEOController extends Controller
         $segments = explode('/', $path);
 
         // Redirect keyword-slug variants to canonical pages (301) to consolidate ranking signals.
-        if (preg_match('/^(?:al-?quran|alquran)-halaman-(\d+)$/i', $path, $matches)) {
+        if (preg_match('/^(?:al-?quran|alquran)?-?(?:halaman|muka-surat)-(\d+)$/i', $path, $matches)) {
             $pageNumber = (int) $matches[1];
             if ($pageNumber >= 1 && $pageNumber <= 604) {
                 return redirect(url('/halaman/' . $pageNumber), 301);
             }
         }
 
-        if (preg_match('/^juz-(\d+)-arab-saja$/i', $path, $matches)) {
+        if (preg_match('/^(?:al-?quran-)?juz-(\d+)(?:-arab-saja)?$/i', $path, $matches)) {
             $juzNumber = (int) $matches[1];
             if ($juzNumber >= 1 && $juzNumber <= 30) {
                 return redirect(url('/juz/' . $juzNumber), 301);
+            }
+        }
+
+        if (preg_match('/^(?:al-?quran-)?(?:surah|surat)-(\d+)$/i', $path, $matches)) {
+            $surahNumber = (int) $matches[1];
+            if ($surahNumber >= 1 && $surahNumber <= 114) {
+                return redirect(url('/surah/' . $surahNumber), 301);
+            }
+        }
+
+        if (preg_match('/^(?:al-?quran-)?(?:surah|surat)-(\d+)-ayat-(\d+)$/i', $path, $matches)) {
+            $surahNumber = (int) $matches[1];
+            $ayahNumber = (int) $matches[2];
+            if ($surahNumber >= 1 && $surahNumber <= 114 && $ayahNumber >= 1) {
+                return redirect(url('/surah/' . $surahNumber . '/' . $ayahNumber), 301);
             }
         }
 
@@ -408,7 +423,7 @@ class SEOController extends Controller
             $seoData = array_merge($seoData, [
                 'metaTitle' => 'Al Quran Online Indonesia - Baca Al-Quran Digital 30 Juz & Hadits | IndoQuran',
                 'metaDescription' => 'Baca Al-Quran online 30 juz lengkap dengan teks Arab berharakat, transliterasi latin, terjemahan Indonesia standar Kemenag, audio murottal merdu, tafsir, dan 7 kitab hadits shahih nabawi di IndoQuran.',
-                'metaKeywords' => 'al quran online, alquran online, quran online, al quran indonesia, al quran digital, baca quran online, terjemahan quran indonesia, murottal quran, quran indonesia, ayat al quran, surah quran, hadits shahih, juz amma, tafsir quran, indoquran, quran digital 30 juz',
+                'metaKeywords' => 'al quran online, alquran online, quran online, al quran indonesia, al quran digital, baca quran online, terjemahan quran indonesia, murottal quran, quran indonesia, ayat al quran, surah quran, hadits shahih, juz amma, tafsir quran, indoquran, quran digital 30 juz, quranindo, quran indo, qur\'an indonesia, alquran per juz, baca al quran online, tadarus alquran online, al quran web, quran online indonesia',
                 'canonicalUrl' => url('/'),
                 'siteNavigationStructuredData' => $siteNavigationStructuredData,
                 'customStructuredData' => SEOService::generateHomeFaqStructuredData()
@@ -449,13 +464,65 @@ class SEOController extends Controller
                     ];
                     
                     if ($ayahNumber) {
-                        // Specific ayah SEO - Point canonical to parent surah to consolidate ranking signals and avoid thin-content indexing rejection
+                        $ayah = Ayah::query()
+                            ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian', 'juz', 'page')
+                            ->where('surah_number', $surahNumber)
+                            ->where('ayah_number', $ayahNumber)
+                            ->first();
+
+                        $cleanArabic = trim(preg_replace('/\s+/', ' ', strip_tags($ayah?->text_arabic ?? '')));
+                        $cleanLatin = trim(preg_replace('/\s+/', ' ', strip_tags($ayah?->text_latin ?? '')));
+                        $cleanIndo = trim(preg_replace('/\s+/', ' ', strip_tags($ayah?->text_indonesian ?? '')));
+
+                        $shortArabic = Str::limit($cleanArabic, 60);
+                        $shortIndo = Str::limit($cleanIndo, 80);
+
+                        $metaTitle = "Surat {$surah->name_latin} Ayat {$ayahNumber} (QS {$surah->number}:{$ayahNumber}) - Teks Arab, Latin & Arti | IndoQuran";
+                        $metaDescription = $ayah 
+                            ? "Baca Surat {$surah->name_latin} Ayat {$ayahNumber} (QS {$surah->number}:{$ayahNumber}): {$shortArabic}. Artinya: \"{$shortIndo}\". Teks latin, audio murottal, Juz {$ayah->juz} Halaman {$ayah->page} di IndoQuran."
+                            : "Baca Surah {$surah->name_latin} ayat {$ayahNumber} lengkap dengan terjemahan bahasa Indonesia, audio murottal, dan tafsir di IndoQuran.";
+                        $metaKeywords = "surat {$surah->name_latin} ayat {$ayahNumber}, surah {$surah->name_latin} ayat {$ayahNumber}, qs {$surah->number} ayat {$ayahNumber}, qs {$surah->name_latin} ayat {$ayahNumber}, {$surah->name_latin} {$ayahNumber}, arti surat {$surah->name_latin} ayat {$ayahNumber}, {$surah->name_latin} ayat {$ayahNumber} dan artinya, {$surah->name_latin} ayat {$ayahNumber} latin, tafsir {$surah->name_latin} ayat {$ayahNumber}, ayat {$ayahNumber}";
+
+                        $ayahBreadcrumbs = [
+                            '@context' => 'https://schema.org',
+                            '@type' => 'BreadcrumbList',
+                            'itemListElement' => [
+                                [
+                                    '@type' => 'ListItem',
+                                    'position' => 1,
+                                    'name' => 'Beranda',
+                                    'item' => 'https://indoquran.web.id'
+                                ],
+                                [
+                                    '@type' => 'ListItem',
+                                    'position' => 2,
+                                    'name' => 'Daftar Surah',
+                                    'item' => 'https://indoquran.web.id/surah'
+                                ],
+                                [
+                                    '@type' => 'ListItem',
+                                    'position' => 3,
+                                    'name' => "Surah {$surah->name_latin}",
+                                    'item' => "https://indoquran.web.id/surah/{$surahNumber}"
+                                ],
+                                [
+                                    '@type' => 'ListItem',
+                                    'position' => 4,
+                                    'name' => "Ayat {$ayahNumber}",
+                                    'item' => "https://indoquran.web.id/surah/{$surahNumber}/{$ayahNumber}"
+                                ]
+                            ]
+                        ];
+
+                        $customStructuredData = $ayah ? SEOService::generateAyahStructuredData($surah, $ayah) : null;
+
                         $seoData = array_merge($seoData, [
-                            'metaTitle' => "Surah {$surah->name_latin} Ayat {$ayahNumber} - Terjemahan Indonesia - IndoQuran",
-                            'metaDescription' => "Baca Surah {$surah->name_latin} ayat {$ayahNumber} lengkap dengan terjemahan bahasa Indonesia, audio murottal, dan tafsir. Pelajari makna dan kandungan ayat dalam Al-Quran.",
-                            'metaKeywords' => "Surah {$surah->name_latin} ayat {$ayahNumber}, {$surah->name_arabic}, terjemahan ayat {$ayahNumber}, murottal ayat, quran ayat, al quran indonesia",
-                            'canonicalUrl' => url("/surah/{$surahNumber}"),
-                            'breadcrumbStructuredData' => $breadcrumbStructuredData,
+                            'metaTitle' => $metaTitle,
+                            'metaDescription' => $metaDescription,
+                            'metaKeywords' => $metaKeywords,
+                            'canonicalUrl' => url("/surah/{$surahNumber}/{$ayahNumber}"),
+                            'breadcrumbStructuredData' => $ayahBreadcrumbs,
+                            'customStructuredData' => $customStructuredData,
                             'ogType' => 'article'
                         ]);
                     } else {
@@ -530,22 +597,33 @@ class SEOController extends Controller
                 ];
 
                 // Specific Juz SEO
+                $juzMeta = SEOService::getJuzMetadata($juzNumber);
+                $customStructuredData = SEOService::generateJuzStructuredData($juzNumber, $juzMeta);
+
                 if ($juzNumber === 30) {
                     $seoData = array_merge($seoData, [
                         'metaTitle' => 'Juz 30 (Juz Amma) Lengkap Teks Arab, Latin & Terjemahan | IndoQuran',
                         'metaDescription' => 'Baca Al-Quran Juz 30 (Juz Amma) lengkap dari Surah An-Naba sampai An-Nas. Teks Arab berharakat jelas, transliterasi latin, terjemahan Indonesia, dan audio murottal merdu di IndoQuran.',
-                        'metaKeywords' => 'juz 30, juz amma, juz amma lengkap, baca juz 30, al quran juz 30, juz amma arab latin terjemahan, surat juz amma, juz 30 online, murottal juz amma, indoquran',
+                        'metaKeywords' => 'juz 30, juz amma, juz amma lengkap, baca juz 30, al quran juz 30, juz 30 berapa halaman, juz 30 surat apa, surat juz amma, juz 30 online, murottal juz amma, indoquran',
                         'canonicalUrl' => url('/juz/30'),
                         'breadcrumbStructuredData' => $breadcrumbStructuredData,
+                        'customStructuredData' => $customStructuredData,
                         'ogType' => 'article'
                     ]);
                 } else {
+                    $surahsSummary = $juzMeta['surahs_summary'] ?? '';
+                    $surahNames = $juzMeta['surah_names'] ?? '';
+                    $minPage = $juzMeta['min_page'] ?? 1;
+                    $maxPage = $juzMeta['max_page'] ?? 20;
+                    $totalPages = $juzMeta['total_pages'] ?? 20;
+
                     $seoData = array_merge($seoData, [
-                        'metaTitle' => "Juz {$juzNumber} Arab Saja - Teks Arab Al-Quran Lengkap | IndoQuran",
-                        'metaDescription' => "Baca Juz {$juzNumber} Arab saja dengan teks Arab Al-Quran lengkap. Para {$juzNumber} tersedia dengan navigasi per ayat, audio murottal, dan tampilan nyaman untuk tilawah harian.",
-                        'metaKeywords' => "juz {$juzNumber}, juz {$juzNumber} arab saja, para {$juzNumber}, al quran juz {$juzNumber}, teks arab juz {$juzNumber}, quran digital, al quran indonesia",
+                        'metaTitle' => "Juz {$juzNumber} Al Quran ({$surahNames}) - Teks Arab, Latin & Terjemahan | IndoQuran",
+                        'metaDescription' => "Baca Al-Quran Juz {$juzNumber} memuat {$surahsSummary} (halaman {$minPage}-{$maxPage}, total {$totalPages} halaman). Teks Arab berharakat, transliterasi latin, terjemahan Indonesia & murottal.",
+                        'metaKeywords' => "juz {$juzNumber}, juz {$juzNumber} arab saja, juz {$juzNumber} surah apa, juz {$juzNumber} surat apa, juz {$juzNumber} berapa halaman, al quran juz {$juzNumber}, quran juz {$juzNumber}, bacaan al quran juz {$juzNumber}, teks arab juz {$juzNumber}, halaman {$minPage}-{$maxPage}, " . strtolower($surahNames),
                         'canonicalUrl' => url("/juz/{$juzNumber}"),
                         'breadcrumbStructuredData' => $breadcrumbStructuredData,
+                        'customStructuredData' => $customStructuredData,
                         'ogType' => 'article'
                     ]);
                 }
@@ -571,11 +649,12 @@ class SEOController extends Controller
 
                 // Juz list page SEO
                 $seoData = array_merge($seoData, [
-                    'metaTitle' => 'Daftar Juz Al-Quran - Teks Arab - IndoQuran',
-                    'metaDescription' => 'Akses semua Juz (Para) Al-Quran dengan teks Arab lengkap. 30 Juz Al-Quran tersedia untuk dibaca dan dipelajari. Platform Al-Quran digital terlengkap di Indonesia.',
-                    'metaKeywords' => 'juz al quran, para al quran, daftar juz, teks arab al quran, al quran digital, quran indonesia, juz lengkap',
+                    'metaTitle' => 'Daftar 30 Juz Al-Quran Lengkap - Urutan Surat & Halaman | IndoQuran',
+                    'metaDescription' => 'Daftar 30 Juz Al-Quran lengkap dengan urutan surah, ayat, dan rentang halaman mushaf (total 604 halaman). Pelajari pembagian juz Al-Quran, 1 juz berapa halaman, dan baca online di IndoQuran.',
+                    'metaKeywords' => '30 juz berapa halaman, 1 juz berapa halaman, daftar juz al quran, urutan juz 1 sampai 30, pembagian juz dalam al quran, alquran per juz, juz adalah, ada berapa juz dalam al quran, jumlah juz dalam al quran, letak juz dalam al quran',
                     'canonicalUrl' => url('/juz'),
-                    'breadcrumbStructuredData' => $breadcrumbStructuredData
+                    'breadcrumbStructuredData' => $breadcrumbStructuredData,
+                    'customStructuredData' => SEOService::generateJuzIndexStructuredData()
                 ]);
             }
         }
@@ -1123,9 +1202,10 @@ class SEOController extends Controller
                 })->filter()->values();
                 $surahSpanSummary = $surahSpanTexts->isNotEmpty() ? $surahSpanTexts->implode(', ') : '';
 
-                $metaTitle = "Al Quran Halaman {$pageNumber}" . ($surahLabel ? " ({$surahLabel})" : "") . " - Teks Arab & Terjemahan | IndoQuran";
-                $metaDescription = "Baca Al-Quran Halaman {$pageNumber}" . ($surahSpanSummary ? " memuat {$surahSpanSummary}" : "") . " dengan teks Arab jelas, terjemahan bahasa Indonesia, dan audio murottal per ayat.";
-                $metaKeywords = "halaman {$pageNumber}, al quran halaman {$pageNumber}, " . strtolower($surahLabel ? $surahLabel . ', ' : '') . "teks arab halaman {$pageNumber}, mushaf madinah halaman {$pageNumber}, quran digital indonesia";
+                $juzNum = $pageAyahs->first()?->juz ?? 1;
+                $metaTitle = "Al Quran Halaman {$pageNumber}" . ($surahSpanSummary ? " ({$surahSpanSummary})" : "") . " (Juz {$juzNum}) - Teks Arab & Terjemahan | IndoQuran";
+                $metaDescription = "Baca Al-Quran Halaman {$pageNumber} (Muka Surat {$pageNumber}) Juz {$juzNum}" . ($surahSpanSummary ? " memuat {$surahSpanSummary}" : "") . " dengan teks Arab jelas, transliterasi latin, terjemahan bahasa Indonesia, dan audio murottal per ayat.";
+                $metaKeywords = "al quran halaman {$pageNumber}, halaman {$pageNumber}, al quran muka surat {$pageNumber}, muka surat {$pageNumber}, quran per halaman, al quran online per halaman, teks arab halaman {$pageNumber}, mushaf madinah halaman {$pageNumber}, " . strtolower($surahSpanSummary ? $surahSpanSummary . ', ' : '') . "quran digital indonesia";
 
                 $breadcrumbStructuredData = [
                     '@context' => 'https://schema.org',
@@ -1159,6 +1239,7 @@ class SEOController extends Controller
                     'metaKeywords' => $metaKeywords,
                     'canonicalUrl' => url("/halaman/{$pageNumber}"),
                     'breadcrumbStructuredData' => $breadcrumbStructuredData,
+                    'customStructuredData' => SEOService::generateHalamanStructuredData($pageNumber, ['juz' => $juzNum, 'summary' => $surahSpanSummary]),
                     'ogType' => 'article'
                 ]);
             } else {
@@ -1183,11 +1264,12 @@ class SEOController extends Controller
 
                 // Page list SEO
                 $seoData = array_merge($seoData, [
-                    'metaTitle' => 'Daftar Halaman Al-Quran - Teks Arab - IndoQuran',
-                    'metaDescription' => 'Akses semua halaman Al-Quran dengan teks Arab lengkap. 604 halaman Al-Quran tersedia untuk dibaca dan dipelajari. Platform Al-Quran digital terlengkap di Indonesia.',
-                    'metaKeywords' => 'halaman al quran, daftar halaman, teks arab al quran, al quran digital, quran indonesia, halaman lengkap',
+                    'metaTitle' => 'Daftar 604 Halaman Al-Quran Mushaf Madinah - Teks Arab & Terjemahan | IndoQuran',
+                    'metaDescription' => 'Akses lengkap 604 halaman mushaf Al-Quran standar Madinah & Kemenag RI. Al-Quran 30 juz terdiri dari 604 halaman dengan teks Arab jelas, latin, dan terjemahan bahasa Indonesia.',
+                    'metaKeywords' => 'berapa halaman alquran, jumlah halaman alquran, alquran ada berapa halaman, al quran per halaman, al quran online per halaman, daftar halaman al quran, quran 604 halaman, muka surat al quran',
                     'canonicalUrl' => url('/halaman'),
-                    'breadcrumbStructuredData' => $breadcrumbStructuredData
+                    'breadcrumbStructuredData' => $breadcrumbStructuredData,
+                    'customStructuredData' => SEOService::generateHalamanIndexStructuredData()
                 ]);
             }
         }
@@ -1433,82 +1515,106 @@ class SEOController extends Controller
                 }
             }
         }
-        elseif (isset($segments[0]) && $segments[0] === 'juz' && isset($segments[1]) && is_numeric($segments[1])) {
-            $juzNumber = (int) $segments[1];
-            $juzAyahs = \Illuminate\Support\Facades\Cache::remember("seo_juz_ayahs_{$juzNumber}", 86400, function () use ($juzNumber) {
-                return Ayah::query()
-                    ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian', 'juz')
-                    ->with('surah:number,name_latin,name_indonesian,name_arabic')
-                    ->where('juz', $juzNumber)
-                    ->orderBy('surah_number')
-                    ->orderBy('ayah_number')
-                    ->limit(15)
-                    ->get();
-            });
+        elseif (isset($segments[0]) && $segments[0] === 'juz') {
+            if (isset($segments[1]) && is_numeric($segments[1])) {
+                $juzNumber = (int) $segments[1];
+                $juzMeta = SEOService::getJuzMetadata($juzNumber);
+                $juzAyahs = \Illuminate\Support\Facades\Cache::remember("seo_juz_ayahs_{$juzNumber}", 86400, function () use ($juzNumber) {
+                    return Ayah::query()
+                        ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian', 'juz', 'page')
+                        ->with('surah:number,name_latin,name_indonesian,name_arabic')
+                        ->where('juz', $juzNumber)
+                        ->orderBy('surah_number')
+                        ->orderBy('ayah_number')
+                        ->limit(20)
+                        ->get();
+                });
 
-            $reactData['currentJuz'] = [
-                'number' => $juzNumber,
-                'title' => "Juz {$juzNumber} Arab Saja - Teks Arab Al-Quran Lengkap",
-                'description' => "Halaman ini berisi teks Arab Al-Quran untuk Juz {$juzNumber} dengan navigasi cepat per ayat dan dukungan audio murottal.",
-                'ayahs' => $juzAyahs,
-                'has_ssr_content' => $juzAyahs->isNotEmpty(),
-            ];
+                $surahNames = $juzMeta['surah_names'] ?? "Juz {$juzNumber}";
+                $surahsSummary = $juzMeta['surahs_summary'] ?? '';
+                $minPage = $juzMeta['min_page'] ?? 1;
+                $maxPage = $juzMeta['max_page'] ?? 20;
+                $totalPages = $juzMeta['total_pages'] ?? 20;
+                $totalAyahs = $juzMeta['total_ayahs'] ?? 0;
+
+                $reactData['currentJuz'] = [
+                    'number' => $juzNumber,
+                    'title' => "Juz {$juzNumber} Al-Quran - {$surahNames}",
+                    'description' => "Juz {$juzNumber} memuat {$surahsSummary}. Terdiri dari {$totalPages} halaman (halaman {$minPage} sampai {$maxPage}) dengan total {$totalAyahs} ayat.",
+                    'metadata' => $juzMeta,
+                    'ayahs' => $juzAyahs,
+                    'has_ssr_content' => true,
+                ];
+            } else {
+                $reactData['juzList'] = SEOService::getJuzMetadata();
+            }
         }
-        elseif (isset($segments[0]) && $segments[0] === 'halaman' && isset($segments[1]) && is_numeric($segments[1])) {
-            $pageNumber = (int) $segments[1];
-            // Fetch ALL ayahs for this page (no arbitrary limit) to ensure 100% complete content for Googlebot
-            $pageAyahs = \Illuminate\Support\Facades\Cache::remember("seo_page_ayahs_{$pageNumber}", 86400, function () use ($pageNumber) {
-                return Ayah::query()
-                    ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian')
-                    ->with('surah:number,name_latin,name_indonesian,name_arabic')
-                    ->where('page', $pageNumber)
-                    ->orderBy('surah_number')
-                    ->orderBy('ayah_number')
-                    ->get();
-            });
+        elseif (isset($segments[0]) && $segments[0] === 'halaman') {
+            if (isset($segments[1]) && is_numeric($segments[1])) {
+                $pageNumber = (int) $segments[1];
+                // Fetch ALL ayahs for this page (no arbitrary limit) to ensure 100% complete content for Googlebot
+                $pageAyahs = \Illuminate\Support\Facades\Cache::remember("seo_page_ayahs_{$pageNumber}", 86400, function () use ($pageNumber) {
+                    return Ayah::query()
+                        ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian', 'juz', 'page')
+                        ->with('surah:number,name_latin,name_indonesian,name_arabic')
+                        ->where('page', $pageNumber)
+                        ->orderBy('surah_number')
+                        ->orderBy('ayah_number')
+                        ->get();
+                });
 
-            $surahSpans = $pageAyahs
-                ->groupBy('surah_number')
-                ->map(function ($ayahsBySurah) {
-                    $firstAyah = $ayahsBySurah->first();
-                    $lastAyah = $ayahsBySurah->last();
-                    $surah = $firstAyah?->surah;
+                $surahSpans = $pageAyahs
+                    ->groupBy('surah_number')
+                    ->map(function ($ayahsBySurah) {
+                        $firstAyah = $ayahsBySurah->first();
+                        $lastAyah = $ayahsBySurah->last();
+                        $surah = $firstAyah?->surah;
 
-                    if (!$surah) {
-                        return null;
-                    }
+                        if (!$surah) {
+                            return null;
+                        }
 
-                    return [
-                        'surah_number' => (int) $surah->number,
-                        'surah_name_latin' => $surah->name_latin,
-                        'surah_name_arabic' => $surah->name_arabic,
-                        'from_ayah' => (int) $firstAyah->ayah_number,
-                        'to_ayah' => (int) $lastAyah->ayah_number,
-                    ];
-                })
-                ->filter()
-                ->values();
+                        return [
+                            'surah_number' => (int) $surah->number,
+                            'surah_name_latin' => $surah->name_latin,
+                            'surah_name_arabic' => $surah->name_arabic,
+                            'from_ayah' => (int) $firstAyah->ayah_number,
+                            'to_ayah' => (int) $lastAyah->ayah_number,
+                        ];
+                    })
+                    ->filter()
+                    ->values();
 
-            $surahNames = $pageAyahs->pluck('surah.name_latin')->filter()->unique()->values();
-            $surahLabel = $surahNames->isNotEmpty() ? 'Surah ' . $surahNames->implode(', ') : '';
+                $surahNames = $pageAyahs->pluck('surah.name_latin')->filter()->unique()->values();
+                $surahLabel = $surahNames->isNotEmpty() ? 'Surah ' . $surahNames->implode(', ') : '';
 
-            $surahSpanTexts = $pageAyahs->groupBy('surah_number')->map(function ($grp) {
-                $first = $grp->first();
-                $last = $grp->last();
-                $name = $first?->surah?->name_latin;
-                if (!$name) return null;
-                return "{$name} ayat {$first->ayah_number}-{$last->ayah_number}";
-            })->filter()->values();
-            $surahSpanSummary = $surahSpanTexts->isNotEmpty() ? $surahSpanTexts->implode(', ') : '';
+                $surahSpanTexts = $pageAyahs->groupBy('surah_number')->map(function ($grp) {
+                    $first = $grp->first();
+                    $last = $grp->last();
+                    $name = $first?->surah?->name_latin;
+                    if (!$name) return null;
+                    return "{$name} ayat {$first->ayah_number}-{$last->ayah_number}";
+                })->filter()->values();
+                $surahSpanSummary = $surahSpanTexts->isNotEmpty() ? $surahSpanTexts->implode(', ') : '';
+                $juzNum = $pageAyahs->first()?->juz ?? 1;
 
-            $reactData['currentPage'] = [
-                'number' => $pageNumber,
-                'title' => "Al Quran Halaman {$pageNumber}" . ($surahLabel ? " ({$surahLabel})" : ""),
-                'description' => "Baca Al-Quran Halaman {$pageNumber}" . ($surahSpanSummary ? " memuat {$surahSpanSummary}" : "") . " dengan teks Arab jelas, terjemahan bahasa Indonesia, dan audio murottal per ayat.",
-                'ayah_previews' => $pageAyahs,
-                'surah_spans' => $surahSpans,
-                'has_ssr_content' => $pageAyahs->isNotEmpty(),
-            ];
+                $reactData['currentPage'] = [
+                    'number' => $pageNumber,
+                    'juz_number' => $juzNum,
+                    'title' => "Al Quran Halaman {$pageNumber}" . ($surahLabel ? " ({$surahLabel})" : "") . " - Juz {$juzNum}",
+                    'description' => "Baca Al-Quran Halaman {$pageNumber} (Muka Surat {$pageNumber}) Juz {$juzNum}" . ($surahSpanSummary ? " memuat {$surahSpanSummary}" : "") . " dengan teks Arab jelas, terjemahan bahasa Indonesia, dan audio murottal per ayat.",
+                    'ayah_previews' => $pageAyahs,
+                    'surah_spans' => $surahSpans,
+                    'has_ssr_content' => $pageAyahs->isNotEmpty(),
+                ];
+            } else {
+                $reactData['halamanList'] = [
+                    'total_pages' => 604,
+                    'total_juz' => 30,
+                    'total_surahs' => 114,
+                    'juz_metadata' => SEOService::getJuzMetadata(),
+                ];
+            }
         }
         elseif (isset($segments[0]) && $segments[0] === 'artikel') {
             if (isset($segments[1])) {

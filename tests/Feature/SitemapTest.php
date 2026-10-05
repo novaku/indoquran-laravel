@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Http\Controllers\HaditsController;
+use App\Models\Ayah;
 use App\Models\Surah;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -194,6 +195,84 @@ class SitemapTest extends TestCase
         $content = $response->getContent();
         $this->assertStringContainsString('/hadits/tentang/takdir', $content);
         $this->assertStringContainsString('/hadits/tentang/shalat', $content);
+    }
+
+    public function test_juz_15_seo_content_and_faq_schema(): void
+    {
+        $response = $this->get('/juz/15');
+        $response->assertStatus(200);
+        $response->assertSee('Juz 15');
+        $response->assertSee('Al-Isra');
+        $response->assertSee('Al-Kahf');
+        $response->assertSee('halaman 282');
+        $response->assertSee('FAQPage');
+    }
+
+    public function test_juz_index_seo_answers_search_queries(): void
+    {
+        $response = $this->get('/juz');
+        $response->assertStatus(200);
+        $response->assertSee('Daftar 30 Juz Al-Quran Lengkap');
+        $response->assertSee('30 juz berapa halaman?');
+        $response->assertSee('1 juz berapa halaman');
+        $response->assertSee('FAQPage');
+    }
+
+    public function test_halaman_seo_and_muka_surat(): void
+    {
+        $response = $this->get('/halaman/295');
+        $response->assertStatus(200);
+        $response->assertSee('Al Quran Halaman 295');
+        $response->assertSee('Muka Surat 295');
+        $response->assertSee('FAQPage');
+    }
+
+    public function test_halaman_index_seo(): void
+    {
+        $response = $this->get('/halaman');
+        $response->assertStatus(200);
+        $response->assertSee('Daftar 604 Halaman');
+        $response->assertSee('FAQPage');
+    }
+
+    public function test_ayah_detail_has_self_canonical_and_structured_data(): void
+    {
+        $surah = Surah::create([
+            'number' => 14,
+            'name_latin' => 'Ibrahim',
+            'name_arabic' => 'إبراهيم',
+            'name_indonesian' => 'Ibrahim',
+            'total_ayahs' => 52,
+            'revelation_place' => 'Mekah',
+            'description_short' => 'Surah Ibrahim',
+            'description_long' => 'Deskripsi lengkap Surah Ibrahim'
+        ]);
+
+        Ayah::create([
+            'surah_number' => 14,
+            'ayah_number' => 9,
+            'text_arabic' => 'أَلَمْ يَأْتِكُمْ نَبَؤُا۟ ٱلَّذِينَ مِن قَبْلِكُمْ',
+            'text_latin' => 'Alam ya\'tikum naba\'ul ladhina min qablikum',
+            'text_indonesian' => 'Apakah belum sampai kepadamu berita orang-orang sebelum kamu',
+            'juz' => 13,
+            'page' => 256,
+        ]);
+
+        $response = $this->get('/surah/14/9');
+        $response->assertStatus(200);
+        // Canonical must point directly to /surah/14/9 (not parent /surah/14)
+        $response->assertSee('<link rel="canonical" href="' . url('/surah/14/9') . '"', false);
+        $response->assertSee('Surat Ibrahim Ayat 9');
+        $response->assertSee('FAQPage');
+        $response->assertSee('Apakah belum sampai kepadamu berita orang-orang sebelum kamu');
+    }
+
+    public function test_seo_keyword_redirects(): void
+    {
+        $this->get('/al-quran-halaman-295')->assertRedirect('/halaman/295');
+        $this->get('/muka-surat-295')->assertRedirect('/halaman/295');
+        $this->get('/al-quran-juz-15')->assertRedirect('/juz/15');
+        $this->get('/surat-14-ayat-9')->assertRedirect('/surah/14/9');
     }
 }
 
