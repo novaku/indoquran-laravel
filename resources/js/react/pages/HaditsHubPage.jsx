@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {
     BookOpenIcon,
@@ -46,6 +46,9 @@ import {
 export default function HaditsHubPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
+    const { topic } = useParams();
+    const initialTopic = topic ? decodeURIComponent(topic).replace(/[-_]/g, ' ').trim() : '';
+    const initialQuery = searchParams.get('q') || initialTopic || '';
     const searchSectionRef = useRef(null);
 
     // Catalog state
@@ -57,9 +60,9 @@ export default function HaditsHubPage() {
     const [cardJumpNumbers, setCardJumpNumbers] = useState({});
 
     // Indonesian Hadith Search State - initial values from GET URL parameters
-    const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
+    const [searchQuery, setSearchQuery] = useState(initialQuery);
     const [searchKitab, setSearchKitab] = useState(searchParams.get('kitab') || 'all');
-    const [isSearching, setIsSearching] = useState(Boolean((searchParams.get('q') || '').trim().length >= 2));
+    const [isSearching, setIsSearching] = useState(Boolean(initialQuery.trim().length >= 2));
     const [searchLoading, setSearchLoading] = useState(false);
     const [searchError, setSearchError] = useState(null);
     const [searchResults, setSearchResults] = useState([]);
@@ -227,16 +230,20 @@ export default function HaditsHubPage() {
         });
     }, [kitabs, selectedCategory]);
 
-    // Popular recommendation search keywords
+    // Popular recommendation search keywords (Matching Sitelinks & High Intent queries)
     const popularSearchKeywords = [
-        { label: '✨ Niat Ikhlas', query: 'niat' },
+        { label: '✨ Takdir', query: 'takdir' },
+        { label: 'Shalat', query: 'shalat' },
+        { label: 'Jenazah', query: 'jenazah' },
+        { label: 'Iddah', query: 'iddah' },
+        { label: 'Matahari', query: 'matahari' },
+        { label: 'Niat Ikhlas', query: 'niat' },
         { label: 'Sedekah', query: 'sedekah' },
         { label: 'Sabar & Syukur', query: 'sabar' },
-        { label: 'Berbakti Orang Tua', query: 'orang tua' },
-        { label: 'Shalat Berjamaah', query: 'shalat berjamaah' },
+        { label: 'Wudhu & Bersuci', query: 'wudhu' },
+        { label: 'Puasa Ramadhan', query: 'puasa' },
         { label: 'Menuntut Ilmu', query: 'menuntut ilmu' },
-        { label: 'Senyum itu Sedekah', query: 'senyum' },
-        { label: 'Kasih Sayang', query: 'kasih sayang' },
+        { label: 'Pernikahan', query: 'nikah' },
     ];
 
     // Execute Indonesian Hadith Search
@@ -298,7 +305,10 @@ export default function HaditsHubPage() {
 
     // Synchronize and execute search whenever URL GET parameters change (?q=...&kitab=...&page=...)
     useEffect(() => {
-        const urlQ = (searchParams.get('q') || '').trim();
+        let urlQ = (searchParams.get('q') || '').trim();
+        if (topic && !urlQ) {
+            urlQ = decodeURIComponent(topic).replace(/[-_]/g, ' ').trim();
+        }
         const urlKitab = (searchParams.get('kitab') || 'all').trim();
         const rawPage = parseInt(searchParams.get('page') || '1', 10);
         const urlPage = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
@@ -319,7 +329,7 @@ export default function HaditsHubPage() {
             setLastExecutedQuery('');
             setLastExecutedKitab('all');
         }
-    }, [searchParams]);
+    }, [searchParams, topic]);
 
     // Update GET URL parameters so results can be bookmarked and shared
     const updateSearchUrl = (queryText, kitabScope = 'all', page = 1) => {
@@ -365,10 +375,10 @@ export default function HaditsHubPage() {
         updateSearchUrl(cleanQuery, searchKitab, 1);
     };
 
-    // Handle Quick Keyword Click
+    // Handle Quick Keyword Click (Navigates to /hadits/tentang/:topic)
     const handleQuickKeywordClick = (keyword) => {
         setSearchQuery(keyword);
-        updateSearchUrl(keyword, searchKitab, 1);
+        navigate(`/hadits/tentang/${encodeURIComponent(keyword)}`);
     };
 
     // Modal Action: Choose specific book

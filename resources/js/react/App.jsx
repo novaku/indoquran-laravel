@@ -388,6 +388,7 @@ const AppContent = memo(() => {
                         <Route path="/tafsir-maudhui/:slug" element={<TafsirMaudhuiPage />} />
                         <Route path="/asmaul-husna" element={<AsmaulHusnaPage />} />
                         <Route path="/hadits" element={<HaditsHubPage />} />
+                        <Route path="/hadits/tentang/:topic" element={<HaditsHubPage />} />
                         <Route path="/hadits/:kitab" element={<HaditsReaderPage />} />
                         <Route path="/hadits/:kitab/:nomor" element={<HaditsReaderPage />} />
                         <Route path="/doa-bersama" element={<PrayerPage />} />

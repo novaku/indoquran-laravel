@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Versi-2.30.0-10B981?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/Versi-2.31.0-10B981?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/Laravel-12.x-FF2D20?style=flat-square&logo=laravel" alt="Laravel">
   <img src="https://img.shields.io/badge/React-18.x-61DAFB?style=flat-square&logo=react" alt="React">
   <img src="https://img.shields.io/badge/TailwindCSS-4.x-38B2AC?style=flat-square&logo=tailwind-css" alt="TailwindCSS">
@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License">
 </p>
 
-IndoQuran adalah platform digital modern dan komprehensif untuk membaca, mentadaburi Al-Qur'an (114 Surah), mempelajari Ensiklopedia Hadits Nabawi (11 Kitab Mu'tamad, 64.341 hadits), Tafsir Maudhui, Doa & Dzikir, Asmaul Husna, serta artikel Islami dengan dukungan audio multi-qari, audio pelafalan Arab berbasis Web Speech API, sistem komentar interaktif, dan Progressive Web App (PWA) berkinerja tinggi.
+IndoQuran adalah platform digital modern dan komprehensif untuk membaca, mentadaburi Al-Qur'an (114 Surah), mempelajari Ensiklopedia Hadits Nabawi (7 Kitab Mu'tamad, 33.137 hadits), Tafsir Maudhui, Doa & Dzikir, Asmaul Husna, serta artikel Islami dengan dukungan audio multi-qari, audio pelafalan Arab berbasis Web Speech API, sistem bookmark hadits, sistem komentar interaktif, dan Progressive Web App (PWA) berkinerja tinggi.
 
 ---
 
@@ -26,22 +26,19 @@ IndoQuran adalah platform digital modern dan komprehensif untuk membaca, mentada
 - **Pencarian Cerdas & Cepat** - Cari ayat berdasarkan kata kunci terjemahan, nama surah, atau nomor ayat.
 - **Juz & Halaman Mushaf** - Navigasi per 30 Juz dan 604 Halaman Mushaf standar Madinah/Indonesia.
 
-### 📚 Ensiklopedia 11 Kitab Hadits Nabawi (64.341 Hadits)
-- **Koleksi 11 Kitab Mu'tamad**:
+### 📚 Ensiklopedia 7 Kitab Hadits Nabawi (33.137 Hadits)
+- **Koleksi 7 Kitab Mu'tamad (Kutubus Sittah + Musnad Ahmad)**:
   - Shahih Bukhari (7.008 hadits)
   - Shahih Muslim (5.362 hadits)
-  - Sunan Abu Daud (4.590 hadits)
+  - Sunan Abu Daud (5.274 hadits)
   - Jami' At-Tirmidzi (3.956 hadits)
   - Sunan An-Nasa'i (5.758 hadits)
   - Sunan Ibnu Majah (4.341 hadits)
-  - Musnad Ahmad (26.363 hadits)
-  - Muwatha' Malik (1.594 hadits)
-  - Musnad Ad-Darimi (3.367 hadits)
-  - Musnad Asy-Syafi'i (1.800 hadits)
-  - Riyadhus Shalihin (372 hadits / bab)
+  - Musnad Ahmad (1.438 hadits)
 - **Hadits Reader & Quick Jump** - Antarmuka pembaca hadits yang responsif dengan pagination cepat, lompat langsung ke nomor hadits tertentu, dan pencarian teks riwayat.
 - **Audio Pelafalan Arab (Web Speech API)** - Pemutar suara Arab instan langsung di browser pengguna dengan kontrol kecepatan (0.75x, 0.85x, 1.0x) tanpa menghabiskan kuota server.
-- **Penanda Baca & Catatan Hadits** - Simpan riwayat hadits favorit ke akun pengguna atau penyimpanan lokal dengan catatan refleksi pribadi.
+- **Sistem Penanda (Bookmark) & Catatan Hadits** - Simpan riwayat hadits pilihan ke akun pengguna (cloud database) atau penyimpanan lokal (offline fallback) dilengkapi catatan tadabbur dan faidah hadits di `/penanda`.
+- **Database UTF8mb4 & Kolom Syarah** - Standardisasi skema tabel database ke `utf8mb4_unicode_ci` dan integrasi kolom penjelasan/syarah hadits.
 
 ### 🤲 Doa, Dzikir & Ibadah
 - **Doa Pilihan & Audio Pelafalan Arab** - Kumpulan doa harian shahih dilengkapi teks Arab, transliterasi Latin, terjemahan, serta pemutar suara pelafalan Arab instan berbasis Web Speech API (dengan kontrol kecepatan dan visualisasi suara).
@@ -55,11 +52,11 @@ IndoQuran adalah platform digital modern dan komprehensif untuk membaca, mentada
 - **Panel Moderasi Admin** - Administrator dapat memoderasi, memfilter, dan menghapus komentar serta mengelola artikel langsung melalui editor TipTap Rich Text di `/admin`.
 
 ### ⚡ Performa, PWA & Pengalaman Pengguna
-- **Progressive Web App (PWA v2.30.0)** - Dapat diinstall di perangkat Android, iOS, maupun Desktop; dilengkapi Service Worker cerdas untuk akses offline dan pembersihan cache otomatis.
+- **Progressive Web App (PWA v2.31.0)** - Dapat diinstall di perangkat Android, iOS, maupun Desktop; dilengkapi Service Worker cerdas untuk akses offline dan pembersihan cache otomatis.
 - **Sistem Notifikasi Website (Facebook Style)** - Popover notifikasi kabar terbaru dan pengumuman dengan indikator badge belum dibaca dan tampilan responsif mobile bottom-sheet.
 - **Autentikasi Modern** - Login dan registrasi cepat menggunakan Google One Tap / Google OAuth, email & kata sandi (JWT Auth), serta login administrator berbasis sesi aman dengan verifikasi OTP.
-- **High-Speed Redis & Multi-tier Caching** - Layanan khusus `HaditsCacheService` dan `QuranCacheService` dengan warm-up otomatis dan fallback database yang cepat.
-- **SEO & Google Search Console Ready** - Dilengkapi Open Graph, Twitter Cards, Schema.org JSON-LD structured data, canonical URL, dan arsitektur sitemap berindeks (`sitemap-index.xml`) mencakup ratusan ribu halaman Al-Qur'an dan Hadits.
+- **High-Speed Redis & Multi-tier Caching** - Layanan khusus `HaditsCacheService` dan `QuranCacheService` dengan CLI management `hadits:cache` dan warm-up otomatis.
+- **SEO & Google Search Console Ready** - Dilengkapi Open Graph, Twitter Cards, Schema.org JSON-LD structured data, canonical URL, dan arsitektur sitemap modular berindeks (`sitemap-index.xml`, `sitemap-hadits-main.xml`) mencakup seluruh koleksi Al-Qur'an dan Hadits.
 
 ---
 
@@ -75,7 +72,7 @@ IndoQuran adalah platform digital modern dan komprehensif untuk membaca, mentada
 | **Caching & In-Memory** | Redis (Predis) | Multi-tier cache Al-Qur'an, Hadits, API responses, dan rate limiting |
 | **Rich Text Editor** | TipTap Editor | Editor WYSIWYG untuk pembuatan dan pembaruan artikel di panel admin |
 | **Database** | MySQL 8.0+ / MariaDB | Indeks teroptimasi untuk pencarian ayat dan puluhan ribu hadits |
-| **PWA & Offline** | Service Worker v2.30.0 | Offline fallback, asset caching, dan background synchronization |
+| **PWA & Offline** | Service Worker v2.31.0 | Offline fallback, asset caching, dan background synchronization |
 
 ---
 
@@ -329,7 +326,8 @@ Server hosting/produksi umumnya tidak memerlukan Node.js karena aset frontend di
 Riwayat rilis lengkap dapat diakses secara interaktif langsung melalui halaman web aplikasi di rute **`/riwayat-versi`** yang dilengkapi fitur pencarian versi dan filter tipe perubahan.
 
 Ringkasan rilis terbaru:
-- **v2.30.0**: Peluncuran Ensiklopedia 11 Kitab Hadits Nabawi (64.341 hadits), pemutar audio pelafalan Arab Web Speech API (Hadits & Doa Bersama), sistem notifikasi kabar terbaru website (Facebook style), layanan `HaditsCacheService`, dan pembaruan PWA v2.30.0.
+- **v2.31.0**: Restrukturisasi Ensiklopedia 7 Kitab Hadits Mu'tamad (33.137 hadits), sistem penanda (bookmark) hadits untuk member dan tamu, standarisasi database UTF8mb4 dengan kolom penjelasan/syarah, manajemen cache hadits granular via CLI (`php artisan hadits:cache`), arsitektur sitemap modular per kitab hadits, dan pembaruan PWA v2.31.0.
+- **v2.30.0**: Peluncuran Ensiklopedia Hadits Nabawi, pemutar audio pelafalan Arab Web Speech API (Hadits & Doa Bersama), sistem notifikasi kabar terbaru website (Facebook style), layanan `HaditsCacheService`, dan pembaruan PWA v2.30.0.
 - **v2.29.0**: Tampilan tab interaktif horizontal pokok kandungan dan tema utama surah dengan tipografi kaligrafi Scheherazade, tombol navigasi antar-tema, dan pembaruan PWA cache v2.29.0.
 - **v2.28.0**: Sistem komentar artikel untuk publik dan member, dukungan identitas anonim ("Hamba Allah"), serta dashboard moderasi komentar admin (`/admin`).
 - **v2.27.0**: Validasi judul unik artikel secara real-time dan tampilan cuplikan (excerpt) artikel.

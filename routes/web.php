@@ -32,6 +32,7 @@ Route::get('/sitemap-halaman.xml', [SitemapIndexController::class, 'halamanSitem
 Route::get('/sitemap-artikel.xml', [SitemapIndexController::class, 'artikelSitemap'])->name('sitemap.artikel');
 Route::get('/sitemap-hadits.xml', [SitemapIndexController::class, 'haditsIndex'])->name('sitemap.hadits');
 Route::get('/sitemap-hadits-main.xml', [SitemapIndexController::class, 'haditsMainSitemap'])->name('sitemap.hadits.main');
+Route::get('/sitemap-hadits-topik.xml', [SitemapIndexController::class, 'haditsTopikSitemap'])->name('sitemap.hadits.topik');
 Route::get('/sitemap-hadits-{kitab}.xml', [SitemapIndexController::class, 'haditsKitabSitemap'])
     ->where('kitab', '[a-zA-Z0-9_\-]+')
     ->name('sitemap.hadits.kitab');

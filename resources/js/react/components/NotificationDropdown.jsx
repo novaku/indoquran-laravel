@@ -20,32 +20,46 @@ const STORAGE_KEY = 'indoquran_read_notifications';
 // Default fallback notifications if network is offline
 const DEFAULT_NOTIFICATIONS = [
     {
+        id: 'notif-version-2-31-0',
+        title: 'Pembaruan IndoQuran Versi 2.31.0',
+        message: 'Restrukturisasi 7 Kitab Hadits (33rb+ hadits), sistem penanda hadits, manajemen cache granular, dan sitemap modular per kitab.',
+        link: '/riwayat-versi',
+        time_ago: 'Baru saja',
+        timestamp: '2026-10-04T15:30:00Z',
+        category: 'Riwayat Versi',
+        type: 'version',
+        badge_icon: 'check',
+        badge_color: 'bg-teal-600',
+        section: 'new',
+        is_featured: true
+    },
+    {
         id: 'notif-penanda-hadits-baru',
         title: 'Penanda Hadits Nabawi Kini Tersedia',
         message: 'Kini Anda dapat menandai hadits pilihan, menyimpan hadits favorit, dan menuliskan catatan tadabbur & faidah hadits di halaman Penanda.',
         link: '/penanda?type=hadits',
-        time_ago: 'Baru saja',
+        time_ago: '3 hari lalu',
         timestamp: '2026-10-01T10:00:00Z',
         category: 'Fitur Baru',
         type: 'bookmark',
         badge_icon: 'bookmark',
         badge_color: 'bg-amber-600',
         section: 'new',
-        is_featured: true
+        is_featured: false
     },
     {
         id: 'notif-hadits-7-kitab',
-        title: 'Fitur Baru: Koleksi 7 Kitab Hadits Nabawi',
-        message: 'Telah hadir lebih dari 31.000 hadits dari 7 kitab mu\'tamad (Shahih Bukhari, Muslim, Abu Daud, Tirmidzi, An-Nasa\'i, Ibnu Majah, Musnad Ahmad) lengkap dengan teks Arab & penjelasan.',
+        title: 'Koleksi 7 Kitab Hadits Nabawi Terverifikasi',
+        message: 'Telah hadir 33.137 hadits dari 7 kitab mu\'tamad (Shahih Bukhari, Muslim, Abu Daud, Tirmidzi, An-Nasa\'i, Ibnu Majah, Musnad Ahmad) lengkap dengan teks Arab & penjelasan.',
         link: '/hadits',
-        time_ago: 'Baru saja',
+        time_ago: '5 hari lalu',
         timestamp: '2026-09-29T15:00:00Z',
         category: 'Fitur Baru',
         type: 'feature',
         badge_icon: 'book',
         badge_color: 'bg-emerald-600',
-        section: 'new',
-        is_featured: true
+        section: 'earlier',
+        is_featured: false
     },
     {
         id: 'notif-audio-arabic-speech',

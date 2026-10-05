@@ -192,5 +192,32 @@ class HaditsApiTest extends TestCase
         $this->artisan('hadits:cache', ['action' => 'invalid_action'])
             ->assertExitCode(1);
     }
+
+    public function test_hadits_hub_seo_and_structured_data(): void
+    {
+        $response = $this->get('/hadits');
+        $response->assertStatus(200);
+        $response->assertSee('Hadits Shahih Online | Cari Hadis Bukhari & Muslim - IndoQuran');
+        $response->assertSee('SiteNavigationElement');
+        $response->assertSee('id="ssr-hadits-hub"', false);
+        $response->assertSee('Hadits Muslim');
+        $response->assertSee('Hadits Bukhari');
+    }
+
+    public function test_hadits_topic_landing_page(): void
+    {
+        $response = $this->get('/hadits/tentang/takdir');
+        $response->assertStatus(200);
+        $response->assertSee('Hadits tentang Takdir - IndoQuran');
+        $response->assertSee('id="ssr-hadits-topic"', false);
+    }
+
+    public function test_hadits_kitab_seo_page(): void
+    {
+        $response = $this->get('/hadits/shahih_muslim');
+        $response->assertStatus(200);
+        $response->assertSee('Hadits Shahih Muslim Online - IndoQuran');
+        $response->assertSee('id="ssr-hadits-kitab"', false);
+    }
 }
 

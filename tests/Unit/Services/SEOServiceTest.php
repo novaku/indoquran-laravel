@@ -90,4 +90,27 @@ class SEOServiceTest extends TestCase
         $truncated = SEOService::generateOptimizedDescription($longDesc, 100);
         $this->assertLessThanOrEqual(100, strlen($truncated));
     }
+
+    public function test_generate_home_faq_structured_data(): void
+    {
+        $faq = SEOService::generateHomeFaqStructuredData();
+
+        $this->assertIsArray($faq);
+        $this->assertEquals('FAQPage', $faq['@type']);
+        $this->assertNotEmpty($faq['mainEntity']);
+        $this->assertGreaterThanOrEqual(4, count($faq['mainEntity']));
+        $this->assertEquals('Question', $faq['mainEntity'][0]['@type']);
+    }
+
+    public function test_generate_surah_faq_structured_data(): void
+    {
+        $surah = $this->makeSampleSurah();
+        $faq = SEOService::generateSurahFaqStructuredData($surah);
+
+        $this->assertIsArray($faq);
+        $this->assertEquals('FAQPage', $faq['@type']);
+        $this->assertNotEmpty($faq['mainEntity']);
+        $this->assertStringContainsString('Al-Fatihah', $faq['mainEntity'][0]['name']);
+    }
 }
+

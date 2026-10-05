@@ -247,6 +247,104 @@ class SEOService
     }
 
     /**
+     * Generate FAQPage structured data for Homepage
+     */
+    public static function generateHomeFaqStructuredData(): array
+    {
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'FAQPage',
+            'mainEntity' => [
+                [
+                    '@type' => 'Question',
+                    'name' => 'Bagaimana cara membaca Al-Quran online di IndoQuran?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Anda dapat langsung memilih surah dari daftar 114 surah, membaca per juz (1-30), atau per halaman mushaf (1-604). Setiap ayat dilengkapi dengan teks Arab berharakat jelas, transliterasi latin, dan terjemahan bahasa Indonesia.'
+                    ]
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apakah terjemahan Al-Quran di IndoQuran bersumber dari Kemenag?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Ya, terjemahan Al-Quran di IndoQuran mengacu pada terjemahan resmi standar Kementerian Agama Republik Indonesia (Kemenag) sehingga valid dan mudah dipahami.'
+                    ]
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apakah tersedia audio murottal Al-Quran?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Ya, IndoQuran menyediakan audio murottal berkualitas tinggi per ayat dan per surah dari qari terkemuka seperti Mishary Rashid Alafasy, Abdurrahman As-Sudais, dan lainnya.'
+                    ]
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Kitab hadits apa saja yang dapat dibaca di IndoQuran?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'IndoQuran menyediakan 7 kitab hadits shahih nabawi: Shahih Bukhari, Shahih Muslim, Sunan Abu Daud, Sunan Tirmidzi, Sunan An-Nasa\'i, Sunan Ibnu Majah, dan Musnad Ahmad lengkap teks Arab dan terjemahan Indonesia.'
+                    ]
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apakah IndoQuran gratis dan bisa diakses lewat HP?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Ya, IndoQuran 100% gratis dan didesain responsif untuk pengguna smartphone (Android & iPhone) serta desktop tanpa perlu mengunduh aplikasi berat.'
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * Generate FAQPage structured data for Surah pages
+     */
+    public static function generateSurahFaqStructuredData(Surah $surah): array
+    {
+        $revelation = strtolower((string) ($surah->revelation_place ?? '')) === 'madinah' ? 'Madinah (Madaniyah)' : 'Makkah (Makkiyah)';
+        $meaning = $surah->name_indonesian ?? $surah->name_latin;
+        $faqInfo = method_exists($surah, 'getFaqInfo') ? $surah->getFaqInfo() : [];
+
+        $questions = [
+            [
+                '@type' => 'Question',
+                'name' => "Berapa jumlah ayat Surah {$surah->name_latin} dan di mana diturunkan?",
+                'acceptedAnswer' => [
+                    '@type' => 'Answer',
+                    'text' => "Surah {$surah->name_latin} terdiri dari {$surah->total_ayahs} ayat dan merupakan surah ke-{$surah->number} dalam Al-Quran yang diturunkan di kota {$revelation}."
+                ]
+            ],
+            [
+                '@type' => 'Question',
+                'name' => "Apa arti dari nama Surah {$surah->name_latin}?",
+                'acceptedAnswer' => [
+                    '@type' => 'Answer',
+                    'text' => "Nama Surah {$surah->name_latin} ({$surah->name_arabic}) memiliki arti \"{$meaning}\"."
+                ]
+            ],
+            [
+                '@type' => 'Question',
+                'name' => "Apa tema utama dan kandungan Surah {$surah->name_latin}?",
+                'acceptedAnswer' => [
+                    '@type' => 'Answer',
+                    'text' => !empty($faqInfo['theme'])
+                        ? "Tema utama Surah {$surah->name_latin} adalah {$faqInfo['theme']}."
+                        : ($surah->description_short ?? "Surah {$surah->name_latin} memuat petunjuk keimanan, hukum, serta peringatan dari Allah SWT untuk seluruh umat manusia.")
+                ]
+            ]
+        ];
+
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'FAQPage',
+            'mainEntity' => $questions
+        ];
+    }
+
+    /**
      * Generate optimized page title
      */
     public static function generateOptimizedTitle(string $title, int $maxLength = 60): string
@@ -282,3 +380,4 @@ class SEOService
         return $description;
     }
 }
+

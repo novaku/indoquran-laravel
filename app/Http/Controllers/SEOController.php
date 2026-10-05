@@ -7,6 +7,7 @@ use App\Models\Ayah;
 use App\Models\Prayer;
 use App\Models\Surah;
 use App\Models\TafsirMaudhuiTopic;
+use App\Services\SEOService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
@@ -233,6 +234,15 @@ class SEOController extends Controller
             if ($segments[0] === 'hadits') {
                 if (count($segments) > 3) {
                     $isInvalidRoute = true;
+                } elseif (count($segments) === 2 && $segments[1] === 'tentang') {
+                    // /hadits/tentang without topic redirects to /hadits
+                    return redirect(url('/hadits'), 301);
+                } elseif (count($segments) === 3 && $segments[1] === 'tentang') {
+                    // /hadits/tentang/{topic} is a valid topic landing page
+                    $topicSlug = trim($segments[2]);
+                    if (empty($topicSlug) || strlen($topicSlug) > 100) {
+                        $isInvalidRoute = true;
+                    }
                 } elseif (count($segments) >= 2) {
                     $kitabSlug = $segments[1];
                     $catalog = \App\Http\Controllers\HaditsController::getKitabCatalog();
@@ -337,12 +347,68 @@ class SEOController extends Controller
 
         // Handle different routes
         if ($path === '/' || $path === '') {
-            // Homepage SEO - OPTIMIZED for CTR (Based on Google Search Console data Oct 2025)
+            $siteNavigationStructuredData = [
+                '@context' => 'https://schema.org',
+                '@graph' => [
+                    [
+                        '@type' => 'SiteNavigationElement',
+                        'name' => 'Al-Quran Digital Indonesia',
+                        'description' => 'Baca 114 Surah Al-Quran lengkap dengan teks Arab, terjemahan Indonesia, dan audio murottal.',
+                        'url' => 'https://indoquran.web.id/surah'
+                    ],
+                    [
+                        '@type' => 'SiteNavigationElement',
+                        'name' => 'Hadits Shahih Online',
+                        'description' => 'Koleksi 7 kitab hadits shahih nabawi: Bukhari, Muslim, Abu Daud, Tirmidzi, An-Nasa\'i, Ibnu Majah, dan Musnad Ahmad.',
+                        'url' => 'https://indoquran.web.id/hadits'
+                    ],
+                    [
+                        '@type' => 'SiteNavigationElement',
+                        'name' => 'Hadits Shahih Bukhari',
+                        'description' => 'Baca 7.563 hadits Shahih Bukhari lengkap teks Arab dan terjemahan Indonesia.',
+                        'url' => 'https://indoquran.web.id/hadits/shahih_bukhari'
+                    ],
+                    [
+                        '@type' => 'SiteNavigationElement',
+                        'name' => 'Hadits Shahih Muslim',
+                        'description' => 'Baca 3.033 hadits Shahih Muslim lengkap 57 kitab dengan teks Arab dan terjemahan Indonesia.',
+                        'url' => 'https://indoquran.web.id/hadits/shahih_muslim'
+                    ],
+                    [
+                        '@type' => 'SiteNavigationElement',
+                        'name' => 'Juz 30 (Juz Amma)',
+                        'description' => 'Baca Al-Quran Juz 30 lengkap teks Arab berharakat jelas dan audio murottal.',
+                        'url' => 'https://indoquran.web.id/juz/30'
+                    ],
+                    [
+                        '@type' => 'SiteNavigationElement',
+                        'name' => 'Tafsir Maudhui',
+                        'description' => 'Kajian tafsir tematik Al-Quran berdasarkan tema-tema kehidupan dan keislaman.',
+                        'url' => 'https://indoquran.web.id/tafsir-maudhui'
+                    ],
+                    [
+                        '@type' => 'SiteNavigationElement',
+                        'name' => '99 Asmaul Husna',
+                        'description' => '99 Nama-nama indah Allah SWT lengkap dengan teks Arab, latin, arti, dan maknanya.',
+                        'url' => 'https://indoquran.web.id/asmaul-husna'
+                    ],
+                    [
+                        '@type' => 'SiteNavigationElement',
+                        'name' => 'Kumpulan Doa Pilihan',
+                        'description' => 'Kumpulan doa-doa pilihan dari Al-Quran dan As-Sunnah.',
+                        'url' => 'https://indoquran.web.id/doa-bersama'
+                    ],
+                ]
+            ];
+
+            // Homepage SEO - OPTIMIZED for Google SERP & CTR
             $seoData = array_merge($seoData, [
-                'metaTitle' => 'Al-Quran Online Indonesia - Baca, Dengar & Terjemahan Gratis | IndoQuran',
-                'metaDescription' => '✅ Al-Quran Digital GRATIS ✅ Teks Arab & Terjemahan ✅ Audio Murottal HD ✅ Tafsir Lengkap ✅ Bookmark Ayat. Platform Al-Quran online terpercaya untuk belajar Islam. 114 Surah lengkap dengan fitur pencarian ayat.',
-                'metaKeywords' => 'al quran online, alquran online, quran online, al quran indonesia, al quran digital, baca quran online, terjemahan quran indonesia, murottal quran, quran indonesia, ayat al quran, surah quran, indoquran, indo quran, quran web, quran digital gratis, quran digital terlengkap',
-                'canonicalUrl' => url('/')
+                'metaTitle' => 'Al Quran Online Indonesia - Baca Al-Quran Digital 30 Juz & Hadits | IndoQuran',
+                'metaDescription' => 'Baca Al-Quran online 30 juz lengkap dengan teks Arab berharakat, transliterasi latin, terjemahan Indonesia standar Kemenag, audio murottal merdu, tafsir, dan 7 kitab hadits shahih nabawi di IndoQuran.',
+                'metaKeywords' => 'al quran online, alquran online, quran online, al quran indonesia, al quran digital, baca quran online, terjemahan quran indonesia, murottal quran, quran indonesia, ayat al quran, surah quran, hadits shahih, juz amma, tafsir quran, indoquran, quran digital 30 juz',
+                'canonicalUrl' => url('/'),
+                'siteNavigationStructuredData' => $siteNavigationStructuredData,
+                'customStructuredData' => SEOService::generateHomeFaqStructuredData()
             ]);
         } 
         elseif (isset($segments[0]) && $segments[0] === 'surah') {
@@ -390,13 +456,18 @@ class SEOController extends Controller
                             'ogType' => 'article'
                         ]);
                     } else {
-                        // Surah page SEO - OPTIMIZED using Surah model methods
+                        // Surah page SEO - OPTIMIZED using Surah model methods and rich schemas
+                        $surahFaq = SEOService::generateSurahFaqStructuredData($surah);
+                        $surahSchemas = SEOService::generateSurahStructuredData($surah);
+                        $customStructuredData = array_merge($surahSchemas, [$surahFaq]);
+
                         $seoData = array_merge($seoData, [
                             'metaTitle' => $surah->getSeoTitle(),
                             'metaDescription' => $surah->getSeoDescription(),
                             'metaKeywords' => $surah->getSeoKeywords(),
                             'canonicalUrl' => url("/surah/{$surahNumber}"),
                             'breadcrumbStructuredData' => $breadcrumbStructuredData,
+                            'customStructuredData' => $customStructuredData,
                             'ogType' => 'article'
                         ]);
                     }
@@ -456,14 +527,25 @@ class SEOController extends Controller
                 ];
 
                 // Specific Juz SEO
-                $seoData = array_merge($seoData, [
-                    'metaTitle' => "Juz {$juzNumber} Arab Saja - Teks Arab Al-Quran Lengkap | IndoQuran",
-                    'metaDescription' => "Baca Juz {$juzNumber} Arab saja dengan teks Arab Al-Quran lengkap. Para {$juzNumber} tersedia dengan navigasi per ayat, audio murottal, dan tampilan nyaman untuk tilawah harian.",
-                    'metaKeywords' => "juz {$juzNumber}, juz {$juzNumber} arab saja, para {$juzNumber}, al quran juz {$juzNumber}, teks arab juz {$juzNumber}, quran digital, al quran indonesia",
-                    'canonicalUrl' => url("/juz/{$juzNumber}"),
-                    'breadcrumbStructuredData' => $breadcrumbStructuredData,
-                    'ogType' => 'article'
-                ]);
+                if ($juzNumber === 30) {
+                    $seoData = array_merge($seoData, [
+                        'metaTitle' => 'Juz 30 (Juz Amma) Lengkap Teks Arab, Latin & Terjemahan | IndoQuran',
+                        'metaDescription' => 'Baca Al-Quran Juz 30 (Juz Amma) lengkap dari Surah An-Naba sampai An-Nas. Teks Arab berharakat jelas, transliterasi latin, terjemahan Indonesia, dan audio murottal merdu di IndoQuran.',
+                        'metaKeywords' => 'juz 30, juz amma, juz amma lengkap, baca juz 30, al quran juz 30, juz amma arab latin terjemahan, surat juz amma, juz 30 online, murottal juz amma, indoquran',
+                        'canonicalUrl' => url('/juz/30'),
+                        'breadcrumbStructuredData' => $breadcrumbStructuredData,
+                        'ogType' => 'article'
+                    ]);
+                } else {
+                    $seoData = array_merge($seoData, [
+                        'metaTitle' => "Juz {$juzNumber} Arab Saja - Teks Arab Al-Quran Lengkap | IndoQuran",
+                        'metaDescription' => "Baca Juz {$juzNumber} Arab saja dengan teks Arab Al-Quran lengkap. Para {$juzNumber} tersedia dengan navigasi per ayat, audio murottal, dan tampilan nyaman untuk tilawah harian.",
+                        'metaKeywords' => "juz {$juzNumber}, juz {$juzNumber} arab saja, para {$juzNumber}, al quran juz {$juzNumber}, teks arab juz {$juzNumber}, quran digital, al quran indonesia",
+                        'canonicalUrl' => url("/juz/{$juzNumber}"),
+                        'breadcrumbStructuredData' => $breadcrumbStructuredData,
+                        'ogType' => 'article'
+                    ]);
+                }
             } else {
                 $breadcrumbStructuredData = [
                     '@context' => 'https://schema.org',
@@ -706,7 +788,7 @@ class SEOController extends Controller
             ]);
         }
         elseif (isset($segments[0]) && $segments[0] === 'hadits') {
-            // Hadits SEO
+            // Hadits SEO - Enhanced for Google Rich Sitelinks
             $catalog = \App\Http\Controllers\HaditsController::getKitabCatalog();
             if (count($segments) === 1) {
                 $query = trim((string) $request->get('q', ''));
@@ -721,29 +803,256 @@ class SEOController extends Controller
                         'robots' => 'noindex, follow'
                     ]);
                 } else {
+                    $breadcrumbStructuredData = [
+                        '@context' => 'https://schema.org',
+                        '@type' => 'BreadcrumbList',
+                        'itemListElement' => [
+                            [
+                                '@type' => 'ListItem',
+                                'position' => 1,
+                                'name' => 'Beranda',
+                                'item' => 'https://indoquran.web.id'
+                            ],
+                            [
+                                '@type' => 'ListItem',
+                                'position' => 2,
+                                'name' => 'Hadits Shahih Online',
+                                'item' => 'https://indoquran.web.id/hadits'
+                            ]
+                        ]
+                    ];
+
+                    $siteNavigationStructuredData = [
+                        '@context' => 'https://schema.org',
+                        '@graph' => [
+                            [
+                                '@type' => 'SiteNavigationElement',
+                                'name' => 'Hadits Muslim',
+                                'description' => 'Baca 3.033 hadits Muslim (Shahih Muslim) lengkap 57 kitab.',
+                                'url' => 'https://indoquran.web.id/hadits/shahih_muslim'
+                            ],
+                            [
+                                '@type' => 'SiteNavigationElement',
+                                'name' => 'Hadits Bukhari',
+                                'description' => 'Teks Arab, terjemahan Indonesia, dan nomor hadits di Shahih Bukhari.',
+                                'url' => 'https://indoquran.web.id/hadits/shahih_bukhari'
+                            ],
+                            [
+                                '@type' => 'SiteNavigationElement',
+                                'name' => 'Hadits Nasai',
+                                'description' => 'Baca 5.758 hadits Nasa\'i (Sunan An-Nasa\'i) lengkap teks Arab dan terjemahan.',
+                                'url' => 'https://indoquran.web.id/hadits/sunan_nasai'
+                            ],
+                            [
+                                '@type' => 'SiteNavigationElement',
+                                'name' => 'Hadits Abu Daud',
+                                'description' => 'Baca 5.274 hadits Sunan Abu Daud lengkap teks Arab dan terjemahan.',
+                                'url' => 'https://indoquran.web.id/hadits/sunan_abu_daud'
+                            ],
+                            [
+                                '@type' => 'SiteNavigationElement',
+                                'name' => 'Hadits Tentang Takdir',
+                                'description' => 'Kumpulan hadits shahih tentang takdir dan ketetapan Allah SWT.',
+                                'url' => 'https://indoquran.web.id/hadits/tentang/takdir'
+                            ],
+                            [
+                                '@type' => 'SiteNavigationElement',
+                                'name' => 'Hadits Tentang Shalat',
+                                'description' => 'Kumpulan hadits tentang shalat, bacaan, dan tata caranya.',
+                                'url' => 'https://indoquran.web.id/hadits/tentang/shalat'
+                            ],
+                            [
+                                '@type' => 'SiteNavigationElement',
+                                'name' => 'Hadits Tentang Iddah',
+                                'description' => 'Kumpulan hadits tentang iddah. Baca teks Arab dan terjemahan.',
+                                'url' => 'https://indoquran.web.id/hadits/tentang/iddah'
+                            ],
+                            [
+                                '@type' => 'SiteNavigationElement',
+                                'name' => 'Hadits Tentang Matahari',
+                                'description' => 'Kumpulan hadits tentang matahari dan fenomena alam.',
+                                'url' => 'https://indoquran.web.id/hadits/tentang/matahari'
+                            ],
+                            [
+                                '@type' => 'SiteNavigationElement',
+                                'name' => 'Hadits Tentang Jenazah',
+                                'description' => 'Kumpulan hadits tentang jenazah, takziah, dan pengurusannya.',
+                                'url' => 'https://indoquran.web.id/hadits/tentang/jenazah'
+                            ],
+                        ]
+                    ];
+
+                    $collectionStructuredData = [
+                        '@context' => 'https://schema.org',
+                        '@type' => 'CollectionPage',
+                        'name' => 'Hadits Shahih Online | Cari Hadis Bukhari & Muslim - IndoQuran',
+                        'description' => 'Baca dan cari hadits shahih online (Bukhari, Muslim, dan kutub lainnya). Teks Arab, terjemahan Indonesia, dan nomor hadits lengkap di IndoQuran.',
+                        'url' => 'https://indoquran.web.id/hadits',
+                        'mainEntity' => [
+                            '@type' => 'ItemList',
+                            'numberOfItems' => 7,
+                            'itemListElement' => array_values(array_map(function ($k, $idx) {
+                                return [
+                                    '@type' => 'ListItem',
+                                    'position' => $idx + 1,
+                                    'name' => 'Hadits ' . $k['name'],
+                                    'description' => $k['description'],
+                                    'url' => 'https://indoquran.web.id/hadits/' . $k['slug']
+                                ];
+                            }, $catalog, array_keys(array_values($catalog))))
+                        ]
+                    ];
+
                     $seoData = array_merge($seoData, [
-                        'metaTitle' => 'Koleksi 7 Kitab Hadits Utama (Kutubus Sittah & Musnad Ahmad) Lengkap | IndoQuran',
-                        'metaDescription' => 'Koleksi 7 kitab hadits shahih terlengkap: Shahih Bukhari, Muslim, Abu Daud, Tirmidzi, An-Nasa\'i, Ibnu Majah, dan Musnad Ahmad. Teks Arab berharakat dan terjemahan bahasa Indonesia.',
-                        'metaKeywords' => 'hadits, hadits shahih, shahih bukhari, shahih muslim, sunan abu daud, kutubus sittah, musnad ahmad, hadits nabi, terjemah hadits, hadist indonesia',
-                        'canonicalUrl' => url('/hadits')
+                        'metaTitle' => 'Hadits Shahih Online | Cari Hadis Bukhari & Muslim - IndoQuran',
+                        'metaDescription' => 'Baca dan cari hadits shahih online (Bukhari, Muslim, dan kutub lainnya). Teks Arab, terjemahan Indonesia, dan nomor hadits lengkap di IndoQuran.',
+                        'metaKeywords' => 'hadits, hadits shahih, shahih bukhari, shahih muslim, cari hadits, sunan abu daud, kutubus sittah, musnad ahmad, hadits nabi, hadits online indonesia',
+                        'canonicalUrl' => url('/hadits'),
+                        'breadcrumbStructuredData' => $breadcrumbStructuredData,
+                        'siteNavigationStructuredData' => $siteNavigationStructuredData,
+                        'customStructuredData' => $collectionStructuredData
                     ]);
                 }
+            } elseif (count($segments) === 3 && $segments[1] === 'tentang') {
+                $topicSlug = $segments[2];
+                $topicName = ucwords(str_replace(['-', '_'], ' ', $topicSlug));
+
+                $breadcrumbStructuredData = [
+                    '@context' => 'https://schema.org',
+                    '@type' => 'BreadcrumbList',
+                    'itemListElement' => [
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 1,
+                            'name' => 'Beranda',
+                            'item' => 'https://indoquran.web.id'
+                        ],
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 2,
+                            'name' => 'Hadits Shahih',
+                            'item' => 'https://indoquran.web.id/hadits'
+                        ],
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 3,
+                            'name' => 'Hadits tentang ' . $topicName,
+                            'item' => 'https://indoquran.web.id/hadits/tentang/' . $topicSlug
+                        ]
+                    ]
+                ];
+
+                $seoData = array_merge($seoData, [
+                    'metaTitle' => "Hadits tentang {$topicName} - IndoQuran",
+                    'metaDescription' => "Kumpulan hadits tentang {$topicSlug}. Baca teks Arab dan terjemahan hadits shahih di IndoQuran.",
+                    'metaKeywords' => "hadits tentang {$topicSlug}, hadits {$topicSlug}, kumpulan hadits {$topicSlug}, hadits shahih {$topicSlug}",
+                    'canonicalUrl' => url('/hadits/tentang/' . $topicSlug),
+                    'breadcrumbStructuredData' => $breadcrumbStructuredData
+                ]);
             } elseif (count($segments) === 2 && isset($catalog[$segments[1]])) {
                 $kitab = $catalog[$segments[1]];
+
+                // Descriptive snippets matching Google sitelink descriptions
+                $kitabDesc = "Baca {$kitab['total']} hadits {$kitab['name']} ({$kitab['arab']}) lengkap. Teks Arab berharakat, nomor hadits, dan terjemahan bahasa Indonesia di IndoQuran.";
+                if ($kitab['slug'] === 'shahih_muslim') {
+                    $kitabDesc = "Baca 3.033 hadits Muslim (Shahih Muslim) lengkap - 57 kitab. Teks Arab, terjemahan Indonesia, dan nomor hadits di IndoQuran.";
+                } elseif ($kitab['slug'] === 'shahih_bukhari') {
+                    $kitabDesc = "Baca 7.563 hadits Bukhari (Shahih Bukhari) lengkap. Teks Arab, terjemahan Indonesia, dan nomor hadits di IndoQuran.";
+                } elseif ($kitab['slug'] === 'sunan_nasai') {
+                    $kitabDesc = "Baca 5.758 hadits Nasa'i (Sunan An-Nasa'i) lengkap. Teks Arab, terjemahan Indonesia, dan nomor hadits di IndoQuran.";
+                } elseif ($kitab['slug'] === 'sunan_abu_daud') {
+                    $kitabDesc = "Baca 5.274 hadits Sunan Abu Daud lengkap. Teks Arab, terjemahan Indonesia, dan nomor hadits di IndoQuran.";
+                }
+
+                $breadcrumbStructuredData = [
+                    '@context' => 'https://schema.org',
+                    '@type' => 'BreadcrumbList',
+                    'itemListElement' => [
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 1,
+                            'name' => 'Beranda',
+                            'item' => 'https://indoquran.web.id'
+                        ],
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 2,
+                            'name' => 'Hadits Shahih',
+                            'item' => 'https://indoquran.web.id/hadits'
+                        ],
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 3,
+                            'name' => 'Hadits ' . $kitab['name'],
+                            'item' => 'https://indoquran.web.id/hadits/' . $segments[1]
+                        ]
+                    ]
+                ];
+
+                $bookStructuredData = [
+                    '@context' => 'https://schema.org',
+                    '@type' => 'Book',
+                    'name' => $kitab['name'],
+                    'alternateName' => $kitab['arab'],
+                    'author' => [
+                        '@type' => 'Person',
+                        'name' => $kitab['author']
+                    ],
+                    'inLanguage' => ['ar', 'id'],
+                    'url' => 'https://indoquran.web.id/hadits/' . $segments[1],
+                    'description' => $kitab['description'],
+                    'numberOfItems' => $kitab['total']
+                ];
+
                 $seoData = array_merge($seoData, [
-                    'metaTitle' => "Kitab {$kitab['name']} Lengkap Teks Arab & Terjemahan | IndoQuran",
-                    'metaDescription' => "Baca {$kitab['name']} ({$kitab['arab']}) karya {$kitab['author']}. Total {$kitab['total']} hadits lengkap teks Arab dan terjemahan bahasa Indonesia.",
+                    'metaTitle' => "Hadits {$kitab['name']} Online - IndoQuran",
+                    'metaDescription' => $kitabDesc,
                     'metaKeywords' => "{$kitab['name']}, hadits {$kitab['name']}, {$kitab['arab']}, baca hadits online, kutubus sittah, terjemah hadits",
-                    'canonicalUrl' => url('/hadits/' . $segments[1])
+                    'canonicalUrl' => url('/hadits/' . $segments[1]),
+                    'breadcrumbStructuredData' => $breadcrumbStructuredData,
+                    'customStructuredData' => $bookStructuredData
                 ]);
             } elseif (count($segments) === 3 && isset($catalog[$segments[1]])) {
                 $kitab = $catalog[$segments[1]];
                 $nomor = (int) $segments[2];
+
+                $breadcrumbStructuredData = [
+                    '@context' => 'https://schema.org',
+                    '@type' => 'BreadcrumbList',
+                    'itemListElement' => [
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 1,
+                            'name' => 'Beranda',
+                            'item' => 'https://indoquran.web.id'
+                        ],
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 2,
+                            'name' => 'Hadits Shahih',
+                            'item' => 'https://indoquran.web.id/hadits'
+                        ],
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 3,
+                            'name' => 'Hadits ' . $kitab['name'],
+                            'item' => 'https://indoquran.web.id/hadits/' . $segments[1]
+                        ],
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 4,
+                            'name' => "Hadits No. {$nomor}",
+                            'item' => 'https://indoquran.web.id/hadits/' . $segments[1] . '/' . $nomor
+                        ]
+                    ]
+                ];
+
                 $seoData = array_merge($seoData, [
                     'metaTitle' => "Hadits {$kitab['name']} No. {$nomor} - Teks Arab & Terjemahan | IndoQuran",
-                    'metaDescription' => "Baca Hadits {$kitab['name']} Nomor {$nomor} lengkap dengan teks Arab berharakat dan terjemahan bahasa Indonesia.",
+                    'metaDescription' => "Baca Hadits {$kitab['name']} Nomor {$nomor} lengkap dengan teks Arab berharakat dan terjemahan bahasa Indonesia di IndoQuran.",
                     'metaKeywords' => "hadits {$kitab['name']} {$nomor}, hadits no {$nomor}, {$kitab['name']}, teks hadits, terjemah hadits",
-                    'canonicalUrl' => url('/hadits/' . $segments[1] . '/' . $nomor)
+                    'canonicalUrl' => url('/hadits/' . $segments[1] . '/' . $nomor),
+                    'breadcrumbStructuredData' => $breadcrumbStructuredData
                 ]);
             }
         }
@@ -1221,6 +1530,112 @@ class SEOController extends Controller
                     ->where('slug', $slug)
                     ->where('is_active', true)
                     ->first();
+            }
+        }
+        elseif (isset($segments[0]) && $segments[0] === 'hadits') {
+            $catalog = \App\Http\Controllers\HaditsController::getKitabCatalog();
+            $popularTopics = [
+                ['slug' => 'takdir', 'name' => 'Takdir'],
+                ['slug' => 'shalat', 'name' => 'Shalat'],
+                ['slug' => 'jenazah', 'name' => 'Jenazah'],
+                ['slug' => 'iddah', 'name' => 'Iddah'],
+                ['slug' => 'matahari', 'name' => 'Matahari'],
+                ['slug' => 'wudhu', 'name' => 'Wudhu'],
+                ['slug' => 'puasa', 'name' => 'Puasa'],
+                ['slug' => 'zakat', 'name' => 'Zakat & Sedekah'],
+                ['slug' => 'sabar', 'name' => 'Sabar'],
+                ['slug' => 'taubat', 'name' => 'Taubat'],
+                ['slug' => 'ilmu', 'name' => 'Menuntut Ilmu'],
+                ['slug' => 'nikah', 'name' => 'Pernikahan'],
+                ['slug' => 'rezeki', 'name' => 'Rezeki'],
+                ['slug' => 'doa', 'name' => 'Doa & Dzikir'],
+            ];
+
+            if (count($segments) === 1 && empty($request->get('q'))) {
+                $haditsCache = app(\App\Services\HaditsCacheService::class);
+                $reactData['haditsHub'] = [
+                    'kitabs' => array_values($catalog),
+                    'topics' => $popularTopics,
+                    'featured' => $haditsCache->getFeaturedHadits(),
+                ];
+            } elseif (count($segments) === 3 && $segments[1] === 'tentang') {
+                $topicSlug = $segments[2];
+                $topicName = ucwords(str_replace(['-', '_'], ' ', $topicSlug));
+
+                $topicHadiths = \Illuminate\Support\Facades\Cache::remember("seo_hadits_topic_{$topicSlug}", 86400, function () use ($topicSlug) {
+                    $results = [];
+                    // Search in Bukhari first
+                    $bukhariRows = \Illuminate\Support\Facades\DB::table('hadits_shahih_al_bukhari')
+                        ->where(function ($q) use ($topicSlug) {
+                            $q->where('indonesia', 'like', "%{$topicSlug}%")
+                              ->orWhere('kategori', 'like', "%{$topicSlug}%");
+                        })
+                        ->select('no', 'kitab', 'kategori', 'arab', 'indonesia')
+                        ->limit(8)
+                        ->get();
+
+                    foreach ($bukhariRows as $row) {
+                        $results[] = [
+                            'no' => $row->no,
+                            'kitab_slug' => 'shahih_bukhari',
+                            'kitab_name' => 'Shahih Bukhari',
+                            'kategori' => $row->kategori,
+                            'arab' => $row->arab,
+                            'indonesia' => $row->indonesia
+                        ];
+                    }
+
+                    // Search in Muslim second
+                    $muslimRows = \Illuminate\Support\Facades\DB::table('hadits_shahih_muslim')
+                        ->where(function ($q) use ($topicSlug) {
+                            $q->where('indonesia', 'like', "%{$topicSlug}%")
+                              ->orWhere('kategori', 'like', "%{$topicSlug}%");
+                        })
+                        ->select('no', 'kitab', 'kategori', 'arab', 'indonesia')
+                        ->limit(7)
+                        ->get();
+
+                    foreach ($muslimRows as $row) {
+                        $results[] = [
+                            'no' => $row->no,
+                            'kitab_slug' => 'shahih_muslim',
+                            'kitab_name' => 'Shahih Muslim',
+                            'kategori' => $row->kategori,
+                            'arab' => $row->arab,
+                            'indonesia' => $row->indonesia
+                        ];
+                    }
+
+                    return $results;
+                });
+
+                $reactData['haditsTopic'] = [
+                    'topic' => $topicName,
+                    'slug' => $topicSlug,
+                    'hadiths' => $topicHadiths
+                ];
+            } elseif (count($segments) === 2 && isset($catalog[$segments[1]])) {
+                $kitab = $catalog[$segments[1]];
+                $haditsCache = app(\App\Services\HaditsCacheService::class);
+                $kitabData = $haditsCache->getKitabHadits($segments[1], 1, 15);
+
+                $reactData['haditsKitab'] = [
+                    'kitab' => $kitab,
+                    'hadiths' => $kitabData['data'] ?? []
+                ];
+            } elseif (count($segments) === 3 && isset($catalog[$segments[1]])) {
+                $kitab = $catalog[$segments[1]];
+                $nomor = (int) $segments[2];
+                $haditsCache = app(\App\Services\HaditsCacheService::class);
+                $detail = $haditsCache->getHaditsDetail($segments[1], $nomor);
+
+                if ($detail && isset($detail['hadits'])) {
+                    $reactData['haditsDetail'] = [
+                        'kitab' => $kitab,
+                        'hadits' => $detail['hadits'],
+                        'navigation' => $detail['navigation'] ?? []
+                    ];
+                }
             }
         }
 

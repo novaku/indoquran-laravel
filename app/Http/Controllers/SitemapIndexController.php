@@ -56,6 +56,12 @@ class SitemapIndexController extends Controller
             $currentDate
         );
 
+        // Hadits topics sitemap
+        $xml .= $this->createSitemapEntry(
+            $baseUrl . '/sitemap-hadits-topik.xml',
+            $currentDate
+        );
+
         // Hadits individual book sitemaps (all 7 books)
         foreach (HaditsController::getKitabCatalog() as $slug => $kitab) {
             $xml .= $this->createSitemapEntry(
@@ -363,6 +369,12 @@ class SitemapIndexController extends Controller
             $baseUrl . '/sitemap-hadits-main.xml',
             $currentDate
         );
+
+        // Hadits topics sitemap
+        $xml .= $this->createSitemapEntry(
+            $baseUrl . '/sitemap-hadits-topik.xml',
+            $currentDate
+        );
         
         // Sitemaps for each of the 7 books
         foreach (HaditsController::getKitabCatalog() as $slug => $kitab) {
@@ -476,6 +488,37 @@ class SitemapIndexController extends Controller
             "    <loc>{$loc}</loc>\n" .
             "    <lastmod>{$lastmod}</lastmod>\n" .
             "  </sitemap>\n";
+    }
+    
+    /**
+     * Generate sitemap for popular thematic Hadith topic landing pages
+     */
+    public function haditsTopikSitemap(): Response
+    {
+        $baseUrl = (app()->environment('production') && !app()->environment(['local', 'development', 'testing']))
+            ? 'https://indoquran.web.id' 
+            : config('app.url');
+
+        $topics = [
+            'takdir', 'shalat', 'jenazah', 'iddah', 'matahari', 'wudhu',
+            'puasa', 'zakat', 'sabar', 'taubat', 'ilmu', 'nikah',
+            'rezeki', 'doa', 'akhlak', 'surga', 'neraka', 'silaturahmi',
+            'kematian', 'riba'
+        ];
+
+        $pages = [];
+        $currentDate = now()->toIso8601String();
+
+        foreach ($topics as $topic) {
+            $pages[] = [
+                'url' => $baseUrl . '/hadits/tentang/' . $topic,
+                'lastmod' => $currentDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.8'
+            ];
+        }
+
+        return $this->generateSitemapXml($pages);
     }
     
     /**

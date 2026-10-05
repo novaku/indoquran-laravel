@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Http\Controllers\HaditsController;
+use App\Models\Surah;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -143,4 +144,56 @@ class SitemapTest extends TestCase
         $this->artisan('sitemap:validate', ['--production' => true])
             ->assertExitCode(0);
     }
+
+    public function test_homepage_seo_and_faq_schema(): void
+    {
+        $response = $this->get('/');
+        $response->assertStatus(200);
+        $response->assertSee('Al Quran Online Indonesia - Baca Al-Quran Digital 30 Juz & Hadits | IndoQuran');
+        $response->assertSee('FAQPage');
+        $response->assertSee('Bagaimana cara membaca Al-Quran online di IndoQuran?');
+        $response->assertSee('Surah Populer Paling Sering Dibaca');
+        $response->assertSee('Surat Yasin');
+        $response->assertSee('Surat Al-Kahfi');
+        $response->assertSee('Surat Al-Mulk');
+        $response->assertSee('Juz 30');
+    }
+
+    public function test_surah_seo_and_structured_data(): void
+    {
+        Surah::create([
+            'number' => 1,
+            'name_latin' => 'Al-Fatihah',
+            'name_arabic' => 'الفاتحة',
+            'name_indonesian' => 'Pembukaan',
+            'total_ayahs' => 7,
+            'revelation_place' => 'Mekah',
+            'description_short' => 'Surah pembukaan Al-Quran',
+            'description_long' => 'Deskripsi lengkap Surah Al-Fatihah'
+        ]);
+
+        $response = $this->get('/surah/1');
+        $response->assertStatus(200);
+        $response->assertSee('FAQPage');
+        $response->assertSee('Book');
+        $response->assertSee('Berapa jumlah ayat Surah Al-Fatihah');
+    }
+
+    public function test_juz_30_seo(): void
+    {
+        $response = $this->get('/juz/30');
+        $response->assertStatus(200);
+        $response->assertSee('Juz 30 (Juz Amma) Lengkap Teks Arab, Latin & Terjemahan | IndoQuran');
+    }
+
+    public function test_topic_sitemap_endpoint(): void
+    {
+        $response = $this->get('/sitemap-hadits-topik.xml');
+        $response->assertStatus(200);
+        $response->assertHeader('Content-Type', 'application/xml');
+        $content = $response->getContent();
+        $this->assertStringContainsString('/hadits/tentang/takdir', $content);
+        $this->assertStringContainsString('/hadits/tentang/shalat', $content);
+    }
 }
+

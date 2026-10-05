@@ -1,5 +1,38 @@
 [
   {
+    "version": "2.31.0",
+    "date": "4 Oktober 2026",
+    "type": "feature",
+    "title": "Restrukturisasi Ensiklopedia 7 Kitab Hadits, Penanda Hadits, & Cache Granular",
+    "description": "Pembaruan menyeluruh pada ekosistem Hadits Nabawi mencakup standarisasi database UTF8mb4 untuk 7 kitab mu'tamad (33.137 hadits), sistem bookmark hadits untuk member dan tamu, manajemen cache hadits granular via CLI & Service, serta arsitektur sitemap modular per kitab hadits.",
+    "changes": [
+      {
+        "type": "feature",
+        "text": "Sistem Penanda (Bookmark) Hadits - Fitur simpan dan kelola hadits pilihan untuk pengguna terdaftar dan tamu (localStorage fallback), terintegrasi langsung di kartu hadits dan tab khusus di halaman Penanda (/penanda)"
+      },
+      {
+        "type": "feature",
+        "text": "Standarisasi & Audit 7 Kitab Hadits Mu'tamad - Restrukturisasi dan verifikasi data 7 kitab hadits (Shahih Bukhari, Shahih Muslim, Sunan Abu Daud, Jami' At-Tirmidzi, Sunan An-Nasa'i, Sunan Ibnu Majah, dan Musnad Ahmad) dengan total 33.137 hadits terindeks bersih"
+      },
+      {
+        "type": "improvement",
+        "text": "Migrasi Database UTF8mb4 & Penambahan Syarah - Konversi skema tabel hadits ke utf8mb4_unicode_ci untuk memastikan integritas harakat teks Arab dan terjemahan, serta penambahan kolom penjelasan (syarah) hadits"
+      },
+      {
+        "type": "improvement",
+        "text": "Pengelolaan Cache Hadits Granular (CLI & Service) - Perintah Artisan hadits:cache (status, clear, warm-up) dan pembersihan granular pada HaditsCacheService untuk kecepatan akses baca dan katalog instan"
+      },
+      {
+        "type": "improvement",
+        "text": "Arsitektur Sitemap Modular Hadits - Pemisahan berkas sitemap XML per kitab hadits yang terhubung rapi ke sitemap-hadits-main.xml dan sitemap-index.xml untuk optimasi Google Search Console"
+      },
+      {
+        "type": "improvement",
+        "text": "Pembaruan PWA & Service Worker Cache (v2.31.0) - Peningkatan cache versioning Service Worker PWA ke v2.31.0 guna memastikan browser memperbarui komponen cache dan aset interaktif hadits terbaru"
+      }
+    ]
+  },
+  {
     "version": "2.30.0",
     "date": "29 September 2026",
     "type": "feature",

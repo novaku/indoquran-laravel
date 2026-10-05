@@ -152,7 +152,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v={{ $favVersion }}">
     
     <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json?v=2.30.0">
+    <link rel="manifest" href="/manifest.json?v=2.31.0">
     
     <!-- PWA iOS Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -164,7 +164,7 @@
     <script src="/anti-injection-security.js"></script>
     
     <!-- PWA Manager -->
-    <script src="/pwa-manager.js?v=2.30.0"></script>
+    <script src="/pwa-manager.js?v=2.31.0"></script>
 
     
     <!-- Critical CSS for above-the-fold content -->
@@ -310,6 +310,18 @@
     </script>
     @endif
 
+    @if(isset($siteNavigationStructuredData))
+    <script type="application/ld+json">
+    {!! json_encode($siteNavigationStructuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+    </script>
+    @endif
+
+    @if(isset($customStructuredData))
+    <script type="application/ld+json">
+    {!! json_encode($customStructuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+    </script>
+    @endif
+
     @if(app()->environment('local'))
     <!-- Font override for local development to prevent CORS issues -->
     <link rel="stylesheet" href="{{ asset('dev-fonts.css') }}">
@@ -333,7 +345,11 @@
                 || !empty($reactData['currentPage']) 
                 || !empty($reactData['currentArticle']) 
                 || !empty($reactData['articles'])
-                || !empty($reactData['currentTafsirTopic']);
+                || !empty($reactData['currentTafsirTopic'])
+                || !empty($reactData['haditsHub'])
+                || !empty($reactData['haditsKitab'])
+                || !empty($reactData['haditsDetail'])
+                || !empty($reactData['haditsTopic']);
         @endphp
 
         <!-- Fallback content while React loads (only rendered if no SSR content is pre-rendered) -->
@@ -403,7 +419,110 @@
         <!-- SEO Content (Server Side Rendered) to ensure indexing -->
         @if(isset($reactData['surahs']))
             <div id="ssr-surah-list" style="padding: 2rem; background: #fff; color: #1f2937;">
-                <h1 style="font-size: 1.875rem; font-weight: 800; margin-bottom: 2rem; text-align: center; color: #166534;">Daftar Surah Al-Quran</h1>
+                <nav aria-label="Navigasi Utama IndoQuran" style="max-width: 1200px; margin: 0 auto 2rem; display: flex; flex-wrap: wrap; gap: 0.625rem; justify-content: center; align-items: center;">
+                    <a href="/surah" style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; border-radius: 9999px; text-decoration: none; font-weight: 600; font-size: 0.875rem;">
+                        📖 Al-Quran Digital
+                    </a>
+                    <a href="/hadits" style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; border-radius: 9999px; text-decoration: none; font-weight: 600; font-size: 0.875rem;">
+                        📚 Hadits Shahih Online
+                    </a>
+                    <a href="/hadits/shahih_bukhari" style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; background: #ffffff; border: 1px solid #e5e7eb; color: #374151; border-radius: 9999px; text-decoration: none; font-weight: 500; font-size: 0.875rem;">
+                        Hadits Bukhari
+                    </a>
+                    <a href="/hadits/shahih_muslim" style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; background: #ffffff; border: 1px solid #e5e7eb; color: #374151; border-radius: 9999px; text-decoration: none; font-weight: 500; font-size: 0.875rem;">
+                        Hadits Muslim
+                    </a>
+                    <a href="/juz/30" style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; background: #ffffff; border: 1px solid #e5e7eb; color: #374151; border-radius: 9999px; text-decoration: none; font-weight: 500; font-size: 0.875rem;">
+                        Juz Amma (Juz 30)
+                    </a>
+                    <a href="/tafsir-maudhui" style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; background: #ffffff; border: 1px solid #e5e7eb; color: #374151; border-radius: 9999px; text-decoration: none; font-weight: 500; font-size: 0.875rem;">
+                        Tafsir Maudhui
+                    </a>
+                    <a href="/asmaul-husna" style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; background: #ffffff; border: 1px solid #e5e7eb; color: #374151; border-radius: 9999px; text-decoration: none; font-weight: 500; font-size: 0.875rem;">
+                        99 Asmaul Husna
+                    </a>
+                    <a href="/doa-bersama" style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; background: #ffffff; border: 1px solid #e5e7eb; color: #374151; border-radius: 9999px; text-decoration: none; font-weight: 500; font-size: 0.875rem;">
+                        Kumpulan Doa
+                    </a>
+                    <a href="/artikel" style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; background: #ffffff; border: 1px solid #e5e7eb; color: #374151; border-radius: 9999px; text-decoration: none; font-weight: 500; font-size: 0.875rem;">
+                        Artikel Islami
+                    </a>
+                </nav>
+                <header style="max-width: 960px; margin: 0 auto 2.5rem; text-align: center;">
+                    <h1 style="font-size: 2.125rem; font-weight: 800; margin-bottom: 0.875rem; color: #166534; line-height: 1.3;">
+                        Al-Quran Online Indonesia - Baca Al-Qur'an Digital 30 Juz & Hadits Shahih
+                    </h1>
+                    <p style="font-size: 1.0625rem; line-height: 1.7; color: #4b5563; margin: 0 auto;">
+                        Platform Al-Quran online terlengkap di Indonesia. Baca 114 surah dan 30 juz Al-Quran dengan teks Arab berharakat jelas, transliterasi latin, terjemahan bahasa Indonesia resmi standar Kementerian Agama RI (Kemenag), audio murottal merdu, tafsir tematik, serta 7 kitab hadits shahih nabawi.
+                    </p>
+                </header>
+
+                <!-- Surah Populer Paling Sering Dibaca -->
+                <section aria-label="Surah Populer Paling Sering Dibaca" style="max-width: 1200px; margin: 0 auto 2.5rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0.75rem; padding: 1.5rem;">
+                    <h2 style="font-size: 1.25rem; font-weight: 700; color: #166534; margin: 0 0 1rem 0; text-align: center;">
+                        🌟 Surah Populer Paling Sering Dibaca
+                    </h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.875rem;">
+                        <a href="/surah/36" style="background: white; border: 1px solid #86efac; border-radius: 0.5rem; padding: 0.875rem 1rem; text-decoration: none; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="color: #15803d; font-size: 1rem;">Surat Yasin</strong>
+                                <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">Surah ke-36 • 83 Ayat</div>
+                            </div>
+                            <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">يس</span>
+                        </a>
+                        <a href="/surah/18" style="background: white; border: 1px solid #86efac; border-radius: 0.5rem; padding: 0.875rem 1rem; text-decoration: none; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="color: #15803d; font-size: 1rem;">Surat Al-Kahfi</strong>
+                                <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">Surah ke-18 • 110 Ayat</div>
+                            </div>
+                            <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">الكهف</span>
+                        </a>
+                        <a href="/surah/67" style="background: white; border: 1px solid #86efac; border-radius: 0.5rem; padding: 0.875rem 1rem; text-decoration: none; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="color: #15803d; font-size: 1rem;">Surat Al-Mulk</strong>
+                                <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">Surah ke-67 • 30 Ayat</div>
+                            </div>
+                            <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">الملك</span>
+                        </a>
+                        <a href="/surah/56" style="background: white; border: 1px solid #86efac; border-radius: 0.5rem; padding: 0.875rem 1rem; text-decoration: none; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="color: #15803d; font-size: 1rem;">Surat Al-Waqi'ah</strong>
+                                <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">Surah ke-56 • 96 Ayat</div>
+                            </div>
+                            <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">الواقعة</span>
+                        </a>
+                        <a href="/surah/55" style="background: white; border: 1px solid #86efac; border-radius: 0.5rem; padding: 0.875rem 1rem; text-decoration: none; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="color: #15803d; font-size: 1rem;">Surat Ar-Rahman</strong>
+                                <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">Surah ke-55 • 78 Ayat</div>
+                            </div>
+                            <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">الرحمن</span>
+                        </a>
+                        <a href="/surah/2" style="background: white; border: 1px solid #86efac; border-radius: 0.5rem; padding: 0.875rem 1rem; text-decoration: none; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="color: #15803d; font-size: 1rem;">Surat Al-Baqarah</strong>
+                                <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">Surah ke-2 • 286 Ayat</div>
+                            </div>
+                            <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">البقرة</span>
+                        </a>
+                        <a href="/juz/30" style="background: white; border: 1px solid #86efac; border-radius: 0.5rem; padding: 0.875rem 1rem; text-decoration: none; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="color: #15803d; font-size: 1rem;">Juz 30 (Juz 'Amma)</strong>
+                                <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">37 Surah Pendek</div>
+                            </div>
+                            <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">عمّ</span>
+                        </a>
+                        <a href="/surah/112" style="background: white; border: 1px solid #86efac; border-radius: 0.5rem; padding: 0.875rem 1rem; text-decoration: none; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="color: #15803d; font-size: 1rem;">Surat Al-Ikhlas</strong>
+                                <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">Surah ke-112 • 4 Ayat</div>
+                            </div>
+                            <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">الإخلاص</span>
+                        </a>
+                    </div>
+                </section>
+
+                <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; text-align: center; color: #1f2937;">Daftar Lengkap 114 Surah Al-Quran</h2>
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; max-width: 1200px; margin: 0 auto;">
                     @foreach($reactData['surahs'] as $surah)
                         <a href="/surah/{{ $surah->number }}" data-google-vignette="false" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; text-decoration: none; color: inherit; background-color: #f9fafb; transition: all 0.2s;">
@@ -415,6 +534,55 @@
                         </a>
                     @endforeach
                 </div>
+
+                <!-- FAQ Section for Google Snippets -->
+                <section id="ssr-faq" style="max-width: 960px; margin: 3rem auto 1rem; padding: 2rem; background: #f9fafb; border-radius: 0.75rem; border: 1px solid #e5e7eb;">
+                    <h2 style="font-size: 1.5rem; font-weight: 700; color: #111827; margin: 0 0 1.5rem 0; text-align: center;">
+                        Pertanyaan Umum Seputar Al-Quran Online di IndoQuran (FAQ)
+                    </h2>
+                    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                        <article>
+                            <h3 style="font-size: 1.1rem; font-weight: 600; color: #166534; margin: 0 0 0.5rem 0;">
+                                Bagaimana cara membaca Al-Quran online di IndoQuran?
+                            </h3>
+                            <p style="font-size: 0.95rem; line-height: 1.6; color: #4b5563; margin: 0;">
+                                Anda dapat langsung memilih surah dari daftar 114 surah di atas, membaca per juz (Juz 1 sampai 30), atau per halaman mushaf standar Madinah (Halaman 1 sampai 604). Setiap ayat ditampilkan dengan teks Arab jelas, transliterasi latin, dan arti bahasa Indonesia.
+                            </p>
+                        </article>
+                        <article>
+                            <h3 style="font-size: 1.1rem; font-weight: 600; color: #166534; margin: 0 0 0.5rem 0;">
+                                Apakah terjemahan Al-Quran di IndoQuran bersumber dari Kemenag?
+                            </h3>
+                            <p style="font-size: 0.95rem; line-height: 1.6; color: #4b5563; margin: 0;">
+                                Ya, seluruh terjemahan ayat Al-Quran di IndoQuran mengacu pada terjemahan resmi standar Kementerian Agama Republik Indonesia (Kemenag) yang telah diakui dan digunakan secara luas di Indonesia.
+                            </p>
+                        </article>
+                        <article>
+                            <h3 style="font-size: 1.1rem; font-weight: 600; color: #166534; margin: 0 0 0.5rem 0;">
+                                Apakah tersedia audio murottal dan pemutar ayat?
+                            </h3>
+                            <p style="font-size: 0.95rem; line-height: 1.6; color: #4b5563; margin: 0;">
+                                Ya, IndoQuran menyediakan fitur audio murottal berkualitas tinggi per surah dan per ayat dari qari-qari terkemuka dunia seperti Mishary Rashid Alafasy, Abdurrahman As-Sudais, Sa'ad Al-Ghamdi, dan lainnya yang dapat diputar secara gratis.
+                            </p>
+                        </article>
+                        <article>
+                            <h3 style="font-size: 1.1rem; font-weight: 600; color: #166534; margin: 0 0 0.5rem 0;">
+                                Kitab hadits apa saja yang tersedia di IndoQuran?
+                            </h3>
+                            <p style="font-size: 0.95rem; line-height: 1.6; color: #4b5563; margin: 0;">
+                                Selain Al-Quran, IndoQuran menyediakan koleksi lengkap 7 kitab hadits shahih nabawi: Shahih Bukhari, Shahih Muslim, Sunan Abu Daud, Sunan Tirmidzi, Sunan An-Nasa'i, Sunan Ibnu Majah, dan Musnad Ahmad lengkap dengan teks Arab dan terjemahan Indonesia.
+                            </p>
+                        </article>
+                        <article>
+                            <h3 style="font-size: 1.1rem; font-weight: 600; color: #166534; margin: 0 0 0.5rem 0;">
+                                Apakah IndoQuran gratis dan ramah pengguna ponsel?
+                            </h3>
+                            <p style="font-size: 0.95rem; line-height: 1.6; color: #4b5563; margin: 0;">
+                                IndoQuran 100% gratis untuk seluruh umat Muslim. Tampilan website dirancang sangat responsif dan ringan (PWA ready) sehingga nyaman dibaca di smartphone Android, iOS iPhone, maupun tablet dan komputer.
+                            </p>
+                        </article>
+                    </div>
+                </section>
             </div>
         @endif
 
@@ -778,6 +946,278 @@
                         <a href="/tafsir-maudhui" style="display: inline-block; padding: 0.75rem 1.5rem; background: #16a34a; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">&larr; Lihat Semua Topik Tafsir</a>
                     </div>
                 </article>
+            </div>
+        @endif
+
+        @if(isset($reactData['haditsHub']))
+            <div id="ssr-hadits-hub" style="padding: 3rem 1.5rem; background: #fff; color: #1f2937; max-width: 1200px; margin: 0 auto;">
+                <nav aria-label="Breadcrumb" style="margin-bottom: 1.5rem; font-size: 0.875rem; color: #4b5563;">
+                    <a href="/" style="color: #16a34a; text-decoration: none;">Beranda</a>
+                    <span style="margin: 0 0.5rem; color: #9ca3af;">/</span>
+                    <span style="color: #111827; font-weight: 600;">Hadits Shahih Online</span>
+                </nav>
+
+                <header style="text-align: center; margin-bottom: 2.5rem;">
+                    <h1 style="font-size: 2.25rem; font-weight: 800; color: #166534; margin-bottom: 0.75rem;">
+                        Koleksi 7 Kitab Hadits Shahih Online
+                    </h1>
+                    <p style="font-size: 1.125rem; color: #4b5563; max-width: 800px; margin: 0 auto; line-height: 1.7;">
+                        Baca dan cari hadits shahih nabawi online dari Kutubus Sittah dan Musnad Ahmad. Dilengkapi teks Arab berharakat, nomor hadits, dan terjemahan bahasa Indonesia lengkap.
+                    </p>
+                </header>
+
+                @if(!empty($reactData['haditsHub']['topics']))
+                    <section style="margin-bottom: 2.5rem; padding: 1.5rem; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem;">
+                        <h2 style="font-size: 1.125rem; font-weight: 700; color: #14532d; margin: 0 0 1rem 0;">
+                            Topik & Hadits Tematik Pilihan
+                        </h2>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                            @foreach($reactData['haditsHub']['topics'] as $topic)
+                                <a href="/hadits/tentang/{{ $topic['slug'] }}" style="display: inline-block; padding: 0.5rem 1rem; background: #ffffff; border: 1px solid #d1d5db; color: #15803d; border-radius: 9999px; text-decoration: none; font-size: 0.875rem; font-weight: 600; transition: all 0.2s;">
+                                    Hadits Tentang {{ $topic['name'] }}
+                                </a>
+                            @endforeach
+                        </div>
+                    </section>
+                @endif
+
+                <section style="margin-bottom: 3rem;">
+                    <h2 style="font-size: 1.35rem; font-weight: 700; color: #111827; margin: 0 0 1.25rem 0;">
+                        7 Kitab Induk Hadits Nabawi
+                    </h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem;">
+                        @foreach($reactData['haditsHub']['kitabs'] as $kitab)
+                            <article style="border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem; background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between;">
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                                        <h3 style="font-size: 1.25rem; font-weight: 700; margin: 0;">
+                                            <a href="/hadits/{{ $kitab['slug'] }}" style="color: #111827; text-decoration: none;">
+                                                Hadits {{ $kitab['name'] }}
+                                            </a>
+                                        </h3>
+                                        <span class="arabic-text" style="font-size: 1.5rem; color: #166534; direction: rtl;">
+                                            {{ $kitab['arab'] }}
+                                        </span>
+                                    </div>
+                                    <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem;">
+                                        {{ $kitab['author'] }} • <span style="font-weight: 600; color: #15803d;">{{ number_format($kitab['total'], 0, ',', '.') }} Hadits</span>
+                                    </div>
+                                    <p style="font-size: 0.9375rem; color: #4b5563; line-height: 1.6; margin: 0 0 1rem 0;">
+                                        {{ $kitab['description'] }}
+                                    </p>
+                                </div>
+                                <div style="border-top: 1px solid #f3f4f6; padding-top: 0.75rem;">
+                                    <a href="/hadits/{{ $kitab['slug'] }}" style="color: #16a34a; font-weight: 600; text-decoration: none; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                        Buka Kitab {{ $kitab['name'] }} &rarr;
+                                    </a>
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+                </section>
+            </div>
+        @endif
+
+        @if(isset($reactData['haditsKitab']))
+            <div id="ssr-hadits-kitab" style="padding: 3rem 1.5rem; background: #fff; color: #1f2937; max-width: 900px; margin: 0 auto;">
+                <nav aria-label="Breadcrumb" style="margin-bottom: 1.5rem; font-size: 0.875rem; color: #4b5563;">
+                    <a href="/" style="color: #16a34a; text-decoration: none;">Beranda</a>
+                    <span style="margin: 0 0.5rem; color: #9ca3af;">/</span>
+                    <a href="/hadits" style="color: #16a34a; text-decoration: none;">Hadits</a>
+                    <span style="margin: 0 0.5rem; color: #9ca3af;">/</span>
+                    <span style="color: #111827; font-weight: 600;">Hadits {{ $reactData['haditsKitab']['kitab']['name'] }}</span>
+                </nav>
+
+                <header style="text-align: center; margin-bottom: 2.5rem;">
+                    <h1 style="font-size: 2.25rem; font-weight: 800; color: #111827; margin-bottom: 0.5rem;">
+                        Hadits {{ $reactData['haditsKitab']['kitab']['name'] }} Online
+                    </h1>
+                    <h2 class="arabic-text" style="font-size: 2.5rem; color: #166534; margin: 0.5rem 0;">
+                        {{ $reactData['haditsKitab']['kitab']['arab'] }}
+                    </h2>
+                    <div style="font-size: 1rem; color: #4b5563; background: #f3f4f6; display: inline-block; padding: 0.5rem 1.25rem; border-radius: 9999px; font-weight: 500; margin-top: 0.5rem;">
+                        {{ $reactData['haditsKitab']['kitab']['author'] }} • Total {{ number_format($reactData['haditsKitab']['kitab']['total'], 0, ',', '.') }} Hadits • {{ $reactData['haditsKitab']['kitab']['category_label'] }}
+                    </div>
+                    <p style="font-size: 1.0625rem; color: #4b5563; margin-top: 1rem; max-width: 750px; margin-left: auto; margin-right: auto; line-height: 1.7;">
+                        {{ $reactData['haditsKitab']['kitab']['description'] }}
+                    </p>
+                </header>
+
+                @if(!empty($reactData['haditsKitab']['hadiths']))
+                    <section style="margin-bottom: 2.5rem;">
+                        <h3 style="font-size: 1.25rem; font-weight: 700; color: #14532d; margin: 0 0 1rem 0; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem;">
+                            Daftar Bacaan Hadits {{ $reactData['haditsKitab']['kitab']['name'] }}
+                        </h3>
+                        @foreach($reactData['haditsKitab']['hadiths'] as $item)
+                            <article style="padding: 1.25rem 0; border-bottom: 1px solid #f3f4f6;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                    <span style="display: inline-block; background: #e0f2fe; color: #0369a1; font-weight: 700; font-size: 0.875rem; padding: 0.25rem 0.75rem; border-radius: 9999px;">
+                                        Hadits No. {{ data_get($item, 'no') }}
+                                    </span>
+                                    @if(!empty(data_get($item, 'kategori')))
+                                        <span style="font-size: 0.8125rem; color: #6b7280; font-style: italic;">
+                                            {{ data_get($item, 'kategori') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <p class="arabic-text" style="font-size: 1.85rem; line-height: 2.2; color: #111827; text-align: right; margin: 0 0 0.75rem 0; direction: rtl;">
+                                    {{ data_get($item, 'arab') }}
+                                </p>
+                                <p style="font-size: 1rem; color: #1f2937; line-height: 1.6; margin: 0 0 0.5rem 0;">
+                                    <strong>Terjemahan:</strong> {{ Str::limit(data_get($item, 'indonesia'), 280) }}
+                                </p>
+                                <a href="/hadits/{{ $reactData['haditsKitab']['kitab']['slug'] }}/{{ data_get($item, 'no') }}" style="color: #16a34a; font-weight: 600; text-decoration: none; font-size: 0.875rem;">
+                                    Baca Selengkapnya &rarr;
+                                </a>
+                            </article>
+                        @endforeach
+                    </section>
+                @endif
+
+                <div style="text-align: center; margin-top: 2rem;">
+                    <a href="/hadits" style="display: inline-block; padding: 0.75rem 1.5rem; background: #16a34a; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">
+                        &larr; Kembali ke Koleksi Kitab Hadits
+                    </a>
+                </div>
+            </div>
+        @endif
+
+        @if(isset($reactData['haditsDetail']))
+            <div id="ssr-hadits-detail" style="padding: 3rem 1.5rem; background: #fff; color: #1f2937; max-width: 860px; margin: 0 auto; line-height: 1.8;">
+                <nav aria-label="Breadcrumb" style="margin-bottom: 1.5rem; font-size: 0.875rem; color: #4b5563;">
+                    <a href="/" style="color: #16a34a; text-decoration: none;">Beranda</a>
+                    <span style="margin: 0 0.5rem; color: #9ca3af;">/</span>
+                    <a href="/hadits" style="color: #16a34a; text-decoration: none;">Hadits</a>
+                    <span style="margin: 0 0.5rem; color: #9ca3af;">/</span>
+                    <a href="/hadits/{{ $reactData['haditsDetail']['kitab']['slug'] }}" style="color: #16a34a; text-decoration: none;">{{ $reactData['haditsDetail']['kitab']['name'] }}</a>
+                    <span style="margin: 0 0.5rem; color: #9ca3af;">/</span>
+                    <span style="color: #111827; font-weight: 600;">No. {{ data_get($reactData['haditsDetail']['hadits'], 'no') }}</span>
+                </nav>
+
+                <article>
+                    <header style="text-align: center; margin-bottom: 2rem;">
+                        <h1 style="font-size: 2rem; font-weight: 800; color: #111827; margin-bottom: 0.5rem;">
+                            Hadits {{ $reactData['haditsDetail']['kitab']['name'] }} Nomor {{ data_get($reactData['haditsDetail']['hadits'], 'no') }}
+                        </h1>
+                        @if(!empty(data_get($reactData['haditsDetail']['hadits'], 'kategori')))
+                            <div style="font-size: 0.9375rem; color: #15803d; font-weight: 600; background: #dcfce7; display: inline-block; padding: 0.35rem 1rem; border-radius: 9999px;">
+                                {{ data_get($reactData['haditsDetail']['hadits'], 'kategori') }}
+                            </div>
+                        @endif
+                    </header>
+
+                    <div style="border: 2px solid #22c55e; border-radius: 0.75rem; padding: 1.5rem; background: #f0fdf4; margin-bottom: 2rem;">
+                        <p class="arabic-text" style="font-size: 2.25rem; line-height: 2.3; color: #111827; text-align: right; margin: 0 0 1.25rem 0; direction: rtl;">
+                            {{ data_get($reactData['haditsDetail']['hadits'], 'arab') }}
+                        </p>
+
+                        <div style="font-size: 1.0625rem; color: #1f2937; line-height: 1.8; margin-top: 1rem; border-top: 1px solid #bbf7d0; padding-top: 1rem;">
+                            <strong style="color: #14532d;">Terjemahan:</strong>
+                            <p style="margin: 0.5rem 0 0 0;">{{ data_get($reactData['haditsDetail']['hadits'], 'indonesia') }}</p>
+                        </div>
+
+                        @if(!empty(data_get($reactData['haditsDetail']['hadits'], 'penjelasan')))
+                            <div style="font-size: 1rem; color: #374151; line-height: 1.7; margin-top: 1.25rem; background: #ffffff; padding: 1rem 1.25rem; border-radius: 0.5rem; border: 1px solid #d1fae5;">
+                                <strong style="color: #065f46;">Penjelasan & Makna Hadits:</strong>
+                                <p style="margin: 0.5rem 0 0 0;">{!! strip_tags(data_get($reactData['haditsDetail']['hadits'], 'penjelasan'), '<p><br><strong><em><b><i><ul><ol><li><h2><h3>') !!}</p>
+                            </div>
+                        @endif
+
+                        @php
+                            $detailNo = data_get($reactData['haditsDetail']['hadits'], 'no');
+                            $detailArab = data_get($reactData['haditsDetail']['hadits'], 'arab');
+                            $detailIndo = data_get($reactData['haditsDetail']['hadits'], 'indonesia');
+                            $waText = "*HADITS " . strtoupper($reactData['haditsDetail']['kitab']['name']) . " NO. " . $detailNo . "*\n\n"
+                                . $detailArab . "\n\n"
+                                . "_" . $detailIndo . "_\n\n"
+                                . "[ BACA SELENGKAPNYA ]\n" . url("/hadits/" . $reactData['haditsDetail']['kitab']['slug'] . "/" . $detailNo) . "\n\n"
+                                . "INDOQURAN - Platform Al-Quran & Hadits Digital Indonesia";
+                            $waUrl = "https://api.whatsapp.com/send?text=" . rawurlencode($waText);
+                        @endphp
+                        <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
+                            <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; background: #16a34a; color: white; border-radius: 0.5rem; text-decoration: none; font-size: 0.875rem; font-weight: 600;">
+                                Bagikan ke WhatsApp
+                            </a>
+                        </div>
+                    </div>
+
+                    <nav aria-label="Navigasi Hadits" style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb; gap: 0.5rem; flex-wrap: wrap;">
+                        @if(!empty($reactData['haditsDetail']['navigation']['prev_nomor']))
+                            <a href="/hadits/{{ $reactData['haditsDetail']['kitab']['slug'] }}/{{ $reactData['haditsDetail']['navigation']['prev_nomor'] }}" style="padding: 0.6rem 1.2rem; background: #f3f4f6; color: #1f2937; border-radius: 0.5rem; text-decoration: none; font-weight: 600; font-size: 0.875rem;">
+                                &larr; Hadits No. {{ $reactData['haditsDetail']['navigation']['prev_nomor'] }}
+                            </a>
+                        @else
+                            <span></span>
+                        @endif
+
+                        <a href="/hadits/{{ $reactData['haditsDetail']['kitab']['slug'] }}" style="padding: 0.6rem 1.2rem; background: #16a34a; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 600; font-size: 0.875rem;">
+                            Daftar Hadits {{ $reactData['haditsDetail']['kitab']['name'] }}
+                        </a>
+
+                        @if(!empty($reactData['haditsDetail']['navigation']['next_nomor']))
+                            <a href="/hadits/{{ $reactData['haditsDetail']['kitab']['slug'] }}/{{ $reactData['haditsDetail']['navigation']['next_nomor'] }}" style="padding: 0.6rem 1.2rem; background: #f3f4f6; color: #1f2937; border-radius: 0.5rem; text-decoration: none; font-weight: 600; font-size: 0.875rem;">
+                                Hadits No. {{ $reactData['haditsDetail']['navigation']['next_nomor'] }} &rarr;
+                            </a>
+                        @else
+                            <span></span>
+                        @endif
+                    </nav>
+                </article>
+            </div>
+        @endif
+
+        @if(isset($reactData['haditsTopic']))
+            <div id="ssr-hadits-topic" style="padding: 3rem 1.5rem; background: #fff; color: #1f2937; max-width: 900px; margin: 0 auto; line-height: 1.8;">
+                <nav aria-label="Breadcrumb" style="margin-bottom: 1.5rem; font-size: 0.875rem; color: #4b5563;">
+                    <a href="/" style="color: #16a34a; text-decoration: none;">Beranda</a>
+                    <span style="margin: 0 0.5rem; color: #9ca3af;">/</span>
+                    <a href="/hadits" style="color: #16a34a; text-decoration: none;">Hadits</a>
+                    <span style="margin: 0 0.5rem; color: #9ca3af;">/</span>
+                    <span style="color: #111827; font-weight: 600;">Hadits tentang {{ $reactData['haditsTopic']['topic'] }}</span>
+                </nav>
+
+                <header style="text-align: center; margin-bottom: 2.5rem;">
+                    <h1 style="font-size: 2.25rem; font-weight: 800; color: #166534; margin-bottom: 0.75rem;">
+                        Hadits tentang {{ $reactData['haditsTopic']['topic'] }}
+                    </h1>
+                    <p style="font-size: 1.125rem; color: #4b5563; max-width: 750px; margin: 0 auto;">
+                        Kumpulan hadits shahih mengenai {{ strtolower($reactData['haditsTopic']['topic']) }}. Teks Arab berharakat, nomor hadits, dan terjemahan bahasa Indonesia di IndoQuran.
+                    </p>
+                </header>
+
+                @if(!empty($reactData['haditsTopic']['hadiths']))
+                    <section style="margin-bottom: 2.5rem;">
+                        @foreach($reactData['haditsTopic']['hadiths'] as $item)
+                            <article style="padding: 1.5rem; margin-bottom: 1.25rem; border: 1px solid #e5e7eb; border-radius: 0.75rem; background: #fdfdfd;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                                    <span style="font-weight: 700; color: #15803d; font-size: 0.9375rem;">
+                                        {{ $item['kitab_name'] }} • Hadits No. {{ $item['no'] }}
+                                    </span>
+                                    @if(!empty($item['kategori']))
+                                        <span style="font-size: 0.8125rem; color: #6b7280; background: #f3f4f6; padding: 0.2rem 0.6rem; border-radius: 9999px;">
+                                            {{ $item['kategori'] }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <p class="arabic-text" style="font-size: 1.85rem; line-height: 2.2; color: #111827; text-align: right; margin: 0 0 0.75rem 0; direction: rtl;">
+                                    {{ $item['arab'] }}
+                                </p>
+                                <p style="font-size: 1rem; color: #374151; line-height: 1.7; margin: 0 0 0.75rem 0;">
+                                    <strong>Terjemahan:</strong> {{ $item['indonesia'] }}
+                                </p>
+                                <a href="/hadits/{{ $item['kitab_slug'] }}/{{ $item['no'] }}" style="color: #16a34a; font-weight: 600; text-decoration: none; font-size: 0.875rem;">
+                                    Lihat Selengkapnya &rarr;
+                                </a>
+                            </article>
+                        @endforeach
+                    </section>
+                @endif
+
+                <div style="text-align: center; margin-top: 2rem;">
+                    <a href="/hadits" style="display: inline-block; padding: 0.75rem 1.5rem; background: #16a34a; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">
+                        &larr; Lihat Koleksi Kitab Hadits
+                    </a>
+                </div>
             </div>
         @endif
     </div>
