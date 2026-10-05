@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Versi-2.31.0-10B981?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/Versi-2.32.0-10B981?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/Laravel-12.x-FF2D20?style=flat-square&logo=laravel" alt="Laravel">
   <img src="https://img.shields.io/badge/React-18.x-61DAFB?style=flat-square&logo=react" alt="React">
   <img src="https://img.shields.io/badge/TailwindCSS-4.x-38B2AC?style=flat-square&logo=tailwind-css" alt="TailwindCSS">
@@ -52,8 +52,8 @@ IndoQuran adalah platform digital modern dan komprehensif untuk membaca, mentada
 - **Panel Moderasi Admin** - Administrator dapat memoderasi, memfilter, dan menghapus komentar serta mengelola artikel langsung melalui editor TipTap Rich Text di `/admin`.
 
 ### ⚡ Performa, PWA & Pengalaman Pengguna
-- **Progressive Web App (PWA v2.31.0)** - Dapat diinstall di perangkat Android, iOS, maupun Desktop; dilengkapi Service Worker cerdas untuk akses offline dan pembersihan cache otomatis.
-- **Sistem Notifikasi Website (Facebook Style)** - Popover notifikasi kabar terbaru dan pengumuman dengan indikator badge belum dibaca dan tampilan responsif mobile bottom-sheet.
+- **Progressive Web App (PWA v2.32.0)** - Dapat diinstall di perangkat Android, iOS, maupun Desktop; dilengkapi Service Worker cerdas untuk akses offline dan pembersihan cache otomatis.
+- **Sistem Notifikasi Website (Facebook Style & Database-Driven)** - Popover notifikasi kabar terbaru dan pengumuman bersumber dinamis dari tabel database tanpa perlu re-build frontend maupun backend, dilengkapi indikator badge belum dibaca dan tampilan responsif mobile bottom-sheet.
 - **Autentikasi Modern** - Login dan registrasi cepat menggunakan Google One Tap / Google OAuth, email & kata sandi (JWT Auth), serta login administrator berbasis sesi aman dengan verifikasi OTP.
 - **High-Speed Redis & Multi-tier Caching** - Layanan khusus `HaditsCacheService` dan `QuranCacheService` dengan CLI management `hadits:cache` dan warm-up otomatis.
 - **SEO & Google Search Console Ready** - Dilengkapi Open Graph, Twitter Cards, Schema.org JSON-LD structured data, canonical URL, dan arsitektur sitemap modular berindeks (`sitemap-index.xml`, `sitemap-hadits-main.xml`) mencakup seluruh koleksi Al-Qur'an dan Hadits.
@@ -72,7 +72,7 @@ IndoQuran adalah platform digital modern dan komprehensif untuk membaca, mentada
 | **Caching & In-Memory** | Redis (Predis) | Multi-tier cache Al-Qur'an, Hadits, API responses, dan rate limiting |
 | **Rich Text Editor** | TipTap Editor | Editor WYSIWYG untuk pembuatan dan pembaruan artikel di panel admin |
 | **Database** | MySQL 8.0+ / MariaDB | Indeks teroptimasi untuk pencarian ayat dan puluhan ribu hadits |
-| **PWA & Offline** | Service Worker v2.31.0 | Offline fallback, asset caching, dan background synchronization |
+| **PWA & Offline** | Service Worker v2.32.0 | Offline fallback, asset caching, dan background synchronization |
 
 ---
 
@@ -217,6 +217,12 @@ php artisan redis:quick-test        # Menguji koneksi Redis via socket/TCP
 php artisan redis:debug             # Menampilkan konfigurasi & status Redis
 php artisan redis:safe-clear        # Membersihkan cache Redis dengan aman
 
+# Manajemen Notifikasi Website (Tanpa Re-build)
+php artisan notification:manage list       # Menampilkan seluruh daftar notifikasi di database
+php artisan notification:manage add        # Menambah notifikasi baru secara interaktif / via opsi
+php artisan notification:manage toggle     # Mengaktifkan atau menonaktifkan notifikasi
+php artisan notification:manage delete     # Menghapus notifikasi dari database
+
 # SEO & Sitemap
 php artisan sitemap:generate-comprehensive --production  # Regenerasi sitemap lengkap untuk produksi
 php artisan sitemap:submit-to-google                    # Ping sitemap ke Google Search Console
@@ -231,6 +237,86 @@ Daftar cron job otomatis yang dikonfigurasi di `routes/console.php`:
 - **04:00 Pagi**: Pembersihan token reset password kadaluwarsa (`auth:clear-resets`).
 - **04:15 Pagi**: Pembersihan kode OTP Admin yang telah kadaluwarsa (> 2 hari).
 - **Senin 06:00 Pagi**: Submit berkala seluruh sitemap index ke Google Search Console.
+
+---
+
+## 🔔 Cara Mengelola Notifikasi (Tanpa Perlu Re-build)
+
+Sistem notifikasi IndoQuran kini tersimpan secara terpusat di tabel database `notifications`. Dengan arsitektur ini, setiap pengumuman atau rilis fitur baru **dapat langsung ditambahkan, disunting, atau dinonaktifkan secara instan** tanpa perlu melakukan re-build kode frontend (Vite/React) ataupun re-deploy kode backend.
+
+Setiap kali pengguna membuka aplikasi, dropdown notifikasi akan langsung memuat data terbaru dari database melalui endpoint `GET /api/notifications`.
+
+### Opsi 1: Menggunakan Artisan CLI (Paling Cepat & Praktis)
+
+Aplikasi menyediakan perintah konsol interaktif `php artisan notification:manage`:
+
+- **Melihat seluruh daftar notifikasi aktif:**
+  ```bash
+  php artisan notification:manage list
+  ```
+- **Menambah notifikasi baru secara interaktif (dituntun prompt):**
+  ```bash
+  php artisan notification:manage add
+  ```
+- **Menambah notifikasi secara langsung via argumen CLI:**
+  ```bash
+  php artisan notification:manage add \
+    --title="Fitur Baru: Pengingat Waktu Sholat" \
+    --message="Kini tersedia jadwal sholat otomatis berdasarkan deteksi geolokasi Anda." \
+    --link="/jadwal-sholat" \
+    --category="Fitur Baru" \
+    --section="new" \
+    --badge-icon="sparkles" \
+    --badge-color="bg-emerald-600"
+  ```
+- **Mengaktifkan / Menonaktifkan status notifikasi:**
+  ```bash
+  php artisan notification:manage toggle --id=notif-seo-rich-snippets
+  ```
+- **Menghapus notifikasi dari database:**
+  ```bash
+  php artisan notification:manage delete --id=1
+  ```
+
+### Opsi 2: Menggunakan API Admin Panel
+
+Notifikasi dapat dikelola melalui endpoint REST API admin terproteksi sesi (`auth` & `admin`):
+- `GET /api/admin/notifications` — Daftar seluruh notifikasi dengan paginasi dan filter
+- `POST /api/admin/notifications` — Menambah notifikasi baru
+- `PUT /api/admin/notifications/{id}` — Memperbarui data notifikasi
+- `DELETE /api/admin/notifications/{id}` — Menghapus notifikasi
+- `POST /api/admin/notifications/{id}/toggle-active` — Mengubah status aktif / nonaktif
+
+### Opsi 3: Menggunakan Query SQL / Database Langsung
+
+Anda dapat langsung melakukan query `INSERT` pada tabel `notifications` (misal via phpMyAdmin atau MySQL CLI):
+
+```sql
+INSERT INTO notifications (
+    identifier, title, message, link, category, type, 
+    badge_icon, badge_color, image, section, time_ago, 
+    is_featured, is_active, sort_order, published_at, created_at, updated_at
+) VALUES (
+    'notif-fitur-baru',
+    'Fitur Baru: Mode Malam Khusus Mushaf',
+    'Baca Al-Qur\'an lebih nyaman di malam hari dengan tema kontras tinggi ramah mata.',
+    '/surah',
+    'Fitur Baru',
+    'feature',
+    'sparkles',
+    'bg-blue-600',
+    '/images/logo-icon.webp',
+    'new',
+    'Baru saja',
+    1, 1, 1, NOW(), NOW(), NOW()
+);
+```
+
+> [!TIP]
+> **Panduan Pilihan Ikon & Warna Badge**:
+> - **Ikon (`badge_icon`)**: `book` (📖), `bookmark` (🔖), `sparkles` (✨), `check` (✓), `speaker` (🔊), `prayer` (🤲), `target` (🎯), `mobile` (📱).
+> - **Warna (`badge_color`)**: `bg-emerald-600`, `bg-blue-600`, `bg-amber-600`, `bg-teal-600`, `bg-indigo-600`, `bg-rose-600`, `bg-purple-600`.
+> - **Section (`section`)**: `new` (Tampil di kelompok *Terbaru/Hari ini*) atau `earlier` (Tampil di kelompok *Sebelumnya/Minggu ini*).
 
 ---
 
@@ -317,7 +403,14 @@ Server hosting/produksi umumnya tidak memerlukan Node.js karena aset frontend di
 - `POST /api/penanda/surah/ayah/{id}/toggle` - Simpan / lepas penanda baca ayat
 - `GET /api/penanda/hadits` - Daftar bookmark hadits pengguna
 - `POST /api/penanda/hadits/{kitab}/{number}/toggle` - Simpan / lepas penanda baca hadits
-- `GET /api/notifications` - Daftar pengumuman dan kabar terkini website
+
+### 7. Notifikasi Website
+- `GET /api/notifications` - Daftar kabar terbaru website untuk publik (live dari database)
+- `GET /api/admin/notifications` - Daftar seluruh notifikasi dengan paginasi dan filter (Admin)
+- `POST /api/admin/notifications` - Tambah notifikasi baru (Admin)
+- `PUT /api/admin/notifications/{id}` - Perbarui data notifikasi (Admin)
+- `DELETE /api/admin/notifications/{id}` - Hapus notifikasi dari database (Admin)
+- `POST /api/admin/notifications/{id}/toggle-active` - Toggle aktif/nonaktif notifikasi (Admin)
 
 ---
 
@@ -326,6 +419,7 @@ Server hosting/produksi umumnya tidak memerlukan Node.js karena aset frontend di
 Riwayat rilis lengkap dapat diakses secara interaktif langsung melalui halaman web aplikasi di rute **`/riwayat-versi`** yang dilengkapi fitur pencarian versi dan filter tipe perubahan.
 
 Ringkasan rilis terbaru:
+- **v2.32.0**: Fitur filter kategori/bab Hadits Nabawi interaktif & cache instan, optimasi SEO Google Rich Snippets (skema FAQPage Surah & Juz, BreadcrumbList berjenjang, WebSite Sitelinks SearchBox), dukungan rute kanonikal per nomor ayat (`/{surahSlug}/{nomorAyat}`), dedicated sitemap topik hadits (`sitemap-hadits-topik.xml`), ketahanan Redis cache, dan pembaruan PWA v2.32.0.
 - **v2.31.0**: Restrukturisasi Ensiklopedia 7 Kitab Hadits Mu'tamad (33.137 hadits), sistem penanda (bookmark) hadits untuk member dan tamu, standarisasi database UTF8mb4 dengan kolom penjelasan/syarah, manajemen cache hadits granular via CLI (`php artisan hadits:cache`), arsitektur sitemap modular per kitab hadits, dan pembaruan PWA v2.31.0.
 - **v2.30.0**: Peluncuran Ensiklopedia Hadits Nabawi, pemutar audio pelafalan Arab Web Speech API (Hadits & Doa Bersama), sistem notifikasi kabar terbaru website (Facebook style), layanan `HaditsCacheService`, dan pembaruan PWA v2.30.0.
 - **v2.29.0**: Tampilan tab interaktif horizontal pokok kandungan dan tema utama surah dengan tipografi kaligrafi Scheherazade, tombol navigasi antar-tema, dan pembaruan PWA cache v2.29.0.

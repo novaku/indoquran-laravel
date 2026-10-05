@@ -174,6 +174,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/article-comments', [\App\Http\Controllers\ArticleCommentController::class, 'adminIndex'])->name('admin.api.article-comments.index');
         Route::delete('/article-comments/{id}', [\App\Http\Controllers\ArticleCommentController::class, 'adminDestroy'])->name('admin.api.article-comments.destroy');
         Route::delete('/article-comments/article/{articleId}', [\App\Http\Controllers\ArticleCommentController::class, 'adminDestroyByArticle'])->name('admin.api.article-comments.destroy-by-article');
+
+        // Website Notification management routes - session-based (admin panel)
+        Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'adminIndex'])->name('admin.api.notifications.index');
+        Route::post('/notifications', [\App\Http\Controllers\NotificationController::class, 'store'])->name('admin.api.notifications.store');
+        Route::put('/notifications/{id}', [\App\Http\Controllers\NotificationController::class, 'update'])->name('admin.api.notifications.update');
+        Route::delete('/notifications/{id}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('admin.api.notifications.destroy');
+        Route::post('/notifications/{id}/toggle-active', [\App\Http\Controllers\NotificationController::class, 'toggleActive'])->name('admin.api.notifications.toggle-active');
     });
 });
 

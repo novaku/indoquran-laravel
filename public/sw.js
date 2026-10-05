@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v2.31.0';
+const CACHE_VERSION = 'v2.32.0';
 
 const CACHE_NAME = `indoquran-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `indoquran-runtime-${CACHE_VERSION}`;

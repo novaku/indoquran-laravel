@@ -1,5 +1,38 @@
 [
   {
+    "version": "2.32.0",
+    "date": "5 Oktober 2026",
+    "type": "feature",
+    "title": "Filter Kategori Hadits, Rich Snippets Google Schema, & Sitemap Topik",
+    "description": "Peningkatan fitur penelusuran hadits dengan filter bab/kategori interaktif dan cache cepat, optimalisasi SEO tingkat lanjut mencakup Google Rich Snippets (skema FAQPage Surah & Juz, BreadcrumbList, WebSite Sitelinks SearchBox), tautan kanonikal langsung per nomor ayat, dedicated sitemap topik hadits, serta peningkatan ketahanan cache Redis.",
+    "changes": [
+      {
+        "type": "feature",
+        "text": "Filter Kategori & Bab Hadits - Navigasi interaktif bab/topik hadits (Iman, Shalat, Zakat, Puasa, Nikah, dll.) pada Hadits Reader dan Hadits Hub dengan tab cepat dan instant keyword filtering"
+      },
+      {
+        "type": "feature",
+        "text": "Struktur Data Google Rich Snippets Komprehensif - Integrasi skema JSON-LD FAQPage untuk Surah & Juz, BreadcrumbList berjenjang, WebSite Sitelinks SearchBox, dan ItemList Hadits untuk visibilitas penelusuran Google"
+      },
+      {
+        "type": "feature",
+        "text": "Dukungan Canonical URL & Navigasi Per Nomor Ayat - Rute dan pengalihan SEO ramah mesin telusur untuk setiap ayat Al-Qur'an (/{surahSlug}/{nomorAyat}) lengkap dengan metadata Open Graph dinamis"
+      },
+      {
+        "type": "improvement",
+        "text": "Sitemap Dedicated Topik Hadits - Berkas sitemap XML mandiri (sitemap-hadits-topik.xml) yang mencakup seluruh halaman topik bab hadits dan terdaftar resmi di robots.txt"
+      },
+      {
+        "type": "improvement",
+        "text": "Ketahanan Cache Redis & Fallback Otomatis - Proteksi error handling koneksi Redis untuk cache hadits dengan fallback otomatis ke file/database agar navigasi tetap lancar tanpa hambatan"
+      },
+      {
+        "type": "improvement",
+        "text": "Pembaruan PWA & Service Worker Cache (v2.32.0) - Peningkatan cache versioning Service Worker PWA ke v2.32.0 untuk memperbarui cache antarmuka dan komponen interaktif terbaru"
+      }
+    ]
+  },
+  {
     "version": "2.31.0",
     "date": "4 Oktober 2026",
     "type": "feature",

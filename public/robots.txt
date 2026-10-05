@@ -53,12 +53,12 @@ Allow: /amp/
 Crawl-delay: 1
 
 # Sitemaps
-Sitemap: http://127.0.0.1:8000/sitemap.xml
-Sitemap: http://127.0.0.1:8000/sitemap-index.xml
-Sitemap: http://127.0.0.1:8000/sitemap-main.xml
-Sitemap: http://127.0.0.1:8000/sitemap-artikel.xml
-Sitemap: http://127.0.0.1:8000/sitemap-hadits.xml
-Sitemap: http://127.0.0.1:8000/sitemap-hadits-topik.xml
+Sitemap: https://indoquran.web.id/sitemap.xml
+Sitemap: https://indoquran.web.id/sitemap-index.xml
+Sitemap: https://indoquran.web.id/sitemap-main.xml
+Sitemap: https://indoquran.web.id/sitemap-artikel.xml
+Sitemap: https://indoquran.web.id/sitemap-hadits.xml
+Sitemap: https://indoquran.web.id/sitemap-hadits-topik.xml
 
 # Googlebot specific
 User-agent: Googlebot

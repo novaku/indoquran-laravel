@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             TagSeeder::class,  // Run tag seeder before article seeder
             ArticleSeeder::class,
             SelectedPrayerSeeder::class,
+            NotificationSeeder::class,
         ]);
     }
 }
