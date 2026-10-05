@@ -224,7 +224,7 @@ function UserProfilePage() {
                                 <div>
                                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Ubah Password</h3>
 
-                                    {user?.google_id && (
+                                    {user?.google_id && (user?.is_default_password ?? !user?.has_changed_password) && (
                                         <div className="mb-5 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-start gap-3.5 shadow-sm">
                                             <div className="flex-shrink-0 mt-0.5 text-emerald-600">
                                                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -264,7 +264,7 @@ function UserProfilePage() {
                                                     className={`w-full px-4 py-3 border rounded-lg pr-12 focus:ring-2 focus:ring-green-500 focus:border-transparent ${
                                                         errors.current_password ? 'border-red-300' : 'border-gray-200'
                                                     }`}
-                                                    placeholder={user?.google_id ? "Masukkan password saat ini (default: indoquran)" : "Masukkan password saat ini"}
+                                                    placeholder={user?.google_id && (user?.is_default_password ?? !user?.has_changed_password) ? "Masukkan password saat ini (default: indoquran)" : "Masukkan password saat ini"}
                                                 />
                                             <button
                                                 type="button"

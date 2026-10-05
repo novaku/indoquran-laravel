@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\Ayah;
 use App\Models\Surah;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPOpenSourceSaver\JWTAuth\JWTGuard;
 use Tests\TestCase;
 
 class ExactSearchTest extends TestCase
@@ -14,8 +16,11 @@ class ExactSearchTest extends TestCase
     public function test_exact_search_only_returns_whole_word_matches(): void
     {
         $this->createSearchFixtures();
-        $user = \App\Models\User::factory()->create();
-        $token = auth('api')->login($user);
+        /** @var User $user */
+        $user = User::factory()->create();
+        /** @var JWTGuard $guard */
+        $guard = auth('api');
+        $token = $guard->login($user);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/cari?q=isa&exact=1');
 
@@ -29,8 +34,11 @@ class ExactSearchTest extends TestCase
     public function test_default_search_still_matches_substrings(): void
     {
         $this->createSearchFixtures();
-        $user = \App\Models\User::factory()->create();
-        $token = auth('api')->login($user);
+        /** @var User $user */
+        $user = User::factory()->create();
+        /** @var JWTGuard $guard */
+        $guard = auth('api');
+        $token = $guard->login($user);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/cari?q=isa');
 

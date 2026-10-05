@@ -226,6 +226,7 @@ class PasswordResetController extends Controller
 
         try {
             $user->password = Hash::make($password);
+            $user->password_changed_at = now();
             $user->save();
 
             // Delete the used token

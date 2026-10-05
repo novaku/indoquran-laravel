@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\HasApiTokens;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
@@ -28,6 +29,7 @@ class User extends Authenticatable implements JWTSubject
         'google_id',
         'avatar',
         'password',
+        'password_changed_at',
         'is_admin',
         'reading_preferences',
     ];
@@ -43,6 +45,16 @@ class User extends Authenticatable implements JWTSubject
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var list<string>
+     */
+    protected $appends = [
+        'has_changed_password',
+        'is_default_password',
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -53,7 +65,36 @@ class User extends Authenticatable implements JWTSubject
             'password' => 'hashed',
             'is_admin' => 'boolean',
             'reading_preferences' => 'array',
+            'password_changed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Check if user is using default password (indoquran for Google users)
+     */
+    public function getIsDefaultPasswordAttribute(): bool
+    {
+        if ($this->google_id) {
+            if ($this->password_changed_at !== null) {
+                return false;
+            }
+            return !empty($this->password) && Hash::check('indoquran', $this->password);
+        }
+        return false;
+    }
+
+    /**
+     * Check if user has changed their password (or is non-Google user with own password)
+     */
+    public function getHasChangedPasswordAttribute(): bool
+    {
+        if ($this->google_id) {
+            if ($this->password_changed_at !== null) {
+                return true;
+            }
+            return !empty($this->password) && !Hash::check('indoquran', $this->password);
+        }
+        return true;
     }
 
     /**

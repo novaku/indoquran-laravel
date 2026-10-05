@@ -47,6 +47,7 @@ class ProfileController extends Controller
             ]);
 
             $user->password = Hash::make($request->password);
+            $user->password_changed_at = now();
         }
 
         $user->fill($validated);
