@@ -9,6 +9,7 @@ import {
     DocumentDuplicateIcon,
     ShareIcon,
     ArrowLeftIcon,
+    ArrowRightIcon,
     BookOpenIcon,
     AdjustmentsHorizontalIcon,
     SparklesIcon,
