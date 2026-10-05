@@ -165,6 +165,7 @@ FileETag None
     # ------------------------------------------------------------------
     RewriteRule ^ads\.txt$       - [L]
     RewriteRule ^robots\.txt$    - [L]
+    RewriteCond %{REQUEST_FILENAME} -f
     RewriteRule ^sitemap.*\.xml$ - [L]
     RewriteRule ^build/          - [L]
     RewriteRule ^storage/        - [L]

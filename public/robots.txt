@@ -46,6 +46,7 @@ Allow: /riwayat-versi
 Allow: /kebijakan
 Allow: /hadits
 Allow: /hadits/
+Allow: /hadits/tentang/
 Allow: /amp/
 
 # Crawl delay for respectful crawling
@@ -57,6 +58,7 @@ Sitemap: https://indoquran.web.id/sitemap-index.xml
 Sitemap: https://indoquran.web.id/sitemap-main.xml
 Sitemap: https://indoquran.web.id/sitemap-artikel.xml
 Sitemap: https://indoquran.web.id/sitemap-hadits.xml
+Sitemap: https://indoquran.web.id/sitemap-hadits-topik.xml
 
 # Googlebot specific
 User-agent: Googlebot

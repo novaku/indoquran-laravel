@@ -179,6 +179,9 @@ class GenerateComprehensiveSitemap extends Command
         // Hadits main sitemap (hub + 7 books)
         $xml .= $this->createSitemapEntry($baseUrl . '/sitemap-hadits-main.xml', $currentDate);
 
+        // Hadits topic landing pages sitemap
+        $xml .= $this->createSitemapEntry($baseUrl . '/sitemap-hadits-topik.xml', $currentDate);
+
         // Hadits book sitemaps (all 7 books)
         foreach (HaditsController::getKitabCatalog() as $slug => $kitab) {
             $xml .= $this->createSitemapEntry($baseUrl . '/sitemap-hadits-' . $slug . '.xml', $currentDate);
@@ -401,10 +404,27 @@ class GenerateComprehensiveSitemap extends Command
             $this->info("✓ sitemap-hadits-{$slug}.xml generated ({$count} hadits)");
         }
 
-        // 3. Generate dedicated sitemap-hadits.xml (Hadits Sitemap Index)
+        // 3. Generate sitemap-hadits-topik.xml (High-traffic thematic topic landing pages)
+        $topics = [
+            'takdir', 'shalat', 'jenazah', 'iddah', 'matahari', 'wudhu',
+            'puasa', 'zakat', 'sabar', 'taubat', 'ilmu', 'nikah',
+            'rezeki', 'doa', 'akhlak', 'surga', 'neraka', 'silaturahmi',
+            'kematian', 'riba'
+        ];
+        $topicXml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
+        $topicXml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
+        foreach ($topics as $topic) {
+            $topicXml .= $this->createUrlEntry($baseUrl . '/hadits/tentang/' . $topic, $currentDate, 'weekly', '0.8');
+        }
+        $topicXml .= '</urlset>';
+        File::put(public_path('sitemap-hadits-topik.xml'), $topicXml);
+        $this->info('✓ sitemap-hadits-topik.xml generated (20 high-intent topics)');
+
+        // 4. Generate dedicated sitemap-hadits.xml (Hadits Sitemap Index)
         $indexXml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
         $indexXml .= '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
         $indexXml .= $this->createSitemapEntry($baseUrl . '/sitemap-hadits-main.xml', $isoDate);
+        $indexXml .= $this->createSitemapEntry($baseUrl . '/sitemap-hadits-topik.xml', $isoDate);
 
         foreach ($catalog as $slug => $kitab) {
             $indexXml .= $this->createSitemapEntry($baseUrl . "/sitemap-hadits-{$slug}.xml", $isoDate);
@@ -432,7 +452,7 @@ class GenerateComprehensiveSitemap extends Command
         $haditsFiles = File::glob(public_path('sitemap-hadits-*.xml'));
         foreach ($haditsFiles as $file) {
             $filename = basename($file);
-            if ($filename === 'sitemap-hadits-main.xml') {
+            if ($filename === 'sitemap-hadits-main.xml' || $filename === 'sitemap-hadits-topik.xml') {
                 continue;
             }
             $slug = preg_replace('/^sitemap-hadits-(.+)\.xml$/', '$1', $filename);
@@ -494,6 +514,7 @@ class GenerateComprehensiveSitemap extends Command
         $robotsTxt .= "Allow: /kebijakan\n";
         $robotsTxt .= "Allow: /hadits\n";
         $robotsTxt .= "Allow: /hadits/\n";
+        $robotsTxt .= "Allow: /hadits/tentang/\n";
         $robotsTxt .= "Allow: /amp/\n\n";
         $robotsTxt .= "# Crawl delay for respectful crawling\n";
         $robotsTxt .= "Crawl-delay: 1\n\n";
@@ -502,7 +523,8 @@ class GenerateComprehensiveSitemap extends Command
         $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-index.xml\n";
         $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-main.xml\n";
         $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-artikel.xml\n";
-        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-hadits.xml\n\n";
+        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-hadits.xml\n";
+        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-hadits-topik.xml\n\n";
         $robotsTxt .= "# Googlebot specific\n";
         $robotsTxt .= "User-agent: Googlebot\n";
         $robotsTxt .= "Allow: /\n";
