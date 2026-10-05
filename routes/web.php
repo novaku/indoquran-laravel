@@ -123,8 +123,9 @@ Route::middleware(['api.cache:1h'])->group(function () {
 Route::match(['GET', 'POST'], '/api/hadits/clear-cache', [HaditsController::class, 'clearCache'])->name('hadits.clear-cache');
 
 Route::middleware(['api.cache:30d'])->group(function () {
+    Route::get('/api/hadits/{kitab}/kategori', [HaditsController::class, 'categories'])->name('hadits.categories');
     Route::get('/api/hadits/{kitab}', [HaditsController::class, 'showKitab'])->name('hadits.kitab');
-    Route::get('/api/hadits/{kitab}/{nomor}', [HaditsController::class, 'showHadits'])->name('hadits.detail');
+    Route::get('/api/hadits/{kitab}/{nomor}', [HaditsController::class, 'showHadits'])->whereNumber('nomor')->name('hadits.detail');
 });
 
 // API route for Website News & Notifications (Facebook-style)

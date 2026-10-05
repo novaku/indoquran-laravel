@@ -18,6 +18,7 @@ return [
         'search' => env('HADITS_SEARCH_CACHE_TTL', 604800),    // 7 days
         'featured' => env('HADITS_FEATURED_CACHE_TTL', 86400), // 24 hours
         'random' => env('HADITS_RANDOM_CACHE_TTL', 3600),      // 1 hour
+        'kategori' => env('HADITS_KATEGORI_CACHE_TTL', 2592000), // 30 days
     ],
 
     /*
@@ -32,6 +33,7 @@ return [
         'search' => 'hadits:search:',
         'featured' => 'hadits:featured:',
         'random' => 'hadits:random:',
+        'kategori' => 'hadits:kategori:',
     ],
 
     /*

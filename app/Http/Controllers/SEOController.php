@@ -125,7 +125,7 @@ class SEOController extends Controller
         }
         
         // Remove unwanted query parameters for canonical URL consistency
-        $allowedQueryParams = ['q', 'page', 'sort', 'reciter', 'tag', 'tab', 'doa', 'category', 'search', 'kitab']; // Only these params are relevant for content
+        $allowedQueryParams = ['q', 'page', 'sort', 'reciter', 'tag', 'tab', 'doa', 'category', 'kategori', 'view', 'nomor', 'search', 'kitab']; // Only these params are relevant for content
         $queryString = $request->getQueryString();
         
         if ($queryString) {
@@ -256,6 +256,9 @@ class SEOController extends Controller
                             $targetUrl = '/hadits/' . $resolved;
                             if (isset($segments[2])) {
                                 $targetUrl .= '/' . (int) $segments[2];
+                            }
+                            if ($request->getQueryString()) {
+                                $targetUrl .= '?' . $request->getQueryString();
                             }
                             return redirect(url($targetUrl), 301);
                         }
@@ -1004,10 +1007,18 @@ class SEOController extends Controller
                     'numberOfItems' => $kitab['total']
                 ];
 
+                $metaTitle = "Hadits {$kitab['name']} Online - IndoQuran";
+                $kategoriQuery = $request->query('kategori');
+                if (!empty($kategoriQuery)) {
+                    $cleanCat = trim(str_replace(['-', '_'], ' ', $kategoriQuery));
+                    $metaTitle = "Hadits {$kitab['name']}: " . ucwords($cleanCat) . " - IndoQuran";
+                    $kitabDesc = "Baca kumpulan hadits {$kitab['name']} bab " . ucwords($cleanCat) . " lengkap teks Arab berharakat dan terjemahan bahasa Indonesia di IndoQuran.";
+                }
+
                 $seoData = array_merge($seoData, [
-                    'metaTitle' => "Hadits {$kitab['name']} Online - IndoQuran",
+                    'metaTitle' => $metaTitle,
                     'metaDescription' => $kitabDesc,
-                    'metaKeywords' => "{$kitab['name']}, hadits {$kitab['name']}, {$kitab['arab']}, baca hadits online, kutubus sittah, terjemah hadits",
+                    'metaKeywords' => "{$kitab['name']}, hadits {$kitab['name']}, {$kitab['arab']}, baca hadits online, kutubus sittah, terjemah hadits" . (!empty($kategoriQuery) ? ", hadits {$kategoriQuery}" : ""),
                     'canonicalUrl' => url('/hadits/' . $segments[1]),
                     'breadcrumbStructuredData' => $breadcrumbStructuredData,
                     'customStructuredData' => $bookStructuredData

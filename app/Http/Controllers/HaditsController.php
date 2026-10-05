@@ -204,10 +204,11 @@ class HaditsController extends Controller
         $perPage = min(max((int) $request->input('per_page', 20), 5), 50);
         $search = trim((string) $request->input('q', ''));
         $nomor = $request->has('nomor') && is_numeric($request->input('nomor')) ? (int) $request->input('nomor') : null;
+        $kategori = $request->has('kategori') ? trim((string) $request->input('kategori')) : null;
         $page = max((int) $request->input('page', 1), 1);
 
         try {
-            $result = $this->haditsCache->getKitabHadits($resolved, $page, $perPage, $search, $nomor);
+            $result = $this->haditsCache->getKitabHadits($resolved, $page, $perPage, $search, $nomor, $kategori);
 
             if (!$result) {
                 return response()->json([
@@ -221,6 +222,39 @@ class HaditsController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Gagal memuat hadits: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * API: Get all categories / chapters of a kitab (Cached)
+     */
+    public function categories(string $kitab)
+    {
+        $resolved = self::resolveKitabSlug($kitab);
+
+        if (!$resolved) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Kitab hadits tidak ditemukan'
+            ], 404);
+        }
+
+        try {
+            $result = $this->haditsCache->getKitabCategories($resolved);
+
+            if (!$result) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Kategori kitab hadits tidak ditemukan'
+                ], 404);
+            }
+
+            return response()->json($result);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal memuat kategori hadits: ' . $e->getMessage()
             ], 500);
         }
     }

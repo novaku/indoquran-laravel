@@ -24,7 +24,9 @@ import {
     ArrowPathIcon,
     ClockIcon,
     InformationCircleIcon,
-    CheckCircleIcon
+    CheckCircleIcon,
+    FolderIcon,
+    Squares2X2Icon
 } from '@heroicons/react/24/outline';
 import {
     PlayIcon as SolidPlayIcon,
@@ -1632,13 +1634,18 @@ export default function HaditsHubPage() {
                                         </div>
 
                                         {/* Card Footer action */}
-                                        <div className="p-4 bg-gray-50/60 border-t border-gray-100 flex items-center justify-between">
-                                            <span className="text-[11px] text-gray-400">
-                                                No. 1 s/d {kitab.total.toLocaleString('id-ID')}
-                                            </span>
+                                        <div className="p-3.5 bg-gray-50/70 border-t border-gray-100 flex items-center justify-between gap-2">
+                                            <Link
+                                                to={`/hadits/${kitab.slug}?view=kategori`}
+                                                className="inline-flex items-center text-xs font-medium text-gray-700 hover:text-emerald-700 bg-white hover:bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-gray-200 transition-colors shadow-2xs group/bab cursor-pointer"
+                                                title={`Lihat indeks bab & kategori ${kitab.name}`}
+                                            >
+                                                <FolderIcon className="w-3.5 h-3.5 mr-1.5 text-emerald-600 group-hover/bab:text-emerald-700" />
+                                                <span>Daftar Bab</span>
+                                            </Link>
                                             <Link
                                                 to={`/hadits/${kitab.slug}`}
-                                                className="inline-flex items-center text-xs font-semibold text-emerald-600 group-hover:text-emerald-800 transition-colors"
+                                                className="inline-flex items-center text-xs font-semibold text-emerald-600 group-hover:text-emerald-800 transition-colors cursor-pointer"
                                             >
                                                 <span>Mulai Baca</span>
                                                 <ArrowRightIcon className="w-3.5 h-3.5 ml-1 transition-transform group-hover:translate-x-1" />

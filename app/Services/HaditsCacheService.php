@@ -24,6 +24,7 @@ class HaditsCacheService
             'search' => 604800,     // 7 days
             'featured' => 86400,    // 24 hours
             'random' => 3600,       // 1 hour
+            'kategori' => 2592000,  // 30 days
         ];
 
         return (int) config("hadits_cache.ttl.{$type}", $defaultTtls[$type] ?? 86400);
@@ -256,6 +257,7 @@ class HaditsCacheService
                 'db_id' => $hadits->id,
                 'kitab' => $hadits->kitab ?? $kitabInfo['name'],
                 'kategori' => $hadits->kategori ?? null,
+                'kategori_slug' => !empty($hadits->kategori) ? \Illuminate\Support\Str::slug($hadits->kategori) : null,
                 'arab' => $hadits->arab,
                 'indonesia' => $hadits->indonesia ?? '',
                 'penjelasan' => $hadits->penjelasan ?? null,
@@ -275,9 +277,87 @@ class HaditsCacheService
     }
 
     /**
-     * Get hadiths from a specific book with pagination & search, cached
+     * Get all categories / chapters of a kitab with hadith count and range, cached
      */
-    public function getKitabHadits(string $kitabSlug, int $page = 1, int $perPage = 20, string $search = '', ?int $nomor = null): ?array
+    public function getKitabCategories(string $kitabSlug): ?array
+    {
+        $resolved = HaditsController::resolveKitabSlug($kitabSlug);
+        if (!$resolved) {
+            return null;
+        }
+
+        $catalog = HaditsController::getKitabCatalog();
+        $kitabInfo = $catalog[$resolved] ?? null;
+        if (!$kitabInfo) {
+            return null;
+        }
+
+        $cacheKey = $this->getPrefix('kategori') . $resolved;
+        $ttl = $this->getTtl('kategori');
+
+        return Cache::remember($cacheKey, $ttl, function () use ($kitabInfo, $resolved) {
+            $table = $kitabInfo['table'];
+            if (!Schema::hasTable($table)) {
+                return null;
+            }
+
+            $hasKategori = Schema::hasColumn($table, 'kategori');
+            if (!$hasKategori) {
+                return [
+                    'status' => 'success',
+                    'kitab' => $kitabInfo,
+                    'total_categories' => 0,
+                    'categories' => []
+                ];
+            }
+
+            $hasNo = Schema::hasColumn($table, 'no');
+            $noCol = $hasNo ? 'no' : 'id';
+
+            $rows = DB::table($table)
+                ->select(
+                    'kategori',
+                    DB::raw('COUNT(*) as total'),
+                    DB::raw("MIN({$noCol}) as min_no"),
+                    DB::raw("MAX({$noCol}) as max_no")
+                )
+                ->whereNotNull('kategori')
+                ->where('kategori', '!=', '')
+                ->groupBy('kategori')
+                ->orderByRaw("MIN({$noCol}) ASC")
+                ->get();
+
+            $index = 1;
+            $categories = $rows->map(function ($row) use (&$index) {
+                $name = trim($row->kategori);
+                $slug = \Illuminate\Support\Str::slug($name);
+                $minNo = (int) $row->min_no;
+                $maxNo = (int) $row->max_no;
+
+                return [
+                    'index' => $index++,
+                    'name' => $name,
+                    'slug' => $slug,
+                    'total' => (int) $row->total,
+                    'min_no' => $minNo,
+                    'max_no' => $maxNo,
+                    'range' => $minNo === $maxNo ? (string) $minNo : "{$minNo} - {$maxNo}",
+                ];
+            })->values()->all();
+
+            return [
+                'status' => 'success',
+                'kitab' => $kitabInfo,
+                'total_categories' => count($categories),
+                'categories' => $categories
+            ];
+        });
+    }
+
+    /**
+     * Get hadiths from a specific book with pagination, category filter & search, cached
+     */
+    public function getKitabHadits(string $kitabSlug, int $page = 1, int $perPage = 20, string $search = '', ?int $nomor = null, ?string $kategori = null): ?array
     {
         $resolved = HaditsController::resolveKitabSlug($kitabSlug);
         if (!$resolved) {
@@ -292,6 +372,38 @@ class HaditsCacheService
 
         $perPage = min(max($perPage, 5), 50);
         $cleanSearch = trim($search);
+        $cleanKategori = trim((string) $kategori);
+
+        // Resolve category if provided
+        $activeCategory = null;
+        $categoryFilterName = null;
+        if (!empty($cleanKategori)) {
+            $categoriesResult = $this->getKitabCategories($resolved);
+            $allCategories = $categoriesResult['categories'] ?? [];
+            $kategoriSlugCandidate = \Illuminate\Support\Str::slug($cleanKategori);
+
+            foreach ($allCategories as $catItem) {
+                if ($catItem['slug'] === $kategoriSlugCandidate || strcasecmp($catItem['name'], $cleanKategori) === 0) {
+                    $activeCategory = $catItem;
+                    $categoryFilterName = $catItem['name'];
+                    break;
+                }
+            }
+
+            // Fallback if not matched strictly by slug/name
+            if (!$categoryFilterName && !empty($cleanKategori)) {
+                $categoryFilterName = $cleanKategori;
+                $activeCategory = [
+                    'index' => null,
+                    'name' => $cleanKategori,
+                    'slug' => \Illuminate\Support\Str::slug($cleanKategori),
+                    'total' => 0,
+                    'min_no' => null,
+                    'max_no' => null,
+                    'range' => '',
+                ];
+            }
+        }
 
         // If jumping directly to a number without search
         $targetPage = $page;
@@ -302,10 +414,11 @@ class HaditsCacheService
         // Build granular cache key
         $searchHash = !empty($cleanSearch) ? md5(mb_strtolower($cleanSearch)) : 'none';
         $nomorKey = $nomor !== null ? (string) $nomor : 'none';
-        $cacheKey = $this->getPrefix('kitab') . "{$resolved}:p{$targetPage}:pp{$perPage}:s{$searchHash}:n{$nomorKey}";
+        $catKey = !empty($categoryFilterName) ? md5(mb_strtolower($categoryFilterName)) : 'all';
+        $cacheKey = $this->getPrefix('kitab') . "{$resolved}:c{$catKey}:p{$targetPage}:pp{$perPage}:s{$searchHash}:n{$nomorKey}";
         $ttl = empty($cleanSearch) ? $this->getTtl('kitab_page') : $this->getTtl('search');
 
-        return Cache::remember($cacheKey, $ttl, function () use ($kitabInfo, $perPage, $cleanSearch, $nomor, $targetPage) {
+        return Cache::remember($cacheKey, $ttl, function () use ($kitabInfo, $perPage, $cleanSearch, $nomor, $targetPage, $categoryFilterName, $activeCategory) {
             $table = $kitabInfo['table'];
             if (!Schema::hasTable($table)) {
                 return null;
@@ -313,8 +426,13 @@ class HaditsCacheService
 
             $hasNo = Schema::hasColumn($table, 'no');
             $hasPenjelasan = Schema::hasColumn($table, 'penjelasan');
+            $hasKategori = Schema::hasColumn($table, 'kategori');
 
             $query = DB::table($table);
+
+            if (!empty($categoryFilterName) && $hasKategori) {
+                $query->where('kategori', $categoryFilterName);
+            }
 
             if (!empty($cleanSearch)) {
                 $query->where(function ($q) use ($cleanSearch) {
@@ -327,6 +445,10 @@ class HaditsCacheService
             $lastPage = (int) max(ceil($total / $perPage), 1);
             $offset = ($targetPage - 1) * $perPage;
 
+            if ($activeCategory && ($activeCategory['total'] === 0 || empty($activeCategory['index']))) {
+                $activeCategory['total'] = $total;
+            }
+
             $orderCol = $hasNo ? 'no' : 'id';
             $rawItems = $query->orderBy($orderCol, 'asc')
                 ->offset($offset)
@@ -334,12 +456,14 @@ class HaditsCacheService
                 ->get();
 
             $items = $rawItems->map(function ($row) {
+                $catName = $row->kategori ?? null;
                 return (object) [
                     'id' => $row->no ?? $row->id,
                     'no' => $row->no ?? $row->id,
                     'db_id' => $row->id,
                     'kitab' => $row->kitab ?? '',
-                    'kategori' => $row->kategori ?? null,
+                    'kategori' => $catName,
+                    'kategori_slug' => !empty($catName) ? \Illuminate\Support\Str::slug($catName) : null,
                     'arab' => $row->arab,
                     'indonesia' => $row->indonesia ?? '',
                     'penjelasan' => $row->penjelasan ?? null,
@@ -349,6 +473,7 @@ class HaditsCacheService
             return [
                 'status' => 'success',
                 'kitab' => $kitabInfo,
+                'active_category' => $activeCategory,
                 'search' => $cleanSearch,
                 'jump_nomor' => $nomor,
                 'pagination' => [
@@ -634,16 +759,7 @@ class HaditsCacheService
                 $redis = $store->connection();
                 $cachePrefix = $store->getPrefix();
 
-                // Determine Redis connection prefix (configured in predis or phpredis)
-                $connPrefix = '';
-                if (method_exists($redis, 'getOptions') && $redis->getOptions()->prefix) {
-                    $connPrefix = (string) $redis->getOptions()->prefix->getPrefix();
-                } elseif (defined('\Redis::OPT_PREFIX') && method_exists($redis, 'getOption')) {
-                    $connPrefix = (string) ($redis->getOption(\Redis::OPT_PREFIX) ?: '');
-                }
-                if (empty($connPrefix)) {
-                    $connPrefix = (string) config('database.redis.options.prefix', '');
-                }
+                $connPrefix = $this->getRedisConnectionPrefix($redis);
 
                 $keys = $redis->keys($cachePrefix . 'hadits:*');
                 if (!empty($keys)) {
@@ -682,20 +798,12 @@ class HaditsCacheService
             if ($store instanceof RedisStore) {
                 $redis = $store->connection();
                 $cachePrefix = $store->getPrefix();
-
-                $connPrefix = '';
-                if (method_exists($redis, 'getOptions') && $redis->getOptions()->prefix) {
-                    $connPrefix = (string) $redis->getOptions()->prefix->getPrefix();
-                } elseif (defined('\Redis::OPT_PREFIX') && method_exists($redis, 'getOption')) {
-                    $connPrefix = (string) ($redis->getOption(\Redis::OPT_PREFIX) ?: '');
-                }
-                if (empty($connPrefix)) {
-                    $connPrefix = (string) config('database.redis.options.prefix', '');
-                }
+                $connPrefix = $this->getRedisConnectionPrefix($redis);
 
                 $patterns = [
                     $cachePrefix . "hadits:kitab:{$resolved}:*",
                     $cachePrefix . "hadits:detail:{$resolved}:*",
+                    $cachePrefix . "hadits:kategori:{$resolved}",
                 ];
 
                 foreach ($patterns as $pattern) {
@@ -720,5 +828,28 @@ class HaditsCacheService
             Log::warning("HaditsCacheService: clearKitabCache failed for {$kitabSlug}", ['error' => $e->getMessage()]);
             return false;
         }
+    }
+
+    /**
+     * Determine Redis connection prefix (configured in predis or phpredis)
+     *
+     * @param mixed $redis
+     * @return string
+     */
+    private function getRedisConnectionPrefix($redis): string
+    {
+        if (method_exists($redis, 'getOptions') && $redis->getOptions()->prefix) {
+            return (string) $redis->getOptions()->prefix->getPrefix();
+        }
+
+        if (defined('Redis::OPT_PREFIX') && method_exists($redis, 'getOption')) {
+            $optPrefix = constant('Redis::OPT_PREFIX');
+            $val = $redis->getOption($optPrefix);
+            if (!empty($val)) {
+                return (string) $val;
+            }
+        }
+
+        return (string) config('database.redis.options.prefix', '');
     }
 }

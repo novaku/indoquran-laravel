@@ -219,5 +219,46 @@ class HaditsApiTest extends TestCase
         $response->assertSee('Hadits Shahih Muslim Online - IndoQuran');
         $response->assertSee('id="ssr-hadits-kitab"', false);
     }
+
+    public function test_get_hadits_categories_success(): void
+    {
+        $response = $this->getJson('/api/hadits/shahih_bukhari/kategori');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('status', 'success')
+            ->assertJsonPath('kitab.slug', 'shahih_bukhari')
+            ->assertJsonStructure([
+                'status',
+                'kitab',
+                'total_categories',
+                'categories',
+            ]);
+
+        $this->assertEquals(2, $response->json('total_categories'));
+        $this->assertEquals('Kitab Permulaan Wahyu', $response->json('categories.0.name'));
+        $this->assertEquals('kitab-permulaan-wahyu', $response->json('categories.0.slug'));
+    }
+
+    public function test_get_kitab_hadits_filtered_by_category(): void
+    {
+        $response = $this->getJson('/api/hadits/shahih_bukhari?kategori=kitab-iman');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('status', 'success')
+            ->assertJsonPath('active_category.slug', 'kitab-iman')
+            ->assertJsonPath('active_category.name', 'Kitab Iman');
+
+        $data = $response->json('data');
+        $this->assertCount(1, $data);
+        $this->assertEquals(2, $data[0]['no']);
+        $this->assertEquals('Kitab Iman', $data[0]['kategori']);
+    }
+
+    public function test_hadits_kitab_with_category_seo_page(): void
+    {
+        $response = $this->get('/hadits/shahih_bukhari?kategori=kitab-iman');
+        $response->assertStatus(200);
+        $response->assertSee('Hadits Shahih Bukhari: Kitab Iman - IndoQuran');
+    }
 }
 
