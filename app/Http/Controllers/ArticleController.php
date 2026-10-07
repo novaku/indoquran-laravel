@@ -359,12 +359,20 @@ class ArticleController extends Controller
         $this->ensureStorageLinkForUploads();
 
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048'
+            'image' => 'required|file|image|mimes:jpeg,png,jpg,webp,gif|max:2048'
+        ], [
+            'image.required' => 'File gambar wajib dipilih.',
+            'image.image' => 'File harus berupa gambar.',
+            'image.mimes' => 'Format gambar harus berupa jpeg, jpg, png, atau webp.',
+            'image.max' => 'Ukuran gambar maksimal 2MB (2048 KB).',
         ]);
 
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $filename = time() . '_' . Str::slug(pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $image->getClientOriginalExtension();
+            $ext = strtolower($image->getClientOriginalExtension() ?: $image->guessExtension() ?: 'jpg');
+            $rawName = pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
+            $baseName = Str::slug($rawName) ?: 'article-image';
+            $filename = time() . '_' . $baseName . '.' . $ext;
             
             $path = $image->storeAs('articles', $filename, 'public');
 

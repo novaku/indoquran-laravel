@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FaSave, FaArrowLeft, FaImage } from 'react-icons/fa';
+import { FaSave, FaArrowLeft, FaImage, FaTrash, FaCheckCircle, FaExclamationCircle, FaSpinner, FaCloudUploadAlt, FaTimes } from 'react-icons/fa';
+import { toast } from 'react-hot-toast';
 import TipTapEditor from '../components/TipTapEditor';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { scrollToTop } from '../utils/scrollUtils';
@@ -13,6 +14,13 @@ const AdminArticleEditorPage = () => {
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadFileInfo, setUploadFileInfo] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState('idle'); // 'idle' | 'uploading' | 'processing' | 'success' | 'error'
+  const [uploadError, setUploadError] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef(null);
+  const xhrRef = useRef(null);
   const [availableTags, setAvailableTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [tagInput, setTagInput] = useState('');
@@ -49,8 +57,13 @@ const AdminArticleEditorPage = () => {
     }
   }, [formData.title, isEdit, isSlugManuallyEdited]);
 
-  // Helper function to get CSRF token (same as AdminDashboard)
+  // Helper function to get CSRF token
   const getCsrfToken = async () => {
+    const metaToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    if (metaToken && metaToken.length > 10) {
+      return metaToken;
+    }
+
     try {
       const csrfResponse = await fetch('/admin/csrf-token', {
         method: 'GET',
@@ -74,8 +87,7 @@ const AdminArticleEditorPage = () => {
       console.error('Error getting CSRF token:', error);
     }
     
-    // Fallback to meta tag
-    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+    return metaToken || '';
   };
 
   const fetchTags = async () => {
@@ -291,62 +303,177 @@ const AdminArticleEditorPage = () => {
     !selectedTags.some(st => st.toLowerCase() === tag.name.toLowerCase())
   );
 
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
+  const startImageUpload = async (file) => {
     if (!file) return;
 
     // Validate file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
-      alert('Ukuran file maksimal 2MB');
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      toast.error(`Ukuran file maksimal 2MB (file Anda: ${sizeMB} MB)`);
+      if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
 
     // Validate file type
-    if (!file.type.startsWith('image/')) {
-      alert('File harus berupa gambar');
+    const isImageMime = file.type && file.type.startsWith('image/');
+    const isImageExt = /\.(jpe?g|png|webp|gif|svg)$/i.test(file.name);
+    if (!isImageMime && !isImageExt) {
+      toast.error('File harus berupa gambar (JPG, PNG, WebP)');
+      if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
 
+    const objectUrl = URL.createObjectURL(file);
+    const formattedSize = file.size >= 1024 * 1024
+      ? `${(file.size / (1024 * 1024)).toFixed(2)} MB`
+      : `${Math.round(file.size / 1024)} KB`;
+
+    setUploadFileInfo({
+      name: file.name,
+      size: formattedSize,
+      previewUrl: objectUrl,
+      file: file
+    });
     setUploadingImage(true);
+    setUploadProgress(10);
+    setUploadStatus('uploading');
+    setUploadError(null);
+
     const formDataUpload = new FormData();
     formDataUpload.append('image', file);
 
     try {
       const csrfToken = await getCsrfToken();
-      
-      const response = await fetch('/api/admin/articles/upload-image', {
-        method: 'POST',
-        body: formDataUpload,
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-          'X-CSRF-TOKEN': csrfToken
-        },
-        credentials: 'same-origin'
-      });
+      const authToken = localStorage.getItem('auth_token');
 
-      const data = await response.json();
-      
-      if (response.ok) {
-        setFormData(prev => ({
-          ...prev,
-          featured_image: data.path
-        }));
-        alert('Gambar berhasil diupload');
-      } else {
-        if (response.status === 401 || response.status === 403) {
-          alert('Sesi admin telah berakhir. Silakan login kembali.');
-          localStorage.removeItem('admin_user');
-          navigate('/admin/login');
-          return;
-        }
-        throw new Error(data.message || 'Upload gagal');
+      const xhr = new XMLHttpRequest();
+      xhrRef.current = xhr;
+
+      xhr.open('POST', '/api/admin/articles/upload-image', true);
+      xhr.withCredentials = true;
+      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+      xhr.setRequestHeader('Accept', 'application/json');
+      if (csrfToken) {
+        xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
       }
+      if (authToken) {
+        xhr.setRequestHeader('Authorization', `Bearer ${authToken}`);
+      }
+
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percent = Math.min(Math.round((event.loaded / event.total) * 90), 90);
+          setUploadProgress(percent);
+          if (percent >= 90) {
+            setUploadStatus('processing');
+          }
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const data = JSON.parse(xhr.responseText);
+            setUploadProgress(100);
+            setUploadStatus('success');
+            setFormData(prev => ({
+              ...prev,
+              featured_image: data.path
+            }));
+            toast.success('Gambar berhasil diupload!');
+            setTimeout(() => {
+              setUploadingImage(false);
+              setUploadStatus('idle');
+              setUploadFileInfo(null);
+              if (objectUrl) URL.revokeObjectURL(objectUrl);
+            }, 900);
+          } catch (err) {
+            setUploadStatus('error');
+            setUploadError('Gagal memproses respon server');
+            toast.error('Gagal memproses respon server');
+            setUploadingImage(false);
+          }
+        } else {
+          let errorMsg = 'Upload gagal';
+          try {
+            const errData = JSON.parse(xhr.responseText);
+            errorMsg = errData.message || (errData.errors && Object.values(errData.errors).flat()[0]) || 'Upload gagal';
+          } catch (e) {
+            if (xhr.status === 401 || xhr.status === 403) {
+              toast.error('Sesi admin telah berakhir. Silakan login kembali.');
+              localStorage.removeItem('admin_user');
+              navigate('/admin/login');
+              return;
+            }
+          }
+          setUploadStatus('error');
+          setUploadError(errorMsg);
+          toast.error(errorMsg);
+          setUploadingImage(false);
+        }
+      };
+
+      xhr.onerror = () => {
+        setUploadStatus('error');
+        setUploadError('Koneksi terputus atau terjadi kesalahan jaringan.');
+        toast.error('Gagal mengupload gambar: gangguan koneksi.');
+        setUploadingImage(false);
+      };
+
+      xhr.onabort = () => {
+        setUploadStatus('idle');
+        setUploadingImage(false);
+        setUploadFileInfo(null);
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
+        toast('Upload dibatalkan', { icon: 'ℹ️' });
+      };
+
+      xhr.send(formDataUpload);
     } catch (error) {
-      console.error('Error uploading image:', error);
-      alert('Gagal mengupload gambar');
-    } finally {
+      console.error('Error starting upload:', error);
+      setUploadStatus('error');
+      setUploadError('Gagal memulai upload gambar.');
+      toast.error('Gagal memulai upload gambar.');
       setUploadingImage(false);
     }
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      startImageUpload(file);
+    }
+    if (e.target) {
+      e.target.value = '';
+    }
+  };
+
+  const handleCancelUpload = () => {
+    if (xhrRef.current) {
+      xhrRef.current.abort();
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (uploadingImage) return;
+    const file = e.dataTransfer?.files?.[0];
+    if (file) {
+      startImageUpload(file);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    if (!uploadingImage) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
   };
 
   const handleSubmit = async (e) => {
@@ -690,45 +817,191 @@ const AdminArticleEditorPage = () => {
 
           {/* Featured Image */}
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Gambar Unggulan</h2>
-            
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Gambar Unggulan</h2>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Gambar sampul utama untuk artikel. Format: JPG, PNG, WebP (Maksimal 2MB)
+                </p>
+              </div>
+              {formData.featured_image && !uploadingImage && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-full border border-emerald-200">
+                  <FaCheckCircle className="text-emerald-500" />
+                  Gambar Terpasang
+                </span>
+              )}
+            </div>
+
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              id="article-featured-image-input"
+              type="file"
+              accept="image/jpeg,image/png,image/jpg,image/webp,image/gif"
+              onChange={handleImageUpload}
+              onClick={(e) => {
+                e.target.value = null;
+              }}
+              disabled={uploadingImage}
+              className="hidden"
+            />
+
             <div className="space-y-4">
-              {formData.featured_image && (
-                <div className="relative inline-block">
+              {/* Active Image Preview (if uploaded and not currently uploading) */}
+              {formData.featured_image && !uploadingImage && (
+                <div className="relative group max-w-lg rounded-xl overflow-hidden border border-gray-200 bg-gray-50 shadow-sm">
                   <img
                     src={getImageUrl(formData.featured_image)}
                     alt="Featured"
-                    className="w-full max-w-md h-auto rounded-lg shadow-md"
+                    className="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-[1.01]"
                     onError={(e) => {
                       e.target.src = '/images/default-article.svg';
                     }}
                   />
+                  <div className="p-3 bg-white flex items-center justify-between border-t border-gray-100">
+                    <div className="text-xs text-gray-500 truncate max-w-[240px]" title={formData.featured_image}>
+                      {formData.featured_image.split('/').pop()}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200 transition-colors cursor-pointer"
+                      >
+                        <FaImage className="text-xs" />
+                        Ganti Gambar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, featured_image: '' }))}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold rounded-lg border border-red-200 transition-colors cursor-pointer"
+                      >
+                        <FaTrash className="text-xs" />
+                        Hapus
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Upload Progress Card (when uploading) */}
+              {uploadingImage && uploadFileInfo && (
+                <div className="max-w-xl p-4 bg-emerald-50/50 rounded-xl border border-emerald-200 shadow-sm transition-all">
+                  <div className="flex items-center gap-3 mb-3">
+                    {uploadFileInfo.previewUrl && (
+                      <img
+                        src={uploadFileInfo.previewUrl}
+                        alt="Preview"
+                        className="w-14 h-14 object-cover rounded-lg border border-emerald-200 shadow-xs flex-shrink-0"
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 truncate">
+                        {uploadFileInfo.name}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {uploadFileInfo.size}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {uploadStatus === 'processing' ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-full animate-pulse">
+                          <FaSpinner className="animate-spin text-xs" />
+                          Memproses...
+                        </span>
+                      ) : uploadStatus === 'success' ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                          <FaCheckCircle className="text-xs" />
+                          100% Selesai
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-full">
+                          <FaCloudUploadAlt className="text-xs" />
+                          {uploadProgress}%
+                        </span>
+                      )}
+                      {uploadStatus === 'uploading' && (
+                        <button
+                          type="button"
+                          onClick={handleCancelUpload}
+                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-white rounded-lg transition-colors cursor-pointer"
+                          title="Batalkan upload"
+                        >
+                          <FaTimes className="text-sm" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Animated Progress Bar */}
+                  <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden p-0.5 border border-emerald-200">
+                    <div
+                      className="h-full bg-gradient-to-r from-emerald-500 via-teal-500 to-green-600 rounded-full transition-all duration-300 ease-out upload-progress-striped shadow-xs"
+                      style={{ width: `${Math.max(5, uploadProgress)}%` }}
+                    />
+                  </div>
+
+                  <div className="flex justify-between items-center mt-2 text-xs text-emerald-700">
+                    <span className="font-medium">
+                      {uploadStatus === 'processing'
+                        ? 'Menyimpan & mengoptimasi gambar di server...'
+                        : uploadStatus === 'success'
+                        ? 'Gambar berhasil disimpan!'
+                        : `Mengupload gambar (${uploadProgress}%)...`}
+                    </span>
+                    <span className="font-semibold">{uploadProgress}%</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Upload Error Banner if failed */}
+              {uploadStatus === 'error' && uploadError && (
+                <div className="max-w-xl p-3.5 bg-red-50 rounded-xl border border-red-200 flex items-center justify-between gap-3 text-sm">
+                  <div className="flex items-center gap-2 text-red-700">
+                    <FaExclamationCircle className="text-base flex-shrink-0" />
+                    <span>{uploadError}</span>
+                  </div>
                   <button
                     type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, featured_image: '' }))}
-                    className="absolute top-2 right-2 px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 shadow-lg transition-all"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="px-3 py-1 bg-red-600 text-white text-xs font-semibold rounded-lg hover:bg-red-700 transition-colors cursor-pointer flex-shrink-0"
                   >
-                    Hapus Gambar
+                    Coba Lagi
                   </button>
                 </div>
               )}
 
-              <div>
-                <label className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 cursor-pointer shadow-md transition-all">
-                  <FaImage className="text-lg" />
-                  <span>{uploadingImage ? 'Mengupload...' : 'Upload Gambar'}</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    disabled={uploadingImage}
-                    className="hidden"
-                  />
-                </label>
-                <p className="text-xs text-gray-500 mt-2">
-                  Format: JPG, PNG, WebP (Max 2MB)
-                </p>
-              </div>
+              {/* Upload Dropzone / Button (when not uploading and no image) */}
+              {!formData.featured_image && !uploadingImage && (
+                <div
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${
+                    isDragging
+                      ? 'border-emerald-500 bg-emerald-50/60 scale-[1.01]'
+                      : 'border-gray-300 hover:border-emerald-500 hover:bg-gray-50/80'
+                  }`}
+                >
+                  <div className="mx-auto w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 mb-3">
+                    <FaCloudUploadAlt className="text-2xl" />
+                  </div>
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 shadow-sm transition-all text-sm cursor-pointer mb-2 pointer-events-none"
+                  >
+                    <FaImage className="text-base" />
+                    <span>Upload Gambar</span>
+                  </button>
+                  <p className="text-xs text-gray-600">
+                    Klik tombol untuk memilih gambar atau seret file ke sini
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Format: JPG, PNG, WebP (Maksimal 2MB)
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

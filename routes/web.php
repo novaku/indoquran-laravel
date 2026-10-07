@@ -145,8 +145,8 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     
-    // Admin API routes (protected) - session-based auth (NOT JWT)
-    Route::prefix('api/admin')->middleware(['auth', 'admin'])->group(function () {
+    // Admin API routes (protected) - session-based or token auth
+    Route::prefix('api/admin')->middleware(['auth:web,api', 'admin'])->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.api.dashboard');
         Route::get('/users', [AdminController::class, 'getUsers'])->name('admin.api.users');
         Route::get('/contacts', [AdminController::class, 'getContacts'])->name('admin.api.contacts');

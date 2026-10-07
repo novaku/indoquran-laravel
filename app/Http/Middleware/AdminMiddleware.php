@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,13 +17,18 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check()) {
+        /** @var User|null $user */
+        $user = Auth::guard('web')->user() ?? Auth::guard('api')->user();
+
+        if (!$user) {
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
-        if (!Auth::user()->isAdmin()) {
+        if (!$user instanceof User || !$user->isAdmin()) {
             return response()->json(['message' => 'Unauthorized. Admin access required.'], 403);
         }
+
+        Auth::setUser($user);
 
         return $next($request);
     }
