@@ -129,6 +129,7 @@ FileETag None
     Header always set X-XSS-Protection "1; mode=block"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Header always set Permissions-Policy "geolocation=(self)"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 
 </IfModule>
 

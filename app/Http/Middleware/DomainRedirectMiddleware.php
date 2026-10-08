@@ -22,9 +22,9 @@ class DomainRedirectMiddleware
         
         $host = $request->getHost();
         
-        // Redirect all subdomains (mail.indoquran.web.id, my.indoquran.web.id, www.indoquran.web.id, etc.)
-        // to primary canonical domain: indoquran.web.id
-        if ($host !== 'indoquran.web.id') {
+        // Redirect all subdomains (www.indoquran.web.id, etc.) and HTTP requests
+        // to primary canonical domain in a single 301 hop: https://indoquran.web.id
+        if ($host !== 'indoquran.web.id' || !$request->secure()) {
             $path = $request->getRequestUri(); // Already includes query string
             $newUrl = 'https://indoquran.web.id' . $path;
             
