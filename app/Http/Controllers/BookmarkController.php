@@ -307,5 +307,47 @@ class BookmarkController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Get count of bookmarks for current authenticated user (both Quran ayahs and Hadits)
+     */
+    public function getUserBookmarkCount(Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $user = Auth::user();
+            if (!$user || $user->email === 'guest@indoquran.web.id') {
+                return response()->json([
+                    'status' => 'success',
+                    'data' => [
+                        'quran_count' => 0,
+                        'hadits_count' => 0,
+                        'total' => 0
+                    ]
+                ]);
+            }
+
+            $quranCount = $user->ayahBookmarks()->count();
+            $haditsCount = $user->haditsBookmarks()->count();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'quran_count' => $quranCount,
+                    'hadits_count' => $haditsCount,
+                    'total' => $quranCount + $haditsCount
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to get user bookmark count: ' . $e->getMessage(),
+                'data' => [
+                    'quran_count' => 0,
+                    'hadits_count' => 0,
+                    'total' => 0
+                ]
+            ], 500);
+        }
+    }
 }
 

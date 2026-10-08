@@ -149,6 +149,7 @@ export const toggleBookmark = async (ayahId) => {
             throw new Error('Failed to toggle bookmark');
         }
 
+        window.dispatchEvent(new Event('indoquran_bookmarks_updated'));
         return await response.json();
     } catch (error) {
         console.error('Error toggling bookmark:', error);
@@ -167,6 +168,7 @@ export const toggleFavorite = async (ayahId) => {
             throw new Error('Failed to toggle favorite');
         }
 
+        window.dispatchEvent(new Event('indoquran_bookmarks_updated'));
         return await response.json();
     } catch (error) {
         console.error('Error toggling favorite:', error);
@@ -194,21 +196,67 @@ export const getBookmarkStatus = async (ayahIds) => {
 };
 
 /**
+ * Clear local bookmarks and reading progress (called on logout)
+ */
+export const clearLocalBookmarks = () => {
+    try {
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+        localStorage.removeItem(LAST_READ_KEY);
+        window.dispatchEvent(new Event('indoquran_bookmarks_updated'));
+    } catch (e) {
+        console.error('Error clearing local bookmarks:', e);
+    }
+};
+
+/**
+ * Check if user is authenticated (not guest)
+ */
+export const isUserLoggedIn = () => {
+    try {
+        const token = authUtils.getAuthToken();
+        if (!token || !token.trim()) return false;
+
+        const payload = authUtils.getUserFromToken(token);
+        if (payload?.email === 'guest@indoquran.web.id') {
+            return false;
+        }
+
+        if (payload?.sub || payload?.id) {
+            if (localStorage.getItem('is_guest') === 'true') {
+                localStorage.removeItem('is_guest');
+            }
+            return true;
+        }
+
+        const isGuest = localStorage.getItem('is_guest') === 'true';
+        return !isGuest;
+    } catch (e) {
+        return false;
+    }
+};
+
+/**
  * Get user's bookmarks (handles both authenticated API and guest fallback)
  * @param {boolean} favoritesOnly - If true, only return favorites
  * @returns {Promise<Array>} - Array of bookmarked ayahs
  */
 export const getUserBookmarks = async (favoritesOnly = false) => {
-    const token = authUtils.getAuthToken();
-    
-    if (token) {
+    if (isUserLoggedIn()) {
         try {
             const url = favoritesOnly ? '/api/penanda?favorites_only=true' : '/api/penanda';
             const response = await getWithAuth(url);
 
             if (response.ok) {
                 const result = await response.json();
-                return result.data || [];
+                const data = result.data || [];
+                if (!favoritesOnly && Array.isArray(data)) {
+                    try {
+                        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+                    } catch (e) {
+                        console.error('Error caching bookmarks locally:', e);
+                    }
+                }
+                return data;
             }
         } catch (error) {
             console.warn('API get bookmarks failed, falling back to local:', error);
@@ -252,6 +300,7 @@ export const toggleBookmarkByNumbers = async (surahNumber, ayahNumber, ayahData 
             const response = await postWithAuth(`/api/penanda/surah/${surahNumber}/ayah/${ayahNumber}/toggle`);
 
             if (response.ok) {
+                window.dispatchEvent(new Event('indoquran_bookmarks_updated'));
                 return await response.json();
             }
         } catch (error) {

@@ -110,6 +110,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::put('/profile', [ProfileController::class, 'update']);
     
     Route::prefix('penanda')->group(function() {
+        Route::get('/count', [BookmarkController::class, 'getUserBookmarkCount']);
         Route::get('/', [BookmarkController::class, 'index']);
         Route::get('/status', [BookmarkController::class, 'getStatus']);
         Route::post('/surah/ayah/{ayahId}/toggle', [BookmarkController::class, 'toggle']);
@@ -131,6 +132,7 @@ Route::middleware(['auth:api'])->group(function () {
     });
     
     Route::prefix('bookmark')->group(function() {
+        Route::get('/count', [BookmarkController::class, 'getUserBookmarkCount']);
         Route::get('/', [BookmarkController::class, 'index']);
         Route::get('/status', [BookmarkController::class, 'getStatus']);
         Route::post('/surah/ayah/{ayahId}/toggle', [BookmarkController::class, 'toggle']);

@@ -23,16 +23,25 @@ import {
     EnvelopeIcon,
     ShieldCheckIcon
 } from '@heroicons/react/24/outline';
+import { useBookmarkCount } from '../hooks/useBookmarkCount';
 
 function Sidebar({ isOpen, setIsOpen }) {
     const location = useLocation();
     const navigate = useNavigate();
     const { user, logout } = useAuth();
+    const { quranCount, haditsCount, totalCount: totalBookmarkCount, refreshCount } = useBookmarkCount();
     
     const [isMainNavOpen, setIsMainNavOpen] = useState(true);
     const [isQuranOpen, setIsQuranOpen] = useState(true);
     const [isCommunityOpen, setIsCommunityOpen] = useState(true);
     const [isInfoOpen, setIsInfoOpen] = useState(true);
+
+    // Reload bookmark numbers whenever user logs in or auth state changes
+    useEffect(() => {
+        if (user) {
+            refreshCount();
+        }
+    }, [user, refreshCount]);
 
     // Close sidebar when route changes
     useEffect(() => {
@@ -185,9 +194,33 @@ function Sidebar({ isOpen, setIsOpen }) {
                                             }`}
                                         >
                                             <item.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                                            <div>
-                                                <div className="font-medium">{item.name}</div>
-                                                <div className="text-xs text-gray-500 mt-0.5">{item.description}</div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <span className="font-medium truncate">{item.name}</span>
+                                                    {item.path === '/penanda' && (
+                                                        <div className="flex items-center gap-1 flex-shrink-0">
+                                                            <span 
+                                                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200"
+                                                                title={`${quranCount} Ayat Al-Quran ditandai`}
+                                                            >
+                                                                <span className="text-[9px] font-semibold text-emerald-600 uppercase">Ayat</span>
+                                                                <span>{quranCount}</span>
+                                                            </span>
+                                                            <span 
+                                                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-200"
+                                                                title={`${haditsCount} Hadits Nabawi ditandai`}
+                                                            >
+                                                                <span className="text-[9px] font-semibold text-amber-700 uppercase">Hadits</span>
+                                                                <span>{haditsCount}</span>
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="text-xs text-gray-500 mt-0.5">
+                                                    {item.path === '/penanda'
+                                                        ? `${quranCount} Ayat Al-Quran · ${haditsCount} Hadits Nabawi ditandai`
+                                                        : item.description}
+                                                </div>
                                             </div>
                                         </Link>
                                     )
@@ -218,9 +251,33 @@ function Sidebar({ isOpen, setIsOpen }) {
                                         }`}
                                     >
                                         <item.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                                        <div>
-                                            <div className="font-medium">{item.name}</div>
-                                            <div className="text-xs text-gray-500 mt-0.5">{item.description}</div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center justify-between gap-2">
+                                                <span className="font-medium truncate">{item.name}</span>
+                                                {item.path === '/penanda' && (
+                                                    <div className="flex items-center gap-1 flex-shrink-0">
+                                                        <span 
+                                                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200"
+                                                            title={`${quranCount} Ayat Al-Quran ditandai`}
+                                                        >
+                                                            <span className="text-[9px] font-semibold text-emerald-600 uppercase">Ayat</span>
+                                                            <span>{quranCount}</span>
+                                                        </span>
+                                                        <span 
+                                                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-200"
+                                                            title={`${haditsCount} Hadits Nabawi ditandai`}
+                                                        >
+                                                            <span className="text-[9px] font-semibold text-amber-700 uppercase">Hadits</span>
+                                                            <span>{haditsCount}</span>
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="text-xs text-gray-500 mt-0.5">
+                                                {item.path === '/penanda'
+                                                    ? `${quranCount} Ayat Al-Quran · ${haditsCount} Hadits Nabawi ditandai`
+                                                    : item.description}
+                                            </div>
                                         </div>
                                     </Link>
                                 ))}

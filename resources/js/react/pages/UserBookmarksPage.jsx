@@ -906,14 +906,14 @@ function UserBookmarksPage() {
                                 onClick={() => handleSwitchContentType('hadits')}
                                 className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
                                     contentType === 'hadits'
-                                        ? 'bg-white text-emerald-800 shadow-xs border border-emerald-100'
+                                        ? 'bg-white text-amber-900 shadow-xs border border-amber-200'
                                         : 'text-gray-600 hover:text-gray-900'
                                 }`}
                             >
-                                <IoBookmark className={`w-4 h-4 ${contentType === 'hadits' ? 'text-emerald-600' : 'text-gray-500'}`} />
+                                <IoBookmark className={`w-4 h-4 ${contentType === 'hadits' ? 'text-amber-600' : 'text-gray-500'}`} />
                                 <span>Hadits Nabawi</span>
                                 <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
-                                    contentType === 'hadits' ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-200 text-gray-700'
+                                    contentType === 'hadits' ? 'bg-amber-100 text-amber-900' : 'bg-gray-200 text-gray-700'
                                 }`}>
                                     {totalHaditsCount}
                                 </span>

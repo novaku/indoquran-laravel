@@ -22,13 +22,22 @@ import {
     BookmarkIcon
 } from '@heroicons/react/24/outline';
 import NotificationDropdown from './NotificationDropdown';
+import { useBookmarkCount } from '../hooks/useBookmarkCount';
 
 function QuranHeader({ isSidebarOpen, setIsSidebarOpen }) {
     const navigate = useNavigate();
     const location = useLocation();
     const { user, logout } = useAuth();
+    const { quranCount, haditsCount, totalCount: totalBookmarkCount, refreshCount } = useBookmarkCount();
     const isAdmin = Boolean(user && user.is_admin);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+    // Reload bookmark numbers whenever user logs in or auth state changes
+    useEffect(() => {
+        if (user) {
+            refreshCount();
+        }
+    }, [user, refreshCount]);
 
     // Close user menu when route changes
     useEffect(() => {
@@ -116,18 +125,57 @@ function QuranHeader({ isSidebarOpen, setIsSidebarOpen }) {
                     </div>
                     {/* User Menu & Mobile Menu Button */}
                     <div className="flex items-center space-x-2 sm:space-x-3">
-                        {/* Quick Penanda Button */}
+                        {/* Quick Penanda Button with Differentiated Ayat & Hadits Badges (Always Visible) */}
                         <Link
                             to="/penanda"
-                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                            className={`relative px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5 group touch-manipulation ${
                                 isActivePath('/penanda') 
                                     ? 'text-green-600 bg-green-50' 
                                     : 'text-gray-600 hover:text-green-600 hover:bg-gray-50'
                             }`}
-                            title="Penanda & Bacaan Saya"
+                            title={`${quranCount} Ayat Al-Quran & ${haditsCount} Hadits Nabawi ditandai`}
+                            aria-label={`Penanda: ${quranCount} Ayat, ${haditsCount} Hadits`}
                         >
-                            <BookmarkIcon className="w-5 h-5 text-green-600" />
+                            <div className="relative flex items-center">
+                                <BookmarkIcon className="w-5 h-5 text-green-600 flex-shrink-0" />
+                                
+                                {/* Mobile Differentiated Badges (Always visible even if 0) */}
+                                <div className="sm:hidden absolute -top-2 -right-3 flex items-center -space-x-1 pointer-events-none">
+                                    <span 
+                                        className="min-w-[16px] h-[16px] px-1 rounded-full bg-emerald-600 text-white font-extrabold text-[9px] leading-tight flex items-center justify-center border border-white shadow-xs"
+                                        title={`${quranCount} Ayat Al-Quran`}
+                                    >
+                                        {quranCount > 99 ? '99+' : quranCount}
+                                    </span>
+                                    <span 
+                                        className="min-w-[16px] h-[16px] px-1 rounded-full bg-amber-500 text-white font-extrabold text-[9px] leading-tight flex items-center justify-center border border-white shadow-xs"
+                                        title={`${haditsCount} Hadits Nabawi`}
+                                    >
+                                        {haditsCount > 99 ? '99+' : haditsCount}
+                                    </span>
+                                </div>
+                            </div>
+
                             <span className="hidden sm:inline text-xs font-semibold">Penanda</span>
+
+                            {/* Desktop Differentiated Badges (Always visible even if 0) */}
+                            <div className="hidden sm:inline-flex items-center gap-1 ml-0.5">
+                                <span 
+                                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200/90 shadow-2xs transition-transform group-hover:scale-105"
+                                    title={`${quranCount} Ayat Al-Quran ditandai`}
+                                >
+                                    <span className="text-[9px] font-semibold text-emerald-600 uppercase tracking-tight">Ayat</span>
+                                    <span>{quranCount > 99 ? '99+' : quranCount}</span>
+                                </span>
+
+                                <span 
+                                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200/90 shadow-2xs transition-transform group-hover:scale-105"
+                                    title={`${haditsCount} Hadits Nabawi ditandai`}
+                                >
+                                    <span className="text-[9px] font-semibold text-amber-700 uppercase tracking-tight">Hadits</span>
+                                    <span>{haditsCount > 99 ? '99+' : haditsCount}</span>
+                                </span>
+                            </div>
                         </Link>
 
                         {/* Facebook-style Notification Dropdown */}

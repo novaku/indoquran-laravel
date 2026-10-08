@@ -1,6 +1,8 @@
 // Custom hook for simple authentication management
 import { useState, useEffect, useCallback, createContext, useContext } from 'react';
 import { fetchWithAuth, postWithAuth, getWithAuth } from '../utils/apiUtils';
+import { clearLocalBookmarks } from '../services/BookmarkService';
+import { clearLocalHaditsBookmarks } from '../services/HaditsBookmarkService';
 
 // Create context for auth state
 const AuthContext = createContext(null);
@@ -21,10 +23,37 @@ export const AuthProvider = ({ children }) => {
             const savedToken = localStorage.getItem('auth_token');
             if (savedToken) {
                 setToken(savedToken);
+                // Check authentication with server
+                await checkAuthWithServer();
+            } else {
+                // If not logged in, ensure any leftover authenticated user bookmarks from previous sessions are wiped
+                const rawBookmarks = localStorage.getItem('indoquran_local_bookmarks');
+                const rawHadits = localStorage.getItem('indoquran_hadits_bookmarks');
+                let shouldClear = false;
+                if (rawBookmarks) {
+                    try {
+                        const parsed = JSON.parse(rawBookmarks);
+                        if (Array.isArray(parsed) && parsed.some(b => b.pivot || b.user_id || (typeof b.id === 'number'))) {
+                            shouldClear = true;
+                        }
+                    } catch (e) {}
+                }
+                if (rawHadits) {
+                    try {
+                        const parsedH = JSON.parse(rawHadits);
+                        if (Array.isArray(parsedH) && parsedH.some(b => b.user_id || (typeof b.id === 'number' && !b.id.toString().startsWith('local_')))) {
+                            shouldClear = true;
+                        }
+                    } catch (e) {}
+                }
+                if (shouldClear) {
+                    clearLocalBookmarks();
+                    clearLocalHaditsBookmarks();
+                }
+                setUser(null);
+                setLoading(false);
+                setIsInitialized(true);
             }
-
-            // Check authentication with server
-            await checkAuthWithServer();
         } catch (error) {
             console.error('Auth initialization failed:', error);
             setUser(null);
@@ -77,12 +106,19 @@ export const AuthProvider = ({ children }) => {
                 // Check if we have valid user data
                 if (userData && typeof userData === 'object' && userData.id) {
                     setUser(userData);
+                    localStorage.removeItem('is_guest');
                     if (userData.is_admin) {
                         localStorage.setItem('admin_user', JSON.stringify(userData));
                     }
+                    window.dispatchEvent(new Event('indoquran_auth_changed'));
+                    window.dispatchEvent(new Event('indoquran_bookmarks_updated'));
+                    window.dispatchEvent(new Event('indoquran_hadits_bookmarks_updated'));
                 } else {
                     setUser(null);
                     localStorage.removeItem('auth_token');
+                    localStorage.removeItem('is_guest');
+                    clearLocalBookmarks();
+                    clearLocalHaditsBookmarks();
                     setToken(null);
                 }
             } else {
@@ -101,6 +137,9 @@ export const AuthProvider = ({ children }) => {
                 }
                 setUser(null);
                 localStorage.removeItem('auth_token');
+                localStorage.removeItem('is_guest');
+                clearLocalBookmarks();
+                clearLocalHaditsBookmarks();
                 setToken(null);
             }
         } catch (error) {
@@ -111,6 +150,9 @@ export const AuthProvider = ({ children }) => {
             }
             setUser(null);
             localStorage.removeItem('auth_token');
+            localStorage.removeItem('is_guest');
+            clearLocalBookmarks();
+            clearLocalHaditsBookmarks();
             setToken(null);
         } finally {
             setLoading(false);
@@ -138,6 +180,7 @@ export const AuthProvider = ({ children }) => {
                 if (data.token) {
                     setToken(data.token);
                     localStorage.setItem('auth_token', data.token);
+                    localStorage.removeItem('is_guest');
                 }
                 
                 // If user has admin privilege, sync to admin_user in localStorage
@@ -146,6 +189,11 @@ export const AuthProvider = ({ children }) => {
                 }
                 
                 setUser(data.user);
+
+                // Notify all components that user session & bookmarks are updated
+                window.dispatchEvent(new Event('indoquran_auth_changed'));
+                window.dispatchEvent(new Event('indoquran_bookmarks_updated'));
+                window.dispatchEvent(new Event('indoquran_hadits_bookmarks_updated'));
                 
                 return { success: true, user: data.user, message: data.message };
             } else {
@@ -179,6 +227,7 @@ export const AuthProvider = ({ children }) => {
                 if (data.token) {
                     setToken(data.token);
                     localStorage.setItem('auth_token', data.token);
+                    localStorage.removeItem('is_guest');
                 }
                 
                 if (data.user.is_admin) {
@@ -186,6 +235,11 @@ export const AuthProvider = ({ children }) => {
                 }
 
                 setUser(data.user);
+
+                // Notify all components that user session & bookmarks are updated
+                window.dispatchEvent(new Event('indoquran_auth_changed'));
+                window.dispatchEvent(new Event('indoquran_bookmarks_updated'));
+                window.dispatchEvent(new Event('indoquran_hadits_bookmarks_updated'));
 
                 return { success: true, user: data.user, message: data.message };
             } else {
@@ -208,14 +262,25 @@ export const AuthProvider = ({ children }) => {
 
         try {
             // Logout API call with Bearer token
-            const response = await postWithAuth('/api/logout');
-
+            await postWithAuth('/api/logout');
         } catch (error) {
             // Continue with logout process even if request fails
         } finally {
-            // Always clear local data regardless of server response
+            // Always clear all user data upon logout
             localStorage.removeItem('auth_token');
             localStorage.removeItem('admin_user');
+            localStorage.removeItem('is_guest');
+            localStorage.removeItem('indoquran_khatam_tracker_v2');
+            localStorage.removeItem('asmaul-husna-favorites');
+            
+            // Clear local cached bookmarks and reading history
+            clearLocalBookmarks();
+            clearLocalHaditsBookmarks();
+
+            // Dispatch update events to immediately reset counters and UI
+            window.dispatchEvent(new CustomEvent('indoquran_khatam_updated', { detail: null }));
+            window.dispatchEvent(new Event('indoquran_auth_changed'));
+
             setToken(null);
             setUser(null);
             setLoading(false);

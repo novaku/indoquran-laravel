@@ -6,6 +6,7 @@
  */
 
 import { getWithAuth, postWithAuth, putWithAuth, deleteWithAuth } from '../utils/apiUtils';
+import authUtils from '../utils/auth';
 
 const STORAGE_KEY = 'indoquran_hadits_bookmarks';
 const UPDATE_EVENT = 'indoquran_hadits_bookmarks_updated';
@@ -16,8 +17,22 @@ const UPDATE_EVENT = 'indoquran_hadits_bookmarks_updated';
 export const isUserLoggedIn = () => {
     try {
         const token = localStorage.getItem('auth_token');
+        if (!token || !token.trim()) return false;
+
+        const payload = authUtils.getUserFromToken(token);
+        if (payload?.email === 'guest@indoquran.web.id') {
+            return false;
+        }
+
+        if (payload?.sub || payload?.id) {
+            if (localStorage.getItem('is_guest') === 'true') {
+                localStorage.removeItem('is_guest');
+            }
+            return true;
+        }
+
         const isGuest = localStorage.getItem('is_guest') === 'true';
-        return Boolean(token && token.trim().length > 0 && !isGuest);
+        return !isGuest;
     } catch (e) {
         return false;
     }
@@ -51,6 +66,18 @@ export const saveLocalHaditsBookmarks = (bookmarks) => {
         window.dispatchEvent(new Event(UPDATE_EVENT));
     } catch (e) {
         console.error('Error saving local hadits bookmarks:', e);
+    }
+};
+
+/**
+ * Clear local hadits bookmarks from localStorage (called on logout)
+ */
+export const clearLocalHaditsBookmarks = () => {
+    try {
+        localStorage.removeItem(STORAGE_KEY);
+        window.dispatchEvent(new Event(UPDATE_EVENT));
+    } catch (e) {
+        console.error('Error clearing local hadits bookmarks:', e);
     }
 };
 

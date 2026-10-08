@@ -1,6 +1,5 @@
-/**
- * Helper utility for admin authentication operations
- */
+import { clearLocalBookmarks } from '../services/BookmarkService';
+import { clearLocalHaditsBookmarks } from '../services/HaditsBookmarkService';
 
 export const logoutAdmin = async () => {
     try {
@@ -52,6 +51,13 @@ export const logoutAdmin = async () => {
         // 3. Always clear client storage regardless of server response
         localStorage.removeItem('admin_user');
         localStorage.removeItem('auth_token');
+        localStorage.removeItem('is_guest');
+        localStorage.removeItem('indoquran_khatam_tracker_v2');
+        localStorage.removeItem('asmaul-husna-favorites');
+        clearLocalBookmarks();
+        clearLocalHaditsBookmarks();
+        window.dispatchEvent(new CustomEvent('indoquran_khatam_updated', { detail: null }));
+        window.dispatchEvent(new Event('indoquran_auth_changed'));
         sessionStorage.clear();
     }
 };

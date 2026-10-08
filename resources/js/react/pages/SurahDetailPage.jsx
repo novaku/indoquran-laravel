@@ -1057,6 +1057,7 @@ function SurahDetailPage() {
                 });
 
                 if (response.ok) {
+                    window.dispatchEvent(new Event('indoquran_bookmarks_updated'));
                     const newBookmarkedAyahs = new Set(bookmarkedAyahs);
                     if (isCurrentlyBookmarked) {
                         newBookmarkedAyahs.delete(parsedAyahNum);
