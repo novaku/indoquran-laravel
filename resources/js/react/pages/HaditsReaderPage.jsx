@@ -524,14 +524,18 @@ export default function HaditsReaderPage() {
     };
 
     // Dynamic Title & SEO
+    const singleSnippet = singleHadits?.indonesia ? (singleHadits.indonesia.replace(/\s+/g, ' ').slice(0, 140) + '...') : '';
+    const singleKat = singleHadits?.kategori ? ` (${singleHadits.kategori})` : '';
     const pageTitle = isSingleMode
-        ? `Hadits ${kitabInfo?.name || ''} No. ${singleNomorParam} - Teks Arab & Terjemahan | IndoQuran`
+        ? `Hadits ${kitabInfo?.name || ''} No. ${singleNomorParam}${singleKat} - Teks Arab & Terjemahan | IndoQuran`
         : activeCategory
             ? `Hadits ${kitabInfo?.name || ''}: ${activeCategory.name} (No. ${activeCategory.range}) | IndoQuran`
             : `Kitab ${kitabInfo?.name || 'Hadits'} Lengkap Teks Arab & Terjemahan | IndoQuran`;
 
     const pageDescription = isSingleMode
-        ? `Baca Hadits ${kitabInfo?.name || ''} Nomor ${singleNomorParam} lengkap teks Arab berharakat dan terjemahan bahasa Indonesia di IndoQuran.`
+        ? (singleSnippet
+            ? `Hadits ${kitabInfo?.name || ''} No. ${singleNomorParam}: "${singleSnippet}" Baca teks Arab berharakat, sanad, dan arti bahasa Indonesia di IndoQuran.`
+            : `Baca Hadits ${kitabInfo?.name || ''} Nomor ${singleNomorParam} lengkap teks Arab berharakat dan terjemahan bahasa Indonesia di IndoQuran.`)
         : activeCategory
             ? `Kumpulan hadits ${kitabInfo?.name || ''} dalam bab ${activeCategory.name} (total ${activeCategory.total} hadits, nomor ${activeCategory.range}). Lengkap teks Arab dan terjemahan di IndoQuran.`
             : `Koleksi hadits dari Kitab ${kitabInfo?.name || ''} (${kitabInfo?.arab || ''}) karya ${kitabInfo?.author || ''}. Total ${kitabInfo?.total?.toLocaleString('id-ID') || ''} hadits lengkap teks Arab & arti.`;

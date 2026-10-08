@@ -407,23 +407,22 @@ function TafsirMaudhuiPage() {
 
     // SEO Data
     const seoData = useMemo(() => {
-        if (currentTopic) {
+        if (slug) {
+            const topicName = currentTopic?.topic || slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
             return {
-                title: `Tafsir Maudhui: ${currentTopic.topic} - IndoQuran`,
-                description: currentTopic.description || `Kumpulan ayat-ayat Al-Quran dan pembahasan tematik tentang ${currentTopic.topic} dalam Tafsir Maudhui IndoQuran.`,
-                keywords: `tafsir maudhui ${currentTopic.topic}, ayat tentang ${currentTopic.topic}, quran ${currentTopic.topic}, tafsir tematik, indoquran`,
-                canonical: `/tafsir-maudhui/${currentTopic.slug}`,
-                canonicalUrl: `https://indoquran.web.id/tafsir-maudhui/${currentTopic.slug}`
+                title: `Tafsir Maudhui: ${topicName} - Ayat & Penjelasan Al-Quran | IndoQuran`,
+                description: currentTopic?.description || `Kumpulan ayat-ayat Al-Quran dan pembahasan tematik tentang ${topicName} dalam Tafsir Maudhui IndoQuran.`,
+                keywords: `tafsir maudhui ${topicName}, ayat tentang ${topicName}, dalil ${topicName}, quran ${topicName}, tafsir tematik, indoquran`,
+                canonicalUrl: `https://indoquran.web.id/tafsir-maudhui/${slug}`
             };
         }
         return {
             title: 'Tafsir Maudhui - Topik-topik dalam Al-Quran | IndoQuran',
             description: 'Jelajahi topik-topik penting dalam Al-Quran melalui pendekatan tafsir maudhui. Temukan ayat-ayat Al-Quran berdasarkan tema seperti akidah, ibadah, akhlak, muamalah, dan banyak lagi.',
             keywords: 'tafsir maudhui, topik quran, tema al quran, tafsir tematik, akidah islam, ibadah islam, akhlak islam, muamalah islam, indoquran',
-            canonical: '/tafsir-maudhui',
             canonicalUrl: 'https://indoquran.web.id/tafsir-maudhui'
         };
-    }, [currentTopic]);
+    }, [slug, currentTopic]);
 
     if (loading) {
         return (
@@ -462,12 +461,45 @@ function TafsirMaudhuiPage() {
             {/* Header */}
             <div className="bg-white border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
-                    <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-3">
-                        Tafsir Maudhui
-                    </h1>
-                    <p className="text-gray-600 text-sm md:text-base max-w-2xl mx-auto">
-                        Jelajahi topik-topik penting dalam Al-Quran melalui struktur tematik hierarkis untuk memperdalam pemahaman ayat-ayat Al-Quran.
-                    </p>
+                    {currentTopic ? (
+                        <>
+                            <nav className="flex justify-center items-center space-x-2 text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
+                                <Link to="/" className="hover:text-emerald-600 transition-colors">Beranda</Link>
+                                <span>/</span>
+                                <Link to="/tafsir-maudhui" className="hover:text-emerald-600 transition-colors">Tafsir Maudhui</Link>
+                                <span>/</span>
+                                <span className="font-semibold text-gray-900">{currentTopic.topic}</span>
+                            </nav>
+                            <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-3">
+                                Tafsir Maudhui: {currentTopic.topic}
+                            </h1>
+                            <p className="text-gray-600 text-sm md:text-base max-w-2xl mx-auto mb-4">
+                                {currentTopic.description || `Kumpulan ayat-ayat Al-Quran dan pembahasan tematik tentang ${currentTopic.topic}.`}
+                            </p>
+                            <div className="inline-flex items-center gap-2">
+                                <Link
+                                    to="/tafsir-maudhui"
+                                    className="inline-flex items-center text-xs sm:text-sm font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3.5 py-1.5 rounded-full border border-emerald-200 transition-colors"
+                                >
+                                    &larr; Lihat Semua Topik Tafsir
+                                </Link>
+                                {currentTopic.verses?.length > 0 && (
+                                    <span className="text-xs sm:text-sm font-semibold text-blue-700 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200">
+                                        {currentTopic.verses.length} Ayat Terkait
+                                    </span>
+                                )}
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-3">
+                                Tafsir Maudhui
+                            </h1>
+                            <p className="text-gray-600 text-sm md:text-base max-w-2xl mx-auto">
+                                Jelajahi topik-topik penting dalam Al-Quran melalui struktur tematik hierarkis untuk memperdalam pemahaman ayat-ayat Al-Quran.
+                            </p>
+                        </>
+                    )}
                 </div>
             </div>
 

@@ -18,6 +18,18 @@ const updateMetaTag = (selector, attribute, value) => {
   element.setAttribute(attribute, value);
 };
 
+// Helper function to update or create link tag in <head> (e.g. canonical)
+const updateLinkTag = (rel, href) => {
+  if (typeof document === 'undefined' || !href) return;
+  let link = document.querySelector(`link[rel="${rel}"]`);
+  if (!link) {
+    link = document.createElement('link');
+    link.setAttribute('rel', rel);
+    document.head.appendChild(link);
+  }
+  link.setAttribute('href', href);
+};
+
 // Helper function to update structured data in <head>
 const updateStructuredDataInHead = (data) => {
   if (typeof document === 'undefined' || !data) return;
@@ -110,6 +122,12 @@ function SEOHead({
     if (seoDefaults.ogImage) {
       updateMetaTag('meta[property="og:image"]', 'content', seoDefaults.ogImage);
       updateMetaTag('meta[property="twitter:image"]', 'content', seoDefaults.ogImage);
+    }
+
+    if (seoDefaults.canonicalUrl) {
+      updateLinkTag('canonical', seoDefaults.canonicalUrl);
+      updateMetaTag('meta[property="og:url"]', 'content', seoDefaults.canonicalUrl);
+      updateMetaTag('meta[property="twitter:url"]', 'content', seoDefaults.canonicalUrl);
     }
 
     if (ogType) {

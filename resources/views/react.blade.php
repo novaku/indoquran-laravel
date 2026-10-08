@@ -1335,9 +1335,9 @@
                             Hadits {{ $reactData['haditsDetail']['kitab']['name'] }} Nomor {{ data_get($reactData['haditsDetail']['hadits'], 'no') }}
                         </h1>
                         @if(!empty(data_get($reactData['haditsDetail']['hadits'], 'kategori')))
-                            <div style="font-size: 0.9375rem; color: #15803d; font-weight: 600; background: #dcfce7; display: inline-block; padding: 0.35rem 1rem; border-radius: 9999px;">
-                                {{ data_get($reactData['haditsDetail']['hadits'], 'kategori') }}
-                            </div>
+                            <a href="/hadits/{{ $reactData['haditsDetail']['kitab']['slug'] }}?kategori={{ urlencode(data_get($reactData['haditsDetail']['hadits'], 'kategori')) }}" style="font-size: 0.9375rem; color: #15803d; font-weight: 600; background: #dcfce7; display: inline-block; padding: 0.35rem 1rem; border-radius: 9999px; text-decoration: none;">
+                                Bab: {{ data_get($reactData['haditsDetail']['hadits'], 'kategori') }}
+                            </a>
                         @endif
                     </header>
 
@@ -1375,6 +1375,22 @@
                             </a>
                         </div>
                     </div>
+
+                    @if(!empty($reactData['haditsDetail']['related']))
+                        <div style="margin-top: 2rem; margin-bottom: 2rem; padding: 1.5rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem;">
+                            <h3 style="font-size: 1.125rem; font-weight: 700; color: #1e293b; margin: 0 0 1rem 0;">
+                                Hadits Terkait dalam Bab Ini
+                            </h3>
+                            <div style="display: grid; gap: 0.75rem;">
+                                @foreach($reactData['haditsDetail']['related'] as $relItem)
+                                    <a href="/hadits/{{ $reactData['haditsDetail']['kitab']['slug'] }}/{{ $relItem['no'] }}" style="display: block; padding: 0.75rem 1rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 0.5rem; text-decoration: none; color: inherit;">
+                                        <strong style="color: #16a34a; font-size: 0.9rem;">Hadits No. {{ $relItem['no'] }}</strong>
+                                        <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #475569; line-height: 1.5;">{{ $relItem['snippet'] }}</p>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
 
                     <nav aria-label="Navigasi Hadits" style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb; gap: 0.5rem; flex-wrap: wrap;">
                         @if(!empty($reactData['haditsDetail']['navigation']['prev_nomor']))

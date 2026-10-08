@@ -756,7 +756,34 @@ class SEOController extends Controller
                                 '@type' => 'ListItem',
                                 'position' => 3,
                                 'name' => $topic->topic,
-                                'item' => url("/tafsir-maudhui/{$topic->slug}")
+                                'item' => (app()->environment('production') && !app()->environment(['local', 'development', 'testing']))
+                                    ? "https://indoquran.web.id/tafsir-maudhui/{$topic->slug}"
+                                    : url("/tafsir-maudhui/{$topic->slug}")
+                            ]
+                        ]
+                    ];
+
+                    $canonicalUrl = (app()->environment('production') && !app()->environment(['local', 'development', 'testing']))
+                        ? "https://indoquran.web.id/tafsir-maudhui/{$topic->slug}"
+                        : url("/tafsir-maudhui/{$topic->slug}");
+
+                    $articleStructuredData = [
+                        '@context' => 'https://schema.org',
+                        '@type' => 'Article',
+                        'headline' => "Tafsir Maudhui: {$topic->topic}",
+                        'description' => $descSnippet ?: "Kumpulan ayat Al-Quran dan penjelasan tematik mengenai {$topic->topic} dalam Tafsir Maudhui IndoQuran.",
+                        'inLanguage' => ['id'],
+                        'mainEntityOfPage' => [
+                            '@type' => 'WebPage',
+                            '@id' => $canonicalUrl
+                        ],
+                        'publisher' => [
+                            '@type' => 'Organization',
+                            'name' => 'IndoQuran',
+                            'url' => 'https://indoquran.web.id',
+                            'logo' => [
+                                '@type' => 'ImageObject',
+                                'url' => 'https://indoquran.web.id/android-chrome-512x512.png'
                             ]
                         ]
                     ];
@@ -765,18 +792,13 @@ class SEOController extends Controller
                         'metaTitle' => "Tafsir Maudhui: {$topic->topic} - Ayat & Penjelasan Al-Quran | IndoQuran",
                         'metaDescription' => $descSnippet ?: "Kumpulan ayat Al-Quran dan penjelasan tematik mengenai {$topic->topic} dalam Tafsir Maudhui IndoQuran.",
                         'metaKeywords' => "tafsir maudhui {$topic->topic}, ayat tentang {$topic->topic}, dalil {$topic->topic}, al quran {$topic->topic}, indoquran",
-                        'canonicalUrl' => url("/tafsir-maudhui/{$topic->slug}"),
+                        'canonicalUrl' => $canonicalUrl,
                         'breadcrumbStructuredData' => $breadcrumbStructuredData,
+                        'customStructuredData' => $articleStructuredData,
                         'ogType' => 'article'
                     ]);
                 } else {
-                    $seoData = array_merge($seoData, [
-                        'metaTitle' => 'Tafsir Maudhui - Topik-topik dalam Al-Quran | IndoQuran',
-                        'metaDescription' => 'Jelajahi topik-topik penting dalam Al-Quran melalui pendekatan tafsir maudhui. Temukan ayat-ayat Al-Quran berdasarkan tema seperti akidah, ibadah, akhlak, muamalah, dan banyak lagi.',
-                        'metaKeywords' => 'tafsir maudhui, topik quran, tema al quran, tafsir tematik, akidah islam, ibadah islam, akhlak islam, muamalah islam, indoquran',
-                        'canonicalUrl' => url('/tafsir-maudhui'),
-                        'ogType' => 'article'
-                    ]);
+                    $isInvalidRoute = true;
                 }
             } else {
                 $breadcrumbStructuredData = [
@@ -1106,44 +1128,121 @@ class SEOController extends Controller
                 $kitab = $catalog[$segments[1]];
                 $nomor = (int) $segments[2];
 
-                $breadcrumbStructuredData = [
-                    '@context' => 'https://schema.org',
-                    '@type' => 'BreadcrumbList',
-                    'itemListElement' => [
-                        [
-                            '@type' => 'ListItem',
-                            'position' => 1,
-                            'name' => 'Beranda',
-                            'item' => 'https://indoquran.web.id'
-                        ],
-                        [
-                            '@type' => 'ListItem',
-                            'position' => 2,
-                            'name' => 'Hadits Shahih',
-                            'item' => 'https://indoquran.web.id/hadits'
-                        ],
-                        [
-                            '@type' => 'ListItem',
-                            'position' => 3,
-                            'name' => 'Hadits ' . $kitab['name'],
-                            'item' => 'https://indoquran.web.id/hadits/' . $segments[1]
-                        ],
-                        [
-                            '@type' => 'ListItem',
-                            'position' => 4,
-                            'name' => "Hadits No. {$nomor}",
-                            'item' => 'https://indoquran.web.id/hadits/' . $segments[1] . '/' . $nomor
-                        ]
-                    ]
-                ];
+                $haditsCache = app(\App\Services\HaditsCacheService::class);
+                $detail = $haditsCache->getHaditsDetail($segments[1], $nomor);
 
-                $seoData = array_merge($seoData, [
-                    'metaTitle' => "Hadits {$kitab['name']} No. {$nomor} - Teks Arab & Terjemahan | IndoQuran",
-                    'metaDescription' => "Baca Hadits {$kitab['name']} Nomor {$nomor} lengkap dengan teks Arab berharakat dan terjemahan bahasa Indonesia di IndoQuran.",
-                    'metaKeywords' => "hadits {$kitab['name']} {$nomor}, hadits no {$nomor}, {$kitab['name']}, teks hadits, terjemah hadits",
-                    'canonicalUrl' => url('/hadits/' . $segments[1] . '/' . $nomor),
-                    'breadcrumbStructuredData' => $breadcrumbStructuredData
-                ]);
+                if ($detail && isset($detail['hadits'])) {
+                    $haditsItem = $detail['hadits'];
+                    $cleanIndo = trim(preg_replace('/\s+/', ' ', strip_tags($haditsItem->indonesia ?? '')));
+                    $indoSnippet = !empty($cleanIndo) ? Str::limit($cleanIndo, 140, '...') : '';
+                    $kategoriText = !empty($haditsItem->kategori) ? " ({$haditsItem->kategori})" : '';
+
+                    $metaTitle = "Hadits {$kitab['name']} No. {$nomor}{$kategoriText} - Teks Arab & Terjemahan | IndoQuran";
+                    $metaDescription = !empty($indoSnippet)
+                        ? "Hadits {$kitab['name']} No. {$nomor}: \"{$indoSnippet}\" Baca teks Arab berharakat, sanad, dan arti bahasa Indonesia di IndoQuran."
+                        : "Baca Hadits {$kitab['name']} Nomor {$nomor} lengkap dengan teks Arab berharakat dan terjemahan bahasa Indonesia di IndoQuran.";
+
+                    $breadcrumbStructuredData = [
+                        '@context' => 'https://schema.org',
+                        '@type' => 'BreadcrumbList',
+                        'itemListElement' => [
+                            [
+                                '@type' => 'ListItem',
+                                'position' => 1,
+                                'name' => 'Beranda',
+                                'item' => 'https://indoquran.web.id'
+                            ],
+                            [
+                                '@type' => 'ListItem',
+                                'position' => 2,
+                                'name' => 'Hadits Shahih',
+                                'item' => 'https://indoquran.web.id/hadits'
+                            ],
+                            [
+                                '@type' => 'ListItem',
+                                'position' => 3,
+                                'name' => 'Hadits ' . $kitab['name'],
+                                'item' => 'https://indoquran.web.id/hadits/' . $segments[1]
+                            ],
+                            [
+                                '@type' => 'ListItem',
+                                'position' => 4,
+                                'name' => "Hadits No. {$nomor}",
+                                'item' => 'https://indoquran.web.id/hadits/' . $segments[1] . '/' . $nomor
+                            ]
+                        ]
+                    ];
+
+                    $articleStructuredData = [
+                        '@context' => 'https://schema.org',
+                        '@type' => 'Article',
+                        'headline' => "Hadits {$kitab['name']} Nomor {$nomor}" . (!empty($haditsItem->kategori) ? " - Bab {$haditsItem->kategori}" : ""),
+                        'description' => $metaDescription,
+                        'inLanguage' => ['ar', 'id'],
+                        'mainEntityOfPage' => [
+                            '@type' => 'WebPage',
+                            '@id' => 'https://indoquran.web.id/hadits/' . $segments[1] . '/' . $nomor
+                        ],
+                        'author' => [
+                            '@type' => 'Person',
+                            'name' => $kitab['author'] ?? 'Perawi Hadits'
+                        ],
+                        'publisher' => [
+                            '@type' => 'Organization',
+                            'name' => 'IndoQuran',
+                            'url' => 'https://indoquran.web.id',
+                            'logo' => [
+                                '@type' => 'ImageObject',
+                                'url' => 'https://indoquran.web.id/android-chrome-512x512.png'
+                            ]
+                        ]
+                    ];
+
+                    // Fetch up to 4 related hadiths in the same category for rich internal links
+                    $relatedHadiths = [];
+                    if (!empty($haditsItem->kategori) && !empty($kitab['table'])) {
+                        $table = $kitab['table'];
+                        if (\Illuminate\Support\Facades\Schema::hasTable($table)) {
+                            $hasNo = \Illuminate\Support\Facades\Schema::hasColumn($table, 'no');
+                            $noCol = $hasNo ? 'no' : 'id';
+                            $relatedRows = \Illuminate\Support\Facades\DB::table($table)
+                                ->where('kategori', $haditsItem->kategori)
+                                ->where($noCol, '!=', $nomor)
+                                ->select($noCol . ' as no', 'kategori', 'indonesia')
+                                ->limit(4)
+                                ->get();
+                            foreach ($relatedRows as $relRow) {
+                                $relatedHadiths[] = [
+                                    'no' => $relRow->no,
+                                    'kategori' => $relRow->kategori,
+                                    'snippet' => Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($relRow->indonesia ?? ''))), 80, '...')
+                                ];
+                            }
+                        }
+                    }
+
+                    $canonicalUrl = (app()->environment('production') && !app()->environment(['local', 'development', 'testing']))
+                        ? 'https://indoquran.web.id/hadits/' . $segments[1] . '/' . $nomor
+                        : url('/hadits/' . $segments[1] . '/' . $nomor);
+
+                    $seoData = array_merge($seoData, [
+                        'metaTitle' => $metaTitle,
+                        'metaDescription' => $metaDescription,
+                        'metaKeywords' => "hadits {$kitab['name']} {$nomor}, hadits no {$nomor}, {$kitab['name']}" . (!empty($haditsItem->kategori) ? ", hadits {$haditsItem->kategori}" : "") . ", teks hadits, terjemah hadits",
+                        'canonicalUrl' => $canonicalUrl,
+                        'breadcrumbStructuredData' => $breadcrumbStructuredData,
+                        'customStructuredData' => $articleStructuredData
+                    ]);
+
+                    $cachedHaditsDetail = [
+                        'kitab' => $kitab,
+                        'hadits' => $haditsItem,
+                        'navigation' => $detail['navigation'] ?? [],
+                        'related' => $relatedHadiths
+                    ];
+                } else {
+                    $isInvalidRoute = true;
+                }
             }
         }
         elseif (isset($segments[0]) && $segments[0] === 'member') {
@@ -1741,17 +1840,21 @@ class SEOController extends Controller
                     'hadiths' => $kitabData['data'] ?? []
                 ];
             } elseif (count($segments) === 3 && isset($catalog[$segments[1]])) {
-                $kitab = $catalog[$segments[1]];
-                $nomor = (int) $segments[2];
-                $haditsCache = app(\App\Services\HaditsCacheService::class);
-                $detail = $haditsCache->getHaditsDetail($segments[1], $nomor);
+                if (isset($cachedHaditsDetail)) {
+                    $reactData['haditsDetail'] = $cachedHaditsDetail;
+                } else {
+                    $kitab = $catalog[$segments[1]];
+                    $nomor = (int) $segments[2];
+                    $haditsCache = app(\App\Services\HaditsCacheService::class);
+                    $detail = $haditsCache->getHaditsDetail($segments[1], $nomor);
 
-                if ($detail && isset($detail['hadits'])) {
-                    $reactData['haditsDetail'] = [
-                        'kitab' => $kitab,
-                        'hadits' => $detail['hadits'],
-                        'navigation' => $detail['navigation'] ?? []
-                    ];
+                    if ($detail && isset($detail['hadits'])) {
+                        $reactData['haditsDetail'] = [
+                            'kitab' => $kitab,
+                            'hadits' => $detail['hadits'],
+                            'navigation' => $detail['navigation'] ?? []
+                        ];
+                    }
                 }
             }
         }
