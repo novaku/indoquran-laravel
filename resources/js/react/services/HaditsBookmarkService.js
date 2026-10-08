@@ -29,7 +29,13 @@ export const isUserLoggedIn = () => {
 export const getLocalHaditsBookmarks = () => {
     try {
         const stored = localStorage.getItem(STORAGE_KEY);
-        return stored ? JSON.parse(stored) : [];
+        if (!stored) return [];
+        const parsed = JSON.parse(stored);
+        if (!Array.isArray(parsed)) return [];
+        return parsed.map(b => ({
+            ...b,
+            indonesia: b.indonesia || b.terjemah || b.terjemahan || b.text_indonesia || b.text_indonesian || b.arti || ''
+        }));
     } catch (e) {
         console.error('Error reading local hadits bookmarks:', e);
         return [];
@@ -89,7 +95,7 @@ export const toggleLocalHaditsBookmark = (haditsData) => {
             kitab_arab: haditsData.kitab_arab || '',
             number: num,
             arab: haditsData.arab || '',
-            indonesia: haditsData.indonesia || '',
+            indonesia: haditsData.indonesia || haditsData.terjemah || haditsData.terjemahan || haditsData.text_indonesia || haditsData.text_indonesian || haditsData.arti || '',
             penjelasan: haditsData.penjelasan || null,
             kategori: haditsData.kategori || '',
             is_favorite: Boolean(haditsData.is_favorite),
@@ -182,7 +188,7 @@ export const toggleHaditsBookmark = async (haditsData) => {
                             kitab_arab: haditsData.kitab_arab || '',
                             number: num,
                             arab: haditsData.arab || '',
-                            indonesia: haditsData.indonesia || '',
+                            indonesia: haditsData.indonesia || haditsData.terjemah || haditsData.terjemahan || haditsData.text_indonesia || haditsData.text_indonesian || haditsData.arti || '',
                             penjelasan: haditsData.penjelasan || null,
                             kategori: haditsData.kategori || '',
                             is_favorite: false,
@@ -255,7 +261,7 @@ export const toggleHaditsFavorite = async (kitabSlug, number, haditsData = null)
                             kitab_arab: haditsData?.kitab_arab || '',
                             number: num,
                             arab: haditsData?.arab || '',
-                            indonesia: haditsData?.indonesia || '',
+                            indonesia: haditsData?.indonesia || haditsData?.terjemah || haditsData?.terjemahan || haditsData?.text_indonesia || haditsData?.text_indonesian || haditsData?.arti || '',
                             penjelasan: haditsData?.penjelasan || null,
                             kategori: haditsData?.kategori || '',
                             is_favorite: true,
@@ -300,7 +306,7 @@ export const toggleHaditsFavorite = async (kitabSlug, number, haditsData = null)
             kitab_arab: haditsData?.kitab_arab || '',
             number: num,
             arab: haditsData?.arab || '',
-            indonesia: haditsData?.indonesia || '',
+            indonesia: haditsData?.indonesia || haditsData?.terjemah || haditsData?.terjemahan || haditsData?.text_indonesia || haditsData?.text_indonesian || haditsData?.arti || '',
             penjelasan: haditsData?.penjelasan || null,
             kategori: haditsData?.kategori || '',
             is_favorite: true,

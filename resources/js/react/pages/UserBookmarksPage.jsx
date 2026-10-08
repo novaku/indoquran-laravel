@@ -38,6 +38,7 @@ import {
 import {
     getUserHaditsBookmarks,
     getLocalHaditsBookmarks,
+    saveLocalHaditsBookmarks,
     toggleHaditsFavorite,
     updateHaditsNotes,
     removeHaditsBookmark,
@@ -94,6 +95,171 @@ function UserBookmarksPage() {
     const [expandedHaditsPenjelasan, setExpandedHaditsPenjelasan] = useState({});
     const [fetchedPenjelasan, setFetchedPenjelasan] = useState({});
     const [loadingPenjelasan, setLoadingPenjelasan] = useState({});
+    const [fetchedIndo, setFetchedIndo] = useState({});
+    const [loadingIndo, setLoadingIndo] = useState({});
+
+    // Helper to get Indonesian translation from various legacy keys or fetched state
+    const getHaditsIndonesia = (item) => {
+        if (!item) return '';
+        const itemKey = `${item.kitab_slug}_${item.number}`;
+        return (
+            item.indonesia ||
+            item.terjemah ||
+            item.terjemahan ||
+            item.text_indonesia ||
+            item.text_indonesian ||
+            item.arti ||
+            fetchedIndo[itemKey] ||
+            ''
+        );
+    };
+
+    // Helper to format transmission rawi brackets [ ... ] nicely
+    const formatHaditsTranslation = (text) => {
+        if (!text) return null;
+        if (/<[a-z][\s\S]*>/i.test(text)) {
+            return (
+                <div
+                    className="prose prose-sm sm:prose max-w-none text-gray-700 leading-relaxed select-text"
+                    dangerouslySetInnerHTML={{ __html: text }}
+                />
+            );
+        }
+
+        const parts = text.split(/(\[[^\]]+\])/g);
+        return (
+            <p className="text-gray-700 text-sm sm:text-base leading-relaxed select-text">
+                {parts.map((part, idx) => {
+                    if (part.startsWith('[') && part.endsWith(']')) {
+                        const inner = part.slice(1, -1);
+                        return (
+                            <span
+                                key={idx}
+                                className="inline-block bg-emerald-50 text-emerald-800 font-medium px-1.5 py-0.5 rounded text-xs sm:text-sm border border-emerald-100/70 mx-0.5"
+                                title="Perawi / Sanad Hadits"
+                            >
+                                {inner}
+                            </span>
+                        );
+                    }
+                    return part;
+                })}
+            </p>
+        );
+    };
+
+    // Hydrate missing translation or details for hadith bookmarks asynchronously
+    const hydrateMissingHaditsData = async (items) => {
+        if (!Array.isArray(items) || items.length === 0) return;
+
+        const needsHydration = items.filter(item => {
+            const currentIndo = getHaditsIndonesia(item);
+            return (!currentIndo || !currentIndo.trim()) && item.kitab_slug && item.number !== undefined;
+        });
+
+        if (needsHydration.length === 0) return;
+
+        const loadingMap = {};
+        needsHydration.forEach(item => {
+            const key = `${item.kitab_slug}_${item.number}`;
+            loadingMap[key] = true;
+        });
+        setLoadingIndo(prev => ({ ...prev, ...loadingMap }));
+
+        const updatedBookmarksMap = {};
+        let hasUpdates = false;
+
+        await Promise.all(
+            needsHydration.map(async (item) => {
+                const itemKey = `${item.kitab_slug}_${item.number}`;
+                try {
+                    const res = await fetch(`/api/hadits/${item.kitab_slug}/${item.number}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        const h = data?.hadits || data?.data;
+                        if (h) {
+                            const indo = h.indonesia || h.terjemah || h.terjemahan || '';
+                            if (indo) {
+                                hasUpdates = true;
+                                setFetchedIndo(prev => ({ ...prev, [itemKey]: indo }));
+                                updatedBookmarksMap[itemKey] = {
+                                    indonesia: indo,
+                                    arab: h.arab || item.arab,
+                                    penjelasan: h.penjelasan || item.penjelasan,
+                                    kategori: h.kategori || item.kategori,
+                                    kitab_name: h.kitab || item.kitab_name,
+                                };
+                            }
+                            if (h.penjelasan) {
+                                setFetchedPenjelasan(prev => ({ ...prev, [itemKey]: h.penjelasan }));
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.warn(`Gagal memuat detail hadits ${itemKey}:`, err);
+                } finally {
+                    setLoadingIndo(prev => ({ ...prev, [itemKey]: false }));
+                }
+            })
+        );
+
+        if (hasUpdates) {
+            setHaditsBookmarks(prevList => {
+                const nextList = prevList.map(b => {
+                    const key = `${b.kitab_slug}_${b.number}`;
+                    if (updatedBookmarksMap[key]) {
+                        return { ...b, ...updatedBookmarksMap[key] };
+                    }
+                    return b;
+                });
+                saveLocalHaditsBookmarks(nextList);
+                return nextList;
+            });
+        }
+    };
+
+    // Hydrate single hadith translation manually
+    const hydrateSingleHadits = async (item) => {
+        const itemKey = `${item.kitab_slug}_${item.number}`;
+        setLoadingIndo(prev => ({ ...prev, [itemKey]: true }));
+        try {
+            const res = await fetch(`/api/hadits/${item.kitab_slug}/${item.number}`);
+            if (res.ok) {
+                const data = await res.json();
+                const h = data?.hadits || data?.data;
+                if (h) {
+                    const indo = h.indonesia || h.terjemah || h.terjemahan || '';
+                    if (indo) {
+                        setFetchedIndo(prev => ({ ...prev, [itemKey]: indo }));
+                        setHaditsBookmarks(prevList => {
+                            const nextList = prevList.map(b => {
+                                if (b.kitab_slug === item.kitab_slug && Number(b.number) === Number(item.number)) {
+                                    return {
+                                        ...b,
+                                        indonesia: indo,
+                                        arab: h.arab || b.arab,
+                                        penjelasan: h.penjelasan || b.penjelasan,
+                                    };
+                                }
+                                return b;
+                            });
+                            saveLocalHaditsBookmarks(nextList);
+                            return nextList;
+                        });
+                        toast.success('Terjemahan berhasil dimuat');
+                    }
+                    if (h.penjelasan) {
+                        setFetchedPenjelasan(prev => ({ ...prev, [itemKey]: h.penjelasan }));
+                    }
+                }
+            }
+        } catch (err) {
+            console.error('Failed to load hadits detail:', err);
+            toast.error('Gagal memuat terjemahan hadits');
+        } finally {
+            setLoadingIndo(prev => ({ ...prev, [itemKey]: false }));
+        }
+    };
 
     const toggleHaditsPenjelasan = async (itemKey, item) => {
         const nextState = !expandedHaditsPenjelasan[itemKey];
@@ -109,8 +275,13 @@ function UserBookmarksPage() {
                 const res = await fetch(`/api/hadits/${item.kitab_slug}/${item.number}`);
                 if (res.ok) {
                     const data = await res.json();
-                    if (data?.data?.penjelasan) {
-                        setFetchedPenjelasan(prev => ({ ...prev, [itemKey]: data.data.penjelasan }));
+                    const h = data?.hadits || data?.data;
+                    if (h?.penjelasan) {
+                        setFetchedPenjelasan(prev => ({ ...prev, [itemKey]: h.penjelasan }));
+                    }
+                    const indo = h?.indonesia || h?.terjemah || h?.terjemahan;
+                    if (indo && !getHaditsIndonesia(item)) {
+                        setFetchedIndo(prev => ({ ...prev, [itemKey]: indo }));
                     }
                 }
             } catch (err) {
@@ -125,6 +296,7 @@ function UserBookmarksPage() {
         const cached = getLocalHaditsBookmarks();
         if (cached && cached.length > 0) {
             setHaditsBookmarks(cached);
+            hydrateMissingHaditsData(cached);
         }
 
         try {
@@ -134,6 +306,7 @@ function UserBookmarksPage() {
             const list = await getUserHaditsBookmarks();
             if (list) {
                 setHaditsBookmarks(list);
+                hydrateMissingHaditsData(list);
             }
         } catch (e) {
             console.error('Failed to load hadits bookmarks:', e);
@@ -537,7 +710,7 @@ function UserBookmarksPage() {
                 const q = haditsSearchTerm.toLowerCase();
                 const matchNumber = String(item.number).includes(q);
                 const matchKitab = (item.kitab_name || '').toLowerCase().includes(q);
-                const matchIndonesia = (item.indonesia || '').toLowerCase().includes(q);
+                const matchIndonesia = (getHaditsIndonesia(item) || '').toLowerCase().includes(q);
                 const matchArab = (item.arab || '').includes(q);
                 const matchNotes = (item.notes || '').toLowerCase().includes(q);
                 if (!matchNumber && !matchKitab && !matchIndonesia && !matchArab && !matchNotes) {
@@ -634,7 +807,7 @@ function UserBookmarksPage() {
     };
 
     const handleCopyHadits = (item) => {
-        const indo = item.indonesia || '';
+        const indo = getHaditsIndonesia(item);
         const text = `"${indo}"\n\n${item.arab}\n\n— Hadits ${item.kitab_name} No. ${item.number} (IndoQuran: https://indoquran.web.id/hadits/${item.kitab_slug}/${item.number})`;
         navigator.clipboard.writeText(text).then(() => {
             toast.success(`Hadits No. ${item.number} berhasil disalin!`);
@@ -645,7 +818,7 @@ function UserBookmarksPage() {
 
     // Share Hadith directly to WhatsApp only
     const handleShareHadits = (item) => {
-        const indo = item.indonesia || '';
+        const indo = getHaditsIndonesia(item);
         const cleanIndonesia = indo ? indo.replace(/<[^>]+>/g, '').trim() : '';
         const shareText = `*Hadits ${item.kitab_name} No. ${item.number}*\n\n"${cleanIndonesia}"\n\n[${item.arab || ''}]\n\nBaca selengkapnya di IndoQuran:\nhttps://indoquran.web.id/hadits/${item.kitab_slug}/${item.number}`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
@@ -1308,14 +1481,39 @@ function UserBookmarksPage() {
                                                                     )}
 
                                                                     {/* Indonesian Translation */}
-                                                                    {Boolean(item.indonesia) && (
-                                                                        <div className="mb-4">
-                                                                            <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 mb-1.5">
-                                                                                Terjemahan Bahasa Indonesia:
+                                                                    {loadingIndo[itemKey] ? (
+                                                                        <div className="mb-4 p-4 bg-emerald-50/40 rounded-2xl border border-emerald-100/70 animate-pulse">
+                                                                            <div className="flex items-center gap-2 mb-2.5">
+                                                                                <div className="w-2.5 h-2.5 bg-emerald-300 rounded-full"></div>
+                                                                                <div className="h-3 bg-emerald-200/80 rounded w-44"></div>
                                                                             </div>
-                                                                            <p className="text-gray-700 text-sm sm:text-base leading-relaxed select-text">
-                                                                                {item.indonesia}
-                                                                            </p>
+                                                                            <div className="space-y-2">
+                                                                                <div className="h-3.5 bg-gray-200/80 rounded w-full"></div>
+                                                                                <div className="h-3.5 bg-gray-200/80 rounded w-11/12"></div>
+                                                                                <div className="h-3.5 bg-gray-200/80 rounded w-4/5"></div>
+                                                                            </div>
+                                                                        </div>
+                                                                    ) : getHaditsIndonesia(item) ? (
+                                                                        <div className="mb-4">
+                                                                            <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 mb-1.5 flex items-center gap-1.5">
+                                                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
+                                                                                <span>Terjemahan Bahasa Indonesia:</span>
+                                                                            </div>
+                                                                            {formatHaditsTranslation(getHaditsIndonesia(item))}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="mb-4 p-3.5 bg-amber-50/70 rounded-xl border border-amber-200/80 flex items-center justify-between gap-3 text-xs text-amber-900">
+                                                                            <div className="flex items-center gap-2 min-w-0">
+                                                                                <span className="text-base flex-shrink-0">📖</span>
+                                                                                <span className="truncate">Terjemahan Bahasa Indonesia belum dimuat.</span>
+                                                                            </div>
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => hydrateSingleHadits(item)}
+                                                                                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition-colors flex-shrink-0 cursor-pointer shadow-2xs"
+                                                                            >
+                                                                                Muat Terjemahan
+                                                                            </button>
                                                                         </div>
                                                                     )}
 
