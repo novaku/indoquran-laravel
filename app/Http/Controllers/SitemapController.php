@@ -354,14 +354,24 @@ class SitemapController extends Controller
         $robotsTxt .= "Sitemap: {$baseUrl}/sitemap.xml\n";
         $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-index.xml\n";
         $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-main.xml\n";
+        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-juz.xml\n";
+        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-halaman.xml\n";
         $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-artikel.xml\n";
-        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-hadits.xml\n\n";
+        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-hadits.xml\n";
+        $robotsTxt .= "Sitemap: {$baseUrl}/sitemap-hadits-topik.xml\n\n";
         
         // Google-specific optimizations
         $robotsTxt .= "# Google-specific optimizations for Indonesian content\n";
         $robotsTxt .= "User-agent: Googlebot\n";
         $robotsTxt .= "Allow: /\n";
-        $robotsTxt .= "Crawl-delay: 0.5\n\n";
+        $robotsTxt .= "Allow: /cari$\n";
+        $robotsTxt .= "Disallow: /cari?\n";
+        $robotsTxt .= "Disallow: /cari/*\n";
+        $robotsTxt .= "Disallow: /search\n";
+        $robotsTxt .= "Disallow: /search?\n";
+        $robotsTxt .= "Disallow: /api/\n";
+        $robotsTxt .= "Disallow: /admin/\n";
+        $robotsTxt .= "Disallow: /dashboard/\n\n";
         
         $robotsTxt .= "User-agent: Googlebot-Image\n";
         $robotsTxt .= "Allow: /images/\n";
@@ -374,17 +384,37 @@ class SitemapController extends Controller
         $robotsTxt .= "Allow: /\n";
         $robotsTxt .= "Disallow: /api/\n\n";
         
-        // Bing optimization
-        $robotsTxt .= "# Bing optimization\n";
+        // Bing & Yahoo optimization (Bingbot powers Yahoo Search)
+        $robotsTxt .= "# Bing & Yahoo optimization (Bingbot powers Yahoo Search)\n";
         $robotsTxt .= "User-agent: Bingbot\n";
         $robotsTxt .= "Allow: /\n";
-        $robotsTxt .= "Crawl-delay: 1\n\n";
+        $robotsTxt .= "Allow: /cari$\n";
+        $robotsTxt .= "Disallow: /cari?\n";
+        $robotsTxt .= "Disallow: /cari/*\n";
+        $robotsTxt .= "Disallow: /search\n";
+        $robotsTxt .= "Disallow: /search?\n";
+        $robotsTxt .= "Disallow: /api/\n";
+        $robotsTxt .= "Disallow: /admin/\n";
+        $robotsTxt .= "Disallow: /dashboard/\n\n";
+        
+        $robotsTxt .= "User-agent: msnbot\n";
+        $robotsTxt .= "Allow: /\n";
+        $robotsTxt .= "Disallow: /api/\n";
+        $robotsTxt .= "Disallow: /admin/\n";
+        $robotsTxt .= "Disallow: /dashboard/\n\n";
         
         // Other search engines
-        $robotsTxt .= "# Other search engines\n";
+        $robotsTxt .= "# Other search engines (Yahoo Slurp)\n";
         $robotsTxt .= "User-agent: Slurp\n";
         $robotsTxt .= "Allow: /\n";
-        $robotsTxt .= "Crawl-delay: 2\n\n";
+        $robotsTxt .= "Allow: /cari$\n";
+        $robotsTxt .= "Disallow: /cari?\n";
+        $robotsTxt .= "Disallow: /cari/*\n";
+        $robotsTxt .= "Disallow: /search\n";
+        $robotsTxt .= "Disallow: /search?\n";
+        $robotsTxt .= "Disallow: /api/\n";
+        $robotsTxt .= "Disallow: /admin/\n";
+        $robotsTxt .= "Disallow: /dashboard/\n\n";
         
         $robotsTxt .= "User-agent: DuckDuckBot\n";
         $robotsTxt .= "Allow: /\n";

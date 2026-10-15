@@ -21,6 +21,17 @@ Schedule::command('sitemap:submit-to-google')
     ->withoutOverlapping()
     ->name('submit-sitemaps-to-google');
 
+// 2b. SEO & Yahoo/Bing Indexing: Submit URL via IndexNow secara berkala
+Schedule::command('indexnow:submit --scope=core')
+    ->dailyAt('06:15')
+    ->withoutOverlapping()
+    ->name('indexnow-submit-core');
+
+Schedule::command('indexnow:submit --scope=surahs')
+    ->weeklyOn(1, '06:30')
+    ->withoutOverlapping()
+    ->name('indexnow-submit-surahs');
+
 // 3. Performa & Cache: Pre-warming cache Al-Qur'an setiap hari jam 03:00 pagi
 Schedule::command('quran:cache warm-up')
     ->dailyAt('03:00')

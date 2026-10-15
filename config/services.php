@@ -50,4 +50,14 @@ return [
         'analytics_id' => env('GOOGLE_ANALYTICS_ID', 'G-1JPHVNB3YX'),
     ],
 
+    'bing' => [
+        'verification_code' => env('BING_VERIFICATION_CODE'),
+    ],
+
+    'indexnow' => [
+        'key' => env('INDEXNOW_KEY', 'e7c8b419bdf242a3818e38d45129ecf6'),
+        'host' => env('INDEXNOW_HOST', 'indoquran.web.id'),
+        'key_location' => env('INDEXNOW_KEY_LOCATION', 'https://indoquran.web.id/e7c8b419bdf242a3818e38d45129ecf6.txt'),
+    ],
+
 ];

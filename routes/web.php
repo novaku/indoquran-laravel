@@ -24,6 +24,15 @@ Route::get('/ads.txt', function () {
     return response("google.com, pub-9994842285785390, DIRECT, f08c47fec0942fa0\n", 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
 })->name('ads.txt');
 
+// IndexNow Verification Key Route (Bing, Yahoo, Yandex)
+Route::get('/{key}.txt', function ($key) {
+    $configuredKey = config('services.indexnow.key');
+    if ($configuredKey && $key === $configuredKey) {
+        return response($configuredKey, 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
+    }
+    abort(404);
+})->where('key', '^[a-zA-Z0-9\-]{8,128}$');
+
 // Advanced sitemap routes for better organization
 Route::get('/sitemap-index.xml', [SitemapIndexController::class, 'index'])->name('sitemap.index');
 Route::get('/sitemap-main.xml', [SitemapIndexController::class, 'mainSitemap'])->name('sitemap.main');

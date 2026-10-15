@@ -21,6 +21,11 @@
     <!-- Permissions Policy for Geolocation -->
     <meta http-equiv="Permissions-Policy" content="geolocation=(self)">
     
+    @if(config('services.bing.verification_code'))
+    <!-- Bing & Yahoo Webmaster Verification -->
+    <meta name="msvalidate.01" content="{{ config('services.bing.verification_code') }}">
+    @endif
+    
     <!-- SEO Meta Tags -->
     <meta name="description" content="{{ $metaDescription ?? 'IndoQuran - Platform Al-Quran Digital terlengkap di Indonesia. Baca, dengar, dan pelajari Al-Quran online dengan terjemahan bahasa Indonesia, fitur bookmark, pencarian ayat, dan audio murottal berkualitas tinggi.' }}">
     <meta name="keywords" content="{{ $metaKeywords ?? 'al quran indonesia, quran online, al quran digital, baca quran, terjemahan quran, murottal, quran indonesia, ayat al quran, surah quran, tafsir quran, hafalan quran, indoquran' }}">

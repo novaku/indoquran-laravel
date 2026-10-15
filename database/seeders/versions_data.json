@@ -1,5 +1,38 @@
 [
   {
+    "version": "2.33.0",
+    "date": "15 Oktober 2026",
+    "type": "feature",
+    "title": "Integrasi IndexNow (Yahoo & Bing Fast Indexing) & Otomasi SEO Scheduler",
+    "description": "Peningkatan komprehensif sistem pengindeksan mesin telusur dengan integrasi protokol IndexNow resmi (Microsoft Bing & Yahoo Search), endpoint verifikasi API Key IndexNow dinamis, CLI Submitter batch 700+ URL (surah, juz, halaman, hadits, artikel), penjadwalan berkala via Laravel Scheduler, serta penyelarasan berkas robots.txt untuk bot perayap Yahoo & Bing.",
+    "changes": [
+      {
+        "type": "feature",
+        "text": "Integrasi Protokol IndexNow (Bing & Yahoo Search) - Implementasi endpoint verifikasi API Key IndexNow dinamis (/{key}.txt) untuk pengindeksan instan dan real-time ke mesin pencari Microsoft Bing dan Yahoo"
+      },
+      {
+        "type": "feature",
+        "text": "CLI Submitter IndexNow (php artisan indexnow:submit) - Perintah Artisan baru dengan dukungan scope fleksibel (core, surahs, juz, halaman, hadits, articles, atau all 770+ URL) dengan sistem batch chunking aman"
+      },
+      {
+        "type": "improvement",
+        "text": "Otomasi Penjadwalan Indexing (Laravel Scheduler) - Penjadwalan cron harian jam 06:15 untuk URL core dan mingguan jam 06:30 untuk 114 Surah agar pembaruan konten langsung terkirim otomatis ke Bing & Yahoo"
+      },
+      {
+        "type": "improvement",
+        "text": "Penyelarasan Robots.txt untuk Bingbot & Slurp - Optimasi direktif perayapan, pemutakhiran sitemap modular, dan perlakuan khusus untuk bot pencari Microsoft Bing dan Yahoo Slurp"
+      },
+      {
+        "type": "improvement",
+        "text": "Dukungan Meta Tag Verifikasi Bing Webmaster Tools - Penambahan konfigurasi meta tag msvalidate.01 dan dukungan verifikasi otomatis via Google Search Console import"
+      },
+      {
+        "type": "improvement",
+        "text": "Pembaruan PWA & Service Worker Cache (v2.33.0) - Peningkatan cache versioning Service Worker PWA ke v2.33.0 untuk memperbarui cache antarmuka dan komponen interaktif terbaru"
+      }
+    ]
+  },
+  {
     "version": "2.32.0",
     "date": "5 Oktober 2026",
     "type": "feature",
