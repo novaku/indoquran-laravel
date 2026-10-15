@@ -71,7 +71,7 @@ class ArticleController extends Controller
             });
         }
 
-        $perPage = min(max((int)$request->get('per_page', 12), 1), 50);
+        $perPage = min(max((int)$request->get('per_page', 14), 1), 50);
         $articles = $query->paginate($perPage);
 
         return response()->json($articles);

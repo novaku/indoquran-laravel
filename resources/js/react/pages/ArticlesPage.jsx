@@ -52,7 +52,7 @@ const ArticlesPage = () => {
     setLoading(true);
     scrollToTop();
     try {
-      const params = new URLSearchParams({ page: page.toString() });
+      const params = new URLSearchParams({ page: page.toString(), per_page: '14' });
       if (search) params.append('search', search);
       if (tag) params.append('tag', tag);
       

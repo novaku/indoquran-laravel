@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ayah;
+use App\Services\SurahSearchService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -10,11 +11,17 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class SearchController extends Controller
 {
+    protected SurahSearchService $surahSearchService;
+
+    public function __construct(SurahSearchService $surahSearchService)
+    {
+        $this->surahSearchService = $surahSearchService;
+    }
     /**
      * Search for ayahs based on Indonesian text.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\View\View
      */
     public function search(Request $request): View
     {
@@ -77,6 +84,8 @@ class SearchController extends Controller
         $results = $resultsQuery->paginate($perPage, ['*'], 'page', $page)
             ->appends(['q' => $query, 'per_page' => $perPage, 'exact' => $exact ? '1' : '0']);
         
+        $surahMatches = $this->surahSearchService->search($query);
+
         // Format the response in a consistent way
         return response()->json([
             'status' => 'success',
@@ -86,6 +95,7 @@ class SearchController extends Controller
                 'exact' => $exact,
                 'search_mode' => $exact ? 'EXACT' : 'AND'
             ],
+            'surah_matches' => $surahMatches,
             'data' => $results->items(),
             'pagination' => [
                 'total' => $results->total(),

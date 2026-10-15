@@ -6,6 +6,7 @@ use App\Models\Ayah;
 use App\Models\Surah;
 use App\Services\QuranCacheService;
 use App\Services\MurottalService;
+use App\Services\SurahSearchService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -16,11 +17,16 @@ class QuranController extends Controller
 {
     protected $quranCache;
     protected $murottalService;
+    protected $surahSearchService;
 
-    public function __construct(QuranCacheService $quranCache, MurottalService $murottalService)
-    {
+    public function __construct(
+        QuranCacheService $quranCache,
+        MurottalService $murottalService,
+        SurahSearchService $surahSearchService
+    ) {
         $this->quranCache = $quranCache;
         $this->murottalService = $murottalService;
+        $this->surahSearchService = $surahSearchService;
     }
 
     /**
@@ -393,30 +399,8 @@ class QuranController extends Controller
                 ->appends($request->only(['q', 'per_page', 'revelation_place', 'exact']));
         }
         
-        // Search surah names matching the query
-        $surahMatchesQuery = Surah::query()
-            ->where(function ($q) use ($query) {
-                $q->where('name_latin', 'LIKE', '%' . $query . '%')
-                  ->orWhere('name_indonesian', 'LIKE', '%' . $query . '%')
-                  ->orWhere('name_arabic', 'LIKE', '%' . $query . '%');
-            })
-            ->select('number', 'name_latin', 'name_indonesian', 'name_arabic', 'total_ayahs', 'revelation_place');
-
-        if ($revelationPlace && in_array($revelationPlace, ['makkah', 'madinah'])) {
-            $surahMatchesQuery->where('revelation_place', $revelationPlace);
-        }
-
-        $surahMatches = $surahMatchesQuery->orderBy('number')->get()->map(function ($surah) {
-            return [
-                'number'           => $surah->number,
-                'name_latin'       => $surah->name_latin,
-                'name_indonesian'  => $surah->name_indonesian,
-                'name_arabic'      => $surah->name_arabic,
-                'total_ayahs'      => $surah->total_ayahs,
-                'revelation_place' => $surah->revelation_place,
-                'url'              => '/surah/' . $surah->number,
-            ];
-        });
+        // Search surah names matching the query using fuzzy, alias, and approximate matching
+        $surahMatches = $this->surahSearchService->search($query, $revelationPlace);
 
         return response()->json([
             'status' => 'success',

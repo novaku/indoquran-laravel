@@ -140,6 +140,11 @@ class IndexNowService
             "{$baseUrl}/asmaul-husna",
             "{$baseUrl}/doa-bersama",
             "{$baseUrl}/artikel",
+            "{$baseUrl}/daftar-lengkap",
+            "{$baseUrl}/riwayat-versi",
+            "{$baseUrl}/member",
+            "{$baseUrl}/keuntungan-member",
+            "{$baseUrl}/statistik",
             "{$baseUrl}/tentang",
             "{$baseUrl}/kebijakan",
             "{$baseUrl}/syarat-ketentuan",
@@ -173,15 +178,7 @@ class IndexNowService
             }
         }
 
-        // 4. Halaman (604 pages of Mushaf)
-        if ($scope === 'halaman' || $scope === 'all') {
-            // High priority pages (first 50 and last 20 by default, or all 604)
-            for ($h = 1; $h <= 604; $h++) {
-                $urls[] = "{$baseUrl}/halaman/{$h}";
-            }
-        }
-
-        // 5. Hadits main kitab pages & popular topics
+        // 4. Hadits main kitab pages & popular topics
         if ($scope === 'hadits' || $scope === 'all') {
             $kitabList = [
                 'shahih_bukhari',
@@ -196,9 +193,17 @@ class IndexNowService
             foreach ($kitabList as $kitab) {
                 $urls[] = "{$baseUrl}/hadits/{$kitab}";
             }
+
+            $popularTopics = [
+                'iman', 'shalat', 'puasa', 'zakat', 'haji', 'doa', 'akhlak',
+                'ilmu', 'taubat', 'sedekah', 'wudhu', 'adab'
+            ];
+            foreach ($popularTopics as $topic) {
+                $urls[] = "{$baseUrl}/hadits/tentang/{$topic}";
+            }
         }
 
-        // 6. Published Articles
+        // 5. Published Articles
         if ($scope === 'articles' || $scope === 'all') {
             try {
                 $articleSlugs = Article::query()->published()->pluck('slug')->toArray();
@@ -207,6 +212,13 @@ class IndexNowService
                 }
             } catch (\Throwable $e) {
                 // Ignore if table not ready
+            }
+        }
+
+        // 6. Halaman (604 pages of Mushaf)
+        if ($scope === 'halaman' || $scope === 'all') {
+            for ($h = 1; $h <= 604; $h++) {
+                $urls[] = "{$baseUrl}/halaman/{$h}";
             }
         }
 

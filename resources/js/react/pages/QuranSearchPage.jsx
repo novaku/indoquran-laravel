@@ -31,6 +31,8 @@ import AdSenseInFeed from '../components/AdSenseInFeed';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
 import { scrollToTop } from '../utils/scrollUtils';
+import { searchSurahs, isApproximateSurahMatch } from '../utils/surahSearch';
+import { getCachedSurahs } from '../services/SurahDataService';
 
 
 // Exact phrase matching utility function
@@ -621,15 +623,48 @@ function QuranSearchPage() {
     }, [searchResults, allExactResults, exactSearch, sortBy, currentPage, resultsPerPage]);
 
     const displayedSurahMatches = useMemo(() => {
-        if (!exactSearch || !debouncedQuery.trim()) {
-            return surahMatches;
+        const q = (debouncedQuery || '').trim();
+        if (!q) {
+            return [];
         }
-        return surahMatches.filter(surah => 
-            matchesExactPhrase(surah.name_latin, debouncedQuery) ||
-            matchesExactPhrase(surah.name_indonesian, debouncedQuery) ||
-            matchesExactPhrase(surah.name_arabic, debouncedQuery)
+
+        const availableSurahs = (Array.isArray(surahs) && surahs.length > 0)
+            ? surahs
+            : (getCachedSurahs().data || []);
+
+        const revelationPlace = revelationType === 'meccan' ? 'makkah' : (revelationType === 'medinan' ? 'madinah' : null);
+
+        const clientMatches = searchSurahs(q, availableSurahs, {
+            revelationPlace,
+            limit: 6
+        }).map(s => ({
+            number: s.number,
+            name_latin: s.name_latin,
+            name_indonesian: s.name_indonesian,
+            name_arabic: s.name_arabic,
+            total_ayahs: s.total_ayahs,
+            revelation_place: s.revelation_place,
+            url: `/surah/${s.number}`
+        }));
+
+        // Merge API surah_matches with clientMatches (clientMatches prioritized or merged)
+        const combined = [...clientMatches];
+        if (Array.isArray(surahMatches)) {
+            surahMatches.forEach(apiSurah => {
+                if (!combined.some(s => s.number === apiSurah.number)) {
+                    combined.push(apiSurah);
+                }
+            });
+        }
+
+        if (!exactSearch) {
+            return combined;
+        }
+
+        return combined.filter(surah =>
+            isApproximateSurahMatch(surah, q, 250)
         );
-    }, [surahMatches, exactSearch, debouncedQuery]);
+    }, [surahMatches, surahs, exactSearch, debouncedQuery, revelationType]);
 
     // Pagination logic
     const totalPages = Math.ceil(totalResults / resultsPerPage);
@@ -915,19 +950,19 @@ function QuranSearchPage() {
                         </Button>
                     </Card>
                 ) : query && searchResults.length === 0 && totalResults === 0 ? (
-                    surahMatches.length > 0 ? (
+                    displayedSurahMatches.length > 0 ? (
                         /* Surah-only matches (no ayah results) */
                         <div className="space-y-6">
                             <div className="flex items-center justify-between">
                                 <h2 className="text-2xl font-bold text-gray-900">Hasil Pencarian</h2>
-                                <Badge variant="default">{surahMatches.length} surah ditemukan</Badge>
+                                <Badge variant="default">{displayedSurahMatches.length} surah ditemukan</Badge>
                             </div>
                             <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
                                 <BookOpenIcon className="w-5 h-5 text-emerald-600" />
                                 Surah Ditemukan
                             </h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                {surahMatches.map((surah) => (
+                                {displayedSurahMatches.map((surah) => (
                                     <Link key={surah.number} to={surah.url}>
                                         <Card hoverable padding="md" className="border border-emerald-100 bg-emerald-50/50 hover:bg-emerald-100/60 transition-colors">
                                             <div className="flex items-center justify-between">

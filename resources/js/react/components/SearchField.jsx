@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
+import { searchSurahs } from '../utils/surahSearch';
+import { getCachedSurahs } from '../services/SurahDataService';
 
 const escapeRegExp = (value) => String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -131,24 +133,23 @@ const SearchField = ({
         const token = authUtils.getAuthToken();
         setIsSearchLoading(true);
         try {
-            // First, search through surahs in memory
-            const surahResults = surahs
-                .filter(surah => 
-                    matchesSearchText(surah.name_latin, query, exactSearch) ||
-                    matchesSearchText(surah.name_indonesian, query, exactSearch) ||
-                    surah.number.toString() === query
-                )
-                .slice(0, 3)
-                .map(surah => ({
-                    type: 'surah',
-                    surah: surah,
-                    text: surah.name_latin,
-                    highlightedText: {
-                        before: '',
-                        match: surah.name_latin,
-                        after: ` (${surah.name_indonesian})`
-                    }
-                }));
+            // First, search through surahs in memory using approximate & fuzzy matching
+            const availableSurahs = (Array.isArray(surahs) && surahs.length > 0)
+                ? surahs
+                : (getCachedSurahs().data || []);
+
+            const matchedSurahs = searchSurahs(query, availableSurahs, { limit: 4 });
+
+            let surahResults = matchedSurahs.map(surah => ({
+                type: 'surah',
+                surah: surah,
+                text: surah.name_latin,
+                highlightedText: {
+                    before: '',
+                    match: surah.name_latin,
+                    after: ` (${surah.name_indonesian})`
+                }
+            }));
 
             // Map common aliases for API search (e.g. Ayat Kursi, Jodoh, Taubat, Sholat)
             let apiQuery = query;
@@ -185,6 +186,25 @@ const SearchField = ({
             
             const data = await response.json();
             if (data.status === 'success') {
+                // Merge any server-matched surahs not already in surahResults
+                if (Array.isArray(data.surah_matches) && data.surah_matches.length > 0) {
+                    data.surah_matches.forEach(apiSurah => {
+                        if (!surahResults.some(s => s.surah.number === apiSurah.number)) {
+                            const fullSurah = availableSurahs.find(s => s.number === apiSurah.number) || apiSurah;
+                            surahResults.push({
+                                type: 'surah',
+                                surah: fullSurah,
+                                text: fullSurah.name_latin,
+                                highlightedText: {
+                                    before: '',
+                                    match: fullSurah.name_latin,
+                                    after: ` (${fullSurah.name_indonesian || ''})`
+                                }
+                            });
+                        }
+                    });
+                }
+
                 const rawAyahResults = Array.isArray(data.data) ? data.data : [];
                 const ayahResults = exactSearch
                     ? rawAyahResults.filter(ayah => matchesSearchText(ayah.text_indonesian, query, true))
@@ -216,7 +236,7 @@ const SearchField = ({
                     const suggestion = {
                         type: 'ayah',
                         ayah: ayahData,
-                        surahName: surahs.find(s => s.number === ayahData.surah_number)?.name_latin || `Surah ${ayahData.surah_number}`,
+                        surahName: (availableSurahs.find(s => s.number === ayahData.surah_number) || {}).name_latin || `Surah ${ayahData.surah_number}`,
                         text: ayahData.text_indonesian,
                         highlightedText: highlightedText
                     };
@@ -233,7 +253,7 @@ const SearchField = ({
             // Don't log errors for aborted requests
             if (error.name !== 'AbortError') {
                 console.error('Error fetching suggestions:', error);
-                setSuggestions([]);
+                setSuggestions(surahResults);
             }
         } finally {
             // Only update loading state if this request wasn't aborted
@@ -594,23 +614,30 @@ const SearchField = ({
                                                 onMouseEnter={() => setHighlightedIndex(index)}
                                             >
                                                 {suggestion.type === 'surah' ? (
-                                                    <div>
-                                                        <div className="flex items-center text-gray-800 text-sm mb-1.5">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 mr-2 text-${currentTheme.primaryText}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                                            </svg>
-                                                            <span className="font-medium">{suggestion.surah.name_latin}</span>
-                                                            <span className="mx-1.5">•</span>
-                                                            <span>{suggestion.surah.name_indonesian}</span>
-                                                            <span className="mx-1.5">•</span>
-                                                            <span>{suggestion.surah.total_ayahs} ayat</span>
-                                                            <span className={`ml-auto text-xs text-${currentTheme.primaryText} bg-${currentTheme.primaryAccent} px-2 py-0.5 rounded-full`}>
+                                                    <div className="flex items-center justify-between gap-3">
+                                                        <div className="flex items-center gap-3 min-w-0">
+                                                            <div className={`w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-bold text-xs shadow-2xs shrink-0`}>
+                                                                {suggestion.surah.number}
+                                                            </div>
+                                                            <div className="min-w-0">
+                                                                <div className="flex items-center gap-2 flex-wrap">
+                                                                    <span className="font-semibold text-gray-900 text-sm">{suggestion.surah.name_latin}</span>
+                                                                    <span className="text-xs text-gray-400">•</span>
+                                                                    <span className="text-xs text-gray-600 truncate">{suggestion.surah.name_indonesian}</span>
+                                                                </div>
+                                                                <p className="text-xs text-gray-500 mt-0.5 capitalize">
+                                                                    {suggestion.surah.revelation_place} • Surah ke-{suggestion.surah.number} • {suggestion.surah.total_ayahs} ayat
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 shrink-0">
+                                                            {suggestion.surah.name_arabic && (
+                                                                <span className="text-sm font-arabic text-gray-700 hidden sm:inline">{suggestion.surah.name_arabic}</span>
+                                                            )}
+                                                            <span className={`text-xs text-${currentTheme.primaryText} bg-${currentTheme.primaryAccent} px-2.5 py-1 rounded-full font-medium hover:bg-${currentTheme.primaryBg} transition-colors inline-flex items-center gap-1`}>
                                                                 Baca Surah →
                                                             </span>
                                                         </div>
-                                                        <p className="text-gray-600 text-sm">
-                                                            {suggestion.surah.revelation_place} • Surah ke-{suggestion.surah.number}
-                                                        </p>
                                                     </div>
                                                 ) : suggestion.ayah ? (
                                                     <div>

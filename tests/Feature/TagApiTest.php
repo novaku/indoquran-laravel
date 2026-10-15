@@ -100,7 +100,13 @@ class TagApiTest extends TestCase
                 'current_page',
                 'data',
                 'total',
-            ]);
+                'per_page',
+            ])
+            ->assertJsonPath('per_page', 14);
+
+        $customResponse = $this->getJson('/api/articles?per_page=7');
+        $customResponse->assertStatus(200)
+            ->assertJsonPath('per_page', 7);
     }
 
     public function test_get_article_by_slug_publicly(): void

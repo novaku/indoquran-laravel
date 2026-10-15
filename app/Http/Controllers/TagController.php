@@ -165,11 +165,12 @@ class TagController extends Controller
     {
         $tag = Tag::where('slug', $slug)->firstOrFail();
         
+        $perPage = min(max((int)$request->get('per_page', 14), 1), 50);
         $articles = $tag->articles()
             ->with(['author:id,name', 'tags'])
             ->where('status', 'published')
             ->latest('published_at')
-            ->paginate(12);
+            ->paginate($perPage);
 
         return response()->json([
             'tag' => $tag,

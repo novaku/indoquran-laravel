@@ -25,6 +25,7 @@ import authUtils from '../utils/auth';
 import { getUserBookmarks } from '../services/BookmarkService';
 import { getCachedSurahs, fetchSurahsWithFallback } from '../services/SurahDataService';
 import { scrollToTop } from '../utils/scrollUtils';
+import { searchSurahs, isApproximateSurahMatch } from '../utils/surahSearch';
 
 function SurahListPage() {
     const navigate = useNavigate();
@@ -135,22 +136,14 @@ function SurahListPage() {
     const getSuggestions = () => {
         if (!searchTerm || searchTerm.length < 1) return [];
         
-        return surahs.filter(surah => {
-            const matchesSearch = 
-                surah.name_latin?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                surah.name_indonesian?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                surah.name_arabic?.includes(searchTerm) ||
-                surah.number.toString().includes(searchTerm);
-            
-            let matchesPlace = true;
-            if (filterPlace === 'makkah' || filterPlace === 'madinah') {
-                matchesPlace = surah.revelation_place?.toLowerCase() === filterPlace.toLowerCase();
-            } else if (filterPlace === 'bookmarked') {
-                matchesPlace = (bookmarksBySurah[surah.number] || []).length > 0;
-            }
-            
-            return matchesSearch && matchesPlace;
-        }).slice(0, 8); // Limit to 8 suggestions
+        let pool = surahs;
+        if (filterPlace === 'makkah' || filterPlace === 'madinah') {
+            pool = pool.filter(s => s.revelation_place?.toLowerCase() === filterPlace.toLowerCase());
+        } else if (filterPlace === 'bookmarked') {
+            pool = pool.filter(s => (bookmarksBySurah[s.number] || []).length > 0);
+        }
+
+        return searchSurahs(searchTerm, pool, { limit: 8, minScore: 120 });
     };
 
     const handleSearchInputChange = (e) => {
@@ -199,23 +192,31 @@ function SurahListPage() {
         }
     };
 
-    // Filter surahs based on search and place/bookmarks
-    const filteredSurahs = surahs.filter(surah => {
-        const matchesSearch = !searchTerm || 
+    // Filter and rank surahs based on search and place/bookmarks
+    const filteredSurahs = React.useMemo(() => {
+        let pool = surahs;
+        if (filterPlace === 'makkah' || filterPlace === 'madinah') {
+            pool = pool.filter(s => s.revelation_place?.toLowerCase() === filterPlace.toLowerCase());
+        } else if (filterPlace === 'bookmarked') {
+            pool = pool.filter(s => (bookmarksBySurah[s.number] || []).length > 0);
+        }
+
+        if (!searchTerm || !searchTerm.trim()) {
+            return pool;
+        }
+
+        const ranked = searchSurahs(searchTerm, pool, { limit: 114, minScore: 120 });
+        if (ranked.length > 0) {
+            return ranked;
+        }
+
+        return pool.filter(surah => 
             surah.name_latin?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             surah.name_indonesian?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             surah.name_arabic?.includes(searchTerm) ||
-            surah.number.toString().includes(searchTerm);
-        
-        let matchesPlace = true;
-        if (filterPlace === 'makkah' || filterPlace === 'madinah') {
-            matchesPlace = surah.revelation_place?.toLowerCase() === filterPlace.toLowerCase();
-        } else if (filterPlace === 'bookmarked') {
-            matchesPlace = (bookmarksBySurah[surah.number] || []).length > 0;
-        }
-        
-        return matchesSearch && matchesPlace;
-    });
+            surah.number.toString().includes(searchTerm)
+        );
+    }, [surahs, searchTerm, filterPlace, bookmarksBySurah]);
 
     const bookmarkedSurahsCount = Object.keys(bookmarksBySurah).length;
 

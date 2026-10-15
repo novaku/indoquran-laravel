@@ -1734,7 +1734,7 @@ class SEOController extends Controller
                     ->with(['author', 'tags'])
                     ->published()
                     ->latest('published_at')
-                    ->limit(12)
+                    ->limit(14)
                     ->get();
             }
         }
