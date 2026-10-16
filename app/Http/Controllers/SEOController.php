@@ -567,6 +567,15 @@ class SEOController extends Controller
                 ]);
             }
         }
+        elseif (isset($segments[0]) && $segments[0] === 'daftar-lengkap') {
+            $seoData = array_merge($seoData, [
+                'metaTitle' => 'Daftar Lengkap Al-Quran Indonesia - Semua Surah, Ayat & Pencarian | IndoQuran',
+                'metaDescription' => 'Temukan semua surah Al-Quran dengan terjemahan Indonesia. Daftar lengkap 114 surah, pencarian ayat, audio murottal, dan fitur pembelajaran Al-Quran digital terlengkap di Indonesia.',
+                'metaKeywords' => 'al quran indonesia, daftar surah lengkap, semua surah al quran, 114 surah, surah al quran terjemahan, quran digital indonesia, al quran online lengkap, murottal semua surah, ayat al quran indonesia, pencarian al quran, indoquran lengkap',
+                'canonicalUrl' => url('/daftar-lengkap'),
+                'ogType' => 'website'
+            ]);
+        }
         elseif (isset($segments[0]) && $segments[0] === 'juz') {
             // Juz page SEO
             if (isset($segments[1]) && is_numeric($segments[1])) {
@@ -1572,8 +1581,8 @@ class SEOController extends Controller
         $reactData = [];
 
         // Fetch data based on route
-        if ($path === '/' || $path === '') {
-            // Homepage: Fetch all surahs for SEO list
+        if ($path === '/' || $path === '' || $path === 'daftar-lengkap') {
+            // Homepage & Daftar Lengkap: Fetch all surahs for SEO list
             $reactData['surahs'] = \Illuminate\Support\Facades\Cache::remember('seo_surah_list', 86400, function () {
                 return Surah::query()->orderBy('number', 'asc')
                     ->select('number', 'name_latin', 'name_indonesian', 'name_arabic', 'total_ayahs')

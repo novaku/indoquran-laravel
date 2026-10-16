@@ -274,5 +274,13 @@ class SitemapTest extends TestCase
         $this->get('/al-quran-juz-15')->assertRedirect('/juz/15');
         $this->get('/surat-14-ayat-9')->assertRedirect('/surah/14/9');
     }
+
+    public function test_daftar_lengkap_seo(): void
+    {
+        $response = $this->get('/daftar-lengkap');
+        $response->assertStatus(200);
+        $response->assertSee('<link rel="canonical" href="' . url('/daftar-lengkap') . '"', false);
+        $response->assertSee('Daftar Lengkap Al-Quran Indonesia');
+    }
 }
 

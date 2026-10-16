@@ -33,8 +33,7 @@ function SEOLandingPage() {
         'Specific Terms': USER_REQUESTED_TERMS.slice(0, 50), // Limit for page performance
     };
 
-    const seoData = getPageSEOData('search', { 
-        query: 'al quran indonesia surah lengkap',
+    const seoData = getPageSEOData('daftar-lengkap', { 
         results: surahs 
     });
 
@@ -42,6 +41,7 @@ function SEOLandingPage() {
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
             <SEOHead 
                 {...seoData}
+                canonicalUrl="https://indoquran.web.id/daftar-lengkap"
                 title="Daftar Lengkap Al-Quran Indonesia - Semua Surah, Ayat & Pencarian | IndoQuran"
                 description="Temukan semua surah Al-Quran dengan terjemahan Indonesia. Daftar lengkap 114 surah, pencarian ayat, audio murottal, dan fitur pembelajaran Al-Quran digital terlengkap di Indonesia."
                 keywords="al quran indonesia, daftar surah lengkap, semua surah al quran, 114 surah, surah al quran terjemahan, quran digital indonesia, al quran online lengkap, murottal semua surah, ayat al quran indonesia, pencarian al quran, indoquran lengkap"

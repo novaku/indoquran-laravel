@@ -575,12 +575,14 @@ function SurahDetailPage() {
     const currentAyah = ayahs.find(ayah => parseInt(ayah.ayah_number) === parseInt(currentAyahNumber)) ||
         (ayahs.length > 0 ? ayahs[0] : null); // Fallback to first ayah if current not found
     const isAyahRoute = Boolean(ayahNumber && currentAyah && surah);
-    const effectiveCanonicalPath = `https://indoquran.web.id/surah/${number}`;
+    const effectiveCanonicalPath = (isAyahRoute || ayahNumber)
+        ? `https://indoquran.web.id/surah/${number}/${currentAyahNumber || ayahNumber}`
+        : `https://indoquran.web.id/surah/${number}`;
     const seoPayload = surah
         ? (isAyahRoute
             ? getPageSEOData('ayah', {
                 surah,
-                ayah_number: parseInt(currentAyahNumber, 10),
+                ayah_number: parseInt(currentAyahNumber || ayahNumber, 10),
                 translation: currentAyah?.translation_id || currentAyah?.translation || ''
             })
             : getPageSEOData('surah', surah))
@@ -2219,7 +2221,8 @@ function SurahDetailPage() {
 
                 <SEOHead
                     {...seoPayload}
-                    ampHtmlUrl={`https://indoquran.web.id/amp/surah/${number}`}
+                    canonicalUrl={effectiveCanonicalPath}
+                    ampHtmlUrl={(isAyahRoute || ayahNumber) ? undefined : `https://indoquran.web.id/amp/surah/${number}`}
                     additionalMeta={[
                         { name: 'author', content: 'IndoQuran' },
                         { name: 'robots', content: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1' },
