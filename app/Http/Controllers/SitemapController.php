@@ -332,7 +332,7 @@ class SitemapController extends Controller
         $robotsTxt .= "Allow: /halaman/\n";
         $robotsTxt .= "Allow: /artikel$\n";
         $robotsTxt .= "Allow: /artikel/\n";
-        $robotsTxt .= "Allow: /amp/\n";
+        $robotsTxt .= "Disallow: /amp/\n";
         $robotsTxt .= "Allow: /doa-bersama\n";
         $robotsTxt .= "Allow: /tafsir-maudhui\n";
         $robotsTxt .= "Allow: /tentang\n";

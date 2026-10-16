@@ -1595,21 +1595,23 @@ class SEOController extends Controller
             $reactData['currentSurah'] = Surah::query()->where('number', $surahNumber)->first();
 
             if ($reactData['currentSurah']) {
-                // Pre-render preview of surah ayahs so Googlebot gets rich, full text content immediately
-                $reactData['surahAyahs'] = \Illuminate\Support\Facades\Cache::remember("seo_surah_ayahs_{$surahNumber}", 86400, function () use ($surahNumber) {
-                    return Ayah::query()
-                        ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian')
-                        ->where('surah_number', $surahNumber)
-                        ->orderBy('ayah_number')
-                        ->limit(30)
-                        ->get();
-                });
+                $isAyahPage = isset($segments[2]) && is_numeric($segments[2]);
 
-                if (isset($segments[2]) && is_numeric($segments[2])) {
+                if (!$isAyahPage) {
+                    // Pre-render preview of surah ayahs only for main surah page so Googlebot gets full text
+                    $reactData['surahAyahs'] = \Illuminate\Support\Facades\Cache::remember("seo_surah_ayahs_{$surahNumber}", 86400, function () use ($surahNumber) {
+                        return Ayah::query()
+                            ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian')
+                            ->where('surah_number', $surahNumber)
+                            ->orderBy('ayah_number')
+                            ->limit(30)
+                            ->get();
+                    });
+                } else {
                     $ayahNumber = (int) $segments[2];
 
                     $reactData['currentAyah'] = Ayah::query()
-                        ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian')
+                        ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian', 'juz', 'page')
                         ->where('surah_number', $surahNumber)
                         ->where('ayah_number', $ayahNumber)
                         ->first();
