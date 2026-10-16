@@ -6,7 +6,9 @@ use App\Models\Article;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -359,12 +361,12 @@ class ArticleController extends Controller
         $this->ensureStorageLinkForUploads();
 
         $request->validate([
-            'image' => 'required|file|image|mimes:jpeg,png,jpg,webp,gif|max:2048'
+            'image' => 'required|file|image|mimes:jpeg,png,jpg,webp,gif|max:4096'
         ], [
             'image.required' => 'File gambar wajib dipilih.',
             'image.image' => 'File harus berupa gambar.',
             'image.mimes' => 'Format gambar harus berupa jpeg, jpg, png, atau webp.',
-            'image.max' => 'Ukuran gambar maksimal 2MB (2048 KB).',
+            'image.max' => 'Ukuran gambar maksimal 4MB (4096 KB).',
         ]);
 
         if ($request->hasFile('image')) {
@@ -374,7 +376,7 @@ class ArticleController extends Controller
             $baseName = Str::slug($rawName) ?: 'article-image';
             $filename = time() . '_' . $baseName . '.' . $ext;
             
-            $path = $image->storeAs('articles', $filename, 'public');
+            $path = $this->resizeAndSaveImage($image, $filename, 1100);
 
             return response()->json([
                 'message' => 'Gambar berhasil diupload',
@@ -386,6 +388,117 @@ class ArticleController extends Controller
         return response()->json([
             'message' => 'Tidak ada gambar yang diupload'
         ], 400);
+    }
+
+    /**
+     * Resize uploaded image proportionally to fit within $maxDim x $maxDim and save to storage
+     */
+    private function resizeAndSaveImage(UploadedFile $image, string $filename, int $maxDim = 1100): string
+    {
+        // Temporarily raise memory limit for processing high-res images if needed
+        $memoryLimit = ini_get('memory_limit');
+        if ($memoryLimit !== '-1') {
+            @ini_set('memory_limit', '256M');
+        }
+
+        $realPath = $image->getRealPath();
+        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+        try {
+            $imageContent = file_get_contents($realPath);
+            $source = @imagecreatefromstring($imageContent);
+
+            if ($source === false) {
+                // If GD fails to parse image, fallback to standard storeAs
+                return $image->storeAs('articles', $filename, 'public');
+            }
+
+            // Auto-rotate based on EXIF orientation if available (e.g. smartphone photos)
+            if (function_exists('exif_read_data')) {
+                $exif = @\exif_read_data($realPath);
+                if (!empty($exif['Orientation'])) {
+                    switch ($exif['Orientation']) {
+                        case 3:
+                            $rotated = imagerotate($source, 180, 0);
+                            if ($rotated !== false) {
+                                $source = $rotated;
+                            }
+                            break;
+                        case 6:
+                            $rotated = imagerotate($source, -90, 0);
+                            if ($rotated !== false) {
+                                $source = $rotated;
+                            }
+                            break;
+                        case 8:
+                            $rotated = imagerotate($source, 90, 0);
+                            if ($rotated !== false) {
+                                $source = $rotated;
+                            }
+                            break;
+                    }
+                }
+            }
+
+            $origWidth = imagesx($source);
+            $origHeight = imagesy($source);
+
+            // Proportionally resize to fit within max dimension (1100x1100)
+            if ($origWidth > $maxDim || $origHeight > $maxDim) {
+                $ratio = min($maxDim / $origWidth, $maxDim / $origHeight);
+                $targetWidth = max(1, (int) round($origWidth * $ratio));
+                $targetHeight = max(1, (int) round($origHeight * $ratio));
+            } else {
+                $targetWidth = $origWidth;
+                $targetHeight = $origHeight;
+            }
+
+            $targetImage = imagecreatetruecolor($targetWidth, $targetHeight);
+
+            // Preserve alpha transparency for PNG, WebP, and GIF
+            if (in_array($ext, ['png', 'webp', 'gif'])) {
+                imagealphablending($targetImage, false);
+                imagesavealpha($targetImage, true);
+                $transparent = imagecolorallocatealpha($targetImage, 0, 0, 0, 127);
+                imagefilledrectangle($targetImage, 0, 0, $targetWidth, $targetHeight, $transparent);
+            }
+
+            imagecopyresampled(
+                $targetImage,
+                $source,
+                0, 0, 0, 0,
+                $targetWidth, $targetHeight,
+                $origWidth, $origHeight
+            );
+
+            // Render resized image to buffer
+            $format = match ($ext) {
+                'png' => 'png',
+                'webp' => 'webp',
+                'gif' => 'gif',
+                default => 'jpeg',
+            };
+
+            ob_start();
+            if ($format === 'png') {
+                imagepng($targetImage, null, 8);
+            } elseif ($format === 'webp') {
+                imagewebp($targetImage, null, 85);
+            } elseif ($format === 'gif') {
+                imagegif($targetImage, null);
+            } else {
+                imagejpeg($targetImage, null, 85);
+            }
+            $outputStream = ob_get_clean();
+
+            $path = 'articles/' . $filename;
+            Storage::disk('public')->put($path, $outputStream);
+
+            return $path;
+        } catch (\Throwable $e) {
+            Log::warning('Image resize failed, falling back to original upload: ' . $e->getMessage());
+            return $image->storeAs('articles', $filename, 'public');
+        }
     }
 
     /**

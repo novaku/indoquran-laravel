@@ -306,10 +306,10 @@ const AdminArticleEditorPage = () => {
   const startImageUpload = async (file) => {
     if (!file) return;
 
-    // Validate file size (max 2MB)
-    if (file.size > 2 * 1024 * 1024) {
+    // Validate file size (max 4MB)
+    if (file.size > 4 * 1024 * 1024) {
       const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-      toast.error(`Ukuran file maksimal 2MB (file Anda: ${sizeMB} MB)`);
+      toast.error(`Ukuran file maksimal 4MB (file Anda: ${sizeMB} MB)`);
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
@@ -821,7 +821,7 @@ const AdminArticleEditorPage = () => {
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">Gambar Unggulan</h2>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  Gambar sampul utama untuk artikel. Format: JPG, PNG, WebP (Maksimal 2MB)
+                  Gambar sampul utama untuk artikel. Format: JPG, PNG, WebP (Maksimal 4MB)
                 </p>
               </div>
               {formData.featured_image && !uploadingImage && (
@@ -998,7 +998,7 @@ const AdminArticleEditorPage = () => {
                     Klik tombol untuk memilih gambar atau seret file ke sini
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    Format: JPG, PNG, WebP (Maksimal 2MB)
+                    Format: JPG, PNG, WebP (Maksimal 4MB)
                   </p>
                 </div>
               )}
