@@ -360,6 +360,13 @@ class ArticleController extends Controller
     {
         $this->ensureStorageLinkForUploads();
 
+        // Check if file upload was rejected by PHP server limits before Laravel validation runs
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_INI_SIZE) {
+            return response()->json([
+                'message' => 'Ukuran file melebihi batas upload PHP server (upload_max_filesize). Silakan pilih gambar maksimal 4MB.'
+            ], 422);
+        }
+
         $request->validate([
             'image' => 'required|file|image|mimes:jpeg,png,jpg,webp,gif|max:4096'
         ], [

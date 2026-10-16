@@ -303,6 +303,13 @@ const AdminArticleEditorPage = () => {
     !selectedTags.some(st => st.toLowerCase() === tag.name.toLowerCase())
   );
 
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+      fileInputRef.current.click();
+    }
+  };
+
   const startImageUpload = async (file) => {
     if (!file) return;
 
@@ -344,7 +351,6 @@ const AdminArticleEditorPage = () => {
 
     try {
       const csrfToken = await getCsrfToken();
-      const authToken = localStorage.getItem('auth_token');
 
       const xhr = new XMLHttpRequest();
       xhrRef.current = xhr;
@@ -355,9 +361,6 @@ const AdminArticleEditorPage = () => {
       xhr.setRequestHeader('Accept', 'application/json');
       if (csrfToken) {
         xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
-      }
-      if (authToken) {
-        xhr.setRequestHeader('Authorization', `Bearer ${authToken}`);
       }
 
       xhr.upload.onprogress = (event) => {
@@ -386,30 +389,39 @@ const AdminArticleEditorPage = () => {
               setUploadStatus('idle');
               setUploadFileInfo(null);
               if (objectUrl) URL.revokeObjectURL(objectUrl);
+              if (fileInputRef.current) fileInputRef.current.value = '';
             }, 900);
           } catch (err) {
             setUploadStatus('error');
             setUploadError('Gagal memproses respon server');
             toast.error('Gagal memproses respon server');
             setUploadingImage(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
           }
         } else {
           let errorMsg = 'Upload gagal';
-          try {
-            const errData = JSON.parse(xhr.responseText);
-            errorMsg = errData.message || (errData.errors && Object.values(errData.errors).flat()[0]) || 'Upload gagal';
-          } catch (e) {
-            if (xhr.status === 401 || xhr.status === 403) {
-              toast.error('Sesi admin telah berakhir. Silakan login kembali.');
-              localStorage.removeItem('admin_user');
-              navigate('/admin/login');
-              return;
+          if (xhr.status === 413) {
+            errorMsg = 'Ukuran file melebihi batas upload server (413 Payload Too Large).';
+          } else if (xhr.status === 419) {
+            errorMsg = 'Sesi token kadaluarsa (CSRF Mismatch). Silakan coba lagi.';
+          } else {
+            try {
+              const errData = JSON.parse(xhr.responseText);
+              errorMsg = errData.message || (errData.errors && Object.values(errData.errors).flat()[0]) || 'Upload gagal';
+            } catch (e) {
+              if (xhr.status === 401 || xhr.status === 403) {
+                toast.error('Sesi admin telah berakhir. Silakan login kembali.');
+                localStorage.removeItem('admin_user');
+                navigate('/admin/login');
+                return;
+              }
             }
           }
           setUploadStatus('error');
           setUploadError(errorMsg);
           toast.error(errorMsg);
           setUploadingImage(false);
+          if (fileInputRef.current) fileInputRef.current.value = '';
         }
       };
 
@@ -418,6 +430,7 @@ const AdminArticleEditorPage = () => {
         setUploadError('Koneksi terputus atau terjadi kesalahan jaringan.');
         toast.error('Gagal mengupload gambar: gangguan koneksi.');
         setUploadingImage(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
       };
 
       xhr.onabort = () => {
@@ -425,6 +438,7 @@ const AdminArticleEditorPage = () => {
         setUploadingImage(false);
         setUploadFileInfo(null);
         if (objectUrl) URL.revokeObjectURL(objectUrl);
+        if (fileInputRef.current) fileInputRef.current.value = '';
         toast('Upload dibatalkan', { icon: 'ℹ️' });
       };
 
@@ -435,6 +449,7 @@ const AdminArticleEditorPage = () => {
       setUploadError('Gagal memulai upload gambar.');
       toast.error('Gagal memulai upload gambar.');
       setUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -442,9 +457,6 @@ const AdminArticleEditorPage = () => {
     const file = e.target.files?.[0];
     if (file) {
       startImageUpload(file);
-    }
-    if (e.target) {
-      e.target.value = '';
     }
   };
 
@@ -837,11 +849,8 @@ const AdminArticleEditorPage = () => {
               ref={fileInputRef}
               id="article-featured-image-input"
               type="file"
-              accept="image/jpeg,image/png,image/jpg,image/webp,image/gif"
+              accept="image/*,.jpg,.jpeg,.png,.webp,.gif"
               onChange={handleImageUpload}
-              onClick={(e) => {
-                e.target.value = null;
-              }}
               disabled={uploadingImage}
               className="hidden"
             />
@@ -865,7 +874,7 @@ const AdminArticleEditorPage = () => {
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
-                        onClick={() => fileInputRef.current?.click()}
+                        onClick={triggerFileInput}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200 transition-colors cursor-pointer"
                       >
                         <FaImage className="text-xs" />
@@ -873,7 +882,10 @@ const AdminArticleEditorPage = () => {
                       </button>
                       <button
                         type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, featured_image: '' }))}
+                        onClick={() => {
+                          setFormData(prev => ({ ...prev, featured_image: '' }));
+                          if (fileInputRef.current) fileInputRef.current.value = '';
+                        }}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold rounded-lg border border-red-200 transition-colors cursor-pointer"
                       >
                         <FaTrash className="text-xs" />
@@ -963,7 +975,7 @@ const AdminArticleEditorPage = () => {
                   </div>
                   <button
                     type="button"
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={triggerFileInput}
                     className="px-3 py-1 bg-red-600 text-white text-xs font-semibold rounded-lg hover:bg-red-700 transition-colors cursor-pointer flex-shrink-0"
                   >
                     Coba Lagi
@@ -973,34 +985,31 @@ const AdminArticleEditorPage = () => {
 
               {/* Upload Dropzone / Button (when not uploading and no image) */}
               {!formData.featured_image && !uploadingImage && (
-                <div
+                <label
+                  htmlFor="article-featured-image-input"
                   onDrop={handleDrop}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
-                  onClick={() => fileInputRef.current?.click()}
-                  className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${
+                  className={`block border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${
                     isDragging
                       ? 'border-emerald-500 bg-emerald-50/60 scale-[1.01]'
                       : 'border-gray-300 hover:border-emerald-500 hover:bg-gray-50/80'
                   }`}
                 >
-                  <div className="mx-auto w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 mb-3">
+                  <div className="mx-auto w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 mb-3 pointer-events-none">
                     <FaCloudUploadAlt className="text-2xl" />
                   </div>
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 shadow-sm transition-all text-sm cursor-pointer mb-2 pointer-events-none"
-                  >
+                  <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 shadow-sm transition-all text-sm cursor-pointer mb-2 pointer-events-none">
                     <FaImage className="text-base" />
                     <span>Upload Gambar</span>
-                  </button>
-                  <p className="text-xs text-gray-600">
+                  </div>
+                  <p className="text-xs text-gray-600 pointer-events-none">
                     Klik tombol untuk memilih gambar atau seret file ke sini
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 mt-1 pointer-events-none">
                     Format: JPG, PNG, WebP (Maksimal 4MB)
                   </p>
-                </div>
+                </label>
               )}
             </div>
           </div>
