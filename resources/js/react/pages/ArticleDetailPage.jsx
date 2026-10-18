@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { FaCalendar, FaUser, FaClock, FaEye, FaWhatsapp, FaEdit, FaBookOpen, FaQuoteLeft } from 'react-icons/fa';
+import { FaCalendar, FaUser, FaClock, FaEye, FaWhatsapp, FaEdit, FaBookOpen, FaQuoteLeft, FaSearchPlus } from 'react-icons/fa';
 import SEOHead from '../components/SEOHead';
 import LoadingSpinner from '../components/LoadingSpinner';
 import AdSenseVertical from '../components/AdSenseVertical';
 import AdSenseInline from '../components/AdSenseInline';
 import ArticleCommentsSection from '../components/ArticleCommentsSection';
+import ImageModal from '../components/ImageModal';
 import { getWithAuth } from '../utils/apiUtils';
 import { useAuth } from '../hooks/useAuth';
 import { scrollToTop } from '../utils/scrollUtils';
@@ -18,6 +19,7 @@ const ArticleDetailPage = () => {
   const [relatedArticles, setRelatedArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
 
   // Check if user is admin (from either regular auth or admin auth)
   useEffect(() => {
@@ -310,17 +312,72 @@ const ArticleDetailPage = () => {
               {/* Featured Image */}
               {(article.featured_image_url || article.featured_image) && (
                 <div className="mb-8">
-                  <img
-                    src={article.featured_image_url || getImageUrl(article.featured_image)}
-                    alt={article.title}
-                    className="w-full h-auto max-h-[480px] object-cover rounded-2xl shadow-md border border-gray-100 dark:border-gray-800"
-                    onError={(e) => {
-                      e.target.src = '/images/default-article.svg';
+                  <div
+                    onClick={() =>
+                      setPreviewImage({
+                        src: articleImageUrl,
+                        alt: article.title,
+                        caption: article.title ? `Foto/Ilustrasi: ${article.title}` : '',
+                      })
+                    }
+                    className="group relative cursor-zoom-in rounded-2xl overflow-hidden block w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 shadow-md border border-gray-100 dark:border-gray-800"
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setPreviewImage({
+                          src: articleImageUrl,
+                          alt: article.title,
+                          caption: article.title ? `Foto/Ilustrasi: ${article.title}` : '',
+                        });
+                      }
                     }}
-                  />
+                    aria-label="Perbesar gambar ilustrasi"
+                  >
+                    <img
+                      src={articleImageUrl}
+                      alt={article.title}
+                      className="w-full h-auto max-h-[480px] object-cover transition-transform duration-300 ease-out group-hover:scale-[1.02]"
+                      onError={(e) => {
+                        e.target.src = '/images/default-article.svg';
+                      }}
+                    />
+                    {/* Hover Overlay with Badge */}
+                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center pointer-events-none">
+                      <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-black/75 backdrop-blur-md text-white text-xs sm:text-sm font-medium shadow-xl border border-white/20 transform translate-y-1 group-hover:translate-y-0 transition-transform duration-200">
+                        <FaSearchPlus className="text-emerald-400 text-sm" />
+                        <span>Klik untuk memperbesar</span>
+                      </span>
+                    </div>
+
+                    {/* Corner indicator badge */}
+                    <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 pointer-events-none">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black/60 backdrop-blur-md text-white/90 text-[11px] font-medium border border-white/20 shadow-md group-hover:bg-emerald-600 transition-colors">
+                        <FaSearchPlus className="text-xs" />
+                        <span className="hidden sm:inline">Perbesar</span>
+                      </span>
+                    </div>
+                  </div>
+
                   {article.title && (
-                    <p className="mt-2 text-xs text-gray-400 dark:text-gray-500 italic text-center">
-                      Foto/Ilustrasi: {article.title}
+                    <p className="mt-2 text-xs text-gray-400 dark:text-gray-500 italic text-center flex items-center justify-center flex-wrap gap-1">
+                      <span>Foto/Ilustrasi: {article.title}</span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPreviewImage({
+                            src: articleImageUrl,
+                            alt: article.title,
+                            caption: `Foto/Ilustrasi: ${article.title}`,
+                          })
+                        }
+                        className="text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1 ml-1 not-italic font-normal cursor-pointer"
+                        title="Perbesar gambar ilustrasi"
+                      >
+                        <FaSearchPlus className="text-[10px]" />
+                        <span className="text-[11px]">(Klik untuk perbesar)</span>
+                      </button>
                     </p>
                   )}
                 </div>
@@ -339,7 +396,19 @@ const ArticleDetailPage = () => {
               )}
 
               {/* In-Article Content with Middle Ad (Detik.com Pattern) */}
-              <div className="article-body-wrapper pb-6">
+              <div
+                className="article-body-wrapper pb-6"
+                onClick={(e) => {
+                  const target = e.target;
+                  if (target && target.tagName === 'IMG' && target.src) {
+                    setPreviewImage({
+                      src: target.src,
+                      alt: target.alt || article.title,
+                      caption: target.alt || target.title || '',
+                    });
+                  }
+                }}
+              >
                 {renderArticleContentWithAd(article.content)}
               </div>
 
@@ -468,6 +537,15 @@ const ArticleDetailPage = () => {
             </div>
           </div>
         )}
+
+        {/* Modal Perbesar Gambar Ilustrasi */}
+        <ImageModal
+          isOpen={!!previewImage}
+          src={previewImage?.src}
+          alt={previewImage?.alt}
+          caption={previewImage?.caption}
+          onClose={() => setPreviewImage(null)}
+        />
       </div>
     </>
   );

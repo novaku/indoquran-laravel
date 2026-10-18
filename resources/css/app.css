@@ -176,6 +176,12 @@ html, body {
     border-radius: 0.5rem;
     margin: 1.5rem 0;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    cursor: zoom-in;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.article-content img:hover, .prose img:hover {
+    opacity: 0.95;
 }
 
 .article-content a, .prose a {
