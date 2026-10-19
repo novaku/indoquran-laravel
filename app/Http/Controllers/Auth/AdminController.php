@@ -16,9 +16,16 @@ use App\Models\Ayah;
 use App\Models\AdminOtpCode;
 use App\Models\Visitor;
 use App\Mail\AdminOtpMail;
+use App\Services\AdminDashboardCacheService;
 
 class AdminController extends Controller
 {
+    protected AdminDashboardCacheService $dashboardCache;
+
+    public function __construct(AdminDashboardCacheService $dashboardCache)
+    {
+        $this->dashboardCache = $dashboardCache;
+    }
     /**
      * Show the admin login form.
      *
@@ -212,8 +219,7 @@ class AdminController extends Controller
             'auth_check' => Auth::check(),
             'user_id' => Auth::id(),
             'is_admin' => Auth::check() ? Auth::user()->isAdmin() : false,
-            'session_id' => $request->session()->getId(),
-            'headers' => $request->headers->all()
+            'session_id' => $request->hasSession() ? $request->session()->getId() : null,
         ]);
 
         if (!Auth::check()) {
@@ -226,74 +232,10 @@ class AdminController extends Controller
             return response()->json(['message' => 'Unauthorized. Admin access required.'], 403);
         }
 
-        // Get statistics
-        $stats = [
-            'total_users' => User::count(),
-            'total_articles' => \App\Models\Article::count(),
-            'published_articles' => \App\Models\Article::where('status', 'published')->count(),
-            'total_article_comments' => \App\Models\ArticleComment::count(),
-            'total_contacts' => Contact::count(),
-            'total_prayers' => Prayer::count(),
-            'total_search_terms' => SearchTerm::count(),
-            'total_surahs' => Surah::count(),
-            'total_ayahs' => Ayah::count(),
-            'daily_visitors' => Visitor::getTodayVisitors(),
-            'weekly_visitors' => Visitor::getWeeklyVisitors(),
-            'monthly_visitors' => Visitor::getMonthlyVisitors(),
-            'total_visitors' => Visitor::getTotalVisitors(),
-        ];
+        $forceRefresh = $request->boolean('refresh') || $request->boolean('force');
+        $dashboardData = $this->dashboardCache->getDashboardData($forceRefresh);
 
-        // Get recent activities
-        $recent_contacts = Contact::latest()->take(5)->get();
-        $recent_prayers = Prayer::with('user')->latest()->take(5)->get();
-        $recent_users = User::latest()->take(5)->get();
-        $popular_searches = SearchTerm::select('term')
-            ->selectRaw('COUNT(*) as search_count')
-            ->groupBy('term')
-            ->orderByDesc('search_count')
-            ->take(10)
-            ->get();
-
-        return response()->json([
-            'stats' => $stats,
-            'recent_activities' => [
-                'contacts' => $recent_contacts,
-                'prayers' => $recent_prayers,
-                'users' => $recent_users,
-                'popular_searches' => $popular_searches,
-            ],
-            'traffic_data' => [
-                'daily_traffic' => Visitor::getDailyTraffic(7),
-                'hourly_traffic' => Visitor::getHourlyTraffic(),
-                'popular_pages' => Visitor::getPopularPages(10),
-                'popular_surahs' => $this->getPopularSurahsWithNames(),
-            ]
-        ]);
-    }
-
-    /**
-     * Get popular surahs with their names from the database
-     */
-    private function getPopularSurahsWithNames()
-    {
-        try {
-            $popularSurahs = Visitor::getPopularSurahs(10);
-            
-            return $popularSurahs->map(function ($item) {
-                $surah = Surah::where('number', $item['surah_number'])->first();
-                
-                return [
-                    'surah_number' => $item['surah_number'],
-                    'surah_name' => $surah ? $surah->name : "Surah #{$item['surah_number']}",
-                    'surah_name_arabic' => $surah ? $surah->name_arabic : '',
-                    'visit_count' => $item['visit_count'],
-                    'url' => $item['url']
-                ];
-            })->values();
-        } catch (\Exception $e) {
-            Log::error('Error getting popular surahs with names: ' . $e->getMessage());
-            return collect([]);
-        }
+        return response()->json($dashboardData);
     }
 
     /**
@@ -456,6 +398,9 @@ class AdminController extends Controller
             $contact->is_read = true;
             $contact->save();
 
+            // Invalidate contact dashboard cache
+            $this->dashboardCache->clearContacts();
+
             Log::info('Contact marked as read', [
                 'contact_id' => $contactId,
                 'admin_id' => Auth::user()->id,
@@ -512,6 +457,9 @@ class AdminController extends Controller
             // Mark as read after replying
             $contact->is_read = true;
             $contact->save();
+
+            // Invalidate contact dashboard cache
+            $this->dashboardCache->clearContacts();
 
             Log::info('Contact reply sent', [
                 'contact_id' => $contactId,

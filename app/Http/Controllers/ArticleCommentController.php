@@ -300,6 +300,10 @@ class ArticleCommentController extends Controller
         $comment = ArticleComment::findOrFail($id);
         $comment->delete();
 
+        try {
+            app(\App\Services\AdminDashboardCacheService::class)->clearComments();
+        } catch (\Throwable $e) {}
+
         return response()->json([
             'success' => true,
             'message' => 'Komentar artikel berhasil dihapus'
@@ -312,6 +316,10 @@ class ArticleCommentController extends Controller
     public function adminDestroyByArticle(Request $request, $articleId): JsonResponse
     {
         $count = ArticleComment::where('article_id', $articleId)->delete();
+
+        try {
+            app(\App\Services\AdminDashboardCacheService::class)->clearComments();
+        } catch (\Throwable $e) {}
 
         return response()->json([
             'success' => true,

@@ -131,6 +131,10 @@ class PrayerController extends Controller
         // Set user_has_amin (will be false for newly created prayer)
         $prayer->user_has_amin = false;
 
+        try {
+            app(\App\Services\AdminDashboardCacheService::class)->clearPrayers();
+        } catch (\Throwable $e) {}
+
         return response()->json([
             'success' => true,
             'data' => $prayer,

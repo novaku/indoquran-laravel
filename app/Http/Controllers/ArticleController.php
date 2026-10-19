@@ -186,6 +186,10 @@ class ArticleController extends Controller
             $article->tags()->sync($tagIds);
         }
 
+        try {
+            app(\App\Services\AdminDashboardCacheService::class)->clearArticles();
+        } catch (\Throwable $e) {}
+
         return response()->json([
             'message' => 'Artikel berhasil dibuat',
             'article' => $article->load(['author:id,name', 'tags'])
@@ -328,6 +332,10 @@ class ArticleController extends Controller
             $article->tags()->detach();
         }
 
+        try {
+            app(\App\Services\AdminDashboardCacheService::class)->clearArticles();
+        } catch (\Throwable $e) {}
+
         return response()->json([
             'message' => 'Artikel berhasil diperbarui',
             'article' => $article->load(['author:id,name', 'tags'])
@@ -347,6 +355,10 @@ class ArticleController extends Controller
         }
 
         $article->delete();
+
+        try {
+            app(\App\Services\AdminDashboardCacheService::class)->clearArticles();
+        } catch (\Throwable $e) {}
 
         return response()->json([
             'message' => 'Artikel berhasil dihapus'

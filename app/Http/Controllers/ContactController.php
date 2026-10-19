@@ -92,6 +92,10 @@ class ContactController extends Controller
             Log::error('Failed to send contact notification email: ' . $e->getMessage());
         }
 
+        try {
+            app(\App\Services\AdminDashboardCacheService::class)->clearContacts();
+        } catch (\Throwable $e) {}
+
         return response()->json([
             'message' => 'Pesan telah berhasil dikirim. Terima kasih telah menghubungi kami.',
             'contact' => $contact

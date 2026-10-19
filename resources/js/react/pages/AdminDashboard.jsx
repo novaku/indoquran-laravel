@@ -22,7 +22,8 @@ import {
     PaperAirplaneIcon,
     XMarkIcon,
     ArrowTrendingUpIcon,
-    ClockIcon
+    ClockIcon,
+    ArrowPathIcon
 } from '@heroicons/react/24/outline';
 import AdminArticleCommentsTab from '../components/AdminArticleCommentsTab';
 
@@ -56,8 +57,22 @@ const AdminDashboard = () => {
         111: "Al-Masad", 112: "Al-Ikhlas", 113: "Al-Falaq", 114: "An-Nas"
     };
 
-    const [dashboardData, setDashboardData] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [dashboardData, setDashboardData] = useState(() => {
+        try {
+            const cached = sessionStorage.getItem('admin_dashboard_cache');
+            return cached ? JSON.parse(cached) : null;
+        } catch (e) {
+            return null;
+        }
+    });
+    const [loading, setLoading] = useState(() => {
+        try {
+            return !sessionStorage.getItem('admin_dashboard_cache');
+        } catch (e) {
+            return true;
+        }
+    });
+    const [isRefreshing, setIsRefreshing] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
     const activeTab = searchParams.get('tab') || 'overview';
 
@@ -106,52 +121,41 @@ const AdminDashboard = () => {
         fetchDashboardData();
     }, [navigate]);
 
-    const fetchDashboardData = async () => {
+    const fetchDashboardData = async (forceRefresh = false) => {
+        if (forceRefresh) {
+            setIsRefreshing(true);
+        } else if (!dashboardData) {
+            setLoading(true);
+        }
+
         try {
-            // Get fresh CSRF token (same approach as login page)
-            const csrfResponse = await fetch('/admin/csrf-token', {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                credentials: 'same-origin'
-            });
-
-            let csrfToken = '';
-            if (csrfResponse.ok) {
-                const csrfData = await csrfResponse.json();
-                csrfToken = csrfData.csrf_token;
-                // Update meta tag
-                const metaTag = document.querySelector('meta[name="csrf-token"]');
-                if (metaTag) {
-                    metaTag.setAttribute('content', csrfToken);
-                }
-            } else {
-                // Fallback to meta tag
-                csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-            }
-
-            const response = await fetch('/api/admin/dashboard', {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            const url = forceRefresh ? '/api/admin/dashboard?refresh=1' : '/api/admin/dashboard';
+            
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': csrfToken
+                    ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {})
                 },
                 credentials: 'same-origin'
             });
 
             console.log('Dashboard response status:', response.status);
-            console.log('Dashboard response headers:', response.headers.get('content-type'));
 
             if (response.ok) {
                 const data = await response.json();
-                console.log('Dashboard data received:', data);
-                console.log('Setting dashboard data to state...');
                 setDashboardData(data);
-                console.log('Dashboard data set successfully');
+                try {
+                    sessionStorage.setItem('admin_dashboard_cache', JSON.stringify(data));
+                } catch (e) {
+                    console.warn('Failed to cache dashboard data in sessionStorage', e);
+                }
+                if (forceRefresh) {
+                    toast.success('Data dashboard berhasil diperbarui');
+                }
             } else {
                 const responseText = await response.text();
                 console.error('Dashboard error response:', responseText);
@@ -159,12 +163,14 @@ const AdminDashboard = () => {
                 if (response.status === 403 || response.status === 401) {
                     toast.error('Sesi admin telah berakhir. Silakan login kembali.');
                     localStorage.removeItem('admin_user');
+                    sessionStorage.removeItem('admin_dashboard_cache');
                     navigate('/admin/login');
                 } else if (responseText.includes('<!DOCTYPE')) {
                     toast.error('Terjadi kesalahan pada server. Silakan login kembali.');
                     localStorage.removeItem('admin_user');
+                    sessionStorage.removeItem('admin_dashboard_cache');
                     navigate('/admin/login');
-                } else {
+                } else if (!dashboardData) {
                     toast.error('Gagal memuat data dashboard');
                 }
             }
@@ -172,15 +178,17 @@ const AdminDashboard = () => {
             console.error('Dashboard error:', error);
             if (error.message.includes('Failed to fetch')) {
                 toast.error('Koneksi ke server gagal. Periksa koneksi internet Anda.');
-            } else {
+            } else if (!dashboardData) {
                 toast.error('Terjadi kesalahan saat memuat dashboard');
             }
         } finally {
             setLoading(false);
+            setIsRefreshing(false);
         }
     };
 
     const handleLogout = async () => {
+        sessionStorage.removeItem('admin_dashboard_cache');
         await logoutAdmin();
         toast.success('Logout berhasil');
         navigate('/admin/login');
@@ -202,16 +210,23 @@ const AdminDashboard = () => {
             });
 
             if (response.ok) {
-                // Update local state
-                setDashboardData(prev => ({
-                    ...prev,
-                    recent_activities: {
-                        ...prev.recent_activities,
-                        contacts: prev.recent_activities.contacts.map(contact =>
-                            contact.id === contactId ? { ...contact, is_read: true } : contact
-                        )
-                    }
-                }));
+                // Update local state and cache
+                setDashboardData(prev => {
+                    if (!prev) return prev;
+                    const updated = {
+                        ...prev,
+                        recent_activities: {
+                            ...prev.recent_activities,
+                            contacts: prev.recent_activities?.contacts?.map(contact =>
+                                contact.id === contactId ? { ...contact, is_read: true } : contact
+                            ) || []
+                        }
+                    };
+                    try {
+                        sessionStorage.setItem('admin_dashboard_cache', JSON.stringify(updated));
+                    } catch (e) {}
+                    return updated;
+                });
                 toast.success('Pesan ditandai sebagai sudah dibaca');
             } else {
                 toast.error('Gagal menandai pesan sebagai sudah dibaca');
@@ -397,6 +412,15 @@ const AdminDashboard = () => {
                             </p>
                         </div>
                         <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => fetchDashboardData(true)}
+                                disabled={isRefreshing}
+                                className="inline-flex items-center gap-1.5 px-3 py-2 bg-white text-gray-700 border border-gray-300 text-sm font-medium rounded-lg hover:bg-gray-50 hover:text-emerald-700 transition shadow-xs disabled:opacity-50 cursor-pointer"
+                                title="Segarkan data terbaru dari server (bypass cache)"
+                            >
+                                <ArrowPathIcon className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-emerald-600' : 'text-gray-500'}`} />
+                                <span>{isRefreshing ? 'Memperbarui...' : 'Segarkan Data'}</span>
+                            </button>
                             <Link
                                 to="/admin/artikel/baru"
                                 className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 transition shadow-xs"
