@@ -10,6 +10,7 @@ import ImageModal from '../components/ImageModal';
 import { getWithAuth } from '../utils/apiUtils';
 import { useAuth } from '../hooks/useAuth';
 import { scrollToTop } from '../utils/scrollUtils';
+import { formatExcerptHtml, stripHtml, decodeHtmlEntities } from '../utils/textUtils';
 
 const ArticleDetailPage = () => {
   const { slug } = useParams();
@@ -86,7 +87,7 @@ const ArticleDetailPage = () => {
 
   const handleShareWhatsapp = () => {
     const shareUrl = window.location.href;
-    const shareTitle = article?.title || '';
+    const shareTitle = decodeHtmlEntities(article?.title || '');
     const shareText = `${shareTitle}\n\n${shareUrl}`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
@@ -149,8 +150,9 @@ const ArticleDetailPage = () => {
   const articleImageUrl = article.featured_image_url || getImageUrl(article.featured_image);
   const tagNames = article.tags ? article.tags.map((t) => t.name) : [];
   const tagsString = tagNames.join(', ');
-  const cleanExcerpt = article.excerpt ? article.excerpt.replace(/<[^>]*>?/gm, '').trim() : '';
-  const metaDescription = cleanExcerpt || (article.content ? article.content.replace(/<[^>]*>?/gm, '').slice(0, 160).trim() : article.title);
+  const cleanTitle = decodeHtmlEntities(article.title || '');
+  const cleanExcerpt = article.excerpt ? stripHtml(article.excerpt) : '';
+  const metaDescription = cleanExcerpt || (article.content ? stripHtml(article.content).slice(0, 160).trim() : cleanTitle);
 
   const structuredData = [
     {
@@ -160,7 +162,7 @@ const ArticleDetailPage = () => {
         '@type': 'WebPage',
         '@id': `https://indoquran.web.id/artikel/${article.slug}`
       },
-      'headline': article.title,
+      'headline': cleanTitle,
       'description': metaDescription,
       'image': [
         articleImageUrl.startsWith('http') ? articleImageUrl : `https://indoquran.web.id${articleImageUrl}`
@@ -183,7 +185,7 @@ const ArticleDetailPage = () => {
       },
       'inLanguage': 'id-ID',
       'articleSection': 'Kajian Al-Quran & Islam',
-      'keywords': `artikel islam, ${article.title}, kajian quran${tagsString ? ', ' + tagsString : ''}`
+      'keywords': `artikel islam, ${cleanTitle}, kajian quran${tagsString ? ', ' + tagsString : ''}`
     },
     {
       '@context': 'https://schema.org',
@@ -204,7 +206,7 @@ const ArticleDetailPage = () => {
         {
           '@type': 'ListItem',
           'position': 3,
-          'name': article.title,
+          'name': cleanTitle,
           'item': `https://indoquran.web.id/artikel/${article.slug}`
         }
       ]
@@ -214,9 +216,9 @@ const ArticleDetailPage = () => {
   return (
     <>
       <SEOHead
-        title={`${article.title} | IndoQuran`}
+        title={`${cleanTitle} | IndoQuran`}
         description={metaDescription}
-        keywords={`artikel islam, ${article.title}, kajian quran${tagsString ? ', ' + tagsString : ''}, indoquran`}
+        keywords={`artikel islam, ${cleanTitle}, kajian quran${tagsString ? ', ' + tagsString : ''}, indoquran`}
         canonicalUrl={`https://indoquran.web.id/artikel/${article.slug}`}
         ogImage={articleImageUrl}
         ogType="article"
@@ -247,13 +249,13 @@ const ArticleDetailPage = () => {
                 <Link to="/artikel" className="hover:text-green-600">Artikel</Link>
                 <span className="mx-2">/</span>
                 <span className="text-gray-800 dark:text-gray-200 font-medium truncate inline-block max-w-[200px] sm:max-w-none align-bottom">
-                  {article.title}
+                  {cleanTitle}
                 </span>
               </nav>
 
               {/* Title */}
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-5 leading-tight">
-                {article.title}
+                {cleanTitle}
               </h1>
 
               {/* Meta Info */}
@@ -316,8 +318,8 @@ const ArticleDetailPage = () => {
                     onClick={() =>
                       setPreviewImage({
                         src: articleImageUrl,
-                        alt: article.title,
-                        caption: article.title ? `Foto/Ilustrasi: ${article.title}` : '',
+                        alt: cleanTitle,
+                        caption: cleanTitle ? `Foto/Ilustrasi: ${cleanTitle}` : '',
                       })
                     }
                     className="group relative cursor-zoom-in rounded-2xl overflow-hidden block w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 shadow-md border border-gray-100 dark:border-gray-800"
@@ -328,8 +330,8 @@ const ArticleDetailPage = () => {
                         e.preventDefault();
                         setPreviewImage({
                           src: articleImageUrl,
-                          alt: article.title,
-                          caption: article.title ? `Foto/Ilustrasi: ${article.title}` : '',
+                          alt: cleanTitle,
+                          caption: cleanTitle ? `Foto/Ilustrasi: ${cleanTitle}` : '',
                         });
                       }
                     }}
@@ -337,7 +339,7 @@ const ArticleDetailPage = () => {
                   >
                     <img
                       src={articleImageUrl}
-                      alt={article.title}
+                      alt={cleanTitle}
                       className="w-full h-auto max-h-[480px] object-cover transition-transform duration-300 ease-out group-hover:scale-[1.02]"
                       onError={(e) => {
                         e.target.src = '/images/default-article.svg';
@@ -360,16 +362,16 @@ const ArticleDetailPage = () => {
                     </div>
                   </div>
 
-                  {article.title && (
+                  {cleanTitle && (
                     <p className="mt-2 text-xs text-gray-400 dark:text-gray-500 italic text-center flex items-center justify-center flex-wrap gap-1">
-                      <span>Foto/Ilustrasi: {article.title}</span>
+                      <span>Foto/Ilustrasi: {cleanTitle}</span>
                       <button
                         type="button"
                         onClick={() =>
                           setPreviewImage({
                             src: articleImageUrl,
-                            alt: article.title,
-                            caption: `Foto/Ilustrasi: ${article.title}`,
+                            alt: cleanTitle,
+                            caption: `Foto/Ilustrasi: ${cleanTitle}`,
                           })
                         }
                         className="text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1 ml-1 not-italic font-normal cursor-pointer"
@@ -388,9 +390,10 @@ const ArticleDetailPage = () => {
                 <div className="mb-8 p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-emerald-50/80 via-white to-emerald-50/30 dark:from-emerald-950/30 dark:via-gray-900/60 dark:to-emerald-950/10 border border-emerald-100 dark:border-emerald-900/50 border-l-4 border-l-emerald-600 dark:border-l-emerald-500 shadow-xs relative">
                   <div className="flex gap-3.5 sm:gap-4 items-start">
                     <FaQuoteLeft className="text-emerald-600/70 dark:text-emerald-400/60 text-lg sm:text-xl flex-shrink-0 mt-1" />
-                    <p className="text-base sm:text-lg text-gray-700 dark:text-gray-200 leading-relaxed font-medium italic">
-                      {article.excerpt.trim()}
-                    </p>
+                    <div
+                      className="text-base sm:text-lg text-gray-700 dark:text-gray-200 leading-relaxed font-medium italic [&>p]:m-0 [&>p]:inline"
+                      dangerouslySetInnerHTML={{ __html: formatExcerptHtml(article.excerpt) }}
+                    />
                   </div>
                 </div>
               )}
@@ -467,7 +470,7 @@ const ArticleDetailPage = () => {
                             {idx + 1}
                           </span>
                           <span className="font-medium text-gray-800 dark:text-gray-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 line-clamp-2 transition-colors">
-                            {item.title}
+                            {decodeHtmlEntities(item.title)}
                           </span>
                         </Link>
                       ))}
@@ -499,7 +502,7 @@ const ArticleDetailPage = () => {
                       <div className="article-thumb-wrapper h-44 bg-gray-100 dark:bg-gray-800 overflow-hidden">
                         <img
                           src={getImageUrl(related.featured_image)}
-                          alt={related.title}
+                          alt={decodeHtmlEntities(related.title)}
                           className="article-thumb-img w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           onError={(e) => {
                             e.target.src = '/images/default-article.svg';
@@ -508,7 +511,7 @@ const ArticleDetailPage = () => {
                       </div>
                       <div className="p-4 sm:p-5">
                         <h3 className="font-bold text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-green-600 transition-colors text-sm sm:text-base">
-                          {related.title}
+                          {decodeHtmlEntities(related.title)}
                         </h3>
                         
                         {/* Tags for related articles */}

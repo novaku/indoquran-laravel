@@ -250,6 +250,7 @@ class ArticleController extends Controller
 
         if (empty($excerpt)) {
             $cleanText = strip_tags($validated['content']);
+            $cleanText = html_entity_decode($cleanText, ENT_QUOTES | ENT_HTML5, 'UTF-8');
             $cleanText = preg_replace('/\s+/', ' ', $cleanText);
             $excerpt = Str::limit(trim($cleanText), 200, '...');
         }

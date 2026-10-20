@@ -1396,7 +1396,8 @@ class SEOController extends Controller
                 $slug = (string) $segments[1];
                 $article = Article::query()->with(['author', 'tags'])->where('slug', $slug)->published()->first();
                 if ($article) {
-                    $articleDescription = Str::limit(strip_tags($article->excerpt ?: $article->content), 160);
+                    $rawDescription = strip_tags($article->excerpt ?: $article->content);
+                    $articleDescription = Str::limit(html_entity_decode($rawDescription, ENT_QUOTES | ENT_HTML5, 'UTF-8'), 160);
                     $tagNames = $article->tags ? $article->tags->pluck('name')->toArray() : [];
                     $tagsString = !empty($tagNames) ? implode(', ', $tagNames) : '';
                     $metaKeywords = "artikel islam, {$article->title}, kajian quran, " . ($tagsString ? "{$tagsString}, " : "") . "indoquran";

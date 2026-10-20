@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch, FaComments } from 'react-icons/fa';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { scrollToTop } from '../utils/scrollUtils';
+import { stripHtml, decodeHtmlEntities } from '../utils/textUtils';
 
 const AdminArticlesPage = () => {
   const [articles, setArticles] = useState([]);
@@ -253,11 +254,11 @@ const AdminArticlesPage = () => {
                           />
                           <div className="max-w-md">
                             <div className="font-medium text-gray-900 line-clamp-2">
-                              {article.title}
+                              {decodeHtmlEntities(article.title)}
                             </div>
                             {article.excerpt && (
                               <div className="text-sm text-gray-500 line-clamp-1 mt-1">
-                                {article.excerpt}
+                                {stripHtml(article.excerpt)}
                               </div>
                             )}
                           </div>

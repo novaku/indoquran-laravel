@@ -137,6 +137,54 @@ class Article extends Model
     }
 
     /**
+     * Get the article excerpt with decoded HTML entities.
+     */
+    public function getExcerptAttribute($value): ?string
+    {
+        if (empty($value)) {
+            return $value;
+        }
+
+        // Decode HTML entities (e.g. &lsquo;, &rsquo;, &ldquo;, &rdquo;, &#039;, &amp;)
+        $decoded = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        if (str_contains($decoded, '&') && preg_match('/&[a-zA-Z0-9#]+;/', $decoded)) {
+            $decoded = html_entity_decode($decoded, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        }
+
+        return $decoded;
+    }
+
+    /**
+     * Set the article excerpt, normalizing HTML entities into UTF-8 characters.
+     */
+    public function setExcerptAttribute($value): void
+    {
+        if (empty($value)) {
+            $this->attributes['excerpt'] = $value;
+            return;
+        }
+
+        $decoded = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        if (str_contains($decoded, '&') && preg_match('/&[a-zA-Z0-9#]+;/', $decoded)) {
+            $decoded = html_entity_decode($decoded, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        }
+
+        $this->attributes['excerpt'] = $decoded;
+    }
+
+    /**
+     * Get the article title with decoded HTML entities.
+     */
+    public function getTitleAttribute($value): ?string
+    {
+        if (empty($value)) {
+            return $value;
+        }
+
+        return html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    }
+
+    /**
      * Increment views count
      */
     public function incrementViews()

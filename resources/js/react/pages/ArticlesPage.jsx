@@ -6,6 +6,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import AdSenseInFeed from '../components/AdSenseInFeed';
 import { getWithAuth } from '../utils/apiUtils';
 import { scrollToTop } from '../utils/scrollUtils';
+import { stripHtml, decodeHtmlEntities } from '../utils/textUtils';
 
 const ArticlesPage = () => {
   const [articles, setArticles] = useState([]);
@@ -345,12 +346,12 @@ const ArticlesPage = () => {
                     {/* Content */}
                     <div className="p-6">
                       <h2 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 hover:text-green-600">
-                        {article.title}
+                        {decodeHtmlEntities(article.title)}
                       </h2>
 
                       {article.excerpt && (
                         <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                          {article.excerpt}
+                          {stripHtml(article.excerpt)}
                         </p>
                       )}
 

@@ -1180,7 +1180,7 @@
 
                     @if(!empty(trim($reactData['currentArticle']->excerpt ?? '')))
                         <div class="article-excerpt" style="font-size: 1.125rem; font-weight: 500; line-height: 1.75; color: #374151; margin-bottom: 2rem; padding: 1.25rem 1.5rem; background: #f0fdf4; border: 1px solid #dcfce7; border-left: 4px solid #16a34a; border-radius: 0 0.75rem 0.75rem 0; font-style: italic;">
-                            {{ trim($reactData['currentArticle']->excerpt) }}
+                            {!! html_entity_decode(trim($reactData['currentArticle']->excerpt), ENT_QUOTES | ENT_HTML5, 'UTF-8') !!}
                         </div>
                     @endif
 
@@ -1195,7 +1195,7 @@
                                 @foreach($reactData['relatedArticles'] as $related)
                                     <a href="/artikel/{{ $related->slug }}" style="display: block; padding: 1rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; text-decoration: none; color: inherit; background: #f9fafb;">
                                         <h3 style="font-size: 1rem; font-weight: 700; color: #111827; margin: 0 0 0.5rem 0;">{{ $related->title }}</h3>
-                                        <p style="font-size: 0.875rem; color: #6b7280; margin: 0;">{{ Str::limit(strip_tags($related->excerpt ?: $related->content), 80) }}</p>
+                                        <p style="font-size: 0.875rem; color: #6b7280; margin: 0;">{{ Str::limit(html_entity_decode(strip_tags($related->excerpt ?: $related->content), ENT_QUOTES | ENT_HTML5, 'UTF-8'), 80) }}</p>
                                     </a>
                                 @endforeach
                             </div>
@@ -1227,7 +1227,7 @@
                                     <a href="/artikel/{{ $art->slug }}" style="color: #111827; text-decoration: none;">{{ $art->title }}</a>
                                 </h2>
                                 <p style="font-size: 0.875rem; color: #4b5563; line-height: 1.6; margin: 0 0 1rem 0; flex: 1;">
-                                    {{ Str::limit(strip_tags($art->excerpt ?: $art->content), 120) }}
+                                    {{ Str::limit(html_entity_decode(strip_tags($art->excerpt ?: $art->content), ENT_QUOTES | ENT_HTML5, 'UTF-8'), 120) }}
                                 </p>
                                 <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8125rem; color: #6b7280; border-top: 1px solid #f3f4f6; padding-top: 0.75rem;">
                                     <span>{{ $art->formatted_date ?? ($art->published_at ? $art->published_at->format('d M Y') : '') }}</span>

@@ -11,6 +11,7 @@ import {
     NewspaperIcon,
     ArrowTopRightOnSquareIcon
 } from '@heroicons/react/24/outline';
+import { stripHtml, decodeHtmlEntities } from '../utils/textUtils';
 
 function ArticleHoverCard({ article, index = 0, articleTab = 'terbaru' }) {
     const navigate = useNavigate();
@@ -133,13 +134,13 @@ function ArticleHoverCard({ article, index = 0, articleTab = 'terbaru' }) {
 
                         {/* Title */}
                         <h3 className="font-bold text-sm text-gray-900 group-hover:text-emerald-700 transition-colors line-clamp-2 leading-snug">
-                            {article.title}
+                            {decodeHtmlEntities(article.title)}
                         </h3>
 
                         {/* Excerpt */}
                         {article.excerpt && (
                             <p className="text-xs text-gray-500 line-clamp-1 mt-1 leading-relaxed">
-                                {article.excerpt}
+                                {stripHtml(article.excerpt)}
                             </p>
                         )}
                     </div>
@@ -260,7 +261,7 @@ function ArticleHoverCard({ article, index = 0, articleTab = 'terbaru' }) {
                                 <p className="italic text-gray-700 mb-1 font-medium text-[11px] text-emerald-700 uppercase tracking-wider flex items-center gap-1">
                                     <BookOpenIcon className="w-3 h-3" /> Ringkasan Artikel:
                                 </p>
-                                {article.excerpt}
+                                {stripHtml(article.excerpt)}
                             </div>
                         )}
 
