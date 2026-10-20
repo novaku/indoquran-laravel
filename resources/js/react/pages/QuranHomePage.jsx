@@ -31,7 +31,6 @@ import { useAuth } from '../hooks/useAuth.jsx';
 import SearchField from '../components/SearchField';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SEOHead from '../components/SEOHead';
-import PrayerTimesWidget from '../components/PrayerTimesWidget';
 import OnlineUsersWidget from '../components/OnlineUsersWidget';
 import ArticleHoverCard from '../components/ArticleHoverCard';
 import KhatamTrackerCard from '../components/KhatamTrackerCard';
@@ -1955,9 +1954,6 @@ function QuranHomePage() {
                     {/* Sidebar Column (4 cols) */}
                     <aside className="lg:col-span-4 space-y-6">
                         <div className="sticky top-20 space-y-6">
-
-                            {/* Jadwal Shalat Widget */}
-                            <PrayerTimesWidget />
 
                             {/* Sticky Sidebar AdSense Unit (Detik.com Pattern) */}
                             <AdSenseVertical

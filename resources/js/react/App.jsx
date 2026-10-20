@@ -26,7 +26,6 @@ import OptimizedErrorBoundary from './components/OptimizedErrorBoundary';
 import PageTransition from './components/PageTransition';
 import PerformanceDebugPanel from './components/PerformanceDebugPanel';
 import SEOHead from './components/SEOHead';
-import PWAInstallPromotion from './components/PWAInstallPromotion';
 import PerformanceOptimizer from './components/PerformanceOptimizer';
 import { preloadCriticalResources, getPageSEOData, generateHomeSEOKeywords } from './utils/seoUtils';
 
@@ -516,9 +515,6 @@ const AppContent = memo(() => {
 
                 {/* Performance Optimizer - Critical for Core Web Vitals */}
                 <PerformanceOptimizer />
-
-                {/* PWA Install Promotion - memoized to prevent re-renders */}
-                <PWAInstallPromotion strategy="auto" key="pwa-promotion" />
             </QuranLayout>
         </OptimizedErrorBoundary>
     );

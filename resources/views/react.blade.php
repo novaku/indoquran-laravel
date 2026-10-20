@@ -18,8 +18,8 @@
     <meta name="color-scheme" content="only light">
     <meta name="supported-color-schemes" content="light">
     
-    <!-- Permissions Policy for Geolocation -->
-    <meta http-equiv="Permissions-Policy" content="geolocation=(self)">
+    <!-- Permissions Policy -->
+    <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()">
     
     @if(config('services.bing.verification_code'))
     <!-- Bing & Yahoo Webmaster Verification -->
