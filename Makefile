@@ -12,6 +12,7 @@ PORT ?= 8000
         install setup update \
         migrate migrate-fresh migrate-rollback seed \
         test test-unit test-feature test-coverage pint pint-test \
+        queue queue-listen queue-restart queue-failed queue-retry \
         clear refresh optimize optimize-dev cache-all cache-quran cache-asmaul cache-tafsir \
         cache-hadits cache-hadits-warm cache-hadits-status \
         sitemap sitemap-all sitemap-validate \
@@ -69,6 +70,7 @@ restart: stop dev-servers ## Restart development servers Laravel & Vite (dev-env
 stop: ## Stop semua server development Laravel & Vite (dev-env.sh #5)
 	@echo "$(COLOR_WARNING)🛑 Stopping development servers...$(COLOR_RESET)"
 	@-pkill -f "php artisan serve" 2>/dev/null || true
+	@-pkill -f "php artisan queue" 2>/dev/null || true
 	@-pkill -f "vite" 2>/dev/null || true
 	@-pkill -f "npm run dev" 2>/dev/null || true
 	@echo "$(COLOR_SUCCESS)✅ All development servers stopped$(COLOR_RESET)"
@@ -153,6 +155,30 @@ pint: ## Format kode PHP dengan Laravel Pint
 
 pint-test: ## Periksa format kode PHP tanpa mengubah file
 	./vendor/bin/pint --test
+
+## =========================================================================
+## Queue & Background Jobs
+## =========================================================================
+
+queue: ## Menjalankan Laravel queue worker (php artisan queue:work)
+	@echo "$(COLOR_WARNING)⚙️  Starting Laravel queue worker...$(COLOR_RESET)"
+	php artisan queue:work $(ARGS)
+
+queue-listen: ## Menjalankan Laravel queue listener (auto-reload saat ada perubahan kode)
+	@echo "$(COLOR_WARNING)👂 Starting Laravel queue listener...$(COLOR_RESET)"
+	php artisan queue:listen --tries=1 $(ARGS)
+
+queue-restart: ## Restart semua worker queue daemon
+	@echo "$(COLOR_WARNING)🔄 Restarting queue workers...$(COLOR_RESET)"
+	@php artisan queue:restart
+	@echo "$(COLOR_SUCCESS)✅ Queue workers signaled to restart!$(COLOR_RESET)"
+
+queue-failed: ## Menampilkan daftar failed jobs pada queue
+	php artisan queue:failed
+
+queue-retry: ## Retry semua failed queue jobs (atau ID tertentu: make queue-retry ID=...)
+	@echo "$(COLOR_WARNING)🔄 Retrying failed queue jobs...$(COLOR_RESET)"
+	php artisan queue:retry $(or $(ID),all)
 
 ## =========================================================================
 ## Cache & Optimization (dev-env.sh #6, #7, #8)
@@ -269,6 +295,9 @@ status: ## Cek status server Laravel & Vite serta proses aktif (dev-env.sh #19)
 	@echo ""
 	@echo "$(COLOR_INFO)Active PHP processes:$(COLOR_RESET)"
 	@ps aux | grep "php artisan serve" | grep -v grep || echo "No Laravel servers running"
+	@echo ""
+	@echo "$(COLOR_INFO)Active Queue processes:$(COLOR_RESET)"
+	@ps aux | grep -E "php artisan queue" | grep -v grep || echo "No Queue workers running"
 	@echo ""
 	@echo "$(COLOR_INFO)Active Node processes:$(COLOR_RESET)"
 	@ps aux | grep -E "vite|npm run dev" | grep -v grep || echo "No Vite servers running"
