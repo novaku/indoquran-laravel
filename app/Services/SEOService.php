@@ -765,5 +765,118 @@ class SEOService
             ]
         ];
     }
+
+    /**
+     * Generate structured data for 114 Surahs index page
+     */
+    public static function generateSurahIndexStructuredData(): array
+    {
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'FAQPage',
+            'mainEntity' => [
+                [
+                    '@type' => 'Question',
+                    'name' => 'Berapa jumlah surah dalam kitab suci Al-Quran?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Kitab suci Al-Quran terdiri dari 114 surah, 30 juz, dan 6.236 ayat, diawali dengan Surah Al-Fatihah dan diakhiri dengan Surah An-Nas.'
+                    ]
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apa surah terpanjang dan terpendek dalam Al-Quran?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Surah terpanjang adalah Surah Al-Baqarah dengan 286 ayat, sedangkan surah terpendek adalah Surah Al-Kautsar dengan 3 ayat.'
+                    ]
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apakah di IndoQuran bisa membaca Al-Quran lengkap dengan terjemahan dan audio murottal?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Ya, IndoQuran menyediakan 114 surah lengkap dengan teks Arab berharakat, transliterasi Latin, terjemahan resmi Kemenag RI, dan pemutar audio murottal merdu.'
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * Generate structured data for individual Hadith detail pages (Article + FAQ)
+     */
+    public static function generateHaditsStructuredData(array $kitab, object $haditsItem, int $nomor): array
+    {
+        $baseUrl = (app()->environment('production') && !app()->environment(['local', 'development', 'testing']))
+            ? 'https://indoquran.web.id'
+            : config('app.url');
+
+        $cleanIndo = trim(preg_replace('/\s+/', ' ', strip_tags($haditsItem->indonesia ?? '')));
+        $kategoriText = !empty($haditsItem->kategori) ? " - Bab {$haditsItem->kategori}" : '';
+        $headline = "Hadits {$kitab['name']} Nomor {$nomor}{$kategoriText}";
+
+        $faqQuestions = [
+            [
+                '@type' => 'Question',
+                'name' => "Apa terjemahan Hadits {$kitab['name']} Nomor {$nomor}?",
+                'acceptedAnswer' => [
+                    '@type' => 'Answer',
+                    'text' => "Hadits {$kitab['name']} No. {$nomor}: \"{$cleanIndo}\"" . (!empty($haditsItem->kategori) ? " (Bab {$haditsItem->kategori})" : "") . "."
+                ]
+            ],
+            [
+                '@type' => 'Question',
+                'name' => "Siapa penyusun kitab Hadits ini?",
+                'acceptedAnswer' => [
+                    '@type' => 'Answer',
+                    'text' => "Kitab {$kitab['name']} ({$kitab['arab']}) dihimpun oleh {$kitab['author']}."
+                ]
+            ]
+        ];
+
+        if (!empty($haditsItem->kategori)) {
+            $faqQuestions[] = [
+                '@type' => 'Question',
+                'name' => "Apa bab pembahasan Hadits {$kitab['name']} Nomor {$nomor}?",
+                'acceptedAnswer' => [
+                    '@type' => 'Answer',
+                    'text' => "Hadits ini membahas bab {$haditsItem->kategori} dalam koleksi kitab {$kitab['name']}."
+                ]
+            ];
+        }
+
+        return [
+            [
+                '@context' => 'https://schema.org',
+                '@type' => 'Article',
+                'headline' => $headline,
+                'description' => "Hadits {$kitab['name']} Nomor {$nomor}: \"{$cleanIndo}\". Baca teks Arab berharakat dan arti bahasa Indonesia di IndoQuran.",
+                'author' => [
+                    '@type' => 'Person',
+                    'name' => $kitab['author'] ?? 'Perawi Hadits'
+                ],
+                'publisher' => [
+                    '@type' => 'Organization',
+                    'name' => 'IndoQuran',
+                    'url' => $baseUrl,
+                    'logo' => [
+                        '@type' => 'ImageObject',
+                        'url' => "{$baseUrl}/android-chrome-512x512.png"
+                    ]
+                ],
+                'mainEntityOfPage' => [
+                    '@type' => 'WebPage',
+                    '@id' => "{$baseUrl}/hadits/{$kitab['slug']}/{$nomor}"
+                ],
+                'inLanguage' => ['ar', 'id']
+            ],
+            [
+                '@context' => 'https://schema.org',
+                '@type' => 'FAQPage',
+                'mainEntity' => $faqQuestions
+            ]
+        ];
+    }
 }
 

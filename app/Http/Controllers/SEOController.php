@@ -246,39 +246,57 @@ class SEOController extends Controller
         $isInvalidRoute = false;
         
         // Check invalid surah numbers
-        if (isset($segments[0]) && $segments[0] === 'surah' && isset($segments[1]) && is_numeric($segments[1])) {
-            $surahNumber = (int) $segments[1];
-            $surah = $this->getCachedSurah($surahNumber);
-            if (!$surah) {
-                $isInvalidRoute = true;
-            } elseif (isset($segments[2])) {
-                // Verify ayah number is valid for this surah
-                if (!is_numeric($segments[2])) {
+        if (isset($segments[0]) && $segments[0] === 'surah') {
+            if (isset($segments[1])) {
+                if (!is_numeric($segments[1])) {
                     $isInvalidRoute = true;
                 } else {
-                    $ayahNumber = (int) $segments[2];
-                    $maxAyah = (int) ($surah->total_ayahs ?? 0);
-
-                    if ($ayahNumber < 1 || ($maxAyah > 0 && $ayahNumber > $maxAyah)) {
+                    $surahNumber = (int) $segments[1];
+                    $surah = $this->getCachedSurah($surahNumber);
+                    if (!$surah) {
                         $isInvalidRoute = true;
+                    } elseif (isset($segments[2])) {
+                        // Verify ayah number is valid for this surah
+                        if (!is_numeric($segments[2])) {
+                            $isInvalidRoute = true;
+                        } else {
+                            $ayahNumber = (int) $segments[2];
+                            $maxAyah = (int) ($surah->total_ayahs ?? 0);
+
+                            if ($ayahNumber < 1 || ($maxAyah > 0 && $ayahNumber > $maxAyah)) {
+                                $isInvalidRoute = true;
+                            }
+                        }
                     }
                 }
             }
         }
         
         // Check invalid juz numbers
-        if (isset($segments[0]) && $segments[0] === 'juz' && isset($segments[1]) && is_numeric($segments[1])) {
-            $juzNumber = (int) $segments[1];
-            if ($juzNumber < 1 || $juzNumber > 30) {
-                $isInvalidRoute = true;
+        if (isset($segments[0]) && $segments[0] === 'juz') {
+            if (isset($segments[1])) {
+                if (!is_numeric($segments[1])) {
+                    $isInvalidRoute = true;
+                } else {
+                    $juzNumber = (int) $segments[1];
+                    if ($juzNumber < 1 || $juzNumber > 30) {
+                        $isInvalidRoute = true;
+                    }
+                }
             }
         }
         
         // Check invalid page numbers
-        if (isset($segments[0]) && $segments[0] === 'halaman' && isset($segments[1]) && is_numeric($segments[1])) {
-            $pageNumber = (int) $segments[1];
-            if ($pageNumber < 1 || $pageNumber > 604) {
-                $isInvalidRoute = true;
+        if (isset($segments[0]) && $segments[0] === 'halaman') {
+            if (isset($segments[1])) {
+                if (!is_numeric($segments[1])) {
+                    $isInvalidRoute = true;
+                } else {
+                    $pageNumber = (int) $segments[1];
+                    if ($pageNumber < 1 || $pageNumber > 604) {
+                        $isInvalidRoute = true;
+                    }
+                }
             }
         }
 
@@ -308,6 +326,32 @@ class SEOController extends Controller
 
             if ($segments[0] === 'tafsir-maudhui' && count($segments) > 2) {
                 $isInvalidRoute = true;
+            }
+
+            // Single segment pages cannot have sub-paths (prevents soft 404 for /tentang/xyz, /asmaul-husna/1, etc.)
+            $singleSegmentRoutes = [
+                'tentang', 'kontak', 'donasi', 'kebijakan', 'syarat-ketentuan',
+                'riwayat-versi', 'member', 'keuntungan-member', 'statistik',
+                'daftar-lengkap', 'asmaul-husna', 'masuk', 'daftar', 'profil', 'penanda'
+            ];
+            if (in_array($segments[0], $singleSegmentRoutes, true) && count($segments) > 1) {
+                $isInvalidRoute = true;
+            }
+
+            // Doa Bersama route validation
+            if ($segments[0] === 'doa-bersama') {
+                if (count($segments) > 2) {
+                    $isInvalidRoute = true;
+                } elseif (count($segments) === 2) {
+                    if (!is_numeric($segments[1])) {
+                        $isInvalidRoute = true;
+                    } else {
+                        $prayer = \App\Models\Prayer::find($segments[1]);
+                        if (!$prayer) {
+                            $isInvalidRoute = true;
+                        }
+                    }
+                }
             }
 
             // Hadits route validation
@@ -600,6 +644,36 @@ class SEOController extends Controller
                         ]);
                     }
                 }
+            } else {
+                // Surah Index (/surah) - Dedicated SEO for all 114 Surahs
+                $breadcrumbStructuredData = [
+                    '@context' => 'https://schema.org',
+                    '@type' => 'BreadcrumbList',
+                    'itemListElement' => [
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 1,
+                            'name' => 'Beranda',
+                            'item' => 'https://indoquran.web.id'
+                        ],
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 2,
+                            'name' => 'Daftar 114 Surah Al-Quran',
+                            'item' => 'https://indoquran.web.id/surah'
+                        ]
+                    ]
+                ];
+
+                $seoData = array_merge($seoData, [
+                    'metaTitle' => 'Daftar 114 Surah Al-Quran Lengkap & Terjemahan Indonesia | IndoQuran',
+                    'metaDescription' => 'Baca 114 Surah Al-Quran online lengkap dari Surah Al-Fatihah hingga An-Nas dengan teks Arab berharakat jelas, terjemahan Indonesia Kemenag, transliterasi Latin, dan audio murottal merdu.',
+                    'metaKeywords' => 'daftar surah al quran, 114 surah quran, urutan surah al quran, baca al quran online, al quran indonesia, terjemahan al quran, audio murottal, surah juz amma, indoquran',
+                    'canonicalUrl' => url('/surah'),
+                    'breadcrumbStructuredData' => $breadcrumbStructuredData,
+                    'customStructuredData' => SEOService::generateSurahIndexStructuredData(),
+                    'ogType' => 'website'
+                ]);
             }
         }
         elseif (isset($segments[0]) && $segments[0] === 'cari') {
@@ -907,12 +981,7 @@ class SEOController extends Controller
                         'ogType' => 'article'
                     ]);
                 } else {
-                    $seoData = array_merge($seoData, [
-                        'metaTitle' => "Koleksi Doa-Doa Pilihan Al-Qur'an & Sunnah Lengkap | IndoQuran",
-                        'metaDescription' => "Koleksi lengkap doa-doa pilihan otentik dari Al-Qur'an dan As-Sunnah lengkap dengan teks Arab berharakat, transliterasi Latin, dan terjemahan Indonesia.",
-                        'metaKeywords' => 'doa bersama, doa pilihan, doa al quran, doa hadits, doa islam, indoquran doa',
-                        'canonicalUrl' => url('/doa-bersama')
-                    ]);
+                    return redirect(url('/doa-bersama'), 301);
                 }
             } elseif (isset($segments[1]) && is_numeric($segments[1])) {
                 $prayer = Prayer::with('user')->find($segments[1]);
@@ -929,12 +998,7 @@ class SEOController extends Controller
                         'ogType' => 'article'
                     ]);
                 } else {
-                    $seoData = array_merge($seoData, [
-                        'metaTitle' => 'Doa Bersama - Komunitas Doa Muslim - IndoQuran',
-                        'metaDescription' => 'Bergabunglah dengan komunitas doa Muslim di IndoQuran. Buat dan bagikan doa, beri dukungan kepada sesama Muslim, serta temukan kekuatan dalam doa bersama.',
-                        'metaKeywords' => 'doa bersama, komunitas doa, doa muslim, doa islam, permintaan doa, dukungan doa, indoquran doa',
-                        'canonicalUrl' => url('/doa-bersama')
-                    ]);
+                    $isInvalidRoute = true;
                 }
             } else {
                 // Prayer page SEO (Default Doa Pilihan)
@@ -1295,7 +1359,7 @@ class SEOController extends Controller
                         'metaKeywords' => "hadits {$kitab['name']} {$nomor}, hadits no {$nomor}, {$kitab['name']}" . (!empty($haditsItem->kategori) ? ", hadits {$haditsItem->kategori}" : "") . ", teks hadits, terjemah hadits",
                         'canonicalUrl' => $canonicalUrl,
                         'breadcrumbStructuredData' => $breadcrumbStructuredData,
-                        'customStructuredData' => $articleStructuredData
+                        'customStructuredData' => SEOService::generateHaditsStructuredData($kitab, $haditsItem, $nomor)
                     ]);
 
                     $cachedHaditsDetail = [
@@ -1637,8 +1701,8 @@ class SEOController extends Controller
         $reactData = [];
 
         // Fetch data based on route
-        if ($path === '/' || $path === '' || $path === 'daftar-lengkap') {
-            // Homepage & Daftar Lengkap: Fetch all surahs for SEO list
+        if ($path === '/' || $path === '' || $path === 'daftar-lengkap' || $path === 'surah') {
+            // Homepage, Daftar Lengkap, & Surah Index: Fetch all surahs for SEO list
             $reactData['surahs'] = \Illuminate\Support\Facades\Cache::remember('seo_surah_list', 86400, function () {
                 return Surah::query()->orderBy('number', 'asc')
                     ->select('number', 'name_latin', 'name_indonesian', 'name_arabic', 'total_ayahs')

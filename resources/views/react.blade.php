@@ -1532,6 +1532,41 @@
                         </div>
                     @endif
 
+                    {{-- FAQ Hadits SSR for Googlebot & Rich Results --}}
+                    <section style="margin: 2rem 0; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.25rem;">
+                        <h2 style="font-size: 1.125rem; font-weight: 700; color: #14532d; margin: 0 0 0.75rem 0;">
+                            Pertanyaan Umum Hadits {{ $reactData['haditsDetail']['kitab']['name'] }} No. {{ data_get($reactData['haditsDetail']['hadits'], 'no') }} (FAQ)
+                        </h2>
+                        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            <article>
+                                <h3 style="font-size: 0.95rem; font-weight: 600; color: #166534; margin: 0 0 0.25rem 0;">
+                                    Apa terjemahan Hadits {{ $reactData['haditsDetail']['kitab']['name'] }} Nomor {{ data_get($reactData['haditsDetail']['hadits'], 'no') }}?
+                                </h3>
+                                <p style="font-size: 0.9rem; line-height: 1.6; color: #374151; margin: 0;">
+                                    "{{ data_get($reactData['haditsDetail']['hadits'], 'indonesia') }}"
+                                </p>
+                            </article>
+                            <article>
+                                <h3 style="font-size: 0.95rem; font-weight: 600; color: #166534; margin: 0 0 0.25rem 0;">
+                                    Siapa penyusun kitab Hadits {{ $reactData['haditsDetail']['kitab']['name'] }}?
+                                </h3>
+                                <p style="font-size: 0.9rem; line-height: 1.6; color: #374151; margin: 0;">
+                                    Kitab {{ $reactData['haditsDetail']['kitab']['name'] }} ({{ $reactData['haditsDetail']['kitab']['arab'] }}) dihimpun oleh {{ $reactData['haditsDetail']['kitab']['author'] ?? 'Ulama Ahli Hadits' }}.
+                                </p>
+                            </article>
+                            @if(!empty(data_get($reactData['haditsDetail']['hadits'], 'kategori')))
+                            <article>
+                                <h3 style="font-size: 0.95rem; font-weight: 600; color: #166534; margin: 0 0 0.25rem 0;">
+                                    Hadits ini membahas bab apa?
+                                </h3>
+                                <p style="font-size: 0.9rem; line-height: 1.6; color: #374151; margin: 0;">
+                                    Hadits ini termaktub dalam bab: <strong>{{ data_get($reactData['haditsDetail']['hadits'], 'kategori') }}</strong>.
+                                </p>
+                            </article>
+                            @endif
+                        </div>
+                    </section>
+
                     <nav aria-label="Navigasi Hadits" style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb; gap: 0.5rem; flex-wrap: wrap;">
                         @if(!empty($reactData['haditsDetail']['navigation']['prev_nomor']))
                             <a href="/hadits/{{ $reactData['haditsDetail']['kitab']['slug'] }}/{{ $reactData['haditsDetail']['navigation']['prev_nomor'] }}" style="padding: 0.6rem 1.2rem; background: #f3f4f6; color: #1f2937; border-radius: 0.5rem; text-decoration: none; font-weight: 600; font-size: 0.875rem;">
