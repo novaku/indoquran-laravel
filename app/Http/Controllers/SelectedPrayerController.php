@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SelectedPrayer;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 
 class SelectedPrayerController extends Controller
@@ -34,7 +35,19 @@ class SelectedPrayerController extends Controller
         $perPage = min(max($perPage, 1), 500);
 
         if ($request->boolean('all')) {
-            $prayers = $query->get();
+            $categoryKey = $request->get('category', 'all');
+            $searchKey = $request->get('search', '');
+            
+            // Only cache 'all' query when no specific search is requested
+            if (empty($searchKey)) {
+                $cacheKey = "selected_prayers_all_cat_{$categoryKey}";
+                $prayers = Cache::remember($cacheKey, 86400, function () use ($query) {
+                    return $query->get();
+                });
+            } else {
+                $prayers = $query->get();
+            }
+
             return response()->json([
                 'success' => true,
                 'data' => $prayers,
@@ -53,52 +66,62 @@ class SelectedPrayerController extends Controller
     }
 
     /**
+     * Get cached prayer categories list
+     */
+    public static function getCachedCategories(): array
+    {
+        return Cache::remember('selected_prayers_categories_grouped', 86400, function () {
+            $totalCount = SelectedPrayer::count();
+
+            $categoryGroups = SelectedPrayer::select('category', 'category_name')
+                ->selectRaw('count(*) as count')
+                ->groupBy('category', 'category_name')
+                ->orderBy('category')
+                ->get();
+
+            $categoryIcons = [
+                'al-quran' => '📖',
+                'para-nabi' => '🤲',
+                'sehari-hari' => '☀️',
+                'perlindungan' => '🛡️',
+                'rezeki' => '💼',
+                'kesehatan' => '🌿',
+                'taubat' => '🕊️',
+                'keluarga' => '👨‍👩‍👧‍👦',
+                'ilmu' => '📚',
+                'dzikir-waktu' => '🌅',
+            ];
+
+            $cats = [
+                [
+                    'slug' => 'all',
+                    'name' => 'Semua Doa',
+                    'icon' => '✨',
+                    'count' => $totalCount
+                ]
+            ];
+
+            foreach ($categoryGroups as $cat) {
+                $cats[] = [
+                    'slug' => $cat->category,
+                    'name' => $cat->category_name,
+                    'icon' => $categoryIcons[$cat->category] ?? '🤲',
+                    'count' => (int) $cat->count
+                ];
+            }
+
+            return $cats;
+        });
+    }
+
+    /**
      * Get list of categories with item counts
      */
     public function categories(): JsonResponse
     {
-        $totalCount = SelectedPrayer::count();
-
-        $categoryGroups = SelectedPrayer::select('category', 'category_name')
-            ->selectRaw('count(*) as count')
-            ->groupBy('category', 'category_name')
-            ->orderBy('category')
-            ->get();
-
-        $categoryIcons = [
-            'al-quran' => '📖',
-            'para-nabi' => '🤲',
-            'sehari-hari' => '☀️',
-            'perlindungan' => '🛡️',
-            'rezeki' => '💼',
-            'kesehatan' => '🌿',
-            'taubat' => '🕊️',
-            'keluarga' => '👨‍👩‍👧‍👦',
-            'ilmu' => '📚',
-            'dzikir-waktu' => '🌅',
-        ];
-
-        $categories = [
-            [
-                'slug' => 'all',
-                'name' => 'Semua Doa',
-                'icon' => '✨',
-                'count' => $totalCount
-            ]
-        ];
-
-        foreach ($categoryGroups as $cat) {
-            $categories[] = [
-                'slug' => $cat->category,
-                'name' => $cat->category_name,
-                'icon' => $categoryIcons[$cat->category] ?? '🤲',
-                'count' => (int) $cat->count
-            ];
-        }
-
         return response()->json([
             'success' => true,
-            'data' => $categories,
+            'data' => self::getCachedCategories(),
             'message' => 'Kategori doa pilihan berhasil dimuat'
         ]);
     }

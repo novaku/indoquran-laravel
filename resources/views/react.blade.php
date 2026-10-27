@@ -103,6 +103,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
     <!-- Preload critical resources for faster initial load -->
+    @if(request()->is('/') || request()->is('daftar-lengkap') || request()->path() === '')
+    <link rel="preload" as="image" href="/images/logo.webp" type="image/webp" fetchpriority="high">
+    @endif
     <link rel="modulepreload" href="{{ Vite::asset('resources/js/react/index.jsx') }}" as="script">
     
     <!-- Optimized Font Loading - Load fonts asynchronously to avoid blocking -->
@@ -165,11 +168,11 @@
     <meta name="apple-mobile-web-app-title" content="IndoQuran">
     <meta name="mobile-web-app-capable" content="yes">
     
-    <!-- Enhanced Anti-Injection Security -->
-    <script src="/anti-injection-security.js"></script>
+    <!-- Enhanced Anti-Injection Security (deferred to unblock initial paint) -->
+    <script defer src="/anti-injection-security.js"></script>
     
-    <!-- PWA Manager -->
-    <script src="/pwa-manager.js?v=2.31.0"></script>
+    <!-- PWA Manager (deferred to unblock initial paint) -->
+    <script defer src="/pwa-manager.js?v=2.31.0"></script>
 
     
     <!-- Critical CSS for above-the-fold content -->
@@ -423,138 +426,174 @@
         </div>
         @endif
 
-        <!-- SEO Content (Server Side Rendered) to ensure indexing -->
+        <!-- SEO Content (Server Side Rendered) to ensure indexing & eradicate CLS -->
         @if(isset($reactData['surahs']))
-            <div id="ssr-surah-list" style="padding: 2rem; background: #fff; color: #1f2937;">
-                <nav aria-label="Navigasi Utama IndoQuran" style="max-width: 1200px; margin: 0 auto 2rem; display: flex; flex-wrap: wrap; gap: 0.625rem; justify-content: center; align-items: center;">
-                    <a href="/surah" style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; border-radius: 9999px; text-decoration: none; font-weight: 600; font-size: 0.875rem;">
-                        📖 Al-Quran Digital
+            <style>
+                .ssr-container { background: #f9fafb; color: #1f2937; min-height: 100vh; font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+                .ssr-header { height: 64px; background: #ffffff; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem; max-width: 1280px; margin: 0 auto; }
+                .ssr-hero { background: linear-gradient(180deg, rgba(236, 253, 245, 0.7) 0%, #ffffff 50%, rgba(249, 250, 251, 0.5) 100%); border-bottom: 1px solid rgba(229, 231, 235, 0.8); padding: 2.5rem 1rem 3rem; text-align: center; }
+                .ssr-badge-wrap { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.625rem; margin-bottom: 1.25rem; }
+                .ssr-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.875rem; border-radius: 9999px; font-size: 0.8125rem; font-weight: 500; text-decoration: none; }
+                .ssr-badge-green { background: #dcfce7; border: 1px solid #bbf7d0; color: #166534; }
+                .ssr-badge-dark { background: linear-gradient(135deg, #059669, #0f766e); color: #ffffff; font-weight: 600; }
+                .ssr-logo-wrap { margin: 0 auto 1rem; width: 190px; height: 160px; display: flex; align-items: center; justify-content: center; }
+                .ssr-hero-title { font-size: 1.75rem; font-weight: 800; color: #111827; margin: 0.5rem 0; line-height: 1.3; }
+                .ssr-hero-desc { font-size: 1rem; line-height: 1.6; color: #4b5563; max-width: 44rem; margin: 0 auto 1.5rem; }
+                .ssr-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; margin-bottom: 2rem; }
+                .ssr-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.25rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; text-decoration: none; transition: all 0.2s; }
+                .ssr-btn-primary { background: #059669; color: #ffffff; box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2); }
+                .ssr-btn-outline { background: #ffffff; border: 1px solid #d1d5db; color: #374151; }
+                .ssr-search-mockup { max-width: 42rem; margin: 0 auto 1rem; position: relative; }
+                .ssr-search-input { width: 100%; padding: 0.875rem 1rem 0.875rem 3rem; border: 2px solid #a7f3d0; border-radius: 0.75rem; font-size: 0.95rem; background: #ffffff; color: #6b7280; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+                .ssr-nav-pills { max-width: 1200px; margin: 2rem auto; display: flex; flex-wrap: wrap; gap: 0.625rem; justify-content: center; align-items: center; padding: 0 1rem; }
+                .ssr-nav-pill { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; background: #ffffff; border: 1px solid #e5e7eb; color: #374151; border-radius: 9999px; text-decoration: none; font-weight: 500; font-size: 0.875rem; }
+                .ssr-nav-pill-active { background: #f0fdf4; border-color: #bbf7d0; color: #166534; font-weight: 600; }
+                .ssr-section { max-width: 1200px; margin: 0 auto 2.5rem; padding: 0 1rem; }
+                .ssr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.875rem; }
+                .ssr-card { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid #e5e7eb; border-radius: 0.75rem; text-decoration: none; color: inherit; background-color: #ffffff; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04); }
+                .ssr-card:hover { border-color: #86efac; background-color: #f0fdf4; }
+                .ssr-card-num { width: 2.5rem; height: 2.5rem; border-radius: 0.75rem; background: #ecfdf5; border: 1px solid #d1fae5; display: flex; align-items: center; justify-content: center; color: #047857; font-weight: 700; font-size: 0.875rem; margin-right: 0.75rem; flex-shrink: 0; }
+                .ssr-card-title { font-weight: 700; color: #111827; font-size: 0.95rem; }
+                .ssr-card-desc { font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem; }
+                .ssr-card-arabic { font-size: 1.5rem; color: #15803d; }
+            </style>
+
+            <div id="ssr-surah-list" class="ssr-container">
+                <!-- Header Mockup matching QuranHeader -->
+                <header class="ssr-header">
+                    <a href="/" style="display: flex; align-items: center; gap: 0.625rem; text-decoration: none;">
+                        <img src="/images/logo-icon.webp" alt="IndoQuran Logo" width="32" height="32" style="width: 32px; height: 32px; object-fit: contain;">
+                        <span style="font-size: 1.25rem; font-weight: 700; color: #111827;">IndoQuran</span>
                     </a>
-                    <a href="/hadits" style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; border-radius: 9999px; text-decoration: none; font-weight: 600; font-size: 0.875rem;">
-                        📚 Hadits Shahih Online
-                    </a>
-                    <a href="/hadits/shahih_bukhari" style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; background: #ffffff; border: 1px solid #e5e7eb; color: #374151; border-radius: 9999px; text-decoration: none; font-weight: 500; font-size: 0.875rem;">
-                        Hadits Bukhari
-                    </a>
-                    <a href="/hadits/shahih_muslim" style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; background: #ffffff; border: 1px solid #e5e7eb; color: #374151; border-radius: 9999px; text-decoration: none; font-weight: 500; font-size: 0.875rem;">
-                        Hadits Muslim
-                    </a>
-                    <a href="/juz/30" style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; background: #ffffff; border: 1px solid #e5e7eb; color: #374151; border-radius: 9999px; text-decoration: none; font-weight: 500; font-size: 0.875rem;">
-                        Juz Amma (Juz 30)
-                    </a>
-                    <a href="/tafsir-maudhui" style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; background: #ffffff; border: 1px solid #e5e7eb; color: #374151; border-radius: 9999px; text-decoration: none; font-weight: 500; font-size: 0.875rem;">
-                        Tafsir Maudhui
-                    </a>
-                    <a href="/asmaul-husna" style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; background: #ffffff; border: 1px solid #e5e7eb; color: #374151; border-radius: 9999px; text-decoration: none; font-weight: 500; font-size: 0.875rem;">
-                        99 Asmaul Husna
-                    </a>
-                    <a href="/doa-bersama" style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; background: #ffffff; border: 1px solid #e5e7eb; color: #374151; border-radius: 9999px; text-decoration: none; font-weight: 500; font-size: 0.875rem;">
-                        Kumpulan Doa
-                    </a>
-                    <a href="/artikel" style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; background: #ffffff; border: 1px solid #e5e7eb; color: #374151; border-radius: 9999px; text-decoration: none; font-weight: 500; font-size: 0.875rem;">
-                        Artikel Islami
-                    </a>
-                </nav>
-                <header style="max-width: 960px; margin: 0 auto 2.5rem; text-align: center;">
-                    <h1 style="font-size: 2.125rem; font-weight: 800; margin-bottom: 0.875rem; color: #166534; line-height: 1.3;">
-                        Al-Quran Online Indonesia - Baca Al-Qur'an Digital 30 Juz & Hadits Shahih
-                    </h1>
-                    <p style="font-size: 1.0625rem; line-height: 1.7; color: #4b5563; margin: 0 auto;">
-                        Platform Al-Quran online terlengkap di Indonesia. Baca 114 surah dan 30 juz Al-Quran dengan teks Arab berharakat jelas, transliterasi latin, terjemahan bahasa Indonesia resmi standar Kementerian Agama RI (Kemenag), audio murottal merdu, tafsir tematik, serta 7 kitab hadits shahih nabawi.
-                    </p>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <a href="/penanda" style="text-decoration: none; color: #4b5563; font-size: 0.875rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.375rem 0.75rem; border-radius: 0.5rem; background: #f3f4f6;">
+                            🔖 Penanda
+                        </a>
+                        <a href="/masuk" style="text-decoration: none; color: #ffffff; background: #059669; font-size: 0.875rem; font-weight: 600; padding: 0.375rem 1rem; border-radius: 0.5rem;">
+                            Masuk
+                        </a>
+                    </div>
                 </header>
 
-                <!-- Surah Populer Paling Sering Dibaca -->
-                <section aria-label="Surah Populer Paling Sering Dibaca" style="max-width: 1200px; margin: 0 auto 2.5rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0.75rem; padding: 1.5rem;">
-                    <h2 style="font-size: 1.25rem; font-weight: 700; color: #166534; margin: 0 0 1rem 0; text-align: center;">
-                        🌟 Surah Populer Paling Sering Dibaca
-                    </h2>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.875rem;">
-                        <a href="/surah/36" style="background: white; border: 1px solid #86efac; border-radius: 0.5rem; padding: 0.875rem 1rem; text-decoration: none; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <strong style="color: #15803d; font-size: 1rem;">Surat Yasin</strong>
-                                <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">Surah ke-36 • 83 Ayat</div>
-                            </div>
-                            <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">يس</span>
+                <!-- Hero Section matching QuranHomePage -->
+                <section class="ssr-hero">
+                    <div class="ssr-badge-wrap">
+                        <div class="ssr-badge ssr-badge-green">
+                            ✨ <span>Dua Pedoman Utama Muslim: Al-Qur'an & Hadits Nabawi</span>
+                        </div>
+                        <a href="/hadits" class="ssr-badge ssr-badge-dark">
+                            <span style="background: #fbbf24; color: #064e3b; font-size: 0.625rem; font-weight: 800; padding: 0.125rem 0.375rem; border-radius: 0.25rem; text-transform: uppercase;">BARU</span>
+                            <span>Koleksi 7 Kitab Hadits Nabawi & Audio Arab →</span>
                         </a>
-                        <a href="/surah/18" style="background: white; border: 1px solid #86efac; border-radius: 0.5rem; padding: 0.875rem 1rem; text-decoration: none; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <strong style="color: #15803d; font-size: 1rem;">Surat Al-Kahfi</strong>
-                                <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">Surah ke-18 • 110 Ayat</div>
-                            </div>
-                            <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">الكهف</span>
-                        </a>
-                        <a href="/surah/67" style="background: white; border: 1px solid #86efac; border-radius: 0.5rem; padding: 0.875rem 1rem; text-decoration: none; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <strong style="color: #15803d; font-size: 1rem;">Surat Al-Mulk</strong>
-                                <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">Surah ke-67 • 30 Ayat</div>
-                            </div>
-                            <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">الملك</span>
-                        </a>
-                        <a href="/surah/56" style="background: white; border: 1px solid #86efac; border-radius: 0.5rem; padding: 0.875rem 1rem; text-decoration: none; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <strong style="color: #15803d; font-size: 1rem;">Surat Al-Waqi'ah</strong>
-                                <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">Surah ke-56 • 96 Ayat</div>
-                            </div>
-                            <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">الواقعة</span>
-                        </a>
-                        <a href="/surah/55" style="background: white; border: 1px solid #86efac; border-radius: 0.5rem; padding: 0.875rem 1rem; text-decoration: none; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <strong style="color: #15803d; font-size: 1rem;">Surat Ar-Rahman</strong>
-                                <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">Surah ke-55 • 78 Ayat</div>
-                            </div>
-                            <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">الرحمن</span>
-                        </a>
-                        <a href="/surah/2" style="background: white; border: 1px solid #86efac; border-radius: 0.5rem; padding: 0.875rem 1rem; text-decoration: none; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <strong style="color: #15803d; font-size: 1rem;">Surat Al-Baqarah</strong>
-                                <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">Surah ke-2 • 286 Ayat</div>
-                            </div>
-                            <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">البقرة</span>
-                        </a>
-                        <a href="/juz/30" style="background: white; border: 1px solid #86efac; border-radius: 0.5rem; padding: 0.875rem 1rem; text-decoration: none; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <strong style="color: #15803d; font-size: 1rem;">Juz 30 (Juz 'Amma)</strong>
-                                <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">37 Surah Pendek</div>
-                            </div>
-                            <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">عمّ</span>
-                        </a>
-                        <a href="/juz" style="background: white; border: 1px solid #86efac; border-radius: 0.5rem; padding: 0.875rem 1rem; text-decoration: none; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <strong style="color: #15803d; font-size: 1rem;">Al-Quran Per Juz</strong>
-                                <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">Juz 1 s/d 30 Lengkap</div>
-                            </div>
-                            <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">الأجزاء</span>
-                        </a>
-                        <a href="/halaman" style="background: white; border: 1px solid #86efac; border-radius: 0.5rem; padding: 0.875rem 1rem; text-decoration: none; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <strong style="color: #15803d; font-size: 1rem;">Al-Quran Per Halaman</strong>
-                                <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">604 Halaman Mushaf Madinah</div>
-                            </div>
-                            <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">الصفحات</span>
-                        </a>
-                        <a href="/juz/15" style="background: white; border: 1px solid #86efac; border-radius: 0.5rem; padding: 0.875rem 1rem; text-decoration: none; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <strong style="color: #15803d; font-size: 1rem;">Juz 15 (Al-Isra & Al-Kahf)</strong>
-                                <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">Hal. 282-301 • 185 Ayat</div>
-                            </div>
-                            <span class="arabic-text" style="font-size: 1.5rem; color: #166534;">١٥</span>
-                        </a>
+                    </div>
+
+                    <div class="ssr-logo-wrap">
+                        <picture>
+                            <source srcset="/images/logo.webp" type="image/webp">
+                            <img src="/images/logo.png" alt="IndoQuran - Al-Quran Online Indonesia" width="190" height="210" fetchpriority="high" loading="eager" decoding="async" style="height: 140px; width: auto; object-fit: contain; display: block; margin: 0 auto;">
+                        </picture>
+                    </div>
+
+                    <h1 class="ssr-hero-title">Al-Quran Online Indonesia & Hadits Nabawi</h1>
+                    <p class="ssr-hero-desc">
+                        Mendalami dua rujukan pokok umat Islam: <strong style="color: #111827;">Al-Qur'an</strong> sebagai sumber pertama dan <strong style="color: #111827;">Hadits Nabawi</strong> sebagai sumber kedua, dalam satu antarmuka yang tenang, bersih, dan tepercaya.
+                    </p>
+
+                    <div class="ssr-actions">
+                        <a href="/surah" class="ssr-btn ssr-btn-primary">📖 1. Baca Al-Qur'an</a>
+                        <a href="/hadits" class="ssr-btn ssr-btn-outline" style="border-color: #6ee7b7; background: #ecfdf5; color: #065f46;">✨ 2. Hadits Nabawi</a>
+                        <a href="/juz" class="ssr-btn ssr-btn-outline">📑 3. Telusuri Juz</a>
+                    </div>
+
+                    <div class="ssr-search-mockup">
+                        <input type="text" class="ssr-search-input" placeholder="🔍 Cari surah, nomor ayat, atau kata kunci terjemahan..." readonly aria-label="Cari surah, nomor ayat, atau kata kunci terjemahan">
                     </div>
                 </section>
 
-                <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; text-align: center; color: #1f2937;">Daftar Lengkap 114 Surah Al-Quran</h2>
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; max-width: 1200px; margin: 0 auto;">
-                    @foreach($reactData['surahs'] as $surah)
-                        <a href="/surah/{{ $surah->number }}" data-google-vignette="false" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; text-decoration: none; color: inherit; background-color: #f9fafb; transition: all 0.2s;">
-                            <div>
-                                <div style="font-weight: 700; color: #111827;">{{ $surah->number }}. {{ $surah->name_latin }}</div>
-                                <div style="font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem;">{{ $surah->name_indonesian }} • {{ $surah->total_ayahs }} Ayat</div>
-                            </div>
-                            <div class="arabic-text" style="font-size: 1.5rem; color: #15803d;">{{ $surah->name_arabic }}</div>
-                        </a>
-                    @endforeach
-                </div>
+                <!-- Navigation Quick Links -->
+                <nav aria-label="Navigasi Utama IndoQuran" class="ssr-nav-pills">
+                    <a href="/surah" class="ssr-nav-pill ssr-nav-pill-active">📖 Al-Quran Digital</a>
+                    <a href="/hadits" class="ssr-nav-pill ssr-nav-pill-active">📚 Hadits Shahih Online</a>
+                    <a href="/hadits/shahih_bukhari" class="ssr-nav-pill">Hadits Bukhari</a>
+                    <a href="/hadits/shahih_muslim" class="ssr-nav-pill">Hadits Muslim</a>
+                    <a href="/juz/30" class="ssr-nav-pill">Juz Amma (Juz 30)</a>
+                    <a href="/tafsir-maudhui" class="ssr-nav-pill">Tafsir Maudhui</a>
+                    <a href="/asmaul-husna" class="ssr-nav-pill">99 Asmaul Husna</a>
+                    <a href="/doa-bersama" class="ssr-nav-pill">Kumpulan Doa</a>
+                    <a href="/artikel" class="ssr-nav-pill">Artikel Islami</a>
+                </nav>
+
+                <!-- Surah Populer Paling Sering Dibaca -->
+                <section aria-label="Surah Populer Paling Sering Dibaca" class="ssr-section">
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0.75rem; padding: 1.5rem;">
+                        <h2 style="font-size: 1.25rem; font-weight: 700; color: #166534; margin: 0 0 1rem 0; text-align: center;">
+                            🌟 Surah Populer Paling Sering Dibaca
+                        </h2>
+                        <div class="ssr-grid">
+                            <a href="/surah/36" class="ssr-card">
+                                <div>
+                                    <strong style="color: #15803d; font-size: 1rem;">Surat Yasin</strong>
+                                    <div class="ssr-card-desc">Surah ke-36 • 83 Ayat</div>
+                                </div>
+                                <span class="arabic-text ssr-card-arabic">يس</span>
+                            </a>
+                            <a href="/surah/18" class="ssr-card">
+                                <div>
+                                    <strong style="color: #15803d; font-size: 1rem;">Surat Al-Kahfi</strong>
+                                    <div class="ssr-card-desc">Surah ke-18 • 110 Ayat</div>
+                                </div>
+                                <span class="arabic-text ssr-card-arabic">الكهف</span>
+                            </a>
+                            <a href="/surah/67" class="ssr-card">
+                                <div>
+                                    <strong style="color: #15803d; font-size: 1rem;">Surat Al-Mulk</strong>
+                                    <div class="ssr-card-desc">Surah ke-67 • 30 Ayat</div>
+                                </div>
+                                <span class="arabic-text ssr-card-arabic">الملك</span>
+                            </a>
+                            <a href="/surah/56" class="ssr-card">
+                                <div>
+                                    <strong style="color: #15803d; font-size: 1rem;">Surat Al-Waqi'ah</strong>
+                                    <div class="ssr-card-desc">Surah ke-56 • 96 Ayat</div>
+                                </div>
+                                <span class="arabic-text ssr-card-arabic">الواقعة</span>
+                            </a>
+                            <a href="/surah/55" class="ssr-card">
+                                <div>
+                                    <strong style="color: #15803d; font-size: 1rem;">Surat Ar-Rahman</strong>
+                                    <div class="ssr-card-desc">Surah ke-55 • 78 Ayat</div>
+                                </div>
+                                <span class="arabic-text ssr-card-arabic">الرحمن</span>
+                            </a>
+                            <a href="/surah/2" class="ssr-card">
+                                <div>
+                                    <strong style="color: #15803d; font-size: 1rem;">Surat Al-Baqarah</strong>
+                                    <div class="ssr-card-desc">Surah ke-2 • 286 Ayat</div>
+                                </div>
+                                <span class="arabic-text ssr-card-arabic">البقرة</span>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Daftar Lengkap 114 Surah -->
+                <section class="ssr-section">
+                    <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; text-align: center; color: #1f2937;">Daftar Lengkap 114 Surah Al-Quran</h2>
+                    <div class="ssr-grid">
+                        @foreach($reactData['surahs'] as $surah)
+                            <a href="/surah/{{ $surah->number }}" data-google-vignette="false" class="ssr-card">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="ssr-card-num">{{ $surah->number }}</div>
+                                    <div>
+                                        <div class="ssr-card-title">{{ $surah->name_latin }}</div>
+                                        <div class="ssr-card-desc">{{ $surah->name_indonesian }} • {{ $surah->total_ayahs }} Ayat</div>
+                                    </div>
+                                </div>
+                                <div class="arabic-text ssr-card-arabic">{{ $surah->name_arabic }}</div>
+                            </a>
+                        @endforeach
+                    </div>
+                </section>
 
                 <!-- FAQ Section for Google Snippets -->
                 <section id="ssr-faq" style="max-width: 960px; margin: 3rem auto 1rem; padding: 2rem; background: #f9fafb; border-radius: 0.75rem; border: 1px solid #e5e7eb;">

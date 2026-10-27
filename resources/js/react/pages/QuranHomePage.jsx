@@ -555,14 +555,6 @@ function QuranHomePage() {
             : POPULAR_SURAH_NUMBERS.slice(0, 6).map((num) => surahs.find((s) => s.number === num)).filter(Boolean);
     }, [surahTab, popularSurahs, surahs]);
 
-    if (loading && surahs.length === 0) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <LoadingSpinner size="lg" />
-            </div>
-        );
-    }
-
     return (
         <div className="min-h-screen bg-gray-50 text-gray-800 no-auto-ads homepage-container">
             <SEOHead
@@ -615,6 +607,7 @@ function QuranHomePage() {
                                         width="190"
                                         height="210"
                                         loading="eager"
+                                        fetchpriority="high"
                                         decoding="async"
                                     />
                                 </picture>
@@ -1491,7 +1484,7 @@ function QuranHomePage() {
 
                             {/* Surah List Grid */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                                {loadingPopular ? (
+                                {(loadingPopular || (loading && displayedSurahs.length === 0)) ? (
                                     Array.from({ length: 6 }).map((_, index) => (
                                         <div key={index} className="p-4 rounded-xl border border-gray-100 bg-gray-50/50 animate-pulse">
                                             <div className="flex items-center justify-between">

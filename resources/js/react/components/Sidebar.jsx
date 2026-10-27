@@ -147,6 +147,7 @@ function Sidebar({ isOpen, setIsOpen }) {
                     </Link>
                     <button
                         onClick={() => setIsOpen(false)}
+                        aria-label="Tutup menu navigasi"
                         className="p-2 rounded-md text-gray-700 hover:text-green-600 hover:bg-gray-50 transition-colors"
                     >
                         <XMarkIcon className="w-6 h-6" />
@@ -159,6 +160,7 @@ function Sidebar({ isOpen, setIsOpen }) {
                     <div>
                         <button
                             onClick={() => setIsMainNavOpen(!isMainNavOpen)}
+                            aria-expanded={isMainNavOpen}
                             className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-green-600 transition-colors"
                         >
                             <span>Navigasi</span>
@@ -233,6 +235,7 @@ function Sidebar({ isOpen, setIsOpen }) {
                     <div className="pt-2">
                         <button
                             onClick={() => setIsQuranOpen(!isQuranOpen)}
+                            aria-expanded={isQuranOpen}
                             className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-green-600 transition-colors"
                         >
                             <span>Al-Quran</span>
@@ -289,6 +292,7 @@ function Sidebar({ isOpen, setIsOpen }) {
                     <div className="pt-2">
                         <button
                             onClick={() => setIsCommunityOpen(!isCommunityOpen)}
+                            aria-expanded={isCommunityOpen}
                             className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-green-600 transition-colors"
                         >
                             <span>Komunitas</span>
@@ -321,6 +325,7 @@ function Sidebar({ isOpen, setIsOpen }) {
                     <div className="pt-2">
                         <button
                             onClick={() => setIsInfoOpen(!isInfoOpen)}
+                            aria-expanded={isInfoOpen}
                             className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-green-600 transition-colors"
                         >
                             <span>Informasi</span>

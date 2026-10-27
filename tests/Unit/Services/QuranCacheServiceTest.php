@@ -120,4 +120,17 @@ class QuranCacheServiceTest extends TestCase
 
         $this->assertTrue(true);
     }
+
+    public function test_get_all_juz_and_pages_returns_ranges(): void
+    {
+        $juzList = $this->service->getAllJuz();
+        $this->assertCount(30, $juzList);
+        $this->assertEquals(1, $juzList[0]);
+        $this->assertEquals(30, $juzList[29]);
+
+        $pagesList = $this->service->getAllPages();
+        $this->assertCount(604, $pagesList);
+        $this->assertEquals(1, $pagesList[0]);
+        $this->assertEquals(604, $pagesList[603]);
+    }
 }

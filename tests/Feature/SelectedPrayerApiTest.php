@@ -18,6 +18,7 @@ class SelectedPrayerApiTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        \Illuminate\Support\Facades\Cache::flush();
 
         $this->user = User::factory()->create();
         /** @var JWTGuard $guard */

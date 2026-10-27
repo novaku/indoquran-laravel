@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Tag;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class TagController extends Controller
@@ -143,17 +144,20 @@ class TagController extends Controller
     public function popular(Request $request)
     {
         $limit = min((int) $request->get('limit', 15), 50);
-        
-        $tags = Tag::whereHas('articles', function($q) {
-            $q->where('status', 'published');
-        })
-        ->withCount(['articles' => function($q) {
-            $q->where('status', 'published');
-        }])
-        ->orderBy('articles_count', 'desc')
-        ->orderBy('name', 'asc')
-        ->limit($limit)
-        ->get();
+        $cacheKey = "popular_tags_count_{$limit}";
+
+        $tags = Cache::remember($cacheKey, 3600, function () use ($limit) {
+            return Tag::whereHas('articles', function($q) {
+                $q->where('status', 'published');
+            })
+            ->withCount(['articles' => function($q) {
+                $q->where('status', 'published');
+            }])
+            ->orderBy('articles_count', 'desc')
+            ->orderBy('name', 'asc')
+            ->limit($limit)
+            ->get();
+        });
 
         return response()->json($tags);
     }

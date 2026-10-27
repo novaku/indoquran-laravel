@@ -100,12 +100,16 @@ class QuranCacheCommand extends Command
             $this->info("Default cache store: {$cacheStore}");
             
             if ($cacheStore === 'redis') {
-                $redis = \Illuminate\Support\Facades\Cache::getRedis();
+                $store = \Illuminate\Support\Facades\Cache::getStore();
+                $redis = $store instanceof \Illuminate\Cache\RedisStore ? $store->connection() : \Illuminate\Support\Facades\Redis::connection('cache');
                 $this->info('✅ Redis connection is working');
                 
                 // Check some cache keys
-                $keys = $redis->keys(config('cache.prefix') . 'quran:*');
-                $this->info('Cached Quran keys found: ' . count($keys));
+                $keys = $redis->keys('*' . config('cache.prefix') . '*');
+                if (empty($keys)) {
+                    $keys = $redis->keys('*');
+                }
+                $this->info('Cached keys found in Redis: ' . count($keys));
                 
                 if (count($keys) > 0) {
                     $this->info('Sample cached keys:');

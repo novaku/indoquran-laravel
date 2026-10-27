@@ -49,20 +49,24 @@ Route::middleware(['static.key'])->group(function() {
 });
 
 // Articles public routes
-Route::get('/articles', [ArticleController::class, 'index']);
-Route::get('/articles/random', [ArticleController::class, 'random']);
-Route::get('/articles/{slug}', [ArticleController::class, 'show']);
-Route::get('/articles/{slug}/related', [ArticleController::class, 'related']);
+Route::middleware(['api.cache:10m'])->group(function() {
+    Route::get('/articles', [ArticleController::class, 'index']);
+    Route::get('/articles/random', [ArticleController::class, 'random']);
+    Route::get('/articles/{slug}', [ArticleController::class, 'show']);
+    Route::get('/articles/{slug}/related', [ArticleController::class, 'related']);
+});
 
 // Article comments public routes (accessible with or without token)
 Route::get('/articles/{slug}/comments', [ArticleCommentController::class, 'getComments']);
 Route::post('/articles/{slug}/comments', [ArticleCommentController::class, 'store']);
 
 // Tags public routes
-Route::get('/tags', [TagController::class, 'index']);
-Route::get('/tags/popular', [TagController::class, 'popular']);
-Route::get('/tags/{slug}', [TagController::class, 'show']);
-Route::get('/tags/{slug}/articles', [TagController::class, 'articles']);
+Route::middleware(['api.cache:1h'])->group(function() {
+    Route::get('/tags', [TagController::class, 'index']);
+    Route::get('/tags/popular', [TagController::class, 'popular']);
+    Route::get('/tags/{slug}', [TagController::class, 'show']);
+    Route::get('/tags/{slug}/articles', [TagController::class, 'articles']);
+});
 
 // ==========================================
 // PROTECTED ROUTES (JWT required)
@@ -205,24 +209,28 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/prayer-images', [PrayerController::class, 'getPrayerImages']);
     Route::get('/dua-bersama/count', [PrayerController::class, 'count']);
 
-    Route::get('/doa-pilihan', [SelectedPrayerController::class, 'index']);
-    Route::get('/doa-pilihan/categories', [SelectedPrayerController::class, 'categories']);
-    Route::get('/doa-pilihan/{selectedPrayer}', [SelectedPrayerController::class, 'show']);
+    Route::middleware(['api.cache:7d'])->group(function() {
+        Route::get('/doa-pilihan', [SelectedPrayerController::class, 'index']);
+        Route::get('/doa-pilihan/categories', [SelectedPrayerController::class, 'categories']);
+        Route::get('/doa-pilihan/{selectedPrayer}', [SelectedPrayerController::class, 'show']);
+    });
     Route::get('/prayer-times', [PrayerController::class, 'getPrayerTimes']);
 
     Route::get('/bookmarks/count', [BookmarkController::class, 'count']);
     Route::get('/stats/public', [\App\Http\Controllers\Api\StatsController::class, 'getPublicStats']);
 
     // Tafsir Maudhui
-    Route::get('/tafsir-maudhui', [TafsirMaudhuiController::class, 'api']);
-    Route::get('/tafsir-maudhui/popular', [TafsirMaudhuiController::class, 'popular']);
-    Route::get('/tafsir-maudhui/count', [TafsirMaudhuiController::class, 'count']);
-    Route::get('/tafsir-maudhui/random', [TafsirMaudhuiController::class, 'random']);
+    Route::middleware(['api.cache:7d'])->group(function() {
+        Route::get('/tafsir-maudhui', [TafsirMaudhuiController::class, 'api']);
+        Route::get('/tafsir-maudhui/popular', [TafsirMaudhuiController::class, 'popular']);
+        Route::get('/tafsir-maudhui/count', [TafsirMaudhuiController::class, 'count']);
+        Route::get('/tafsir-maudhui/random', [TafsirMaudhuiController::class, 'random']);
+    });
 
     Route::get('/hadits/dropdown', [App\Http\Controllers\HaditsController::class, 'dropdown']);
 
     // SEO
-    Route::prefix('seo')->group(function() {
+    Route::middleware(['api.cache:1d'])->prefix('seo')->group(function() {
         Route::get('/popular-surahs', [\App\Http\Controllers\Api\SeoApiController::class, 'getPopularSurahs']);
         Route::get('/surah-faq/{number}', [\App\Http\Controllers\Api\SeoApiController::class, 'getSurahFaq']);
         Route::get('/page-seo', [\App\Http\Controllers\Api\SeoApiController::class, 'getPageSeo']);

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, Suspense, lazy, memo, useMemo } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './hooks/useAuth.jsx';
 import useAdvancedPerformanceMonitor from './hooks/useAdvancedPerformanceMonitor.js';
@@ -29,10 +29,9 @@ import SEOHead from './components/SEOHead';
 import PerformanceOptimizer from './components/PerformanceOptimizer';
 import { preloadCriticalResources, getPageSEOData, generateHomeSEOKeywords } from './utils/seoUtils';
 
-// Enhanced lazy loading with aggressive code splitting for minimal initial bundle
-const HomePage = lazy(() =>
-    import(/* webpackChunkName: "home", webpackPreload: true */ './pages/QuranHomePage')
-);
+// Eagerly initiate fetching of HomePage chunk for zero-latency home route render
+const homePagePromise = import('./pages/QuranHomePage');
+const HomePage = lazy(() => homePagePromise);
 
 // Core pages (high priority) - preload after main bundle
 const AuthPage = lazy(() =>
@@ -214,6 +213,7 @@ const usePrefetchOptimization = () => {
 
 // Main app content component with auth-protected routes
 const AppContent = memo(() => {
+    const location = useLocation();
     const {
         user,
         loading,
@@ -364,8 +364,9 @@ const AppContent = memo(() => {
         </PageTransition>
     ), []);
 
-    // Show loading spinner while checking authentication
-    if (isLoading) {
+    // Show loading spinner only while checking authentication on auth-protected routes
+    const isAuthRequiredRoute = location.pathname.startsWith('/admin') || location.pathname === '/profil';
+    if (isLoading && isAuthRequiredRoute) {
         return LoadingComponent;
     }
 

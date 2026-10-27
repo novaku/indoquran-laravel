@@ -102,17 +102,21 @@ Route::post('/admin/send-otp', [AdminController::class, 'sendOtp'])->name('admin
 Route::post('/admin/login', [AdminController::class, 'login']);
 Route::post('/admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
 
-// API routes for Tafsir Maudhui (to be consumed by React)
-Route::get('/api/tafsir-maudhui', [TafsirMaudhuiController::class, 'api'])->name('tafsir-maudhui.api');
-Route::get('/api/tafsir-maudhui/search', [TafsirMaudhuiController::class, 'search'])->name('tafsir-maudhui.search');
-Route::get('/api/tafsir-maudhui/random', [TafsirMaudhuiController::class, 'random'])->name('tafsir-maudhui.random');
-Route::get('/api/tafsir-maudhui/{slug}', [TafsirMaudhuiController::class, 'show'])->name('tafsir-maudhui.show');
+// API routes for Tafsir Maudhui (to be consumed by React, with HTTP cache)
+Route::middleware(['api.cache:7d'])->group(function () {
+    Route::get('/api/tafsir-maudhui', [TafsirMaudhuiController::class, 'api'])->name('tafsir-maudhui.api');
+    Route::get('/api/tafsir-maudhui/search', [TafsirMaudhuiController::class, 'search'])->name('tafsir-maudhui.search');
+    Route::get('/api/tafsir-maudhui/random', [TafsirMaudhuiController::class, 'random'])->name('tafsir-maudhui.random');
+    Route::get('/api/tafsir-maudhui/{slug}', [TafsirMaudhuiController::class, 'show'])->name('tafsir-maudhui.show');
+});
 Route::post('/api/tafsir-maudhui/clear-cache', [TafsirMaudhuiController::class, 'clearCache'])->name('tafsir-maudhui.clear-cache');
 
-// API routes for Asmaul Husna (to be consumed by React)
-Route::get('/api/asmaul-husna', [AsmaulHusnaController::class, 'api'])->name('asmaul-husna.api');
-Route::get('/api/asmaul-husna/search', [AsmaulHusnaController::class, 'search'])->name('asmaul-husna.search');
-Route::get('/api/asmaul-husna/{slug}', [AsmaulHusnaController::class, 'show'])->name('asmaul-husna.show');
+// API routes for Asmaul Husna (to be consumed by React, with HTTP cache)
+Route::middleware(['api.cache:30d'])->group(function () {
+    Route::get('/api/asmaul-husna', [AsmaulHusnaController::class, 'api'])->name('asmaul-husna.api');
+    Route::get('/api/asmaul-husna/search', [AsmaulHusnaController::class, 'search'])->name('asmaul-husna.search');
+    Route::get('/api/asmaul-husna/{slug}', [AsmaulHusnaController::class, 'show'])->name('asmaul-husna.show');
+});
 Route::post('/api/asmaul-husna/clear-cache', [AsmaulHusnaController::class, 'clearCache'])->name('asmaul-husna.clear-cache');
 
 // API routes for Hadits (to be consumed by React, with HTTP cache)

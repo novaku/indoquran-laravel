@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -23,7 +24,17 @@ class SEOMiddleware
         if ($this->shouldApplySEOHeaders($request, $response)) {
             $this->addSEOHeaders($request, $response);
             $this->addSecurityHeaders($response);
-            $this->addPerformanceHeaders($response);
+            $this->addPerformanceHeaders($request, $response);
+
+            // Conditional 304 Not Modified check for public pages
+            $etag = $response->headers->get('ETag');
+            if ($etag && $request->header('If-None-Match') === $etag) {
+                return response('', 304)->withHeaders([
+                    'Cache-Control' => $response->headers->get('Cache-Control'),
+                    'ETag' => $etag,
+                    'Expires' => $response->headers->get('Expires'),
+                ]);
+            }
         }
 
         return $response;
@@ -113,17 +124,28 @@ class SEOMiddleware
     /**
      * Add performance headers for Core Web Vitals optimization
      */
-    private function addPerformanceHeaders(Response $response): void
+    private function addPerformanceHeaders(Request $request, Response $response): void
     {
-        // Set cache headers for better performance
-        if (!$response->headers->has('Cache-Control')) {
-            $response->headers->set('Cache-Control', 'public, max-age=3600, must-revalidate');
+        // Check if route is a private/user route or authenticated
+        $isPrivateRoute = $request->is(['masuk', 'daftar', 'profil', 'penanda', 'admin*', 'login', 'register']) 
+            || Auth::check() 
+            || Auth::guard('api')->check();
+
+        if ($isPrivateRoute) {
+            $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate, private', true);
+            $response->headers->set('Pragma', 'no-cache', true);
+        } else {
+            // Public HTML caching: 1 hour browser cache + 24 hours stale-while-revalidate
+            $cacheTime = 3600;
+            $etag = '"' . md5($response->getContent()) . '"';
+
+            $response->headers->set('Cache-Control', "public, max-age={$cacheTime}, stale-while-revalidate=86400", true);
+            $response->headers->set('ETag', $etag, true);
+            $response->headers->set('Expires', gmdate('D, d M Y H:i:s', time() + $cacheTime) . ' GMT', true);
+            $response->headers->set('Last-Modified', gmdate('D, d M Y H:i:s') . ' GMT', true);
         }
 
         // Add resource hints for critical resources
-        // Note: Don't preload app.js/app.css as they have hashed filenames
-        // Vite handles this automatically via @vite directive
-        // REMOVED: Icon preload - not critical for initial render, causes "not used" warnings
         $preloadLinks = [
             // DNS prefetch for external resources only
             '<//fonts.googleapis.com>; rel=dns-prefetch',

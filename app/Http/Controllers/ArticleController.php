@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -526,14 +527,19 @@ class ArticleController extends Controller
      */
     public function related($slug)
     {
-        $article = Article::where('slug', $slug)->firstOrFail();
-        
-        $related = Article::with(['author:id,name', 'tags'])
-            ->published()
-            ->where('id', '!=', $article->id)
-            ->latest('published_at')
-            ->limit(3)
-            ->get();
+        $related = Cache::remember("article_api_related_{$slug}", 1800, function () use ($slug) {
+            $article = Article::where('slug', $slug)->first();
+            if (!$article) {
+                return [];
+            }
+            
+            return Article::with(['author:id,name', 'tags'])
+                ->published()
+                ->where('id', '!=', $article->id)
+                ->latest('published_at')
+                ->limit(3)
+                ->get();
+        });
 
         return response()->json($related);
     }
@@ -543,10 +549,12 @@ class ArticleController extends Controller
      */
     public function random()
     {
-        $article = Article::with(['author:id,name', 'tags'])
-            ->published()
-            ->inRandomOrder()
-            ->first();
+        $article = Cache::remember('article_api_random_single', 180, function () {
+            return Article::with(['author:id,name', 'tags'])
+                ->published()
+                ->inRandomOrder()
+                ->first();
+        });
 
         if (!$article) {
             return response()->json([

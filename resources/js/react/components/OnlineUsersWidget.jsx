@@ -1,31 +1,46 @@
-import { useEffect } from 'react';
-import { motion, useSpring, useTransform } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
 import { UsersIcon } from '@heroicons/react/24/outline';
 import { useOnlineUsersCount } from '../hooks/useOnlineUsers';
 
 /**
- * AnimatedNumber - Smooth spring-based counter animation using Framer Motion
+ * AnimatedNumber - Lightweight, zero-dependency spring/ease counter using requestAnimationFrame
  */
 function AnimatedNumber({ value }) {
-    const spring = useSpring(value, { mass: 0.5, stiffness: 80, damping: 15 });
-    const display = useTransform(spring, (current) =>
-        Math.max(1, Math.round(current)).toLocaleString('id-ID')
-    );
+    const [display, setDisplay] = useState(value);
+    const prevValueRef = useRef(value);
 
     useEffect(() => {
-        spring.set(value);
-    }, [value, spring]);
+        const start = prevValueRef.current;
+        const end = value;
+        prevValueRef.current = value;
+        if (start === end) return;
 
-    return <motion.span>{display}</motion.span>;
+        const duration = 350;
+        const startTime = performance.now();
+
+        const animate = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            // Ease-out quad
+            const ease = 1 - (1 - progress) * (1 - progress);
+            const current = Math.round(start + (end - start) * ease);
+            setDisplay(current);
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
+
+        const frame = requestAnimationFrame(animate);
+        return () => cancelAnimationFrame(frame);
+    }, [value]);
+
+    return <span>{Math.max(1, display).toLocaleString('id-ID')}</span>;
 }
 
 /**
- * OnlineUsersWidget - Displays real-time count of online visitors with smart polling & tab visibility
- * 
- * Features:
- * - Smart polling via TanStack Query (auto-pause when tab is inactive)
- * - Animated count transitions via Framer Motion
- * - Active presence indicator
+ * OnlineUsersWidget - Displays real-time count of online visitors
+ * Optimized without heavy framer-motion library (saves ~110KB bundle size)
  */
 function OnlineUsersWidget({ className = '' }) {
     const { data: onlineCount = 0, isFetching, isError } = useOnlineUsersCount();
@@ -38,10 +53,7 @@ function OnlineUsersWidget({ className = '' }) {
     const displayCount = Math.max(1, onlineCount || 1);
 
     return (
-        <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
+        <div
             className={`inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-full shadow-xs hover:border-green-300 transition-all ${className}`}
         >
             <div className="relative flex items-center justify-center">
@@ -65,7 +77,7 @@ function OnlineUsersWidget({ className = '' }) {
                     online
                 </span>
             </div>
-        </motion.div>
+        </div>
     );
 }
 

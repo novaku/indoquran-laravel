@@ -155,6 +155,30 @@ class QuranCacheService
     }
 
     /**
+     * Get all juz list (1-30) with caching
+     *
+     * @return array
+     */
+    public function getAllJuz(): array
+    {
+        return Cache::remember('quran_all_juz_list', 86400 * 30, function () {
+            return range(1, 30);
+        });
+    }
+
+    /**
+     * Get all page numbers list (1-604) with caching
+     *
+     * @return array
+     */
+    public function getAllPages(): array
+    {
+        return Cache::remember('quran_all_pages_list', 86400 * 30, function () {
+            return range(1, 604);
+        });
+    }
+
+    /**
      * Clear all Quran-related cache
      */
     public function clearCache(): void
@@ -176,6 +200,9 @@ class QuranCacheService
                 Cache::forget($pattern);
             }
         }
+
+        Cache::forget('quran_all_juz_list');
+        Cache::forget('quran_all_pages_list');
         
         Log::info('All Quran cache cleared');
     }
@@ -259,6 +286,17 @@ class QuranCacheService
         foreach ($popularSurahs as $surahNumber) {
             $this->getSurah($surahNumber);
             $this->getSurahAyahs($surahNumber);
+        }
+
+        // Preload Juz and Pages list
+        $this->getAllJuz();
+        $this->getAllPages();
+
+        // Preload SEO surahs keyed collection
+        try {
+            \App\Http\Controllers\SEOController::getAllSurahsKeyed();
+        } catch (\Throwable $e) {
+            Log::warning('Secondary cache warm-up encountered an error: ' . $e->getMessage());
         }
         
         Log::info('Cache warm-up completed');

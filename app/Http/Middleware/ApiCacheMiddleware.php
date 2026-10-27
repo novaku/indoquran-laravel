@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
 
 class ApiCacheMiddleware
@@ -16,39 +17,78 @@ class ApiCacheMiddleware
      */
     public function handle(Request $request, Closure $next, string $duration = '1h'): Response
     {
+        // Only apply caching to GET requests
+        if (!$request->isMethod('GET')) {
+            return $next($request);
+        }
+
+        $cacheTime = $this->parseDuration($duration);
+        $clientEtag = $request->header('If-None-Match');
+        $cacheKey = 'api_http_resp:' . md5($request->fullUrl());
+
+        // Check Redis server cache (skip only during testing)
+        if (!app()->environment('testing')) {
+            if (Cache::has($cacheKey)) {
+                $cached = Cache::get($cacheKey);
+                if (is_array($cached) && isset($cached['content'], $cached['etag'])) {
+                    // 304 Not Modified if client ETag matches
+                    if ($clientEtag && $clientEtag === $cached['etag']) {
+                        return response('', 304)->withHeaders([
+                            'Cache-Control' => "public, max-age={$cacheTime}, stale-while-revalidate=86400",
+                            'ETag' => $cached['etag'],
+                            'Expires' => gmdate('D, d M Y H:i:s', time() + $cacheTime) . ' GMT',
+                            'X-Cache' => 'HIT-304',
+                        ]);
+                    }
+
+                    return response($cached['content'], 200, [
+                        'Content-Type' => $cached['content_type'] ?? 'application/json',
+                        'Cache-Control' => "public, max-age={$cacheTime}, stale-while-revalidate=86400",
+                        'ETag' => $cached['etag'],
+                        'Expires' => gmdate('D, d M Y H:i:s', time() + $cacheTime) . ' GMT',
+                        'X-Cache' => 'HIT',
+                    ]);
+                }
+            }
+        }
+
         $response = $next($request);
         
-        // Only apply caching to successful GET requests
-        if ($request->isMethod('GET') && $response->getStatusCode() === 200) {
-            // In local/testing environment, disable browser caching so changes are immediately testable
-            if (app()->environment('local', 'testing')) {
-                $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate', true);
-                $response->headers->set('Pragma', 'no-cache', true);
-                $response->headers->set('Expires', '0', true);
-                return $response;
-            }
-
-            $cacheTime = $this->parseDuration($duration);
-            $etag = '"' . md5($response->getContent()) . '"';
+        // Cache successful 200 responses
+        if ($response->getStatusCode() === 200) {
+            $content = $response->getContent();
+            $etag = '"' . md5($content) . '"';
             
             // Handle conditional requests for 304 Not Modified
-            $clientEtag = $request->header('If-None-Match');
             if ($clientEtag && $clientEtag === $etag) {
                 return response('', 304)->withHeaders([
-                    'Cache-Control' => "public, max-age={$cacheTime}",
+                    'Cache-Control' => "public, max-age={$cacheTime}, stale-while-revalidate=86400",
                     'ETag' => $etag,
                     'Expires' => gmdate('D, d M Y H:i:s', time() + $cacheTime) . ' GMT',
+                    'X-Cache' => 'HIT-304',
                 ]);
             }
             
             // Set comprehensive cache headers
-            $response->headers->set('Cache-Control', "public, max-age={$cacheTime}", true);
+            $response->headers->set('Cache-Control', "public, max-age={$cacheTime}, stale-while-revalidate=86400", true);
             $response->headers->set('Expires', gmdate('D, d M Y H:i:s', time() + $cacheTime) . ' GMT', true);
             $response->headers->set('Last-Modified', gmdate('D, d M Y H:i:s') . ' GMT', true);
             $response->headers->set('ETag', $etag, true);
-            
-            // Remove potentially conflicting headers
+            $response->headers->set('X-Cache', 'MISS', true);
             $response->headers->remove('pragma');
+
+            // Store in Redis server-side cache
+            if (!app()->environment('testing')) {
+                try {
+                    Cache::put($cacheKey, [
+                        'content' => $content,
+                        'content_type' => $response->headers->get('Content-Type', 'application/json'),
+                        'etag' => $etag,
+                    ], $cacheTime);
+                } catch (\Throwable $e) {
+                    // Silently continue if cache store fails
+                }
+            }
         }
 
         return $response;

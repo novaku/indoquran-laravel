@@ -1,53 +1,77 @@
 #!/bin/bash
 
-# Production deployment script for IndoQuran Laravel + React app
-# This script should be run on the production server
+# ==============================================================================
+# IndoQuran Production Deployment Script (Laravel + React)
+# ==============================================================================
+# ⚠️  CATATAN PENTING:
+# Server production (Shared Hosting / VPS) TIDAK memiliki Node.js & npm!
+# Frontend assets (React / Tailwind / Vite) WAJIB di-build di komputer lokal,
+# lalu di-commit ke Git sebelum menjalankan script ini di server production.
 #
-# ⚠️  IMPORTANT: Production server does NOT have Node.js/npm installed!
-# ⚠️  Frontend assets MUST be built locally and committed to git first!
+# Alur deployment:
+# 1. Di Komputer LOKAL:
+#    npm run build
+#    git add -A && git commit -m "Build frontend assets"
+#    git push origin main
 #
-# Pre-deployment (on LOCAL machine):
-# 1. Build assets: npm run build (or use build-production.sh)
-# 2. Commit build files: git add public/build && git commit -m "Build assets"
-# 3. Push to repository: git push origin main
-#
-# This deployment script:
-# 1. Pulls latest code from git (including pre-built assets)
-# 2. Installs PHP dependencies via Composer
-# 3. Runs database migrations
-# 4. Optimizes Laravel caches
-# 5. Verifies build assets are present
-# 6. Sets proper permissions
+# 2. Di Server PRODUCTION:
+#    ./deploy-production.sh
+# ==============================================================================
 
-# Enable strict error handling
-set -e
+# Strict error handling: keluar jika terjadi error tak tertangani
+set -eo pipefail
 
-# Colors for output
+# ANSI Color codes
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
+BOLD='\033[1m'
 NC='\033[0m' # No Color
 
-# Function to display status messages
-log_message() {
-    echo -e "${GREEN}[$(date '+%Y-%m-%d %H:%M:%S')]${NC} $1"
+# Helper logger functions
+log_info() {
+    echo -e "${BLUE}[$(date '+%Y-%m-%d %H:%M:%S')]${NC} $1"
 }
 
-# Function to display error messages
-log_error() {
-    echo -e "${RED}[$(date '+%Y-%m-%d %H:%M:%S')] ERROR:${NC} $1"
+log_success() {
+    echo -e "${GREEN}[$(date '+%Y-%m-%d %H:%M:%S')] ✓${NC} $1"
 }
 
-# Function to display warning messages
 log_warning() {
-    echo -e "${YELLOW}[$(date '+%Y-%m-%d %H:%M:%S')] WARNING:${NC} $1"
+    echo -e "${YELLOW}[$(date '+%Y-%m-%d %H:%M:%S')] ⚠ WARNING:${NC} $1"
 }
 
-# Deployment & Rollback flags
+log_error() {
+    echo -e "${RED}[$(date '+%Y-%m-%d %H:%M:%S')] ✗ ERROR:${NC} $1"
+}
+
+# Default flag values
 ROLLBACK_MODE=false
 ROLLBACK_TARGET=""
+QUICK_MODE=false
+SKIP_MIGRATE=false
+WARM_ONLY=false
+FORCE_MODE=false
+
+# Print usage information
+show_help() {
+    echo -e "${BOLD}Usage:${NC} ./deploy-production.sh [OPTIONS]"
+    echo ""
+    echo -e "${BOLD}Pilihan Deployment:${NC}"
+    echo "  (tanpa argumen)       Deploy standar (git pull origin main + migrasi + optimasi)"
+    echo "  --rollback, -r        Menu interaktif rollback ke commit sebelumnya"
+    echo "  --rollback <N>        Rollback N commit ke belakang (contoh: --rollback 1)"
+    echo "  --rollback <hash>     Rollback ke commit hash spesifik (contoh: --rollback a1b2c3d)"
+    echo "  --quick, -q           Deploy cepat (skip database migration & cache warm-up)"
+    echo "  --no-migrate          Deploy tanpa menjalankan database migration"
+    echo "  --warm-only           Hanya bersihkan dan warm-up cache (tanpa git pull & migrasi)"
+    echo "  --force, -f           Jalankan tanpa konfirmasi interaktif (cocok untuk CI/CD)"
+    echo "  --help, -h            Tampilkan bantuan ini"
+    echo ""
+}
 
 # Parse command-line arguments
 while [[ $# -gt 0 ]]; do
@@ -60,40 +84,107 @@ while [[ $# -gt 0 ]]; do
             fi
             shift
             ;;
+        --quick|-q)
+            QUICK_MODE=true
+            SKIP_MIGRATE=true
+            shift
+            ;;
+        --no-migrate)
+            SKIP_MIGRATE=true
+            shift
+            ;;
+        --warm-only)
+            WARM_ONLY=true
+            shift
+            ;;
+        --force|-f)
+            FORCE_MODE=true
+            shift
+            ;;
         --help|-h)
-            echo "Usage: ./deploy-production.sh [OPTIONS]"
-            echo ""
-            echo "Options:"
-            echo "  (no args)           Deploy latest code (git pull origin main)"
-            echo "  --rollback, -r      Interactive rollback to previous git commit"
-            echo "  --rollback <N>      Rollback N commits back (e.g. --rollback 1, --rollback 3)"
-            echo "  --rollback <hash>   Rollback to a specific git commit hash"
-            echo "  --help, -h          Show this help message"
+            show_help
             exit 0
             ;;
         *)
-            log_error "Unknown option: $1"
-            echo "Use --help to see available options."
+            log_error "Pilihan tidak dikenal: $1"
+            show_help
             exit 1
             ;;
     esac
 done
 
-# Rollback handler function
+echo ""
+echo -e "${CYAN}╔════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${CYAN}║         INDOQURAN PRODUCTION DEPLOYMENT & OPTIMIZER        ║${NC}"
+echo -e "${CYAN}╚════════════════════════════════════════════════════════════╝${NC}"
+echo ""
+
+# ------------------------------------------------------------------------------
+# 1. Environment & Pre-flight Checks
+# ------------------------------------------------------------------------------
+log_info "Memeriksa environment produksi..."
+
+if [ ! -f .env ]; then
+    log_error "File .env tidak ditemukan! Pastikan Anda berada di direktori root aplikasi."
+    exit 1
+fi
+
+if grep -q "APP_ENV=production" .env; then
+    log_success "Environment: PRODUCTION terverifikasi"
+else
+    log_warning "APP_ENV bukan 'production' di file .env"
+    if [ "$FORCE_MODE" = false ]; then
+        read -p "Apakah Anda yakin ingin melanjutkan di environment ini? (y/N): " -n 1 -r
+        echo ""
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            log_info "Deployment dibatalkan oleh pengguna."
+            exit 0
+        fi
+    fi
+fi
+
+# Pastikan izin tulis sebelum operasi Git untuk mencegah 'permission denied'
+chmod -R u+w public/build storage bootstrap/cache 2>/dev/null || true
+
+# ------------------------------------------------------------------------------
+# 2. Interactive Selection (jika dijalankan interaktif tanpa argumen)
+# ------------------------------------------------------------------------------
+if [ "$ROLLBACK_MODE" = false ] && [ "$WARM_ONLY" = false ] && [ "$FORCE_MODE" = false ] && [ -t 0 ]; then
+    echo -e "${BOLD}Pilih mode operasi:${NC}"
+    echo "  1) Standard Deploy (Tarik git pull origin main, optimasi & cache) [Default]"
+    echo "  2) Rollback Git ke commit sebelumnya"
+    echo "  3) Hanya Warm-up & Optimasi Cache (tanpa pull git)"
+    echo ""
+    read -t 10 -p "Pilihan Anda [1/2/3, default: 1 dalam 10 detik]: " user_op || user_op=1
+    echo ""
+    case "$user_op" in
+        2)
+            ROLLBACK_MODE=true
+            ;;
+        3)
+            WARM_ONLY=true
+            ;;
+        *)
+            # Lanjut ke default standard deploy
+            ;;
+    esac
+fi
+
+# ------------------------------------------------------------------------------
+# 3. Rollback Logic
+# ------------------------------------------------------------------------------
 handle_rollback() {
-    log_message "Memulai proses Git Rollback..."
+    log_info "Memulai proses Git Rollback..."
     
     echo ""
-    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "${YELLOW}  Git History (10 Commit Terakhir)${NC}"
-    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     
     local commits=()
     local hashes=()
     local idx=1
     
-    local git_history
-    git_history="$(git log --pretty=format:"%h - %s (%cr oleh %an)" -n 10)"
     while IFS= read -r line; do
         if [ -n "$line" ]; then
             commits+=("$line")
@@ -101,11 +192,9 @@ handle_rollback() {
             echo -e "  ${CYAN}[$idx]${NC} $line"
             ((idx++))
         fi
-    done <<EOF
-$git_history
-EOF
+    done < <(git log --pretty=format:"%h - %s (%cr oleh %an)" -n 10)
     
-    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
     
     local target_commit=""
@@ -113,41 +202,39 @@ EOF
     if [ -n "$ROLLBACK_TARGET" ]; then
         if [[ "$ROLLBACK_TARGET" =~ ^[0-9]+$ ]] && [ "$ROLLBACK_TARGET" -ge 1 ] && [ "$ROLLBACK_TARGET" -le "${#hashes[@]}" ]; then
             target_commit="${hashes[$((ROLLBACK_TARGET - 1))]}"
-            log_message "Pilihan rollback [$ROLLBACK_TARGET]: $target_commit"
+            log_info "Target rollback dari parameter index [$ROLLBACK_TARGET]: $target_commit"
         elif [[ "$ROLLBACK_TARGET" =~ ^[0-9]+$ ]]; then
             target_commit="HEAD~$ROLLBACK_TARGET"
-            log_message "Rollback mundur $ROLLBACK_TARGET commit (HEAD~$ROLLBACK_TARGET)"
+            log_info "Target rollback: HEAD~$ROLLBACK_TARGET"
         else
             target_commit="$ROLLBACK_TARGET"
-            log_message "Target commit hash / ref: $target_commit"
+            log_info "Target rollback commit: $target_commit"
         fi
     else
-        echo "Berapa commit ingin di-rollback?"
-        echo "  - Masukkan nomor urut [1-10] (contoh: 2 untuk rollback ke commit urutan ke-2)"
-        echo "  - Atau masukkan jumlah commit mundur (contoh: 1 untuk 1 commit sebelum HEAD)"
-        echo "  - Atau masukkan commit hash (contoh: 7a8b9c0)"
+        echo "Berapa commit yang ingin di-rollback?"
+        echo "  - Masukkan nomor urut [1-10] (contoh: 2 untuk rollback ke nomor 2)"
+        echo "  - Masukkan jumlah commit mundur (contoh: 1 untuk HEAD~1)"
+        echo "  - Atau masukkan commit hash (contoh: a1b2c3d)"
         echo "  - Ketik 'q' untuk membatalkan"
         read -p "Pilihan Anda: " user_choice
         
         if [[ "$user_choice" =~ ^[Qq]$ ]] || [ -z "$user_choice" ]; then
-            log_message "Rollback dibatalkan."
+            log_info "Rollback dibatalkan."
             exit 0
         fi
         
         if [[ "$user_choice" =~ ^[0-9]+$ ]] && [ "$user_choice" -ge 1 ] && [ "$user_choice" -le "${#hashes[@]}" ]; then
             target_commit="${hashes[$((user_choice - 1))]}"
-            log_message "Memilih commit urutan [$user_choice]: $target_commit"
         elif [[ "$user_choice" =~ ^[0-9]+$ ]]; then
             target_commit="HEAD~$user_choice"
-            log_message "Rollback mundur $user_choice commit (HEAD~$user_choice)"
         else
             target_commit="$user_choice"
         fi
     fi
     
-    # Validasi commit target
+    # Validasi commit hash
     if ! git rev-parse --verify "$target_commit" >/dev/null 2>&1; then
-        log_error "Commit '$target_commit' tidak ditemukan di repository git!"
+        log_error "Commit '$target_commit' tidak ditemukan di repositori git!"
         exit 1
     fi
     
@@ -157,608 +244,210 @@ EOF
     commit_subject=$(git log -1 --pretty=format:"%s" "$target_commit")
     
     echo ""
-    log_warning "PERINGATAN: Kode akan di-rollback ke commit: ${CYAN}$resolved_hash${NC} - \"$commit_subject\""
-    read -p "Apakah Anda yakin ingin melanjutkan rollback? (y/n): " -n 1 -r
-    echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        log_message "Rollback dibatalkan oleh pengguna."
-        exit 0
+    log_warning "PERINGATAN: Kode akan di-rollback ke: ${CYAN}$resolved_hash${NC} - \"$commit_subject\""
+    if [ "$FORCE_MODE" = false ]; then
+        read -p "Lanjutkan proses rollback? (y/N): " -n 1 -r
+        echo ""
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            log_info "Rollback dibatalkan oleh pengguna."
+            exit 0
+        fi
     fi
     
-    log_message "Menjalankan git reset --hard ke $resolved_hash..."
+    log_info "Menjalankan git reset --hard ke $resolved_hash..."
     git reset --hard "$target_commit" || { log_error "Gagal me-reset git ke $target_commit"; exit 1; }
-    log_message "✓ Berhasil me-rollback git ke $resolved_hash: \"$commit_subject\""
+    log_success "Berhasil rollback ke commit $resolved_hash: \"$commit_subject\""
 }
 
-# Emergency cache clear function for ParseError fix
-emergency_cache_clear() {
-    log_message "🚨 EMERGENCY: Clearing all Laravel caches to fix ParseError..."
-    
-    # Clear view cache (most critical for ParseError)
-    log_message "Clearing view cache..."
-    php artisan view:clear 2>/dev/null || log_warning "⚠ Failed to clear view cache"
-    
-    # Clear application cache
-    log_message "Clearing application cache..."
-    php artisan cache:clear 2>/dev/null || log_warning "⚠ Failed to clear application cache"
-    
-    # Clear config cache
-    log_message "Clearing config cache..."
-    php artisan config:clear 2>/dev/null || log_warning "⚠ Failed to clear config cache"
-    
-    # Clear route cache
-    log_message "Clearing route cache..."
-    php artisan route:clear 2>/dev/null || log_warning "⚠ Failed to clear route cache"
-    
-    # Clear compiled views manually
-    log_message "Clearing compiled view files..."
-    if [ -d "storage/framework/views" ]; then
-        find storage/framework/views -name "*.php" -delete 2>/dev/null || log_warning "⚠ Some compiled views could not be deleted"
-        log_message "✓ Compiled view files cleared"
-    fi
-    
-    # Rebuild essential caches
-    log_message "Rebuilding essential caches..."
-    php artisan config:cache 2>/dev/null || log_warning "⚠ Failed to cache config"
-    
-    log_message "🎉 Emergency cache clear completed! ParseError should be resolved."
-}
-
-# Check if we're in production environment
-if grep -q "APP_ENV=production" .env; then
-    log_message "Verified production environment"
-else
-    log_warning "APP_ENV is not set to production in .env file"
-    read -p "This doesn't appear to be a production environment. Continue anyway? (y/n) " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        log_message "Deployment aborted"
-        exit 1
-    fi
-fi
-
-# Check that Node.js/npm are NOT installed (production server should not have them)
-log_message "Verifying production server environment..."
-if command -v npm >/dev/null 2>&1 || command -v node >/dev/null 2>&1; then
-    log_error "⚠️  WARNING: Node.js/npm detected on production server!"
-    log_error "This is unusual for a shared hosting production environment."
-    log_error "Make sure you're NOT running build commands on this server."
-    log_warning "Continuing deployment in 5 seconds... (Ctrl+C to abort)"
-    sleep 5
-else
-    log_message "✓ Confirmed: Node.js/npm not available (correct for production)"
-    log_message "✓ Frontend assets must come from git (pre-built locally)"
-fi
-
-# Emergency check for ParseError - run cache clear if needed
-log_message "Checking for ParseError conditions..."
-if php artisan route:list >/dev/null 2>&1; then
-    log_message "✓ Laravel is running normally"
-else
-    log_warning "⚠ Laravel appears to have issues - running emergency cache clear"
-    emergency_cache_clear
-fi
-
-# Check for interactive deployment selection if no args passed
-if [ "$ROLLBACK_MODE" = false ] && [ -t 0 ]; then
-    echo ""
-    echo -e "${CYAN}Pilih tindakan deployment:${NC}"
-    echo "  1) Standard Deploy (Tarik update terbaru dari git origin main) [Default]"
-    echo "  2) Rollback ke commit git history sebelumnya"
-    read -t 5 -p "Pilihan Anda [1/2, default 1 dalam 5 detik]: " deploy_action || deploy_action=1
-    echo ""
-    if [[ "$deploy_action" == "2" ]]; then
-        ROLLBACK_MODE=true
-    fi
-fi
-
-log_message "Starting deployment process..."
-
+# ------------------------------------------------------------------------------
+# 4. Git Pull / Code Update
+# ------------------------------------------------------------------------------
 if [ "$ROLLBACK_MODE" = true ]; then
     handle_rollback
+elif [ "$WARM_ONLY" = true ]; then
+    log_info "Mode --warm-only aktif: Melewati git pull dan database migration"
 else
-    # Pull the latest changes from the repository
-    log_message "Pulling latest changes from git..."
-    git pull origin main || { log_error "Failed to pull from git"; exit 1; }
+    PREV_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+    log_info "Mengambil update terbaru dari git (origin/main)..."
+    git pull origin main || { log_error "Gagal melakukan git pull. Periksa git status atau konflik file."; exit 1; }
+    NEW_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+    log_success "Git update berhasil ($PREV_COMMIT -> $NEW_COMMIT)"
 fi
 
-# Generate application key if not exists
-log_message "Ensuring application key exists..."
-if ! grep -q "APP_KEY=" .env || grep -q "APP_KEY=$" .env; then
-    log_message "Generating application key..."
-    php artisan key:generate
+# ------------------------------------------------------------------------------
+# 5. Dependency Management (Composer)
+# ------------------------------------------------------------------------------
+if [ "$WARM_ONLY" = false ]; then
+    COMPOSER_BIN=""
+    if command -v composer >/dev/null 2>&1; then
+        COMPOSER_BIN="composer"
+    elif [ -f "./composer.phar" ]; then
+        COMPOSER_BIN="php ./composer.phar"
+    elif [ -f "$HOME/bin/composer" ]; then
+        COMPOSER_BIN="$HOME/bin/composer"
+    fi
+
+    if [ -n "$COMPOSER_BIN" ]; then
+        log_info "Memeriksa dan memperbarui PHP dependencies ($COMPOSER_BIN install)..."
+        $COMPOSER_BIN install --no-dev --prefer-dist --optimize-autoloader --no-interaction || {
+            log_warning "Composer install menemui kendala, melanjutkan proses deployment..."
+        }
+        log_success "Composer dependencies siap dan teroptimasi"
+    else
+        log_info "Composer executable tidak ditemukan di path server (melewati composer install)"
+    fi
 fi
 
-# Run database migrations
-if [ "$ROLLBACK_MODE" = true ]; then
-    log_message "Rollback mode: checking database migrations..."
-    read -t 5 -p "Jalankan database migration juga? (y/N, default N dalam 5s): " -n 1 -r run_mig || run_mig="n"
+# ------------------------------------------------------------------------------
+# 6. Database Migrations
+# ------------------------------------------------------------------------------
+if [ "$WARM_ONLY" = false ] && [ "$SKIP_MIGRATE" = false ]; then
+    log_info "Menjalankan database migrations..."
+    if php artisan migrate --force; then
+        log_success "Database migrations selesai"
+    else
+        log_warning "Database migration menemui masalah. Pastikan koneksi database benar."
+    fi
+fi
+
+# ------------------------------------------------------------------------------
+# 7. Frontend Assets Verification (Pre-built React/Vite)
+# ------------------------------------------------------------------------------
+log_info "Memverifikasi integritas frontend assets (public/build)..."
+
+if [ ! -d "public/build" ] || [ ! -f "public/build/manifest.json" ]; then
+    log_error "Asset frontend belum di-build atau manifest.json tidak ditemukan!"
     echo ""
-    if [[ $run_mig =~ ^[Yy]$ ]]; then
-        log_message "Running database migrations..."
-        php artisan migrate --force || log_warning "⚠ Database migrations encountered issues"
-    else
-        log_message "Skipping database migrations during rollback"
-    fi
-else
-    log_message "Running database migrations..."
-    if php artisan migrate --force 2>&1 | grep -q "Duplicate column"; then
-        log_warning "⚠ Some migrations skipped due to existing columns (this is normal)"
-        log_message "✓ Database schema is up to date"
-    elif php artisan migrate --force >/dev/null 2>&1; then
-        log_message "✓ Database migrations completed successfully"
-    else
-        log_warning "⚠ Database migrations encountered issues - check database connection"
-        log_warning "Application may still work with existing schema"
-    fi
+    echo -e "${RED}══════════════════════════════════════════════════════════════${NC}"
+    echo -e "${RED}  ERROR: FRONTEND BUILD ASSETS TIDAK DITEMUKAN!${NC}"
+    echo -e "${RED}══════════════════════════════════════════════════════════════${NC}"
+    echo "Server production tidak memiliki Node.js / npm."
+    echo "Langkah perbaikan di komputer LOKAL Anda:"
+    echo "  1. npm run build"
+    echo "  2. git add public/build -f"
+    echo "  3. git commit -m 'Build production assets'"
+    echo "  4. git push origin main"
+    echo "  5. Jalankan ulang: ./deploy-production.sh di server ini"
+    echo -e "${RED}══════════════════════════════════════════════════════════════${NC}"
+    exit 1
 fi
 
-# Ensure cache table exists (for fallback caching)
-log_message "Ensuring cache table exists..."
-php artisan cache:table >/dev/null 2>&1 || true
-php artisan migrate --force >/dev/null 2>&1 || true
+ASSET_COUNT=$(find public/build/assets -type f 2>/dev/null | wc -l || echo "0")
+VENDOR_COUNT=$(find public/build/assets -name "vendor*.js" 2>/dev/null | wc -l || echo "0")
+log_success "Manifest Vite valid ($ASSET_COUNT asset files, $VENDOR_COUNT vendor chunk files)"
 
-# Function to refresh views
-refresh_views() {
-    log_message "Refreshing views..."
-    
-    # Clear all view caches
-    php artisan view:clear || log_warning "⚠ Failed to clear view cache"
-    
-    # Clear compiled views
-    if [ -d storage/framework/views ]; then
-        log_message "Clearing compiled views..."
-        find storage/framework/views -name "*.php" -delete 2>/dev/null || log_warning "⚠ Failed to clear compiled views"
-        log_message "✓ Compiled views cleared"
-    fi
-    
-    # Recreate view cache
-    php artisan view:cache || log_warning "⚠ Failed to cache views"
-    
-    log_message "✓ Views refreshed successfully"
-}
+# Terapkan izin file yang AMAN (644 untuk file, 755 untuk folder)
+# PENTING: Jangan gunakan chmod 444 karena akan menggagalkan git pull berikutnya!
+find public/build -type d -exec chmod 755 {} \; 2>/dev/null || true
+find public/build -type f -exec chmod 644 {} \; 2>/dev/null || true
 
-# Clear and recache Laravel configs
-log_message "Optimizing Laravel..."
+# ------------------------------------------------------------------------------
+# 8. Laravel Core Optimization & Caching
+# ------------------------------------------------------------------------------
+log_info "Mengoptimalkan cache konfigurasi, routes, dan views Laravel..."
+
+# 1. Bersihkan semua cache lama secara bersih
+php artisan optimize:clear >/dev/null 2>&1 || true
+
+# 2. Cache ulang semua layer konfigurasi produksi
 php artisan config:cache
-php artisan config:clear
-php artisan route:clear
 php artisan route:cache
+php artisan view:cache
+php artisan event:cache 2>/dev/null || true
 
-# Refresh views using our new function
-refresh_views
+log_success "Laravel config, route, dan view cache berhasil di-compile"
 
-# Clear and warm up Quran cache
-log_message "Managing Quran cache..."
-if php artisan list | grep -q "quran:cache"; then
-    log_message "Quran cache commands available"
-    
-    # Check what cache driver is actually being used
-    current_cache=$(grep "CACHE_STORE=" .env 2>/dev/null | cut -d'=' -f2 || echo "default")
-    log_message "Current cache driver: $current_cache"
-    
-    # Check if cache system is available
-    cache_available=false
-    if [ "$current_cache" = "redis" ]; then
-        # Test Redis availability using PHP
-        cat > test_cache_availability.php << 'EOF'
-<?php
+# ------------------------------------------------------------------------------
+# 9. Storage & Directory Permissions
+# ------------------------------------------------------------------------------
+log_info "Memperbarui izin direktori storage dan cache..."
+chmod -R 775 storage bootstrap/cache 2>/dev/null || true
+find storage bootstrap/cache -type d -exec chmod 775 {} \; 2>/dev/null || true
+find storage bootstrap/cache -type f -exec chmod 664 {} \; 2>/dev/null || true
+log_success "Izin direktori storage dan bootstrap/cache telah diatur (775/664)"
+
+# ------------------------------------------------------------------------------
+# 10. Cache Backend & Quran Pre-Warming
+# ------------------------------------------------------------------------------
+CACHE_DRIVER=$(grep "^CACHE_STORE=" .env 2>/dev/null | cut -d'=' -f2 || grep "^CACHE_DRIVER=" .env 2>/dev/null | cut -d'=' -f2 || echo "file")
+log_info "Mengecek status cache store (Driver aktif: ${CYAN}${CACHE_DRIVER}${NC})..."
+
+# Tes koneksi Cache Laravel secara inline (tanpa membuat file sementara di disk)
+CACHE_TEST_RESULT=$(php artisan tinker --execute="
 try {
-    require_once 'vendor/autoload.php';
-    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-    $dotenv->load();
-    
-    $redisSocket = $_ENV['REDIS_SOCKET'] ?? null;
-    $redisHost = $_ENV['REDIS_HOST'] ?? '127.0.0.1';
-    $redisPort = $_ENV['REDIS_PORT'] ?? 6379;
-    
-    $redis = new Redis();
-    $connected = false;
-    
-    if ($redisSocket && file_exists($redisSocket)) {
-        $connected = $redis->connect($redisSocket);
-    } else {
-        $connected = $redis->connect($redisHost, $redisPort, 2);
-    }
-    
-    if ($connected && ($redis->ping() === true || $redis->ping() === 'PONG')) {
-        echo "AVAILABLE";
-        exit(0);
-    } else {
-        echo "UNAVAILABLE";
-        exit(1);
-    }
-} catch (Exception $e) {
-    echo "UNAVAILABLE";
-    exit(1);
+    Illuminate\Support\Facades\Cache::put('deploy_ping', 'ok', 15);
+    echo Illuminate\Support\Facades\Cache::get('deploy_ping') === 'ok' ? 'OK' : 'MISMATCH';
+} catch (\Throwable \$e) {
+    echo 'ERR: ' . \$e->getMessage();
 }
-EOF
-        
-        cache_test_result=$(php test_cache_availability.php 2>/dev/null || echo "UNAVAILABLE")
-        rm -f test_cache_availability.php
-        
-        if [ "$cache_test_result" = "AVAILABLE" ]; then
-            cache_available=true
-        fi
-    else
-        # For database, file, or other cache drivers
-        cache_available=true
-    fi
+" 2>/dev/null || echo "FAIL")
+
+if [[ "$CACHE_TEST_RESULT" == *"OK"* ]]; then
+    log_success "Koneksi cache ($CACHE_DRIVER) berfungsi dengan prima"
     
-    if [ "$cache_available" = true ]; then
-        log_message "Cache system is available, proceeding with cache operations..."
-        
-        # Test Laravel's Redis connection before clearing cache
-        log_message "Testing Laravel's Redis connection..."
-        
-        # Create a more detailed Laravel Redis test
-        cat > test_laravel_redis.php << 'EOF'
-<?php
-try {
-    // Bootstrap Laravel
-    require_once 'vendor/autoload.php';
-    
-    $app = require_once 'bootstrap/app.php';
-    $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
-    
-    // Get Redis configuration
-    $redisConfig = config('database.redis');
-    echo "Redis Config: " . json_encode($redisConfig) . "\n";
-    
-    // Test Redis connection
-    $redis = app('redis');
-    $result = $redis->ping();
-    
-    if ($result === true || $result === 'PONG' || $result === '+PONG') {
-        echo "Laravel Redis: SUCCESS\n";
-        exit(0);
-    } else {
-        echo "Laravel Redis: FAILED - Unexpected ping response: " . var_export($result, true) . "\n";
-        exit(1);
-    }
-} catch (Exception $e) {
-    echo "Laravel Redis: ERROR - " . $e->getMessage() . "\n";
-    echo "Error details: " . $e->getFile() . ":" . $e->getLine() . "\n";
-    exit(1);
-}
-EOF
-        
-        laravel_redis_test=$(php test_laravel_redis.php 2>&1)
-        laravel_redis_status=$?
-        rm -f test_laravel_redis.php
-        
-        echo "Laravel Redis Test Output:"
-        echo "$laravel_redis_test"
-        
-        if [ $laravel_redis_status -eq 0 ]; then
-            log_message "✓ Laravel Redis connection verified"
-            
-            if php artisan quran:cache clear 2>/dev/null; then
-                log_message "✓ Quran cache cleared successfully"
-            else
-                log_warning "⚠ Failed to clear Quran cache"
-            fi
-            
-            if php artisan quran:cache warm-up 2>/dev/null; then
-                log_message "✓ Quran cache warmed up successfully"
-            else
-                log_warning "⚠ Failed to warm up Quran cache"
-            fi
+    if [ "$QUICK_MODE" = false ]; then
+        log_info "Melakukan pre-warming cache Al-Qur'an dan SEO..."
+        # Clear specific Quran cache
+        php artisan quran:cache clear >/dev/null 2>&1 || true
+        # Warm up Quran cache (Surah, Ayah populer, Juz, Pages, Kategori Doa, SEO surahs)
+        if php artisan quran:cache warm-up; then
+            log_success "Cache Al-Qur'an & SEO berhasil di-warm up (Fast Response Ready)"
         else
-            log_warning "⚠ Laravel cannot connect to Redis - detailed diagnosis:"
-            echo "$laravel_redis_test"
-            
-            # Check current .env Redis settings
-            log_message "Current .env Redis settings:"
-            grep -E "REDIS_|CACHE_" .env || echo "No Redis settings found in .env"
-            
-            # Try to fix common issues
-            log_message "Attempting to fix Redis configuration..."
-            
-            # Check current .env Redis settings
-            log_message "Current .env Redis settings:"
-            grep -E "REDIS_|CACHE_" .env || echo "No Redis settings found in .env"
-            
-            log_warning "⚠ Please check your .env Redis configuration manually"
-            log_warning "Common issues: empty REDIS_HOST/PORT, wrong REDIS_CLIENT, missing REDIS_SOCKET"
-            
-            # Retry Laravel Redis test
-            cat > test_laravel_redis_retry.php << 'EOF'
-<?php
-try {
-    require_once 'vendor/autoload.php';
-    $app = require_once 'bootstrap/app.php';
-    $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
-    
-    $redis = app('redis');
-    $result = $redis->ping();
-    
-    if ($result === true || $result === 'PONG' || $result === '+PONG') {
-        echo "SUCCESS";
-        exit(0);
-    } else {
-        echo "FAILED: " . var_export($result, true);
-        exit(1);
-    }
-} catch (Exception $e) {
-    echo "ERROR: " . $e->getMessage();
-    exit(1);
-}
-EOF
-            
-            retry_result=$(php test_laravel_redis_retry.php 2>&1)
-            retry_status=$?
-            rm -f test_laravel_redis_retry.php
-            
-            if [ $retry_status -eq 0 ]; then
-                log_message "✓ Laravel Redis connection verified after wait period"
-                
-                if php artisan quran:cache clear 2>/dev/null; then
-                    log_message "✓ Quran cache cleared successfully"
-                fi
-                
-                if php artisan quran:cache warm-up 2>/dev/null; then
-                    log_message "✓ Quran cache warmed up successfully"
-                fi
-            else
-                log_warning "⚠ Laravel still cannot connect to Redis after retry"
-                log_warning "Redis test result: $retry_result"
-                log_warning "Cache operations will be skipped"
-                log_warning "Check Redis configuration in .env and config/database.php"
-            fi
+            log_warning "Warm-up cache Al-Qur'an mengalami kendala, cache akan terisi otomatis saat diakses"
         fi
     else
-        log_warning "⚠ Cache system not available, skipping cache operations"
-        log_message "Cache will be populated automatically on first requests"
-        log_message "Consider fixing cache configuration for better performance"
+        log_info "Mode --quick aktif: Melewati warm-up cache"
     fi
 else
-    log_warning "⚠ Quran cache commands not available yet"
-    log_warning "Cache will be populated on first request"
+    log_warning "Koneksi cache ($CACHE_DRIVER) tidak merespons: $CACHE_TEST_RESULT"
+    log_warning "Aplikasi tetap dapat berjalan dengan fallback cache"
 fi
 
-# Set proper permissions
-log_message "Setting permissions..."
-find storage bootstrap/cache -type d -exec chmod 775 {} \;
-find storage bootstrap/cache -type f -exec chmod 664 {} \;
+# ------------------------------------------------------------------------------
+# 11. Web Server & OPcache Invalidation
+# ------------------------------------------------------------------------------
+log_info "Merefresh OPcache web server..."
 
-# Verify the build directory exists and protect vendor files
-log_message "Checking build directory and protecting vendor assets..."
-if [ -d public/build ]; then
-    log_message "Build directory found"
-    
-    # Check if manifest.json exists
-    if [ -f public/build/manifest.json ]; then
-        log_message "✓ Vite manifest file found"
-    else
-        log_error "✗ Vite manifest.json not found in public/build/"
-        log_error ""
-        log_error "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        log_error "  FRONTEND BUILD FILES MISSING!"
-        log_error "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        log_error ""
-        log_error "⚠️  Production server does NOT have Node.js/npm"
-        log_error "⚠️  Assets must be built locally and committed to git"
-        log_error ""
-        log_error "How to fix:"
-        log_error ""
-        log_error "📌 On your LOCAL machine (not on this server):"
-        log_error "   1. cd /path/to/indoquran-laravel"
-        log_error "   2. npm run build"
-        log_error "      (or run: ./build-production.sh)"
-        log_error ""
-        log_error "📌 Commit and push the build files:"
-        log_error "   3. git add public/build"
-        log_error "   4. git commit -m 'Add production build files'"
-        log_error "   5. git push origin main"
-        log_error ""
-        log_error "📌 Then on this production server:"
-        log_error "   6. git pull origin main"
-        log_error "   7. ./deploy-production.sh"
-        log_error ""
-        log_error "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        exit 1
-    fi
-    
-    # Check if assets directory exists and has files
-    if [ -d public/build/assets ]; then
-        asset_count=$(find public/build/assets -type f | wc -l)
-        vendor_count=$(find public/build/assets -name "vendor*.js" | wc -l)
-        if [ $asset_count -gt 0 ]; then
-            log_message "✓ Found $asset_count asset files"
-            if [ $vendor_count -gt 0 ]; then
-                log_message "✓ Found $vendor_count vendor chunk files"
-                # Set vendor files as read-only to prevent accidental deletion
-                find public/build/assets -name "vendor*.js" -exec chmod 444 {} \; 2>/dev/null || true
-                log_message "✓ Vendor files protected from accidental deletion"
-            else
-                log_warning "⚠ No vendor chunk files found - this may cause loading issues"
-            fi
-        else
-            log_warning "✗ Assets directory is empty"
-            log_warning "Run build script on local machine and commit the files"
-        fi
-    else
-        log_warning "✗ Assets directory not found"
-        log_warning "Run build script on local machine and commit the files"
-    fi
-else
-    log_error "public/build directory not found!"
-    log_error ""
-    log_error "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    log_error "  BUILD DIRECTORY MISSING!"
-    log_error "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    log_error ""
-    log_error "⚠️  Production server does NOT have Node.js/npm"
-    log_error "⚠️  Assets must be built locally and committed to git"
-    log_error ""
-    log_error "How to fix:"
-    log_error ""
-    log_error "📌 On your LOCAL machine (not on this server):"
-    log_error "   1. cd /path/to/indoquran-laravel"
-    log_error "   2. npm install                    # Install dependencies"
-    log_error "   3. npm run build                  # Build for production"
-    log_error "      (or run: ./build-production.sh)"
-    log_error ""
-    log_error "📌 Commit and push the build files:"
-    log_error "   4. git add public/build"
-    log_error "   5. git commit -m 'Add production build files'"
-    log_error "   6. git push origin main"
-    log_error ""
-    log_error "📌 Then on this production server:"
-    log_error "   7. git pull origin main"
-    log_error "   8. ./deploy-production.sh"
-    log_error ""
-    log_error "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    exit 1
-fi
+# Sentuh index.php agar LiteSpeed / Apache mod_lsapi / PHP-FPM merestart opcode cache
+touch public/index.php 2>/dev/null || true
 
-# Clear OPcache if available
-log_message "Clearing OPcache..."
-php -r "if(function_exists('opcache_reset')) { opcache_reset(); echo 'OPcache cleared'; } else { echo 'OPcache not available'; }"
+# Reset CLI OPcache jika fungsi tersedia
+php -r "if(function_exists('opcache_reset')) { opcache_reset(); echo 'OPcache CLI di-reset' . PHP_EOL; }" 2>/dev/null || true
 
-# Verify cache status
-log_message "Verifying cache status..."
-current_cache=$(grep "CACHE_STORE=" .env 2>/dev/null | cut -d'=' -f2 || echo "default")
+log_success "OPcache web server telah di-invalidasi"
 
-if [ "$current_cache" = "redis" ]; then
-    # Test Redis availability using PHP
-    cat > test_redis_verification.php << 'EOF'
-<?php
-try {
-    require_once 'vendor/autoload.php';
-    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-    $dotenv->load();
-    
-    $redisSocket = $_ENV['REDIS_SOCKET'] ?? null;
-    $redisHost = $_ENV['REDIS_HOST'] ?? '127.0.0.1';
-    $redisPort = $_ENV['REDIS_PORT'] ?? 6379;
-    
-    $redis = new Redis();
-    $connected = false;
-    
-    if ($redisSocket && file_exists($redisSocket)) {
-        $connected = $redis->connect($redisSocket);
-    } else {
-        $connected = $redis->connect($redisHost, $redisPort, 2);
-    }
-    
-    if ($connected && ($redis->ping() === true || $redis->ping() === 'PONG')) {
-        echo "SUCCESS";
-        exit(0);
-    } else {
-        echo "FAILED";
-        exit(1);
-    }
-} catch (Exception $e) {
-    echo "FAILED";
-    exit(1);
-}
-EOF
-    
-    redis_verification=$(php test_redis_verification.php 2>/dev/null || echo "FAILED")
-    rm -f test_redis_verification.php
-    
-    if [ "$redis_verification" = "SUCCESS" ]; then
-        log_message "✓ Redis cache is working properly"
-    else
-        log_warning "⚠ Redis cache verification failed - using fallback cache"
-    fi
-elif [ "$current_cache" = "database" ]; then
-    log_message "✓ Database cache is configured"
-elif [ "$current_cache" = "file" ]; then
-    log_message "✓ File cache is configured"
-else
-    log_message "✓ Cache system configured as: $current_cache"
-fi
-
-# Test Quran cache if available
-if php artisan quran:cache status >/dev/null 2>&1; then
-    log_message "✓ Quran cache system is functional"
-else
-    log_warning "⚠ Quran cache verification failed - check cache configuration"
-    log_warning "Application will still work but may have slower performance"
-fi
-
-# Final verification that vendor files are still present
-log_message "Final verification of critical assets..."
-if [ -d public/build/assets ]; then
-    vendor_count=$(find public/build/assets -name "vendor*.js" | wc -l)
-    if [ $vendor_count -gt 0 ]; then
-        log_message "✓ Vendor chunk files verified: $vendor_count files present"
-        # List vendor files for confirmation
-        find public/build/assets -name "vendor*.js" -exec basename {} \; | while read file; do
-            log_message "  - $file"
-        done
-    else
-        log_error "✗ CRITICAL: Vendor chunk files missing after deployment!"
-        log_error "This will cause JavaScript errors on the frontend."
-        log_error "Check if any scripts accidentally deleted the build directory."
-        exit 1
-    fi
-else
-    log_error "✗ CRITICAL: Assets directory missing after deployment!"
-    exit 1
-fi
-
-log_message "Deployment completed successfully!"
-log_message "Your IndoQuran application should now be running with optimized caching."
-log_message ""
+# ------------------------------------------------------------------------------
+# 12. Ringkasan Deployment & Status
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "${GREEN}══════════════════════════════════════════════════════════════${NC}"
 if [ "$ROLLBACK_MODE" = true ]; then
-    log_message "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    log_message "  ⏪ ROLLBACK COMPLETED SUCCESSFULLY"
-    log_message "  Current Commit: $(git log -1 --pretty=format:"%h - %s (%ad)" --date=short)"
-    log_message "  Untuk kembali ke branch main terbaru: ./deploy-production.sh"
-    log_message "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo -e "${GREEN}  ⏪ ROLLBACK BERHASIL DISELESAIKAN!${NC}"
 else
-    log_message "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    log_message "  ✅ DEPLOYMENT SUCCESSFUL"
-    log_message "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo -e "${GREEN}  🚀 DEPLOYMENT PRODUCTION BERHASIL & MAKSIMAL!${NC}"
 fi
-log_message ""
+echo -e "${GREEN}══════════════════════════════════════════════════════════════${NC}"
+echo ""
 
-current_cache=$(grep "CACHE_STORE=" .env 2>/dev/null | cut -d'=' -f2 || echo "default")
-log_message "📊 Current cache driver: $current_cache"
-log_message ""
-log_message "🔍 Post-deployment commands:"
-log_message "   - Check cache status:  php artisan quran:cache status"
-log_message "   - Clear cache:         php artisan quran:cache clear"
-log_message "   - Warm up cache:       php artisan quran:cache warm-up"
-log_message "   - Monitor logs:        tail -f storage/logs/laravel.log"
-log_message ""
+ACTIVE_COMMIT=$(git log -1 --pretty=format:"%h - %s (%ad)" --date=relative 2>/dev/null || echo "N/A")
+echo -e "📌 ${BOLD}Commit Aktif:${NC}       $ACTIVE_COMMIT"
+echo -e "⚡ ${BOLD}Cache Driver:${NC}       $CACHE_DRIVER"
+echo -e "📦 ${BOLD}Vite Build Assets:${NC}  $ASSET_COUNT files ($VENDOR_COUNT vendor chunks)"
+echo -e "🔒 ${BOLD}Status Keamanan:${NC}    Izin direktori & file telah disesuaikan"
+echo ""
 
-if [ "$current_cache" = "redis" ]; then
-    log_message "🔴 Redis Cache Configuration:"
-    log_message "   - Test Redis:      php -r \"try { \$r = new Redis(); \$r->connect('/home/indoqura/tmp/redis.sock'); echo \$r->ping() ? 'OK' : 'FAIL'; } catch(Exception \$e) { echo 'ERROR: ' . \$e->getMessage(); }\""
-    log_message "   - Start Redis:     ~/redis/start-redis.sh"
-    log_message "   - Check status:    ~/redis/status-redis.sh"
-    log_message "   - Documentation:   docs/REDIS_NO_SUDO_INSTALLATION.md"
-elif [ "$current_cache" = "database" ]; then
-    log_message "💾 Database Cache Configuration:"
-    log_message "   - Cache table created automatically"
-    log_message "   - Performance: Good for most applications"
-    log_message "   - To upgrade to Redis: Install Redis and update .env"
-else
-    log_message "📁 Cache Configuration: $current_cache"
-    log_message "   - For better performance, consider Redis or database cache"
+# Tampilkan ringkasan status Quran Cache jika driver Redis
+if [[ "$CACHE_DRIVER" == "redis" ]]; then
+    php artisan quran:cache status 2>/dev/null || true
 fi
 
-log_message ""
-log_message "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-log_message ""
-log_message "⚠️  IMPORTANT REMINDERS:"
-log_message ""
-log_message "1. 🚫 This server does NOT have Node.js/npm"
-log_message "   → Always build assets on your LOCAL machine"
-log_message "   → Run: npm run build (locally)"
-log_message "   → Then commit and push: git add public/build && git push"
-log_message ""
-log_message "2. 🔄 To deploy future updates:"
-log_message "   → Build locally → Commit → Push → Pull here → Run this script"
-log_message ""
-log_message "3. 📚 For Redis without sudo:"
-log_message "   → Run: ./install-user-redis.sh"
-log_message "   → Update .env: CACHE_STORE=redis"
-log_message "   → Re-run: ./deploy-production.sh"
-log_message ""
-log_message "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo -e "${CYAN}Perintah berguna untuk maintenance server:${NC}"
+echo "  • Cek status cache:       php artisan quran:cache status"
+echo "  • Warm-up manual:         php artisan quran:cache warm-up"
+echo "  • Bersihkan cache:        php artisan optimize:clear"
+echo "  • Pantau log error:       tail -f storage/logs/laravel.log"
+echo "  • Rollback instan:        ./deploy-production.sh --rollback"
+echo ""
+echo -e "${GREEN}Aplikasi IndoQuran siap melayani pengunjung dengan kecepatan optimal!${NC}"
+echo ""

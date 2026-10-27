@@ -9,11 +9,33 @@ import {
 } from '@heroicons/react/24/outline';
 import { fetchWithAuth } from '../utils/apiUtils';
 import authUtils from '../utils/auth';
+import { getCachedSurahs } from '../services/SurahDataService';
+
+const FEATURED_SURAHS_DEFAULT = [
+    { number: 1, name_latin: 'Al-Fatihah', name_arabic: 'الفاتحة', revelation_place: 'Mekah', total_ayahs: 7 },
+    { number: 36, name_latin: 'Yasin', name_arabic: 'يس', revelation_place: 'Mekah', total_ayahs: 83 },
+    { number: 18, name_latin: 'Al-Kahfi', name_arabic: 'الكهف', revelation_place: 'Mekah', total_ayahs: 110 },
+    { number: 67, name_latin: 'Al-Mulk', name_arabic: 'الملك', revelation_place: 'Mekah', total_ayahs: 30 },
+    { number: 55, name_latin: 'Ar-Rahman', name_arabic: 'الرحمن', revelation_place: 'Madinah', total_ayahs: 78 },
+    { number: 56, name_latin: 'Al-Waqi\'ah', name_arabic: 'الواقعة', revelation_place: 'Mekah', total_ayahs: 96 },
+    { number: 112, name_latin: 'Al-Ikhlas', name_arabic: 'الإخلاص', revelation_place: 'Mekah', total_ayahs: 4 }
+];
 
 function QuranFooter() {
     const currentYear = new Date().getFullYear();
-    const [surahs, setSurahs] = useState([]);
-    const [popularSurahs, setPopularSurahs] = useState([]);
+    const [surahs, setSurahs] = useState(() => {
+        const cached = getCachedSurahs();
+        return cached?.data || [];
+    });
+    const [popularSurahs, setPopularSurahs] = useState(() => {
+        const cached = getCachedSurahs();
+        if (cached?.data && cached.data.length > 0) {
+            return [1, 36, 18, 67, 55, 56, 112]
+                .map(num => cached.data.find(s => s.number === num))
+                .filter(Boolean);
+        }
+        return FEATURED_SURAHS_DEFAULT;
+    });
     const [loadingPopular, setLoadingPopular] = useState(false);
 
     const scrollToTop = () => {
@@ -23,54 +45,38 @@ function QuranFooter() {
         });
     };
 
-    // Fetch popular/random surahs
+    // Fetch popular/random surahs on-demand
     const fetchPopularSurahs = useCallback(async () => {
         setLoadingPopular(true);
         try {
             const token = authUtils.getAuthToken();
-            // Add cache-busting parameter to ensure fresh random results
             const timestamp = Date.now();
             const response = await fetchWithAuth(`/api/surahs/random?count=7&_t=${timestamp}`, {
                 headers: {
                     'Authorization': token ? `Bearer ${token}` : '',
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    'Cache-Control': 'no-cache',
-                    'Pragma': 'no-cache'
                 }
             });
             
             if (!response.ok) throw new Error('Failed to fetch popular surahs');
             const result = await response.json();
             
-            if (result.status === 'success') {
+            if (result.status === 'success' && result.data) {
                 setPopularSurahs(result.data);
-            } else {
-                throw new Error("Failed to load popular surahs");
             }
         } catch (error) {
-            console.error('Error fetching popular surahs:', error);
-            // Fallback to featured surahs if API fails
-            if (surahs.length > 0) {
-                const featured = [
-                    surahs.find(s => s.number === 1), // Al-Fatihah
-                    surahs.find(s => s.number === 2), // Al-Baqarah
-                    surahs.find(s => s.number === 18), // Al-Kahf
-                    surahs.find(s => s.number === 36), // Ya-Sin
-                    surahs.find(s => s.number === 55), // Ar-Rahman
-                    surahs.find(s => s.number === 67), // Al-Mulk
-                    surahs.find(s => s.number === 112), // Al-Ikhlas
-                ].filter(Boolean);
-                setPopularSurahs(featured);
-            }
+            console.warn('Using fallback popular surahs in footer:', error);
         } finally {
             setLoadingPopular(false);
         }
-    }, [surahs]);
+    }, []);
 
-    // Fetch surahs data
+    // Defer fetching surahs if cache is empty so initial page load is never blocked
     useEffect(() => {
-        const fetchSurahs = async () => {
+        if (surahs.length > 0) return;
+
+        const timer = setTimeout(async () => {
             try {
                 const token = authUtils.getAuthToken();
                 const response = await fetchWithAuth('/api/surahs', {
@@ -81,28 +87,19 @@ function QuranFooter() {
                     }
                 });
                 
-                if (!response.ok) throw new Error('Failed to fetch surahs');
-                const result = await response.json();
-                
-                if (result.status === 'success') {
-                    setSurahs(result.data);
-                } else {
-                    throw new Error("Failed to load surahs");
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        setSurahs(result.data);
+                    }
                 }
             } catch (error) {
-                console.error('Error fetching surahs:', error);
+                // Silently handle footer data fetch error
             }
-        };
+        }, 3000);
 
-        fetchSurahs();
-    }, []);
-
-    // Fetch popular surahs when surahs are loaded
-    useEffect(() => {
-        if (surahs.length > 0) {
-            fetchPopularSurahs();
-        }
-    }, [surahs, fetchPopularSurahs]);
+        return () => clearTimeout(timer);
+    }, [surahs.length]);
 
     const handleRefreshPopular = () => {
         fetchPopularSurahs();

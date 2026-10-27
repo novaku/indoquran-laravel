@@ -99,6 +99,7 @@ function QuranHeader({ isSidebarOpen, setIsSidebarOpen }) {
                     {/* Sidebar Toggle Button */}
                     <button
                         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                        aria-label="Buka menu navigasi"
                         className="p-3 rounded-md text-gray-700 hover:text-green-600 hover:bg-gray-50 transition-colors touch-manipulation"
                         style={{ minHeight: '44px', minWidth: '44px' }}
                     >
@@ -192,6 +193,8 @@ function QuranHeader({ isSidebarOpen, setIsSidebarOpen }) {
                                     }`}
                                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                                     style={{ minHeight: '44px' }}
+                                    aria-label="Menu akun pengguna"
+                                    aria-expanded={isUserMenuOpen}
                                 >
                                     <div className={`w-6 h-6 ${isAdmin ? 'bg-emerald-700 ring-2 ring-emerald-300' : 'bg-green-600'} rounded-full flex items-center justify-center`}>
                                         <span className="text-xs font-semibold text-white">

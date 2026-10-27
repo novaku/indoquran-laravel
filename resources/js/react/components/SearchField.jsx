@@ -565,6 +565,8 @@ const SearchField = ({
                     <input 
                         type="text" 
                         name="search"
+                        id="quran-search-input"
+                        aria-label="Cari surah, nomor ayat, atau kata kunci terjemahan"
                         value={searchTerm}
                         onChange={handleSearchChange}
                         onFocus={handleSearchFocus}
@@ -576,6 +578,7 @@ const SearchField = ({
                         <button
                             type="button"
                             onClick={handleClearSearch}
+                            aria-label="Hapus kata kunci pencarian"
                             className={`absolute right-4 top-1/2 -translate-y-1/2 text-${currentTheme.primaryText}/60 hover:text-${currentTheme.primaryText} transition-colors`}
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

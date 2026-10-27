@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class QuranController extends Controller
@@ -430,17 +431,9 @@ class QuranController extends Controller
      */
     public function getAllJuz(): JsonResponse
     {
-        // Get distinct juz numbers from ayahs table
-        $juzNumbers = Ayah::select('juz')
-            ->distinct()
-            ->orderBy('juz')
-            ->pluck('juz')
-            ->filter() // Remove null values
-            ->values();
-        
         return response()->json([
             'status' => 'success',
-            'data' => $juzNumbers
+            'data' => $this->quranCache->getAllJuz()
         ]);
     }
 
@@ -470,26 +463,20 @@ class QuranController extends Controller
             ], 400);
         }
         
-        // Get all ayahs for this juz with surah information
-        $ayahs = Ayah::query()->where('juz', $juzNum)
-            ->with('surah:number,name_indonesian,name_arabic,name_latin')
-            ->orderBy('surah_number')
-            ->orderBy('ayah_number')
-            ->get();
-        
-        if ($ayahs->isEmpty()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Juz not found'
-            ], 404);
-        }
-        
-        // Group ayahs by surah for better organization
-        $groupedAyahs = $ayahs->groupBy('surah_number');
-        
-        return response()->json([
-            'status' => 'success',
-            'data' => [
+        // Cache juz ayahs for 30 days
+        $juzData = Cache::remember("quran_juz_data_{$juzNum}", 86400 * 30, function () use ($juzNum) {
+            $ayahs = Ayah::query()->where('juz', $juzNum)
+                ->with('surah:number,name_indonesian,name_arabic,name_latin')
+                ->orderBy('surah_number')
+                ->orderBy('ayah_number')
+                ->get();
+            
+            if ($ayahs->isEmpty()) {
+                return null;
+            }
+            
+            $groupedAyahs = $ayahs->groupBy('surah_number');
+            return [
                 'juz_number' => $juzNum,
                 'total_ayahs' => $ayahs->count(),
                 'surahs' => $groupedAyahs->map(function ($surahAyahs) {
@@ -499,7 +486,19 @@ class QuranController extends Controller
                         'ayahs' => $surahAyahs->values()
                     ];
                 })->values()
-            ]
+            ];
+        });
+
+        if (!$juzData) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Juz not found'
+            ], 404);
+        }
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => $juzData
         ]);
     }
 
@@ -529,26 +528,20 @@ class QuranController extends Controller
             ], 400);
         }
         
-        // Get all ayahs for this page with surah information
-        $ayahs = Ayah::query()->where('page', $pageNum)
-            ->with('surah:number,name_indonesian,name_arabic,name_latin')
-            ->orderBy('surah_number')
-            ->orderBy('ayah_number')
-            ->get();
-        
-        if ($ayahs->isEmpty()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Page not found'
-            ], 404);
-        }
-        
-        // Group ayahs by surah for better organization
-        $groupedAyahs = $ayahs->groupBy('surah_number');
-        
-        return response()->json([
-            'status' => 'success',
-            'data' => [
+        // Cache page ayahs for 30 days
+        $pageData = Cache::remember("quran_page_data_{$pageNum}", 86400 * 30, function () use ($pageNum) {
+            $ayahs = Ayah::query()->where('page', $pageNum)
+                ->with('surah:number,name_indonesian,name_arabic,name_latin')
+                ->orderBy('surah_number')
+                ->orderBy('ayah_number')
+                ->get();
+            
+            if ($ayahs->isEmpty()) {
+                return null;
+            }
+            
+            $groupedAyahs = $ayahs->groupBy('surah_number');
+            return [
                 'page_number' => $pageNum,
                 'total_ayahs' => $ayahs->count(),
                 'surahs' => $groupedAyahs->map(function ($surahAyahs) {
@@ -558,7 +551,19 @@ class QuranController extends Controller
                         'ayahs' => $surahAyahs->values()
                     ];
                 })->values()
-            ]
+            ];
+        });
+
+        if (!$pageData) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Page not found'
+            ], 404);
+        }
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => $pageData
         ]);
     }
 
@@ -569,17 +574,9 @@ class QuranController extends Controller
      */
     public function getAllPages(): JsonResponse
     {
-                // Get distinct page numbers from ayahs table
-        $pageNumbers = Ayah::select('page')
-            ->distinct()
-            ->orderBy('page')
-            ->pluck('page')
-            ->filter() // Remove null values
-            ->values();
-        
         return response()->json([
             'status' => 'success',
-            'data' => $pageNumbers
+            'data' => $this->quranCache->getAllPages()
         ]);
     }
 

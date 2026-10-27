@@ -11,11 +11,94 @@ use App\Services\SEOService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class SEOController extends Controller
 {
+    /**
+     * Get all 114 surahs keyed by number from Redis cache
+     */
+    public static function getAllSurahsKeyed(): \Illuminate\Support\Collection
+    {
+        return Cache::remember('all_surahs_keyed_collection', 86400 * 30, function () {
+            return Surah::query()->orderBy('number', 'asc')->get()->keyBy('number');
+        });
+    }
+
+    /**
+     * Get a specific surah by number from Redis cache
+     */
+    protected function getCachedSurah(int $number): ?Surah
+    {
+        if ($number < 1 || $number > 114) {
+            return null;
+        }
+        $surahs = self::getAllSurahsKeyed();
+        return $surahs->get($number);
+    }
+
+    /**
+     * Get cached single ayah by surah & ayah number
+     */
+    protected function getCachedAyah(int $surahNumber, int $ayahNumber): ?Ayah
+    {
+        return Cache::remember("seo_ayah_{$surahNumber}_{$ayahNumber}", 86400 * 7, function () use ($surahNumber, $ayahNumber) {
+            return Ayah::query()
+                ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian', 'juz', 'page')
+                ->where('surah_number', $surahNumber)
+                ->where('ayah_number', $ayahNumber)
+                ->first();
+        });
+    }
+
+    /**
+     * Get cached Tafsir Maudhui topic with verses
+     */
+    protected function getCachedTafsirTopic(string $slug): ?TafsirMaudhuiTopic
+    {
+        return Cache::remember("seo_tafsir_topic_{$slug}", 86400, function () use ($slug) {
+            return TafsirMaudhuiTopic::query()
+                ->where('slug', $slug)
+                ->where('is_active', true)
+                ->with(['verses' => function ($query) {
+                    $query->ordered();
+                }])
+                ->first();
+        });
+    }
+
+    /**
+     * Get cached Article with author and tags
+     */
+    protected function getCachedArticle(string $slug): ?Article
+    {
+        return Cache::remember("seo_article_model_{$slug}", 3600, function () use ($slug) {
+            return Article::query()
+                ->with(['author:id,name', 'tags'])
+                ->where('slug', $slug)
+                ->published()
+                ->first();
+        });
+    }
+
+    /**
+     * Get cached related articles
+     */
+    protected function getCachedRelatedArticles(int $excludeId): \Illuminate\Database\Eloquent\Collection
+    {
+        return Cache::remember("seo_article_related_{$excludeId}", 3600, function () use ($excludeId) {
+            return Article::query()
+                ->with(['author:id,name', 'tags'])
+                ->where('id', '!=', $excludeId)
+                ->published()
+                ->latest('published_at')
+                ->limit(3)
+                ->get();
+        });
+    }
+
     /**
      * Handle dynamic SEO for React app
      * This controller provides SEO data to the React blade template
@@ -68,7 +151,7 @@ class SEOController extends Controller
             $ayahNumber = (int) $request->query('ayat', 0);
 
             if ($surahNumber >= 1 && $surahNumber <= 114 && $ayahNumber >= 1) {
-                $surah = Surah::query()->select('number', 'total_ayahs')->where('number', $surahNumber)->first();
+                $surah = $this->getCachedSurah($surahNumber);
 
                 if ($surah && $ayahNumber <= (int) ($surah->total_ayahs ?? 0)) {
                     return redirect(url('/surah/' . $surahNumber . '/' . $ayahNumber), 301);
@@ -165,33 +248,19 @@ class SEOController extends Controller
         // Check invalid surah numbers
         if (isset($segments[0]) && $segments[0] === 'surah' && isset($segments[1]) && is_numeric($segments[1])) {
             $surahNumber = (int) $segments[1];
-            if ($surahNumber < 1 || $surahNumber > 114) {
+            $surah = $this->getCachedSurah($surahNumber);
+            if (!$surah) {
                 $isInvalidRoute = true;
-            } else {
-                // Verify surah exists in database
-                $surah = Surah::query()->where('number', $surahNumber)->first();
-                if (!$surah) {
+            } elseif (isset($segments[2])) {
+                // Verify ayah number is valid for this surah
+                if (!is_numeric($segments[2])) {
                     $isInvalidRoute = true;
-                } elseif (isset($segments[2])) {
-                    // Verify ayah number is valid for this surah
-                    if (!is_numeric($segments[2])) {
+                } else {
+                    $ayahNumber = (int) $segments[2];
+                    $maxAyah = (int) ($surah->total_ayahs ?? 0);
+
+                    if ($ayahNumber < 1 || ($maxAyah > 0 && $ayahNumber > $maxAyah)) {
                         $isInvalidRoute = true;
-                    } else {
-                        $ayahNumber = (int) $segments[2];
-                        $maxAyah = (int) ($surah->total_ayahs ?? 0);
-
-                        if ($ayahNumber < 1 || ($maxAyah > 0 && $ayahNumber > $maxAyah)) {
-                            $isInvalidRoute = true;
-                        } else {
-                            $ayahExists = Ayah::query()
-                                ->where('surah_number', $surahNumber)
-                                ->where('ayah_number', $ayahNumber)
-                                ->exists();
-
-                            if (!$ayahExists) {
-                                $isInvalidRoute = true;
-                            }
-                        }
                     }
                 }
             }
@@ -220,12 +289,8 @@ class SEOController extends Controller
             if ($slug === '' || !preg_match('/^[a-z0-9\-]+$/', $slug)) {
                 $isInvalidRoute = true;
             } else {
-                $topicExists = TafsirMaudhuiTopic::query()
-                    ->where('slug', $slug)
-                    ->where('is_active', true)
-                    ->exists();
-
-                if (!$topicExists) {
+                $cachedTafsirTopic = $this->getCachedTafsirTopic($slug);
+                if (!$cachedTafsirTopic) {
                     $isInvalidRoute = true;
                 }
             }
@@ -305,11 +370,8 @@ class SEOController extends Controller
                     if ($slug === '') {
                         $isInvalidRoute = true;
                     } else {
-                        $articleExists = Article::query()
-                            ->where('slug', $slug)
-                            ->published()
-                            ->exists();
-                        if (!$articleExists) {
+                        $cachedArticle = $this->getCachedArticle($slug);
+                        if (!$cachedArticle) {
                             $isInvalidRoute = true;
                         }
                     }
@@ -433,7 +495,7 @@ class SEOController extends Controller
             // Surah page SEO
             if (isset($segments[1]) && is_numeric($segments[1])) {
                 $surahNumber = (int) $segments[1];
-                $surah = Surah::query()->where('number', $surahNumber)->first();
+                $surah = $this->getCachedSurah($surahNumber);
                 
                 if ($surah) {
                     $ayahNumber = isset($segments[2]) && is_numeric($segments[2]) ? (int) $segments[2] : null;
@@ -464,11 +526,7 @@ class SEOController extends Controller
                     ];
                     
                     if ($ayahNumber) {
-                        $ayah = Ayah::query()
-                            ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian', 'juz', 'page')
-                            ->where('surah_number', $surahNumber)
-                            ->where('ayah_number', $ayahNumber)
-                            ->first();
+                        $ayah = $this->getCachedAyah($surahNumber, $ayahNumber);
 
                         $cleanArabic = trim(preg_replace('/\s+/', ' ', strip_tags($ayah?->text_arabic ?? '')));
                         $cleanLatin = trim(preg_replace('/\s+/', ' ', strip_tags($ayah?->text_latin ?? '')));
@@ -738,10 +796,7 @@ class SEOController extends Controller
             // Tafsir Maudhui page SEO
             if (isset($segments[1])) {
                 $slug = trim((string) $segments[1]);
-                $topic = TafsirMaudhuiTopic::query()
-                    ->where('slug', $slug)
-                    ->where('is_active', true)
-                    ->first();
+                $topic = $cachedTafsirTopic ?? $this->getCachedTafsirTopic($slug);
 
                 if ($topic) {
                     $descSnippet = Str::limit(strip_tags($topic->description ?: ''), 155);
@@ -1394,7 +1449,7 @@ class SEOController extends Controller
             // Article SEO handling
             if (isset($segments[1])) {
                 $slug = (string) $segments[1];
-                $article = Article::query()->with(['author', 'tags'])->where('slug', $slug)->published()->first();
+                $article = $cachedArticle ?? $this->getCachedArticle($slug);
                 if ($article) {
                     $rawDescription = strip_tags($article->excerpt ?: $article->content);
                     $articleDescription = Str::limit(html_entity_decode($rawDescription, ENT_QUOTES | ENT_HTML5, 'UTF-8'), 160);
@@ -1593,7 +1648,7 @@ class SEOController extends Controller
         elseif (isset($segments[0]) && $segments[0] === 'surah' && isset($segments[1]) && is_numeric($segments[1])) {
             // Surah Detail: Fetch specific surah info
             $surahNumber = (int) $segments[1];
-            $reactData['currentSurah'] = Surah::query()->where('number', $surahNumber)->first();
+            $reactData['currentSurah'] = $surah ?? $this->getCachedSurah($surahNumber);
 
             if ($reactData['currentSurah']) {
                 $isAyahPage = isset($segments[2]) && is_numeric($segments[2]);
@@ -1610,12 +1665,7 @@ class SEOController extends Controller
                     });
                 } else {
                     $ayahNumber = (int) $segments[2];
-
-                    $reactData['currentAyah'] = Ayah::query()
-                        ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian', 'juz', 'page')
-                        ->where('surah_number', $surahNumber)
-                        ->where('ayah_number', $ayahNumber)
-                        ->first();
+                    $reactData['currentAyah'] = $ayah ?? $this->getCachedAyah($surahNumber, $ayahNumber);
 
                     if ($reactData['currentAyah']) {
                         $reactData['ayahNavigation'] = [
@@ -1730,34 +1780,26 @@ class SEOController extends Controller
         elseif (isset($segments[0]) && $segments[0] === 'artikel') {
             if (isset($segments[1])) {
                 $slug = (string) $segments[1];
-                $article = Article::query()->with(['author', 'tags'])->where('slug', $slug)->published()->first();
+                $article = $cachedArticle ?? $this->getCachedArticle($slug);
                 if ($article) {
                     $reactData['currentArticle'] = $article;
-                    $reactData['relatedArticles'] = Article::query()
-                        ->with(['author', 'tags'])
-                        ->published()
-                        ->where('id', '!=', $article->id)
-                        ->latest('published_at')
-                        ->limit(3)
-                        ->get();
+                    $reactData['relatedArticles'] = $this->getCachedRelatedArticles($article->id);
                 }
             } else {
-                $reactData['articles'] = Article::query()
-                    ->with(['author', 'tags'])
-                    ->published()
-                    ->latest('published_at')
-                    ->limit(14)
-                    ->get();
+                $reactData['articles'] = Cache::remember('seo_articles_list_home', 600, function () {
+                    return Article::query()
+                        ->with(['author:id,name', 'tags'])
+                        ->published()
+                        ->latest('published_at')
+                        ->limit(14)
+                        ->get();
+                });
             }
         }
         elseif (isset($segments[0]) && $segments[0] === 'tafsir-maudhui') {
             if (isset($segments[1])) {
                 $slug = trim((string) $segments[1]);
-                $reactData['currentTafsirTopic'] = TafsirMaudhuiTopic::query()
-                    ->with('verses')
-                    ->where('slug', $slug)
-                    ->where('is_active', true)
-                    ->first();
+                $reactData['currentTafsirTopic'] = $cachedTafsirTopic ?? $this->getCachedTafsirTopic($slug);
             }
         }
         elseif (isset($segments[0]) && $segments[0] === 'hadits') {
