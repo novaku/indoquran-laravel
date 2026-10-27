@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Pastikan script dieksekusi dengan bash murni jika dipanggil via 'sh deploy-production.sh' atau posix mode
+if [ -z "$BASH_VERSION" ] || shopt -q -o posix 2>/dev/null; then
+    exec bash "$0" "$@"
+fi
+
 # ==============================================================================
 # IndoQuran Production Deployment Script (Laravel + React)
 # ==============================================================================
@@ -184,7 +189,8 @@ handle_rollback() {
     local commits=()
     local hashes=()
     local idx=1
-    
+    local git_history
+    git_history="$(git log --pretty=format:"%h - %s (%cr oleh %an)" -n 10)"
     while IFS= read -r line; do
         if [ -n "$line" ]; then
             commits+=("$line")
@@ -192,7 +198,9 @@ handle_rollback() {
             echo -e "  ${CYAN}[$idx]${NC} $line"
             ((idx++))
         fi
-    done < <(git log --pretty=format:"%h - %s (%cr oleh %an)" -n 10)
+    done <<EOF
+$git_history
+EOF
     
     echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""

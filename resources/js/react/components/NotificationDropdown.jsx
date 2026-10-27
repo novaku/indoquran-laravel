@@ -76,12 +76,12 @@ const DEFAULT_NOTIFICATIONS = [
         is_featured: false
     },
     {
-        id: 'notif-version-2-32-0',
-        title: 'Pembaruan IndoQuran Versi 2.32.0',
-        message: 'Filter kategori hadits, Google Rich Snippets komprehensif, navigasi kanonikal per nomor ayat, dedicated sitemap topik hadits, dan ketahanan cache Redis.',
+        id: 'notif-version-2-34-0',
+        title: 'Pembaruan IndoQuran Versi 2.34.0',
+        message: 'Akselerasi PageSpeed Mobile & Core Web Vitals, arsitektur Redis HTTP Response Caching (304 Not Modified), in-memory caching 114 Surah, dan optimasi deployment script.',
         link: '/riwayat-versi',
         time_ago: 'Hari ini',
-        timestamp: '2026-10-05T06:00:00Z',
+        timestamp: '2026-10-27T08:00:00Z',
         category: 'Riwayat Versi',
         type: 'version',
         badge_icon: 'check',

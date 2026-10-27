@@ -160,7 +160,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v={{ $favVersion }}">
     
     <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json?v=2.31.0">
+    <link rel="manifest" href="/manifest.json?v=2.34.0">
     
     <!-- PWA iOS Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -172,7 +172,7 @@
     <script defer src="/anti-injection-security.js"></script>
     
     <!-- PWA Manager (deferred to unblock initial paint) -->
-    <script defer src="/pwa-manager.js?v=2.31.0"></script>
+    <script defer src="/pwa-manager.js?v=2.34.0"></script>
 
     
     <!-- Critical CSS for above-the-fold content -->

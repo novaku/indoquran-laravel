@@ -1,5 +1,42 @@
 [
   {
+    "version": "2.34.0",
+    "date": "27 Oktober 2026",
+    "type": "feature",
+    "title": "Akselerasi PageSpeed Mobile & Core Web Vitals, Arsitektur Redis Response Caching (HTTP 304), dan Deploy Optimizer",
+    "description": "Optimalisasi performa menyeluruh skala besar mencakup penghapusan dependensi berat framer-motion (-111 KB JS) digantikan native CSS transitions (0 runtime overhead), eliminasi pergeseran tata letak (CLS fix) pada server-side rendering, implementasi Redis response caching bertingkat dengan header ETag dan respons 304 Not Modified, in-memory caching 114 Surah, Juz, Halaman, dan Doa Pilihan di Redis untuk query 0 ms, pembaruan script deployment produksi yang aman dengan invalidasi OPcache web server, serta pemutakhiran PWA Service Worker v2.34.0.",
+    "changes": [
+      {
+        "type": "feature",
+        "text": "Arsitektur Redis HTTP Response Caching & 304 Not Modified - Implementasi middleware ApiCacheMiddleware dengan Redis store terdistribusi, pembuatan ETag unik per endpoint, respons instan 304 Not Modified untuk request berulang, dan penambahan header diagnostik X-Cache (HIT/MISS)."
+      },
+      {
+        "type": "feature",
+        "text": "In-Memory Caching Inti Al-Qur'an (0 ms Latency) - Preload dan caching permanen 114 Surah, 30 Juz, 604 Halaman Mushaf, dan Kategori Doa Pilihan di Redis, menghilangkan query scan berulang pada 6.236 ayat."
+      },
+      {
+        "type": "improvement",
+        "text": "Akselerasi PageSpeed Mobile & Eliminasi Bundle Framer-Motion - Pembersihan 111 KB library runtime framer-motion yang digantikan 100% dengan transisi native CSS modern tanpa overhead CPU, mempercepat LCP (Largest Contentful Paint) dan responsivitas interaksi (INP)."
+      },
+      {
+        "type": "improvement",
+        "text": "Perbaikan CLS (Cumulative Layout Shift) pada SSR Blade - Penyelarasan tata letak awal HTML Blade dengan komponen React untuk mencegah pergeseran layout saat hidrasi client-side."
+      },
+      {
+        "type": "improvement",
+        "text": "HTTP Cache-Control Header Publik - Penerapan Cache-Control 'public, max-age=3600, stale-while-revalidate=86400' pada rute publik untuk pengiriman instan dari browser cache dan proxy edge."
+      },
+      {
+        "type": "improvement",
+        "text": "Pembaruan Script Deploy Produksi (deploy-production.sh) - Perbaikan fatal cache konfigurasi Laravel, integrasi otomatis composer install, proteksi izin aset (644/755), invalidasi OPcache web server (touch public/index.php), dan otomasi cache pre-warming via CLI."
+      },
+      {
+        "type": "improvement",
+        "text": "Pembaruan PWA & Service Worker Cache (v2.34.0) - Peningkatan cache versioning Service Worker PWA ke v2.34.0 di sw.js, sw-pwa.js, dan sw-mobile.js untuk memperbarui cache aset antarmuka terbaru secara instan."
+      }
+    ]
+  },
+  {
     "version": "2.33.0",
     "date": "15 Oktober 2026",
     "type": "feature",
