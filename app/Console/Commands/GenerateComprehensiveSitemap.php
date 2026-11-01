@@ -198,34 +198,7 @@ class GenerateComprehensiveSitemap extends Command
     protected function generateArtikelSitemap($baseUrl)
     {
         $this->info('Generating Artikel sitemap...');
-        
-        $currentDate = Carbon::now()->format('Y-m-d');
-        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
-        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
-        
-        $xml .= $this->createUrlEntry(
-            $baseUrl . '/artikel',
-            $currentDate,
-            'daily',
-            '0.9'
-        );
-
-        try {
-            $articles = \App\Models\Article::published()->select('slug', 'updated_at')->get();
-            foreach ($articles as $article) {
-                $xml .= $this->createUrlEntry(
-                    $baseUrl . '/artikel/' . $article->slug,
-                    $article->updated_at ? $article->updated_at->format('Y-m-d') : $currentDate,
-                    'weekly',
-                    '0.85'
-                );
-            }
-        } catch (\Throwable $e) {
-            // Ignore if table not available
-        }
-        
-        $xml .= '</urlset>';
-        File::put(public_path('sitemap-artikel.xml'), $xml);
+        app(\App\Services\ArticleSitemapService::class)->updateSitemapFile($baseUrl);
         $this->info('✓ Artikel sitemap generated');
     }
     

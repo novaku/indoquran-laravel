@@ -189,6 +189,9 @@ class ArticleController extends Controller
 
         try {
             app(\App\Services\AdminDashboardCacheService::class)->clearArticles();
+            if ($article->status === 'published') {
+                app(\App\Services\ArticleSitemapService::class)->updateSitemapFile();
+            }
         } catch (\Throwable $e) {}
 
         return response()->json([
@@ -278,6 +281,13 @@ class ArticleController extends Controller
             }
         }
 
+        try {
+            app(\App\Services\AdminDashboardCacheService::class)->clearArticles();
+            if ($article->status === 'published') {
+                app(\App\Services\ArticleSitemapService::class)->updateSitemapFile();
+            }
+        } catch (\Throwable $e) {}
+
         return response()->json([
             'status' => 'success',
             'message' => 'Artikel berhasil dibuat',
@@ -315,15 +325,16 @@ class ArticleController extends Controller
             $validated['slug'] = Str::slug($validated['title']);
         }
 
-        // Set published_at when changing to published
-        if ($validated['status'] === 'published' && $article->status === 'draft' && empty($validated['published_at'])) {
-            $validated['published_at'] = now();
+        // Set published_at when changing to published or retain existing
+        if ($validated['status'] === 'published' && empty($validated['published_at'])) {
+            $validated['published_at'] = $article->published_at ?? now();
         }
 
         // Extract tags before updating article
         $tags = $validated['tags'] ?? [];
         unset($validated['tags']);
 
+        $oldStatus = $article->status;
         $article->update($validated);
 
         // Sync tags
@@ -336,6 +347,9 @@ class ArticleController extends Controller
 
         try {
             app(\App\Services\AdminDashboardCacheService::class)->clearArticles();
+            if ($article->status === 'published' || $oldStatus === 'published') {
+                app(\App\Services\ArticleSitemapService::class)->updateSitemapFile();
+            }
         } catch (\Throwable $e) {}
 
         return response()->json([
@@ -356,10 +370,14 @@ class ArticleController extends Controller
             Storage::disk('public')->delete($article->featured_image);
         }
 
+        $wasPublished = $article->status === 'published';
         $article->delete();
 
         try {
             app(\App\Services\AdminDashboardCacheService::class)->clearArticles();
+            if ($wasPublished) {
+                app(\App\Services\ArticleSitemapService::class)->updateSitemapFile();
+            }
         } catch (\Throwable $e) {}
 
         return response()->json([

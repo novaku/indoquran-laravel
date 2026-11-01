@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Article;
 use App\Models\Ayah;
 use App\Models\Surah;
+use App\Observers\ArticleObserver;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
@@ -142,5 +144,8 @@ class AppServiceProvider extends ServiceProvider
                 Cache::put($cacheKey, $ayah, now()->addDays(30));
             }
         });
+
+        // Register Article observer for sitemap synchronization
+        Article::observe(ArticleObserver::class);
     }
 }

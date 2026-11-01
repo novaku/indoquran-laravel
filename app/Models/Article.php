@@ -44,11 +44,17 @@ class Article extends Model
             if (empty($article->slug)) {
                 $article->slug = Str::slug($article->title);
             }
+            if ($article->status === 'published' && empty($article->published_at)) {
+                $article->published_at = now();
+            }
         });
 
         static::updating(function ($article) {
             if ($article->isDirty('title') && empty($article->slug)) {
                 $article->slug = Str::slug($article->title);
+            }
+            if ($article->status === 'published' && empty($article->published_at)) {
+                $article->published_at = now();
             }
         });
     }

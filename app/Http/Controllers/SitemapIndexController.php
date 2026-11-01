@@ -309,36 +309,12 @@ class SitemapIndexController extends Controller
      */
     public function artikelSitemap()
     {
-        $baseUrl = (app()->environment('production') && !app()->environment(['local', 'development', 'testing']))
-            ? 'https://indoquran.web.id' 
-            : config('app.url');
-            
-        $currentDate = now()->format('Y-m-d');
-        
-        $pages = [
-            [
-                'url' => $baseUrl . '/artikel',
-                'lastmod' => $currentDate,
-                'changefreq' => 'daily',
-                'priority' => '0.9'
-            ]
-        ];
+        $xml = app(\App\Services\ArticleSitemapService::class)->generateXml();
 
-        try {
-            $articles = \App\Models\Article::published()->select('slug', 'updated_at')->get();
-            foreach ($articles as $article) {
-                $pages[] = [
-                    'url' => $baseUrl . '/artikel/' . $article->slug,
-                    'lastmod' => $article->updated_at ? $article->updated_at->format('Y-m-d') : $currentDate,
-                    'changefreq' => 'weekly',
-                    'priority' => '0.85'
-                ];
-            }
-        } catch (\Throwable $e) {
-            // Ignore if table not available
-        }
-        
-        return $this->generateSitemapXml($pages);
+        return response($xml, 200, [
+            'Content-Type' => 'application/xml',
+            'Cache-Control' => 'public, max-age=3600',
+        ]);
     }
 
     /**
