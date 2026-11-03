@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SEOHead from '../components/SEOHead';
-import { getPageSEOData, ALL_SURAH_NAMES, HIGH_TRAFFIC_SEARCH_TERMS, USER_REQUESTED_TERMS } from '../utils/seoUtils';
+import { getPageSEOData } from '../utils/seoUtils';
 import { scrollToTop } from '../utils/scrollUtils';
 
 /**
@@ -25,13 +25,6 @@ function SEOLandingPage() {
             })
             .catch(error => console.error('Error loading surahs:', error));
     }, []);
-
-    // Group search terms by category for better organization
-    const searchCategories = {
-        'Surah Names': ALL_SURAH_NAMES,
-        'Popular Searches': HIGH_TRAFFIC_SEARCH_TERMS,
-        'Specific Terms': USER_REQUESTED_TERMS.slice(0, 50), // Limit for page performance
-    };
 
     const seoData = getPageSEOData('daftar-lengkap', { 
         results: surahs 
@@ -158,24 +151,6 @@ function SEOLandingPage() {
                             </Link>
                         ))}
                     </div>
-                </div>
-
-                {/* Search Terms for SEO - Hidden from users but visible to search engines */}
-                <div className="sr-only">
-                    {Object.entries(searchCategories).map(([category, terms]) => (
-                        <div key={category}>
-                            <h2>{category}</h2>
-                            <ul>
-                                {terms.map((term, index) => (
-                                    <li key={index}>
-                                        <Link to={`/cari?q=${encodeURIComponent(term)}`}>
-                                            {term}
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    ))}
                 </div>
 
                 {/* Popular Features Links */}

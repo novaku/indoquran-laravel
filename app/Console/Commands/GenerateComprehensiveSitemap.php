@@ -459,15 +459,13 @@ class GenerateComprehensiveSitemap extends Command
         $robotsTxt .= "Disallow: /admin/\n";
         $robotsTxt .= "Disallow: /dashboard/\n\n";
         $robotsTxt .= "# Disallow search and filter URLs\n";
-        $robotsTxt .= "Disallow: /cari?\n";
-        $robotsTxt .= "Disallow: /cari/*\n";
         $robotsTxt .= "Disallow: /search\n";
         $robotsTxt .= "Disallow: /search?\n";
         $robotsTxt .= "Disallow: /*?*tag=\n";
         $robotsTxt .= "Disallow: /*?*search=\n";
         $robotsTxt .= "Disallow: /artikel?*\n\n";
         $robotsTxt .= "# Allow important pages\n";
-        $robotsTxt .= "Allow: /cari$\n";
+        $robotsTxt .= "Allow: /cari\n";
         $robotsTxt .= "Allow: /surah\n";
         $robotsTxt .= "Allow: /surah/\n";
         $robotsTxt .= "Allow: /daftar-lengkap\n";
@@ -501,9 +499,7 @@ class GenerateComprehensiveSitemap extends Command
         $robotsTxt .= "# Googlebot specific\n";
         $robotsTxt .= "User-agent: Googlebot\n";
         $robotsTxt .= "Allow: /\n";
-        $robotsTxt .= "Allow: /cari$\n";
-        $robotsTxt .= "Disallow: /cari?\n";
-        $robotsTxt .= "Disallow: /cari/*\n";
+        $robotsTxt .= "Allow: /cari\n";
         $robotsTxt .= "Disallow: /search\n";
         $robotsTxt .= "Disallow: /search?\n";
         $robotsTxt .= "Disallow: /api/\n";

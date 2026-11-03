@@ -282,5 +282,32 @@ class SitemapTest extends TestCase
         $response->assertSee('<link rel="canonical" href="' . url('/daftar-lengkap') . '"', false);
         $response->assertSee('Daftar Lengkap Al-Quran Indonesia');
     }
+
+    public function test_robots_txt_allows_cari(): void
+    {
+        $controller = new \App\Http\Controllers\SitemapController();
+        $response = $controller->robots();
+        $content = $response->getContent();
+
+        $this->assertStringContainsString("Allow: /cari\n", $content);
+        $this->assertStringNotContainsString("Disallow: /cari?\n", $content);
+        $this->assertStringNotContainsString("Disallow: /cari/*\n", $content);
+    }
+
+    public function test_cari_search_query_sets_noindex_and_canonical(): void
+    {
+        $response = $this->get('/cari?q=az+zukhruf');
+        $response->assertStatus(200);
+        $response->assertSee('<meta name="robots" content="noindex, follow">', false);
+        $response->assertSee('<link rel="canonical" href="' . url('/cari') . '">', false);
+    }
+
+    public function test_cari_index_sets_index_follow(): void
+    {
+        $response = $this->get('/cari');
+        $response->assertStatus(200);
+        $response->assertSee('index, follow', false);
+        $response->assertSee('<link rel="canonical" href="' . url('/cari') . '">', false);
+    }
 }
 

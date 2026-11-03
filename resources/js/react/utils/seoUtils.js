@@ -289,9 +289,6 @@ Disallow: /*?gclid=
 Disallow: /*?session=
 Disallow: /*?preview=
 
-# Prevent search parameter pagination issues
-Disallow: /cari?page=
-
 # Crawl delay optimized for server performance
 Crawl-delay: 1
 
@@ -579,7 +576,9 @@ export const getPageSEOData = (pageType, data = {}) => {
       seoData.title = `Hasil Pencarian "${searchQuery}" - ${resultsCount} Ayat Ditemukan | IndoQuran`;
       seoData.description = `Hasil pencarian Al-Quran untuk "${searchQuery}". Ditemukan ${resultsCount} ayat yang sesuai dengan pencarian Anda. Cari ayat, surah, dan terjemahan dalam Al-Quran dengan mudah di IndoQuran.`;
       seoData.keywords = generateSearchSEOKeywords(searchQuery);
-      seoData.canonicalUrl = generateCanonicalUrl(`/cari?q=${encodeURIComponent(searchQuery)}`);
+      seoData.canonicalUrl = generateCanonicalUrl('/cari');
+      seoData.noindex = !!searchQuery;
+      seoData.robots = searchQuery ? 'noindex, follow' : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1';
       break;
 
     case 'juz':

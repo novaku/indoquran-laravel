@@ -311,8 +311,6 @@ class SitemapController extends Controller
         $robotsTxt .= "Disallow: /*?*session=\n";
         
         $robotsTxt .= "\n# Disallow search and pagination URLs\n";
-        $robotsTxt .= "Disallow: /cari?\n";
-        $robotsTxt .= "Disallow: /cari/*\n";
         $robotsTxt .= "Disallow: /search\n";
         $robotsTxt .= "Disallow: /search?\n";
         $robotsTxt .= "Disallow: /*?*tag=\n";
@@ -322,7 +320,7 @@ class SitemapController extends Controller
         
         // Allow high-value content for better indexing
         $robotsTxt .= "# Allow high-value content for Indonesian Quran searches\n";
-        $robotsTxt .= "Allow: /cari$\n";
+        $robotsTxt .= "Allow: /cari\n";
         $robotsTxt .= "Allow: /surah\n";
         $robotsTxt .= "Allow: /surah/\n";
         $robotsTxt .= "Allow: /daftar-lengkap\n";
@@ -364,9 +362,7 @@ class SitemapController extends Controller
         $robotsTxt .= "# Google-specific optimizations for Indonesian content\n";
         $robotsTxt .= "User-agent: Googlebot\n";
         $robotsTxt .= "Allow: /\n";
-        $robotsTxt .= "Allow: /cari$\n";
-        $robotsTxt .= "Disallow: /cari?\n";
-        $robotsTxt .= "Disallow: /cari/*\n";
+        $robotsTxt .= "Allow: /cari\n";
         $robotsTxt .= "Disallow: /search\n";
         $robotsTxt .= "Disallow: /search?\n";
         $robotsTxt .= "Disallow: /api/\n";
@@ -388,9 +384,7 @@ class SitemapController extends Controller
         $robotsTxt .= "# Bing & Yahoo optimization (Bingbot powers Yahoo Search)\n";
         $robotsTxt .= "User-agent: Bingbot\n";
         $robotsTxt .= "Allow: /\n";
-        $robotsTxt .= "Allow: /cari$\n";
-        $robotsTxt .= "Disallow: /cari?\n";
-        $robotsTxt .= "Disallow: /cari/*\n";
+        $robotsTxt .= "Allow: /cari\n";
         $robotsTxt .= "Disallow: /search\n";
         $robotsTxt .= "Disallow: /search?\n";
         $robotsTxt .= "Disallow: /api/\n";
@@ -407,9 +401,7 @@ class SitemapController extends Controller
         $robotsTxt .= "# Other search engines (Yahoo Slurp)\n";
         $robotsTxt .= "User-agent: Slurp\n";
         $robotsTxt .= "Allow: /\n";
-        $robotsTxt .= "Allow: /cari$\n";
-        $robotsTxt .= "Disallow: /cari?\n";
-        $robotsTxt .= "Disallow: /cari/*\n";
+        $robotsTxt .= "Allow: /cari\n";
         $robotsTxt .= "Disallow: /search\n";
         $robotsTxt .= "Disallow: /search?\n";
         $robotsTxt .= "Disallow: /api/\n";

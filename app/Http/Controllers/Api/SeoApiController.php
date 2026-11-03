@@ -245,7 +245,8 @@ class SeoApiController extends Controller
                 'title' => "Hasil Pencarian \"{$query}\" - Al-Quran Digital | IndoQuran",
                 'description' => "🔍 Hasil pencarian Al-Quran untuk \"{$query}\". Temukan ayat dan surah yang sesuai dengan mudah.",
                 'keywords' => "pencarian quran, cari ayat, {$query}",
-                'canonicalUrl' => url("/cari?q=" . rawurlencode($query))
+                'canonicalUrl' => url('/cari'),
+                'robots' => 'noindex, follow'
             ];
         }
 

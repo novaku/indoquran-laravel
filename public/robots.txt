@@ -17,8 +17,6 @@ Disallow: /admin/
 Disallow: /dashboard/
 
 # Disallow search and filter URLs
-Disallow: /cari?
-Disallow: /cari/*
 Disallow: /search
 Disallow: /search?
 Disallow: /*?*tag=
@@ -26,7 +24,7 @@ Disallow: /*?*search=
 Disallow: /artikel?*
 
 # Allow important pages
-Allow: /cari$
+Allow: /cari
 Allow: /surah
 Allow: /surah/
 Allow: /daftar-lengkap
@@ -63,9 +61,7 @@ Sitemap: https://indoquran.web.id/sitemap-hadits-topik.xml
 # Googlebot specific
 User-agent: Googlebot
 Allow: /
-Allow: /cari$
-Disallow: /cari?
-Disallow: /cari/*
+Allow: /cari
 Disallow: /search
 Disallow: /search?
 Disallow: /api/
