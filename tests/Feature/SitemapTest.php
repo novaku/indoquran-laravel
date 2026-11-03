@@ -309,5 +309,24 @@ class SitemapTest extends TestCase
         $response->assertSee('index, follow', false);
         $response->assertSee('<link rel="canonical" href="' . url('/cari') . '">', false);
     }
+
+    public function test_no_erroneous_hreflang_x_default_pointing_to_root(): void
+    {
+        Surah::create([
+            'number' => 9,
+            'name_latin' => 'At-Taubah',
+            'name_arabic' => 'التوبة',
+            'name_indonesian' => 'Pengampunan',
+            'total_ayahs' => 129,
+            'revelation_place' => 'Madinah',
+            'description_short' => 'Surah At-Taubah',
+            'description_long' => 'Deskripsi lengkap Surah At-Taubah'
+        ]);
+
+        $response = $this->get('/surah/9');
+        $response->assertStatus(200);
+        $response->assertDontSee('hreflang="x-default"', false);
+        $response->assertSee('<link rel="canonical" href="' . url('/surah/9') . '">', false);
+    }
 }
 

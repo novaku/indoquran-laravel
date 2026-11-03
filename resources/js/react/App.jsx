@@ -401,7 +401,6 @@ const AppContent = memo(() => {
                         <Route path="/kebijakan" element={<PrivacyPage />} />
                         <Route path="/syarat-ketentuan" element={<TermsPage />} />
                         <Route path="/riwayat-versi" element={<RiwayatVersiPage />} />
-                        <Route path="/surah" element={<SEOLandingPage />} />
                         <Route path="/daftar-lengkap" element={<SEOLandingPage />} />
                         <Route path="/statistik" element={<StatistikPage />} />
 

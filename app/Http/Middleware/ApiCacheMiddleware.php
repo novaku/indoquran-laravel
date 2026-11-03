@@ -22,6 +22,17 @@ class ApiCacheMiddleware
             return $next($request);
         }
 
+        // Disable caching during unit testing
+        if (app()->environment('testing')) {
+            $response = $next($request);
+            if ($response->getStatusCode() === 200) {
+                $response->headers->set('Cache-Control', 'no-cache, private');
+                $response->headers->set('Pragma', 'no-cache');
+                $response->headers->set('Expires', '0');
+            }
+            return $response;
+        }
+
         $cacheTime = $this->parseDuration($duration);
         $clientEtag = $request->header('If-None-Match');
         $cacheKey = 'api_http_resp:' . md5($request->fullUrl());

@@ -951,8 +951,12 @@ function SurahDetailPage() {
                 setCurrentAyahNumber(ayahNum);
                 scrollAyahNavGrid(ayahNum);
 
-                // Auto-scroll to top so user can read from the top of the surah
-                scrollToTop();
+                // Scroll to target ayah when specific ayah requested
+                if (ayahNum > 1) {
+                    scrollToCurrentAyah(ayahNum);
+                } else {
+                    scrollToTop();
+                }
 
                 // Update reading progress and Khatam Tracker
                 if (number) {
@@ -969,12 +973,16 @@ function SurahDetailPage() {
             }
             scrollToTop();
         }
-    }, [ayahNumber, user, number, currentAyahNumber, isAutoPlayingSequence, scrollAyahNavGrid]);
+    }, [ayahNumber, user, number, currentAyahNumber, isAutoPlayingSequence, scrollAyahNavGrid, scrollToCurrentAyah]);
 
-    // Auto-scroll to top when surah or ayah URL param changes
+    // Auto-scroll when surah or ayah URL param changes
     useEffect(() => {
-        scrollToTop();
-    }, [number, ayahNumber]);
+        if (ayahNumber && parseInt(ayahNumber, 10) > 1) {
+            scrollToCurrentAyah(parseInt(ayahNumber, 10));
+        } else {
+            scrollToTop();
+        }
+    }, [number, ayahNumber, scrollToCurrentAyah]);
 
     // Handle URL validation only for invalid ayah numbers (not for navigation interference)
     useEffect(() => {
@@ -1015,17 +1023,18 @@ function SurahDetailPage() {
         }
     }, [ayahs, loading, number, navigate, ayahNumber, availableAyahNumbers]);
 
-    // Auto-scroll to top when component is fully loaded
+    // Auto-scroll when component is fully loaded
     useEffect(() => {
         if (!loading && ayahs.length > 0) {
-            if (!ayahNumber || parseInt(ayahNumber) === 1) {
+            if (!ayahNumber || parseInt(ayahNumber, 10) === 1) {
                 scrollToTop();
-            }
-            if (ayahNumber) {
-                scrollAyahNavGrid(parseInt(ayahNumber));
+            } else {
+                const targetAyah = parseInt(ayahNumber, 10);
+                scrollAyahNavGrid(targetAyah);
+                scrollToCurrentAyah(targetAyah);
             }
         }
-    }, [loading, ayahs.length, ayahNumber, scrollAyahNavGrid]);
+    }, [loading, ayahs.length, ayahNumber, scrollAyahNavGrid, scrollToCurrentAyah]);
 
 
     const toggleBookmark = async (ayahNum) => {

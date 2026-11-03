@@ -237,6 +237,7 @@ function SurahListPage() {
                 title="Daftar Surah Al-Quran - IndoQuran"
                 description="Jelajahi dan baca semua 114 surah Al-Quran lengkap dengan terjemahan bahasa Indonesia. Pilih surah berdasarkan tempat turunnya di Makkah atau Madinah."
                 keywords="daftar surah, al quran indonesia, 114 surah, surah makkiyah madaniyah, quran indonesia, surah al quran lengkap"
+                canonicalUrl="https://indoquran.web.id/surah"
             />
             
             <div className="min-h-screen bg-gray-50">

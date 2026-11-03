@@ -78,10 +78,6 @@
     <!-- Canonical URL managed by Server Side for SEO Consistency -->
     <!-- This prevents duplicate canonical tags and ensures Google sees one consistent canonical URL -->
     <link rel="canonical" href="{{ $canonicalUrl ?? url()->current() }}">
-    
-    <!-- Additional SEO Links -->
-    <link rel="alternate" hreflang="id" href="{{ $canonicalUrl ?? url()->current() }}">
-    <link rel="alternate" hreflang="x-default" href="{{ url('/') }}">
     <title>{{ $metaTitle ?? 'IndoQuran - Al-Quran Digital Indonesia' }}</title>
 
     <!-- Critical Performance Optimizations -->

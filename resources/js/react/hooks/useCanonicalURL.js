@@ -45,22 +45,24 @@ export const useCanonicalURL = (manualCanonicalUrl = null) => {
     const normalizedUrl = normalizedPath + normalizedSearch;
     const canonicalUrl = manualCanonicalUrl || generateCanonicalUrl(normalizedUrl);
     
-    // Remove all existing canonical links first to prevent duplicates
-    const existingCanonicals = document.querySelectorAll('link[rel="canonical"]');
-    existingCanonicals.forEach(el => {
-      if (!el.dataset.managed) {
-        el.remove();
+    // Find or create canonical link without removing server-rendered tags during hydration
+    const canonicalLinks = document.querySelectorAll('link[rel="canonical"]');
+    let canonicalLink = canonicalLinks[0];
+
+    // Clean up any extraneous duplicate canonical links (keep only the first one)
+    if (canonicalLinks.length > 1) {
+      for (let i = 1; i < canonicalLinks.length; i++) {
+        canonicalLinks[i].remove();
       }
-    });
-    
-    // Find or create canonical link
-    let canonicalLink = document.querySelector('link[rel="canonical"][data-managed="true"]');
+    }
+
     if (!canonicalLink) {
       canonicalLink = document.createElement('link');
       canonicalLink.rel = 'canonical';
       canonicalLink.setAttribute('data-managed', 'true');
-      // Insert at the beginning of head for proper parsing
       document.head.insertBefore(canonicalLink, document.head.firstChild);
+    } else {
+      canonicalLink.setAttribute('data-managed', 'true');
     }
     
     // Only update if canonical URL has changed to avoid unnecessary DOM manipulation
