@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Article;
+use App\Services\ArticleCacheService;
 use App\Services\ArticleSitemapService;
 use App\Services\IndexNowService;
 use Illuminate\Support\Facades\Log;
@@ -11,7 +12,8 @@ class ArticleObserver
 {
     public function __construct(
         protected ArticleSitemapService $sitemapService,
-        protected IndexNowService $indexNowService
+        protected IndexNowService $indexNowService,
+        protected ArticleCacheService $cacheService
     ) {}
 
     /**
@@ -22,8 +24,9 @@ class ArticleObserver
         $isPublished = $article->status === 'published';
         $wasPublished = $article->getOriginal('status') === 'published';
 
-        // Update sitemap if article is currently published, was just published, or was unpublished
+        // Clear cache and update sitemap if article is currently published, was just published, or was unpublished
         if ($isPublished || $wasPublished) {
+            $this->cacheService->clearArticleCache($article, $article->getOriginal('slug'));
             $this->sitemapService->updateSitemapFile();
 
             // Notify search engines via IndexNow if currently published in production
@@ -39,6 +42,7 @@ class ArticleObserver
     public function deleted(Article $article): void
     {
         if ($article->status === 'published' || $article->getOriginal('status') === 'published') {
+            $this->cacheService->clearArticleCache($article, $article->slug);
             $this->sitemapService->updateSitemapFile();
         }
     }

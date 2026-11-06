@@ -176,6 +176,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/articles/{id}', [\App\Http\Controllers\ArticleController::class, 'update'])->name('admin.api.articles.update');
         Route::delete('/articles/{id}', [\App\Http\Controllers\ArticleController::class, 'destroy'])->name('admin.api.articles.destroy');
         Route::post('/articles/upload-image', [\App\Http\Controllers\ArticleController::class, 'uploadImage'])->name('admin.api.articles.upload-image');
+        Route::post('/articles/clear-cache', [\App\Http\Controllers\ArticleController::class, 'clearCache'])->name('admin.api.articles.clear-cache');
 
         // Tag management routes - session-based (admin panel)
         Route::get('/tags', [\App\Http\Controllers\TagController::class, 'adminIndex'])->name('admin.api.tags.index');

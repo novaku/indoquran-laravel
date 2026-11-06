@@ -168,8 +168,15 @@ class ArticleController extends Controller
         }
 
         // Set published_at if status is published and date not set
-        if ($validated['status'] === 'published' && empty($validated['published_at'])) {
-            $validated['published_at'] = now();
+        if ($validated['status'] === 'published') {
+            if (empty($validated['published_at'])) {
+                $validated['published_at'] = now();
+            } else {
+                $publishedAt = \Carbon\Carbon::parse($validated['published_at']);
+                if ($publishedAt->isFuture() && $publishedAt->diffInMinutes(now()) <= 5) {
+                    $validated['published_at'] = now();
+                }
+            }
         }
 
         // Set author as current user
@@ -188,7 +195,7 @@ class ArticleController extends Controller
         }
 
         try {
-            app(\App\Services\AdminDashboardCacheService::class)->clearArticles();
+            app(\App\Services\ArticleCacheService::class)->clearArticleCache($article);
             if ($article->status === 'published') {
                 app(\App\Services\ArticleSitemapService::class)->updateSitemapFile();
             }
@@ -244,8 +251,15 @@ class ArticleController extends Controller
         $validated['status'] = $status;
 
         // Set published_at if status is published and date not set
-        if ($status === 'published' && empty($validated['published_at'])) {
-            $validated['published_at'] = now();
+        if ($status === 'published') {
+            if (empty($validated['published_at'])) {
+                $validated['published_at'] = now();
+            } else {
+                $publishedAt = \Carbon\Carbon::parse($validated['published_at']);
+                if ($publishedAt->isFuture() && $publishedAt->diffInMinutes(now()) <= 5) {
+                    $validated['published_at'] = now();
+                }
+            }
         }
 
         // Support excerpt, short_description, or short_desc (auto-generate from content if empty)
@@ -282,7 +296,7 @@ class ArticleController extends Controller
         }
 
         try {
-            app(\App\Services\AdminDashboardCacheService::class)->clearArticles();
+            app(\App\Services\ArticleCacheService::class)->clearArticleCache($article);
             if ($article->status === 'published') {
                 app(\App\Services\ArticleSitemapService::class)->updateSitemapFile();
             }
@@ -326,14 +340,22 @@ class ArticleController extends Controller
         }
 
         // Set published_at when changing to published or retain existing
-        if ($validated['status'] === 'published' && empty($validated['published_at'])) {
-            $validated['published_at'] = $article->published_at ?? now();
+        if ($validated['status'] === 'published') {
+            if (empty($validated['published_at'])) {
+                $validated['published_at'] = $article->published_at ?? now();
+            } else {
+                $publishedAt = \Carbon\Carbon::parse($validated['published_at']);
+                if ($publishedAt->isFuture() && $publishedAt->diffInMinutes(now()) <= 5) {
+                    $validated['published_at'] = now();
+                }
+            }
         }
 
         // Extract tags before updating article
         $tags = $validated['tags'] ?? [];
         unset($validated['tags']);
 
+        $oldSlug = $article->slug;
         $oldStatus = $article->status;
         $article->update($validated);
 
@@ -346,7 +368,7 @@ class ArticleController extends Controller
         }
 
         try {
-            app(\App\Services\AdminDashboardCacheService::class)->clearArticles();
+            app(\App\Services\ArticleCacheService::class)->clearArticleCache($article, $oldSlug);
             if ($article->status === 'published' || $oldStatus === 'published') {
                 app(\App\Services\ArticleSitemapService::class)->updateSitemapFile();
             }
@@ -371,12 +393,15 @@ class ArticleController extends Controller
         }
 
         $wasPublished = $article->status === 'published';
+        $oldSlug = $article->slug;
         $article->delete();
 
         try {
-            app(\App\Services\AdminDashboardCacheService::class)->clearArticles();
             if ($wasPublished) {
+                app(\App\Services\ArticleCacheService::class)->clearArticleCache($article, $oldSlug);
                 app(\App\Services\ArticleSitemapService::class)->updateSitemapFile();
+            } else {
+                app(\App\Services\AdminDashboardCacheService::class)->clearArticles();
             }
         } catch (\Throwable $e) {}
 
@@ -671,5 +696,18 @@ class ArticleController extends Controller
         }
         
         return $tagIds;
+    }
+
+    /**
+     * Clear all article caches (admin or manual trigger)
+     */
+    public function clearCache(): \Illuminate\Http\JsonResponse
+    {
+        $cleared = app(\App\Services\ArticleCacheService::class)->clearArticleCache();
+
+        return response()->json([
+            'status' => $cleared ? 'success' : 'error',
+            'message' => $cleared ? 'Cache artikel berhasil dibersihkan' : 'Gagal membersihkan cache artikel'
+        ]);
     }
 }

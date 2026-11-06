@@ -35,31 +35,38 @@ class ApiCacheMiddleware
 
         $cacheTime = $this->parseDuration($duration);
         $clientEtag = $request->header('If-None-Match');
-        $cacheKey = 'api_http_resp:' . md5($request->fullUrl());
+        $segment = $request->segment(2) ?? 'general';
+        $cacheKey = "api_http_resp:{$segment}:" . md5($request->fullUrl());
+        $legacyKey = 'api_http_resp:' . md5($request->fullUrl());
+        $cacheControl = $this->getCacheControlHeader($request, $cacheTime);
 
         // Check Redis server cache (skip only during testing)
         if (!app()->environment('testing')) {
+            $cached = null;
             if (Cache::has($cacheKey)) {
                 $cached = Cache::get($cacheKey);
-                if (is_array($cached) && isset($cached['content'], $cached['etag'])) {
-                    // 304 Not Modified if client ETag matches
-                    if ($clientEtag && $clientEtag === $cached['etag']) {
-                        return response('', 304)->withHeaders([
-                            'Cache-Control' => "public, max-age={$cacheTime}, stale-while-revalidate=86400",
-                            'ETag' => $cached['etag'],
-                            'Expires' => gmdate('D, d M Y H:i:s', time() + $cacheTime) . ' GMT',
-                            'X-Cache' => 'HIT-304',
-                        ]);
-                    }
+            } elseif (Cache::has($legacyKey)) {
+                $cached = Cache::get($legacyKey);
+            }
 
-                    return response($cached['content'], 200, [
-                        'Content-Type' => $cached['content_type'] ?? 'application/json',
-                        'Cache-Control' => "public, max-age={$cacheTime}, stale-while-revalidate=86400",
+            if (is_array($cached) && isset($cached['content'], $cached['etag'])) {
+                // 304 Not Modified if client ETag matches
+                if ($clientEtag && $clientEtag === $cached['etag']) {
+                    return response('', 304)->withHeaders([
+                        'Cache-Control' => $cacheControl,
                         'ETag' => $cached['etag'],
                         'Expires' => gmdate('D, d M Y H:i:s', time() + $cacheTime) . ' GMT',
-                        'X-Cache' => 'HIT',
+                        'X-Cache' => 'HIT-304',
                     ]);
                 }
+
+                return response($cached['content'], 200, [
+                    'Content-Type' => $cached['content_type'] ?? 'application/json',
+                    'Cache-Control' => $cacheControl,
+                    'ETag' => $cached['etag'],
+                    'Expires' => gmdate('D, d M Y H:i:s', time() + $cacheTime) . ' GMT',
+                    'X-Cache' => 'HIT',
+                ]);
             }
         }
 
@@ -73,7 +80,7 @@ class ApiCacheMiddleware
             // Handle conditional requests for 304 Not Modified
             if ($clientEtag && $clientEtag === $etag) {
                 return response('', 304)->withHeaders([
-                    'Cache-Control' => "public, max-age={$cacheTime}, stale-while-revalidate=86400",
+                    'Cache-Control' => $cacheControl,
                     'ETag' => $etag,
                     'Expires' => gmdate('D, d M Y H:i:s', time() + $cacheTime) . ' GMT',
                     'X-Cache' => 'HIT-304',
@@ -81,7 +88,7 @@ class ApiCacheMiddleware
             }
             
             // Set comprehensive cache headers
-            $response->headers->set('Cache-Control', "public, max-age={$cacheTime}, stale-while-revalidate=86400", true);
+            $response->headers->set('Cache-Control', $cacheControl, true);
             $response->headers->set('Expires', gmdate('D, d M Y H:i:s', time() + $cacheTime) . ' GMT', true);
             $response->headers->set('Last-Modified', gmdate('D, d M Y H:i:s') . ' GMT', true);
             $response->headers->set('ETag', $etag, true);
@@ -103,6 +110,21 @@ class ApiCacheMiddleware
         }
 
         return $response;
+    }
+
+    /**
+     * Determine optimal Cache-Control header based on endpoint characteristics.
+     */
+    protected function getCacheControlHeader(Request $request, int $cacheTime): string
+    {
+        // For article & tag listing endpoints, keep client browser cache short (10s)
+        // with must-revalidate so new articles appear immediately on refresh,
+        // while allowing intermediate caches to use s-maxage.
+        if ($request->is('api/articles*') || $request->is('api/tags*')) {
+            return "public, max-age=10, s-maxage={$cacheTime}, stale-while-revalidate=60, must-revalidate";
+        }
+
+        return "public, max-age={$cacheTime}, stale-while-revalidate=86400";
     }
     
     /**

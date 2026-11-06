@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch, FaComments } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch, FaComments, FaSync } from 'react-icons/fa';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { scrollToTop } from '../utils/scrollUtils';
 import { stripHtml, decodeHtmlEntities } from '../utils/textUtils';
@@ -11,6 +11,7 @@ const AdminArticlesPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [pagination, setPagination] = useState(null);
+  const [clearingCache, setClearingCache] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -137,6 +138,34 @@ const AdminArticlesPage = () => {
     }
   };
 
+  const handleClearCache = async () => {
+    setClearingCache(true);
+    try {
+      const csrfToken = await getCsrfToken();
+      const response = await fetch('/api/admin/articles/clear-cache', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRF-TOKEN': csrfToken
+        },
+        credentials: 'same-origin'
+      });
+
+      if (response.ok) {
+        alert('Cache artikel berhasil dibersihkan! Halaman publik artikel kini menampilkan data terbaru.');
+      } else {
+        alert('Gagal membersihkan cache artikel.');
+      }
+    } catch (error) {
+      console.error('Error clearing cache:', error);
+      alert('Terjadi kesalahan saat membersihkan cache.');
+    } finally {
+      setClearingCache(false);
+    }
+  };
+
   const getImageUrl = (path) => {
     if (!path) return '/images/default-article.svg';
     if (path.startsWith('http')) return path;
@@ -157,7 +186,17 @@ const AdminArticlesPage = () => {
               <h1 className="text-2xl font-bold text-gray-900">Kelola Artikel</h1>
               <p className="text-gray-600 mt-1">Kelola publikasi, sunting, dan tulis artikel baru untuk website IndoQuran</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={handleClearCache}
+                disabled={clearingCache}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-gray-700 border border-gray-300 font-medium rounded-lg hover:bg-gray-50 transition-colors shadow-xs cursor-pointer disabled:opacity-50"
+                title="Bersihkan cache halaman artikel publik"
+              >
+                <FaSync className={`text-blue-600 text-sm ${clearingCache ? 'animate-spin' : ''}`} />
+                <span>{clearingCache ? 'Membersihkan...' : 'Bersihkan Cache'}</span>
+              </button>
               <Link
                 to="/admin/dashboard?tab=comments"
                 className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-gray-700 border border-gray-300 font-medium rounded-lg hover:bg-gray-50 transition-colors shadow-xs"

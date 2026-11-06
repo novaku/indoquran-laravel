@@ -46,6 +46,7 @@ Route::post('/password/reset/confirm', [\App\Http\Controllers\Auth\PasswordReset
 Route::middleware(['static.key'])->group(function() {
     Route::post('/articles', [ArticleController::class, 'storeApi']);
     Route::post('/articles/create', [ArticleController::class, 'storeApi']);
+    Route::post('/articles/clear-cache', [ArticleController::class, 'clearCache']);
 });
 
 // Articles public routes
