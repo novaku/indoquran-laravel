@@ -65,72 +65,50 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Artisan::command('redis:quick-test', function () {
-    $socketPath = config('database.redis.default.socket');
+    $socketPath = config('database.redis.default.socket') ?: config('database.redis.default.host');
+    $clientType = config('database.redis.client', 'phpredis');
     
-    $this->info("Testing Redis connection to: {$socketPath}");
+    $this->info("Testing Redis connection ({$clientType}) to: {$socketPath}");
     
     try {
-        // Force disconnect any existing connections
+        // Test via Laravel Redis facade
+        $this->line("Attempting ping via Laravel Redis facade...");
         Redis::disconnect();
+        $pong = Redis::connection()->ping();
+        $this->info("✅ Ping response from Laravel Redis: " . var_export($pong, true));
+
+        // Test basic operation
+        $testKey = 'quick_test_' . time();
+        $this->line("Testing SET/GET with key: {$testKey}");
+        Redis::set($testKey, 'Hello IndoQuran!');
+        $value = Redis::get($testKey);
+        Redis::del($testKey);
         
-        // Create a fresh Predis client directly with socket configuration
-        $this->line("Creating Predis client with socket: {$socketPath}");
-        $client = new \Predis\Client([
-            'scheme' => 'unix',
-            'path' => $socketPath,
-        ]);
-        
-        // Test connection
-        $this->line("Attempting ping...");
-        $pong = $client->ping();
-        $this->line("Ping response: " . var_export($pong, true));
-        
-        // Handle different response types from Predis
-        $pingSuccess = false;
-        if ($pong === '+PONG' || $pong === 'PONG' || $pong === true) {
-            $pingSuccess = true;
-        } elseif (is_object($pong) && method_exists($pong, '__toString')) {
-            $stringResponse = (string) $pong;
-            if ($stringResponse === 'PONG') {
-                $pingSuccess = true;
-            }
-        } elseif (is_object($pong) && isset($pong->payload)) {
-            if ($pong->payload === 'PONG') {
-                $pingSuccess = true;
-            }
-        }
-        
-        if ($pingSuccess) {
-            $this->info('✅ Redis connection successful!');
-            
-            // Test basic operation
-            $testKey = 'quick_test_' . time();
-            $this->line("Testing SET/GET with key: {$testKey}");
-            $client->set($testKey, 'Hello IndoQuran!');
-            $value = $client->get($testKey);
-            $client->del($testKey);
-            
-            if ($value === 'Hello IndoQuran!') {
-                $this->info('✅ Basic Redis operations working!');
-            } else {
-                $this->error('❌ Basic operations failed - got: ' . var_export($value, true));
-            }
+        if ($value === 'Hello IndoQuran!') {
+            $this->info('✅ Laravel Redis operations working perfectly!');
         } else {
-            $this->error('❌ Redis ping failed - got: ' . var_export($pong, true));
+            $this->warn('⚠️ Basic operations unexpected response: ' . var_export($value, true));
         }
-    } catch (\Exception $e) {
-        $this->error('❌ Connection failed: ' . $e->getMessage());
+    } catch (\Throwable $e) {
+        $this->error('❌ Laravel Redis connection failed: ' . $e->getMessage());
         $this->error('Exception class: ' . get_class($e));
-        if (method_exists($e, 'getTraceAsString')) {
-            $this->line('Stack trace: ' . $e->getTraceAsString());
-        }
-        $this->warn('Troubleshooting tips:');
-        $this->warn("1. Check if Redis server is running");
-        $this->warn("2. Verify socket file exists: {$socketPath}");
-        $this->warn("3. Check socket file permissions");
-        $this->warn("4. Ensure proper Redis configuration");
     }
-})->purpose('Quick Redis connection test using socket path');
+
+    // Secondary test: if socket exists and Predis class is available, test Predis directly
+    if ($socketPath && class_exists(\Predis\Client::class)) {
+        try {
+            $this->line("--- Direct Predis Socket Test ---");
+            $client = new \Predis\Client([
+                'scheme' => 'unix',
+                'path' => $socketPath,
+            ]);
+            $pong = $client->ping();
+            $this->info("✅ Direct Predis ping: " . var_export($pong, true));
+        } catch (\Throwable $e) {
+            $this->error('❌ Direct Predis ping failed: ' . $e->getMessage());
+        }
+    }
+})->purpose('Quick Redis connection test using configured client and socket path');
 
 Artisan::command('redis:debug', function () {
     $this->info('=== Redis Configuration Debug ===');

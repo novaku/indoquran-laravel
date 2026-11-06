@@ -98,16 +98,25 @@ class AppServiceProvider extends ServiceProvider
             
             Redis::enableEvents();
             // Use UNIX socket in production if available, otherwise preserve TCP host/port fallback
-            $redisSocket = env('REDIS_SOCKET', '/home/indoqura/tmp/redis.sock');
+            $redisSocket = env('REDIS_SOCKET')
+                ?: (file_exists('/tmp/redis.sock') ? '/tmp/redis.sock' : (file_exists('/home/indoqura/tmp/redis.sock') ? '/home/indoqura/tmp/redis.sock' : null));
+
             if ($redisSocket && file_exists($redisSocket)) {
-                config(['database.redis.default.socket' => $redisSocket]);
-                config(['database.redis.cache.socket' => $redisSocket]);
-                config(['database.redis.default.scheme' => 'unix']);
-                config(['database.redis.cache.scheme' => 'unix']);
-                config(['database.redis.default.path' => $redisSocket]);
-                config(['database.redis.cache.path' => $redisSocket]);
-                config(['database.redis.default.host' => null]);
-                config(['database.redis.cache.host' => null]);
+                config([
+                    'database.redis.default.host' => $redisSocket,
+                    'database.redis.cache.host' => $redisSocket,
+                    'database.redis.default.socket' => $redisSocket,
+                    'database.redis.cache.socket' => $redisSocket,
+                    'database.redis.default.path' => $redisSocket,
+                    'database.redis.cache.path' => $redisSocket,
+                    'database.redis.default.scheme' => 'unix',
+                    'database.redis.cache.scheme' => 'unix',
+                    'database.redis.default.port' => 0,
+                    'database.redis.cache.port' => 0,
+                ]);
+            } elseif ($redisSocket && !file_exists($redisSocket) && config('cache.default') === 'redis') {
+                // If Redis socket is missing or service stopped, safely fallback to database cache to prevent 500 downtime
+                config(['cache.default' => 'database']);
             }
         } else {
             // Development environment - DON'T force any URL schemes
