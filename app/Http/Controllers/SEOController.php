@@ -12,17 +12,31 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class SEOController extends Controller
 {
     /**
+     * Safely remember cache with automatic fallback to query if Redis/cache fails.
+     */
+    protected static function rememberSafe(string $key, int $ttl, \Closure $callback)
+    {
+        try {
+            return Cache::remember($key, $ttl, $callback);
+        } catch (\Throwable $e) {
+            Log::warning("SEOController cache failed for [{$key}], falling back to direct query: " . $e->getMessage());
+            return $callback();
+        }
+    }
+
+    /**
      * Get all 114 surahs keyed by number from Redis cache
      */
     public static function getAllSurahsKeyed(): \Illuminate\Support\Collection
     {
-        return Cache::remember('all_surahs_keyed_collection', 86400 * 30, function () {
+        return self::rememberSafe('all_surahs_keyed_collection', 86400 * 30, function () {
             return Surah::query()->orderBy('number', 'asc')->get()->keyBy('number');
         });
     }
@@ -44,7 +58,7 @@ class SEOController extends Controller
      */
     protected function getCachedAyah(int $surahNumber, int $ayahNumber): ?Ayah
     {
-        return Cache::remember("seo_ayah_{$surahNumber}_{$ayahNumber}", 86400 * 7, function () use ($surahNumber, $ayahNumber) {
+        return self::rememberSafe("seo_ayah_{$surahNumber}_{$ayahNumber}", 86400 * 7, function () use ($surahNumber, $ayahNumber) {
             return Ayah::query()
                 ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian', 'juz', 'page')
                 ->where('surah_number', $surahNumber)
@@ -58,7 +72,7 @@ class SEOController extends Controller
      */
     protected function getCachedTafsirTopic(string $slug): ?TafsirMaudhuiTopic
     {
-        return Cache::remember("seo_tafsir_topic_{$slug}", 86400, function () use ($slug) {
+        return self::rememberSafe("seo_tafsir_topic_{$slug}", 86400, function () use ($slug) {
             return TafsirMaudhuiTopic::query()
                 ->where('slug', $slug)
                 ->where('is_active', true)
@@ -74,7 +88,7 @@ class SEOController extends Controller
      */
     protected function getCachedArticle(string $slug): ?Article
     {
-        return Cache::remember("seo_article_model_{$slug}", 3600, function () use ($slug) {
+        return self::rememberSafe("seo_article_model_{$slug}", 3600, function () use ($slug) {
             return Article::query()
                 ->with(['author:id,name', 'tags'])
                 ->where('slug', $slug)
@@ -88,7 +102,7 @@ class SEOController extends Controller
      */
     protected function getCachedRelatedArticles(int $excludeId): \Illuminate\Database\Eloquent\Collection
     {
-        return Cache::remember("seo_article_related_{$excludeId}", 3600, function () use ($excludeId) {
+        return self::rememberSafe("seo_article_related_{$excludeId}", 3600, function () use ($excludeId) {
             return Article::query()
                 ->with(['author:id,name', 'tags'])
                 ->where('id', '!=', $excludeId)
@@ -1407,7 +1421,7 @@ class SEOController extends Controller
                 $pageNumber = (int) $segments[1];
 
                 // Fetch cached page ayahs to build rich, unique meta title and description
-                $pageAyahs = \Illuminate\Support\Facades\Cache::remember("seo_page_ayahs_{$pageNumber}", 86400, function () use ($pageNumber) {
+                $pageAyahs = self::rememberSafe("seo_page_ayahs_{$pageNumber}", 86400, function () use ($pageNumber) {
                     return Ayah::query()
                         ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian')
                         ->with('surah:number,name_latin,name_indonesian,name_arabic')
@@ -1703,7 +1717,7 @@ class SEOController extends Controller
         // Fetch data based on route
         if ($path === '/' || $path === '' || $path === 'daftar-lengkap' || $path === 'surah') {
             // Homepage, Daftar Lengkap, & Surah Index: Fetch all surahs for SEO list
-            $reactData['surahs'] = \Illuminate\Support\Facades\Cache::remember('seo_surah_list', 86400, function () {
+            $reactData['surahs'] = self::rememberSafe('seo_surah_list', 86400, function () {
                 return Surah::query()->orderBy('number', 'asc')
                     ->select('number', 'name_latin', 'name_indonesian', 'name_arabic', 'total_ayahs')
                     ->get();
@@ -1719,7 +1733,7 @@ class SEOController extends Controller
 
                 if (!$isAyahPage) {
                     // Pre-render preview of surah ayahs only for main surah page so Googlebot gets full text
-                    $reactData['surahAyahs'] = \Illuminate\Support\Facades\Cache::remember("seo_surah_ayahs_{$surahNumber}", 86400, function () use ($surahNumber) {
+                    $reactData['surahAyahs'] = self::rememberSafe("seo_surah_ayahs_{$surahNumber}", 86400, function () use ($surahNumber) {
                         return Ayah::query()
                             ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian')
                             ->where('surah_number', $surahNumber)
@@ -1744,7 +1758,7 @@ class SEOController extends Controller
             if (isset($segments[1]) && is_numeric($segments[1])) {
                 $juzNumber = (int) $segments[1];
                 $juzMeta = SEOService::getJuzMetadata($juzNumber);
-                $juzAyahs = \Illuminate\Support\Facades\Cache::remember("seo_juz_ayahs_{$juzNumber}", 86400, function () use ($juzNumber) {
+                $juzAyahs = self::rememberSafe("seo_juz_ayahs_{$juzNumber}", 86400, function () use ($juzNumber) {
                     return Ayah::query()
                         ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian', 'juz', 'page')
                         ->with('surah:number,name_latin,name_indonesian,name_arabic')
@@ -1778,7 +1792,7 @@ class SEOController extends Controller
             if (isset($segments[1]) && is_numeric($segments[1])) {
                 $pageNumber = (int) $segments[1];
                 // Fetch ALL ayahs for this page (no arbitrary limit) to ensure 100% complete content for Googlebot
-                $pageAyahs = \Illuminate\Support\Facades\Cache::remember("seo_page_ayahs_{$pageNumber}", 86400, function () use ($pageNumber) {
+                $pageAyahs = self::rememberSafe("seo_page_ayahs_{$pageNumber}", 86400, function () use ($pageNumber) {
                     return Ayah::query()
                         ->select('surah_number', 'ayah_number', 'text_arabic', 'text_latin', 'text_indonesian', 'juz', 'page')
                         ->with('surah:number,name_latin,name_indonesian,name_arabic')
@@ -1850,7 +1864,7 @@ class SEOController extends Controller
                     $reactData['relatedArticles'] = $this->getCachedRelatedArticles($article->id);
                 }
             } else {
-                $reactData['articles'] = Cache::remember('seo_articles_list_home', 600, function () {
+                $reactData['articles'] = self::rememberSafe('seo_articles_list_home', 600, function () {
                     return Article::query()
                         ->with(['author:id,name', 'tags'])
                         ->published()
@@ -1896,7 +1910,7 @@ class SEOController extends Controller
                 $topicSlug = $segments[2];
                 $topicName = ucwords(str_replace(['-', '_'], ' ', $topicSlug));
 
-                $topicHadiths = \Illuminate\Support\Facades\Cache::remember("seo_hadits_topic_{$topicSlug}", 86400, function () use ($topicSlug) {
+                $topicHadiths = self::rememberSafe("seo_hadits_topic_{$topicSlug}", 86400, function () use ($topicSlug) {
                     $results = [];
                     // Search in Bukhari first
                     $bukhariRows = \Illuminate\Support\Facades\DB::table('hadits_shahih_al_bukhari')

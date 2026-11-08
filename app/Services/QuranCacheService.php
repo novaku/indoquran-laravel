@@ -40,6 +40,19 @@ class QuranCacheService
     }
 
     /**
+     * Safely remember cache with automatic fallback to query if Redis/cache fails.
+     */
+    protected function rememberSafe(string $key, int $ttl, \Closure $callback)
+    {
+        try {
+            return Cache::remember($key, $ttl, $callback);
+        } catch (\Throwable $e) {
+            Log::warning("QuranCacheService: Cache failed for [{$key}], falling back to query: " . $e->getMessage());
+            return $callback();
+        }
+    }
+
+    /**
      * Get all surahs with Redis caching
      *
      * @return Collection
@@ -48,7 +61,7 @@ class QuranCacheService
     {
         $cacheKey = $this->getCachePrefix('surahs');
         
-        return Cache::remember($cacheKey, $this->getCacheTtl(), function () {
+        return $this->rememberSafe($cacheKey, $this->getCacheTtl(), function () {
             if (config('quran_cache.detailed_logging', false)) {
                 Log::info('QuranCacheService: Fetching all surahs from database');
             }
@@ -66,7 +79,7 @@ class QuranCacheService
     {
         $cacheKey = $this->getCachePrefix('surah') . $number;
         
-        return Cache::remember($cacheKey, $this->getCacheTtl(), function () use ($number) {
+        return $this->rememberSafe($cacheKey, $this->getCacheTtl(), function () use ($number) {
             if (config('quran_cache.detailed_logging', false)) {
                 Log::info('QuranCacheService: Fetching surah from database', ['surah_number' => $number]);
             }
@@ -84,7 +97,7 @@ class QuranCacheService
     {
         $cacheKey = $this->getCachePrefix('ayahs') . $surahNumber;
         
-        return Cache::remember($cacheKey, $this->getCacheTtl(), function () use ($surahNumber) {
+        return $this->rememberSafe($cacheKey, $this->getCacheTtl(), function () use ($surahNumber) {
             if (config('quran_cache.detailed_logging', false)) {
                 Log::info('QuranCacheService: Fetching surah ayahs from database', ['surah_number' => $surahNumber]);
             }
@@ -109,7 +122,7 @@ class QuranCacheService
         
         $cacheKey = $this->getCachePrefix('ayah') . $surahNumber . ':' . $ayahNumber;
         
-        return Cache::remember($cacheKey, $this->getCacheTtl(), function () use ($surahNumber, $ayahNumber) {
+        return $this->rememberSafe($cacheKey, $this->getCacheTtl(), function () use ($surahNumber, $ayahNumber) {
             if (config('quran_cache.detailed_logging', false)) {
                 Log::info('QuranCacheService: Fetching ayah from database', ['surah' => $surahNumber, 'ayah' => $ayahNumber]);
             }
@@ -142,7 +155,7 @@ class QuranCacheService
         // Create cache key based on query and limit
         $cacheKey = $this->getCachePrefix('search') . md5($query . '_' . $limit);
         
-        return Cache::remember($cacheKey, $this->getCacheTtl('search_results'), function () use ($query, $limit) {
+        return $this->rememberSafe($cacheKey, $this->getCacheTtl('search_results'), function () use ($query, $limit) {
             if (config('quran_cache.detailed_logging', false)) {
                 Log::info('QuranCacheService: Searching ayahs in database', ['query' => $query, 'limit' => $limit]);
             }
@@ -161,7 +174,7 @@ class QuranCacheService
      */
     public function getAllJuz(): array
     {
-        return Cache::remember('quran_all_juz_list', 86400 * 30, function () {
+        return $this->rememberSafe('quran_all_juz_list', 86400 * 30, function () {
             return range(1, 30);
         });
     }
@@ -173,7 +186,7 @@ class QuranCacheService
      */
     public function getAllPages(): array
     {
-        return Cache::remember('quran_all_pages_list', 86400 * 30, function () {
+        return $this->rememberSafe('quran_all_pages_list', 86400 * 30, function () {
             return range(1, 604);
         });
     }

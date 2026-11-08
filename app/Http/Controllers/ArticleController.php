@@ -16,6 +16,18 @@ use Illuminate\Support\Str;
 class ArticleController extends Controller
 {
     /**
+     * Safely remember cache with automatic fallback to query if Redis/cache fails.
+     */
+    protected static function rememberSafe(string $key, int $ttl, \Closure $callback)
+    {
+        try {
+            return Cache::remember($key, $ttl, $callback);
+        } catch (\Throwable $e) {
+            Log::warning("ArticleController cache failed for [{$key}], falling back to query: " . $e->getMessage());
+            return $callback();
+        }
+    }
+    /**
      * Ensure public/storage link exists before handling upload.
      */
     private function ensureStorageLinkForUploads(): void
@@ -570,7 +582,7 @@ class ArticleController extends Controller
      */
     public function related($slug)
     {
-        $related = Cache::remember("article_api_related_{$slug}", 1800, function () use ($slug) {
+        $related = self::rememberSafe("article_api_related_{$slug}", 1800, function () use ($slug) {
             $article = Article::where('slug', $slug)->first();
             if (!$article) {
                 return [];
@@ -592,7 +604,7 @@ class ArticleController extends Controller
      */
     public function random()
     {
-        $article = Cache::remember('article_api_random_single', 180, function () {
+        $article = self::rememberSafe('article_api_random_single', 180, function () {
             return Article::with(['author:id,name', 'tags'])
                 ->published()
                 ->inRandomOrder()

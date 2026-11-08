@@ -39,6 +39,19 @@ class HaditsCacheService
     }
 
     /**
+     * Safely remember cache with automatic fallback to query if Redis/cache fails.
+     */
+    protected function rememberSafe(string $key, int $ttl, \Closure $callback)
+    {
+        try {
+            return Cache::remember($key, $ttl, $callback);
+        } catch (\Throwable $e) {
+            Log::warning("HaditsCacheService: Cache failed for [{$key}], falling back to direct query: " . $e->getMessage());
+            return $callback();
+        }
+    }
+
+    /**
      * Get all books metadata catalog with caching
      */
     public function getCatalog(): array
@@ -46,7 +59,7 @@ class HaditsCacheService
         $cacheKey = $this->getPrefix('catalog') . 'summary';
         $ttl = $this->getTtl('catalog');
 
-        return Cache::remember($cacheKey, $ttl, function () {
+        return $this->rememberSafe($cacheKey, $ttl, function () {
             if (config('hadits_cache.detailed_logging', false)) {
                 Log::info('HaditsCacheService: Generating catalog cache');
             }
@@ -71,7 +84,7 @@ class HaditsCacheService
         $cacheKey = $this->getPrefix('catalog') . 'dropdown';
         $ttl = $this->getTtl('catalog');
 
-        return Cache::remember($cacheKey, $ttl, function () {
+        return $this->rememberSafe($cacheKey, $ttl, function () {
             $rawKitabs = HaditsController::getKitabCatalog();
             $availableKitabs = [];
             $totalHadits = 0;
@@ -125,7 +138,7 @@ class HaditsCacheService
         $cacheKey = $this->getPrefix('featured') . 'daily:' . date('Y-m-d');
         $ttl = $this->getTtl('featured');
 
-        return Cache::remember($cacheKey, $ttl, function () {
+        return $this->rememberSafe($cacheKey, $ttl, function () {
             if (config('hadits_cache.detailed_logging', false)) {
                 Log::info('HaditsCacheService: Selecting new daily featured hadith');
             }
@@ -219,7 +232,7 @@ class HaditsCacheService
         $cacheKey = $this->getPrefix('detail') . "{$resolved}:{$nomor}";
         $ttl = $this->getTtl('detail');
 
-        return Cache::remember($cacheKey, $ttl, function () use ($kitabInfo, $nomor, $resolved) {
+        return $this->rememberSafe($cacheKey, $ttl, function () use ($kitabInfo, $nomor, $resolved) {
             $table = $kitabInfo['table'];
             if (!Schema::hasTable($table)) {
                 return null;
@@ -295,7 +308,7 @@ class HaditsCacheService
         $cacheKey = $this->getPrefix('kategori') . $resolved;
         $ttl = $this->getTtl('kategori');
 
-        return Cache::remember($cacheKey, $ttl, function () use ($kitabInfo, $resolved) {
+        return $this->rememberSafe($cacheKey, $ttl, function () use ($kitabInfo, $resolved) {
             $table = $kitabInfo['table'];
             if (!Schema::hasTable($table)) {
                 return null;
@@ -418,7 +431,7 @@ class HaditsCacheService
         $cacheKey = $this->getPrefix('kitab') . "{$resolved}:c{$catKey}:p{$targetPage}:pp{$perPage}:s{$searchHash}:n{$nomorKey}";
         $ttl = empty($cleanSearch) ? $this->getTtl('kitab_page') : $this->getTtl('search');
 
-        return Cache::remember($cacheKey, $ttl, function () use ($kitabInfo, $perPage, $cleanSearch, $nomor, $targetPage, $categoryFilterName, $activeCategory) {
+        return $this->rememberSafe($cacheKey, $ttl, function () use ($kitabInfo, $perPage, $cleanSearch, $nomor, $targetPage, $categoryFilterName, $activeCategory) {
             $table = $kitabInfo['table'];
             if (!Schema::hasTable($table)) {
                 return null;
@@ -503,7 +516,7 @@ class HaditsCacheService
         $cacheKey = $this->getPrefix('search') . "{$kitabScope}:p{$page}:pp{$perPage}:{$searchKey}";
         $ttl = $this->getTtl('search');
 
-        return Cache::remember($cacheKey, $ttl, function () use ($q, $kitabScope, $page, $perPage, $catalog) {
+        return $this->rememberSafe($cacheKey, $ttl, function () use ($q, $kitabScope, $page, $perPage, $catalog) {
             $isExact = (str_starts_with($q, '"') && str_ends_with($q, '"')) || count(explode(' ', $q)) <= 1;
             $searchPhrase = trim($q, '"');
             $words = array_slice(preg_split('/\s+/', $searchPhrase, -1, PREG_SPLIT_NO_EMPTY), 0, 5);
@@ -658,7 +671,7 @@ class HaditsCacheService
 
             // Cache grouping breakdown by kitab
             $cacheKeyGroups = $this->getPrefix('search') . 'groups:' . md5(mb_strtolower($searchPhrase));
-            $groupsData = Cache::remember($cacheKeyGroups, $this->getTtl('search'), function () use ($first, $catalog) {
+            $groupsData = $this->rememberSafe($cacheKeyGroups, $this->getTtl('search'), function () use ($first, $catalog) {
                 $rawGroups = DB::query()->fromSub($first, 'u')
                     ->select('kitab_slug', DB::raw('count(*) as total'))
                     ->groupBy('kitab_slug')
@@ -737,7 +750,7 @@ class HaditsCacheService
         $cacheKey = $this->getPrefix('random') . 'hour:' . date('Y-m-d-H');
         $ttl = $this->getTtl('random');
 
-        return Cache::remember($cacheKey, $ttl, function () {
+        return $this->rememberSafe($cacheKey, $ttl, function () {
             return $this->getFeaturedHadits();
         });
     }

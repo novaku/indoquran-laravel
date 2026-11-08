@@ -3,11 +3,8 @@
 namespace App\Providers;
 
 use App\Models\Article;
-use App\Models\Ayah;
-use App\Models\Surah;
 use App\Observers\ArticleObserver;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -138,22 +135,6 @@ class AppServiceProvider extends ServiceProvider
             }
         }
         
-        // Implement caching for Surah model
-        Surah::retrieved(function ($surah) {
-            $cacheKey = "surah_{$surah->number}";
-            if (!Cache::has($cacheKey)) {
-                Cache::put($cacheKey, $surah, now()->addDays(30));
-            }
-        });
-
-        // Implement caching for Ayah model
-        Ayah::retrieved(function ($ayah) {
-            $cacheKey = "ayah_{$ayah->surah_number}_{$ayah->ayah_number}";
-            if (!Cache::has($cacheKey)) {
-                Cache::put($cacheKey, $ayah, now()->addDays(30));
-            }
-        });
-
         // Register Article observer for sitemap synchronization
         Article::observe(ArticleObserver::class);
     }
