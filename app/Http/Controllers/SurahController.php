@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\SafeCache;
 use App\Models\Surah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -18,7 +19,7 @@ class SurahController extends Controller
 
         // Use cache in production, direct DB in local
         $surahs = app()->environment('production')
-            ? Cache::remember($cacheKey, $cacheDuration, function () {
+            ? SafeCache::remember($cacheKey, $cacheDuration, function () {
                 return Surah::orderBy('number', 'asc')->get();
             })
             : Surah::orderBy('number', 'asc')->get();
@@ -40,7 +41,7 @@ class SurahController extends Controller
 
         // Use cache in production, direct DB in local
         $surah = app()->environment('production')
-            ? Cache::remember($cacheKey, $cacheDuration, function () use ($number) {
+            ? SafeCache::remember($cacheKey, $cacheDuration, function () use ($number) {
                 return Surah::with('ayahs')->where('number', $number)->firstOrFail();
             })
             : Surah::with('ayahs')->where('number', $number)->firstOrFail();

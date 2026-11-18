@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\SafeCache;
 use App\Models\SelectedPrayer;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -41,7 +42,7 @@ class SelectedPrayerController extends Controller
             // Only cache 'all' query when no specific search is requested
             if (empty($searchKey)) {
                 $cacheKey = "selected_prayers_all_cat_{$categoryKey}";
-                $prayers = Cache::remember($cacheKey, 86400, function () use ($query) {
+                $prayers = SafeCache::remember($cacheKey, 86400, function () use ($query) {
                     return $query->get();
                 });
             } else {
@@ -70,7 +71,7 @@ class SelectedPrayerController extends Controller
      */
     public static function getCachedCategories(): array
     {
-        return Cache::remember('selected_prayers_categories_grouped', 86400, function () {
+        return SafeCache::remember('selected_prayers_categories_grouped', 86400, function () {
             $totalCount = SelectedPrayer::count();
 
             $categoryGroups = SelectedPrayer::select('category', 'category_name')

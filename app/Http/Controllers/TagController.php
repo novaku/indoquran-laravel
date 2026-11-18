@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\SafeCache;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -146,7 +147,7 @@ class TagController extends Controller
         $limit = min((int) $request->get('limit', 15), 50);
         $cacheKey = "popular_tags_count_{$limit}";
 
-        $tags = Cache::remember($cacheKey, 3600, function () use ($limit) {
+        $tags = SafeCache::remember($cacheKey, 3600, function () use ($limit) {
             return Tag::whereHas('articles', function($q) {
                 $q->where('status', 'published');
             })

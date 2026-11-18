@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Helpers\SafeCache;
 use App\Models\TafsirMaudhuiTopic;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 class TafsirMaudhuiController extends Controller
@@ -25,7 +26,7 @@ class TafsirMaudhuiController extends Controller
     {
         try {
             // Get all active topics with their verses from database with caching
-            $topics = Cache::remember('tafsir_maudhui_api_topics', 3600, function () {
+            $topics = SafeCache::remember('tafsir_maudhui_api_topics', 3600, function () {
                 return TafsirMaudhuiTopic::active()
                     ->ordered()
                     ->with(['verses' => function ($query) {
@@ -73,7 +74,7 @@ class TafsirMaudhuiController extends Controller
             // Search in database with caching
             $cacheKey = 'tafsir_maudhui_search_' . md5($keyword);
             
-            $results = Cache::remember($cacheKey, 1800, function () use ($keyword) {
+            $results = SafeCache::remember($cacheKey, 1800, function () use ($keyword) {
                 return TafsirMaudhuiTopic::active()
                     ->search($keyword)
                     ->ordered()
@@ -116,7 +117,7 @@ class TafsirMaudhuiController extends Controller
     public function show($slug)
     {
         try {
-            $topic = Cache::remember("tafsir_maudhui_topic_{$slug}", 3600, function () use ($slug) {
+            $topic = SafeCache::remember("tafsir_maudhui_topic_{$slug}", 3600, function () use ($slug) {
                 return TafsirMaudhuiTopic::active()
                     ->where('slug', $slug)
                     ->with(['verses' => function ($query) {
@@ -213,7 +214,7 @@ class TafsirMaudhuiController extends Controller
                 'hidayah' => '🌟',
             ];
 
-            $topics = Cache::remember($cacheKey, $cacheTtl, function () use ($popularTopics) {
+            $topics = SafeCache::remember($cacheKey, $cacheTtl, function () use ($popularTopics) {
                 $popularSlugs = array_keys($popularTopics);
 
                 $fetched = TafsirMaudhuiTopic::active()

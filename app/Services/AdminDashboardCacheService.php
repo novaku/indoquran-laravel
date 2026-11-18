@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Helpers\SafeCache;
 use App\Models\Article;
 use App\Models\ArticleComment;
 use App\Models\Ayah;
@@ -12,7 +13,6 @@ use App\Models\Surah;
 use App\Models\User;
 use App\Models\Visitor;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class AdminDashboardCacheService
@@ -67,8 +67,8 @@ class AdminDashboardCacheService
      */
     public function getDashboardData(bool $forceRefresh = false): array
     {
-        if (!$forceRefresh && Cache::has(self::KEY_FULL_PAYLOAD)) {
-            $data = Cache::get(self::KEY_FULL_PAYLOAD);
+        if (!$forceRefresh && SafeCache::has(self::KEY_FULL_PAYLOAD)) {
+            $data = SafeCache::get(self::KEY_FULL_PAYLOAD);
             if (is_array($data) && !empty($data['stats'])) {
                 $data['from_cache'] = true;
                 return $data;
@@ -83,7 +83,7 @@ class AdminDashboardCacheService
             'from_cache' => false,
         ];
 
-        Cache::put(self::KEY_FULL_PAYLOAD, $data, self::TTL_FULL_PAYLOAD);
+        SafeCache::put(self::KEY_FULL_PAYLOAD, $data, self::TTL_FULL_PAYLOAD);
 
         return $data;
     }
@@ -149,104 +149,104 @@ class AdminDashboardCacheService
 
     public function getTotalUsers(bool $forceRefresh = false): int
     {
-        if ($forceRefresh) Cache::forget(self::KEY_STAT_USERS);
-        return (int) Cache::remember(self::KEY_STAT_USERS, self::TTL_MEDIUM_STATS, function () {
+        if ($forceRefresh) SafeCache::forget(self::KEY_STAT_USERS);
+        return (int) SafeCache::remember(self::KEY_STAT_USERS, self::TTL_MEDIUM_STATS, function () {
             try { return User::count(); } catch (\Throwable $e) { return 0; }
         });
     }
 
     public function getTotalArticles(bool $forceRefresh = false): int
     {
-        if ($forceRefresh) Cache::forget(self::KEY_STAT_ARTICLES);
-        return (int) Cache::remember(self::KEY_STAT_ARTICLES, self::TTL_MEDIUM_STATS, function () {
+        if ($forceRefresh) SafeCache::forget(self::KEY_STAT_ARTICLES);
+        return (int) SafeCache::remember(self::KEY_STAT_ARTICLES, self::TTL_MEDIUM_STATS, function () {
             try { return Article::count(); } catch (\Throwable $e) { return 0; }
         });
     }
 
     public function getPublishedArticles(bool $forceRefresh = false): int
     {
-        if ($forceRefresh) Cache::forget(self::KEY_STAT_PUBLISHED_ARTICLES);
-        return (int) Cache::remember(self::KEY_STAT_PUBLISHED_ARTICLES, self::TTL_MEDIUM_STATS, function () {
+        if ($forceRefresh) SafeCache::forget(self::KEY_STAT_PUBLISHED_ARTICLES);
+        return (int) SafeCache::remember(self::KEY_STAT_PUBLISHED_ARTICLES, self::TTL_MEDIUM_STATS, function () {
             try { return Article::where('status', 'published')->count(); } catch (\Throwable $e) { return 0; }
         });
     }
 
     public function getTotalArticleComments(bool $forceRefresh = false): int
     {
-        if ($forceRefresh) Cache::forget(self::KEY_STAT_COMMENTS);
-        return (int) Cache::remember(self::KEY_STAT_COMMENTS, self::TTL_QUICK_STATS, function () {
+        if ($forceRefresh) SafeCache::forget(self::KEY_STAT_COMMENTS);
+        return (int) SafeCache::remember(self::KEY_STAT_COMMENTS, self::TTL_QUICK_STATS, function () {
             try { return ArticleComment::count(); } catch (\Throwable $e) { return 0; }
         });
     }
 
     public function getTotalContacts(bool $forceRefresh = false): int
     {
-        if ($forceRefresh) Cache::forget(self::KEY_STAT_CONTACTS);
-        return (int) Cache::remember(self::KEY_STAT_CONTACTS, self::TTL_QUICK_STATS, function () {
+        if ($forceRefresh) SafeCache::forget(self::KEY_STAT_CONTACTS);
+        return (int) SafeCache::remember(self::KEY_STAT_CONTACTS, self::TTL_QUICK_STATS, function () {
             try { return Contact::count(); } catch (\Throwable $e) { return 0; }
         });
     }
 
     public function getTotalPrayers(bool $forceRefresh = false): int
     {
-        if ($forceRefresh) Cache::forget(self::KEY_STAT_PRAYERS);
-        return (int) Cache::remember(self::KEY_STAT_PRAYERS, self::TTL_QUICK_STATS, function () {
+        if ($forceRefresh) SafeCache::forget(self::KEY_STAT_PRAYERS);
+        return (int) SafeCache::remember(self::KEY_STAT_PRAYERS, self::TTL_QUICK_STATS, function () {
             try { return Prayer::count(); } catch (\Throwable $e) { return 0; }
         });
     }
 
     public function getTotalSearchTerms(bool $forceRefresh = false): int
     {
-        if ($forceRefresh) Cache::forget(self::KEY_STAT_SEARCH_TERMS);
-        return (int) Cache::remember(self::KEY_STAT_SEARCH_TERMS, self::TTL_MEDIUM_STATS, function () {
+        if ($forceRefresh) SafeCache::forget(self::KEY_STAT_SEARCH_TERMS);
+        return (int) SafeCache::remember(self::KEY_STAT_SEARCH_TERMS, self::TTL_MEDIUM_STATS, function () {
             try { return SearchTerm::count(); } catch (\Throwable $e) { return 0; }
         });
     }
 
     public function getTotalSurahs(bool $forceRefresh = false): int
     {
-        if ($forceRefresh) Cache::forget(self::KEY_STAT_SURAHS);
-        return (int) Cache::remember(self::KEY_STAT_SURAHS, self::TTL_STATIC, function () {
+        if ($forceRefresh) SafeCache::forget(self::KEY_STAT_SURAHS);
+        return (int) SafeCache::remember(self::KEY_STAT_SURAHS, self::TTL_STATIC, function () {
             try { return Surah::count() ?: 114; } catch (\Throwable $e) { return 114; }
         });
     }
 
     public function getTotalAyahs(bool $forceRefresh = false): int
     {
-        if ($forceRefresh) Cache::forget(self::KEY_STAT_AYAHS);
-        return (int) Cache::remember(self::KEY_STAT_AYAHS, self::TTL_STATIC, function () {
+        if ($forceRefresh) SafeCache::forget(self::KEY_STAT_AYAHS);
+        return (int) SafeCache::remember(self::KEY_STAT_AYAHS, self::TTL_STATIC, function () {
             try { return Ayah::count() ?: 6236; } catch (\Throwable $e) { return 6236; }
         });
     }
 
     public function getDailyVisitors(bool $forceRefresh = false): int
     {
-        if ($forceRefresh) Cache::forget(self::KEY_STAT_VISITORS_TODAY);
-        return (int) Cache::remember(self::KEY_STAT_VISITORS_TODAY, self::TTL_QUICK_STATS, function () {
+        if ($forceRefresh) SafeCache::forget(self::KEY_STAT_VISITORS_TODAY);
+        return (int) SafeCache::remember(self::KEY_STAT_VISITORS_TODAY, self::TTL_QUICK_STATS, function () {
             try { return Visitor::getTodayVisitors(); } catch (\Throwable $e) { return 0; }
         });
     }
 
     public function getWeeklyVisitors(bool $forceRefresh = false): int
     {
-        if ($forceRefresh) Cache::forget(self::KEY_STAT_VISITORS_WEEKLY);
-        return (int) Cache::remember(self::KEY_STAT_VISITORS_WEEKLY, self::TTL_MEDIUM_STATS, function () {
+        if ($forceRefresh) SafeCache::forget(self::KEY_STAT_VISITORS_WEEKLY);
+        return (int) SafeCache::remember(self::KEY_STAT_VISITORS_WEEKLY, self::TTL_MEDIUM_STATS, function () {
             try { return Visitor::getWeeklyVisitors(); } catch (\Throwable $e) { return 0; }
         });
     }
 
     public function getMonthlyVisitors(bool $forceRefresh = false): int
     {
-        if ($forceRefresh) Cache::forget(self::KEY_STAT_VISITORS_MONTHLY);
-        return (int) Cache::remember(self::KEY_STAT_VISITORS_MONTHLY, self::TTL_HEAVY_STATS, function () {
+        if ($forceRefresh) SafeCache::forget(self::KEY_STAT_VISITORS_MONTHLY);
+        return (int) SafeCache::remember(self::KEY_STAT_VISITORS_MONTHLY, self::TTL_HEAVY_STATS, function () {
             try { return Visitor::getMonthlyVisitors(); } catch (\Throwable $e) { return 0; }
         });
     }
 
     public function getTotalVisitors(bool $forceRefresh = false): int
     {
-        if ($forceRefresh) Cache::forget(self::KEY_STAT_VISITORS_TOTAL);
-        return (int) Cache::remember(self::KEY_STAT_VISITORS_TOTAL, self::TTL_HEAVY_STATS, function () {
+        if ($forceRefresh) SafeCache::forget(self::KEY_STAT_VISITORS_TOTAL);
+        return (int) SafeCache::remember(self::KEY_STAT_VISITORS_TOTAL, self::TTL_HEAVY_STATS, function () {
             try { return Visitor::getTotalVisitors(); } catch (\Throwable $e) { return 0; }
         });
     }
@@ -255,8 +255,8 @@ class AdminDashboardCacheService
 
     public function getRecentContacts(bool $forceRefresh = false): array
     {
-        if ($forceRefresh) Cache::forget(self::KEY_RECENT_CONTACTS);
-        return Cache::remember(self::KEY_RECENT_CONTACTS, self::TTL_QUICK_STATS, function () {
+        if ($forceRefresh) SafeCache::forget(self::KEY_RECENT_CONTACTS);
+        return SafeCache::remember(self::KEY_RECENT_CONTACTS, self::TTL_QUICK_STATS, function () {
             try {
                 return Contact::latest()->take(5)->get()->map(function ($c) {
                     return [
@@ -278,8 +278,8 @@ class AdminDashboardCacheService
 
     public function getRecentPrayers(bool $forceRefresh = false): array
     {
-        if ($forceRefresh) Cache::forget(self::KEY_RECENT_PRAYERS);
-        return Cache::remember(self::KEY_RECENT_PRAYERS, self::TTL_QUICK_STATS, function () {
+        if ($forceRefresh) SafeCache::forget(self::KEY_RECENT_PRAYERS);
+        return SafeCache::remember(self::KEY_RECENT_PRAYERS, self::TTL_QUICK_STATS, function () {
             try {
                 return Prayer::with('user:id,name')->latest()->take(5)->get()->map(function ($p) {
                     return [
@@ -302,8 +302,8 @@ class AdminDashboardCacheService
 
     public function getRecentUsers(bool $forceRefresh = false): array
     {
-        if ($forceRefresh) Cache::forget(self::KEY_RECENT_USERS);
-        return Cache::remember(self::KEY_RECENT_USERS, self::TTL_MEDIUM_STATS, function () {
+        if ($forceRefresh) SafeCache::forget(self::KEY_RECENT_USERS);
+        return SafeCache::remember(self::KEY_RECENT_USERS, self::TTL_MEDIUM_STATS, function () {
             try {
                 return User::select('id', 'name', 'email', 'created_at')->latest()->take(5)->get()->map(function ($u) {
                     return [
@@ -322,8 +322,8 @@ class AdminDashboardCacheService
 
     public function getPopularSearches(bool $forceRefresh = false): array
     {
-        if ($forceRefresh) Cache::forget(self::KEY_RECENT_SEARCHES);
-        return Cache::remember(self::KEY_RECENT_SEARCHES, self::TTL_HEAVY_STATS, function () {
+        if ($forceRefresh) SafeCache::forget(self::KEY_RECENT_SEARCHES);
+        return SafeCache::remember(self::KEY_RECENT_SEARCHES, self::TTL_HEAVY_STATS, function () {
             try {
                 return SearchTerm::select('term')
                     ->selectRaw('COUNT(*) as search_count')
@@ -343,8 +343,8 @@ class AdminDashboardCacheService
 
     public function getDailyTraffic(bool $forceRefresh = false)
     {
-        if ($forceRefresh) Cache::forget(self::KEY_TRAFFIC_DAILY);
-        return Cache::remember(self::KEY_TRAFFIC_DAILY, self::TTL_HEAVY_STATS, function () {
+        if ($forceRefresh) SafeCache::forget(self::KEY_TRAFFIC_DAILY);
+        return SafeCache::remember(self::KEY_TRAFFIC_DAILY, self::TTL_HEAVY_STATS, function () {
             try {
                 return Visitor::getDailyTraffic(7);
             } catch (\Throwable $e) {
@@ -356,8 +356,8 @@ class AdminDashboardCacheService
 
     public function getHourlyTraffic(bool $forceRefresh = false)
     {
-        if ($forceRefresh) Cache::forget(self::KEY_TRAFFIC_HOURLY);
-        return Cache::remember(self::KEY_TRAFFIC_HOURLY, self::TTL_MEDIUM_STATS, function () {
+        if ($forceRefresh) SafeCache::forget(self::KEY_TRAFFIC_HOURLY);
+        return SafeCache::remember(self::KEY_TRAFFIC_HOURLY, self::TTL_MEDIUM_STATS, function () {
             try {
                 return Visitor::getHourlyTraffic();
             } catch (\Throwable $e) {
@@ -369,8 +369,8 @@ class AdminDashboardCacheService
 
     public function getPopularPages(bool $forceRefresh = false)
     {
-        if ($forceRefresh) Cache::forget(self::KEY_TRAFFIC_POPULAR_PAGES);
-        return Cache::remember(self::KEY_TRAFFIC_POPULAR_PAGES, self::TTL_HEAVY_STATS, function () {
+        if ($forceRefresh) SafeCache::forget(self::KEY_TRAFFIC_POPULAR_PAGES);
+        return SafeCache::remember(self::KEY_TRAFFIC_POPULAR_PAGES, self::TTL_HEAVY_STATS, function () {
             try {
                 return Visitor::getPopularPages(10);
             } catch (\Throwable $e) {
@@ -382,8 +382,8 @@ class AdminDashboardCacheService
 
     public function getPopularSurahs(bool $forceRefresh = false)
     {
-        if ($forceRefresh) Cache::forget(self::KEY_TRAFFIC_POPULAR_SURAHS);
-        return Cache::remember(self::KEY_TRAFFIC_POPULAR_SURAHS, self::TTL_HEAVY_STATS, function () {
+        if ($forceRefresh) SafeCache::forget(self::KEY_TRAFFIC_POPULAR_SURAHS);
+        return SafeCache::remember(self::KEY_TRAFFIC_POPULAR_SURAHS, self::TTL_HEAVY_STATS, function () {
             try {
                 $popularSurahs = Visitor::getPopularSurahs(10);
                 if ($popularSurahs->isEmpty()) {
@@ -419,31 +419,31 @@ class AdminDashboardCacheService
      */
     public function clearAll(): void
     {
-        Cache::forget(self::KEY_FULL_PAYLOAD);
+        SafeCache::forget(self::KEY_FULL_PAYLOAD);
 
-        Cache::forget(self::KEY_STAT_USERS);
-        Cache::forget(self::KEY_STAT_ARTICLES);
-        Cache::forget(self::KEY_STAT_PUBLISHED_ARTICLES);
-        Cache::forget(self::KEY_STAT_COMMENTS);
-        Cache::forget(self::KEY_STAT_CONTACTS);
-        Cache::forget(self::KEY_STAT_PRAYERS);
-        Cache::forget(self::KEY_STAT_SEARCH_TERMS);
-        Cache::forget(self::KEY_STAT_SURAHS);
-        Cache::forget(self::KEY_STAT_AYAHS);
-        Cache::forget(self::KEY_STAT_VISITORS_TODAY);
-        Cache::forget(self::KEY_STAT_VISITORS_WEEKLY);
-        Cache::forget(self::KEY_STAT_VISITORS_MONTHLY);
-        Cache::forget(self::KEY_STAT_VISITORS_TOTAL);
+        SafeCache::forget(self::KEY_STAT_USERS);
+        SafeCache::forget(self::KEY_STAT_ARTICLES);
+        SafeCache::forget(self::KEY_STAT_PUBLISHED_ARTICLES);
+        SafeCache::forget(self::KEY_STAT_COMMENTS);
+        SafeCache::forget(self::KEY_STAT_CONTACTS);
+        SafeCache::forget(self::KEY_STAT_PRAYERS);
+        SafeCache::forget(self::KEY_STAT_SEARCH_TERMS);
+        SafeCache::forget(self::KEY_STAT_SURAHS);
+        SafeCache::forget(self::KEY_STAT_AYAHS);
+        SafeCache::forget(self::KEY_STAT_VISITORS_TODAY);
+        SafeCache::forget(self::KEY_STAT_VISITORS_WEEKLY);
+        SafeCache::forget(self::KEY_STAT_VISITORS_MONTHLY);
+        SafeCache::forget(self::KEY_STAT_VISITORS_TOTAL);
 
-        Cache::forget(self::KEY_RECENT_CONTACTS);
-        Cache::forget(self::KEY_RECENT_PRAYERS);
-        Cache::forget(self::KEY_RECENT_USERS);
-        Cache::forget(self::KEY_RECENT_SEARCHES);
+        SafeCache::forget(self::KEY_RECENT_CONTACTS);
+        SafeCache::forget(self::KEY_RECENT_PRAYERS);
+        SafeCache::forget(self::KEY_RECENT_USERS);
+        SafeCache::forget(self::KEY_RECENT_SEARCHES);
 
-        Cache::forget(self::KEY_TRAFFIC_DAILY);
-        Cache::forget(self::KEY_TRAFFIC_HOURLY);
-        Cache::forget(self::KEY_TRAFFIC_POPULAR_PAGES);
-        Cache::forget(self::KEY_TRAFFIC_POPULAR_SURAHS);
+        SafeCache::forget(self::KEY_TRAFFIC_DAILY);
+        SafeCache::forget(self::KEY_TRAFFIC_HOURLY);
+        SafeCache::forget(self::KEY_TRAFFIC_POPULAR_PAGES);
+        SafeCache::forget(self::KEY_TRAFFIC_POPULAR_SURAHS);
 
         Log::info('AdminDashboardCacheService: Cleared all dashboard caches');
     }
@@ -453,9 +453,9 @@ class AdminDashboardCacheService
      */
     public function clearContacts(): void
     {
-        Cache::forget(self::KEY_FULL_PAYLOAD);
-        Cache::forget(self::KEY_STAT_CONTACTS);
-        Cache::forget(self::KEY_RECENT_CONTACTS);
+        SafeCache::forget(self::KEY_FULL_PAYLOAD);
+        SafeCache::forget(self::KEY_STAT_CONTACTS);
+        SafeCache::forget(self::KEY_RECENT_CONTACTS);
     }
 
     /**
@@ -463,9 +463,9 @@ class AdminDashboardCacheService
      */
     public function clearArticles(): void
     {
-        Cache::forget(self::KEY_FULL_PAYLOAD);
-        Cache::forget(self::KEY_STAT_ARTICLES);
-        Cache::forget(self::KEY_STAT_PUBLISHED_ARTICLES);
+        SafeCache::forget(self::KEY_FULL_PAYLOAD);
+        SafeCache::forget(self::KEY_STAT_ARTICLES);
+        SafeCache::forget(self::KEY_STAT_PUBLISHED_ARTICLES);
     }
 
     /**
@@ -473,8 +473,8 @@ class AdminDashboardCacheService
      */
     public function clearComments(): void
     {
-        Cache::forget(self::KEY_FULL_PAYLOAD);
-        Cache::forget(self::KEY_STAT_COMMENTS);
+        SafeCache::forget(self::KEY_FULL_PAYLOAD);
+        SafeCache::forget(self::KEY_STAT_COMMENTS);
     }
 
     /**
@@ -482,9 +482,9 @@ class AdminDashboardCacheService
      */
     public function clearPrayers(): void
     {
-        Cache::forget(self::KEY_FULL_PAYLOAD);
-        Cache::forget(self::KEY_STAT_PRAYERS);
-        Cache::forget(self::KEY_RECENT_PRAYERS);
+        SafeCache::forget(self::KEY_FULL_PAYLOAD);
+        SafeCache::forget(self::KEY_STAT_PRAYERS);
+        SafeCache::forget(self::KEY_RECENT_PRAYERS);
     }
 
     /**
@@ -492,8 +492,8 @@ class AdminDashboardCacheService
      */
     public function clearUsers(): void
     {
-        Cache::forget(self::KEY_FULL_PAYLOAD);
-        Cache::forget(self::KEY_STAT_USERS);
-        Cache::forget(self::KEY_RECENT_USERS);
+        SafeCache::forget(self::KEY_FULL_PAYLOAD);
+        SafeCache::forget(self::KEY_STAT_USERS);
+        SafeCache::forget(self::KEY_RECENT_USERS);
     }
 }

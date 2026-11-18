@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\SafeCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -19,7 +20,7 @@ class StatsController extends Controller
     {
         try {
             // Cache stats for 5 minutes to improve performance
-            $stats = Cache::remember('public_stats', 300, function () {
+            $stats = SafeCache::remember('public_stats', 300, function () {
                 return [
                     'totalUsers' => $this->getTotalUsers(),
                     'totalReadingSessions' => $this->getTotalReadingSessions(),
@@ -34,10 +35,9 @@ class StatsController extends Controller
                 'status' => 'success',
                 'data' => $stats
             ]);
-
         } catch (\Exception $e) {
             Log::error('Error fetching public stats: ' . $e->getMessage());
-            
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to fetch statistics',
@@ -68,7 +68,7 @@ class StatsController extends Controller
             if (!DB::getSchemaBuilder()->hasTable('reading_progress')) {
                 return 98450; // Fallback number
             }
-            
+
             return DB::table('reading_progress')->count();
         } catch (\Exception $e) {
             return 98450; // Fallback number
@@ -85,10 +85,10 @@ class StatsController extends Controller
             if (!DB::getSchemaBuilder()->hasTable('reading_progress')) {
                 return 1387250; // Fallback number
             }
-            
+
             $totalVerses = DB::table('reading_progress')
                 ->sum('ayah_number');
-            
+
             return $totalVerses ?: 1387250;
         } catch (\Exception $e) {
             return 1387250; // Fallback number
@@ -105,11 +105,11 @@ class StatsController extends Controller
             if (!DB::getSchemaBuilder()->hasTable('sessions')) {
                 return rand(280, 520); // Random online users
             }
-            
+
             $onlineCount = DB::table('sessions')
                 ->where('last_activity', '>', now()->subMinutes(15)->timestamp)
                 ->count();
-            
+
             return $onlineCount ?: rand(280, 520);
         } catch (\Exception $e) {
             return rand(280, 520); // Random online users
@@ -126,11 +126,11 @@ class StatsController extends Controller
             if (!DB::getSchemaBuilder()->hasTable('reading_progress')) {
                 return rand(2800, 3800); // Fallback number
             }
-            
+
             $dailyReads = DB::table('reading_progress')
                 ->whereDate('last_read_at', today())
                 ->count();
-            
+
             return $dailyReads ?: rand(2800, 3800);
         } catch (\Exception $e) {
             return rand(2800, 3800); // Fallback number
@@ -147,12 +147,12 @@ class StatsController extends Controller
             if (!DB::getSchemaBuilder()->hasTable('reading_progress')) {
                 return rand(78000, 88000); // Fallback number
             }
-            
+
             $monthlyReads = DB::table('reading_progress')
                 ->whereYear('last_read_at', now()->year)
                 ->whereMonth('last_read_at', now()->month)
                 ->count();
-            
+
             return $monthlyReads ?: rand(78000, 88000);
         } catch (\Exception $e) {
             return rand(78000, 88000); // Fallback number
@@ -188,7 +188,7 @@ class StatsController extends Controller
         }
 
         try {
-            $stats = Cache::remember('detailed_stats', 300, function () {
+            $stats = SafeCache::remember('detailed_stats', 300, function () {
                 return [
                     'users' => [
                         'total' => $this->getTotalUsers(),
@@ -213,10 +213,9 @@ class StatsController extends Controller
                 'status' => 'success',
                 'data' => $stats
             ]);
-
         } catch (\Exception $e) {
             Log::error('Error fetching detailed stats: ' . $e->getMessage());
-            
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to fetch detailed statistics'
@@ -247,8 +246,8 @@ class StatsController extends Controller
     {
         try {
             return User::whereYear('created_at', now()->year)
-                      ->whereMonth('created_at', now()->month)
-                      ->count();
+                ->whereMonth('created_at', now()->month)
+                ->count();
         } catch (\Exception $e) {
             return rand(500, 1500);
         }
@@ -265,14 +264,14 @@ class StatsController extends Controller
             if (!DB::getSchemaBuilder()->hasTable('reading_progress')) {
                 return ['name' => 'Al-Fatihah', 'count' => rand(5000, 8000)];
             }
-            
+
             $mostRead = DB::table('reading_progress')
                 ->join('surahs', 'reading_progress.surah_id', '=', 'surahs.id')
                 ->select('surahs.name_english as name', DB::raw('COUNT(*) as count'))
                 ->groupBy('surahs.id', 'surahs.name_english')
                 ->orderBy('count', 'desc')
                 ->first();
-            
+
             return $mostRead ?: ['name' => 'Al-Fatihah', 'count' => rand(5000, 8000)];
         } catch (\Exception $e) {
             return ['name' => 'Al-Fatihah', 'count' => rand(5000, 8000)];
@@ -290,7 +289,7 @@ class StatsController extends Controller
             if (!DB::getSchemaBuilder()->hasTable('bookmarks')) {
                 return rand(15000, 25000);
             }
-            
+
             return DB::table('bookmarks')->count();
         } catch (\Exception $e) {
             return rand(15000, 25000);

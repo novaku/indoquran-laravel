@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\SafeCache;
 use App\Models\Ayah;
 use App\Models\Surah;
 use App\Services\QuranCacheService;
@@ -464,7 +465,7 @@ class QuranController extends Controller
         }
         
         // Cache juz ayahs for 30 days
-        $juzData = Cache::remember("quran_juz_data_{$juzNum}", 86400 * 30, function () use ($juzNum) {
+        $juzData = SafeCache::remember("quran_juz_data_{$juzNum}", 86400 * 30, function () use ($juzNum) {
             $ayahs = Ayah::query()->where('juz', $juzNum)
                 ->with('surah:number,name_indonesian,name_arabic,name_latin')
                 ->orderBy('surah_number')
@@ -529,7 +530,7 @@ class QuranController extends Controller
         }
         
         // Cache page ayahs for 30 days
-        $pageData = Cache::remember("quran_page_data_{$pageNum}", 86400 * 30, function () use ($pageNum) {
+        $pageData = SafeCache::remember("quran_page_data_{$pageNum}", 86400 * 30, function () use ($pageNum) {
             $ayahs = Ayah::query()->where('page', $pageNum)
                 ->with('surah:number,name_indonesian,name_arabic,name_latin')
                 ->orderBy('surah_number')

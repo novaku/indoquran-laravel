@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\SafeCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use App\Models\AsmaulHusnaName;
@@ -14,7 +15,7 @@ class AsmaulHusnaController extends Controller
     public function index()
     {
         // Get all active names with verses from database
-        $asmaulHusnaData = Cache::remember('asmaul_husna_all_names', 3600, function () {
+        $asmaulHusnaData = SafeCache::remember('asmaul_husna_all_names', 3600, function () {
             return AsmaulHusnaName::active()
                 ->with('verses')
                 ->ordered()
@@ -57,7 +58,7 @@ class AsmaulHusnaController extends Controller
     public function api()
     {
         try {
-            $asmaulHusnaData = Cache::remember('asmaul_husna_api_data', 3600, function () {
+            $asmaulHusnaData = SafeCache::remember('asmaul_husna_api_data', 3600, function () {
                 return AsmaulHusnaName::active()
                     ->with('verses')
                     ->ordered()
@@ -108,7 +109,7 @@ class AsmaulHusnaController extends Controller
         try {
             $cacheKey = 'asmaul_husna_search_' . md5(strtolower($keyword));
             
-            $searchResults = Cache::remember($cacheKey, 1800, function () use ($keyword) {
+            $searchResults = SafeCache::remember($cacheKey, 1800, function () use ($keyword) {
                 return AsmaulHusnaName::active()
                     ->with('verses')
                     ->search($keyword)
@@ -154,7 +155,7 @@ class AsmaulHusnaController extends Controller
         try {
             $cacheKey = 'asmaul_husna_name_' . $slug;
             
-            $name = Cache::remember($cacheKey, 3600, function () use ($slug) {
+            $name = SafeCache::remember($cacheKey, 3600, function () use ($slug) {
                 $name = AsmaulHusnaName::active()
                     ->with('verses')
                     ->where('slug', $slug)
