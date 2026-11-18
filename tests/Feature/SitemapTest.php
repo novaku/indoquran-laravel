@@ -115,10 +115,53 @@ class SitemapTest extends TestCase
         $responseWithNumber->assertRedirect(url('/hadits/shahih_bukhari/1'));
     }
 
-    public function test_hadits_route_returns_404_for_out_of_bounds_number(): void
+    public function test_hadits_route_redirects_out_of_bounds_number_to_kitab_page(): void
     {
         $response = $this->get('/hadits/shahih_bukhari/999999');
-        $response->assertStatus(404);
+        $response->assertStatus(301);
+        $response->assertRedirect(url('/hadits/shahih_bukhari'));
+
+        // Test out of bounds for Musnad Ahmad (reported in GSC 404 validation)
+        $responseAhmad = $this->get('/hadits/musnad_ahmad/14908');
+        $responseAhmad->assertStatus(301);
+        $responseAhmad->assertRedirect(url('/hadits/musnad_ahmad'));
+    }
+
+    public function test_deprecated_hadits_kitabs_redirect_to_hadits_hub(): void
+    {
+        // Deprecated hadith books previously in sitemaps / index
+        $responseSyafii = $this->get('/hadits/musnad_syafii');
+        $responseSyafii->assertStatus(301);
+        $responseSyafii->assertRedirect(url('/hadits'));
+
+        $responseRiyadhus = $this->get('/hadits/riyadhus_shalihin');
+        $responseRiyadhus->assertStatus(301);
+        $responseRiyadhus->assertRedirect(url('/hadits'));
+
+        $responseMalik = $this->get('/hadits/muwatho_malik');
+        $responseMalik->assertStatus(301);
+        $responseMalik->assertRedirect(url('/hadits'));
+
+        $responseDarimi = $this->get('/hadits/musnad_darimi');
+        $responseDarimi->assertStatus(301);
+        $responseDarimi->assertRedirect(url('/hadits'));
+    }
+
+    public function test_legacy_view_ayat_with_trailing_punctuation_redirects(): void
+    {
+        $response = $this->get('/quran/viewAyat/1264,');
+        $response->assertStatus(301);
+    }
+
+    public function test_invalid_hadits_routes_return_404(): void
+    {
+        // Non-numeric hadith number should return 404
+        $responseNonNumeric = $this->get('/hadits/shahih_bukhari/abc');
+        $responseNonNumeric->assertStatus(404);
+
+        // Unknown book that was never part of catalog should return 404
+        $responseUnknown = $this->get('/hadits/unknown_book_slug');
+        $responseUnknown->assertStatus(404);
     }
 
     public function test_generate_comprehensive_sitemap_command(): void

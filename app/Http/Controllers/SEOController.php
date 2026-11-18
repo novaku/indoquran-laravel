@@ -178,7 +178,8 @@ class SEOController extends Controller
 
         // Redirect legacy ayah URLs to canonical route to consolidate indexing signals.
         // Example: /quran/viewAyat/279 -> /surah/{surah}/{ayah}
-        if (preg_match('/^quran\/viewAyat\/(\d+)$/i', $path, $matches)) {
+        // Also handles trailing punctuation (e.g. /quran/viewAyat/1264,) from external links/crawlers
+        if (preg_match('/^quran\/viewAyat\/(\d+)[\s,\.;:]*$/i', $path, $matches)) {
             $legacyAyahId = (int) $matches[1];
             $legacyAyah = Ayah::query()
                 ->select('surah_number', 'ayah_number')
@@ -188,8 +189,8 @@ class SEOController extends Controller
                 return redirect(url('/surah/' . $legacyAyah->surah_number . '/' . $legacyAyah->ayah_number), 301);
             }
 
-            // URL existed in old version but cannot be mapped anymore.
-            return response('Gone', 410);
+            // URL existed in old version but cannot be mapped anymore -> redirect to /surah
+            return redirect(url('/surah'), 301);
         }
         
         // Redirect legacy English routes to Indonesian (301 Permanent Redirect)
@@ -234,6 +235,18 @@ class SEOController extends Controller
                 $target .= '?' . $request->getQueryString();
             }
             return redirect($target, 301);
+        }
+
+        // Redirect paths with trailing punctuation (e.g. from external links ending with comma or period)
+        if (preg_match('/[,\.;:]+$/', $path)) {
+            $cleanedPunctuationPath = rtrim($path, ',.;:');
+            if ($cleanedPunctuationPath !== '') {
+                $target = url($cleanedPunctuationPath);
+                if ($request->getQueryString()) {
+                    $target .= '?' . $request->getQueryString();
+                }
+                return redirect($target, 301);
+            }
         }
         
         // Remove unwanted query parameters for canonical URL consistency
@@ -382,18 +395,24 @@ class SEOController extends Controller
                         $isInvalidRoute = true;
                     }
                 } elseif (count($segments) >= 2) {
-                    $kitabSlug = $segments[1];
+                    $rawKitabSlug = rtrim($segments[1], ',.;:');
                     $catalog = \App\Http\Controllers\HaditsController::getKitabCatalog();
-                    $resolved = \App\Http\Controllers\HaditsController::resolveKitabSlug($kitabSlug);
+                    $resolved = \App\Http\Controllers\HaditsController::resolveKitabSlug($rawKitabSlug);
 
                     if (!$resolved || !isset($catalog[$resolved])) {
+                        // Check if it is a deprecated kitab previously indexed (e.g. musnad_syafii, riyadhus_shalihin, muwatho_malik, musnad_darimi)
+                        if (\App\Http\Controllers\HaditsController::isDeprecatedKitab($rawKitabSlug)) {
+                            return redirect(url('/hadits'), 301);
+                        }
+
                         $isInvalidRoute = true;
                     } else {
                         // If alias used (e.g. /hadits/bukhari or /hadits/shahih-bukhari), redirect 301 to canonical
-                        if ($kitabSlug !== $resolved) {
+                        if ($rawKitabSlug !== $resolved) {
                             $targetUrl = '/hadits/' . $resolved;
                             if (isset($segments[2])) {
-                                $targetUrl .= '/' . (int) $segments[2];
+                                $cleanNomor = (int) rtrim($segments[2], ',.;:');
+                                $targetUrl .= '/' . $cleanNomor;
                             }
                             if ($request->getQueryString()) {
                                 $targetUrl .= '?' . $request->getQueryString();
@@ -402,10 +421,19 @@ class SEOController extends Controller
                         }
 
                         if (count($segments) === 3) {
-                            $nomor = (int) $segments[2];
-                            $maxNomor = $catalog[$resolved]['total'] ?? 0;
-                            if ($nomor < 1 || ($maxNomor > 0 && $nomor > $maxNomor)) {
+                            $cleanNomorStr = rtrim($segments[2], ',.;:');
+                            if (!is_numeric($cleanNomorStr)) {
                                 $isInvalidRoute = true;
+                            } else {
+                                $nomor = (int) $cleanNomorStr;
+                                $maxNomor = $catalog[$resolved]['total'] ?? 0;
+                                if ($nomor < 1) {
+                                    $isInvalidRoute = true;
+                                } elseif ($maxNomor > 0 && $nomor > $maxNomor) {
+                                    // Previously generated sitemaps indexed hadith numbers up to 26,363 for Musnad Ahmad.
+                                    // Redirect out-of-range hadith numbers to canonical book page with 301
+                                    return redirect(url('/hadits/' . $resolved), 301);
+                                }
                             }
                         }
                     }

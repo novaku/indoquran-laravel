@@ -146,6 +146,29 @@ class HaditsController extends Controller
         return $aliases[$normalized] ?? (isset(self::getKitabCatalog()[$normalized]) ? $normalized : null);
     }
 
+    /**
+     * Check if a slug belongs to a deprecated kitab that was previously part of the catalog
+     */
+    public static function isDeprecatedKitab(string $slug): bool
+    {
+        $normalized = strtolower(str_replace('-', '_', trim($slug)));
+        $deprecated = [
+            'musnad_syafii' => true,
+            'syafii' => true,
+            'asy_syafii' => true,
+            'riyadhus_shalihin' => true,
+            'riyadhus' => true,
+            'muwatho_malik' => true,
+            'muwatha' => true,
+            'muwatha_malik' => true,
+            'malik' => true,
+            'musnad_darimi' => true,
+            'darimi' => true,
+        ];
+
+        return isset($deprecated[$normalized]);
+    }
+
     protected HaditsCacheService $haditsCache;
 
     public function __construct(HaditsCacheService $haditsCache)
