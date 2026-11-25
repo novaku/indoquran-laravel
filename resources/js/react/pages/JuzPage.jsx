@@ -387,18 +387,21 @@ function JuzPage() {
         return null;
     }
 
+    const surahNamesText = juzData.surahs?.map(s => s.surah?.name_latin).filter(Boolean).join(' & ') || '';
     const juzSEO = {
-        title: `Juz ${juzData.juz_number} Arab Saja - Teks Arab Al-Quran | IndoQuran`,
-        description: `Baca Juz ${juzData.juz_number} Arab saja dengan teks Arab lengkap. Total ${juzData.total_ayahs} ayat dari ${juzData.surahs.length} surah, plus audio murottal untuk membantu tilawah harian.`,
-        keywords: `juz ${juzData.juz_number}, juz ${juzData.juz_number} arab saja, para ${juzData.juz_number}, al quran juz ${juzData.juz_number}, quran digital, teks arab, al quran indonesia`,
+        title: juzData.juz_number === 30
+            ? 'Juz 30 (Juz Amma) Lengkap Teks Arab, Latin & Terjemahan | IndoQuran'
+            : `Juz ${juzData.juz_number} Al Quran${surahNamesText ? ` (${surahNamesText})` : ''} Lengkap - Teks Arab, Latin & Terjemahan | IndoQuran`,
+        description: `Baca Juz ${juzData.juz_number} Al-Quran lengkap${surahNamesText ? ` memuat ${surahNamesText}` : ''} dengan teks Arab saja, transliterasi latin, dan terjemahan bahasa Indonesia. Total ${juzData.total_ayahs} ayat dari ${juzData.surahs.length} surah, plus audio murottal.`,
+        keywords: `juz ${juzData.juz_number}, juz ${juzData.juz_number} lengkap, juz ${juzData.juz_number} arab saja, juz ${juzData.juz_number} arab dan latin, juz ${juzData.juz_number} surat apa, juz ${juzData.juz_number} berapa halaman, al quran juz ${juzData.juz_number}, quran juz ${juzData.juz_number}`,
         canonicalUrl: `https://indoquran.web.id/juz/${juzData.juz_number}`,
         structuredData: {
             '@context': 'https://schema.org',
             '@type': 'WebPage',
-            name: `Juz ${juzData.juz_number} Arab Saja`,
+            name: `Juz ${juzData.juz_number} Al Quran Lengkap`,
             url: `https://indoquran.web.id/juz/${juzData.juz_number}`,
             inLanguage: 'id',
-            description: `Juz ${juzData.juz_number} Al-Quran dengan teks Arab lengkap dan audio murottal.`
+            description: `Juz ${juzData.juz_number} Al-Quran lengkap teks Arab, latin, terjemahan Indonesia, dan audio murottal.`
         }
     };
 

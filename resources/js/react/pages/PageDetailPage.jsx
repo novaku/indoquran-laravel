@@ -420,10 +420,12 @@ function PageDetailPage() {
     const mushafImageUrl = `/images/quran-pages/QK_${pagePadded}.webp`;
     const fallbackMushafImageUrl = `https://media.qurankemenag.net/khat2/QK_${pagePadded}.webp`;
 
+    const lembarNum = Math.ceil(currentPageNum / 2);
+    const lastPageSuffix = currentPageNum === 604 ? ' (Halaman Terakhir Al-Quran)' : '';
     const pageSEO = {
-        title: `Al Quran Halaman ${currentPageNum} (${pagePrimarySurah ? pagePrimarySurah.name_latin : ''}) - Teks Arab & Audio | IndoQuran`,
-        description: `Baca Al-Quran Halaman ${currentPageNum} lengkap dengan teks Arab, terjemahan Indonesia, dan audio murottal. Total ${pageData.total_ayahs} ayat dari ${pageData.surahs.length} surah (${juzText || ''}).`,
-        keywords: `halaman ${currentPageNum}, al quran halaman ${currentPageNum}, mushaf halaman ${currentPageNum}, quran digital, al quran indonesia`,
+        title: `Al Quran Halaman ${currentPageNum} (${pagePrimarySurah ? pagePrimarySurah.name_latin : ''})${juzText ? ` ${juzText}` : ''}${lastPageSuffix} | IndoQuran`,
+        description: `Baca Al-Quran Halaman ${currentPageNum} (Muka Surat ${currentPageNum} / Page ${currentPageNum}) Lembar ke-${lembarNum} lengkap dengan teks Arab, latin, terjemahan Indonesia Kemenag, gambar mushaf, dan audio murottal. Total ${pageData.total_ayahs} ayat dari ${pageData.surahs.length} surah (${juzText || ''}).`,
+        keywords: `al quran halaman ${currentPageNum}, alquran halaman ${currentPageNum}, halaman ${currentPageNum}, al quran ms ${currentPageNum}, page ${currentPageNum} quran, mushaf halaman ${currentPageNum}, lembar ke ${lembarNum}, al quran per halaman, quran indonesia`,
         canonicalUrl: `https://indoquran.web.id/halaman/${currentPageNum}`,
         structuredData: {
             '@context': 'https://schema.org',
@@ -431,7 +433,7 @@ function PageDetailPage() {
             name: `Al Quran Halaman ${currentPageNum}`,
             url: `https://indoquran.web.id/halaman/${currentPageNum}`,
             inLanguage: 'id',
-            description: `Halaman ${currentPageNum} Al-Quran lengkap dengan teks Arab dan audio murottal.`
+            description: `Halaman ${currentPageNum} (Muka Surat ${currentPageNum}) Al-Quran lengkap dengan teks Arab, terjemahan Indonesia, dan audio murottal.`
         }
     };
     

@@ -94,6 +94,7 @@ function SEOHead({
 
     if (seoDefaults.title) {
       document.title = seoDefaults.title;
+      document.documentElement.dataset.seoPath = window.location.pathname;
     }
 
     if (seoDefaults.description) {

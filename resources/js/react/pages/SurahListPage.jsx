@@ -234,9 +234,9 @@ function SurahListPage() {
     return (
         <>
             <SEOHead 
-                title="Daftar Surah Al-Quran - IndoQuran"
-                description="Jelajahi dan baca semua 114 surah Al-Quran lengkap dengan terjemahan bahasa Indonesia. Pilih surah berdasarkan tempat turunnya di Makkah atau Madinah."
-                keywords="daftar surah, al quran indonesia, 114 surah, surah makkiyah madaniyah, quran indonesia, surah al quran lengkap"
+                title="Daftar 114 Nama Surah Al-Quran & Artinya Lengkap (Daftar Isi) | IndoQuran"
+                description="Daftar lengkap 114 nama-nama surah dalam Al-Quran dan artinya dari Al-Fatihah hingga An-Nas (6.236 ayat, 30 juz, 604 halaman). Lengkap teks Arab, latin, terjemahan Kemenag, dan audio murottal."
+                keywords="nama nama surah dalam al quran, nama nama surah dan artinya, nama nama surat al quran, daftar isi alquran, al quran terdiri dari berapa surah, 114 surah al quran, bacaan surat al quran"
                 canonicalUrl="https://indoquran.web.id/surah"
             />
             
@@ -535,11 +535,15 @@ function SurahListPage() {
                                         {/* Action Buttons: 2 Links Only (Baca Surah & Kandungan Surah) */}
                                         <div className="pt-3.5 border-t border-gray-100 mt-auto grid grid-cols-2 gap-2">
                                             {/* Button 1: Baca Surah (Pergi langsung ke /surah/:number) */}
-                                            <span className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-emerald-600 group-hover:bg-emerald-700 transition-all shadow-xs group-hover:shadow-sm text-center">
+                                            <Link
+                                                to={`/surah/${surah.number}`}
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-emerald-600 group-hover:bg-emerald-700 transition-all shadow-xs group-hover:shadow-sm text-center"
+                                            >
                                                 <BookOpenIcon className="w-4 h-4 shrink-0" />
                                                 <span>Baca Surah</span>
                                                 <span>→</span>
-                                            </span>
+                                            </Link>
 
                                             {/* Button 2: Kandungan Surah (Pergi ke /surah/:number?tab=kandungan) */}
                                             <button

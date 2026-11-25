@@ -102,9 +102,9 @@ function PageListPage() {
     return (
         <div className="min-h-screen bg-gray-50">
             <SEOHead 
-                title="Daftar Halaman Al Quran (1-604) - IndoQuran"
-                description="Cari dan buka Al-Quran berdasarkan nomor halaman. Tersedia semua 604 halaman mushaf dengan teks Arab, terjemahan Indonesia, dan akses cepat per halaman."
-                keywords="daftar halaman al quran, al quran halaman, alquran halaman, quran halaman, halaman mushaf, halaman 205, halaman 276, halaman 390"
+                title="Daftar 604 Halaman Al-Quran Online Per Halaman (302 Lembar) | IndoQuran"
+                description="Baca Al-Quran online per halaman lengkap 604 halaman (302 lembar) Mushaf Madinah & Kemenag RI, dari halaman 1 hingga halaman terakhir 604. Teks Arab, latin, terjemahan Indonesia & gambar mushaf."
+                keywords="al quran halaman, al quran per halaman, al quran perhalaman, al quran online per halaman, quran online per halaman, ada berapa halaman dalam al quran, alquran ada berapa halaman, lembar alquran, halaman terakhir al quran"
                 canonicalUrl="https://indoquran.web.id/halaman"
             />
 
@@ -161,14 +161,14 @@ function PageListPage() {
                 {/* Pages Grid */}
                 <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-15 gap-3">
                     {pages && pages.length > 0 ? pages.map((pageNumber) => (
-                        <button
+                        <Link
                             key={pageNumber}
-                            onClick={() => handlePageClick(pageNumber)}
+                            to={`/halaman/${pageNumber}`}
                             className="aspect-square flex items-center justify-center p-2 rounded-lg bg-white text-gray-700 hover:bg-green-50 hover:text-green-600 hover:border-green-300 transition-all border border-gray-200 font-medium"
                             title={`Halaman ${pageNumber}`}
                         >
                             <span className="text-sm">{pageNumber}</span>
-                        </button>
+                        </Link>
                     )) : (
                         <div className="col-span-full text-center py-8 text-gray-500">
                             Tidak ada halaman untuk ditampilkan

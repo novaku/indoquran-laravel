@@ -475,12 +475,7 @@ class SitemapIndexController extends Controller
             ? 'https://indoquran.web.id' 
             : config('app.url');
 
-        $topics = [
-            'takdir', 'shalat', 'jenazah', 'iddah', 'matahari', 'wudhu',
-            'puasa', 'zakat', 'sabar', 'taubat', 'ilmu', 'nikah',
-            'rezeki', 'doa', 'akhlak', 'surga', 'neraka', 'silaturahmi',
-            'kematian', 'riba'
-        ];
+        $topics = \App\Services\SEOService::getHaditsTopicSlugs();
 
         $pages = [];
         $currentDate = now()->toIso8601String();

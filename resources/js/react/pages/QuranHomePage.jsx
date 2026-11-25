@@ -558,9 +558,9 @@ function QuranHomePage() {
     return (
         <div className="min-h-screen bg-gray-50 text-gray-800 no-auto-ads homepage-container">
             <SEOHead
-                title="Al-Quran Digital & Hadits Nabawi Online - IndoQuran"
-                description="Pelajari dua sumber pokok pedoman muslim: Al-Qur'an sebagai sumber pertama dan Hadits Nabawi sebagai sumber kedua, lengkap dengan terjemahan dan audio di IndoQuran."
-                keywords="alquran online, hadits nabawi online, dua sumber islam, shahih bukhari, shahih muslim, al quran indonesia, sunnah rasulullah"
+                title="Al Quran Online Indonesia - Baca Al-Quran Digital 30 Juz & Hadits | IndoQuran"
+                description="Baca Al-Quran online 30 juz lengkap dengan teks Arab berharakat, transliterasi latin, terjemahan Indonesia standar Kemenag, audio murottal merdu, tafsir, dan 7 kitab hadits shahih nabawi di IndoQuran."
+                keywords="al quran online, alquran online, quran online, al quran indonesia, al quran digital, baca quran online, al quran per halaman, al quran per juz, terjemahan quran indonesia, hadits shahih, indoquran"
                 canonicalUrl="https://indoquran.web.id/"
             />
 

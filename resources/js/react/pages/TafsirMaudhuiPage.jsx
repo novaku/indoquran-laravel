@@ -66,6 +66,17 @@ function TreeNode({ topic, index, isExpanded, onToggle, level = 0, isHighlighted
                     <span className="font-medium text-gray-900 truncate mr-2">
                         {topic.topic}
                     </span>
+
+                    {topic.slug && (
+                        <Link
+                            to={`/tafsir-maudhui/${topic.slug}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-xs text-blue-600 hover:underline mr-2 flex-shrink-0"
+                            title={`Buka halaman dalil ${topic.topic}`}
+                        >
+                            Buka Topik
+                        </Link>
+                    )}
                     
                     {/* Verse Count Badge */}
                     {topic.verses?.length > 0 && (
@@ -410,16 +421,16 @@ function TafsirMaudhuiPage() {
         if (slug) {
             const topicName = currentTopic?.topic || slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
             return {
-                title: `Tafsir Maudhui: ${topicName} - Ayat & Penjelasan Al-Quran | IndoQuran`,
-                description: currentTopic?.description || `Kumpulan ayat-ayat Al-Quran dan pembahasan tematik tentang ${topicName} dalam Tafsir Maudhui IndoQuran.`,
-                keywords: `tafsir maudhui ${topicName}, ayat tentang ${topicName}, dalil ${topicName}, quran ${topicName}, tafsir tematik, indoquran`,
+                title: `Dalil & Ayat Al-Quran: ${topicName} (Tafsir Maudhui) | IndoQuran`,
+                description: currentTopic?.description || `Kumpulan dalil dan ayat Al-Quran tentang ${topicName} lengkap dengan teks Arab, transliterasi latin, dan terjemahan bahasa Indonesia Kemenag di IndoQuran.`,
+                keywords: `tafsir maudhui ${topicName}, ayat tentang ${topicName}, dalil ${topicName}, dalil al quran ${topicName}, al quran ${topicName}, indoquran`,
                 canonicalUrl: `https://indoquran.web.id/tafsir-maudhui/${slug}`
             };
         }
         return {
-            title: 'Tafsir Maudhui - Topik-topik dalam Al-Quran | IndoQuran',
-            description: 'Jelajahi topik-topik penting dalam Al-Quran melalui pendekatan tafsir maudhui. Temukan ayat-ayat Al-Quran berdasarkan tema seperti akidah, ibadah, akhlak, muamalah, dan banyak lagi.',
-            keywords: 'tafsir maudhui, topik quran, tema al quran, tafsir tematik, akidah islam, ibadah islam, akhlak islam, muamalah islam, indoquran',
+            title: 'Tafsir Maudhui - Kumpulan Dalil & Ayat Al-Quran Berdasarkan Tema | IndoQuran',
+            description: 'Temukan dalil Al-Quran dan ayat-ayat pilihan berdasarkan tema kehidupan: akidah, ibadah, syukur, toleransi, riba, pernikahan, khamr, akhlak, akhirat, dan 300+ topik tafsir maudhui di IndoQuran.',
+            keywords: 'tafsir maudhui, dalil al quran, dalil alquran, cari ayat al quran, ayat tentang toleransi, ayat riba, dalil pernikahan, dalil tentang bersyukur, dalil tentang khamr, akhirat adalah',
             canonicalUrl: 'https://indoquran.web.id/tafsir-maudhui'
         };
     }, [slug, currentTopic]);

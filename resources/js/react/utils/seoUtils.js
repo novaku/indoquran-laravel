@@ -679,8 +679,8 @@ export const getPageSEOData = (pageType, data = {}) => {
   }
 
   // Optimize title and description length for Google
-  seoData.title = generateOptimalTitle(seoData.title, '', 60);
-  seoData.description = generateOptimalMetaDescription(seoData.description, 160);
+  seoData.title = generateOptimalTitle(seoData.title, '', 85);
+  seoData.description = generateOptimalMetaDescription(seoData.description, 165);
   seoData.keywords = cleanKeywords(seoData.keywords);
 
   // Generate Open Graph and Twitter tags
@@ -1322,7 +1322,12 @@ export const generateOptimalMetaDescription = (description, maxLength = 160, key
 };
 
 // Generate SEO-optimized page title with brand consistency
-export const generateOptimalTitle = (title, siteName = 'IndoQuran', maxLength = 60) => {
+export const generateOptimalTitle = (title, siteName = 'IndoQuran', maxLength = 85) => {
+  if (!title) return siteName || 'IndoQuran';
+  if (!siteName || title.includes(siteName)) {
+    return title.length <= maxLength ? title : title.substring(0, maxLength - 3) + '...';
+  }
+
   const separator = ' | ';
   const fullTitle = title + separator + siteName;
 

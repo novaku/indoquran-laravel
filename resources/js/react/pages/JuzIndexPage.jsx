@@ -97,9 +97,9 @@ function JuzIndexPage() {
     return (
         <div className="min-h-screen bg-gray-50">
             <SEOHead 
-                title="Daftar Juz Al Quran (1-30) - Arab Saja & Terjemahan | IndoQuran"
-                description="Jelajahi 30 Juz Al-Quran dengan navigasi cepat. Tersedia mode baca teks Arab, audio murottal, dan referensi terjemahan untuk belajar harian."
-                keywords="daftar juz al quran, juz arab saja, para al quran, juz 15 arab saja, juz lengkap, quran indonesia"
+                title="Daftar 30 Juz Al-Quran Lengkap (1 Juz Berapa Halaman & Urutan Surat) | IndoQuran"
+                description="Daftar lengkap Al-Quran Juz 1 sampai 30: pembagian surat, rentang halaman (604 halaman / 302 lembar), 1 juz berapa halaman (~20 halaman), 2 juz berapa lembar, 5 juz berapa halaman & surat, serta cara melihat juz."
+                keywords="30 juz berapa halaman, 1 juz berapa halaman, 2 juz berapa lembar, 5 juz berapa halaman, 5 juz berapa surat, juz 1 sampai 10, juz 1 sampai 30, juz 1 sampai 30 surat apa saja, daftar juz al quran, pembagian juz dalam al quran, cara melihat juz di al quran, juz dalam bahasa arab"
                 canonicalUrl="https://indoquran.web.id/juz"
             />
 
@@ -119,13 +119,13 @@ function JuzIndexPage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 
                 {/* Juz Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                     {juzNumbers.map((juz) => (
-                        <button
+                        <Link
                             key={juz.number}
-                            onClick={() => handleJuzClick(juz.number)}
-                                    className="bg-white rounded-xl p-6 shadow-sm border border-gray-200/90 hover:shadow-md hover:border-green-400 transition-all text-left group cursor-pointer flex flex-col justify-between"
-                                >
+                            to={`/juz/${juz.number}`}
+                            className="bg-white rounded-xl p-6 shadow-sm border border-gray-200/90 hover:shadow-md hover:border-green-400 transition-all text-left group cursor-pointer flex flex-col justify-between"
+                        >
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center group-hover:bg-green-600 transition-colors">
                                             <BookOpenIcon className="w-6 h-6 text-green-700 group-hover:text-white transition-colors" />
@@ -149,7 +149,7 @@ function JuzIndexPage() {
                                             Dimulai dari <span className="font-semibold text-gray-700">{juz.starting_surah}</span>
                                         </p>
                                     </div>
-                                </button>
+                        </Link>
                     ))}
                 </div>
 
@@ -172,10 +172,10 @@ function JuzIndexPage() {
                                     <span>📊</span> Fakta Singkat
                                 </h3>
                                 <ul className="text-xs text-gray-600 space-y-1.5">
-                                    <li>• Total 30 Juz (114 Surah, 6.236 Ayat)</li>
-                                    <li>• Rata-rata 20 halaman per Juz (604 halaman mushaf)</li>
-                                    <li>• Ideal untuk program tilawah 1 bulan khatam</li>
-                                    <li>• Dilengkapi teks Arab, transliterasi Latin, dan terjemahan resmi</li>
+                                    <li>• Total 30 Juz (114 Surah, 6.236 Ayat, 604 Halaman / 302 Lembar)</li>
+                                    <li>• Rata-rata 1 juz = 20 halaman (10 lembar); 2 juz = 40–41 halaman (20–21 lembar)</li>
+                                    <li>• 5 juz = 101 halaman (~51 lembar, 4 surat: Al-Fatihah s/d An-Nisa)</li>
+                                    <li>• Juz dalam bahasa Arab ditulis جُزْء (jamak: أَجْزَاء)</li>
                                 </ul>
                             </div>
                             <div className="bg-gray-50/80 rounded-xl p-4 border border-gray-100">

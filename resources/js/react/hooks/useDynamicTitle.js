@@ -160,6 +160,10 @@ export const useDynamicTitle = () => {
 
     useEffect(() => {
         if (typeof document === 'undefined') return;
+        // Do not overwrite rich title already set by SEOHead for the active route
+        if (document.documentElement.dataset.seoPath === location.pathname) {
+            return;
+        }
         const defaultTitle = getRouteDefaultTitle(location.pathname, location.search);
         document.title = defaultTitle;
     }, [location.pathname, location.search]);

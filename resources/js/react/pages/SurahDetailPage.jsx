@@ -621,21 +621,7 @@ function SurahDetailPage() {
         });
     }, [currentAyahNumber, ayahs, currentAyah]);
 
-    // Update document title with surah name and ayah number
-    useEffect(() => {
-        if (surah && currentAyahNumber) {
-            const surahName = surah.name_latin || surah.name_english || surah.name_arabic;
-            document.title = `${surahName} - Ayat ${currentAyahNumber} | IndoQuran`;
-            console.log(`📄 Document title updated: ${document.title}`);
-        } else if (surah) {
-            const surahName = surah.name_latin || surah.name_english || surah.name_arabic;
-            document.title = `${surahName} | IndoQuran`;
-            console.log(`📄 Document title updated: ${document.title}`);
-        } else {
-            document.title = 'IndoQuran - Al-Qur\'an Digital Indonesia';
-            console.log(`📄 Document title updated to default: ${document.title}`);
-        }
-    }, [surah, currentAyahNumber]);
+    // Keep document title managed by SEOHead below so rich SEO titles are preserved
 
     // Calculate total ayahs and available ayah numbers from actual data
     const availableAyahNumbers = ayahs.map(ayah => parseInt(ayah.ayah_number)).filter(num => num && !isNaN(num)).sort((a, b) => a - b);

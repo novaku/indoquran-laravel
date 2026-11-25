@@ -242,10 +242,14 @@ export default function HaditsHubPage() {
         { label: 'Niat Ikhlas', query: 'niat' },
         { label: 'Sedekah', query: 'sedekah' },
         { label: 'Sabar & Syukur', query: 'sabar' },
-        { label: 'Wudhu & Bersuci', query: 'wudhu' },
-        { label: 'Puasa Ramadhan', query: 'puasa' },
-        { label: 'Menuntut Ilmu', query: 'menuntut ilmu' },
-        { label: 'Pernikahan', query: 'nikah' },
+        { label: 'Wudhu & Bersuci', query: 'wudhu', slug: 'wudhu' },
+        { label: 'Puasa Ramadhan', query: 'puasa', slug: 'puasa' },
+        { label: 'Menuntut Ilmu', query: 'ilmu', slug: 'ilmu' },
+        { label: 'Pernikahan', query: 'nikah', slug: 'nikah' },
+        { label: 'Khamr & Miras', query: 'khamr', slug: 'khamr' },
+        { label: 'Riba', query: 'riba', slug: 'riba' },
+        { label: 'Syukur', query: 'syukur', slug: 'syukur' },
+        { label: 'Toleransi', query: 'toleransi', slug: 'toleransi' },
     ];
 
     // Execute Indonesian Hadith Search
@@ -637,19 +641,34 @@ export default function HaditsHubPage() {
         return found ? found.name : lastExecutedKitab;
     }, [lastExecutedKitab, kitabs, dropdownData]);
 
+    const isTopicLanding = Boolean(topic && !searchParams.get('q'));
+    const topicDisplayName = topic ? decodeURIComponent(topic).replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : '';
+    const isKhamrTopic = topic && ['khamr', 'khamar', 'minuman-keras'].includes(topic.toLowerCase());
+    const topicSeoLabel = isKhamrTopic ? 'Khamr / Khamar & Minuman Keras (Miras)' : topicDisplayName;
+
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             <SEOHead
-                title={isSearching && lastExecutedQuery
-                    ? `Pencarian Hadits "${lastExecutedQuery}" (${activeScopeLabel}) | IndoQuran`
-                    : "Pencarian & Koleksi 7 Kitab Hadits Lengkap (Kutubus Sittah & Musnad Ahmad) | IndoQuran"}
-                description={isSearching && lastExecutedQuery
-                    ? `Hasil pencarian hadits "${lastExecutedQuery}" pada ${activeScopeLabel}. Menemukan ${searchPagination?.total ? searchPagination.total.toLocaleString('id-ID') : 0} hadits otentik lengkap teks Arab dan terjemahan Indonesia.`
-                    : "Cari teks hadits bahasa Indonesia di seluruh kumpulan hadits atau salah satu kitab hadits: Shahih Bukhari, Muslim, Abu Daud, Tirmidzi, dll. Lengkap dengan teks Arab, terjemahan Indonesia & audio."}
-                keywords={`cari hadits ${lastExecutedQuery || ''}, pencarian hadits, hadits shahih, kutubus sittah, musnad ahmad, shahih bukhari, shahih muslim, sunan abu daud, hadits terjemahan indonesia`}
-                canonicalUrl="https://indoquran.web.id/hadits"
-                noindex={Boolean(isSearching && lastExecutedQuery)}
-                robots={isSearching && lastExecutedQuery ? 'noindex, follow' : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'}
+                title={isTopicLanding
+                    ? `Hadits tentang ${topicSeoLabel} (Shahih Bukhari & Muslim) | IndoQuran`
+                    : (isSearching && lastExecutedQuery
+                        ? `Pencarian Hadits "${lastExecutedQuery}" (${activeScopeLabel}) | IndoQuran`
+                        : "Pencarian & Koleksi 7 Kitab Hadits Lengkap (Kutubus Sittah & Musnad Ahmad) | IndoQuran")}
+                description={isTopicLanding
+                    ? `Kumpulan hadits shahih tentang ${topicSeoLabel.toLowerCase()} dari Shahih Bukhari, Shahih Muslim, dan Kutubus Sittah. Baca teks Arab berharakat dan terjemahan Indonesia di IndoQuran.`
+                    : (isSearching && lastExecutedQuery
+                        ? `Hasil pencarian hadits "${lastExecutedQuery}" pada ${activeScopeLabel}. Menemukan ${searchPagination?.total ? searchPagination.total.toLocaleString('id-ID') : 0} hadits otentik lengkap teks Arab dan terjemahan Indonesia.`
+                        : "Cari teks hadits bahasa Indonesia di seluruh kumpulan hadits atau salah satu kitab hadits: Shahih Bukhari, Muslim, Abu Daud, Tirmidzi, dll. Lengkap dengan teks Arab, terjemahan Indonesia & audio.")}
+                keywords={isTopicLanding
+                    ? `hadits tentang ${topicDisplayName}, hadis tentang ${topicDisplayName}, hadits ${topicDisplayName}, hadits shahih ${topicDisplayName}${isKhamrTopic ? ', hadis tentang khamar, hadits minuman keras, hadits tentang khamr' : ''}`
+                    : `cari hadits ${lastExecutedQuery || ''}, pencarian hadits, hadits shahih, kutubus sittah, musnad ahmad, shahih bukhari, shahih muslim, sunan abu daud, hadits terjemahan indonesia`}
+                canonicalUrl={isTopicLanding
+                    ? `https://indoquran.web.id/hadits/tentang/${encodeURIComponent(topic)}`
+                    : "https://indoquran.web.id/hadits"}
+                noindex={!isTopicLanding && Boolean(isSearching && lastExecutedQuery)}
+                robots={!isTopicLanding && isSearching && lastExecutedQuery
+                    ? 'noindex, follow'
+                    : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'}
             />
 
             {/* Clean Header Section */}
@@ -871,14 +890,13 @@ export default function HaditsHubPage() {
                                 Rekomendasi:
                             </span>
                             {popularSearchKeywords.map((item) => (
-                                <button
+                                <Link
                                     key={item.query}
-                                    type="button"
-                                    onClick={() => handleQuickKeywordClick(item.query)}
+                                    to={`/hadits/tentang/${item.slug || encodeURIComponent(item.query)}`}
                                     className="text-[11px] px-2.5 py-1 rounded-lg bg-white hover:bg-emerald-50 text-gray-600 hover:text-emerald-700 transition-all font-medium border border-gray-200/80 hover:border-emerald-300 shadow-2xs cursor-pointer"
                                 >
                                     {item.label}
-                                </button>
+                                </Link>
                             ))}
                         </div>
                     </div>

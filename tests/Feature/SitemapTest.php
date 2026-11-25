@@ -371,5 +371,133 @@ class SitemapTest extends TestCase
         $response->assertDontSee('hreflang="x-default"', false);
         $response->assertSee('<link rel="canonical" href="' . url('/surah/9') . '">', false);
     }
+
+    public function test_halaman_detail_reflects_exact_juz_arabic_numeral_and_last_page(): void
+    {
+        Surah::create([
+            'number' => 18,
+            'name_latin' => 'Al-Kahfi',
+            'name_arabic' => 'الكهف',
+            'name_indonesian' => 'Gua',
+            'total_ayahs' => 110,
+            'revelation_place' => 'Mekah',
+            'description_short' => 'Surah Al-Kahfi',
+            'description_long' => 'Deskripsi Surah Al-Kahfi'
+        ]);
+
+        Ayah::create([
+            'surah_number' => 18,
+            'ayah_number' => 1,
+            'text_arabic' => 'ٱلْحَمْدُ لِلَّهِ ٱلَّذِىٓ أَنزَلَ عَلَىٰ عَبْدِهِ ٱلْكِتَـٰبَ',
+            'text_latin' => 'Alhamdu lillahil ladhi anzala ala abdihil kitab',
+            'text_indonesian' => 'Segala puji bagi Allah yang telah menurunkan Kitab (Al-Quran)',
+            'juz' => 15,
+            'page' => 293,
+        ]);
+
+        $response293 = $this->get('/halaman/293');
+        $response293->assertStatus(200);
+        $response293->assertSee('Juz 15');
+        $response293->assertSee('٢٩٣');
+        $response293->assertSee('Lembar ke-147');
+        $response293->assertSee('Al-Kahfi');
+
+        $response604 = $this->get('/halaman/604');
+        $response604->assertStatus(200);
+        $response604->assertSee('Halaman Terakhir Al-Quran');
+        $response604->assertSee('Lembar ke-302');
+    }
+
+    public function test_surah_index_and_asy_syura_and_juz_1_seo(): void
+    {
+        Surah::create([
+            'number' => 42,
+            'name_latin' => 'Asy-Syura',
+            'name_arabic' => 'الشورى',
+            'name_indonesian' => 'Musyawarah',
+            'total_ayahs' => 53,
+            'revelation_place' => 'Mekah',
+            'description_short' => 'Surah Asy-Syura',
+            'description_long' => 'Deskripsi Surah Asy-Syura'
+        ]);
+
+        $indexResp = $this->get('/surah');
+        $indexResp->assertStatus(200);
+        $indexResp->assertSee('Daftar Nama-Nama Surah Al-Quran dan Artinya (114 Surah)');
+
+        $syuraResp = $this->get('/surah/42');
+        $syuraResp->assertStatus(200);
+        $syuraResp->assertSee('Ha Mim');
+        $syuraResp->assertSee('Juz 25');
+
+        $juz1Resp = $this->get('/juz/1');
+        $juz1Resp->assertStatus(200);
+        $juz1Resp->assertSee('Juz 1 berapa surat dan sampai ayat berapa?');
+        $juz1Resp->assertSee('148 ayat');
+
+        $juzIndexResp = $this->get('/juz');
+        $juzIndexResp->assertStatus(200);
+        $juzIndexResp->assertSee('2 juz');
+        $juzIndexResp->assertSee('5 juz');
+        $juzIndexResp->assertSee('جُزْء');
+    }
+
+    public function test_tafsir_maudhui_and_hadits_topic_and_expanded_redirects(): void
+    {
+        $topic = \App\Models\TafsirMaudhuiTopic::create([
+            'topic' => 'Larangan Berjudi dan Minum Khamar',
+            'description' => 'Dalil Al-Quran tentang larangan khamar dan minuman keras.',
+            'slug' => 'larangan-berjudi-dan-minum-khamar',
+            'is_active' => true,
+            'sort_order' => 1,
+        ]);
+
+        Surah::create([
+            'number' => 5,
+            'name_latin' => 'Al-Maidah',
+            'name_arabic' => 'المائدة',
+            'name_indonesian' => 'Hidangan',
+            'total_ayahs' => 120,
+            'revelation_place' => 'Madinah',
+            'description_short' => 'Surah Al-Maidah',
+            'description_long' => 'Deskripsi Surah Al-Maidah'
+        ]);
+
+        Ayah::create([
+            'surah_number' => 5,
+            'ayah_number' => 90,
+            'text_arabic' => 'يَـٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوٓا۟ إِنَّمَا ٱلْخَمْرُ',
+            'text_latin' => 'Ya ayyuhal ladhina amanu innamal khamru',
+            'text_indonesian' => 'Wahai orang-orang yang beriman! Sesungguhnya minuman keras (khamar)...',
+            'juz' => 7,
+            'page' => 123,
+        ]);
+
+        \App\Models\TafsirMaudhuiVerse::create([
+            'topic_id' => $topic->id,
+            'surah_number' => 5,
+            'ayah_number' => 90,
+            'sort_order' => 1,
+        ]);
+
+        $tafsirIndex = $this->get('/tafsir-maudhui');
+        $tafsirIndex->assertStatus(200);
+        $tafsirIndex->assertSee('Larangan Berjudi dan Minum Khamar');
+
+        $tafsirDetail = $this->get('/tafsir-maudhui/larangan-berjudi-dan-minum-khamar');
+        $tafsirDetail->assertStatus(200);
+        $tafsirDetail->assertSee('Wahai orang-orang yang beriman! Sesungguhnya minuman keras (khamar)');
+        $tafsirDetail->assertSee('FAQPage');
+
+        $haditsKhamr = $this->get('/hadits/tentang/khamr');
+        $haditsKhamr->assertStatus(200);
+        $haditsKhamr->assertSee('Khamr / Khamar &amp; Minuman Keras (Miras)', false);
+        $haditsKhamr->assertSee('FAQPage');
+
+        $this->get('/ms-309')->assertRedirect('/halaman/309');
+        $this->get('/page-255')->assertRedirect('/halaman/255');
+        $this->get('/juz-15-lengkap')->assertRedirect('/juz/15');
+        $this->get('/bacaan-juz-3')->assertRedirect('/juz/3');
+    }
 }
 

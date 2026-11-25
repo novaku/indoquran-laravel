@@ -378,12 +378,7 @@ class GenerateComprehensiveSitemap extends Command
         }
 
         // 3. Generate sitemap-hadits-topik.xml (High-traffic thematic topic landing pages)
-        $topics = [
-            'takdir', 'shalat', 'jenazah', 'iddah', 'matahari', 'wudhu',
-            'puasa', 'zakat', 'sabar', 'taubat', 'ilmu', 'nikah',
-            'rezeki', 'doa', 'akhlak', 'surga', 'neraka', 'silaturahmi',
-            'kematian', 'riba'
-        ];
+        $topics = \App\Services\SEOService::getHaditsTopicSlugs();
         $topicXml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
         $topicXml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
         foreach ($topics as $topic) {
@@ -391,7 +386,7 @@ class GenerateComprehensiveSitemap extends Command
         }
         $topicXml .= '</urlset>';
         File::put(public_path('sitemap-hadits-topik.xml'), $topicXml);
-        $this->info('✓ sitemap-hadits-topik.xml generated (20 high-intent topics)');
+        $this->info('✓ sitemap-hadits-topik.xml generated (' . count($topics) . ' high-intent topics)');
 
         // 4. Generate dedicated sitemap-hadits.xml (Hadits Sitemap Index)
         $indexXml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
